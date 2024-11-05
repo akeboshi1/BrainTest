@@ -1,6 +1,6 @@
 import { _decorator, Component, Node } from 'cc';
-import {BasePanel} from "db://assets/scripts/Core/BasePanel";
-import {EventManager} from "db://assets/scripts/Core/Event/EventManager";
+import {BasePanel} from "db://assets/scripts/Core/UI/BasePanel";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')

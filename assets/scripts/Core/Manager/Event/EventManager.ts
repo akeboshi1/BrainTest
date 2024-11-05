@@ -1,4 +1,4 @@
-import {BaseManager} from "db://assets/scripts/Core/BaseManager";
+import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
 
 export class EventManager extends BaseManager{
 

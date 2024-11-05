@@ -1,5 +1,5 @@
 import { _decorator, director } from 'cc';
-import {BaseManager} from "db://assets/scripts/Core/BaseManager";
+import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
 export class SceneManager extends BaseManager{
 
     private static _instance: SceneManager;

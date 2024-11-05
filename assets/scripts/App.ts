@@ -1,6 +1,6 @@
 import { _decorator, Component,Camera,profiler } from 'cc';
-import {SocketManager} from "db://assets/scripts/Core/Net/SocketManager";
-import {EventManager} from "db://assets/scripts/Core/Event/EventManager";
+import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('App')
