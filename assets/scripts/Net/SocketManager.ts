@@ -1,9 +1,14 @@
 import {DebugLog} from "db://assets/scripts/Util/DebugLog";
+import {EventManager} from "db://assets/scripts/Dispatch/EventManager";
 
 export class SocketManager {
     private static _instance: SocketManager;
+    public static SOCKET_ON:string = "socket_on";
+    public static SOCKET_OFF:string = "socket_off";
+    public static SOCKET_ONMESSAGE:string = "socket_onmessage";
+    public static SOCKET_ONERROR:string = "socket_onerror";
     private _socket: WebSocket;
-    public getInstance():SocketManager {
+    public static getInstance():SocketManager {
         if(!SocketManager._instance) {
             SocketManager._instance = new SocketManager();
         }
@@ -21,16 +26,17 @@ export class SocketManager {
        }
        this._socket=new WebSocket(url);
        this._socket.onopen = ()=>{
-
+           EventManager.getInstance().emit(SocketManager.SOCKET_ON);
        };
        this._socket.onclose = ()=>{
-
+           EventManager.getInstance().emit(SocketManager.SOCKET_OFF);
        };
        this._socket.onmessage = (data) => {
-
+           let jsonString = JSON.stringify(data);
+           EventManager.getInstance().emit(jsonString["code"], data);
        }
        this._socket.onerror = (err) => {
-           DebugLog.instance.error(err);
+           EventManager.getInstance().emit(SocketManager.SOCKET_ONERROR, err);
        }
     }
 
