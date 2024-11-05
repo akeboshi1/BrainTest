@@ -1,7 +1,8 @@
-import {DebugLog} from "db://assets/scripts/Util/DebugLog";
-import {EventManager} from "db://assets/scripts/Dispatch/EventManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {EventManager} from "db://assets/scripts/Core/Event/EventManager";
+import {BaseManager} from "db://assets/scripts/Core/BaseManager";
 
-export class SocketManager {
+export class SocketManager extends BaseManager{
     private static _instance: SocketManager;
     public static SOCKET_ON:string = "socket_on";
     public static SOCKET_OFF:string = "socket_off";
@@ -15,8 +16,16 @@ export class SocketManager {
         return SocketManager._instance;
     }
 
-    public constructor() {
+    init(){
 
+    }
+
+    update(){
+
+    }
+
+    destroy(){
+        this._socket.close();
     }
 
     public initSocket(url:string):void {

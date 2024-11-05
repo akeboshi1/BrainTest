@@ -1,6 +1,6 @@
 import { _decorator, Component,Camera,profiler } from 'cc';
-import {SocketManager} from "db://assets/scripts/Net/SocketManager";
-import {EventManager} from "db://assets/scripts/Dispatch/EventManager";
+import {SocketManager} from "db://assets/scripts/Core/Net/SocketManager";
+import {EventManager} from "db://assets/scripts/Core/Event/EventManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('App')
@@ -17,13 +17,13 @@ export class App extends Component {
     onLoad(){
         // 将调试信息隐藏
         profiler.hideStats();
-
         console.log('onLoad');
+        // 初始化socket
+        this.initSocket();
     }
 
     onEnable(){
         this.addListener();
-        this.initManager();
     }
 
     onDisable(){
@@ -38,19 +38,18 @@ export class App extends Component {
         
     }
 
-    private initManager(){
-        // 初始化socket
+    private initSocket(){
+        EventManager.getInstance().init();
         EventManager.getInstance().on(SocketManager.SOCKET_ON,this.socketOnHandler,this);
+        // 初始化socket
         const url = "wss://test.paipai2.xinjiaxianglao.com/api/home";
         SocketManager.getInstance().initSocket(url);
-
-        // 初始化
 
     }
 
     private addListener(){
-       EventManager.getInstance().on(SocketManager.SOCKET_OFF,this.socketOffHandler,this);
-       EventManager.getInstance().on(SocketManager.SOCKET_ONERROR,this.socketErrorHandler,this);
+        EventManager.getInstance().on(SocketManager.SOCKET_OFF,this.socketOffHandler,this);
+        EventManager.getInstance().on(SocketManager.SOCKET_ONERROR,this.socketErrorHandler,this);
     }
 
     private removeListener(){
@@ -64,6 +63,7 @@ export class App extends Component {
      */
     private socketOnHandler(){
        // TODO SOCKET ON
+        EventManager.getInstance().off(SocketManager.SOCKET_ON,this);
     }
 
     /**

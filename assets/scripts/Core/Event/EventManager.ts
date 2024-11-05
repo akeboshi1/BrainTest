@@ -1,4 +1,6 @@
-export class EventManager {
+import {BaseManager} from "db://assets/scripts/Core/BaseManager";
+
+export class EventManager extends BaseManager{
 
     private static _instance: EventManager;
 
@@ -9,8 +11,13 @@ export class EventManager {
         return EventManager._instance;
     }
     private events;
+
     constructor() {
-       this.events = {};
+        super();
+    }
+
+    init() {
+        this.events = {};
     }
 
 
@@ -43,7 +50,11 @@ export class EventManager {
         }
     }
 
-    clear(){
+    update(){
+
+    }
+
+    destory(){
         this.events = {};
     }
 

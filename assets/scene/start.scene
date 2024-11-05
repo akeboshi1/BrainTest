@@ -276,7 +276,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "LoginView",
+    "_name": "LoginPanel",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -618,7 +618,7 @@
       "__id__": 7
     },
     "component": "",
-    "_componentId": "24f0eLlaVRB4oK0F62Mrnby",
+    "_componentId": "40530q3e/FA/rKOFCgyyXVw",
     "handler": "loginClick",
     "customEventData": ""
   },
@@ -945,7 +945,7 @@
       "__id__": 7
     },
     "component": "",
-    "_componentId": "24f0eLlaVRB4oK0F62Mrnby",
+    "_componentId": "40530q3e/FA/rKOFCgyyXVw",
     "handler": "startClick",
     "customEventData": ""
   },
@@ -1011,7 +1011,7 @@
     "_id": "46ZcO8/dxHBpZ6Bz8HMcbW"
   },
   {
-    "__type__": "24f0eLlaVRB4oK0F62Mrnby",
+    "__type__": "40530q3e/FA/rKOFCgyyXVw",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -1023,11 +1023,11 @@
     "loginBtn": {
       "__id__": 8
     },
-    "_id": "e8NUaDj6JKNqy7egIW3aZB"
+    "_id": "89wQfbM2lKCKXpRlEExigl"
   },
   {
     "__type__": "cc.Node",
-    "_name": "LoadView",
+    "_name": "LoadPanel",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {

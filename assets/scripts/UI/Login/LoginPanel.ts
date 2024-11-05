@@ -1,8 +1,13 @@
 import { _decorator, Component, Node } from 'cc';
+import {BasePanel} from "db://assets/scripts/Core/BasePanel";
+import {EventManager} from "db://assets/scripts/Core/Event/EventManager";
 const { ccclass, property } = _decorator;
 
-@ccclass('LoginView')
-export class LoginView extends Component {
+@ccclass('LoginPanel')
+export class LoginPanel extends BasePanel {
+
+    public static NAME = 'LoginPanel';
+
 
     @property(Node)
     loginBtn:Node;
@@ -13,11 +18,23 @@ export class LoginView extends Component {
 
     }
 
+    onLoad() {
+        const eventName = LoginPanel.NAME;
+        EventManager.getInstance().on(eventName,this.loadPanelComplete,this);
+        EventManager.getInstance().emit(eventName,eventName);
+        super.onLoad();
+    }
+
     update(deltaTime: number) {
         
     }
 
+    get name():string{
+        return LoginPanel.NAME;
+    }
+
     public startClick(){
+        this.loginBtn.active
         this.socket = new WebSocket("wss://test.paipai2.xinjiaxianglao.com/api/home");
         this.socket.onopen = () => {
             console.log('socket open');
@@ -43,6 +60,10 @@ export class LoginView extends Component {
         })
         this.socket.send(json);
         console.log('loginClick');
+    }
+
+    private loadPanelComplete(){
+        EventManager.getInstance().off(LoginPanel.NAME,this);
     }
 }
 

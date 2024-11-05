@@ -1,5 +1,6 @@
 import { _decorator, director } from 'cc';
-export class SceneManager {
+import {BaseManager} from "db://assets/scripts/Core/BaseManager";
+export class SceneManager extends BaseManager{
 
     private static _instance: SceneManager;
 
@@ -11,8 +12,14 @@ export class SceneManager {
         }
         return SceneManager._instance;
     }
-    constructor() {
+
+
+    init() {
         this.scenes = {};
+    }
+
+    update(){
+
     }
 
     /**
@@ -20,7 +27,11 @@ export class SceneManager {
      * @param sceneName
      */
     preloadScene(sceneName:string,callback?:Function) {
-        director.preloadScene(sceneName,callback!=null?callback():null);
+        if(callback) {
+            director.preloadScene(sceneName,callback());
+        } else {
+            director.preloadScene(sceneName);
+        }
     }
 
     /**
@@ -29,6 +40,10 @@ export class SceneManager {
      */
     changeScene(sceneName:string){
        director.loadScene(sceneName);
+    }
+
+    destroy(){
+        this.scenes = {};
     }
 
 
