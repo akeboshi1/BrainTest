@@ -32,7 +32,7 @@ export class UIManager extends BaseManager {
         if(!this.checkPanel(name)){
             return;
         }
-        const view = this.get(name);
+        const view = this.get(name) as BasePanel;
         if(view.state == PanelState.INIT){
             EventManager.getInstance().on(name,this.loadPanelComplete,this);
             this.preActionMaps[name]=[view,PanelState.SHOW];
@@ -49,7 +49,7 @@ export class UIManager extends BaseManager {
         if(!this.checkPanel(name)){
             return;
         }
-        const view = this.get(name);
+        const view = this.get(name) as BasePanel;
         if(view.state == PanelState.INIT){
             EventManager.getInstance().on(name,this.loadPanelComplete,this);
             this.preActionMaps[name]=[view,PanelState.HIDE];
@@ -73,7 +73,7 @@ export class UIManager extends BaseManager {
             DebugLog.instance.error(`${name}不存在`);
             return false;
         }
-        const view = this.get(name);
+        const view = this.get(name) as BasePanel;
         if(view.state == PanelState.NONE){
             DebugLog.instance.error(`${name}没有被初始化`)
             return false;

@@ -42,6 +42,27 @@ export class SceneManager extends BaseManager{
        director.loadScene(sceneName);
     }
 
+    /**
+     * 获取当前scene
+     */
+    getScene(){
+        return director.getScene();
+    }
+
+    /**
+     * 在当前场景添加UI
+     * @param sceneName
+     * @param callback
+     */
+    addUIToScene(node:any, containerName:string) {
+       const scene = director.getScene();
+       const container = scene.getChildByName("Canvas").getChildByName(containerName);
+       if(container){
+           container.removeAllChildren();
+       }
+       container.addChild(node);
+    }
+
     destroy(){
         this.scenes = {};
     }
