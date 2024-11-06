@@ -2,7 +2,7 @@ import {BasePanel} from "db://assets/scripts/Core/UI/BasePanel";
 
 export class BaseManager {
 
-    protected maps:{[key:string]:BasePanel};
+    protected maps:{[key:string]:object};
 
     constructor() {
     }
@@ -10,7 +10,7 @@ export class BaseManager {
         this.maps = {};
     }
 
-    set(key:string,value:BasePanel){
+    set(key:string,value:object){
         this.maps[key]=value;
     }
 

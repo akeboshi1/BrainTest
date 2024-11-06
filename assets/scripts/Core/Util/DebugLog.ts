@@ -17,15 +17,15 @@ export class DebugLog {
 
     }
 
-    public log(data){
+    public log(...data: any[]){
         if(this.debugBoo)console.log(data);
     }
 
-    public warn(data){
+    public warn(...data: any[]){
         if(this.debugBoo)console.warn(data);
     }
 
-    public error(data){
+    public error(...data: any[]){
         if(this.debugBoo)console.error(data);
     }
 }
