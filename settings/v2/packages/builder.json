@@ -5,7 +5,8 @@
       "type": "default"
     },
     "logo": {
-      "type": "none"
+      "type": "custom",
+      "image": "project://settings/success.png"
     }
   }
 }

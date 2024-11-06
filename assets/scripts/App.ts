@@ -17,7 +17,7 @@ export class App extends Component {
 
     @property(Node)
     panelContainer:Node;
-
+    
     // ai
     // game
     // usercenter
@@ -91,6 +91,9 @@ export class App extends Component {
             const node = instantiate(resource);
             // 获取当前场景
             SceneManager.getInstance().addUIToScene(node,"PanelContainer");
+            SceneManager.getInstance().preloadScene("AI",(data)=>{
+                DebugLog.instance.log("preloadScene success",data);
+            });
         });
     }
 

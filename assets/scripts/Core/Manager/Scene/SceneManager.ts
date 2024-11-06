@@ -28,9 +28,9 @@ export class SceneManager extends BaseManager{
      */
     preloadScene(sceneName:string,callback?:Function) {
         if(callback) {
-            director.preloadScene(sceneName,callback());
+            director.loadScene(sceneName,callback());
         } else {
-            director.preloadScene(sceneName);
+            director.loadScene(sceneName);
         }
     }
 
