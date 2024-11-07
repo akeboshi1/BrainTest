@@ -1,6 +1,7 @@
-import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
 import {_decorator,resources,assetManager,AssetManager,Prefab,Texture2D} from 'cc'
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {BaseManager} from "../BaseManager";
+import { DebugLog } from '../../Util/DebugLog';
+
 export class LoaderManager extends BaseManager {
     private static _instance: LoaderManager;
     public static getInstance() {

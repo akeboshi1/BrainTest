@@ -1,5 +1,3 @@
-import {BasePanel} from "db://assets/scripts/Core/UI/BasePanel";
-
 export class BaseManager {
 
     protected maps:{[key:string]:object};

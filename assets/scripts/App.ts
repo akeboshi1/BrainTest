@@ -1,12 +1,14 @@
 import { _decorator, Component,Camera,profiler,Node,director,instantiate,v2 } from 'cc';
-import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
-import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {PoolManager} from "db://assets/scripts/Core/Manager/Pool/PoolManager";
-import {SpriteManager} from "db://assets/scripts/Core/Manager/Sprite/SpriteManager";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {EventManager} from "./Core/Manager/Event/EventManager";
+import {SocketManager} from "./Core/Manager/Net/SocketManager";
+import {UIManager} from "./Core/Manager/UI/UIManager";
+import {SceneManager} from "./Core/Manager/Scene/SceneManager";
+import {LoaderManager} from "./Core/Manager/Load/LoaderManager";
+import {PoolManager} from "./Core/Manager/Pool/PoolManager";
+import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
+import { DebugLog } from './Core/Util/DebugLog';
+
+
 const { ccclass, property } = _decorator;
 
 @ccclass('App')
@@ -83,17 +85,22 @@ export class App extends Component {
      * @private
      */
     private socketOnHandler(){
-       // TODO SOCKET ON
         DebugLog.instance.log("socket connected");
         EventManager.getInstance().off(SocketManager.SOCKET_ON,this);
-
         LoaderManager.getInstance().resourcesLoad("prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
             // 获取当前场景
             SceneManager.getInstance().addUIToScene(node,"PanelContainer");
-            SceneManager.getInstance().preloadScene("AI",(data)=>{
-                DebugLog.instance.log("preloadScene success",data);
+            DebugLog.instance.log("subBundle 000");
+            LoaderManager.getInstance().assetBundleLoad('subBundle',"subBundle").then(()=>{
+                   DebugLog.instance.log("subBundle 111");
+                   SceneManager.getInstance().preloadScene("ai",(data)=>{
+                      DebugLog.instance.log("preloadScene success",data);
+                   });
             });
+            // SceneManager.getInstance().preloadScene("AI",(data)=>{
+            //     DebugLog.instance.log("preloadScene success",data);
+            // });
         });
     }
 

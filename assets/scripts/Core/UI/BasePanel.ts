@@ -1,5 +1,5 @@
 import { _decorator, Component, Node,tween,Vec3 } from 'cc';
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+
 const { ccclass, property } = _decorator;
 
 export enum PanelState {

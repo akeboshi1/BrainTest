@@ -1,7 +1,8 @@
-import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {BasePanel, PanelState} from "db://assets/scripts/Core/UI/BasePanel";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {BaseManager} from "../BaseManager";
+import {BasePanel, PanelState} from "../../UI/BasePanel";
+import {EventManager} from "../Event/EventManager";
+import { DebugLog } from "../../Util/DebugLog";
+
 
 export class UIManager extends BaseManager {
     private static _instance: UIManager;

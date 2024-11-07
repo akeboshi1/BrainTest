@@ -1,6 +1,6 @@
-import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
-import {_decorator,resources,assetManager,SpriteFrame,isValid,Sprite} from 'cc'
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import { DebugLog } from "../../Util/DebugLog";
+import {BaseManager} from "../BaseManager";
+import {Sprite,isValid,SpriteFrame,assetManager,AssetManager,resources} from 'cc';
 
 export class SpriteManager extends BaseManager{
     private static _instance: SpriteManager = null;

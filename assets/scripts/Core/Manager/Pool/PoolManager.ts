@@ -1,6 +1,7 @@
-import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
 import {NodePool,Prefab,instantiate} from 'cc';
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {BaseManager} from "../BaseManager";
+import { DebugLog } from '../../Util/DebugLog';
+
 export class PoolManager extends BaseManager{
 
     private static _instance: PoolManager = null;

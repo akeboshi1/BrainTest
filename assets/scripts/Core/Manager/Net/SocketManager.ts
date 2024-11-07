@@ -1,6 +1,6 @@
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
+import {BaseManager} from "../BaseManager";
+import { DebugLog } from "../../Util/DebugLog";
+import {EventManager} from "../Event/EventManager";
 
 export class SocketManager extends BaseManager{
     private static _instance: SocketManager;

@@ -1,5 +1,7 @@
-import {BaseManager} from "db://assets/scripts/Core/Manager/BaseManager";
+
 import {loader,JsonAsset,TextAsset} from "cc";
+import {BaseManager} from "../BaseManager";
+
 export class ConfigManager extends BaseManager {
     private bInit: boolean = false; //是否加载完毕
 
