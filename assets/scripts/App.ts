@@ -84,12 +84,13 @@ export class App extends BaseObejct {
      * socket连接成功
      * @private
      */
-    private socketOnHandler(){
+    private socketOnHandler(data,context){
         DebugLog.instance.log("socket connected");
-        EventManager.getInstance().off(SocketManager.SOCKET_ON,this);
+        EventManager.getInstance().off(SocketManager.SOCKET_ON,context);
+        let self = context;
         LoaderManager.getInstance().resourcesLoad("prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
-            SceneManager.getInstance().addUIToContainer(node,this.context.panelContainer);
+            SceneManager.getInstance().addUIToContainer(node,self.panelContainer);
         });
     }
 
@@ -97,7 +98,7 @@ export class App extends BaseObejct {
      * socket连接关闭
      * @private
      */
-    private socketOffHandler(){
+    private socketOffHandler(data,context){
 
     }
 
@@ -106,7 +107,7 @@ export class App extends BaseObejct {
      * @param error
      * @private
      */
-    private socketErrorHandler(error){
+    private socketErrorHandler(error,context){
 
     }
 

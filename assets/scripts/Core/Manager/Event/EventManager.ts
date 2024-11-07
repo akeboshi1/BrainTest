@@ -45,7 +45,7 @@ export class EventManager extends BaseManager{
     emit(eventName, data=null) {
         if(this.events[eventName]) {
             this.events[eventName].forEach(item => {
-                item.callback(data);
+                item.callback(data,item.context);
             });
         }
     }
