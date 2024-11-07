@@ -1,5 +1,5 @@
 import { _decorator, Component, Node,tween,Vec3 } from 'cc';
-
+import {BaseObejct} from "db://assets/scripts/Core/Object/BaseObject";
 const { ccclass, property } = _decorator;
 
 export enum PanelState {
@@ -13,8 +13,7 @@ export enum PanelState {
     DESTROY,
 }
 
-@ccclass
-export class BasePanel extends Component {
+export class BasePanel extends BaseObejct{
     @property(Node)
     node: Node = null;
 

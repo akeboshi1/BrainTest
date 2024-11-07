@@ -7,12 +7,13 @@ import {LoaderManager} from "./Core/Manager/Load/LoaderManager";
 import {PoolManager} from "./Core/Manager/Pool/PoolManager";
 import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
+import {BaseObejct} from "./Core/Object/BaseObject";
 
 
 const { ccclass, property } = _decorator;
 
 @ccclass('App')
-export class App extends Component {
+export class App extends BaseObejct {
 
     @property(Camera)
     camera: Camera;
@@ -26,9 +27,8 @@ export class App extends Component {
     // other
 
     onLoad(){
-        // 将调试信息隐藏
-        profiler.hideStats();
-        console.log('onLoad');
+        super.onLoad();
+        DebugLog.instance.log('onLoad');
 
         this.addLoadingPanel();
 
@@ -89,18 +89,7 @@ export class App extends Component {
         EventManager.getInstance().off(SocketManager.SOCKET_ON,this);
         LoaderManager.getInstance().resourcesLoad("prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
-            // 获取当前场景
-            SceneManager.getInstance().addUIToScene(node,"PanelContainer");
-            DebugLog.instance.log("subBundle 000");
-            LoaderManager.getInstance().assetBundleLoad('subBundle',"subBundle").then(()=>{
-                   DebugLog.instance.log("subBundle 111");
-                   SceneManager.getInstance().preloadScene("ai",(data)=>{
-                      DebugLog.instance.log("preloadScene success",data);
-                   });
-            });
-            // SceneManager.getInstance().preloadScene("AI",(data)=>{
-            //     DebugLog.instance.log("preloadScene success",data);
-            // });
+            SceneManager.getInstance().addUIToContainer(node,this.context.panelContainer);
         });
     }
 
@@ -127,7 +116,7 @@ export class App extends Component {
             PoolManager.getInstance().initPool(name,prefab,1);
             const node = PoolManager.getInstance().get(name);
             // 获取当前场景
-            SceneManager.getInstance().addUIToScene(node,"PanelContainer");
+            SceneManager.getInstance().addUIToContainerByName(node,"PanelContainer");
         })
     }
 }

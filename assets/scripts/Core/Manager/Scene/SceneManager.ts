@@ -24,10 +24,10 @@ export class SceneManager extends BaseManager{
     }
 
     /**
-     * 预先加载场景资源
+     * 切换场景
      * @param sceneName
      */
-    preloadScene(sceneName:string,callback?:Function) {
+    changeScene(sceneName:string,callback?:Function) {
         if(callback) {
             director.loadScene(sceneName,callback());
         } else {
@@ -36,11 +36,16 @@ export class SceneManager extends BaseManager{
     }
 
     /**
-     * 切换场景
+     * 预加载场景资源
      * @param sceneName
+     * @param callback
      */
-    changeScene(sceneName:string){
-       director.loadScene(sceneName);
+    perloadScene(sceneName:string,callback?:Function) {
+        if(callback) {
+            director.preloadScene(sceneName,callback());
+        } else {
+            director.preloadScene(sceneName);
+        }
     }
 
     /**
@@ -55,13 +60,26 @@ export class SceneManager extends BaseManager{
      * @param sceneName
      * @param callback
      */
-    addUIToScene(node:any, containerName:string) {
+    addUIToContainerByName(node:any, containerName:string) {
        const scene = director.getScene();
        const container = scene.getChildByName("Canvas").getChildByName(containerName);
        if(container){
            container.removeAllChildren();
        }
        container.addChild(node);
+    }
+
+    /**
+     * 在当前场景添加UI
+     * @param sceneName
+     * @param callback
+     */
+    addUIToContainer(node:any, container:any) {
+        const scene = director.getScene();
+        if(container){
+            container.removeAllChildren();
+        }
+        container.addChild(node);
     }
 
     destroy(){

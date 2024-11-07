@@ -1,6 +1,9 @@
 import { _decorator, Component, Node } from 'cc';
-import {BasePanel} from "db://assets/scripts/Core/UI/BasePanel";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {BasePanel} from "../../../Core/UI/BasePanel";
+import {EventManager} from "../../../Core/Manager/Event/EventManager";
+import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
+import { DebugLog } from '../../../Core/Util/DebugLog';
+import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -60,6 +63,13 @@ export class LoginPanel extends BasePanel {
         })
         this.socket.send(json);
         console.log('loginClick');
+
+        LoaderManager.getInstance().assetBundleLoad('subBundle',"subBundle").then(()=>{
+               DebugLog.instance.log("subBundle 111");
+               SceneManager.getInstance().changeScene("ai",(data)=>{
+                  DebugLog.instance.log("loadScene success",data);
+               });
+        });
     }
 
     private loadPanelComplete(){
