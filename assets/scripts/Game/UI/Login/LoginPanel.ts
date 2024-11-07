@@ -4,6 +4,7 @@ import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
 import { DebugLog } from '../../../Core/Util/DebugLog';
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
+import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -15,10 +16,8 @@ export class LoginPanel extends BasePanel {
     @property(Node)
     loginBtn:Node;
 
-    private socket;
-
     start() {
-
+        this.loginBtn.active = false;
     }
 
     onLoad() {
@@ -37,20 +36,7 @@ export class LoginPanel extends BasePanel {
     }
 
     public startClick(){
-        this.loginBtn.active
-        this.socket = new WebSocket("wss://test.paipai2.xinjiaxianglao.com/api/home");
-        this.socket.onopen = () => {
-            console.log('socket open');
-        }
-        this.socket.onclose = () => {
-            console.log('socket close');
-        }
-        this.socket.onmessage = (data) => {
-            console.log(data);
-        }
-        this.socket.onerror = (err) => {
-            console.log(err);
-        }
+        this.loginBtn.active = true;
         console.log('clicked');
     }
 
@@ -61,7 +47,7 @@ export class LoginPanel extends BasePanel {
                 "password": "e10adc3949ba59abbe56e057f20f883e"
             }
         })
-        this.socket.send(json);
+        SocketManager.getInstance().send(json);
         console.log('loginClick');
 
         LoaderManager.getInstance().assetBundleLoad('subBundle',"subBundle").then(()=>{
