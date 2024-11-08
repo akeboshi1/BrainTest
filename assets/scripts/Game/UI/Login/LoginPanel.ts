@@ -17,7 +17,7 @@ export class LoginPanel extends BasePanel {
     loginBtn:Node;
 
     start() {
-        this.loginBtn.active = false;
+
     }
 
     onLoad() {
@@ -36,7 +36,6 @@ export class LoginPanel extends BasePanel {
     }
 
     public startClick(){
-        this.loginBtn.active = true;
         console.log('clicked');
     }
 
