@@ -8,6 +8,7 @@ import {PoolManager} from "./Core/Manager/Pool/PoolManager";
 import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
+import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
 
 
 const { ccclass, property } = _decorator;
@@ -90,7 +91,10 @@ export class App extends BaseObejct {
         let self = context;
         LoaderManager.getInstance().resourcesLoad("prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
+            UIManager.getInstance().setView(LoginPanel.NAME,node);
+            // node.active = false;
             SceneManager.getInstance().addUIToContainer(node,self.panelContainer);
+            UIManager.getInstance().showView(LoginPanel.NAME);
         });
     }
 

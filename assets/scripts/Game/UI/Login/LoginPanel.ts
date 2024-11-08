@@ -4,20 +4,26 @@ import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
 import { DebugLog } from '../../../Core/Util/DebugLog';
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
-import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
+import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
 export class LoginPanel extends BasePanel {
 
-    public static NAME = 'LoginPanel';
+
 
 
     @property(Node)
     loginBtn:Node;
 
-    start() {
+    constructor() {
+        super();
+        LoginPanel.NAME ="LoginPanel";
+    }
 
+    start() {
+        super.start();
     }
 
     onLoad() {
@@ -35,9 +41,6 @@ export class LoginPanel extends BasePanel {
         return LoginPanel.NAME;
     }
 
-    public startClick(){
-        console.log('clicked');
-    }
 
     public loginClick(){
         var json = JSON.stringify({"action": 5, "data": {
@@ -48,13 +51,13 @@ export class LoginPanel extends BasePanel {
         })
         SocketManager.getInstance().send(json);
         console.log('loginClick');
-
-        LoaderManager.getInstance().assetBundleLoad('subBundle',"subBundle").then(()=>{
-               DebugLog.instance.log("subBundle 111");
-               SceneManager.getInstance().changeScene("ai",(data)=>{
-                  DebugLog.instance.log("loadScene success",data);
-               });
-        });
+        UIManager.getInstance().hideView(LoginPanel.NAME);
+        // LoaderManager.getInstance().assetBundleLoad('subBundle',"subBundle").then(()=>{
+        //        DebugLog.instance.log("subBundle 111");
+        //        SceneManager.getInstance().changeScene("ai",(data)=>{
+        //           DebugLog.instance.log("loadScene success",data);
+        //        });
+        // });
     }
 
     private loadPanelComplete(){

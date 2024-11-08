@@ -1,3 +1,5 @@
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+
 export class BaseManager {
 
     protected maps:{[key:string]:object};
@@ -10,6 +12,7 @@ export class BaseManager {
 
     set(key:string,value:object){
         this.maps[key]=value;
+        DebugLog.instance.log(this.maps[key]);
     }
 
     get(key:string) {

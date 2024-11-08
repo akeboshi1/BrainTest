@@ -17,7 +17,9 @@ export class BasePanel extends BaseObejct{
     @property(Node)
     node: Node = null;
 
-    state:PanelState = PanelState.NONE;
+    public state:PanelState = PanelState.NONE;
+
+    public static NAME = '';
     constructor() {
         super();
         this.state = PanelState.INIT;
@@ -33,7 +35,7 @@ export class BasePanel extends BaseObejct{
 
     start() {
         // 隐藏面板
-        this.node.active = false;
+        // this.node.active = false;
     }
 
     onEnable(){
