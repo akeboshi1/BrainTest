@@ -21,7 +21,7 @@ export class UIManager extends BaseManager {
 
     }
 
-    setView(name:string,view:BasePanel){
+    setView(name:string,view:Node){
         if(this.has(name)){
             DebugLog.instance.error(`${name}已经存在`);
             return;
@@ -29,19 +29,24 @@ export class UIManager extends BaseManager {
         this.set(name, view);
     }
 
-    showView(name:string){
+    showView(name:string,parentNode:any){
         if(!this.checkPanel(name)){
             return;
         }
-        const view = this.get(name) as BasePanel;
-        if(view.state == PanelState.INIT){
-            EventManager.getInstance().on(name,this.loadPanelComplete,this);
-            this.preActionMaps[name]=[view,PanelState.SHOW];
-            return;
+        const view = this.get(name);
+        if(!view){
+            this.setView(name, parentNode);
         }
-        if(view.state == PanelState.LOADED || view.state == PanelState.HIDE){
-            view.showPanel();
-        }
+        parentNode.addChild(view);
+
+        // if(view.state == PanelState.INIT){
+        //     EventManager.getInstance().on(name,this.loadPanelComplete,this);
+        //     this.preActionMaps[name]=[view,PanelState.SHOW];
+        //     return;
+        // }
+        // if(view.state == PanelState.LOADED || view.state == PanelState.HIDE){
+        //     view.showPanel();
+        // }
     }
 
 
@@ -50,15 +55,15 @@ export class UIManager extends BaseManager {
         if(!this.checkPanel(name)){
             return;
         }
-        const view = this.get(name) as BasePanel;
-        if(view.state == PanelState.INIT){
-            EventManager.getInstance().on(name,this.loadPanelComplete,this);
-            this.preActionMaps[name]=[view,PanelState.HIDE];
-            return;
-        }
-        if(view.state == PanelState.SHOW){
-            view.hidePanel();
-        }
+        const view:any = this.get(name);
+        // if(view.state == PanelState.INIT){
+        //     EventManager.getInstance().on(name,this.loadPanelComplete,this);
+        //     this.preActionMaps[name]=[view,PanelState.HIDE];
+        //     return;
+        // }
+        // if(view.state == PanelState.SHOW){
+        view.removeFromParent(false);
+        // }
     }
 
     update(){
@@ -82,19 +87,19 @@ export class UIManager extends BaseManager {
         return true;
     }
 
-    private loadPanelComplete(name:string){
-       if(!(name in this.preActionMaps)){
-           DebugLog.instance.error(`不存在${name}界面`);
-           return;
-       }
-       const dataArr = this.preActionMaps[name];
-       const panel = dataArr[0];
-       const state = dataArr[1];
-       if(state == PanelState.SHOW){
-           this.showView(name);
-       }else{
-           this.hideView(name);
-       }
-       delete this.preActionMaps[name];
-    }
+    // private loadPanelComplete(name:string){
+    //    if(!(name in this.preActionMaps)){
+    //        DebugLog.instance.error(`不存在${name}界面`);
+    //        return;
+    //    }
+    //    const dataArr = this.preActionMaps[name];
+    //    const panel = dataArr[0];
+    //    const state = dataArr[1];
+    //    if(state == PanelState.SHOW){
+    //        this.showView(name);
+    //    }else{
+    //        this.hideView(name);
+    //    }
+    //    delete this.preActionMaps[name];
+    // }
 }

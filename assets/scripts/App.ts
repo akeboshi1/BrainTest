@@ -93,8 +93,10 @@ export class App extends BaseObejct {
             const node = instantiate(resource);
             UIManager.getInstance().setView(LoginPanel.NAME,node);
             // node.active = false;
-            SceneManager.getInstance().addUIToContainer(node,self.panelContainer);
-            UIManager.getInstance().showView(LoginPanel.NAME);
+            // SceneManager.getInstance().addUIToContainer(node,self.panelContainer);
+            UIManager.getInstance().hideView("LoadPanel");
+            UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
+
         });
     }
 
@@ -120,8 +122,10 @@ export class App extends BaseObejct {
             const name = "LoadPanel";
             PoolManager.getInstance().initPool(name,prefab,1);
             const node = PoolManager.getInstance().get(name);
+            UIManager.getInstance().setView(name,node);
+            UIManager.getInstance().showView(name,this.panelContainer);
             // 获取当前场景
-            SceneManager.getInstance().addUIToContainerByName(node,"PanelContainer");
+            // SceneManager.getInstance().addUIToContainerByName(node,"PanelContainer");
         })
     }
 }
