@@ -2,6 +2,10 @@ import {BaseManager} from "../BaseManager";
 import {BasePanel, PanelState} from "../../UI/BasePanel";
 import {EventManager} from "../Event/EventManager";
 import { DebugLog } from "../../Util/DebugLog";
+import {LoaderManager} from "../Load/LoaderManager";
+import {PoolManager} from "../Pool/PoolManager";
+import {SceneManager} from "../Scene/SceneManager";
+import {Node} from "cc";
 
 
 export class UIManager extends BaseManager {
@@ -13,6 +17,8 @@ export class UIManager extends BaseManager {
         return UIManager._instance;
     }
 
+    public static LOAD_PANEL= "LOADPANEL";
+
     private preActionMaps:{[key:string]:[BasePanel,PanelState]};
 
     init(){
@@ -21,7 +27,7 @@ export class UIManager extends BaseManager {
 
     }
 
-    setView(name:string,view:Node){
+    registerView(name:string,view:Node){
         if(this.has(name)){
             DebugLog.instance.error(`${name}已经存在`);
             return;
@@ -29,15 +35,25 @@ export class UIManager extends BaseManager {
         this.set(name, view);
     }
 
-    showView(name:string,parentNode:any){
+    showView(name:string,parentNode?:any){
         if(!this.checkPanel(name)){
             return;
         }
-        const view = this.get(name);
-        if(!view){
-            this.setView(name, parentNode);
+        if(name != UIManager.LOAD_PANEL){
+            UIManager.getInstance().hideView(UIManager.LOAD_PANEL);
         }
-        parentNode.addChild(view);
+        const view:Node = this.get(name)as Node;
+        if(!view){
+            DebugLog.instance.error(`${name} not exists`);
+            return;
+        }
+        if(parentNode){
+            parentNode.addChild(view);
+        }else{
+            const scene = SceneManager.getInstance().getCurrentScene();
+            scene.addChild(view);
+        }
+
 
         // if(view.state == PanelState.INIT){
         //     EventManager.getInstance().on(name,this.loadPanelComplete,this);
@@ -56,14 +72,20 @@ export class UIManager extends BaseManager {
             return;
         }
         const view:any = this.get(name);
-        // if(view.state == PanelState.INIT){
-        //     EventManager.getInstance().on(name,this.loadPanelComplete,this);
-        //     this.preActionMaps[name]=[view,PanelState.HIDE];
-        //     return;
-        // }
-        // if(view.state == PanelState.SHOW){
+        if(!view){
+           DebugLog.instance.error(`${name} not exists`);
+           return;
+        }
         view.removeFromParent(false);
-        // }
+    }
+
+    public addLoadingPanel(parentNode = null){
+        LoaderManager.getInstance().resourcesLoad("prefab/LoadPanel").then((prefab)=>{
+            PoolManager.getInstance().initPool(UIManager.LOAD_PANEL,prefab,1);
+            const node = PoolManager.getInstance().get(UIManager.LOAD_PANEL);
+            UIManager.getInstance().registerView(UIManager.LOAD_PANEL,node);
+            UIManager.getInstance().showView(UIManager.LOAD_PANEL,parentNode);
+        })
     }
 
     update(){

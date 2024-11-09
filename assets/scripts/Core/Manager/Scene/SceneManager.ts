@@ -51,7 +51,7 @@ export class SceneManager extends BaseManager{
     /**
      * 获取当前scene
      */
-    getScene(){
+    getCurrentScene(){
         return director.getScene();
     }
 

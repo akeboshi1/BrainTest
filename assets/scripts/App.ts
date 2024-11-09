@@ -31,8 +31,6 @@ export class App extends BaseObejct {
         super.onLoad();
         DebugLog.instance.log('onLoad');
 
-        this.addLoadingPanel();
-
         // 初始化socket
         this.initSocket();
         this.initManager();
@@ -91,12 +89,9 @@ export class App extends BaseObejct {
         let self = context;
         LoaderManager.getInstance().resourcesLoad("prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
-            UIManager.getInstance().setView(LoginPanel.NAME,node);
-            // node.active = false;
-            // SceneManager.getInstance().addUIToContainer(node,self.panelContainer);
-            UIManager.getInstance().hideView("LoadPanel");
-            UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
+            UIManager.getInstance().registerView(LoginPanel.NAME,node);
 
+            UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
         });
     }
 
@@ -117,17 +112,7 @@ export class App extends BaseObejct {
 
     }
 
-    private addLoadingPanel(){
-        LoaderManager.getInstance().resourcesLoad("prefab/LoadPanel").then((prefab)=>{
-            const name = "LoadPanel";
-            PoolManager.getInstance().initPool(name,prefab,1);
-            const node = PoolManager.getInstance().get(name);
-            UIManager.getInstance().setView(name,node);
-            UIManager.getInstance().showView(name,this.panelContainer);
-            // 获取当前场景
-            // SceneManager.getInstance().addUIToContainerByName(node,"PanelContainer");
-        })
-    }
+
 }
 
 

@@ -1,4 +1,4 @@
-import {NodePool,Prefab,instantiate} from 'cc';
+import {NodePool,Prefab,instantiate,Node} from 'cc';
 import {BaseManager} from "../BaseManager";
 import { DebugLog } from '../../Util/DebugLog';
 
