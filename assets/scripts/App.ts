@@ -31,9 +31,11 @@ export class App extends BaseObejct {
         super.onLoad();
         DebugLog.instance.log('onLoad');
 
-        // 初始化socket
-        this.initSocket();
+
         this.initManager();
+
+        //预加载
+        this.preLoadRes();
     }
 
     onEnable(){
@@ -53,7 +55,6 @@ export class App extends BaseObejct {
     }
 
     private initSocket(){
-        EventManager.getInstance().init();
         EventManager.getInstance().on(SocketManager.SOCKET_ON,this.socketOnHandler,this);
         // 初始化socket
         const url = "wss://test.paipai2.xinjiaxianglao.com/api/home";
@@ -61,12 +62,22 @@ export class App extends BaseObejct {
 
     }
 
-    private initManager(){
+    private initManager() {
+        LoaderManager.getInstance().init();
         UIManager.getInstance().init();
         SceneManager.getInstance().init();
-        LoaderManager.getInstance().init();
+        EventManager.getInstance().init();
         PoolManager.getInstance().init();
         SpriteManager.getInstance().init();
+    }
+
+    private preLoadRes(){
+        let self = this;
+        UIManager.getInstance().perloadRes().then(()=>{
+            UIManager.getInstance().showLoadingPanel();
+            // 初始化socket
+            self.initSocket();
+        });
     }
 
     private addListener(){
@@ -90,7 +101,6 @@ export class App extends BaseObejct {
         LoaderManager.getInstance().resourcesLoad("prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
             UIManager.getInstance().registerView(LoginPanel.NAME,node);
-
             UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
         });
     }

@@ -14,7 +14,6 @@ export class BaseObejct extends Component{
     onLoad(){
         // 将调试信息隐藏
         profiler.hideStats();
-        UIManager.getInstance().addLoadingPanel();
     }
 
 

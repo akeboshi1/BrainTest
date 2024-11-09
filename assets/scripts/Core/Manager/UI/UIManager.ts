@@ -24,8 +24,20 @@ export class UIManager extends BaseManager {
     init(){
         this.maps= {};
         this.preActionMaps = {};
+    }
+
+    async perloadRes():Promise<void>{
+        return new Promise((resolve, reject)=>{
+            this.addLoadingPanel().then(()=>{
+                resolve();
+            }).catch((error)=>{
+                    reject(error);
+                });
+        });
 
     }
+
+
 
     registerView(name:string,view:Node){
         if(this.has(name)){
@@ -79,13 +91,24 @@ export class UIManager extends BaseManager {
         view.removeFromParent(false);
     }
 
-    public addLoadingPanel(parentNode = null){
-        LoaderManager.getInstance().resourcesLoad("prefab/LoadPanel").then((prefab)=>{
-            PoolManager.getInstance().initPool(UIManager.LOAD_PANEL,prefab,1);
-            const node = PoolManager.getInstance().get(UIManager.LOAD_PANEL);
-            UIManager.getInstance().registerView(UIManager.LOAD_PANEL,node);
-            UIManager.getInstance().showView(UIManager.LOAD_PANEL,parentNode);
-        })
+    public async addLoadingPanel(url="prefab/LoadPanel"):Promise<void>{
+        return new Promise((resolve,reject)=>{
+            LoaderManager.getInstance().resourcesLoad(url).then((prefab)=>{
+                PoolManager.getInstance().initPool(UIManager.LOAD_PANEL,prefab,1);
+                const node = PoolManager.getInstance().get(UIManager.LOAD_PANEL);
+                UIManager.getInstance().registerView(UIManager.LOAD_PANEL,node);
+                resolve();
+                // UIManager.getInstance().showLoadingPanel(parentNode);
+            }).catch((error) => {
+                // 处理失败的错误
+                reject(error);
+            });
+        });
+
+    }
+
+    public showLoadingPanel(parentNode = null){
+        UIManager.getInstance().showView(UIManager.LOAD_PANEL,parentNode);
     }
 
     update(){
