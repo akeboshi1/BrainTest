@@ -33,6 +33,7 @@ export class SocketManager extends BaseManager{
            DebugLog.instance.error("socket已初始化");
            return;
        }
+       DebugLog.instance.log("init socket");
        this._socket=new WebSocket(url);
        this._socket.onopen = ()=>{
            EventManager.getInstance().emit(SocketManager.SOCKET_ON);
