@@ -31,6 +31,8 @@ export class App extends BaseObejct {
         super.onLoad();
         DebugLog.instance.log('onLoad');
 
+        // 常驻节点
+        director.addPersistRootNode(this.node);
 
         this.initManager();
 
@@ -47,7 +49,7 @@ export class App extends BaseObejct {
     }
 
     start() {
-
+      DebugLog.instance.log(director.isPersistRootNode(this.node));
     }
 
     update(deltaTime: number) {
