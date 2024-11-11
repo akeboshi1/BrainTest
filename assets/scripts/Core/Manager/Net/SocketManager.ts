@@ -42,8 +42,8 @@ export class SocketManager extends BaseManager{
            EventManager.getInstance().emit(SocketManager.SOCKET_OFF);
        };
        this._socket.onmessage = (data) => {
-           let jsonString = JSON.stringify(data);
-           EventManager.getInstance().emit(jsonString["code"], data);
+           let jsonString = JSON.stringify(data.data);
+           EventManager.getInstance().emit(jsonString["code"], data.data);
        }
        this._socket.onerror = (err) => {
            EventManager.getInstance().emit(SocketManager.SOCKET_ONERROR, err);
