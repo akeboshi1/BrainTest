@@ -3,6 +3,8 @@ import {BasePanel} from "../../../Core/UI/BasePanel";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
@@ -76,8 +78,7 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     agreeClick(){
-        SocketManager.getInstance().send({"action": "login.send_mp_code", "data": {"mp_no": "12345678901"}});
-        this._switchView(true);
+        SocketManager.getInstance().send(new SocketData({"action": "login.send_mp_code", "data": {"mp_no": "12345678901"}}));
     }
 
     cancelClick(){
@@ -100,7 +101,8 @@ export class LoginPopUpPanel extends BasePanel{
         this.num2.string = "3";
         this.num3.string = "4";
 
-        SocketManager.getInstance().send({"action": "login.login_by_mp", "data": {"mp_no": "12345678901", "code": "1234"}});
+
+        SocketManager.getInstance().send(new SocketData({"action": "login.login_by_mp", "data": {"mp_no": "12345678901", "code": "1234"}}));
     }
 
     private _initXieyiView(){
@@ -108,8 +110,8 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     private addListener(){
-        EventManager.getInstance().on(this.login_send_mp_code,this.login_send_mp_codeHandler,this);
-        EventManager.getInstance().on(this.login_login_by_mp,this.login_login_by_mpHandler,this);
+        EventManager.getInstance().on(this.login_send_mp_code,this.xieyiHandler,this);
+        EventManager.getInstance().on(this.login_login_by_mp,this.sendPhoneHandler,this);
     }
 
     private removeListener(){
@@ -117,12 +119,15 @@ export class LoginPopUpPanel extends BasePanel{
         EventManager.getInstance().off(this.login_login_by_mp,this);
     }
 
-    private login_send_mp_codeHandler(data,context){
-        DebugLog.instance.log(data.message);
+    private sendPhoneHandler(data,context){
+        DebugLog.instance.log(data);
+        context.PhoneDescTxt.string="登录成功！！！";
+        // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 
-    private login_login_by_mpHandler(data,context){
-        DebugLog.instance.log(data.message);
+    private xieyiHandler(data,context){
+        DebugLog.instance.log(data);
+        context._switchView(true);
     }
 
 

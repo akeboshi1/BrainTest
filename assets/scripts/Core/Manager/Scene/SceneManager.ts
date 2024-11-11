@@ -48,6 +48,7 @@ export class SceneManager extends BaseManager{
                    reject(err);
                    return;
                }
+               // todo 常驻node?
                director.runScene(scene);
                resolve();
            });

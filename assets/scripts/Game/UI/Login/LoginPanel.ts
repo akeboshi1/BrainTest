@@ -50,15 +50,6 @@ export class LoginPanel extends BasePanel {
             UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
             UIManager.getInstance().hideView(LoginPanel.NAME);
         });
-        // var json = JSON.stringify({"action": 5, "data": {
-        //         "request_id": "123456",
-        //         "username": "user",
-        //         "password": "e10adc3949ba59abbe56e057f20f883e"
-        //     }
-        // });
-        // SocketManager.getInstance().send(json);
-        // console.log('loginClick');
-        // UIManager.getInstance().hideView(LoginPanel.NAME);
     }
 
     private loadPanelComplete(){

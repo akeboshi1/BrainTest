@@ -9,6 +9,7 @@ import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
 import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
+import {UserData} from "db://assets/scripts/Core/Data/UserData";
 
 
 const { ccclass, property } = _decorator;
@@ -21,6 +22,8 @@ export class App extends BaseObejct {
 
     @property(Node)
     panelContainer:Node;
+
+    public userData:UserData;
 
     // ai
     // game
@@ -38,6 +41,9 @@ export class App extends BaseObejct {
 
         //预加载
         this.preLoadRes();
+
+        // 用户数据
+        this.userData = new UserData();
     }
 
     onEnable(){
