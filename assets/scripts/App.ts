@@ -21,7 +21,7 @@ export class App extends BaseObejct {
 
     @property(Node)
     panelContainer:Node;
-    
+
     // ai
     // game
     // usercenter
@@ -104,6 +104,7 @@ export class App extends BaseObejct {
             const node = instantiate(resource);
             UIManager.getInstance().registerView(LoginPanel.NAME,node);
             UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
+            node.setPosition(0,0,0);
         });
     }
 

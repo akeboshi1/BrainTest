@@ -1,0 +1,9 @@
+
+export class XieyiView{
+
+
+
+    constructor() {
+    }
+
+}
