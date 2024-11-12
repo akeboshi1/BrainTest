@@ -19,6 +19,7 @@ export class LoginPanel extends BasePanel {
     constructor() {
         super();
         LoginPanel.NAME ="LoginPanel";
+        this.name = LoginPanel.NAME;
     }
 
     start() {
@@ -34,10 +35,6 @@ export class LoginPanel extends BasePanel {
 
     update(deltaTime: number) {
         
-    }
-
-    get name():string{
-        return LoginPanel.NAME;
     }
 
 

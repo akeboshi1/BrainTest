@@ -5,6 +5,7 @@ import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager"
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
+import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
@@ -55,6 +56,7 @@ export class LoginPopUpPanel extends BasePanel{
     constructor() {
         super();
         LoginPopUpPanel.NAME = "LoginPopUpPanel";
+        this.name = LoginPopUpPanel.NAME;
     }
 
     onLoad() {
@@ -82,7 +84,8 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     cancelClick(){
-        this.hidePanel()
+        UIManager.getInstance().showView(LoginPanel.NAME,this.node.parent);
+        this.hidePanel();
     }
 
     private _switchView(isPhoneView:boolean=false){
