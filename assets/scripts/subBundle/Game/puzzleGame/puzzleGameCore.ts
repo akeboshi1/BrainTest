@@ -1,0 +1,385 @@
+import { _decorator, Component, Node, SpriteFrame, Texture2D, Size, Rect, Sprite, Prefab, instantiate, UITransform, EventTouch, Vec2, Vec3, tween } from 'cc';
+import { DebugLog } from '../../../Core/Util/DebugLog';
+import { timerComponent } from './timerComponent';
+import { puzzleSummaryAlert } from './puzzleSummaryAlert';
+const { ccclass, property } = _decorator;
+
+@ccclass('puzzleGameCore')
+export class puzzleGameCore extends Component {
+
+    @property([Texture2D])
+    private cachedTextures: Texture2D[] = [];
+
+    @property(Prefab)
+    private chipNodePrefab: Prefab;
+
+    @property(Node)
+    private chipParentNode: Node;
+
+    // 可拖拽的节点
+    @property(Node)
+    private draggableNode: Node;
+
+    @property(Number)
+    private chipGap: Number = 1;
+
+    @property(Number)
+    private gameLength: Number = 600;
+
+    @property(Sprite)
+    private previewSprite: Sprite;
+
+    @property(timerComponent)
+    private timerComponent: timerComponent;
+
+    @property(Node)
+    private buttonStartGame: Node;
+
+    @property(Node)
+    private startGameMask: Node;
+
+    @property(puzzleSummaryAlert)
+    private summaryAlert: puzzleSummaryAlert;
+
+    //显示对象
+    private chipsInstances: Node[] = [];
+    //数据 矩形区域 rect 位置编号 position
+    private chipsDataMap: Map<number, Object> = new Map();
+
+    private dragStartPos: Vec2 = new Vec2(); //触点起始位置
+    private dragObjectStartPos: Vec3 = new Vec3(); 
+    private dragInstance: Node = null;
+    private dragStartFlag: boolean = false;
+    private selectedLevelIndex: number = 0;
+
+    private levelList:number[] = [3,4,6];
+    private selectedLevel:number = this.levelList[this.selectedLevelIndex];
+
+    onLoad() {
+        this.draggableNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.draggableNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.draggableNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.draggableNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+
+        this.timerComponent.on('timer-end', this.onTimerEnd, this);
+    }
+
+    start() {
+        this.summaryAlert.node.active = false;
+        this.cleanChipsCache();
+        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
+        this.updatePreviewSprite();
+    }
+
+    update(deltaTime: number) {
+
+    }
+
+    protected onDestroy(): void {
+        this.timerComponent.off('timer-end', this.onTimerEnd, this);
+
+        this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.draggableNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.draggableNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+
+        this.cleanChipsCache();
+    }
+
+    cropTextureToSprites(cropNum: number, texture: Texture2D) {
+        const textureRect = new Size(texture.width, texture.height);
+        const cropWidth = textureRect.width / cropNum;
+        const cropHeight = textureRect.height / cropNum;
+
+        const rectList: Rect[] = [];
+
+        for (let i = 0; i < cropNum; i++) {
+            for (let j = 0; j < cropNum; j++) {
+                const rect = new Rect(j * cropWidth, i * cropHeight, cropWidth, cropHeight);
+                rectList.push(rect);
+            }
+        }
+
+        const scaleRate = this.chipParentNode.getComponent(UITransform).contentSize.width / textureRect.width;
+        for (let i = 0; i < rectList.length; i++) {
+            const instantiatedPrefab = instantiate(this.chipNodePrefab);
+            this.chipsInstances.push(instantiatedPrefab);
+
+            const spriteComponent = instantiatedPrefab.getChildByName("Sprite").getComponent(Sprite);
+
+            const spriteFrame = new SpriteFrame();
+            spriteFrame.texture = texture;
+
+
+            spriteFrame.rect = rectList[i];
+
+            spriteComponent.spriteFrame = spriteFrame;
+
+            instantiatedPrefab.setParent(this.chipParentNode);
+
+            const rect = new Rect(rectList[i].x * scaleRate, (0 - rectList[i].y - rectList[i].height) * scaleRate, rectList[i].width * scaleRate, rectList[i].height * scaleRate);
+
+            const gap = this.chipGap.valueOf();
+            instantiatedPrefab.setPosition(rect.x + gap / 2, rect.y + gap / 2);
+
+            instantiatedPrefab.getComponent(UITransform).contentSize = new Size(rect.width - gap, rect.height - gap);
+            instantiatedPrefab.setSiblingIndex(0);
+
+            this.chipsDataMap.set(i, { rect: rect, puzzlePos: i, objectPos: instantiatedPrefab.getPosition() });
+        }
+    }
+
+    cleanChipsCache() {
+        while (this.chipsInstances.length > 0) {
+            const node = this.chipsInstances.pop();
+            node.removeFromParent();
+            node.destroy();
+        }
+        this.chipsDataMap.clear();
+    }
+
+    onTouchStart(event: EventTouch) {
+        if (!this.dragStartFlag) {
+            this.dragStartFlag = true;
+            let currentPos: Vec2 = event.getUILocation();
+            const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
+            const startpos = new Vec2(vec3.x, vec3.y);
+            let selectedObjectIndex = this.checkTouchedObjectIndex(startpos);
+            if (selectedObjectIndex != -1) {
+                this.dragInstance = this.chipsInstances[selectedObjectIndex];
+                this.dragObjectStartPos = this.getChipDataByPuzzlePos(selectedObjectIndex)["objectPos"];
+                this.dragStartPos = startpos; // 记录触摸起始位置
+                DebugLog.instance.log("onTouchStart  ---- selectIndex = " + selectedObjectIndex);
+                this.dragInstance.setSiblingIndex(100);
+            }
+        }
+    }
+
+    onTouchMove(event: EventTouch) {
+        if (this.dragInstance == null || !this.dragStartFlag) return;
+
+        let currentPos: Vec2 = event.getUILocation();
+        const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
+        const offset = vec3.subtract(new Vec3(this.dragStartPos.x, this.dragStartPos.y, 0)); // 计算偏移量
+        this.dragInstance.setPosition(this.dragObjectStartPos.x + offset.x, this.dragObjectStartPos.y + offset.y);
+    }
+
+    onTouchEnd(event: EventTouch) {
+        if (this.dragInstance == null || !this.dragStartFlag) return;
+
+        this.dragStartFlag = false;
+        const currentPos: Vec2 = event.getUILocation();
+        const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
+        const endpos = new Vec2(vec3.x, vec3.y);
+        const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
+        if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
+            DebugLog.instance.log("onTouchEnd  ---- swap target index = " + selectedObjectIndex);
+            this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
+
+            const puzzleResult = this.checkPuzzleResult();
+            DebugLog.instance.log("puzzleResult  ----  " + puzzleResult);
+            if(puzzleResult)
+            {
+                this.processGameSuccess();
+            }
+        }
+        else {
+            this.processTouchCancel();
+        }
+
+    }
+
+    onTouchCancel(event: EventTouch) {
+        if (this.dragInstance == null || !this.dragStartFlag) return;
+
+        this.dragStartFlag = false;
+        this.processTouchCancel();
+    }
+
+    private checkTouchedObjectIndex(currentPos: Vec2): number {
+        //先确定触摸的格子
+        var puzzlePos = -1;
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            const rect: Rect = value["rect"];
+            if (rect.contains(new Vec2(currentPos.x, currentPos.y))) {
+                puzzlePos = value["puzzlePos"];
+                break;
+            }
+        }
+
+        return puzzlePos;
+    }
+
+    private processTouchCancel() {
+        const targetPosition = this.dragObjectStartPos;
+        const duration = 0.3;
+
+        tween(this.dragInstance)
+            .to(duration, { position: targetPosition })
+            .start();
+
+        this.dragInstance.setSiblingIndex(0);
+        this.dragInstance = null;
+    }
+
+    private swapPuzzleChips(puzzlePos1: number, puzzlePos2: number) {
+        const chipData1 = this.getChipDataByPuzzlePos(puzzlePos1);
+        const chipData2 = this.getChipDataByPuzzlePos(puzzlePos2);
+
+        const chipLastPos1 = chipData1["puzzlePos"];
+        const chipLastPos2 = chipData2["puzzlePos"];
+
+        chipData1["puzzlePos"] = chipLastPos2;
+        chipData2["puzzlePos"] = chipLastPos1;
+
+        const duration = 0.3;
+        const targetPosition1 = chipData2["objectPos"];
+        tween(this.chipsInstances[puzzlePos1]).to(duration, { position: targetPosition1 }).start();
+
+        const targetPosition2 = chipData1["objectPos"];
+        tween(this.chipsInstances[puzzlePos2]).to(duration, { position: targetPosition2 }).start();
+
+        this.outputMapData();
+    }
+
+    private getChipDataByPuzzlePos(puzzlePos: number): Object {
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            const pos: number = value["puzzlePos"];
+            if (pos == puzzlePos) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private outputMapData() {
+        let outputString = "";
+        let lineCount = 0;
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            if(lineCount % this.selectedLevel == 0)
+            {
+                DebugLog.instance.log("outputMapData  ---- " + outputString);
+                outputString = "";
+            }
+            outputString += " " + value["puzzlePos"];
+            lineCount++;
+        }
+    }
+
+    private checkPuzzleResult():boolean
+    {
+        let index = 0;
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            if(value["puzzlePos"] == index)
+            {
+                index++;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 随机交换拼图位置n次的方法
+    private randomSwapPuzzleChipsNTimes(n: number) {
+        const maxPos = this.selectedLevel * this.selectedLevel;
+        let positions: number[] = [];
+        for (let i = 0; i < maxPos; i++) {
+            positions.push(i);
+        }
+        this.shuffleArray(positions);
+        for (let i = 0; i < n; i++) {
+            this.swapPuzzleChips(positions[i], positions[(i + 1) % maxPos]);
+        }
+    }
+
+    private shuffleArray(array: number[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    onClickDisturbPuzzleButton()
+    {
+        this.randomSwapPuzzleChipsNTimes(this.selectedLevel * this.selectedLevel);
+    }
+
+    onClickChangeLevel()
+    {
+        this.selectedLevelIndex = (this.selectedLevelIndex + 1) % this.levelList.length;
+        this.selectedLevel = this.levelList[this.selectedLevelIndex];
+
+        this.cleanChipsCache();
+        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
+        
+        this.updatePreviewSprite();
+    }
+
+    private updatePreviewSprite(){
+        let newSpriteFrame = new SpriteFrame();
+        newSpriteFrame.texture = this.cachedTextures[this.selectedLevelIndex];
+        this.previewSprite.spriteFrame = newSpriteFrame;
+    }
+
+    onClickStartTimer()
+    {
+        this.timerComponent.resetTimer();
+        this.timerComponent.startTimer(10);
+    }
+
+    onTimerEnd() {
+        console.log("计时器结束了，执行相应逻辑");
+        this.processGameFail();
+    }
+
+    onClickStartGame()
+    {
+        this.timerComponent.startTimer(this.gameLength.valueOf());
+        this.onClickDisturbPuzzleButton();
+        this.buttonStartGame.active = false;
+        this.startGameMask.active = false;
+    }
+
+    processGameFail()
+    {
+        console.log("失败");
+
+        this.summaryAlert.node.active = true;
+        this.summaryAlert.initByResult(false);
+        this.summaryAlert.fadeIn();
+    }
+
+    processGameSuccess()
+    {
+        console.log("成功");
+        this.timerComponent.resumeTimer();
+
+        this.summaryAlert.node.active = true;
+        this.summaryAlert.initByResult(true);
+        this.summaryAlert.fadeIn();
+    }
+
+    onClickGotoNextlevel(){
+        this.onClickChangeLevel();
+        this.startGameMask.active = true;
+        this.buttonStartGame.active = true;
+        this.timerComponent.resetTimer();
+    }
+
+    onClickRetryCurrentLevel(){
+        this.cleanChipsCache();
+        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
+
+        this.startGameMask.active = true;
+        this.buttonStartGame.active = true;
+        this.timerComponent.resetTimer();
+    }
+
+    onClickTimeOut(){
+        this.timerComponent.resetTimer();
+        this.onTimerEnd();
+    }
+}

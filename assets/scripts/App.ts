@@ -8,7 +8,7 @@ import {PoolManager} from "./Core/Manager/Pool/PoolManager";
 import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
-import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
+import {LoginPanel} from "./Game/UI/Login/LoginPanel";
 
 
 const { ccclass, property } = _decorator;

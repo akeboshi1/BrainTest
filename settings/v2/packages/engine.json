@@ -150,5 +150,8 @@
       "version": ""
     },
     "flags": {}
+  },
+  "macroConfig": {
+    "ENABLE_MULTI_TOUCH": false
   }
 }
