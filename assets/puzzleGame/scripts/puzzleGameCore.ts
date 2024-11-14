@@ -23,7 +23,7 @@ export class puzzleGameCore extends Component {
     private chipGap: Number = 1;
 
     @property(Number)
-    private gameLength: Number = 600;
+    private gameLength: Number = 180;
 
     @property(Sprite)
     private previewSprite: Sprite;
@@ -51,7 +51,7 @@ export class puzzleGameCore extends Component {
     private dragStartFlag: boolean = false;
     private selectedLevelIndex: number = 0;
 
-    private levelList:number[] = [3,4,6];
+    private levelList:number[] = [2,3,4];
     private selectedLevel:number = this.levelList[this.selectedLevelIndex];
 
     onLoad() {

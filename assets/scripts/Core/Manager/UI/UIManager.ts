@@ -30,6 +30,7 @@ export class UIManager extends BaseManager {
         return new Promise((resolve, reject)=>{
             this.addLoadingPanel().then(()=>{
                 resolve();
+                DebugLog.instance.log("preloadRes");
             }).catch((error)=>{
                     reject(error);
                 });
@@ -90,9 +91,10 @@ export class UIManager extends BaseManager {
         view.removeFromParent(false);
     }
 
-    public async addLoadingPanel(url="prefab/LoadPanel"):Promise<void>{
+    public async addLoadingPanel():Promise<void>{
+        const url = 'prefab/LoadPanel';
         return new Promise((resolve,reject)=>{
-            LoaderManager.getInstance().resourcesLoad(url).then((prefab)=>{
+            LoaderManager.getInstance().resourcesLoadPrefab(url).then((prefab)=>{
                 PoolManager.getInstance().initPool(UIManager.LOAD_PANEL,prefab,1);
                 const node = PoolManager.getInstance().get(UIManager.LOAD_PANEL);
                 UIManager.getInstance().registerView(UIManager.LOAD_PANEL,node);

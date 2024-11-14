@@ -106,7 +106,7 @@ export class App extends BaseObejct {
         DebugLog.instance.log("socket connected");
         EventManager.getInstance().off(SocketManager.SOCKET_ON,context);
         let self = context;
-        LoaderManager.getInstance().resourcesLoad("prefab/LoginPanel").then((resource)=>{
+        LoaderManager.getInstance().resourcesLoadPrefab("prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
             UIManager.getInstance().registerView(LoginPanel.NAME,node);
             UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);

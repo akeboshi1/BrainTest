@@ -36,6 +36,24 @@ export class LoaderManager extends BaseManager {
     }
 
     /**
+     * 加载resources(默认bundle)prefab资源 （外部环境，不带类型得load得方法会报错）
+     * @param url
+     */
+    async resourcesLoadPrefab(url:string):Promise<any> {
+        return new Promise((resolve, reject) => {
+            resources.load(url, Prefab,(err, prefab) => {
+                if(err){
+                    DebugLog.instance.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(prefab);
+            });
+        })
+    }
+
+
+   /**
      * 加载assetbundle资源
      * @param url
      * @param name

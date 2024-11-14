@@ -1,4 +1,4 @@
-import { _decorator, Component, Node,instantiate } from 'cc';
+import { _decorator, Component, Node,AssetManager,director } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
@@ -40,13 +40,20 @@ export class LoginPanel extends BasePanel {
 
     public loginClick(){
         let self =this;
-        LoaderManager.getInstance().resourcesLoad("prefab/LoginPopUpPanel").then((resource)=>{
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(LoginPopUpPanel.NAME,node);
-            const parendNode = self.node.parent;
-            UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
-            UIManager.getInstance().hideView(LoginPanel.NAME);
+        LoaderManager.getInstance().assetBundleLoad("puzzleGame","puzzleGame").then((bundle:AssetManager.Bundle)=>{
+              bundle.loadScene("puzzleGame",(err,scene)=>{
+                  director.loadScene("puzzleGame",(err,scene)=>{
+                      if(err)DebugLog.instance.error(err);
+                  })
+              });
         });
+        // LoaderManager.getInstance().resourcesLoad("prefab/LoginPopUpPanel").then((resource)=>{
+        //     const node = instantiate(resource);
+        //     UIManager.getInstance().registerView(LoginPopUpPanel.NAME,node);
+        //     const parendNode = self.node.parent;
+        //     UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
+        //     UIManager.getInstance().hideView(LoginPanel.NAME);
+        // });
     }
 
     private loadPanelComplete(){
