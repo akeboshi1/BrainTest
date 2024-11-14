@@ -1699,7 +1699,7 @@
   },
   {
     "__type__": "4bd62ishV9O2YGmpR5UBoMS",
-    "_name": "",
+    "_name": "LoginPanel",
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
@@ -1716,7 +1716,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "9dvxcEp0xLj6dgWa/34J1P"
+    "fileId": "a7N0I6W9lP9L/p+xyIonLV"
   },
   {
     "__type__": "cc.PrefabInfo",

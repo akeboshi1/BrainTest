@@ -1,4 +1,4 @@
-import { _decorator, director } from 'cc';
+import { _decorator, director,AssetManager } from 'cc';
 import {BaseManager} from "../BaseManager";
 
 export class SceneManager extends BaseManager{
@@ -33,6 +33,26 @@ export class SceneManager extends BaseManager{
         } else {
             director.loadScene(sceneName);
         }
+    }
+
+    /**
+     * 切换custom ab文件内的场景
+     * @param sceneName
+     * @param bundle
+     * @param callback
+     */
+    async changeBundleScene(sceneName:string,bundle?:AssetManager.Bundle,callback?:Function):Promise<void> {
+       return new Promise((resolve,reject)=>{
+           bundle.loadScene(sceneName, function (err, scene) {
+               if(err!=null){
+                   reject(err);
+                   return;
+               }
+               // todo 常驻node?
+               director.runScene(scene);
+               resolve();
+           });
+       });
     }
 
     /**

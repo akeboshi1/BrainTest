@@ -66,7 +66,6 @@ export class UIManager extends BaseManager {
             scene.addChild(view);
         }
 
-
         // if(view.state == PanelState.INIT){
         //     EventManager.getInstance().on(name,this.loadPanelComplete,this);
         //     this.preActionMaps[name]=[view,PanelState.SHOW];

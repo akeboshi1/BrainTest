@@ -1,0 +1,34 @@
+/**
+ * socket数据data
+ */
+export class SocketData {
+
+    public uid:string;
+
+    public action:string;
+
+    public sendData:any;
+
+    public receiveData:any;
+
+    public status:number = 0; // 0失败 1成功
+
+    /**
+     * 数据反馈
+     */
+    public feedback:boolean = false;
+
+    constructor(data:any) {
+        // 在构造函数中处理传入的 data 对象
+        this.action = data.action;
+        this.sendData = data.data;
+        // this.uid = data.uid||"";
+    }
+
+    refureshData(data:any){
+        this.status = data.status;
+        this.receiveData = data.data;
+    }
+
+
+}

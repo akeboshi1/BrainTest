@@ -1,21 +1,78 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node,Label,Button,EditBox } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
+import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
 export class LoginPopUpPanel extends BasePanel{
 
+    //==== XieyiView
     @property(Node)
-    Xieyiview:Node;
+    XieyiView:Node;
+
+    @property(Label)
+    XieyiTitleTxt:Label;
+
+    @property(Label)
+    XieyiDescTxt:Label;
+
+    @property(Button)
+    AgreeButton:Button;
+
+    @property(Button)
+    CancelButton:Button;
+
+    //==== PhoneView
 
     @property(Node)
     PhoneView:Node;
 
+    @property(Label)
+    PhoneViewTitle:Label;
 
+    @property(Label)
+    PhoneDescTxt:Label;
+
+    @property(EditBox)
+    num0:EditBox;
+
+    @property(EditBox)
+    num1:EditBox;
+
+    @property(EditBox)
+    num2:EditBox;
+
+    @property(EditBox)
+    num3:EditBox;
+
+    private login_send_mp_code:string="login.send_mp_code";
+    private login_login_by_mp:string ="login.login_by_mp";
 
     constructor() {
         super();
         LoginPopUpPanel.NAME = "LoginPopUpPanel";
+        this.name = LoginPopUpPanel.NAME;
+    }
+
+    onLoad() {
+
+    }
+
+    start() {
+        this._switchView();
+    }
+
+    onEnable(){
+        this.addListener();
+    }
+
+    onDisable(){
+        this.removeListener();
     }
 
     bgClick(){
@@ -23,11 +80,57 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     agreeClick(){
-
+        SocketManager.getInstance().send(new SocketData({"action": "login.send_mp_code", "data": {"mp_no": "12345678901"}}));
     }
 
     cancelClick(){
-        this.hidePanel()
+        UIManager.getInstance().showView(LoginPanel.NAME,this.node.parent);
+        this.hidePanel();
+    }
+
+    private _switchView(isPhoneView:boolean=false){
+       this.XieyiView.active= !isPhoneView;
+       this.PhoneView.active = isPhoneView;
+       if(isPhoneView){
+           this._initPhoneView();
+       }else{
+           this._initXieyiView();
+       }
+    }
+
+    private _initPhoneView(){
+        this.num0.string = "1";
+        this.num1.string = "2";
+        this.num2.string = "3";
+        this.num3.string = "4";
+
+
+        SocketManager.getInstance().send(new SocketData({"action": "login.login_by_mp", "data": {"mp_no": "12345678901", "code": "1234"}}));
+    }
+
+    private _initXieyiView(){
+
+    }
+
+    private addListener(){
+        EventManager.getInstance().on(this.login_send_mp_code,this.xieyiHandler,this);
+        EventManager.getInstance().on(this.login_login_by_mp,this.sendPhoneHandler,this);
+    }
+
+    private removeListener(){
+        EventManager.getInstance().off(this.login_send_mp_code,this);
+        EventManager.getInstance().off(this.login_login_by_mp,this);
+    }
+
+    private sendPhoneHandler(data,context){
+        DebugLog.instance.log(data);
+        context.PhoneDescTxt.string="登录成功！！！";
+        // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
+    }
+
+    private xieyiHandler(data,context){
+        DebugLog.instance.log(data);
+        context._switchView(true);
     }
 
 

@@ -8,6 +8,7 @@ import {PoolManager} from "./Core/Manager/Pool/PoolManager";
 import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
+import {UserData} from "db://assets/scripts/Core/Data/UserData";
 import {LoginPanel} from "./Game/UI/Login/LoginPanel";
 
 
@@ -21,7 +22,9 @@ export class App extends BaseObejct {
 
     @property(Node)
     panelContainer:Node;
-    
+
+    public userData:UserData;
+
     // ai
     // game
     // usercenter
@@ -31,11 +34,16 @@ export class App extends BaseObejct {
         super.onLoad();
         DebugLog.instance.log('onLoad');
 
+        // 常驻节点
+        director.addPersistRootNode(this.node);
 
         this.initManager();
 
         //预加载
         this.preLoadRes();
+
+        // 用户数据
+        this.userData = new UserData();
     }
 
     onEnable(){
@@ -47,7 +55,7 @@ export class App extends BaseObejct {
     }
 
     start() {
-
+      DebugLog.instance.log(director.isPersistRootNode(this.node));
     }
 
     update(deltaTime: number) {
@@ -102,6 +110,7 @@ export class App extends BaseObejct {
             const node = instantiate(resource);
             UIManager.getInstance().registerView(LoginPanel.NAME,node);
             UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
+            node.setPosition(0,0,0);
         });
     }
 

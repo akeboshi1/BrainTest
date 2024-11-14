@@ -1,5 +1,7 @@
 import { _decorator, Component, Node,tween,Vec3 } from 'cc';
 import {BaseObejct} from "db://assets/scripts/Core/Object/BaseObject";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
 const { ccclass, property } = _decorator;
 
 export enum PanelState {
@@ -20,12 +22,10 @@ export class BasePanel extends BaseObejct{
     public state:PanelState = PanelState.NONE;
 
     public static NAME = '';
+
     constructor() {
         super();
         this.state = PanelState.INIT;
-    }
-    get name():string{
-        return "";
     }
 
 
@@ -53,15 +53,13 @@ export class BasePanel extends BaseObejct{
 
 
     // 显示面板
-    showPanel() {
-        this.node.active = true;
-        this.state = PanelState.SHOW;
+    showPanel(parentNode?:Node) {
+        UIManager.getInstance().showView(this.name,parentNode);
     }
 
     // 隐藏面板
     hidePanel() {
-        this.node.active = false;
-        this.state = PanelState.HIDE;
+       UIManager.getInstance().hideView(this.name)
     }
 
 }
