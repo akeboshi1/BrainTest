@@ -17,8 +17,6 @@ node_modules/
 # VSCode
 #//////////////////////////
 .vscode/
-./temp/**
-**/*.meta
 
 #//////////////////////////
 # WebStorm
