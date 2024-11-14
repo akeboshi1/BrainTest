@@ -1,5 +1,4 @@
 import { _decorator, Component, Node, SpriteFrame, Texture2D, Size, Rect, Sprite, Prefab, instantiate, UITransform, EventTouch, Vec2, Vec3, tween } from 'cc';
-import { DebugLog } from '../../../Core/Util/DebugLog';
 import { timerComponent } from './timerComponent';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 const { ccclass, property } = _decorator;
@@ -149,7 +148,7 @@ export class puzzleGameCore extends Component {
                 this.dragInstance = this.chipsInstances[selectedObjectIndex];
                 this.dragObjectStartPos = this.getChipDataByPuzzlePos(selectedObjectIndex)["objectPos"];
                 this.dragStartPos = startpos; // 记录触摸起始位置
-                DebugLog.instance.log("onTouchStart  ---- selectIndex = " + selectedObjectIndex);
+                console.log("onTouchStart  ---- selectIndex = " + selectedObjectIndex);
                 this.dragInstance.setSiblingIndex(100);
             }
         }
@@ -173,11 +172,11 @@ export class puzzleGameCore extends Component {
         const endpos = new Vec2(vec3.x, vec3.y);
         const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
         if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
-            DebugLog.instance.log("onTouchEnd  ---- swap target index = " + selectedObjectIndex);
+            console.log("onTouchEnd  ---- swap target index = " + selectedObjectIndex);
             this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
 
             const puzzleResult = this.checkPuzzleResult();
-            DebugLog.instance.log("puzzleResult  ----  " + puzzleResult);
+            console.log("puzzleResult  ----  " + puzzleResult);
             if(puzzleResult)
             {
                 this.processGameSuccess();
@@ -258,7 +257,7 @@ export class puzzleGameCore extends Component {
         for (let [key, value] of this.chipsDataMap.entries()) {
             if(lineCount % this.selectedLevel == 0)
             {
-                DebugLog.instance.log("outputMapData  ---- " + outputString);
+                console.log("outputMapData  ---- " + outputString);
                 outputString = "";
             }
             outputString += " " + value["puzzlePos"];
