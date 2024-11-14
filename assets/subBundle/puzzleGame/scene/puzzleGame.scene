@@ -1301,7 +1301,7 @@
       "__id__": 16
     },
     "chipGap": 2,
-    "gameLength": 600,
+    "gameLength": 180,
     "previewSprite": {
       "__id__": 10
     },
@@ -3078,6 +3078,7 @@
     "instance": {
       "__id__": 82
     },
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
