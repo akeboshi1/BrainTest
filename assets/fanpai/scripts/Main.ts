@@ -47,7 +47,6 @@ export class Main extends Component {
 
     private bundleName:string = 'fanpai';
 
-    private sceneName = "fanpaiScene";
 
     start() {
         this.cardPool;
