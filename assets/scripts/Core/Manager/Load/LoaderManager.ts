@@ -1,4 +1,4 @@
-import {_decorator,resources,assetManager,AssetManager,Prefab,Texture2D} from 'cc'
+import {ImageAsset,resources,assetManager,AssetManager,Prefab,Texture2D} from 'cc'
 import {BaseManager} from "../BaseManager";
 import { DebugLog } from '../../Util/DebugLog';
 
@@ -83,14 +83,14 @@ export class LoaderManager extends BaseManager {
      * @param url
      * @param name
      */
-    async loadABRes(url:string,name:string):Promise<any> {
+    async loadABRes(url:string,name:string):Promise<ImageAsset> {
         return new Promise<any>((resolve, reject) => {
             let bundle = assetManager.getBundle(name);
             if(!bundle) {
                 DebugLog.instance.error(`${name},bundle not exist`);
                 return;
             }
-            bundle.load(url,Prefab,(err,res)=>{
+            bundle.load(url,ImageAsset,(err,res)=>{
                 if(err){
                     DebugLog.instance.error(err);
                     reject(err);
