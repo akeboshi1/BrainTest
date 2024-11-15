@@ -1,4 +1,4 @@
-import { _decorator, Component,Camera,profiler,Node,director,instantiate,v2 } from 'cc';
+import { _decorator, Component,Camera,AssetManager,Node,director,instantiate,v2 } from 'cc';
 import {EventManager} from "./Core/Manager/Event/EventManager";
 import {SocketManager} from "./Core/Manager/Net/SocketManager";
 import {UIManager} from "./Core/Manager/UI/UIManager";
@@ -21,7 +21,14 @@ export class App extends BaseObejct {
     camera: Camera;
 
     @property(Node)
-    panelContainer:Node;
+    panelContainer:Node
+
+    @property()
+    sceneName = "";
+
+    @property({type:false})
+    isPad = false;
+
 
     public userData:UserData;
 
@@ -83,8 +90,13 @@ export class App extends BaseObejct {
         let self = this;
         UIManager.getInstance().perloadRes().then(()=>{
             UIManager.getInstance().showLoadingPanel();
-            // 初始化socket
-            self.initSocket();
+            if(self.isPad){
+                // 初始化游戏
+                self.initGame();
+            }else{
+                // 初始化socket
+                self.initSocket();
+            }
         });
     }
 
@@ -111,6 +123,21 @@ export class App extends BaseObejct {
             UIManager.getInstance().registerView(LoginPanel.NAME,node);
             UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
             node.setPosition(0,0,0);
+        });
+    }
+
+    /**
+     * 初始化游戏场景，单独发布某个游戏
+     * @private
+     */
+    private initGame(){
+        let self = this;
+        LoaderManager.getInstance().assetBundleLoad(self.sceneName,self.sceneName).then((bundle:AssetManager.Bundle)=>{
+            bundle.loadScene(self.sceneName,(err,scene)=>{
+                director.loadScene(self.sceneName,(err,scene)=>{
+                    if(err)DebugLog.instance.error(err);
+                })
+            });
         });
     }
 
