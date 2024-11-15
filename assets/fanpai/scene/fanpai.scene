@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.SceneAsset",
-    "_name": "fanpaiGame",
+    "_name": "fanpai",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -3371,7 +3371,7 @@
         "__id__": 142
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 145
@@ -4583,7 +4583,7 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_enableOutline": true,
+    "_enableOutline": false,
     "_outlineColor": {
       "__type__": "cc.Color",
       "r": 248,
