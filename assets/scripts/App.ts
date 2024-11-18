@@ -10,6 +10,8 @@ import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
 import {UserData} from "db://assets/scripts/Core/Data/UserData";
 import {LoginPanel} from "./Game/UI/Login/LoginPanel";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
 
 
 const { ccclass, property } = _decorator;
@@ -29,9 +31,6 @@ export class App extends BaseObejct {
     @property({type:false})
     isPad = false;
 
-
-    public userData:UserData;
-
     // ai
     // game
     // usercenter
@@ -50,7 +49,7 @@ export class App extends BaseObejct {
         this.preLoadRes();
 
         // 用户数据
-        this.userData = new UserData();
+        Global.userData = new UserData();
     }
 
     onEnable(){
@@ -117,13 +116,25 @@ export class App extends BaseObejct {
     private socketOnHandler(data,context){
         DebugLog.instance.log("socket connected");
         EventManager.getInstance().off(SocketManager.SOCKET_ON,context);
+
+        // 请求项目资源地址
+        // SocketManager.getInstance().send(new SocketData({"action": "init.root", "data": {"xx": "xxx"}}));
+        // EventManager.getInstance().on(SocketManager.xxx,(data,context)=>{
+        //    Global.API_Root = data.apiRoot;
+        //    Global.RES_Root = data.resRoot;
+
         let self = context;
-        LoaderManager.getInstance().resourcesLoadPrefab("prefab/LoginPanel").then((resource)=>{
+        LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root+"prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
             UIManager.getInstance().registerView(LoginPanel.NAME,node);
             UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
             node.setPosition(0,0,0);
         });
+
+
+
+        // },this);
+
     }
 
     /**

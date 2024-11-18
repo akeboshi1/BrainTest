@@ -1,4 +1,4 @@
-import {ImageAsset,resources,assetManager,AssetManager,Prefab,Texture2D} from 'cc'
+import {ImageAsset,resources,assetManager,AssetManager,Prefab,Texture2D,SpriteFrame} from 'cc'
 import {BaseManager} from "../BaseManager";
 import { DebugLog } from '../../Util/DebugLog';
 
@@ -17,6 +17,7 @@ export class LoaderManager extends BaseManager {
         super();
     }
 
+    //======================  resources load
     /**
      * 加载resources(默认bundle)资源
      * @param url
@@ -39,7 +40,7 @@ export class LoaderManager extends BaseManager {
      * 加载resources(默认bundle)prefab资源 （外部环境，不带类型得load得方法会报错）
      * @param url
      */
-    async resourcesLoadPrefab(url:string):Promise<any> {
+    async resourcesLoadPrefab(url:string):Promise<Prefab> {
         return new Promise((resolve, reject) => {
             resources.load(url, Prefab,(err, prefab) => {
                 if(err){
@@ -52,7 +53,41 @@ export class LoaderManager extends BaseManager {
         })
     }
 
+    /**
+     * 加载resources(默认bundle)prefab资源 （外部环境，不带类型得load得方法会报错）
+     * @param url
+     */
+    async resourcesLoadTexture(url:string):Promise<Texture2D> {
+        return new Promise((resolve, reject) => {
+            resources.load(url, Texture2D,(err, texture) => {
+                if(err){
+                    DebugLog.instance.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(texture);
+            });
+        })
+    }
 
+    /**
+     * 加载resources(默认bundle)prefab资源 （外部环境，不带类型得load得方法会报错）
+     * @param url
+     */
+    async resourcesLoadFrame(url:string):Promise<SpriteFrame> {
+        return new Promise((resolve, reject) => {
+            resources.load(url, SpriteFrame,(err, frame) => {
+                if(err){
+                    DebugLog.instance.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(frame);
+            });
+        })
+    }
+
+    //================ bundle load
    /**
      * 加载assetbundle资源
      * @param url
@@ -147,5 +182,84 @@ export class LoaderManager extends BaseManager {
                 resolve(texture);
             })
         });
+    }
+
+    /**
+     * 加载其他bundle中的spriteframe
+     * @param url
+     * @param name
+     */
+    async loadABFrame(url:string,name:string):Promise<SpriteFrame> {
+        return new Promise<SpriteFrame>((resolve, reject) => {
+            let bundle = assetManager.getBundle(name);
+            if(!bundle) {
+                DebugLog.instance.error(`${name},bundle not exist`);
+                return;
+            }
+            bundle.load(url,SpriteFrame,(err,frame)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(frame);
+            })
+        });
+    }
+
+    /**
+     * 释放单个资源
+     * @param bundleName
+     * @param resName
+     * @param type
+     */
+    releaseBundleResByName(bundleName:string,resName:string,type:any){
+        let bundle = assetManager.getBundle(bundleName);
+        if(!bundle) {
+            DebugLog.instance.error(`${bundleName},bundle not exist`);
+            return;
+        }
+        let typeName;
+        // 释放在 Asset Bundle 中的单个资源
+        switch(type){
+            case SpriteFrame:
+                typeName = SpriteFrame;
+                break;
+            case Prefab:
+                typeName = Prefab;
+                break;
+            case Texture2D:
+                typeName = Texture2D;
+                break;
+            case ImageAsset:
+                typeName = ImageAsset;
+                break;
+        }
+        bundle.release(resName, typeName);
+        assetManager.removeBundle(bundle);
+    }
+
+    /**
+     * 传入资源，让cocos.assetManager移除对应资源
+     * @param bundleName
+     * @param res
+     */
+    releaseBundleRes(res:any){
+        assetManager.releaseAsset(res)
+    }
+
+    /**
+     * 移除某个bundle
+     * @param bundleName
+     */
+    removeAllBundleRes(bundleName:string){
+        let bundle = assetManager.getBundle(bundleName);
+        if(!bundle) {
+            DebugLog.instance.error(`${bundleName},bundle not exist`);
+            return;
+        }
+        // 释放所有属于 Asset Bundle 的资源
+        bundle.releaseAll();
+        assetManager.removeBundle(bundle);
     }
 }
