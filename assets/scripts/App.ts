@@ -1,4 +1,4 @@
-import { _decorator, Component,Camera,AssetManager,Node,director,instantiate,v2 } from 'cc';
+import { _decorator, Component,Camera,AssetManager,Node,director,instantiate,WebView } from 'cc';
 import {EventManager} from "./Core/Manager/Event/EventManager";
 import {SocketManager} from "./Core/Manager/Net/SocketManager";
 import {UIManager} from "./Core/Manager/UI/UIManager";
@@ -30,6 +30,22 @@ export class App extends BaseObejct {
 
     @property({type:false})
     isPad = false;
+
+    /**
+     * 用于本地调试tts/asr接口
+     */
+    @property({type:false})
+    isWebView = false;
+
+    @property(Node)
+    webView: Node;
+
+    @property(WebView)
+    tts: WebView;
+
+    @property(WebView)
+    asr: WebView;
+
 
     // ai
     // game
@@ -67,6 +83,22 @@ export class App extends BaseObejct {
     update(deltaTime: number) {
         
     }
+
+
+    /**
+     * debug环境下tts 连接成功回调
+     */
+    ttsComplete(){
+        DebugLog.instance.log("ttsComplete");
+    }
+
+    /**
+     * debug环境下asr 连接成功回调
+     */
+    asrComplete(){
+        DebugLog.instance.log("asrComplete");
+    }
+
 
     private initSocket(){
         EventManager.getInstance().on(SocketManager.SOCKET_ON,this.socketOnHandler,this);
@@ -116,6 +148,12 @@ export class App extends BaseObejct {
     private socketOnHandler(data,context){
         DebugLog.instance.log("socket connected");
         EventManager.getInstance().off(SocketManager.SOCKET_ON,context);
+
+        if(this.isWebView){
+            this.tts.url ="https://kele.paipai.xinjiaxianglao.com/webview/dev/tts.html";
+            this.asr.url="https://kele.paipai.xinjiaxianglao.com/webview/dev/asr.html";
+
+        }
 
         // 请求项目资源地址
         // SocketManager.getInstance().send(new SocketData({"action": "init.root", "data": {"xx": "xxx"}}));
