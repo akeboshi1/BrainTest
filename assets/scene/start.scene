@@ -616,9 +616,9 @@
     "panelContainer": {
       "__id__": 6
     },
-    "sceneName": "",
+    "sceneName": "fanpai",
     "isPad": false,
-    "isWebView": true,
+    "isWebView": false,
     "webView": {
       "__id__": 8
     },

@@ -1,5 +1,7 @@
 import { _decorator, Component, Node, resources, Sprite, SpriteFrame, Texture2D, ImageAsset, Label, Button, random } from 'cc';
 import {LoaderManager} from "../../scripts/Core/Manager/Load/LoaderManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "db://assets/scripts/Game/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -33,6 +35,18 @@ export class Main extends Component {
     @property(Label)
     successLable: Label;
 
+    @property(Button)
+    successNextButton: Button;
+
+    @property(Button)
+    successStartButton: Button;
+
+    @property(Button)
+    failNextButton: Button;
+
+    @property(Button)
+    failRetryButton: Button;
+
     private currentCard: Node;
     private buttonLableText: Label;
     private successLableText: Label;
@@ -54,6 +68,8 @@ export class Main extends Component {
     }
     sceneInit() {
         this.successView.active = true;
+        this.successStartButton.node.active = true;
+        this.successNextButton.node.active = false;
         this.successLableText = this.successLable.getComponent(Label);
         this.buttonLableText = this.nextButton.node.children[0].getComponent(Label);
         this.buttonLableText.string = '开始游戏';
@@ -136,7 +152,8 @@ export class Main extends Component {
                 this.isAbleClick = false
                 clearInterval(this.timerId);
                 this.successView.active = true;
-
+                this.successStartButton.node.active = false;
+                this.successNextButton.node.active = true;
                 this.successView.children[7].active = false;
                 this.successView.children[6].active = true;
                 this.buttonLableText.string = '下一关';
@@ -148,8 +165,15 @@ export class Main extends Component {
                     this.successView.children[1].active = true;
                     this.successLableText.string = '2'
                 } else if (this.cardCustoms == 3) {
-                    this.successView.active = false;
-                    this.bigWin.active = true;
+                    // 串烧游戏不弹大胜利界面
+                    if(!Global.isSkewersGame){
+                        this.successView.active = false;
+                        this.bigWin.active = true;
+                    }else{
+                        this.successView.active = true;
+                        this.bigWin.active = false;
+                    }
+
                 }
                 this.cardCustoms++;
             }
@@ -337,6 +361,11 @@ export class Main extends Component {
                 this.isAbleClick = false
                 // 倒计时结束，游戏结束
                 this.failView.active = true;
+                if(Global.isSkewersGame){
+                   this.failRetryButton.node.active = false;
+                }else{
+                    this.failRetryButton.node.active = true;
+                }
             }
             this.updateTimerLabel()
         }, 1 * 1000);
@@ -368,6 +397,10 @@ export class Main extends Component {
         this.startGame();
     }
     playNextCustoms() {
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().runNextGame();
+            return;
+        }
         this.failView.active = false;
         if(this.cardCustoms >=3) {
             this.cardCustoms = 1

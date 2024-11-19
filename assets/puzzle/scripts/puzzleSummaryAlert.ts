@@ -1,4 +1,5 @@
 import { _decorator, Component, Node, Tween, tween, UITransform, Vec3 } from 'cc';
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleSummaryAlert')
@@ -30,9 +31,16 @@ export class puzzleSummaryAlert extends Component {
         this.successLabel.active = result;
         this.failLabel.active = !result;
 
-        this.buttonRetry.active = !result;
-        this.buttonJumpLevel.active = !result;
-        this.buttonNextLevel.active = result;
+        if(!Global.isSkewersGame){
+            this.buttonRetry.active = !result;
+            this.buttonJumpLevel.active = !result;
+            this.buttonNextLevel.active = result;
+        }else{
+            // 串烧游戏 只有直接进入下一关
+            this.buttonJumpLevel.active = false;
+            this.buttonRetry.active = false;
+            this.buttonNextLevel.active=true;
+        }
     }
 
     fadeIn(){

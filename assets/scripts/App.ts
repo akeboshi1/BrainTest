@@ -8,10 +8,10 @@ import {PoolManager} from "./Core/Manager/Pool/PoolManager";
 import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
-import {UserData} from "db://assets/scripts/Core/Data/UserData";
+import {UserData} from "./Core/Data/UserData";
 import {LoginPanel} from "./Game/UI/Login/LoginPanel";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
+import {Global} from "./Core/Manager/Config/Global";
+import {SkewersManager} from "./Game/Skewers/SkewersManager";
 
 
 const { ccclass, property } = _decorator;
@@ -115,18 +115,21 @@ export class App extends BaseObejct {
         EventManager.getInstance().init();
         PoolManager.getInstance().init();
         SpriteManager.getInstance().init();
+        SkewersManager.getInstance().init();
     }
 
     private preLoadRes(){
         let self = this;
         UIManager.getInstance().perloadRes().then(()=>{
             UIManager.getInstance().showLoadingPanel();
-            if(self.isPad){
-                // 初始化游戏
-                self.initGame();
-            }else{
-                // 初始化socket
-                self.initSocket();
+            if(!Global.isSkewersGame){
+                if(self.isPad){
+                    // 初始化游戏
+                    self.initGame();
+                }else{
+                    // 初始化socket
+                    self.initSocket();
+                }
             }
         });
     }
@@ -180,14 +183,17 @@ export class App extends BaseObejct {
      * @private
      */
     private initGame(){
-        let self = this;
-        LoaderManager.getInstance().assetBundleLoad(self.sceneName,self.sceneName).then((bundle:AssetManager.Bundle)=>{
-            bundle.loadScene(self.sceneName,(err,scene)=>{
-                director.loadScene(self.sceneName,(err,scene)=>{
-                    if(err)DebugLog.instance.error(err);
-                })
-            });
+        let url = Global.RES_Root +this.sceneName;
+        SceneManager.getInstance().changeScene(url,this.sceneName).then(()=>{
+             DebugLog.instance.log(`${this.sceneName} 场景切换成功`);
         });
+        // LoaderManager.getInstance().assetBundleLoad(self.sceneName,self.sceneName).then((bundle:AssetManager.Bundle)=>{
+        //     bundle.loadScene(self.sceneName,(err,scene)=>{
+        //         director.loadScene(self.sceneName,(err,scene)=>{
+        //             if(err)DebugLog.instance.error(err);
+        //         })
+        //     });
+        // });
     }
 
     /**

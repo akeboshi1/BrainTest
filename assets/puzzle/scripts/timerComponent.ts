@@ -65,12 +65,12 @@ export class timerComponent extends Component {
 
     // 用于其他组件监听'timer-end'事件的方法
     public on(event: string, callback: (...any: any[]) => any, target: any) {
-        this.eventTarget.on(event, callback, target);
+        if(this.eventTarget)this.eventTarget.on(event, callback, target);
     }
 
     // 用于其他组件取消监听'timer-end'事件的方法
     public off(event: string, callback: (...any: any[]) => any, target: any) {
-        this.eventTarget.off(event, callback, target);
+        if(this.eventTarget)this.eventTarget.off(event, callback, target);
     }
 
     private padStart(str: string, targetLength: number, padString: string = "0") {

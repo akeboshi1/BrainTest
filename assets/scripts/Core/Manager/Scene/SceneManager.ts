@@ -1,5 +1,9 @@
-import { _decorator, director,AssetManager } from 'cc';
+import { assetManager, director,AssetManager, Scene } from 'cc';
 import {BaseManager} from "../BaseManager";
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {GameSceneConst} from "db://assets/scripts/Core/Data/GameSceneConst";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 
 export class SceneManager extends BaseManager{
 
@@ -23,17 +27,44 @@ export class SceneManager extends BaseManager{
 
     }
 
+
     /**
      * 切换场景
      * @param sceneName
      */
-    changeScene(sceneName:string,callback?:Function) {
-        if(callback) {
-            director.loadScene(sceneName,callback());
-        } else {
-            director.loadScene(sceneName);
-        }
+    async changeScene(url:string,sceneName:string,):Promise<Scene>{
+        return new Promise((resolve, reject)=>{
+            let sceneBundle = assetManager.getBundle(url);
+            if(!sceneBundle){
+                LoaderManager.getInstance().assetBundleLoad(url,sceneName).then((bundle:AssetManager.Bundle)=>{
+                    bundle.loadScene(sceneName,(err,scene)=>{
+                        director.loadScene(sceneName,(err,scene)=>{
+                            if(err){
+                                DebugLog.instance.error(err);
+                                return;
+                            }
+                            DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                            resolve(scene);
+                        });
+                    });
+                }).catch(err=>{
+                    reject(err);
+                });
+            }else{
+                // 已经加载过bundle的情况
+                 director.loadScene(sceneName,(err,scene)=>{
+                    if(err){
+                            DebugLog.instance.error(err);
+                            return;
+                    }
+                    DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                    resolve(scene);
+                 })
+            }
+        })
     }
+
+
 
     /**
      * 切换custom ab文件内的场景
@@ -41,7 +72,7 @@ export class SceneManager extends BaseManager{
      * @param bundle
      * @param callback
      */
-    async changeBundleScene(sceneName:string,bundle?:AssetManager.Bundle,callback?:Function):Promise<void> {
+    async changeBundleScene(sceneName:string,bundle:AssetManager.Bundle,callback?:Function):Promise<void> {
        return new Promise((resolve,reject)=>{
            bundle.loadScene(sceneName, function (err, scene) {
                if(err!=null){
@@ -53,6 +84,31 @@ export class SceneManager extends BaseManager{
                resolve();
            });
        });
+    }
+
+    /**
+     * 返回大厅
+     */
+    async backToHall():Promise<void>{
+        return new Promise((resolve,reject)=>{
+            let url = Global.RES_Root + GameSceneConst.Hall;
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall,GameSceneConst.Hall).then(()=>{
+                DebugLog.instance.log('返回大厅');
+                resolve();
+            }).catch(err=>{
+                reject(err);
+            })
+        })
+    }
+
+    /**
+     * 手动销毁当前scene
+     */
+    destroyCurScene(){
+        const currentScene = director.getScene();
+        if (currentScene) {
+            currentScene.destroy(); // 销毁当前场景
+        }
     }
 
     /**

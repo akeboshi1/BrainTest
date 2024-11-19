@@ -1,6 +1,8 @@
 import { _decorator, Component, Node, SpriteFrame, Texture2D, Size, Rect, Sprite, Prefab, instantiate, UITransform, EventTouch, Vec2, Vec3, tween } from 'cc';
 import { timerComponent } from './timerComponent';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "db://assets/scripts/Game/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleGameCore')
@@ -75,12 +77,15 @@ export class puzzleGameCore extends Component {
     }
 
     protected onDestroy(): void {
-        this.timerComponent.off('timer-end', this.onTimerEnd, this);
+        if(Global.isSkewersGame)return;
+        if(this.timerComponent)this.timerComponent.off('timer-end', this.onTimerEnd, this);
 
-        this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
-        this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
-        this.draggableNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-        this.draggableNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        if(this.draggableNode){
+            this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+            this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+            this.draggableNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+            this.draggableNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        }
 
         this.cleanChipsCache();
     }
@@ -362,6 +367,11 @@ export class puzzleGameCore extends Component {
     }
 
     onClickGotoNextlevel(){
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().runNextGame();
+            return;
+        }
+        // 下一关
         this.onClickChangeLevel();
         this.startGameMask.active = true;
         this.buttonStartGame.active = true;
@@ -369,6 +379,8 @@ export class puzzleGameCore extends Component {
     }
 
     onClickRetryCurrentLevel(){
+
+        // 重玩
         this.cleanChipsCache();
         this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
 
