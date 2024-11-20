@@ -55,7 +55,7 @@ export class Main extends Component {
     private cardList: { index: number, imgUrl: string, isBacked: boolean, isDeleted: boolean }[];
 
     private cardTotalCount: number = 8;
-    private cardCustoms: number = 1;
+    private curHard: number = 1;
 
     private isAbleClick: boolean = false;
 
@@ -63,7 +63,9 @@ export class Main extends Component {
 
 
     start() {
-        this.cardPool;
+        if(Global.isSkewersGame){
+            this.curHard = Global.userData.curSkewerGameData.hard;
+        }
         this.sceneInit()
     }
     sceneInit() {
@@ -157,14 +159,14 @@ export class Main extends Component {
                 this.successView.children[7].active = false;
                 this.successView.children[6].active = true;
                 this.buttonLableText.string = '下一关';
-                if (this.cardCustoms == 1) {
+                if (this.curHard == 1) {
                     this.successView.children[0].active = true;
                     this.successLableText.string = '1'
-                } else if (this.cardCustoms == 2) {
+                } else if (this.curHard == 2) {
                     this.successView.children[0].active = true;
                     this.successView.children[1].active = true;
                     this.successLableText.string = '2'
-                } else if (this.cardCustoms == 3) {
+                } else if (this.curHard == 3) {
                     // 串烧游戏不弹大胜利界面
                     if(!Global.isSkewersGame){
                         this.successView.active = false;
@@ -175,7 +177,7 @@ export class Main extends Component {
                     }
 
                 }
-                this.cardCustoms++;
+                this.curHard++;
             }
         }
 
@@ -184,9 +186,9 @@ export class Main extends Component {
     startGame() {
         this.isAbleClick = true;
 
-        if (this.cardCustoms == 1) {
+        if (this.curHard == 1) {
             this.gameStartInit();
-        } else if (this.cardCustoms == 2) {
+        } else if (this.curHard == 2) {
             if (this.cardTotalCount == 8) {
                 this.nextCustoms();
                 this.successView.children[0].active = false;
@@ -194,7 +196,7 @@ export class Main extends Component {
                 this.gameStartInit();
             }
 
-        } else if (this.cardCustoms == 3) {
+        } else if (this.curHard == 3) {
             if (this.cardTotalCount == 12) {
                 this.nextCustoms();
                 this.successView.children[0].active = false;
@@ -260,12 +262,12 @@ export class Main extends Component {
         // 所有卡片设置为背板
         this.closeAllCard();
     }
-
+    
     nextCustoms() {
         // 所有卡片设置为背板
         this.closeAllCard();
 
-        this.cardTotalCount = (this.cardCustoms + 1) * 4;
+        this.cardTotalCount = (this.curHard + 1) * 4;
         console.log(' this.cardTotalCount ', this.cardTotalCount)
 
         const maxLen = this.cardPool.children[0].children.length;
@@ -382,7 +384,7 @@ export class Main extends Component {
         this.bigWin.active = false;
         this.successView.children[6].active = false;
         this.successView.children[7].active = true;
-        this.cardCustoms = 1;
+        this.curHard = 1;
         this.closeAllCard();
         let subarray = this.cardPool.children[0].children.slice(8, 16);
         subarray.forEach(item => {
@@ -397,15 +399,16 @@ export class Main extends Component {
         this.startGame();
     }
     playNextCustoms() {
+        // 串烧游戏状态下，运行下一个串烧游戏内容
         if(Global.isSkewersGame){
             SkewersManager.getInstance().runNextGame();
             return;
         }
         this.failView.active = false;
-        if(this.cardCustoms >=3) {
-            this.cardCustoms = 1
+        if(this.curHard >=3) {
+            this.curHard = 1
         }else {
-            this.cardCustoms++;  
+            this.curHard++;  
         }
         this.nextCustoms();
         this.gameStartInit()

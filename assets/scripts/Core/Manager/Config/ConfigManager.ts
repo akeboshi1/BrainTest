@@ -38,7 +38,6 @@ export class ConfigManager extends BaseManager {
     }
 
 
-
     async readConfig (filepath: string, c: any) :Promise<any> {
         return new Promise((resolve, reject) => {
             type kv = { key: string, value: string };

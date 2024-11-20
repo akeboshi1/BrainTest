@@ -31,9 +31,9 @@ export class SkewersManager{
            this._gameDatas = [];
            Global.isSkewersGame =true;
            this.refreshData([
-               {hard:1,durTime:2,count:2,code:"puzzle",type:GameType.Judgment},
+               {hard:0,durTime:2,count:2,code:"puzzle",type:GameType.Judgment},
                {hard:1,durTime:2,count:1,code:"fanpai",type:GameType.Memory},
-               {hard:1,durTime:2,count:1,code:"puzzle",type:GameType.Judgment}]);
+               {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment}]);
      }
 
      public refreshData(datas:any){
@@ -59,6 +59,7 @@ export class SkewersManager{
               //         break;
               // }
           }
+          Global.userData.skewerGameDatas = this._gameDatas;
           this.startGame();
      }
 
@@ -75,6 +76,7 @@ export class SkewersManager{
           let url = Global.RES_Root+sceneName;
           SceneManager.getInstance().changeScene(url,sceneName).then((scene)=>{
               DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
+              Global.userData.curSkewerGameData = game;
           });
 
      }
@@ -110,7 +112,8 @@ export class SkewersManager{
          const sceneName = game.sceneName;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-             DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`)
+             DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
+             Global.userData.curSkewerGameData = game;
          });
      }
 
@@ -119,7 +122,10 @@ export class SkewersManager{
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
-         if(!this.checkGameIndex(this._curIndex+1))return;
+         if(!this.checkGameIndex(this._curIndex+1)){
+             DebugLog.instance.log("当前串烧游戏已经全部完成");
+             return;
+         }
          if(this._curIndex + 1 > this._gameDatas.length - 1){
              DebugLog.instance.log('当前串烧游戏已经全部完成')
              return;
@@ -129,7 +135,8 @@ export class SkewersManager{
          const sceneName = game.sceneName;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-             DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`)
+             DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
+             Global.userData.curSkewerGameData = game;
          });
      }
 

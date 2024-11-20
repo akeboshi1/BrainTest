@@ -30,7 +30,8 @@ export class SceneManager extends BaseManager{
 
     /**
      * 切换场景
-     * @param sceneName
+     * @param url bundle路径
+     * @param sceneName scene名字
      */
     async changeScene(url:string,sceneName:string,):Promise<Scene>{
         return new Promise((resolve, reject)=>{

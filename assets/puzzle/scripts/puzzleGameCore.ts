@@ -68,6 +68,9 @@ export class puzzleGameCore extends Component {
     start() {
         this.summaryAlert.node.active = false;
         this.cleanChipsCache();
+        if(Global.isSkewersGame){
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.hard;
+        }
         this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
         this.updatePreviewSprite();
     }

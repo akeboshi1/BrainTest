@@ -55,6 +55,8 @@ export class App extends BaseObejct {
     onLoad(){
         super.onLoad();
         DebugLog.instance.log('onLoad');
+        // 用户数据
+        Global.userData = new UserData();
 
         // 常驻节点
         director.addPersistRootNode(this.node);
@@ -64,8 +66,6 @@ export class App extends BaseObejct {
         //预加载
         this.preLoadRes();
 
-        // 用户数据
-        Global.userData = new UserData();
     }
 
     onEnable(){
