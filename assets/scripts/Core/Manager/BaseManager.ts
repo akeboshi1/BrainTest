@@ -1,4 +1,4 @@
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {DebugLog} from "../../Core/Util/DebugLog";
 
 export class BaseManager {
 

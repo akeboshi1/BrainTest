@@ -1,9 +1,9 @@
 import { assetManager, director,AssetManager, Scene } from 'cc';
 import {BaseManager} from "../BaseManager";
-import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {GameSceneConst} from "db://assets/scripts/Core/Data/GameSceneConst";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
+import {DebugLog} from "../../../Core/Util/DebugLog";
+import {GameSceneConst} from "../../../Core/Data/GameSceneConst";
+import {Global} from "../../../Core/Manager/Config/Global";
 
 export class SceneManager extends BaseManager{
 

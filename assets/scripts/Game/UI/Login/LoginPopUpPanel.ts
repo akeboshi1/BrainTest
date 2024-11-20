@@ -1,11 +1,11 @@
 import { _decorator, Component, Node,Label,Button,EditBox } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
-import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
+import {DebugLog} from "../../../Core/Util/DebugLog";
+import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
+import {EventManager} from "../../../Core/Manager/Event/EventManager";
+import {UIManager} from "../../../Core/Manager/UI/UIManager";
+import {SocketData} from "../../../Core/Manager/Net/SocketData";
+import {LoginPanel} from "../../../Game/UI/Login/LoginPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')

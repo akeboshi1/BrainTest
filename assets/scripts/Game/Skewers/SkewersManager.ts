@@ -31,9 +31,10 @@ export class SkewersManager{
            this._gameDatas = [];
            Global.isSkewersGame =true;
            this.refreshData([
-               {hard:0,durTime:2,count:2,code:"puzzle",type:GameType.Judgment},
-               {hard:1,durTime:2,count:1,code:"fanpai",type:GameType.Memory},
-               {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment}]);
+               {hard:1,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
+               {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,},
+               {hard:0,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
+               {hard:2,durTime:2,count:2,code:"fanpai",type:GameType.Memory},]);
      }
 
      public refreshData(datas:any){
@@ -45,6 +46,7 @@ export class SkewersManager{
               for(let j:number =0;j<count;j++){
                   let data:SkewersGameData = new SkewersGameData();
                   data.refreshData(tmpData);
+                  data.playIndex = j;
                   this._gameDatas.push(data);
               }
               // switch (tmpData.gameID){

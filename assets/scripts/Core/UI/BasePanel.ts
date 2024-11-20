@@ -1,7 +1,6 @@
 import { _decorator, Component, Node,tween,Vec3 } from 'cc';
-import {BaseObejct} from "db://assets/scripts/Core/Object/BaseObject";
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
+import {BaseObejct} from "../../../scripts/Core/Object/BaseObject";
+import {UIManager} from "../../../scripts/Core/Manager/UI/UIManager";
 const { ccclass, property } = _decorator;
 
 export enum PanelState {

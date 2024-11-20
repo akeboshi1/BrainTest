@@ -77,7 +77,7 @@ export class App extends BaseObejct {
     }
 
     start() {
-        Global.isSkewersGame = false;
+        // Global.isSkewersGame = false;
         DebugLog.instance.log(director.isPersistRootNode(this.node));
     }
 

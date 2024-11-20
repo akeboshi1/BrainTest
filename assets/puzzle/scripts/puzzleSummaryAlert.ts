@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Tween, tween, UITransform, Vec3 } from 'cc';
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {Global} from "../../scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleSummaryAlert')

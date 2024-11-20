@@ -31,8 +31,8 @@ export class SkewersGameData {
     public sceneName:string;
     // 当前串烧游戏类型
     public type:GameType;
-
-
+    // 当前游戏play索引
+    public playIndex:number=-1;
 
     private _gameStates:GameState;
 
@@ -41,6 +41,7 @@ export class SkewersGameData {
         this.durTime = data.durTime;
         this.type = data.type;
         this.sceneName = data.code;
+        this.playIndex = data.playIndex;
     }
 
     public set gameState(state:GameState){

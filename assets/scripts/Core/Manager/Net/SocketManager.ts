@@ -1,7 +1,7 @@
 import {BaseManager} from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import {EventManager} from "../Event/EventManager";
-import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
+import {SocketData} from "../../../Core/Manager/Net/SocketData";
 
 export class SocketManager extends BaseManager{
     private static _instance: SocketManager;

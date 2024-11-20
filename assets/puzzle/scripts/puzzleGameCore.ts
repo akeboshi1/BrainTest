@@ -1,8 +1,9 @@
 import { _decorator, Component, Node, SpriteFrame, Texture2D, Size, Rect, Sprite, Prefab, instantiate, UITransform, EventTouch, Vec2, Vec3, tween } from 'cc';
 import { timerComponent } from './timerComponent';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "db://assets/scripts/Game/Skewers/SkewersManager";
+import {Global} from "../../scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "../../scripts/Game/Skewers/SkewersManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleGameCore')
@@ -71,7 +72,9 @@ export class puzzleGameCore extends Component {
         if(Global.isSkewersGame){
             this.selectedLevelIndex = Global.userData.curSkewerGameData.hard;
         }
-        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
+        const playIndex = Global.userData.curSkewerGameData.playIndex;
+        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
+        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
         this.updatePreviewSprite();
     }
 
@@ -370,6 +373,7 @@ export class puzzleGameCore extends Component {
     }
 
     onClickGotoNextlevel(){
+        DebugLog.instance.log(Global.isSkewersGame);
         if(Global.isSkewersGame){
             SkewersManager.getInstance().runNextGame();
             return;

@@ -1,7 +1,7 @@
 import { _decorator, Component, Node, resources, Sprite, SpriteFrame, Texture2D, ImageAsset, Label, Button, random } from 'cc';
 import {LoaderManager} from "../../scripts/Core/Manager/Load/LoaderManager";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "db://assets/scripts/Game/Skewers/SkewersManager";
+import {Global} from "../../scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "../../scripts/Game/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -54,8 +54,12 @@ export class Main extends Component {
     private cardTheme: string;
     private cardList: { index: number, imgUrl: string, isBacked: boolean, isDeleted: boolean }[];
 
-    private cardTotalCount: number = 8;
-    private curHard: number = 1;
+    private cardTotalCount: number = 0;
+    private curHard: number = 0;
+
+    private hards:number[]=[0,1,2];
+
+    private hardIndex:number=0;
 
     private isAbleClick: boolean = false;
 
@@ -64,7 +68,7 @@ export class Main extends Component {
 
     start() {
         if(Global.isSkewersGame){
-            this.curHard = Global.userData.curSkewerGameData.hard;
+            this.hardIndex = Global.userData.curSkewerGameData.hard;
         }
         this.sceneInit()
     }
@@ -75,6 +79,7 @@ export class Main extends Component {
         this.successLableText = this.successLable.getComponent(Label);
         this.buttonLableText = this.nextButton.node.children[0].getComponent(Label);
         this.buttonLableText.string = '开始游戏';
+        this.initCardView();
         this.timerInit();
     }
     clickCardHandler(event, data) {
@@ -159,14 +164,14 @@ export class Main extends Component {
                 this.successView.children[7].active = false;
                 this.successView.children[6].active = true;
                 this.buttonLableText.string = '下一关';
-                if (this.curHard == 1) {
+                if (this.curHard == this.hards[0]) {
                     this.successView.children[0].active = true;
                     this.successLableText.string = '1'
-                } else if (this.curHard == 2) {
+                } else if (this.curHard == this.hards[1]) {
                     this.successView.children[0].active = true;
                     this.successView.children[1].active = true;
                     this.successLableText.string = '2'
-                } else if (this.curHard == 3) {
+                } else if (this.curHard == this.hards[2]) {
                     // 串烧游戏不弹大胜利界面
                     if(!Global.isSkewersGame){
                         this.successView.active = false;
@@ -175,9 +180,9 @@ export class Main extends Component {
                         this.successView.active = true;
                         this.bigWin.active = false;
                     }
-
                 }
-                this.curHard++;
+                this.hardIndex ++;
+                this.curHard = this.hards[this.hardIndex];
             }
         }
 
@@ -185,19 +190,21 @@ export class Main extends Component {
     }
     startGame() {
         this.isAbleClick = true;
-
-        if (this.curHard == 1) {
+        this.curHard = this.hards[this.hardIndex];
+        this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
+        if (this.curHard == this.hards[0]) {
             this.gameStartInit();
-        } else if (this.curHard == 2) {
-            if (this.cardTotalCount == 8) {
+        }
+        else if (this.curHard == this.hards[1]) {
+            if (this.cardTotalCount == this.calculCardTotalCount(0)) {
                 this.nextCustoms();
                 this.successView.children[0].active = false;
             } else {
                 this.gameStartInit();
             }
-
-        } else if (this.curHard == 3) {
-            if (this.cardTotalCount == 12) {
+        }
+        else if (this.curHard == this.hards[2]) {
+            if (this.cardTotalCount == this.calculCardTotalCount(1)) {
                 this.nextCustoms();
                 this.successView.children[0].active = false;
                 this.successView.children[1].active = false;
@@ -207,17 +214,23 @@ export class Main extends Component {
         }
     }
 
+    private calculCardTotalCount(index:number):number{
+        return (index + 2) * 4;
+    }
+
     gameStartInit() {
         console.log("游戏开始");
         this.successView.active = false;
         // this.bigWin.active = false;
         // this.failView.active = false;
+       this.initCardView();
 
         this.timerInit();
         this.timerTick();
 
         this.initCardTheme();
         this.initCardData();
+
 
         this.previewCard(2);
     }
@@ -267,13 +280,7 @@ export class Main extends Component {
         // 所有卡片设置为背板
         this.closeAllCard();
 
-        this.cardTotalCount = (this.curHard + 1) * 4;
-        console.log(' this.cardTotalCount ', this.cardTotalCount)
-
-        const maxLen = this.cardPool.children[0].children.length;
-        for (let i = 0; i < maxLen; i++) {
-            this.cardPool.children[0].children[i].active = i < this.cardTotalCount ? true : false;
-        }
+        this.initCardView();
 
         this.buttonLableText.string = '开始游戏';
         this.successView.children[6].active = false;
@@ -384,13 +391,14 @@ export class Main extends Component {
         this.bigWin.active = false;
         this.successView.children[6].active = false;
         this.successView.children[7].active = true;
-        this.curHard = 1;
+        this.hardIndex = 0;
+        this.curHard = this.hards[this.hardIndex];
         this.closeAllCard();
         let subarray = this.cardPool.children[0].children.slice(8, 16);
         subarray.forEach(item => {
             item.active = false;
         });
-        this.cardTotalCount = 8;
+        this.cardTotalCount = this.calculCardTotalCount(0);
         this.cardList = [];
         this.sceneInit();
     }
@@ -405,13 +413,26 @@ export class Main extends Component {
             return;
         }
         this.failView.active = false;
-        if(this.curHard >=3) {
-            this.curHard = 1
-        }else {
-            this.curHard++;  
+        if(this.hardIndex >=this.hards.length) {
+            this.hardIndex = 0;
         }
+        this.curHard = this.hards[this.hardIndex];
         this.nextCustoms();
         this.gameStartInit()
+    }
+
+    /**
+     * 初始化卡牌view
+     * @private
+     */
+    private initCardView(){
+        this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
+        console.log(' this.cardTotalCount ', this.cardTotalCount)
+
+        const maxLen = this.cardPool.children[0].children.length;
+        for (let i = 0; i < maxLen; i++) {
+            this.cardPool.children[0].children[i].active = i < this.cardTotalCount ? true : false;
+        }
     }
 
 }

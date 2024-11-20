@@ -2,12 +2,8 @@ import { _decorator, Sprite, Node,SpriteFrame,instantiate } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
-import { DebugLog } from '../../../Core/Util/DebugLog';
-import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
-import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {UIManager} from "../../../Core/Manager/UI/UIManager";
-import {LoginPopUpPanel} from "db://assets/scripts/Game/UI/Login/LoginPopUpPanel";
-import {timerComponent} from "db://assets/puzzleGame/scripts/timerComponent";
+import {LoginPopUpPanel} from "../../../Game/UI/Login/LoginPopUpPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
