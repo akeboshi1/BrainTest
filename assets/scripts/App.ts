@@ -77,7 +77,8 @@ export class App extends BaseObejct {
     }
 
     start() {
-      DebugLog.instance.log(director.isPersistRootNode(this.node));
+        Global.isSkewersGame = false;
+        DebugLog.instance.log(director.isPersistRootNode(this.node));
     }
 
     update(deltaTime: number) {

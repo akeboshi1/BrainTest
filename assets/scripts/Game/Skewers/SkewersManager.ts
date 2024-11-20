@@ -145,6 +145,7 @@ export class SkewersManager{
          let game:SkewersGameData = this._gameDatas[index];
          if(!game){
              DebugLog.instance.error(`索引为 ${index} 数据不存在`);
+             Global.isSkewersGame = false;
              return false;
          }
          if(game.gameState == GameState.over){
