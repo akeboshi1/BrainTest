@@ -11,8 +11,8 @@ import {BaseObejct} from "./Core/Object/BaseObject";
 import {UserData} from "./Core/Data/UserData";
 import {LoginPanel} from "./Game/UI/Login/LoginPanel";
 import {Global} from "./Core/Manager/Config/Global";
-import {SkewersManager} from "./Game/Skewers/SkewersManager";
-
+import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
+import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
 
 const { ccclass, property } = _decorator;
 
@@ -65,7 +65,6 @@ export class App extends BaseObejct {
 
         //预加载
         this.preLoadRes();
-
     }
 
     onEnable(){
@@ -101,36 +100,30 @@ export class App extends BaseObejct {
     }
 
 
-    private initSocket(){
-        EventManager.getInstance().on(SocketManager.SOCKET_ON,this.socketOnHandler,this);
-        // 初始化socket
-        const url = "wss://test.paipai2.xinjiaxianglao.com/api/home";
-        SocketManager.getInstance().initSocket(url);
 
-    }
 
     private initManager() {
         LoaderManager.getInstance().init();
+        LoginManager.getInstance().init();
         UIManager.getInstance().init();
         SceneManager.getInstance().init();
         EventManager.getInstance().init();
         PoolManager.getInstance().init();
         SpriteManager.getInstance().init();
-        SkewersManager.getInstance().init();
+        TaskManager.getInstance().init();
     }
 
     private preLoadRes(){
         let self = this;
         UIManager.getInstance().perloadRes().then(()=>{
             UIManager.getInstance().showLoadingPanel();
-            if(!Global.isSkewersGame){
-                if(self.isPad){
-                    // 初始化游戏
-                    self.initGame();
-                }else{
-                    // 初始化socket
-                    self.initSocket();
-                }
+            if(self.isPad){
+                // 初始化游戏
+                self.initGame();
+            }else{
+                // 初始化socket
+                EventManager.getInstance().on(SocketManager.SOCKET_ON,this.socketOnHandler,this);
+                SocketManager.getInstance().initSocket();
             }
         });
     }
@@ -165,17 +158,12 @@ export class App extends BaseObejct {
         //    Global.API_Root = data.apiRoot;
         //    Global.RES_Root = data.resRoot;
 
-        let self = context;
-        LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root+"prefab/LoginPanel").then((resource)=>{
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(LoginPanel.NAME,node);
-            UIManager.getInstance().showView(LoginPanel.NAME,self.panelContainer);
-            node.setPosition(0,0,0);
-        });
-
-
+        LoginManager.getInstance().start(context.panelContainer);
 
         // },this);
+
+
+
 
     }
 

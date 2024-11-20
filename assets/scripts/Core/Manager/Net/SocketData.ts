@@ -13,6 +13,8 @@ export class SocketData {
 
     public status:number = 0; // 0失败 1成功
 
+    public message:string;
+
     /**
      * 数据反馈
      */

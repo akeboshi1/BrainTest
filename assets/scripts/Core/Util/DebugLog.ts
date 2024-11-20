@@ -18,14 +18,14 @@ export class DebugLog {
     }
 
     public log(...data: any[]){
-        if(this.debugBoo)console.log(data);
+        if(this.debugBoo)console.log(...data);
     }
 
     public warn(...data: any[]){
-        if(this.debugBoo)console.warn(data);
+        if(this.debugBoo)console.warn(...data);
     }
 
     public error(...data: any[]){
-        if(this.debugBoo)console.error(data);
+        if(this.debugBoo)console.error(...data);
     }
 }

@@ -33,12 +33,14 @@ export class SocketManager extends BaseManager{
         this._socket.close();
     }
 
-    public initSocket(url:string):void {
+    initSocket(url:string = null):void {
        if(this._socket!=null){
            DebugLog.instance.error("socket已初始化");
            return;
        }
-       DebugLog.instance.log("init socket");
+        // 初始化socket
+       if(url == null) url = "wss://test.paipai2.xinjiaxianglao.com/api/home";
+       DebugLog.instance.log("socket init");
        this._socket=new WebSocket(url);
        this._socket.onopen = ()=>{
            EventManager.getInstance().emit(SocketManager.SOCKET_ON);

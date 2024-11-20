@@ -2,7 +2,7 @@ import { _decorator, Component, Node, SpriteFrame, Texture2D, Size, Rect, Sprite
 import { timerComponent } from './timerComponent';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import {Global} from "../../scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "../../scripts/Game/Skewers/SkewersManager";
+import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 

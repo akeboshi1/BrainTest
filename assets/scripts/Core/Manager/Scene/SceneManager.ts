@@ -9,8 +9,7 @@ export class SceneManager extends BaseManager{
 
     private static _instance: SceneManager;
 
-    // 场景字典
-    private scenes: {};
+
     public static getInstance():SceneManager {
         if(!SceneManager._instance) {
             SceneManager._instance = new SceneManager();
@@ -18,6 +17,8 @@ export class SceneManager extends BaseManager{
         return SceneManager._instance;
     }
 
+    // 场景字典
+    private scenes: {};
 
     init() {
         this.scenes = {};

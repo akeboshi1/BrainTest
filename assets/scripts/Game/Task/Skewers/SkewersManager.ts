@@ -1,8 +1,12 @@
 import {GameType, SkewersGameData} from "./SkewersGameData";
-import {DebugLog} from "../../Core/Util/DebugLog";
-import {SceneManager} from "../../Core/Manager/Scene/SceneManager";
-import {Global} from "../../Core/Manager/Config/Global";
-import {GameState} from "../../Core/Data/GameState";
+import {DebugLog} from "../../../Core/Util/DebugLog";
+import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
+import {Global} from "../../../Core/Manager/Config/Global";
+import {GameState} from "../../../Core/Data/GameState";
+import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
+import {SocketData} from "../../../Core/Manager/Net/SocketData";
+import {TimeUtil} from "../../../Core/Util/TimeUtil";
+import {EventManager} from "../../../Core/Manager/Event/EventManager";
 
 /**
  * 脑力串烧管理器
@@ -27,17 +31,49 @@ export class SkewersManager{
     private _curIndex:number =-1;
 
 
+
+    //===== 脑力保健
+    /**
+     * 获取脑力保健任务
+     * @private
+     */
+    private task_get_brain_trainings:string = "task.get_brain_trainings";
+
+    /**
+     * 完成脑力保健任务
+     * @private
+     */
+    private task_complete_brain_training:string = "task.complete_brain_training";
+
+
      public init(){
            this._gameDatas = [];
-           Global.isSkewersGame =true;
-           this.refreshData([
-               {hard:1,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-               {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,},
-               {hard:0,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-               {hard:2,durTime:2,count:2,code:"fanpai",type:GameType.Memory},]);
+
      }
 
-     public refreshData(datas:any){
+     start(){
+         Global.isSkewersGame =true;
+         this.refreshBrainsTrainings([
+             {hard:1,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
+             {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,},
+             {hard:0,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
+             {hard:2,durTime:2,count:2,code:"fanpai",type:GameType.Memory},],this);
+     }
+
+
+
+    /**
+     * 请求脑力保健任务列表
+     * @param taskID
+     */
+     public requestBranisTrainings(taskID:number){
+        EventManager.getInstance().on(this.task_get_brain_trainings,this.refreshBrainsTrainings,this);
+        let requestBranisTrainingsSocket = new SocketData({uid:"",action:this.task_get_brain_trainings,data:{task_id:taskID}});
+        SocketManager.getInstance().send(requestBranisTrainingsSocket);
+     }
+
+     public refreshBrainsTrainings(datas:any,context:any){
+         EventManager.getInstance().off(this.task_get_brain_trainings,this.refreshBrainsTrainings);
           const len = datas.length;
           for(let i:number =0;i<len;i++){
               let tmpData:any = datas[i];

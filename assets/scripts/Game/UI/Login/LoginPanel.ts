@@ -1,9 +1,7 @@
 import { _decorator, Sprite, Node,SpriteFrame,instantiate } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
-import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
-import {UIManager} from "../../../Core/Manager/UI/UIManager";
-import {LoginPopUpPanel} from "../../../Game/UI/Login/LoginPopUpPanel";
+import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -33,10 +31,6 @@ export class LoginPanel extends BasePanel {
         super();
         LoginPanel.NAME ="LoginPanel";
         this.name = LoginPanel.NAME;
-    }
-
-    start() {
-        super.start();
     }
 
     onLoad() {
@@ -72,14 +66,7 @@ export class LoginPanel extends BasePanel {
 
 
     public loginClick(){
-        let self =this;
-        LoaderManager.getInstance().resourcesLoad("prefab/LoginPopUpPanel").then((resource)=>{
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(LoginPopUpPanel.NAME,node);
-            const parendNode = self.node.parent;
-            UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
-            UIManager.getInstance().hideView(LoginPanel.NAME);
-        });
+        LoginManager.getInstance().login(this.node);
     }
 
     private loadPanelComplete(){

@@ -1,4 +1,4 @@
-import {GameState} from "../../Core/Data/GameState";
+import {GameState} from "../../../Core/Data/GameState";
 
 export enum GameType{
     // 认知

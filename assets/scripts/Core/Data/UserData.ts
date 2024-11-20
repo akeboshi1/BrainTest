@@ -1,4 +1,4 @@
-import {SkewersGameData} from "../../Game/Skewers/SkewersGameData";
+import {SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 
 export class UserData {
     public id: string;

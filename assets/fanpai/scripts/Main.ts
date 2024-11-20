@@ -1,7 +1,8 @@
 import { _decorator, Component, Node, resources, Sprite, SpriteFrame, Texture2D, ImageAsset, Label, Button, random } from 'cc';
 import {LoaderManager} from "../../scripts/Core/Manager/Load/LoaderManager";
 import {Global} from "../../scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "../../scripts/Game/Skewers/SkewersManager";
+import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
+import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -186,7 +187,7 @@ export class Main extends Component {
             }
         }
 
-        console.log(index, this.currentCard);
+        DebugLog.instance.log(index, this.currentCard);
     }
     startGame() {
         this.isAbleClick = true;
@@ -219,7 +220,7 @@ export class Main extends Component {
     }
 
     gameStartInit() {
-        console.log("游戏开始");
+        DebugLog.instance.log("游戏开始");
         this.successView.active = false;
         // this.bigWin.active = false;
         // this.failView.active = false;
@@ -271,7 +272,7 @@ export class Main extends Component {
                 }
             }
         }
-        console.log('this.cardList', this.cardList);
+        DebugLog.instance.log('this.cardList', this.cardList);
         // 所有卡片设置为背板
         this.closeAllCard();
     }
@@ -427,7 +428,7 @@ export class Main extends Component {
      */
     private initCardView(){
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
-        console.log(' this.cardTotalCount ', this.cardTotalCount)
+        DebugLog.instance.log('this.cardTotalCount', this.cardTotalCount)
 
         const maxLen = this.cardPool.children[0].children.length;
         for (let i = 0; i < maxLen; i++) {

@@ -50,7 +50,22 @@ export class LoginPopUpPanel extends BasePanel{
     @property(EditBox)
     num3:EditBox;
 
+    /**
+     * 请求手机有验证码
+     * @private
+     */
+    private login_get_sms:string ="login.get_sms";
+
+    /**
+     * 手机验证码下发
+     * @private
+     */
     private login_send_mp_code:string="login.send_mp_code";
+
+    /**
+     * 手机登录（验证)
+     * @private
+     */
     private login_login_by_mp:string ="login.login_by_mp";
 
     constructor() {
