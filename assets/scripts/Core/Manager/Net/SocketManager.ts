@@ -50,15 +50,15 @@ export class SocketManager extends BaseManager{
            EventManager.getInstance().emit(SocketManager.SOCKET_OFF);
        };
        this._socket.onmessage = (data) => {
-           let jsonString = JSON.parse(data.data);
-           const action = jsonString.action;
+           let jsonObj = JSON.parse(data.data);
+           const action = jsonObj.action;
            const _tmpDatas = this._socketDatas.get(action);
            if(!_tmpDatas){
                DebugLog.instance.error(`${action} is not in data`);
                return;
            }
            // check uid
-           const uid = jsonString['uid'];
+           const uid = jsonObj['uid'];
            // 创建一个新的数组，用于存储需要保留的元素
            let updatedDatas = [];
            let tmpSocketData = null;
@@ -71,7 +71,10 @@ export class SocketManager extends BaseManager{
                }
            }
            this._socketDatas.set(action,updatedDatas);
-           if(tmpSocketData)EventManager.getInstance().emit(jsonString["action"], jsonString);
+           if(tmpSocketData){
+               DebugLog.instance.log(`接收：${data.data}`)
+               EventManager.getInstance().emit(jsonObj["action"], jsonObj);
+           }
        };
        this._socket.onerror = (err) => {
            EventManager.getInstance().emit(SocketManager.SOCKET_ONERROR, err);
@@ -79,8 +82,6 @@ export class SocketManager extends BaseManager{
     }
 
     public send(data:SocketData){
-        const timestemp = TimeUtil.getNowStr();
-        data.uid = timestemp+"";
         let _tmpDatas:SocketData[]= this._socketDatas.get(data.action);
         if(!_tmpDatas){
             _tmpDatas = [];
@@ -92,9 +93,10 @@ export class SocketManager extends BaseManager{
                 return;
             }
         }
-
         _tmpDatas.push(data);
-        this._socket.send(JSON.stringify(data));
+        const jsonStr = JSON.stringify(data);
+        this._socket.send(jsonStr);
+        DebugLog.instance.log(`发送：${jsonStr}`);
         this._socketDatas.set(data.action, _tmpDatas);
     }
 
