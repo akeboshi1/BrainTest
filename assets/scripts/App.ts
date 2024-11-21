@@ -1,4 +1,4 @@
-import { _decorator, Component,Camera,AssetManager,Node,director,instantiate,WebView } from 'cc';
+import { _decorator, find,Camera,AssetManager,Node,director,instantiate,WebView } from 'cc';
 import {EventManager} from "./Core/Manager/Event/EventManager";
 import {SocketManager} from "./Core/Manager/Net/SocketManager";
 import {UIManager} from "./Core/Manager/UI/UIManager";
@@ -59,7 +59,7 @@ export class App extends BaseObejct {
         Global.userData = new UserData();
 
         // 常驻节点
-        director.addPersistRootNode(this.node);
+        director.addPersistRootNode(this.webView);
 
         this.initManager();
 
@@ -77,11 +77,12 @@ export class App extends BaseObejct {
 
     start() {
         // Global.isSkewersGame = false;
-        DebugLog.instance.log(director.isPersistRootNode(this.node));
+        DebugLog.instance.log("常驻节点",director.isPersistRootNode(this.webView));
     }
 
-    update(deltaTime: number) {
-        
+
+    onDestroy(){
+        super.destroy();
     }
 
 

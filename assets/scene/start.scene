@@ -18,6 +18,9 @@
     "_children": [
       {
         "__id__": 2
+      },
+      {
+        "__id__": 9
       }
     ],
     "_active": true,
@@ -216,15 +219,12 @@
     "_children": [
       {
         "__id__": 6
-      },
-      {
-        "__id__": 8
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 18
+        "__id__": 8
       },
       {
         "__id__": 19
@@ -331,32 +331,62 @@
     "_id": "e9xCG2Bq5FZKOmiXEvHj+W"
   },
   {
+    "__type__": "c1ec5xE1iFO9Z5B1yScAv35",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 5
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "camera": {
+      "__id__": 4
+    },
+    "panelContainer": {
+      "__id__": 6
+    },
+    "sceneName": "",
+    "isPad": false,
+    "isWebView": false,
+    "webView": {
+      "__id__": 9
+    },
+    "tts": {
+      "__id__": 12
+    },
+    "asr": {
+      "__id__": 16
+    },
+    "_id": "f95uPgCk5EJZoN47parzAQ"
+  },
+  {
     "__type__": "cc.Node",
     "_name": "webview",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
-      "__id__": 5
+      "__id__": 1
     },
     "_children": [
       {
-        "__id__": 9
+        "__id__": 10
       },
       {
-        "__id__": 13
+        "__id__": 14
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 17
+        "__id__": 18
       }
     ],
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
+      "x": 540,
+      "y": 960,
       "z": 0
     },
     "_lrot": {
@@ -388,16 +418,16 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
-      "__id__": 8
+      "__id__": 9
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 10
+        "__id__": 11
       },
       {
-        "__id__": 11
+        "__id__": 12
       }
     ],
     "_prefab": null,
@@ -436,7 +466,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 9
+      "__id__": 10
     },
     "_enabled": true,
     "__prefab": null,
@@ -458,14 +488,14 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 9
+      "__id__": 10
     },
     "_enabled": true,
     "__prefab": null,
     "_url": "",
     "webviewEvents": [
       {
-        "__id__": 12
+        "__id__": 13
       }
     ],
     "_id": "39tP8XMD5H6qyj+JW4dNy5"
@@ -486,16 +516,16 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
-      "__id__": 8
+      "__id__": 9
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 14
+        "__id__": 15
       },
       {
-        "__id__": 15
+        "__id__": 16
       }
     ],
     "_prefab": null,
@@ -534,7 +564,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 13
+      "__id__": 14
     },
     "_enabled": true,
     "__prefab": null,
@@ -556,14 +586,14 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 13
+      "__id__": 14
     },
     "_enabled": true,
     "__prefab": null,
     "_url": "",
     "webviewEvents": [
       {
-        "__id__": 16
+        "__id__": 17
       }
     ],
     "_id": "8e/VFBhvpOopQmWBEHTl0A"
@@ -584,7 +614,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 8
+      "__id__": 9
     },
     "_enabled": true,
     "__prefab": null,
@@ -599,36 +629,6 @@
       "y": 0.5
     },
     "_id": "99AfXJGOxBEKGHYqF63MQI"
-  },
-  {
-    "__type__": "c1ec5xE1iFO9Z5B1yScAv35",
-    "_name": "",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "node": {
-      "__id__": 5
-    },
-    "_enabled": true,
-    "__prefab": null,
-    "camera": {
-      "__id__": 4
-    },
-    "panelContainer": {
-      "__id__": 6
-    },
-    "sceneName": "",
-    "isPad": false,
-    "isWebView": false,
-    "webView": {
-      "__id__": 8
-    },
-    "tts": {
-      "__id__": 11
-    },
-    "asr": {
-      "__id__": 15
-    },
-    "_id": "f95uPgCk5EJZoN47parzAQ"
   },
   {
     "__type__": "cc.UITransform",
