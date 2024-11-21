@@ -9,7 +9,7 @@ export class SocketData {
 
     public action:string;
 
-    public sendData:any;
+    public data:any;
 
     public receiveData:any;
 
@@ -20,7 +20,7 @@ export class SocketData {
     constructor(data:any) {
         // 在构造函数中处理传入的 data 对象
         this.action = data.action;
-        this.sendData = data.data;
+        this.data = data.data;
         this.uid = data.uid||TimeUtil.getNow();
     }
 

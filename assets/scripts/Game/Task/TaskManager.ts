@@ -57,6 +57,10 @@ export class TaskManager {
         this._taskDic = new Map();
     }
 
+    start(){
+        this.requestTaskList();
+    }
+
 
     /**
      * 请求每日任务列表

@@ -53,11 +53,11 @@ export class SkewersManager{
 
      start(){
          Global.isSkewersGame =true;
-         this.refreshBrainsTrainings([
-             {hard:1,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-             {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,},
-             {hard:0,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-             {hard:2,durTime:2,count:2,code:"fanpai",type:GameType.Memory},],this);
+         // this.refreshBrainsTrainings([
+         //     {hard:1,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
+         //     {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,},
+         //     {hard:0,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
+         //     {hard:2,durTime:2,count:2,code:"fanpai",type:GameType.Memory},],this);
      }
 
 
