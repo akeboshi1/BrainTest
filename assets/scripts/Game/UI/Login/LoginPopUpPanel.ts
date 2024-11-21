@@ -8,6 +8,7 @@ import {LoginPanel} from "../../../Game/UI/Login/LoginPanel";
 import {TaskManager} from "../../../Game/Task/TaskManager";
 import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
@@ -163,12 +164,13 @@ export class LoginPopUpPanel extends BasePanel{
             DebugLog.instance.error(`${data['mp_no']} 手机号不匹配`);
             return;
         }
-        Global.userData.token = data['token'];
-        Global.userData.tokenExpires = data['expires'];
+        Global.userData.token = data.data['token'];
+        DebugLog.instance.log(`${data} ====`);
+        Global.userData.tokenExpires = data.data['expires'];
         context.PhoneDescTxt.string="登录成功！！！";
 
         // test
-        TaskManager.getInstance().start();
+        SkewersManager.getInstance().start();
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 

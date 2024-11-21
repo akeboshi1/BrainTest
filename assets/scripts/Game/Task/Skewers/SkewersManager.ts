@@ -7,6 +7,8 @@ import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {TimeUtil} from "../../../Core/Util/TimeUtil";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {director} from "cc";
 
 /**
  * 脑力串烧管理器
@@ -53,11 +55,9 @@ export class SkewersManager{
 
      start(){
          Global.isSkewersGame =true;
-         // this.refreshBrainsTrainings([
-         //     {hard:1,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-         //     {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,},
-         //     {hard:0,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-         //     {hard:2,durTime:2,count:2,code:"fanpai",type:GameType.Memory},],this);
+         this.refreshBrainsTrainings([
+             {hard:0,durTime:2,count:1,code:"fanpai",type:GameType.Memory},
+             {hard:0,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,}],this);
      }
 
 
@@ -160,14 +160,15 @@ export class SkewersManager{
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
-         if(!this.checkGameIndex(this._curIndex+1)){
+         if(!this.checkGameIndex(this._curIndex+1)
+             ||this._curIndex + 1 > this._gameDatas.length - 1){
+             // back to hall
+             director.loadScene("start");
              DebugLog.instance.log("当前串烧游戏已经全部完成");
+             Global.isSkewersGame = false;
              return;
          }
-         if(this._curIndex + 1 > this._gameDatas.length - 1){
-             DebugLog.instance.log('当前串烧游戏已经全部完成')
-             return;
-         }
+
          this._curIndex +=1;
          const game:SkewersGameData = this._gameDatas[this._curIndex];
          const sceneName = game.sceneName;
@@ -183,7 +184,6 @@ export class SkewersManager{
          let game:SkewersGameData = this._gameDatas[index];
          if(!game){
              DebugLog.instance.error(`索引为 ${index} 数据不存在`);
-             Global.isSkewersGame = false;
              return false;
          }
          if(game.gameState == GameState.over){

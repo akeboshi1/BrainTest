@@ -58,42 +58,44 @@ export class puzzleGameCore extends Component {
     private selectedLevel:number = this.levelList[this.selectedLevelIndex];
 
     onLoad() {
-        this.draggableNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
-        this.draggableNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
-        this.draggableNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-        this.draggableNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
 
-        this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
 
     start() {
         this.summaryAlert.node.active = false;
         this.cleanChipsCache();
+        let playIndex = 0;
         if(Global.isSkewersGame){
             this.selectedLevelIndex = Global.userData.curSkewerGameData.hard;
+            playIndex = Global.userData.curSkewerGameData.playIndex;
         }
-        const playIndex = Global.userData.curSkewerGameData.playIndex;
+
         const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
         this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
         this.updatePreviewSprite();
     }
 
-    update(deltaTime: number) {
-
+    onEnable(){
+        this.draggableNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.draggableNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.draggableNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.draggableNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
 
-    protected onDestroy(): void {
-        if(Global.isSkewersGame)return;
+    onDisable(){
         if(this.timerComponent)this.timerComponent.off('timer-end', this.onTimerEnd, this);
-
         if(this.draggableNode){
             this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
             this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
             this.draggableNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
             this.draggableNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         }
-
         this.cleanChipsCache();
+    }
+
+    update(deltaTime: number) {
+
     }
 
     cropTextureToSprites(cropNum: number, texture: Texture2D) {

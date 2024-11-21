@@ -95,6 +95,7 @@ export class SocketManager extends BaseManager{
         }
         _tmpDatas.push(data);
         const jsonStr = JSON.stringify(data);
+        DebugLog.instance.log(data);
         this._socket.send(jsonStr);
         DebugLog.instance.log(`发送：${jsonStr}`);
         this._socketDatas.set(data.action, _tmpDatas);

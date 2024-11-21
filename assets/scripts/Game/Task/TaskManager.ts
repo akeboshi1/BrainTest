@@ -7,6 +7,7 @@ import {TimeUtil} from "../../Core/Util/TimeUtil";
 import {SocketManager} from "../../Core/Manager/Net/SocketManager";
 import {TaskData} from "db://assets/scripts/Game/Task/TaskData";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 
 /**
  * 任务管理器
@@ -67,7 +68,8 @@ export class TaskManager {
      */
     public requestTaskList(){
         EventManager.getInstance().on(this.task_get_tasks,this.requestTaskListCallback,this);
-        let requestTaskSocket:SocketData = new SocketData({uid:"",action:this.task_get_tasks,data:{task_data:TimeUtil.getNowStr()}});
+        DebugLog.instance.log("=======",Global.userData.token);
+        let requestTaskSocket:SocketData = new SocketData({token:Global.userData.token,action:this.task_get_tasks,data:{task_date:TimeUtil.getNowStr()}});
         SocketManager.getInstance().send(requestTaskSocket);
     }
 
