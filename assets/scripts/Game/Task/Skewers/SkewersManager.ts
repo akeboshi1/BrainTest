@@ -5,9 +5,7 @@ import {Global} from "../../../Core/Manager/Config/Global";
 import {GameState} from "../../../Core/Data/GameState";
 import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
-import {TimeUtil} from "../../../Core/Util/TimeUtil";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
-import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {director} from "cc";
 
 /**
@@ -57,7 +55,7 @@ export class SkewersManager{
          Global.isSkewersGame =true;
          this.refreshBrainsTrainings([
              {hard:0,durTime:2,count:1,code:"fanpai",type:GameType.Memory},
-             {hard:0,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,}],this);
+             {hard:0,durTime:2,count:1,code:"puzzle",type:GameType.Judgment}],this);
      }
 
 

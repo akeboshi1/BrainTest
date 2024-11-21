@@ -5,9 +5,8 @@ import {EventManager} from "../../Core/Manager/Event/EventManager";
 import {SocketData} from "../../Core/Manager/Net/SocketData";
 import {TimeUtil} from "../../Core/Util/TimeUtil";
 import {SocketManager} from "../../Core/Manager/Net/SocketManager";
-import {TaskData} from "db://assets/scripts/Game/Task/TaskData";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {TaskData} from "../../Game/Task/TaskData";
+import {DebugLog} from "../../Core/Util/DebugLog";
 
 /**
  * 任务管理器
