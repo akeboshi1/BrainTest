@@ -1,3 +1,5 @@
+import {DebugLog} from "../../Core/Util/DebugLog";
+
 export class TimeUtil {
     public static getNowStr():string{
         // 获取当前时间
@@ -15,7 +17,7 @@ export class TimeUtil {
         // 拼接成 YYYY-MM-DD 格式的字符串
         let formattedDate = `${year}-${monthStr}-${dayStr}`;
 
-        console.log(formattedDate); // 输出类似于 "2024-11-19"
+        DebugLog.instance.log(formattedDate); // 输出类似于 "2024-11-19"
         // 格式化为 YYYY-MM-DD
         return formattedDate;
     }

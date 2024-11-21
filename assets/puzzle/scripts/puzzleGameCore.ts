@@ -2,8 +2,8 @@ import { _decorator, Component, Node, SpriteFrame, Texture2D, Size, Rect, Sprite
 import { timerComponent } from './timerComponent';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import {Global} from "../../scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
+import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleGameCore')
@@ -161,7 +161,7 @@ export class puzzleGameCore extends Component {
                 this.dragInstance = this.chipsInstances[selectedObjectIndex];
                 this.dragObjectStartPos = this.getChipDataByPuzzlePos(selectedObjectIndex)["objectPos"];
                 this.dragStartPos = startpos; // 记录触摸起始位置
-                console.log("onTouchStart  ---- selectIndex = " + selectedObjectIndex);
+                DebugLog.instance.log("onTouchStart  ---- selectIndex = " + selectedObjectIndex);
                 this.dragInstance.setSiblingIndex(100);
             }
         }
@@ -185,11 +185,11 @@ export class puzzleGameCore extends Component {
         const endpos = new Vec2(vec3.x, vec3.y);
         const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
         if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
-            console.log("onTouchEnd  ---- swap target index = " + selectedObjectIndex);
+            DebugLog.instance.log("onTouchEnd  ---- swap target index = " + selectedObjectIndex);
             this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
 
             const puzzleResult = this.checkPuzzleResult();
-            console.log("puzzleResult  ----  " + puzzleResult);
+            DebugLog.instance.log("puzzleResult  ----  " + puzzleResult);
             if(puzzleResult)
             {
                 this.processGameSuccess();
@@ -270,7 +270,7 @@ export class puzzleGameCore extends Component {
         for (let [key, value] of this.chipsDataMap.entries()) {
             if(lineCount % this.selectedLevel == 0)
             {
-                console.log("outputMapData  ---- " + outputString);
+                DebugLog.instance.log("outputMapData  ---- " + outputString);
                 outputString = "";
             }
             outputString += " " + value["puzzlePos"];
@@ -343,7 +343,7 @@ export class puzzleGameCore extends Component {
     }
 
     onTimerEnd() {
-        console.log("计时器结束了，执行相应逻辑");
+        DebugLog.instance.log("计时器结束了，执行相应逻辑");
         this.processGameFail();
     }
 
@@ -357,7 +357,7 @@ export class puzzleGameCore extends Component {
 
     processGameFail()
     {
-        console.log("失败");
+        DebugLog.instance.log("失败");
 
         this.summaryAlert.node.active = true;
         this.summaryAlert.initByResult(false);
@@ -366,7 +366,7 @@ export class puzzleGameCore extends Component {
 
     processGameSuccess()
     {
-        console.log("成功");
+        DebugLog.instance.log("成功");
         this.timerComponent.resumeTimer();
 
         this.summaryAlert.node.active = true;

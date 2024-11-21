@@ -68,8 +68,7 @@ export class TaskManager {
      */
     public requestTaskList(){
         EventManager.getInstance().on(this.task_get_tasks,this.requestTaskListCallback,this);
-        DebugLog.instance.log("=======",Global.userData.token);
-        let requestTaskSocket:SocketData = new SocketData({token:Global.userData.token,action:this.task_get_tasks,data:{task_date:TimeUtil.getNowStr()}});
+        let requestTaskSocket:SocketData = new SocketData({action:this.task_get_tasks,data:{task_date:TimeUtil.getNowStr()}});
         SocketManager.getInstance().send(requestTaskSocket);
     }
 

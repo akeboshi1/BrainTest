@@ -85,17 +85,6 @@ export class SkewersManager{
                   data.playIndex = j;
                   this._gameDatas.push(data);
               }
-              // switch (tmpData.gameID){
-              //     case GameSceneConst.Fanpai:
-              //         data.sceneName = "fanpai";
-              //         break;
-              //     case GameSceneConst.Pintu:
-              //         data.sceneName = "puzzle";
-              //         break;
-              //     case GameSceneConst.Finding:
-              //         data.sceneName = "finding";
-              //         break;
-              // }
           }
           Global.userData.skewerGameDatas = this._gameDatas;
           this.startGame();
@@ -162,7 +151,7 @@ export class SkewersManager{
          }
          if(!this.checkGameIndex(this._curIndex+1)
              ||this._curIndex + 1 > this._gameDatas.length - 1){
-             // back to hall
+             // back to hall test
              director.loadScene("start");
              DebugLog.instance.log("当前串烧游戏已经全部完成");
              Global.isSkewersGame = false;

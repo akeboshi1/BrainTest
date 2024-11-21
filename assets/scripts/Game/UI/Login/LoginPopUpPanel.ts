@@ -130,6 +130,7 @@ export class LoginPopUpPanel extends BasePanel{
             if(editBox == null)continue;
             editBox.string = numbers[i]+"";
         }
+        this.PhoneNumberTxt.string = this.phoneNumber;
         // this.num0.string = "1";
         // this.num1.string = "2";
         // this.num2.string = "3";
@@ -170,7 +171,7 @@ export class LoginPopUpPanel extends BasePanel{
         context.PhoneDescTxt.string="登录成功！！！";
 
         // test
-        SkewersManager.getInstance().start();
+        TaskManager.getInstance().start();
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 

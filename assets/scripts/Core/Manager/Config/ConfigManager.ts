@@ -1,6 +1,7 @@
 
 import {loader,JsonAsset,TextAsset} from "cc";
 import {BaseManager} from "../BaseManager";
+import {DebugLog} from "../../../Core/Util/DebugLog";
 
 export class ConfigManager extends BaseManager {
     private bInit: boolean = false; //是否加载完毕
@@ -19,7 +20,7 @@ export class ConfigManager extends BaseManager {
         if (this.bInit) return;
 
         this.bInit = true;
-        console.log("配置加载完成")
+        DebugLog.instance.log("配置加载完成")
     }
 
 
@@ -28,7 +29,7 @@ export class ConfigManager extends BaseManager {
             type kv = { key: string, value: string };
             loader.loadRes("config/" + filepath, JsonAsset, (err, conf: JsonAsset) => {
                 if (err) {
-                    console.error(err)
+                    DebugLog.instance.error(err)
                     reject();
                     return;
                 }
@@ -43,7 +44,7 @@ export class ConfigManager extends BaseManager {
             type kv = { key: string, value: string };
             loader.loadRes("config/" + filepath, TextAsset, (err, conf: TextAsset) => {
                 if (err) {
-                    console.error(err)
+                    DebugLog.instance.error(err)
                     reject();
                     return;
                 }
@@ -67,7 +68,7 @@ export class ConfigManager extends BaseManager {
                         var item = new c();
                         for (var j = 0; j < datas.length; ++j) {
                             var value: any = datas[j];
-                            // console.log(i,j)
+                            // DebugLog.instance.log(i,j)
                             switch (template[j].value) {
                                 case "number":
                                     value = Number(value);
