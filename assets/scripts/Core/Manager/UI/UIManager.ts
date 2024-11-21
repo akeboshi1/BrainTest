@@ -91,6 +91,19 @@ export class UIManager extends BaseManager {
         view.removeFromParent(false);
     }
 
+    getView(name:string):BasePanel{
+        if(!this.checkPanel(name)){
+            return null;
+        }
+        const view:any = this.get(name);
+        if(!view){
+            DebugLog.instance.error(`${name} not exists`);
+            return null;
+        }
+
+        return view.getComponent(name);
+    }
+
     public async addLoadingPanel():Promise<void>{
         const url = 'prefab/LoadPanel';
         return new Promise((resolve,reject)=>{

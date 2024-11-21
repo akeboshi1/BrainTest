@@ -118,7 +118,7 @@ export class App extends BaseObejct {
         UIManager.getInstance().perloadRes().then(()=>{
             UIManager.getInstance().showLoadingPanel();
             if(self.isPad){
-                // 初始化游戏
+                // 初始化游戏 打包单独游戏用
                 self.initGame();
             }else{
                 // 初始化socket

@@ -2,6 +2,10 @@ import { _decorator, Sprite, Node,SpriteFrame,instantiate } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
+import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
+import {Global} from "../../../Core/Manager/Config/Global";
+import {UIManager} from "../../../Core/Manager/UI/UIManager";
+import {LoginPopUpPanel} from "../../../Game/UI/Login/LoginPopUpPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -64,9 +68,15 @@ export class LoginPanel extends BasePanel {
     }
 
 
+    /**
+     * 点击协议显示协议面板
+     */
+    public xieyiClick() {
+        LoginManager.getInstance().showXieyi(this.node);
+    }
 
     public loginClick(){
-        LoginManager.getInstance().login(this.node);
+        LoginManager.getInstance().showPhoneView(this.node);
     }
 
     private loadPanelComplete(){

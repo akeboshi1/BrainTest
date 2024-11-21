@@ -6,6 +6,7 @@ import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {UIManager} from "../../../Core/Manager/UI/UIManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {LoginPanel} from "../../../Game/UI/Login/LoginPanel";
+import {SkewersManager} from "../../../Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
@@ -34,6 +35,9 @@ export class LoginPopUpPanel extends BasePanel{
 
     @property(Label)
     PhoneViewTitle:Label;
+
+    @property(Label)
+    PhoneNumberTxt:Label;
 
     @property(Label)
     PhoneDescTxt:Label;
@@ -79,7 +83,7 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     start() {
-        this._switchView();
+
     }
 
     onEnable(){
@@ -103,7 +107,7 @@ export class LoginPopUpPanel extends BasePanel{
         this.hidePanel();
     }
 
-    private _switchView(isPhoneView:boolean=false){
+    public switchView(isPhoneView:boolean=false){
        this.XieyiView.active= !isPhoneView;
        this.PhoneView.active = isPhoneView;
        if(isPhoneView){
@@ -140,12 +144,15 @@ export class LoginPopUpPanel extends BasePanel{
     private sendPhoneHandler(data,context){
         DebugLog.instance.log(data);
         context.PhoneDescTxt.string="登录成功！！！";
+
+        // test
+        SkewersManager.getInstance().start();
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 
     private xieyiHandler(data,context){
         DebugLog.instance.log(data);
-        context._switchView(true);
+        context.switchView(true);
     }
 
 

@@ -20,8 +20,6 @@ export class LoginManager {
     }
 
 
-
-
     start(parentNode:Node){
         LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root+"prefab/LoginPanel").then((resource)=>{
             const node = instantiate(resource);
@@ -31,14 +29,33 @@ export class LoginManager {
         });
     }
 
-    login(parentNode:Node){
+    showXieyi(parentNode:Node){
         LoaderManager.getInstance().resourcesLoad(Global.RES_Root+"prefab/LoginPopUpPanel").then((resource)=>{
             const node = instantiate(resource);
             UIManager.getInstance().registerView(LoginPopUpPanel.NAME,node);
             const parendNode = parentNode.parent;
             UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
             UIManager.getInstance().hideView(LoginPanel.NAME);
+            const logingpopupPanel:LoginPopUpPanel = UIManager.getInstance().getView(LoginPopUpPanel.NAME)as LoginPopUpPanel;
+            if(logingpopupPanel)logingpopupPanel.switchView();
+
         });
+    }
+
+    showPhoneView(parentNode:Node){
+        LoaderManager.getInstance().resourcesLoad(Global.RES_Root+"prefab/LoginPopUpPanel").then((resource)=>{
+            const node = instantiate(resource);
+            UIManager.getInstance().registerView(LoginPopUpPanel.NAME,node);
+            const parendNode = parentNode.parent;
+            UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
+            UIManager.getInstance().hideView(LoginPanel.NAME);
+            const logingpopupPanel = UIManager.getInstance().getView(LoginPopUpPanel.NAME)as LoginPopUpPanel;
+            if(logingpopupPanel)logingpopupPanel.switchView();
+        });
+    }
+
+    login(parentNode:Node){
+
     }
 
 }
