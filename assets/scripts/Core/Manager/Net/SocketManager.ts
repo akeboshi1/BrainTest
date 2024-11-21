@@ -2,6 +2,7 @@ import {BaseManager} from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import {EventManager} from "../Event/EventManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
+import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 
 export class SocketManager extends BaseManager{
     private static _instance: SocketManager;
@@ -11,7 +12,7 @@ export class SocketManager extends BaseManager{
     public static SOCKET_ONERROR:string = "socket_onerror";
     private _socket: WebSocket;
 
-    private _socketDatas:Map<string,SocketData>;
+    private _socketDatas:Map<string,SocketData[]>;
     public static getInstance():SocketManager {
         if(!SocketManager._instance) {
             SocketManager._instance = new SocketManager();
@@ -51,15 +52,26 @@ export class SocketManager extends BaseManager{
        this._socket.onmessage = (data) => {
            let jsonString = JSON.parse(data.data);
            const action = jsonString.action;
-           const _tmpData = this._socketDatas.get(action);
-           if(!_tmpData){
+           const _tmpDatas = this._socketDatas.get(action);
+           if(!_tmpDatas){
                DebugLog.instance.error(`${action} is not in data`);
                return;
            }
-           //todo uid处理
-           _tmpData.feedback = true;
-           _tmpData.refureshData(jsonString);
-           EventManager.getInstance().emit(jsonString["action"], jsonString);
+           // check uid
+           const uid = jsonString['uid'];
+           // 创建一个新的数组，用于存储需要保留的元素
+           let updatedDatas = [];
+           let tmpSocketData = null;
+           for (let i:number = 0;i<_tmpDatas.length;i++){
+               let socketData:SocketData = _tmpDatas[i];
+               if(socketData.uid == uid){
+                   tmpSocketData = socketData;
+               }else{
+                   updatedDatas.push(socketData);
+               }
+           }
+           this._socketDatas.set(action,updatedDatas);
+           if(tmpSocketData)EventManager.getInstance().emit(jsonString["action"], jsonString);
        };
        this._socket.onerror = (err) => {
            EventManager.getInstance().emit(SocketManager.SOCKET_ONERROR, err);
@@ -67,14 +79,23 @@ export class SocketManager extends BaseManager{
     }
 
     public send(data:SocketData){
-        const _tmpData:SocketData= this._socketDatas.get(data.action);
-        if(_tmpData && !_tmpData.feedback){
-            // todo check uid
-            DebugLog.instance.log(`${data.action},已经发送过了，请等待回复`);
-            return;
+        const timestemp = TimeUtil.getNowStr();
+        data.uid = timestemp+"";
+        let _tmpDatas:SocketData[]= this._socketDatas.get(data.action);
+        if(!_tmpDatas){
+            _tmpDatas = [];
         }
+        for(let i=0; i<_tmpDatas.length; i++){
+            let _tmpData:SocketData = _tmpDatas[i];
+            if(_tmpData.uid == data.uid){
+                DebugLog.instance.log(`${data.action},已经发送过了，请等待回复`);
+                return;
+            }
+        }
+
+        _tmpDatas.push(data);
         this._socket.send(JSON.stringify(data));
-        this._socketDatas.set(data.action, data);
+        this._socketDatas.set(data.action, _tmpDatas);
     }
 
 }

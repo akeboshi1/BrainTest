@@ -21,6 +21,14 @@ export class TimeUtil {
     }
 
     /**
+     * 获取当前时间戳
+     */
+    public static getNow():number{
+        let now = new Date();
+        return now.getTime();
+    }
+
+    /**
      * 是否已经跨天了
      * @param loginTime
      * @param currentTime

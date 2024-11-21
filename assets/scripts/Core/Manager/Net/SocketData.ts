@@ -15,11 +15,6 @@ export class SocketData {
 
     public message:string;
 
-    /**
-     * 数据反馈
-     */
-    public feedback:boolean = false;
-
     constructor(data:any) {
         // 在构造函数中处理传入的 data 对象
         this.action = data.action;
