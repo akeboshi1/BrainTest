@@ -51,11 +51,12 @@ export class SkewersManager{
 
      }
 
-     start(){
+     start(id:number){
          Global.isSkewersGame =true;
-         this.refreshBrainsTrainings([
-             {hard:0,durTime:2,count:1,code:"fanpai",type:GameType.Memory},
-             {hard:0,durTime:2,count:1,code:"puzzle",type:GameType.Judgment}],this);
+         this.requestBranisTrainings(id);
+         // this.refreshBrainsTrainings([
+         //     {id:0,game_id:0,difficulty:0,seq:0,status:0,time_limit:2,game_code:"fanpai",cog_ability:GameType.Memory},
+         //     {id:1,game_id:1,difficulty:0,seq:1,status:0,time_limit:2,game_code:"puzzle",cog_ability:GameType.Judgment}],this);
      }
 
 
@@ -72,16 +73,16 @@ export class SkewersManager{
 
      public refreshBrainsTrainings(datas:any,context:any){
          EventManager.getInstance().off(this.task_get_brain_trainings,this.refreshBrainsTrainings);
-         const result = datas['result'];
+         const result = datas;
          const len = result.length;
          for(let i:number =0;i<len;i++){
               let tmpData:any = result[i];
               let data:SkewersGameData = new SkewersGameData();
               data.refreshData(tmpData);
-              this._gameDatas.push(data);
+             context._gameDatas.push(data);
          }
          Global.userData.skewerGameDatas = this._gameDatas;
-         this.startGame();
+         context.startGame();
      }
 
      public startGame(){

@@ -66,8 +66,8 @@ export class puzzleGameCore extends Component {
         this.cleanChipsCache();
         let playIndex = 0;
         if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.hard;
-            playIndex = Global.userData.curSkewerGameData.playIndex;
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty;
+            playIndex = Global.userData.curSkewerGameData.seq;
         }
 
         const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex

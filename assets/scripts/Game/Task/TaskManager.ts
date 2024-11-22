@@ -5,7 +5,7 @@ import {EventManager} from "../../Core/Manager/Event/EventManager";
 import {SocketData} from "../../Core/Manager/Net/SocketData";
 import {TimeUtil} from "../../Core/Util/TimeUtil";
 import {SocketManager} from "../../Core/Manager/Net/SocketManager";
-import {TaskData} from "../../Game/Task/TaskData";
+import {TaskData, TaskType} from "../../Game/Task/TaskData";
 import {DebugLog} from "../../Core/Util/DebugLog";
 
 /**
@@ -71,12 +71,50 @@ export class TaskManager {
         SocketManager.getInstance().send(requestTaskSocket);
     }
 
-    public requestTaskListCallback(data:SocketData,context:any){
+    private requestTaskListCallback(data:SocketData,context:any){
         let status = data.status;
         if(status == 0){
             DebugLog.instance.error(data.message);
         }else{
             let results = data.data['result'];
+            for(let i=0; i<results.length; i++) {
+                let data = results[i];
+                let task = new TaskData();
+                task.refrehData(data);
+                context._taskDic.set(task.id,task);
+            }
+            context.requestStartTask(51);
+        }
+    }
+
+    public requestStartTask(id:number){
+        EventManager.getInstance().on(this.task_start_task,this.requestStartTaskCallback,this);
+        let requestStartTaskSocket:SocketData = new SocketData({action:this.task_start_task,data:{task_id:id}});
+        SocketManager.getInstance().send(requestStartTaskSocket);
+    }
+
+
+    private requestStartTaskCallback(data:SocketData,context:any){
+        let status = data.status;
+        if(status == 0){
+            DebugLog.instance.error(data.message);
+        }else{
+            let id = data.data['task_id'];
+            let task = context._taskDic[id];
+            if(!task){
+                DebugLog.instance.error(`id为：${id}的任务不存在`);
+                return;
+            }
+            let type = task.type;
+            switch (type) {
+                case TaskType.Remind:
+                    break;
+                case TaskType.Brains:
+                    SkewersManager.getInstance().start(id);
+                    break;
+                case TaskType.Interavtive:
+                    break;
+            }
         }
     }
 }
