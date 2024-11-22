@@ -96,7 +96,7 @@ export class SocketManager extends BaseManager{
        };
     }
 
-    public send(data:SocketData){
+    public send(data:any){
         let _tmpDatas:SocketData[]= this._socketDatas.get(data.action);
         if(!_tmpDatas){
             _tmpDatas = [];
