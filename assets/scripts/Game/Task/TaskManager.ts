@@ -76,7 +76,7 @@ export class TaskManager {
         if(status == 0){
             DebugLog.instance.error(data.message);
         }else{
-
+            let results = data.data['result'];
         }
     }
 }

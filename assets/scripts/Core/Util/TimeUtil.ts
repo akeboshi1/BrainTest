@@ -1,7 +1,7 @@
 import {DebugLog} from "../../Core/Util/DebugLog";
 
 export class TimeUtil {
-    public static getNowStr():string{
+    public static getNowStr(): string {
         // 获取当前时间
         let now = new Date();
 
@@ -10,16 +10,25 @@ export class TimeUtil {
         let month = now.getMonth() + 1; // 月份从0开始，需要加1
         let day = now.getDate();
 
-        // 补零操
-        let monthStr = month < 10 ? '0' + month : month;
-        let dayStr = day < 10 ? '0' + day : day;
+        // 获取时、分、秒
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
 
-        // 拼接成 YYYY-MM-DD 格式的字符串
-        let formattedDate = `${year}-${monthStr}-${dayStr}`;
+        // 补零操作
+        let monthStr = month < 10 ? '0' + month : String(month);
+        let dayStr = day < 10 ? '0' + day : String(day);
+        let hoursStr = hours < 10 ? '0' + hours : String(hours);
+        let minutesStr = minutes < 10 ? '0' + minutes : String(minutes);
+        let secondsStr = seconds < 10 ? '0' + seconds : String(seconds);
 
-        DebugLog.instance.log(formattedDate); // 输出类似于 "2024-11-19"
-        // 格式化为 YYYY-MM-DD
-        return formattedDate;
+        // 拼接成 YYYY-MM-DD HH:MM:SS 格式的字符串
+        let formattedDateTime = `${year}-${monthStr}-${dayStr} ${hoursStr}:${minutesStr}:${secondsStr}`;
+
+        // 输出类似于 "2024-11-19 15:30:45"
+        DebugLog.instance.log(formattedDateTime);
+
+        return formattedDateTime;
     }
 
     /**

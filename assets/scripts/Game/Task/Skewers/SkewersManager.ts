@@ -2,7 +2,7 @@ import {GameType, SkewersGameData} from "./SkewersGameData";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {Global} from "../../../Core/Manager/Config/Global";
-import {GameState} from "../../../Core/Data/GameState";
+import {GameState, SkewersGameStatus} from "../../../Core/Data/GameState";
 import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
@@ -66,26 +66,22 @@ export class SkewersManager{
      */
      public requestBranisTrainings(taskID:number){
         EventManager.getInstance().on(this.task_get_brain_trainings,this.refreshBrainsTrainings,this);
-        let requestBranisTrainingsSocket = new SocketData({uid:"",action:this.task_get_brain_trainings,data:{task_id:taskID}});
+        let requestBranisTrainingsSocket = new SocketData({action:this.task_get_brain_trainings,data:{task_id:taskID}});
         SocketManager.getInstance().send(requestBranisTrainingsSocket);
      }
 
      public refreshBrainsTrainings(datas:any,context:any){
          EventManager.getInstance().off(this.task_get_brain_trainings,this.refreshBrainsTrainings);
-          const len = datas.length;
-          for(let i:number =0;i<len;i++){
-              let tmpData:any = datas[i];
-
-              let count = tmpData.count;
-              for(let j:number =0;j<count;j++){
-                  let data:SkewersGameData = new SkewersGameData();
-                  data.refreshData(tmpData);
-                  data.playIndex = j;
-                  this._gameDatas.push(data);
-              }
-          }
-          Global.userData.skewerGameDatas = this._gameDatas;
-          this.startGame();
+         const result = datas['result'];
+         const len = result.length;
+         for(let i:number =0;i<len;i++){
+              let tmpData:any = result[i];
+              let data:SkewersGameData = new SkewersGameData();
+              data.refreshData(tmpData);
+              this._gameDatas.push(data);
+         }
+         Global.userData.skewerGameDatas = this._gameDatas;
+         this.startGame();
      }
 
      public startGame(){
@@ -97,7 +93,7 @@ export class SkewersManager{
           if(!this.checkGameIndex(index))return;
           const game = this._gameDatas[index];
           this._curIndex = 0;
-          const sceneName = game.sceneName;
+          const sceneName = game.gameCode;
           let url = Global.RES_Root+sceneName;
           SceneManager.getInstance().changeScene(url,sceneName).then((scene)=>{
               DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
@@ -134,7 +130,7 @@ export class SkewersManager{
          if(!this.checkGameIndex(index))return;
          const game:SkewersGameData = this._gameDatas[index];
          this._curIndex = index;
-         const sceneName = game.sceneName;
+         const sceneName = game.gameCode;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
              DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
@@ -158,7 +154,7 @@ export class SkewersManager{
 
          this._curIndex +=1;
          const game:SkewersGameData = this._gameDatas[this._curIndex];
-         const sceneName = game.sceneName;
+         const sceneName = game.gameCode;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
              DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
@@ -173,7 +169,7 @@ export class SkewersManager{
              DebugLog.instance.error(`索引为 ${index} 数据不存在`);
              return false;
          }
-         if(game.gameState == GameState.over){
+         if(game.status == SkewersGameStatus.Completed){
              DebugLog.instance.error(`索引为 ${index} 游戏已经运行完成`);
              return false;
          }

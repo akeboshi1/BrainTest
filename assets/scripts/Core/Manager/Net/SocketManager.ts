@@ -60,15 +60,31 @@ export class SocketManager extends BaseManager{
            const uid = jsonObj['uid'];
            // 创建一个新的数组，用于存储需要保留的元素
            let updatedDatas = [];
-           let tmpSocketData = null;
+           let tmpSocketData:SocketData = null;
+           let streamstatus = -1; // 非流式-1  流式未结束0 流式结束1
+           if (jsonObj.hasOwnProperty('finish_reason')) {
+               // 存在 finish_reason 属性 流式数据
+              streamstatus = jsonObj['finish_reason']||0;
+           }
+
            for (let i:number = 0;i<_tmpDatas.length;i++){
                let socketData:SocketData = _tmpDatas[i];
                if(socketData.uid == uid){
                    tmpSocketData = socketData;
+                   //流式数据
+                   if(streamstatus != null){
+                       tmpSocketData.isStream =true;
+                       // 流式非最后一条数据，保存
+                       if(streamstatus != 1){
+                           updatedDatas.push(tmpSocketData);
+                       }
+                   }
                }else{
                    updatedDatas.push(socketData);
                }
            }
+
+
            this._socketDatas.set(action,updatedDatas);
            if(tmpSocketData){
                DebugLog.instance.log(`接收：${data.data}`)
