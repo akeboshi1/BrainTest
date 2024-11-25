@@ -59,10 +59,13 @@ export class puzzleGameCore extends Component {
 
     onLoad() {
         this.draggableNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+       
         this.draggableNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+     
         this.draggableNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+      
         this.draggableNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
-
+  
         this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
 
