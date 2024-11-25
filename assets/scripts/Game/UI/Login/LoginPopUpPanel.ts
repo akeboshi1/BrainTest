@@ -9,6 +9,8 @@ import {TaskManager} from "../../../Game/Task/TaskManager";
 import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
@@ -171,7 +173,11 @@ export class LoginPopUpPanel extends BasePanel{
         context.PhoneDescTxt.string="登录成功！！！";
 
         // test
-        TaskManager.getInstance().start();
+        //TaskManager.getInstance().start();
+       
+        SceneManager.getInstance().changeScene("resource","main").then(()=>{
+            DebugLog.instance.log(`main 场景切换成功`);
+        });
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 

@@ -13,6 +13,7 @@ import {LoginPanel} from "./Game/UI/Login/LoginPanel";
 import {Global} from "./Core/Manager/Config/Global";
 import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
+import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
 
 const { ccclass, property } = _decorator;
 
@@ -112,6 +113,7 @@ export class App extends BaseObejct {
         PoolManager.getInstance().init();
         SpriteManager.getInstance().init();
         TaskManager.getInstance().init();
+        ChatFlowModel.getInstance().init();
     }
 
     private preLoadRes(){
