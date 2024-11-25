@@ -6,6 +6,7 @@ import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
 import {Global} from "../../../Core/Manager/Config/Global";
 import {UIManager} from "../../../Core/Manager/UI/UIManager";
 import {LoginPopUpPanel} from "../../../Game/UI/Login/LoginPopUpPanel";
+import {SpineManager} from "db://assets/scripts/Core/Manager/Spine/SpineManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -13,6 +14,7 @@ export class LoginPanel extends BasePanel {
 
     public spineActions:string[]=["angry","angry_walk","appear","happy","happy_walk","normal","normal_idle","smile","smile_walk","unhappy"];
 
+    public actions:string[]=["idle","speak"];
     @property(Node)
     loginBtn:Node;
 
@@ -41,9 +43,7 @@ export class LoginPanel extends BasePanel {
         const eventName = LoginPanel.NAME;
         EventManager.getInstance().on(eventName,this.loadPanelComplete,this);
         EventManager.getInstance().emit(eventName,eventName);
-        super.onLoad();
-
-
+        SpineManager.getInstance().init(this.spine);
     }
 
     onEnable() {
@@ -63,11 +63,6 @@ export class LoginPanel extends BasePanel {
 
     }
 
-    private changeSpineAction() {
-        let spineIndex = Math.floor(Math.random()*this.spineActions.length);
-        const actionName = this.spineActions[spineIndex];
-        this.spine.setAnimation(0,actionName,true);
-    }
 
 
     /**
@@ -85,9 +80,8 @@ export class LoginPanel extends BasePanel {
         EventManager.getInstance().off(LoginPanel.NAME,this);
     }
 
-    public spineClick(){
-        this.changeSpineAction();
-    }
+
+
 }
 
 

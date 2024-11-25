@@ -114,6 +114,7 @@ export class App extends BaseObejct {
         SpriteManager.getInstance().init();
         TaskManager.getInstance().init();
         ChatFlowModel.getInstance().init();
+        SpriteManager.getInstance().init();
     }
 
     private preLoadRes(){
