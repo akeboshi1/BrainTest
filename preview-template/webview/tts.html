@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TTS</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+  let playing = false;
+  let source = null;
+  let idx = 0;
+  let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let ws = null;
+  let flag = false;
+  let audioQueue = [];
+
+  function connect() {
+    flag = true;
+    ws = new WebSocket(`wss://test.paipai.xinjiaxianglao.com/api/tts-tmp/`);
+
+    ws.onmessage = async (event) => {
+      // console.log('tts.html onmessage', event);
+      const arrayBuffer = await event.data.arrayBuffer(); // 将接收到的Blob数据转换为ArrayBuffer
+      // console.log(arrayBuffer)
+
+      const prefix = Array.from(new Int8Array(arrayBuffer.slice(0, 21))) // 转为普通数组
+        .map(ascii => String.fromCharCode(ascii)) // 转换每个 ASCII 值为字符
+        .join(''); // 拼接成字符串
+
+      const uid = prefix.slice(0, 20);
+      const isLast = prefix.slice(20, 21) === '1';
+
+      audioQueue.push([uid, isLast, arrayBuffer.slice(10)]);
+      idx++
+      if (!playing) {
+        playNextInQueue();
+      }
+    };
+
+    ws.onclose = (e) => {
+      console.log('连接已关闭', e);
+      if (flag) {
+        connect();
+      }
+      // 重连
+    };
+
+    // 处理连接错误事件
+    ws.onerror = (error) => {
+      console.error('tts连接出错:', error);
+    };
+
+    ws.onopen = (e) => {
+      console.log(" 监听tts连接成功------");
+
+      const targetOrigin = `http://${location.host}/tts.html`;
+      window.parent.postMessage({
+        type: 'TTSConnected',
+      }, targetOrigin);
+
+    }
+  }
+
+  function start(uid, text) {
+    ws.send(JSON.stringify({
+      'uid': uid,
+      'content': text
+    }));
+  }
+
+  function close() {
+    if (ws) {
+      const targetOrigin = `http://${location.host}/tts.html`;
+      window.parent.postMessage({
+        type: 'TTSClosed',
+      }, targetOrigin);
+    }
+    location.reload()
+  }
+
+  async function playNextInQueue() {
+    // 没有音频了, 等待一段时间再播放
+    if (audioQueue.length === 0 && idx === 0) {
+      source = undefined;
+      playing = false;
+      return
+    }
+
+    playing = true;
+
+    const arrayData = audioQueue.shift();
+    const uid = arrayData[0].trim();
+    const isLast = arrayData[1];
+    const arrayBuffer = arrayData[2];
+    try {
+      idx--
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      source = audioContext.createBufferSource();
+
+      source.buffer = audioBuffer;
+
+      source.connect(audioContext.destination);
+
+      source.start();
+
+      source.onended = () => {
+        playNextInQueue(); // Play the next audio in the queue
+        if (isLast) {
+          const targetOrigin = `http://${location.host}/tts.html`;
+          window.parent.postMessage({
+            type: 'TTSEnd',
+            uid: uid,
+          }, targetOrigin);
+          console.log('播放结束', {
+            type: 'TTSEnd',
+            uid: uid,
+          }, targetOrigin)
+        }
+      };
+
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      playNextInQueue(); // Ensure the next audio in the queue is played even if there's an error
+    }
+
+  }
+
+
+</script>

@@ -1,4 +1,4 @@
-import { _decorator, find,Camera,AssetManager,Node,director,instantiate,WebView } from 'cc';
+import { _decorator, find,Camera,resources,Node,director,TextAsset,WebView } from 'cc';
 import {EventManager} from "./Core/Manager/Event/EventManager";
 import {SocketManager} from "./Core/Manager/Net/SocketManager";
 import {UIManager} from "./Core/Manager/UI/UIManager";
@@ -9,11 +9,11 @@ import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
 import {UserData} from "./Core/Data/UserData";
-import {LoginPanel} from "./Game/UI/Login/LoginPanel";
 import {Global} from "./Core/Manager/Config/Global";
 import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
 import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
+
 
 const { ccclass, property } = _decorator;
 
@@ -150,10 +150,9 @@ export class App extends BaseObejct {
         DebugLog.instance.log("socket connected");
         EventManager.getInstance().off(SocketManager.SOCKET_ON,context);
 
-        if(this.isWebView){
-            this.tts.url ="https://kele.paipai.xinjiaxianglao.com/webview/dev/tts.html";
-            this.asr.url="https://kele.paipai.xinjiaxianglao.com/webview/dev/asr.html";
-
+        if(context.isWebView){
+            context.tts.url = "./webview/tts.html";
+            context.asr.url= "./webview/asr.html";
         }
 
         // 请求项目资源地址

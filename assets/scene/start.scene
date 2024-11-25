@@ -348,7 +348,7 @@
     },
     "sceneName": "",
     "isPad": false,
-    "isWebView": false,
+    "isWebView": true,
     "webView": {
       "__id__": 9
     },

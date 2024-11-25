@@ -218,7 +218,6 @@ export class ChatFlowModel extends BaseManager{
     onClickTTS() {
         var webViewNode = director.getScene().getChildByName("webview");
         let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
-
         //let textbox = find("Canvas/EditBox").getComponent(EditBox);
         webviewTTS.evaluateJS("start('123456123123')");
     }
@@ -227,7 +226,6 @@ export class ChatFlowModel extends BaseManager{
         // 连接TTS
         var webViewNode = director.getScene().getChildByName("webview");
         let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
-
         webviewTTS.evaluateJS("connect()");
     }
 

@@ -1,0 +1,1 @@
+{"__type__":"cc.AnimationClip","_name":"errorcircle","_duration":0.43333333333333335,"curveData":{"props":{"scale":[{"frame":0,"value":{"__type__":"cc.Vec2","x":1.2,"y":1.2}},{"frame":0.43333333333333335,"value":{"__type__":"cc.Vec2"}}]}}}

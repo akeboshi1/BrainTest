@@ -1,0 +1,170 @@
+<html>
+
+<head>
+    <title>Recorder</title>
+</head>
+
+<body>
+<div>
+    <canvas id="waveform" width="80" height="80"></canvas>
+</div>
+</body>
+
+</html>
+
+<script src="index.umd.js"></script>
+<script>
+  let iatWS = null;
+  let flag = false;
+
+  class AudioRecorder {
+    constructor(params) {
+      this._id = Math.random().toString(36).substr(2);
+      this.iatWS = null;
+      this.isConnected = false;
+
+      this.recorder = new RecorderManager("../");
+      this.resultText = "";
+      this.resultTextTemp = "";
+      this.recordFlag = true;
+      // this.chatFlag = true; // false为不发识别出来的文本到聊天记录上(也就是不提问AI)
+      const {
+        onStop,
+        onSendMsgCallback,
+      } = params;
+
+      this.onSendMsgCallback = onSendMsgCallback;
+
+      this.recorder.onFrameRecorded = ({isLastFrame, frameBuffer}) => {
+
+        if (this.iatWS.readyState === this.iatWS.OPEN) {
+          this.iatWS.send(frameBuffer);
+
+          if (isLastFrame) {
+            console.log("最后一帧");
+          }
+        } else {
+          // frameBufferCache.push(frameBuffer);
+        }
+      };
+      this.recorder.onStop = onStop;
+    }
+
+    closeConntect() {
+      this.iatWS.close();
+    }
+
+    stop() {
+      console.log('停止录音');
+      this.recorder.stop();
+    }
+
+    getWebSocketUrl = async function () {
+      return 'wss://test.paipai.xinjiaxianglao.com/asr-tmp/';
+    }
+
+    connectWebSocket = async function () {
+
+      const websocketUrl = await this.getWebSocketUrl();
+      // console.log("websocketUrl", websocketUrl);
+
+      if ("WebSocket" in window) {
+        this.iatWS = new WebSocket(websocketUrl);
+      } else if ("MozWebSocket" in window) {
+        this.iatWS = new MozWebSocket(websocketUrl);
+      } else {
+        alert("浏览器不支持WebSocket");
+        return;
+      }
+
+      this.iatWS.onopen = (e) => {
+        console.log("asr ws 连接成功");
+        // 开始录音
+        this.isConnected = true;
+
+        this.recorder.start({
+          sampleRate: 16000,
+          frameSize: 1280,
+        })
+      }
+
+      this.iatWS.onmessage = (e) => {
+        console.log('asr 消息', e)
+        // const targetOrigin = `${location.protocol}//${location.host}/asr.html`;
+        const targetOrigin = `http://${location.host}/asr.html`;
+        if (e.data === '1') {
+          console.log(".... asr ....")
+          setTimeout(() => {
+            console.log('延迟 asr 开始')
+            window.parent.postMessage({
+              type: 'ASRConnected',
+            }, targetOrigin);
+          }, 800);
+
+        } else {
+          console.log('>>>')
+          console.log(e.data);
+          window.parent.postMessage({
+            type: 'ASRResult',
+            data: e.data
+          }, 'http://localhost:7456/asr.html');
+
+        }
+      }
+
+      this.iatWS.onerror = async (e) => {
+        console.error(e);
+        if (this.iatWS.readyState === WebSocket.OPEN) {
+          //
+        } else {
+          const targetOrigin = `${location.protocol}//${location.host}/asr.html`;
+          window.parent.postMessage({
+            type: 'ASRError',
+            data: e
+          }, targetOrigin);
+        }
+      }
+
+      this.iatWS.onclose = () => {
+        this.isConnected = false;
+        this.recorder.stop();
+
+        const targetOrigin = `${location.protocol}//${location.host}/asr.html`;
+        window.parent.postMessage({
+          type: 'ASRClosed',
+        }, targetOrigin);
+
+      };
+    }
+  }
+
+  const audioRecorder = new AudioRecorder({
+    onStop: () => {
+      console.log('停止录音')
+    },
+    onSendMsgCallback: (text) => {
+      console.log('发送文本', text)
+    }
+  })
+
+  function connect() {
+    flag = true
+    audioRecorder.connectWebSocket()
+  }
+
+  function close() {
+    flag = false
+    // audioRecorder.closeConntect()
+    // 重新加载页面
+
+    const targetOrigin = `${location.protocol}//${location.host}/asr.html`;
+    window.parent.postMessage({
+      type: 'ASRClosed',
+    }, targetOrigin);
+
+    console.log('reload!!!')
+    location.reload();
+
+  }
+
+</script>

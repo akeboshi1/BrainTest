@@ -1,0 +1,20 @@
+info face="face" size=60
+common lineHeight=60 scaleW=0 scaleH=0 pages=1
+page id=0 file="anniuziti.png"
+chars count=16
+char id=32 x=225 y=151 width=0 height=0 xoffset=15 yoffset=73 xadvance=21 page=0 chnl=15
+char id=46 x=199 y=151 width=16 height=20 xoffset=6 yoffset=43 xadvance=25 page=0 chnl=15
+char id=48 x=201 y=10 width=40 height=60 xoffset=3 yoffset=3 xadvance=43 page=0 chnl=15
+char id=49 x=117 y=10 width=21 height=61 xoffset=1 yoffset=2 xadvance=23 page=0 chnl=15
+char id=50 x=108 y=81 width=39 height=60 xoffset=2 yoffset=3 xadvance=41 page=0 chnl=15
+char id=51 x=10 y=81 width=39 height=60 xoffset=2 yoffset=3 xadvance=42 page=0 chnl=15
+char id=52 x=68 y=10 width=39 height=61 xoffset=2 yoffset=3 xadvance=42 page=0 chnl=15
+char id=53 x=157 y=81 width=38 height=60 xoffset=2 yoffset=3 xadvance=42 page=0 chnl=15
+char id=54 x=60 y=151 width=39 height=58 xoffset=2 yoffset=5 xadvance=44 page=0 chnl=15
+char id=55 x=205 y=81 width=35 height=60 xoffset=1 yoffset=3 xadvance=37 page=0 chnl=15
+char id=56 x=59 y=81 width=39 height=60 xoffset=3 yoffset=3 xadvance=45 page=0 chnl=15
+char id=57 x=10 y=151 width=40 height=58 xoffset=2 yoffset=5 xadvance=44 page=0 chnl=15
+char id=83 x=148 y=10 width=43 height=60 xoffset=3 yoffset=3 xadvance=48 page=0 chnl=15
+char id=88 x=10 y=10 width=48 height=61 xoffset=1 yoffset=3 xadvance=48 page=0 chnl=15
+char id=115 x=158 y=151 width=31 height=46 xoffset=3 yoffset=18 xadvance=37 page=0 chnl=15
+char id=120 x=109 y=151 width=39 height=47 xoffset=1 yoffset=17 xadvance=40 page=0 chnl=15

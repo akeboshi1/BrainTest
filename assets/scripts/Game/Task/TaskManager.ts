@@ -84,7 +84,7 @@ export class TaskManager {
                 context._taskDic.set(task.id,task);
             }
 
-            context.requestStartTask(51);
+            context.requestStartTask(108);
         }
     }
 
@@ -110,7 +110,7 @@ export class TaskManager {
                 SkewersManager.getInstance().start(id);
                 return;
             case TaskStatus.UnComplete:
-                return;
+                break;
         }
 
         EventManager.getInstance().on(this.task_start_task,this.requestStartTaskCallback,this);

@@ -1,0 +1,1 @@
+{"__type__":"cc.AnimationClip","_name":"opacityAni","_duration":1.3333333333333333,"wrapMode":"2","curveData":{"props":{"opacity":[{"frame":0,"value":100},{"frame":0.6666666666666666,"value":255},{"frame":1.3333333333333333,"value":100}]}}}
