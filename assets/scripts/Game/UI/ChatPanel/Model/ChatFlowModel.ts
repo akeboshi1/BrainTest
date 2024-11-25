@@ -1,3 +1,4 @@
+import { director, Director, WebView } from "cc";
 import { BaseManager } from "../../../../Core/Manager/BaseManager";
 import { EventManager } from "../../../../Core/Manager/Event/EventManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
@@ -32,6 +33,46 @@ export class ChatFlowModel extends BaseManager{
     private chatMessageMap: Map<string, { speaker: 0 | 1, message: string }> = new Map();
     private currentSpeaker: 0 | 1 = 0; //0是机器人讲话， 1是用户
     private currentSpeechSeq: number = 0; 
+
+    public initTTSandARS(){
+        window.addEventListener("message", (event) => {
+            //console.log('on message >>'+event.origin+"<<");
+
+            if (event.data && event.data.type === "ASRResult") {
+                // asr 识别结果
+                let msg = JSON.parse(event.data.data);
+                //let label = find("Canvas/Label").getComponent(Label);
+                //label.string = msg.content;
+                DebugLog.instance.log("ASR Result "+ msg.content);
+            }
+
+            if (event.data && event.data.type === "ASRConnected") {
+                // asr 连接
+                DebugLog.instance.log("ASRConnected ");
+            }
+
+            if (event.data && event.data.type === "ASRClosed") {
+                // asr 断开
+                DebugLog.instance.log("ASRClosed ");
+            }
+
+            if (event.data && event.data.type === "TTSConnected") {
+                // tts连接
+                //labelConn.string = "tts 已连接"
+                DebugLog.instance.log("TTSConnected ");
+            }
+
+            if (event.data && event.data.type === "TTSClosed") {
+                // tts断开
+                DebugLog.instance.log("TTSClosed ");
+            }
+
+            if (event.data && event.data.type === "TTSEnd") {
+                // tts播放结束
+                DebugLog.instance.log("TTSEnd ");
+            }
+        });
+    }
 
     public initEventList(){
         EventManager.getInstance().on(this.chat_get_greeting, this.handleMessageChunk, this);
@@ -146,5 +187,55 @@ export class ChatFlowModel extends BaseManager{
 
     private waitForTtsFinish(): void {
        
+    }
+
+    testTTS(){
+        var webView = director.getScene().getChildByName("webview");
+        if(webView)
+        {
+            DebugLog.instance.log("find web view");
+            this.onOpenTTS();
+            //webView.getChildByName("tts").getComponent(WebView).evaluateJS("start('今天天气真好！')");
+        }
+    }
+
+    onOpenASR() {
+        // 连接ASR
+        var webViewNode = director.getScene().getChildByName("webview");
+        let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
+        
+        webviewasr.evaluateJS("connect()");
+    }
+
+    onCloseASR() {
+        // 断开ASR
+        var webViewNode = director.getScene().getChildByName("webview");
+        let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
+        webviewasr.evaluateJS("close()");
+    }
+
+    
+    onClickTTS() {
+        var webViewNode = director.getScene().getChildByName("webview");
+        let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
+
+        //let textbox = find("Canvas/EditBox").getComponent(EditBox);
+        webviewTTS.evaluateJS("start('123456123123')");
+    }
+
+    onOpenTTS() {
+        // 连接TTS
+        var webViewNode = director.getScene().getChildByName("webview");
+        let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
+
+        webviewTTS.evaluateJS("connect()");
+    }
+
+    onCloseTTS() {
+        // 断开TTS
+        var webViewNode = director.getScene().getChildByName("webview");
+        let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
+
+        webviewTTS.evaluateJS("close()");
     }
 }

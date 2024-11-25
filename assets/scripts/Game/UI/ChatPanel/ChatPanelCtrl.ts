@@ -57,11 +57,12 @@ export class ChatPanelCtrl extends Component {
     }
 
     public clickGreeting(data:any){
-        this.chatFlowModel.sendGreetingRequest().then(() => {
-            console.log('Greeting request completed.');
-        }).catch((error) => {
-            console.error('Error sending greeting request:', error);
-        });
+        this.chatFlowModel.testTTS();
+        // this.chatFlowModel.sendGreetingRequest().then(() => {
+        //     console.log('Greeting request completed.');
+        // }).catch((error) => {
+        //     console.error('Error sending greeting request:', error);
+        // });
     }
 
     private chatStateChanged(): boolean {
