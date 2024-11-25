@@ -1,4 +1,4 @@
-import {GameState} from "../../../Core/Data/GameState";
+import {GameState, SkewersGameStatus} from "../../../Core/Data/GameState";
 
 export enum GameType{
     // 认知
@@ -21,31 +21,56 @@ export enum GameType{
  * 游戏串烧数据
  */
 export class SkewersGameData {
-    // 当前串烧游戏难度
-    public hard:number = 0;
-    // 当前串烧游戏游戏时间
-    public durTime:number = 0;
-    // 当前串烧游戏，玩的次数
-    public count:number=0;
+    // 任务id
+    public id:number;
+
+    // 游戏索引
+    public seq:number;
+
+    // 游戏id
+    public gameID:number;
+
     // 当前串烧游戏code
-    public sceneName:string;
+    public gameCode:string;
+
     // 当前串烧游戏类型
     public type:GameType;
-    // 当前游戏play索引
-    public playIndex:number=-1;
 
-    private _gameStates:GameState;
+    // 游戏状态 未完成0 已完成1
+    public status:number=0;
+
+    // 游戏完成度 最低0 最高1
+    public completion:number=0;
+
+    // 游戏用时
+    public duration:number = 0;
+
+    // 当前串烧游戏难度
+    public difficulty:number = 0;
+
+    // 当前串烧游戏游戏时间
+    public timeLimit:number = 0;
+
+    // 游戏得分
+    public score:number = 0;
+
+    // 完成得时间格式 “2024-11-22 07:30:00”
+    public completedAt:string = null;
 
     public refreshData(data:any){
-        this.hard = data.hard;
-        this.durTime = data.durTime;
-        this.type = data.type;
-        this.sceneName = data.code;
-        this.playIndex = data.playIndex;
+        this.id = data['id'];
+        this.seq = data['seq'];
+        this.gameID = data['game_id'];
+        this.gameCode = data['game_code'];
+        this.type = data['cog_ability'];
+        this.status = data['status'];
+        this.difficulty = data['difficulty'];
+        this.duration = data['duration'];
+        this.timeLimit = data['time_limit'];
+        this.completion = data['completion']||0;
+        this.score = data['score']||0;
+        this.completedAt = data['completed_at']||null;
     }
 
-    public set gameState(state:GameState){
-        this._gameStates = state;
-    }
 
 }

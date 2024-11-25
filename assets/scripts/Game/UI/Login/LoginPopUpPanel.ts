@@ -1,12 +1,16 @@
 import { _decorator, Component, Node,Label,Button,EditBox } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {DebugLog} from "../../../Core/Util/DebugLog";
-import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {UIManager} from "../../../Core/Manager/UI/UIManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {LoginPanel} from "../../../Game/UI/Login/LoginPanel";
-import {SkewersManager} from "../../../Game/Task/Skewers/SkewersManager";
+import {TaskManager} from "../../../Game/Task/TaskManager";
+import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
@@ -54,11 +58,8 @@ export class LoginPopUpPanel extends BasePanel{
     @property(EditBox)
     num3:EditBox;
 
-    /**
-     * 请求手机有验证码
-     * @private
-     */
-    private login_get_sms:string ="login.get_sms";
+    @property({type:[EditBox]})
+    numBox:EditBox[]=[];
 
     /**
      * 手机验证码下发
@@ -71,6 +72,9 @@ export class LoginPopUpPanel extends BasePanel{
      * @private
      */
     private login_login_by_mp:string ="login.login_by_mp";
+
+    private phoneNumber:string = "13611613393";
+    private phoneCode:string="1234";
 
     constructor() {
         super();
@@ -87,6 +91,7 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     onEnable(){
+
         this.addListener();
     }
 
@@ -99,7 +104,8 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     agreeClick(){
-        SocketManager.getInstance().send(new SocketData({"action": "login.send_mp_code", "data": {"mp_no": "12345678901"}}));
+
+        LoginManager.getInstance().request(this.login_send_mp_code, {"mp_no": this.phoneNumber});
     }
 
     cancelClick(){
@@ -118,13 +124,22 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     private _initPhoneView(){
-        this.num0.string = "1";
-        this.num1.string = "2";
-        this.num2.string = "3";
-        this.num3.string = "4";
 
+        let numbers: number[] = this.phoneCode.split("").map(Number);
+        let len = numbers.length;
+        for(let i=0;i<len;i++){
+            let editBox = this.numBox[i];
+            if(editBox == null)continue;
+            editBox.string = numbers[i]+"";
+        }
+        this.PhoneNumberTxt.string = this.phoneNumber;
+        // this.num0.string = "1";
+        // this.num1.string = "2";
+        // this.num2.string = "3";
+        // this.num3.string = "4";
 
-        SocketManager.getInstance().send(new SocketData({"action": "login.login_by_mp", "data": {"mp_no": "12345678901", "code": "1234"}}));
+        LoginManager.getInstance().request(this.login_login_by_mp, {"mp_no": this.phoneNumber, "code": this.phoneCode});
+
     }
 
     private _initXieyiView(){
@@ -132,8 +147,8 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     private addListener(){
-        EventManager.getInstance().on(this.login_send_mp_code,this.xieyiHandler,this);
-        EventManager.getInstance().on(this.login_login_by_mp,this.sendPhoneHandler,this);
+        EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
+        EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
     }
 
     private removeListener(){
@@ -141,17 +156,42 @@ export class LoginPopUpPanel extends BasePanel{
         EventManager.getInstance().off(this.login_login_by_mp,this);
     }
 
-    private sendPhoneHandler(data,context){
+    private requestLoginCallBack(data,context){
         DebugLog.instance.log(data);
+        if(data['status']==0){
+            DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
+            return;
+        }
+
+        if(data['mp_no'] != this.phoneNumber){
+            DebugLog.instance.error(`${data['mp_no']} 手机号不匹配`);
+            return;
+        }
+        Global.userData.token = data.data['token'];
+        DebugLog.instance.log(`${data} ====`);
+        Global.userData.tokenExpires = data.data['expires'];
         context.PhoneDescTxt.string="登录成功！！！";
 
         // test
-        SkewersManager.getInstance().start();
+        //TaskManager.getInstance().start();
+       
+        SceneManager.getInstance().changeScene("resource","main").then(()=>{
+            DebugLog.instance.log(`main 场景切换成功`);
+        });
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 
-    private xieyiHandler(data,context){
+    private requestCodeCallBack(data,context){
         DebugLog.instance.log(data);
+        if(data['status']==0){
+            DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
+            // test code
+            this.phoneCode = "1234";
+            context.switchView(true);
+            return;
+        }
+
+        this.phoneCode = data['data']['code'];
         context.switchView(true);
     }
 

@@ -2,7 +2,6 @@ import {BaseManager} from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import {EventManager} from "../Event/EventManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
-import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 
 export class SocketManager extends BaseManager{
     private static _instance: SocketManager;
@@ -61,15 +60,31 @@ export class SocketManager extends BaseManager{
            const uid = jsonObj['uid'];
            // 创建一个新的数组，用于存储需要保留的元素
            let updatedDatas = [];
-           let tmpSocketData = null;
+           let tmpSocketData:SocketData = null;
+           let streamstatus = -1; // 非流式-1  流式未结束0 流式结束1
+           if (jsonObj.hasOwnProperty('finish_reason')) {
+               // 存在 finish_reason 属性 流式数据
+              streamstatus = jsonObj['finish_reason']||0;
+           }
+
            for (let i:number = 0;i<_tmpDatas.length;i++){
                let socketData:SocketData = _tmpDatas[i];
                if(socketData.uid == uid){
                    tmpSocketData = socketData;
+                   //流式数据
+                   if(streamstatus != null){
+                       tmpSocketData.isStream =true;
+                       // 流式非最后一条数据，保存
+                       if(streamstatus != 1){
+                           updatedDatas.push(tmpSocketData);
+                       }
+                   }
                }else{
                    updatedDatas.push(socketData);
                }
            }
+
+
            this._socketDatas.set(action,updatedDatas);
            if(tmpSocketData){
                DebugLog.instance.log(`接收：${data.data}`)
@@ -81,7 +96,7 @@ export class SocketManager extends BaseManager{
        };
     }
 
-    public send(data:SocketData){
+    public send(data:any){
         let _tmpDatas:SocketData[]= this._socketDatas.get(data.action);
         if(!_tmpDatas){
             _tmpDatas = [];
@@ -95,6 +110,7 @@ export class SocketManager extends BaseManager{
         }
         _tmpDatas.push(data);
         const jsonStr = JSON.stringify(data);
+        DebugLog.instance.log(data);
         this._socket.send(jsonStr);
         DebugLog.instance.log(`发送：${jsonStr}`);
         this._socketDatas.set(data.action, _tmpDatas);

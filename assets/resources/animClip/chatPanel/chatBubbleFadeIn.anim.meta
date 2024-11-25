@@ -1,0 +1,13 @@
+{
+  "ver": "2.0.3",
+  "importer": "animation-clip",
+  "imported": true,
+  "uuid": "3f06041f-a8fd-4dfd-a2ab-a5aac6b08ab9",
+  "files": [
+    ".cconb"
+  ],
+  "subMetas": {},
+  "userData": {
+    "name": "chatBubbleFadeIn"
+  }
+}

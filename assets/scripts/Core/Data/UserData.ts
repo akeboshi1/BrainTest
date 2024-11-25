@@ -4,6 +4,7 @@ export class UserData {
     public id: string;
     public name: string;
     public token: string;
+    public tokenExpires:number=0;
 
 
     /**

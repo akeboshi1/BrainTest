@@ -2,11 +2,11 @@ import {GameType, SkewersGameData} from "./SkewersGameData";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {Global} from "../../../Core/Manager/Config/Global";
-import {GameState} from "../../../Core/Data/GameState";
+import {GameState, SkewersGameStatus} from "../../../Core/Data/GameState";
 import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
-import {TimeUtil} from "../../../Core/Util/TimeUtil";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
+import {director} from "cc";
 
 /**
  * 脑力串烧管理器
@@ -51,13 +51,12 @@ export class SkewersManager{
 
      }
 
-     start(){
+     start(id:number){
          Global.isSkewersGame =true;
-         this.refreshBrainsTrainings([
-             {hard:1,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-             {hard:2,durTime:2,count:1,code:"puzzle",type:GameType.Judgment,},
-             {hard:0,durTime:2,count:2,code:"fanpai",type:GameType.Memory},
-             {hard:2,durTime:2,count:2,code:"fanpai",type:GameType.Memory},],this);
+         this.requestBranisTrainings(id);
+         // this.refreshBrainsTrainings([
+         //     {id:0,game_id:0,difficulty:0,seq:0,status:0,time_limit:2,game_code:"fanpai",cog_ability:GameType.Memory},
+         //     {id:1,game_id:1,difficulty:0,seq:1,status:0,time_limit:2,game_code:"puzzle",cog_ability:GameType.Judgment}],this);
      }
 
 
@@ -67,38 +66,43 @@ export class SkewersManager{
      * @param taskID
      */
      public requestBranisTrainings(taskID:number){
-        EventManager.getInstance().on(this.task_get_brain_trainings,this.refreshBrainsTrainings,this);
-        let requestBranisTrainingsSocket = new SocketData({uid:"",action:this.task_get_brain_trainings,data:{task_id:taskID}});
+        EventManager.getInstance().on(this.task_get_brain_trainings,this.requestBranisTrainingsCallback,this);
+        let requestBranisTrainingsSocket = new SocketData({action:this.task_get_brain_trainings,data:{task_id:taskID}});
         SocketManager.getInstance().send(requestBranisTrainingsSocket);
      }
 
-     public refreshBrainsTrainings(datas:any,context:any){
-         EventManager.getInstance().off(this.task_get_brain_trainings,this.refreshBrainsTrainings);
-          const len = datas.length;
-          for(let i:number =0;i<len;i++){
-              let tmpData:any = datas[i];
+     private requestBranisTrainingsCallback(data:any,context:any){
+         EventManager.getInstance().off(this.task_get_brain_trainings,this.requestBranisTrainingsCallback);
+         const result = data.data.result;
+         const len = result.length;
+         for(let i:number =0;i<len;i++){
+              let tmpData:any = result[i];
+              let data:SkewersGameData = new SkewersGameData();
+              data.refreshData(tmpData);
+              context._gameDatas.push(data);
+         }
+         Global.userData.skewerGameDatas = this._gameDatas;
+         context.startGame();
+     }
 
-              let count = tmpData.count;
-              for(let j:number =0;j<count;j++){
-                  let data:SkewersGameData = new SkewersGameData();
-                  data.refreshData(tmpData);
-                  data.playIndex = j;
-                  this._gameDatas.push(data);
-              }
-              // switch (tmpData.gameID){
-              //     case GameSceneConst.Fanpai:
-              //         data.sceneName = "fanpai";
-              //         break;
-              //     case GameSceneConst.Pintu:
-              //         data.sceneName = "puzzle";
-              //         break;
-              //     case GameSceneConst.Finding:
-              //         data.sceneName = "finding";
-              //         break;
-              // }
-          }
-          Global.userData.skewerGameDatas = this._gameDatas;
-          this.startGame();
+    /**
+     * 请求完成脑力保健
+     * @param data
+     */
+     public requestCompleteBrainsTrainings(data:any){
+         EventManager.getInstance().on(this.task_complete_brain_training,this.requestCompleteBrainsTrainingsCallback,this);
+         let socketData = new SocketData(data);
+         SocketManager.getInstance().send(socketData);
+     }
+
+     private requestCompleteBrainsTrainingsCallback(data:any,context:any){
+         EventManager.getInstance().off(this.task_complete_brain_training,this.requestCompleteBrainsTrainingsCallback);
+         let status = data.status;
+         if(status == 0){
+             DebugLog.instance.error(data.message);
+         }else{
+             // back to hall
+         }
      }
 
      public startGame(){
@@ -106,11 +110,12 @@ export class SkewersManager{
               DebugLog.instance.error("当前没有游戏可以运行");
               return;
           }
-          let index = 0;
-          if(!this.checkGameIndex(index))return;
-          const game = this._gameDatas[index];
-          this._curIndex = 0;
-          const sceneName = game.sceneName;
+          let game = this.getCurGameData();
+          if(!game){
+              DebugLog.instance.error("当前脑力训练已经全部完成！");
+              return;
+          }
+          const sceneName = game.gameCode;
           let url = Global.RES_Root+sceneName;
           SceneManager.getInstance().changeScene(url,sceneName).then((scene)=>{
               DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
@@ -144,10 +149,13 @@ export class SkewersManager{
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
-         if(!this.checkGameIndex(index))return;
-         const game:SkewersGameData = this._gameDatas[index];
+         const game = this.getCurGameData();
+         if(!game){
+             DebugLog.instance.error("当前脑力训练已经全部完成！");
+             return;
+         }
          this._curIndex = index;
-         const sceneName = game.sceneName;
+         const sceneName = game.gameCode;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
              DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
@@ -156,21 +164,22 @@ export class SkewersManager{
      }
 
      public runNextGame(){
+         // 上报游戏完成数据
+         this.requestGameComplete();
          if(!this._gameDatas||this._gameDatas.length <=0){
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
-         if(!this.checkGameIndex(this._curIndex+1)){
+         let game = this.getNextGameData();
+         if(!game){
+             // back to hall test
              DebugLog.instance.log("当前串烧游戏已经全部完成");
+             Global.isSkewersGame = false;
              return;
          }
-         if(this._curIndex + 1 > this._gameDatas.length - 1){
-             DebugLog.instance.log('当前串烧游戏已经全部完成')
-             return;
-         }
+
          this._curIndex +=1;
-         const game:SkewersGameData = this._gameDatas[this._curIndex];
-         const sceneName = game.sceneName;
+         const sceneName = game.gameCode;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
              DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
@@ -178,19 +187,45 @@ export class SkewersManager{
          });
      }
 
+    /**
+     * 外部请求游戏过关
+     */
+    public requestGameComplete(){
+         let curGame = this.getCurGameData();
+         let socketData = {action:this.task_complete_brain_training,data:{
+                 "brain_training_id": curGame.id, // 脑力训练（游戏小关）id （必填）
+                 "completion": 1, // 完成度
+                 "duration": 40, // 用时（秒）
+                 "score": 100, // 得分}}
+             }
+         };
+         this.requestCompleteBrainsTrainings(socketData);
+     }
 
-     private checkGameIndex(index:number = 0):boolean{
-         let game:SkewersGameData = this._gameDatas[index];
-         if(!game){
-             DebugLog.instance.error(`索引为 ${index} 数据不存在`);
-             Global.isSkewersGame = false;
-             return false;
+
+     private getCurGameData():SkewersGameData{
+         let len = this._gameDatas.length;
+         for(let i:number = 0;i<len;i++){
+             let gameData = this._gameDatas[i];
+             if(!gameData)continue;
+             if(gameData.status == SkewersGameStatus.unCompleted){
+                 this._curIndex = i;
+                 return gameData;
+             }
          }
-         if(game.gameState == GameState.over){
-             DebugLog.instance.error(`索引为 ${index} 游戏已经运行完成`);
-             return false;
+         return null;
+     }
+
+     private getNextGameData(){
+         let len = this._gameDatas.length;
+         if(this._curIndex + 1 > this._gameDatas.length - 1){
+             return null;
          }
-         return true;
+         let nextGame = this._gameDatas[this._curIndex+1];
+         if(!nextGame||nextGame.status == SkewersGameStatus.Completed){
+             return null;
+         }
+         return nextGame;
      }
 
 

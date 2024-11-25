@@ -4,3 +4,8 @@ export enum GameState {
     pause,
     over
 }
+
+export enum SkewersGameStatus {
+    unCompleted,
+    Completed
+}

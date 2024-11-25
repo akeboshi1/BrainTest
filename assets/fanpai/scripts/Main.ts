@@ -69,7 +69,7 @@ export class Main extends Component {
 
     start() {
         if(Global.isSkewersGame){
-            this.hardIndex = Global.userData.curSkewerGameData.hard;
+            this.hardIndex = Global.userData.curSkewerGameData.difficulty;
         }
         this.sceneInit()
     }

@@ -4,6 +4,8 @@ import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
 import {LoginPopUpPanel} from "db://assets/scripts/Game/UI/Login/LoginPopUpPanel";
+import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
+import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -54,8 +56,9 @@ export class LoginManager {
         });
     }
 
-    login(parentNode:Node){
 
+    request(action:string,data:any) {
+        const socketData = new SocketData({"action": action, "data": data})
+        SocketManager.getInstance().send(socketData);
     }
-
 }
