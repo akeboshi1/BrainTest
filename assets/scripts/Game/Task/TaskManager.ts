@@ -84,7 +84,7 @@ export class TaskManager {
                 context._taskDic.set(task.id,task);
             }
 
-            context.requestStartTask(51);
+            context.requestStartTask(108);
         }
     }
 
