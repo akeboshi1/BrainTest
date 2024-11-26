@@ -332,7 +332,15 @@ export class puzzleGameCore extends Component {
 
     private updatePreviewSprite(){
         let newSpriteFrame = new SpriteFrame();
-        newSpriteFrame.texture = this.cachedTextures[this.selectedLevelIndex];
+
+        let playIndex=0;
+        if(Global.isSkewersGame){
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty;
+            playIndex = Global.userData.curSkewerGameData.seq;
+        }
+
+        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
+        newSpriteFrame.texture = this.cachedTextures[textureIndex];
         this.previewSprite.spriteFrame = newSpriteFrame;
     }
 
@@ -390,7 +398,16 @@ export class puzzleGameCore extends Component {
 
         // 重玩
         this.cleanChipsCache();
-        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
+
+
+        let playIndex = 0;
+        if(Global.isSkewersGame){
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty;
+            playIndex = Global.userData.curSkewerGameData.seq;
+        }
+
+        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
+        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
 
         this.startGameMask.active = true;
         this.buttonStartGame.active = true;
