@@ -176,7 +176,7 @@ export class LoginPopUpPanel extends BasePanel{
         TaskManager.getInstance().start();
 
         // test chat 打开游戏大厅scene
-        SceneManager.getInstance().backToHall();
+        // SceneManager.getInstance().backToHall();
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 

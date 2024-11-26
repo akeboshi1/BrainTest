@@ -85,7 +85,8 @@ export class TaskManager {
                 context._taskDic.set(task.id,task);
             }
 
-            context.requestStartTask(results[2].id);
+            // todo test code
+            context.requestStartTask(results[0].id);
         }
     }
 

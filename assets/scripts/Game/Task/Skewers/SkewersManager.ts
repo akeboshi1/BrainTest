@@ -107,12 +107,15 @@ export class SkewersManager{
 
      public startGame(){
           if(!this._gameDatas||this._gameDatas.length <=0){
+              this._curIndex = -1;
               DebugLog.instance.error("当前没有游戏可以运行");
               return;
           }
           let game = this.getCurGameData();
           if(!game){
+              this._curIndex = -1;
               DebugLog.instance.error("当前脑力训练已经全部完成！");
+              SceneManager.getInstance().backToHall();
               return;
           }
           const sceneName = game.gameCode;
@@ -146,11 +149,13 @@ export class SkewersManager{
      */
      public runGame(index:number=0){
          if(!this._gameDatas||this._gameDatas.length <=0){
+             this._curIndex = -1;
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
          const game = this.getCurGameData();
          if(!game){
+             this._curIndex = -1;
              DebugLog.instance.error("当前脑力训练已经全部完成！");
              return;
          }
@@ -166,20 +171,24 @@ export class SkewersManager{
      public runNextGame(){
          // 上报游戏完成数据
          this.requestGameComplete();
+
          if(!this._gameDatas||this._gameDatas.length <=0){
+             this._curIndex = -1;
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
          let game = this.getNextGameData();
+         this._curIndex +=1;
          if(!game){
              DebugLog.instance.log("当前串烧游戏已经全部完成");
              Global.isSkewersGame = false;
+             this._curIndex = -1;
              // back to hall test
              SceneManager.getInstance().backToHall();
              return;
          }
 
-         this._curIndex +=1;
+
          const sceneName = game.gameCode;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
@@ -208,11 +217,15 @@ export class SkewersManager{
      * 是否全部通关
      */
     public isRunOver():boolean{
-        if(this.getNextGameData() !=null)return true;
+        if(this.getNextGameData() ==null)return true;
         return false;
      }
 
      private getCurGameData():SkewersGameData{
+        if(this._curIndex!=-1){
+            return this._gameDatas[this._curIndex];
+        }
+
          let len = this._gameDatas.length;
          for(let i:number = 0;i<len;i++){
              let gameData = this._gameDatas[i];
@@ -226,8 +239,9 @@ export class SkewersManager{
      }
 
      private getNextGameData(){
-         let len = this._gameDatas.length;
-         if(this._curIndex + 1 > this._gameDatas.length - 1){
+        if(!this._gameDatas)return null;
+        let len = this._gameDatas.length;
+         if(this._curIndex + 1 > len - 1){
              return null;
          }
          let nextGame = this._gameDatas[this._curIndex+1];

@@ -3,6 +3,8 @@ import {LoaderManager} from "../../scripts/Core/Manager/Load/LoaderManager";
 import {Global} from "../../scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -173,13 +175,18 @@ export class Main extends Component {
                     this.successView.children[1].active = true;
                     this.successLableText.string = '2'
                 } else if (this.curHard == this.hards[2]) {
-                    // 串烧游戏不弹大胜利界面
+                    // 是否是串烧游戏
                     if(!Global.isSkewersGame){
                         this.successView.active = false;
                         this.bigWin.active = true;
                     }else{
-                        this.successView.active = true;
-                        this.bigWin.active = false;
+                        if(SkewersManager.getInstance().isRunOver()){
+                            this.successView.active = false;
+                            this.bigWin.active = true;
+                        }else{
+                            this.successView.active = true;
+                            this.bigWin.active = false;
+                        }
                     }
                 }
                 this.hardIndex ++;
@@ -359,8 +366,8 @@ export class Main extends Component {
     timer: number = 90;
 
     timerInit() {
-        this.timer = 90;
-        this.Timer.string = "01:30";
+        this.timer = Global.userData.curSkewerGameData.timeLimit;
+        this.Timer.string = TimeUtil.formatTime(this.timer);
     }
 
     timerTick() {
@@ -410,7 +417,12 @@ export class Main extends Component {
     playNextCustoms() {
         // 串烧游戏状态下，运行下一个串烧游戏内容
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().runNextGame();
+            if(SkewersManager.getInstance().isRunOver()){
+                SceneManager.getInstance().backToHall();
+            }
+            else{
+                SkewersManager.getInstance().runNextGame();
+            }
             return;
         }
         this.failView.active = false;

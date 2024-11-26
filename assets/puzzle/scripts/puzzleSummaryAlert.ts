@@ -52,11 +52,16 @@ export class puzzleSummaryAlert extends Component {
             }
 
         }else{
-            // 串烧游戏 只有直接进入下一关
             this.buttonJumpLevel.active = false;
             this.buttonRetry.active = false;
             this.buttonNextLevel.active=true;
-            this.nextLabel.string = "下一关";
+            // 全部通关
+            if(SkewersManager.getInstance().isRunOver()){
+                this.nextLabel.string = "全部通关";
+            }else{
+                // 直接进入下一关
+                this.nextLabel.string = "下一关";
+            }
         }
     }
 

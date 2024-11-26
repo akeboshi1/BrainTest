@@ -52,4 +52,24 @@ export class TimeUtil {
         // 判断日期是否相同
         return loginData.getDate() !== currentDate.getDate();
     }
+
+    /**
+     * 格式化时间
+     * @param time
+     */
+    public static formatTime(seconds:number):string{
+        // 计算小时、分钟和秒数
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        // 格式化为两位数
+        const formattedHours = (hours < 10 ? '0' : '') + hours;
+        const formattedMinutes = (minutes < 10 ? '0' : '') + minutes;
+        const formattedSeconds = (secs < 10 ? '0' : '') + secs;
+
+        // 合并为 "HH:mm:ss" 格式
+        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+
+    }
 }

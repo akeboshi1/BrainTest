@@ -4,6 +4,7 @@ import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import {Global} from "../../scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleGameCore')
@@ -76,11 +77,13 @@ export class puzzleGameCore extends Component {
     }
 
     onEnable(){
-        this.draggableNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
-        this.draggableNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
-        this.draggableNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-        this.draggableNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
-        this.timerComponent.on('timer-end', this.onTimerEnd, this);
+        if(this.draggableNode){
+            this.draggableNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+            this.draggableNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+            this.draggableNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+            this.draggableNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        }
+        if(this.timerComponent)this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
 
     onDisable(){
@@ -383,8 +386,8 @@ export class puzzleGameCore extends Component {
     }
 
     onClickGotoNextlevel(){
-        DebugLog.instance.log(Global.isSkewersGame);
         if(Global.isSkewersGame){
+            SkewersManager.getInstance().runNextGame();
             return;
         }
         // 下一关
@@ -396,6 +399,10 @@ export class puzzleGameCore extends Component {
 
     onClickRetryCurrentLevel(){
 
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().runNextGame();
+            return;
+        }
         // 重玩
         this.cleanChipsCache();
 
