@@ -94,7 +94,7 @@ export class SceneManager extends BaseManager{
     async backToHall():Promise<void>{
         return new Promise((resolve,reject)=>{
             let url = Global.RES_Root + GameSceneConst.Hall;
-            SceneManager.getInstance().changeScene(GameSceneConst.Hall,GameSceneConst.Hall).then(()=>{
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall,"main").then(()=>{
                 DebugLog.instance.log('返回大厅');
                 resolve();
             }).catch(err=>{

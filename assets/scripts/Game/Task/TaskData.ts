@@ -7,8 +7,9 @@ export enum TaskType {
 export enum TaskStatus{
     UnComplete,
     Processing,
-    Completed,
-    Expired
+    Expired,
+    Completed=10,
+
 }
 
 export class TaskData {

@@ -81,7 +81,7 @@ export class SkewersManager{
               data.refreshData(tmpData);
               context._gameDatas.push(data);
          }
-         Global.userData.skewerGameDatas = this._gameDatas;
+         Global.userData.skewerGameDatas = context._gameDatas;
          context.startGame();
      }
 
@@ -172,9 +172,10 @@ export class SkewersManager{
          }
          let game = this.getNextGameData();
          if(!game){
-             // back to hall test
              DebugLog.instance.log("当前串烧游戏已经全部完成");
              Global.isSkewersGame = false;
+             // back to hall test
+             SceneManager.getInstance().backToHall();
              return;
          }
 
@@ -202,6 +203,14 @@ export class SkewersManager{
          this.requestCompleteBrainsTrainings(socketData);
      }
 
+
+    /**
+     * 是否全部通关
+     */
+    public isRunOver():boolean{
+        if(this.getNextGameData() !=null)return true;
+        return false;
+     }
 
      private getCurGameData():SkewersGameData{
          let len = this._gameDatas.length;

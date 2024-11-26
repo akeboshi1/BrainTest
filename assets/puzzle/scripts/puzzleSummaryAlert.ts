@@ -1,5 +1,6 @@
-import { _decorator, Component, Node, Tween, tween, UITransform, Vec3 } from 'cc';
+import { _decorator, Component, Node, Tween, Label, UITransform, Vec3 } from 'cc';
 import {Global} from "../../scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleSummaryAlert')
@@ -13,11 +14,15 @@ export class puzzleSummaryAlert extends Component {
     buttonRetry: Node;
     @property(Node)
     buttonJumpLevel: Node;
+    
     @property(Node)
     buttonNextLevel: Node;
 
     @property(Node)
     animNode: Node;
+
+    @property(Label)
+    nextLabel: Label;
 
     start() {
 
@@ -32,14 +37,26 @@ export class puzzleSummaryAlert extends Component {
         this.failLabel.active = !result;
 
         if(!Global.isSkewersGame){
-            this.buttonRetry.active = !result;
-            this.buttonJumpLevel.active = !result;
-            this.buttonNextLevel.active = result;
+            // 全部通关
+            if(SkewersManager.getInstance().isRunOver()){
+                this.buttonRetry.active = !result;
+                this.buttonJumpLevel.active = !result;
+                this.buttonNextLevel.active = result;
+                this.nextLabel.string = "全部通关";
+            }
+            else{
+                this.buttonRetry.active = !result;
+                this.buttonJumpLevel.active = !result;
+                this.buttonNextLevel.active = result;
+                this.nextLabel.string = "下一关";
+            }
+
         }else{
             // 串烧游戏 只有直接进入下一关
             this.buttonJumpLevel.active = false;
             this.buttonRetry.active = false;
             this.buttonNextLevel.active=true;
+            this.nextLabel.string = "下一关";
         }
     }
 

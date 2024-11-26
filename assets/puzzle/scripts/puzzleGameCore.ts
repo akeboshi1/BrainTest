@@ -377,7 +377,6 @@ export class puzzleGameCore extends Component {
     onClickGotoNextlevel(){
         DebugLog.instance.log(Global.isSkewersGame);
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().runNextGame();
             return;
         }
         // 下一关

@@ -7,6 +7,7 @@ import {TimeUtil} from "../../Core/Util/TimeUtil";
 import {SocketManager} from "../../Core/Manager/Net/SocketManager";
 import {TaskData, TaskStatus, TaskType} from "../../Game/Task/TaskData";
 import {DebugLog} from "../../Core/Util/DebugLog";
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 
 /**
  * 任务管理器
@@ -84,7 +85,7 @@ export class TaskManager {
                 context._taskDic.set(task.id,task);
             }
 
-            context.requestStartTask(108);
+            context.requestStartTask(results[2].id);
         }
     }
 
@@ -104,6 +105,7 @@ export class TaskManager {
                 return;
             case TaskStatus.Completed:
                 DebugLog.instance.error(`id：${id} 任务已经完成！`);
+                SceneManager.getInstance().backToHall();
                 return;
             case TaskStatus.Processing:
                 DebugLog.instance.error(`id：${id} 任务正在进行中！`);
@@ -125,7 +127,7 @@ export class TaskManager {
             DebugLog.instance.error(data.message);
         }else{
             let id = data.data['task_id'];
-            let task = context._taskDic[id];
+            let task = context._taskDic.get(id);
             if(!task){
                 DebugLog.instance.error(`id为：${id}的任务不存在`);
                 return;
