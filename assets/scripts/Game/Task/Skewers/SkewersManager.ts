@@ -1,12 +1,11 @@
-import {GameType, SkewersGameData} from "./SkewersGameData";
+import {SkewersGameData} from "./SkewersGameData";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {Global} from "../../../Core/Manager/Config/Global";
-import {GameState, SkewersGameStatus} from "../../../Core/Data/GameState";
+import { SkewersGameStatus} from "../../../Core/Data/GameState";
 import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
-import {director} from "cc";
 
 /**
  * 脑力串烧管理器
@@ -54,12 +53,7 @@ export class SkewersManager{
      start(id:number){
          Global.isSkewersGame =true;
          this.requestBranisTrainings(id);
-         // this.refreshBrainsTrainings([
-         //     {id:0,game_id:0,difficulty:0,seq:0,status:0,time_limit:2,game_code:"fanpai",cog_ability:GameType.Memory},
-         //     {id:1,game_id:1,difficulty:0,seq:1,status:0,time_limit:2,game_code:"puzzle",cog_ability:GameType.Judgment}],this);
      }
-
-
 
     /**
      * 请求脑力保健任务列表
@@ -217,8 +211,7 @@ export class SkewersManager{
      * 是否全部通关
      */
     public isRunOver():boolean{
-        if(this.getNextGameData() ==null)return true;
-        return false;
+        return this.getNextGameData() == null;
      }
 
      private getCurGameData():SkewersGameData{

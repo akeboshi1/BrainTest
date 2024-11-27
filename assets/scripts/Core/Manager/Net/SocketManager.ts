@@ -87,7 +87,7 @@ export class SocketManager extends BaseManager{
 
            this._socketDatas.set(action,updatedDatas);
            if(tmpSocketData){
-               DebugLog.instance.log(`接收：${data.data}`)
+               DebugLog.instance.log(`接收：${data.data}`);
                EventManager.getInstance().emit(jsonObj["action"], jsonObj);
            }
        };

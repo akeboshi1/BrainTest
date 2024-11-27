@@ -42,7 +42,6 @@ export class TimeUtil {
     /**
      * 是否已经跨天了
      * @param loginTime
-     * @param currentTime
      */
     public static isCrossDay(loginTime:string){
         // 解析上次登录时间和当前时间
@@ -55,7 +54,7 @@ export class TimeUtil {
 
     /**
      * 格式化时间
-     * @param time
+     * @param seconds
      */
     public static formatTime(seconds:number):string{
         // 计算小时、分钟和秒数

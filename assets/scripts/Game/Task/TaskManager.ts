@@ -24,6 +24,8 @@ export class TaskManager {
     }
 
 
+    public static TaskListRequestCallBack:string = "TaskListRequestCallBack";
+
     //===== 串烧任务
     /**
      * 获取任务列表
@@ -40,10 +42,21 @@ export class TaskManager {
 
 
 
-    private _taskDic:Map<number,TaskData>
+    private _taskDic:Map<number,TaskData>;
+
+    private _taskList:TaskData[];
 
     constructor() {
     }
+
+    get taskDic(){
+        return this._taskDic;
+    }
+
+    get taskList(){
+        return this._taskList;
+    }
+
 
     init(){
         // 脑力保健
@@ -56,6 +69,7 @@ export class TaskManager {
         InteractiveManager.getInstance().init();
 
         this._taskDic = new Map();
+        this._taskList = [];
     }
 
     start(){
@@ -78,15 +92,19 @@ export class TaskManager {
             DebugLog.instance.error(data.message);
         }else{
             let results = data.data['result'];
+
             for(let i=0; i<results.length; i++) {
                 let data = results[i];
                 let task = new TaskData();
                 task.refrehData(data);
                 context._taskDic.set(task.id,task);
+                context._taskList.push(task);
             }
 
-            // todo test code
-            context.requestStartTask(results[0].id);
+            // // todo test code
+            // context.requestStartTask(results[0].id);
+
+            EventManager.getInstance().emit(TaskManager.TaskListRequestCallBack);
         }
     }
 

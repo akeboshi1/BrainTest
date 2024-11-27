@@ -173,10 +173,10 @@ export class LoginPopUpPanel extends BasePanel{
         context.PhoneDescTxt.string="登录成功！！！";
 
         // test
-        TaskManager.getInstance().start();
+        // TaskManager.getInstance().start();
 
         // test chat 打开游戏大厅scene
-        // SceneManager.getInstance().backToHall();
+        SceneManager.getInstance().backToHall();
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 
