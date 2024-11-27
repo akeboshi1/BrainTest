@@ -73,7 +73,7 @@ export class SkewersManager{
               let tmpData:any = result[i];
               let data:SkewersGameData = new SkewersGameData();
               data.refreshData(tmpData);
-              context._gameDatas.push(data);
+              if(data.gameCode != "finding") context._gameDatas.push(data);
          }
          Global.userData.skewerGameDatas = context._gameDatas;
          context.startGame();

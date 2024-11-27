@@ -68,12 +68,17 @@ export class TaskManager {
         //互动
         InteractiveManager.getInstance().init();
 
-        this._taskDic = new Map();
-        this._taskList = [];
     }
 
     start(){
+        this.clearData();
         this.requestTaskList();
+    }
+
+    clearData(){
+        if(this._taskDic)this._taskDic.clear();
+        this._taskDic = new Map();
+        this._taskList = [];
     }
 
 
@@ -120,14 +125,14 @@ export class TaskManager {
         }
         switch (task.status){
             case TaskStatus.Expired:
-                DebugLog.instance.error(`id：${id} 任务已经过期！`);
+                DebugLog.instance.log(`id：${id} 任务已经过期！`);
                 return;
             case TaskStatus.Completed:
-                DebugLog.instance.error(`id：${id} 任务已经完成！`);
+                DebugLog.instance.log(`id：${id} 任务已经完成！`);
                 SceneManager.getInstance().backToHall();
                 return;
             case TaskStatus.Processing:
-                DebugLog.instance.error(`id：${id} 任务正在进行中！`);
+                DebugLog.instance.log(`id：${id} 任务正在进行中！`);
                 SkewersManager.getInstance().start(id);
                 return;
             case TaskStatus.UnComplete:

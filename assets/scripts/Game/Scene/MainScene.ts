@@ -1,9 +1,10 @@
-import { _decorator, Component, instantiate, Node, Prefab,Label } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite } from 'cc';
 import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
 import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
 import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {TaskData} from "db://assets/scripts/Game/Task/TaskData";
+import {TaskData, TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
+import {StringUtil} from "db://assets/scripts/Core/Util/StringUtil";
 const { ccclass, property } = _decorator;
 
 @ccclass('mainScene')
@@ -30,6 +31,9 @@ export class mainScene extends Component {
     taskScrollView: Node = null;
 
 
+    private completeColor = "2DABFF";
+    private unCompleteColor = "FF2D55";
+    private expireColor="686E72";
 
     private chatPanel:Node = null;
     onLoad(){
@@ -38,6 +42,11 @@ export class mainScene extends Component {
 
 
     start() {
+        if(this.taskList.length != 0){
+            this.taskList.forEach(task=>{
+                if(task)task.active =false;
+            });
+        }
         this.backToTaskView();
     }
 
@@ -95,29 +104,55 @@ export class mainScene extends Component {
 
     private taskListRequestCallBack(data,context){
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack,this.taskListRequestCallBack);
-        let taskList = TaskManager.getInstance().taskList;
+        let taskDatas = TaskManager.getInstance().taskList;
         let index = 0;
         let count = 0;
-        taskList.forEach((task:TaskData)=>{
-            let taskItem = context.taskList[index];
+        let self = context;
+        taskDatas.forEach((task:TaskData)=>{
+            let taskItem = self.taskList[index];
             index++;
             if(taskItem == null)return;
-            let label = taskItem.getChildByName("Label").getComponent("Label");
-            let timeLabel = taskItem.getChildByName("time1").getComponent("Label");
+            let label = taskItem.getChildByName("Label").getComponent(Label);
+            let timeLabel = taskItem.getChildByName("time1").getComponent(Label);
+            let complete = taskItem.getChildByName("complete");
+            let arrow = taskItem.getChildByName("arror_right");
+            let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
             (label as Label).string = task.name;
-            (timeLabel as Label).string = task.startTime+"-"+ task.endTime;
+            let startTime = StringUtil.spliceStr(task.startTime+""," ")[1];
+            let endTime = StringUtil.spliceStr(task.endTime+""," ")[1];
+            let startTimes = StringUtil.spliceStr(startTime,":");
+            let endTimes = StringUtil.spliceStr(endTime,":");
+            startTime = startTimes[0]+":"+startTimes[1];
+            endTime = endTimes[0]+":"+endTimes[1];
+            (timeLabel as Label).string = startTime+"-"+ endTime;
             taskItem.active =true;
-            if(task.status == 1){
+            if(task.status == TaskStatus.Completed){
+                complete.active = true;
+                arrow.active = false;
+                (btnBG as Sprite).color = context.completeColor;
+                DebugLog.instance.log("complete",complete)
                 count++;
+            }else{
+                if(task.status == TaskStatus.Expired){
+                    (btnBG as Sprite).color = context.ExpireColor;
+                }else{
+                    (btnBG as Sprite).color = context.unCompleteColor;
+                }
+                complete.active = false;
+                arrow.active = true;
             }
         });
-        context.progressLabel.string = `${count} / ${taskList.length}`;
+        context.progressLabel.string = `${count} / ${taskDatas.length}`;
     }
 
     taskItemClick(event,data){
         DebugLog.instance.log(data);
         let taskList = TaskManager.getInstance().taskList;
         let taskData = taskList[Number(data)];
+        if(taskData.status ==  TaskStatus.Completed){
+            DebugLog.instance.log("当前任务已经完成");
+            return;
+        }
         TaskManager.getInstance().requestStartTask(taskData.id);
     }
 }
