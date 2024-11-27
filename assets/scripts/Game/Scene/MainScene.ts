@@ -5,10 +5,12 @@ import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {TaskData, TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 import {StringUtil} from "db://assets/scripts/Core/Util/StringUtil";
+import { ChatBubbleCtrl } from '../UI/ChatPanel/ChatBubbleCtrl';
+import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
 const { ccclass, property } = _decorator;
 
-@ccclass('mainScene')
-export class mainScene extends Component {
+@ccclass('MainScene')
+export class MainScene extends Component {
     @property(Prefab)
     chatPanelPrefab: Prefab = null;
 
@@ -40,6 +42,13 @@ export class mainScene extends Component {
 
     }
 
+    protected onEnable(): void {
+        EventManager.getInstance().on(ChatPanelCtrl.ChatPanelCloseEvent,this.onChatPanelClose,this);
+    }
+
+    protected onDisable(): void {
+        EventManager.getInstance().off(ChatPanelCtrl.ChatPanelCloseEvent,this);
+    }
 
     start() {
         if(this.taskList.length != 0){
@@ -60,10 +69,17 @@ export class mainScene extends Component {
             this.createChatPanel();
         }
 
-        this.chatPanel.active = true;
+        this.chatPanel.getComponent(ChatPanelCtrl).fadeIn();
+
         this.taskProgressNode.active = false;
         this.taskScrollView.active = false;
         this.taskNode.active = false;
+    }
+
+    onChatPanelClose(data:any,context:MainScene){
+        //context.taskProgressNode.active = true;
+        //context.taskScrollView.active = true;
+        context.taskNode.active = true;
     }
 
     createChatPanel() {

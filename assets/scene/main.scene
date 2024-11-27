@@ -74,9 +74,6 @@
         "__id__": 3
       },
       {
-        "__id__": 6
-      },
-      {
         "__id__": 8
       },
       {
@@ -87,6 +84,9 @@
       },
       {
         "__id__": 313
+      },
+      {
+        "__id__": 6
       }
     ],
     "_active": true,
@@ -212,7 +212,7 @@
     "_enabled": true,
     "__prefab": null,
     "chatPanelPrefab": {
-      "__uuid__": "96d53085-a0f6-4707-9ec1-a3a2bd735cf1",
+      "__uuid__": "c358b4c1-d384-48c2-8cd2-f5e6d34d0b58",
       "__expectedType__": "cc.Prefab"
     },
     "parentNode": {
@@ -13907,7 +13907,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1919.9999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -13946,7 +13946,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 959.9999999999999,
     "_near": 0,
     "_far": 1000,
     "_color": {
