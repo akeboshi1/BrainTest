@@ -216,7 +216,7 @@ export class ChatPanelCtrl extends Component {
     }
 
     private onGetChatMessage(data: any, context: ChatPanelCtrl) {
-        DebugLog.instance.log("ChatPanel View Get ========= Message : " + data.message);
+        DebugLog.instance.log("onGetChatMessage View Get ========= Message : " + data.message + ",seq : " + data.seq);
         context.updateLastEventTime();
         const { message, seq, speaker } = data;
 

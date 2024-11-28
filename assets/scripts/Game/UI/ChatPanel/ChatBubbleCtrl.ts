@@ -24,6 +24,9 @@ export class ChatBubbleCtrl extends Component {
     private _currentTypedIndex: number = 0;
     private _typingTimer: number = 0;
 
+    private _maxCharNumInLine: number = 16;
+    private _lineCharCount: number = 0;
+
     start() {
         this._label = this.labelNode.getComponent(Label);
         this._bgSprite = this.bgSpriteNode.getComponent(Sprite);
@@ -41,7 +44,21 @@ export class ChatBubbleCtrl extends Component {
                 if (this._currentTypedIndex > this._textToType.length) {
                     this._isTyping = false;
                 } else {
-                    this._label.string = this._textToType.slice(0, this._currentTypedIndex);
+                    const currentChar = this._textToType.slice(this._currentTypedIndex - 1, this._currentTypedIndex);
+                    if (currentChar == "\n") {
+                        this._lineCharCount = 0;
+                    }
+
+                    this._label.string += currentChar; //this._textToType.slice(0, this._currentTypedIndex);
+
+                    if (this._lineCharCount > this._maxCharNumInLine) {
+                        this._label.string += "\n";
+                        this._lineCharCount = 0;
+                    }
+                    else {
+                        this._lineCharCount++;
+                    }
+
                     this.onLabelSizeChanged();
                 }
             }

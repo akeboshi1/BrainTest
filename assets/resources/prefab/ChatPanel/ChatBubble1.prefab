@@ -187,7 +187,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 600,
+      "width": 0,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -230,7 +230,7 @@
     "_fontSize": 36,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
-    "_overflow": 3,
+    "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
@@ -297,7 +297,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 0,
     "_originalHeight": 0,
-    "_alignMode": 2,
+    "_alignMode": 1,
     "_lockFlags": 0,
     "_id": ""
   },

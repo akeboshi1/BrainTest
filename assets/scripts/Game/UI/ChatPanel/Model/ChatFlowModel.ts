@@ -76,8 +76,10 @@ export class ChatFlowModel extends BaseManager {
                 if(this.asrOpenState){
                     let msg = JSON.parse(event.data.data);
                     DebugLog.instance.log("ASR Result " + msg.content);
-                    this.currentSpeechSeq++;
+                    
                     this.sendToView(msg.content,1);
+                    this.currentSpeechSeq++;
+                    
                     this.sendChatRequest(msg.content);
                     this.onCloseASR();
                 }
