@@ -52,6 +52,7 @@ export class SkewersManager{
 
      start(id:number){
          Global.isSkewersGame =true;
+         this._gameDatas = [];
          this.requestBranisTrainings(id);
      }
 
@@ -66,7 +67,8 @@ export class SkewersManager{
      }
 
      private requestBranisTrainingsCallback(data:any,context:any){
-         EventManager.getInstance().off(this.task_get_brain_trainings,context);
+         context._gameDatas = [];
+         EventManager.getInstance().off(context.task_get_brain_trainings,context);
          const result = data.data.result;
          const len = result.length;
          for(let i:number =0;i<len;i++){
@@ -98,7 +100,7 @@ export class SkewersManager{
      }
 
      private requestCompleteBrainsTrainingsCallback(data:any,context:any){
-         EventManager.getInstance().off(this.task_complete_brain_training,context);
+         EventManager.getInstance().off(context.task_complete_brain_training,context);
          let status = data.status;
          if(status == 0){
              DebugLog.instance.error(data.message);

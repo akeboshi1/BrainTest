@@ -92,7 +92,7 @@ export class TaskManager {
     }
 
     private requestTaskListCallback(data:SocketData,context:any){
-        EventManager.getInstance().off(this.task_get_tasks,context);
+        EventManager.getInstance().off(context.task_get_tasks,context);
         let status = data.status;
         if(status == 0){
             DebugLog.instance.error(data.message);
