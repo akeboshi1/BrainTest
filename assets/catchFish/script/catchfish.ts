@@ -160,19 +160,23 @@ export class catchfish extends Component {
     timerId: any;
     timer:number=120
     timeInit(){
-        this.timer=120;
+        this.timer=10;
         this.Timer.string = "2:00";
 
     }
     timeStart(){
         this.timerId=setInterval(() => {
             this.timer -= 1;
-            if(this.timer<0){
+            if(this.timer<=0){
+                // console.log("时间到");
+                this.Timer.string = "0:00";
                 clearInterval(this.timerId);
+        
             }
             this.calculateTime();
         }, 1000);
     }
+
     calculateTime(){
         const fenzhong=Math.floor(this.timer/60) ;
         const miao=this.timer%60 ;
@@ -182,37 +186,53 @@ export class catchfish extends Component {
     }
 
     wangClick(event,data){
+  // 如果当前鱼不存在，则返回
         if(!this._curFish){
             return;
         }
+ // 遍历wangs数组
         let index = data;
         let len = this.wangs.length;
         for(let i = 0; i < len; i++){
+            // 如果当前索引等于传入的索引，则调用selectWang方法
             if(i == index){
                 this.selectWang(i);
             }else{
+                // 否则调用unSelectWang方法
                 this.unSelectWang(i);
             }
         }
 
+        // 如果传入的索引等于当前鱼索引
         if(index == this._curFish.currentIndex){
 
+            // 实例化wangPrefab
             let wangPrefab = instantiate(this.wangPrefab);
+            // 设置wangPrefab的缩放
             wangPrefab.setWorldScale(new Vec3(3,3,3));
+            // 获取当前索引对应的wang
             let wang = this.wangs[index];
+            // 将wangPrefab添加到wang的子节点中
             wang.addChild(wangPrefab);
 
+            // 启动动画
             tween(wangPrefab).to(1, { position: new Vec3(this._curFish.worldPosition.x-100, this._curFish.worldPosition.y-100, this._curFish.worldPosition.z) })
                 .call(() => {
+                    // 移除wangPrefab
                     wang.removeChild(wangPrefab);
+                    // 设置当前鱼为选中状态
                     this._curFish.setSelect(this.unSelectColor,1)
+                    // 随机生成鱼
                     this.randomFish(this._curFish);
+                    // 移动鱼
                     this.moveFishes(this._curFish);
                 })
                 .start(); // 启动动画
 
 
+            // 遍历wangs数组
             for(let i = 0; i < len; i++){
+                // 调用unSelectWang方法
                 this.unSelectWang(i);
             }
         }
