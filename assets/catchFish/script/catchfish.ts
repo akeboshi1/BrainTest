@@ -3,6 +3,7 @@ import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 
@@ -82,6 +83,8 @@ export class catchfish extends Component {
     private wangMaxCount:number=4;
     private wangCount:number=0;
 
+    private hasWangClick:boolean = false;
+
     start() {
         this.gameBeforeView.active = true;
         this.fishs = [];
@@ -132,8 +135,10 @@ export class catchfish extends Component {
     }
 
     private selectFish(fish,context){
-        // console.log('fish',fish)
-        // console.log('catchfish ',context)
+        if(context.hasWangClick){
+            DebugLog.instance.log("已经有网飞出来")
+            return;
+        }
          if(context._curFish){
              context._curFish.setSelect(context.unSelectColor,1);
          }
@@ -196,11 +201,6 @@ export class catchfish extends Component {
             .start(); // 启动动画
     }
 
-    // let startPos= node.position //起点，抛物线开始的坐标let middlePos = new Vec3(node.position.x+ 400,node.position.y + 600,0)//中间坐标，即let destPos = new Vec3(node.position.x+800,node.position.y，0)//终点，抛物线落地点//计算贝塞尔曲线坐标函数
-    // let twoBezier =(t:number,pl:Vec3,cp:Vec3,p2:Vec3)=>{letx=(1-t)*(1-t)*p1.x+2*t*(1-t)*cp.x+t*t* p2.x;lety=(1-t)*(1-t)*p1.y+2*t*(1-t)*cp.y+t*t*p2.y;return new vec3(x,y,0);
-    // l;
-
-
     update(deltaTime: number) {
         
     }
@@ -240,6 +240,7 @@ export class catchfish extends Component {
         if(!this._curFish){
             return;
         }
+        this.hasWangClick = true;
         // 遍历wangs数组
         let index = data;
         let len = this.wangs.length;
@@ -295,6 +296,7 @@ export class catchfish extends Component {
                     .delay(0.1)
                     .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) },{ easing: 'bounceOut'}) // 再次缩小
                     .call(()=>{
+                        this.hasWangClick = false;
                         // 移除wangPrefab
                         wang.removeChild(wangPrefab);
                         this.wangCount++;
