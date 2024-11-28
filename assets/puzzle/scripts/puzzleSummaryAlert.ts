@@ -5,10 +5,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass('puzzleSummaryAlert')
 export class puzzleSummaryAlert extends Component {
-    @property(Node)
-    successLabel: Node;
-    @property(Node)
-    failLabel: Node;
+    @property(Label)
+    successLabel: Label;
 
     @property(Node)
     buttonRetry: Node;
@@ -24,6 +22,9 @@ export class puzzleSummaryAlert extends Component {
     @property(Label)
     nextLabel: Label;
 
+    @property(Label)
+    progressLabel: Label;
+
     start() {
 
     }
@@ -35,17 +36,22 @@ export class puzzleSummaryAlert extends Component {
 // 根据结果初始化界面
     initByResult(result:boolean){
         // 如果结果为真，则激活成功标签，否则激活失败标签
-        this.successLabel.active = result;
-        this.failLabel.active = !result;
+        if(result){
+            this.successLabel.string ="挑战胜利";
+        }else{
+            this.successLabel.string = "挑战失败";
+        }
 
         // 如果不是串烧游戏，则根据结果激活重试、跳转关卡和下一关按钮
         if(!Global.isSkewersGame){
+            this.progressLabel.node.active = false;
             // 全部通关
             if(SkewersManager.getInstance().isRunOver()){
                 this.buttonRetry.active = !result;
                 this.buttonJumpLevel.active = !result;
                 this.buttonNextLevel.active = result;
                 this.nextLabel.string = "全部通关";
+
             }
             else{
                 this.buttonRetry.active = !result;
@@ -53,17 +59,21 @@ export class puzzleSummaryAlert extends Component {
                 this.buttonNextLevel.active = result;
                 this.nextLabel.string = "下一关";
             }
-
         }else{
             this.buttonJumpLevel.active = false;
             this.buttonRetry.active = false;
             this.buttonNextLevel.active=true;
+            this.progressLabel.node.active = true;
+            let maxCount = SkewersManager.getInstance().getGameCount();
+            let curCount = SkewersManager.getInstance().getCurGameIndex();
             // 全部通关
             if(SkewersManager.getInstance().isRunOver()){
                 this.nextLabel.string = "全部通关";
+                this.progressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
             }else{
                 // 直接进入下一关
                 this.nextLabel.string = "下一关";
+                this.progressLabel.string = `当前游戏进度${curCount}/${maxCount}`;
             }
         }
     }

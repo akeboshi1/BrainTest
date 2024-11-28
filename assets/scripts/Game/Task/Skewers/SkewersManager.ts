@@ -79,6 +79,14 @@ export class SkewersManager{
          context.startGame();
      }
 
+     public getGameCount():number{
+         return this._gameDatas.length;
+     }
+
+     public getCurGameIndex():number{
+         return this._curIndex;
+     }
+
     /**
      * 请求完成脑力保健
      * @param data
