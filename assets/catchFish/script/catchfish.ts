@@ -78,6 +78,8 @@ export class catchfish extends Component {
 
     private fishs:Fish[];
     private _curFish:Fish;
+    private wangMaxCount:number=4;
+    private wangCount:number=0;
 
     start() {
         this.gameBeforeView.active = true;
@@ -107,33 +109,51 @@ export class catchfish extends Component {
     }
 
     private randomFish(fish:Fish){
+
         let x = 1000;
+
         let y = Math.random() * 700-200;
+  
         let spriteFramelen = this.spriteFrames.length;
+
         let index = Math.floor(Math.random()*(spriteFramelen-1));
+  
         let spriteFrame = this.spriteFrames[index];
+
         fish.setPosition(x,y);
+
         fish.setSpriteFrame(spriteFrame);
+ 
         const question = questions[Math.floor(Math.random() * questions.length)];
+  
         fish.setQuestion(question);
+        EventManager.getInstance().off(Fish.FishClick,this);
         EventManager.getInstance().on(Fish.FishClick,this.selectFish,this);
     }
 
     private selectFish(fish,context){
-            // "question": "4 - 1 = ?",
-            // "options": ["3", "2", "5", "4"],
-            // "correctAnswer": "3"
+        // console.log('fish',fish)
+        // console.log('catchfish ',context)
          if(context._curFish){
              context._curFish.setSelect(context.unSelectColor,1);
          }
+
          context._curFish = fish;
+
          let data = fish.getData();
+ 
          let options = data.options;
+ 
          let len = options.length;
+
          for(let i = 0; i < len; i++){
+  
              let answer = options[i];
+      
              let wangNode = context.wangs[i];
+ 
              let label = wangNode.getChildByName('Label').getComponent(Label);
+
              label.string = answer;
          }
         context._curFish.setSelect(context.selectColor,2);
@@ -160,7 +180,7 @@ export class catchfish extends Component {
     timerId: any;
     timer:number=120
     timeInit(){
-        this.timer=10;
+        this.timer=120;
         this.Timer.string = "2:00";
 
     }
@@ -170,6 +190,9 @@ export class catchfish extends Component {
             if(this.timer<=0){
                 // console.log("时间到");
                 this.Timer.string = "0:00";
+                if(this.wangCount!==this.wangMaxCount){
+                    this.gameFailView.active=true;
+                }
                 clearInterval(this.timerId);
         
             }
@@ -186,31 +209,22 @@ export class catchfish extends Component {
     }
 
     wangClick(event,data){
-  // 如果当前鱼不存在，则返回
         if(!this._curFish){
             return;
         }
- // 遍历wangs数组
         let index = data;
         let len = this.wangs.length;
         for(let i = 0; i < len; i++){
-            // 如果当前索引等于传入的索引，则调用selectWang方法
             if(i == index){
                 this.selectWang(i);
             }else{
-                // 否则调用unSelectWang方法
                 this.unSelectWang(i);
             }
         }
 
-        // 如果传入的索引等于当前鱼索引
         if(index == this._curFish.currentIndex){
-
-            // 实例化wangPrefab
             let wangPrefab = instantiate(this.wangPrefab);
-            // 设置wangPrefab的缩放
             wangPrefab.setWorldScale(new Vec3(3,3,3));
-            // 获取当前索引对应的wang
             let wang = this.wangs[index];
             // 将wangPrefab添加到wang的子节点中
             wang.addChild(wangPrefab);
@@ -218,21 +232,23 @@ export class catchfish extends Component {
             // 启动动画
             tween(wangPrefab).to(1, { position: new Vec3(this._curFish.worldPosition.x-100, this._curFish.worldPosition.y-100, this._curFish.worldPosition.z) })
                 .call(() => {
-                    // 移除wangPrefab
                     wang.removeChild(wangPrefab);
-                    // 设置当前鱼为选中状态
+                    this.wangCount++;
+                    this.catchLabel.getComponent(Label).string = `0${this.wangCount}/4`;
+                    if(this.wangCount==this.wangMaxCount){
+                        this.gameSuccessView.active=true;
+                    }
+                 
                     this._curFish.setSelect(this.unSelectColor,1)
-                    // 随机生成鱼
+                 
                     this.randomFish(this._curFish);
-                    // 移动鱼
+                
                     this.moveFishes(this._curFish);
                 })
                 .start(); // 启动动画
 
-
-            // 遍历wangs数组
             for(let i = 0; i < len; i++){
-                // 调用unSelectWang方法
+              
                 this.unSelectWang(i);
             }
         }
@@ -253,6 +269,7 @@ export class catchfish extends Component {
      * 返回应用大厅
      */
     quitGame(){
+        console.log("返回大厅")
         if(this.timerId !=null){
             clearInterval(this.timerId);
         }

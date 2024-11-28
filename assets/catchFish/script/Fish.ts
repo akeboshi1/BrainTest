@@ -18,6 +18,7 @@ export class Fish {
         this.create();
     }
     create(){
+   
         this._fish = instantiate(this._fishPrefab);
         this._fishSprite = this._fish.getChildByName("fish").getComponent(Sprite);
         this._label = this._fish.getChildByName("label").getComponent(Label);
