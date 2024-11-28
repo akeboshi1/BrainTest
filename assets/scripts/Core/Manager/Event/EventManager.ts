@@ -17,12 +17,13 @@ export class EventManager extends BaseManager{
     }
 
     init() {
-        this.events = {};
+        if(!this.events) this.events = {};
     }
 
 
     // 添加监听
     on(eventName, callback, context) {
+        this.init();
         if(!this.events[eventName]) {
             this.events[eventName] = [];
         }
@@ -34,6 +35,7 @@ export class EventManager extends BaseManager{
 
     // 移除监听
     off(eventName,  context) {
+        this.init();
         if(this.events[eventName]) {
             this.events[eventName] = this.events[eventName].filter(item => {
                 return item.context !== context;

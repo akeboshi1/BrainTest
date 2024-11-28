@@ -50,6 +50,12 @@ export class Main extends Component {
     @property(Button)
     failRetryButton: Button;
 
+    @property(Label)
+    successViewProgressLabel: Label;
+
+    @property(Label)
+    failViewProgressLabel: Label;
+
     private currentCard: Node;
     private buttonLableText: Label;
     private successLableText: Label;
@@ -72,6 +78,7 @@ export class Main extends Component {
     start() {
         if(Global.isSkewersGame){
             this.hardIndex = Global.userData.curSkewerGameData.difficulty;
+            this.timer = Global.userData.curSkewerGameData.timeLimit;
         }
         this.sceneInit()
     }
@@ -177,13 +184,19 @@ export class Main extends Component {
                 } else if (this.curHard == this.hards[2]) {
                     // 是否是串烧游戏
                     if(!Global.isSkewersGame){
+                        this.successViewProgressLabel.node.active = false;
                         this.successView.active = false;
                         this.bigWin.active = true;
                     }else{
+                        let maxCount = SkewersManager.getInstance().getGameCount();
+                        let curCount = SkewersManager.getInstance().getCurGameIndex();
+                        this.successViewProgressLabel.node.active = true;
                         if(SkewersManager.getInstance().isRunOver()){
+                            this.successViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
                             this.successView.active = false;
                             this.bigWin.active = true;
                         }else{
+                            this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
                             this.successView.active = true;
                             this.bigWin.active = false;
                         }
@@ -379,8 +392,18 @@ export class Main extends Component {
                 // 倒计时结束，游戏结束
                 this.failView.active = true;
                 if(Global.isSkewersGame){
-                   this.failRetryButton.node.active = false;
+                    this.failViewProgressLabel.node.active = true;
+                    let maxCount = SkewersManager.getInstance().getGameCount();
+                    let curCount = SkewersManager.getInstance().getCurGameIndex();
+                    this.failRetryButton.node.active = false;
+                    if(SkewersManager.getInstance().isRunOver()){
+                        this.failViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
+                    }else{
+                        // 直接进入下一关
+                        this.failViewProgressLabel.string = `当前游戏进度${curCount}/${maxCount}`;
+                    }
                 }else{
+                    this.failViewProgressLabel.node.active = false;
                     this.failRetryButton.node.active = true;
                 }
             }

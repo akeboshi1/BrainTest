@@ -1,10 +1,11 @@
-import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite,Color } from 'cc';
 import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
 import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
 import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {TaskData, TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 import {StringUtil} from "db://assets/scripts/Core/Util/StringUtil";
+import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
 import { ChatBubbleCtrl } from '../UI/ChatPanel/ChatBubbleCtrl';
 import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
 const { ccclass, property } = _decorator;
@@ -33,9 +34,9 @@ export class MainScene extends Component {
     taskScrollView: Node = null;
 
 
-    private completeColor = "2DABFF";
-    private unCompleteColor = "FF2D55";
-    private expireColor="686E72";
+    private completeColor = "#2DABFF";
+    private unCompleteColor = "#FF2D55";
+    private expireColor="#686E72";
 
     private chatPanel:Node = null;
     onLoad(){
@@ -119,7 +120,7 @@ export class MainScene extends Component {
     }
 
     private taskListRequestCallBack(data,context){
-        EventManager.getInstance().off(TaskManager.TaskListRequestCallBack,this.taskListRequestCallBack);
+        EventManager.getInstance().off(TaskManager.TaskListRequestCallBack,context);
         let taskDatas = TaskManager.getInstance().taskList;
         let index = 0;
         let count = 0;
@@ -145,14 +146,14 @@ export class MainScene extends Component {
             if(task.status == TaskStatus.Completed){
                 complete.active = true;
                 arrow.active = false;
-                (btnBG as Sprite).color = context.completeColor;
+                (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
                 DebugLog.instance.log("complete",complete)
                 count++;
             }else{
                 if(task.status == TaskStatus.Expired){
-                    (btnBG as Sprite).color = context.ExpireColor;
+                    (btnBG as Sprite).color =  ColorUtil.hexToColor(context.ExpireColor);
                 }else{
-                    (btnBG as Sprite).color = context.unCompleteColor;
+                    (btnBG as Sprite).color =  ColorUtil.hexToColor(context.unCompleteColor);
                 }
                 complete.active = false;
                 arrow.active = true;
@@ -160,6 +161,7 @@ export class MainScene extends Component {
         });
         context.progressLabel.string = `${count} / ${taskDatas.length}`;
     }
+
 
     taskItemClick(event,data){
         DebugLog.instance.log(data);
