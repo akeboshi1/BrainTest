@@ -68,6 +68,7 @@ export class puzzleGameCore extends Component {
         let playIndex = 0;
         if(Global.isSkewersGame){
             this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty;
+            this.gameLength = Global.userData.curSkewerGameData.timeLimit;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
 
