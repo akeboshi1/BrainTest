@@ -346,6 +346,21 @@ export class catchfish extends Component {
         if(this.timerId !=null){
             clearInterval(this.timerId);
         }
+
+        if(this.fishs){
+            let len = this.fishs.length;
+            for(let i :number=0;i<len;i++){
+                let fish = this.fishs[i];
+                if(fish){
+                    if(fish.curTween){
+                        fish.curTween.stop();
+                        fish.curTween = null;
+                    }
+                }
+            }
+            this.fishs = [];
+        }
+
         SceneManager.getInstance().backToHall();
     }
 }
