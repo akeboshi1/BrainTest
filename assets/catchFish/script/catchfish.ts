@@ -8,22 +8,22 @@ const { ccclass, property } = _decorator;
 
 const questions = [
     {
-        "question": "5 + 3 = ?",
+        "question": "5 + 3",
         "options": ["8", "9", "7", "6"],
         "correctAnswer": "8"
     },
     {
-        "question": "7 - 2 = ?",
+        "question": "7 - 2",
         "options": ["5", "4", "6", "3"],
         "correctAnswer": "5"
     },
     {
-        "question": "9 + 1 = ?",
+        "question": "9 + 1",
         "options": ["10", "11", "9", "8"],
         "correctAnswer": "10"
     },
     {
-        "question": "4 - 1 = ?",
+        "question": "4 - 1",
         "options": ["3", "2", "5", "4"],
         "correctAnswer": "3"
     }
@@ -75,6 +75,7 @@ export class catchfish extends Component {
 
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
     private unSelectColor = ColorUtil.hexToColor("#FFFFFF");
+    private ErrorColor = ColorUtil.hexToColor("#FC0505");
 
     private fishs:Fish[];
     private _curFish:Fish;
@@ -110,22 +111,21 @@ export class catchfish extends Component {
 
     private randomFish(fish:Fish){
 
-        let x = 1000;
-
+        let x = 800;
         let y = Math.random() * 700-200;
-  
+
         let spriteFramelen = this.spriteFrames.length;
 
         let index = Math.floor(Math.random()*(spriteFramelen-1));
-  
+
         let spriteFrame = this.spriteFrames[index];
 
         fish.setPosition(x,y);
 
         fish.setSpriteFrame(spriteFrame);
- 
+
         const question = questions[Math.floor(Math.random() * questions.length)];
-  
+
         fish.setQuestion(question);
         EventManager.getInstance().off(Fish.FishClick,this);
         EventManager.getInstance().on(Fish.FishClick,this.selectFish,this);
@@ -141,37 +141,64 @@ export class catchfish extends Component {
          context._curFish = fish;
 
          let data = fish.getData();
- 
+
          let options = data.options;
- 
+
          let len = options.length;
 
          for(let i = 0; i < len; i++){
-  
+
              let answer = options[i];
-      
+
              let wangNode = context.wangs[i];
- 
+
              let label = wangNode.getChildByName('Label').getComponent(Label);
 
              label.string = answer;
          }
-        context._curFish.setSelect(context.selectColor,2);
+        context._curFish.setSelect(context.selectColor,1.3);
     }
 
     moveFishes(fish:Fish,delay:number = 0) {
         if(fish.curTween)fish.curTween.stop();
+
+        const upDistance = 10; // 上下浮动的距离
+        const duration = 15; // 每次往返的时间
+        // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
+        const floatAmplitude = 3.8;
+        // 定义上下移动的速度，控制单位时间内位置变化的快慢，可按需调整
+        const floatSpeed = 0.01;
+        // 记录动画开始的时间，用于后续计算动画进度相关逻辑
+        let startTime = Date.now();
+        let num = Math.random()>0.5?1:-1;
         // 使用 tween 创建运动效果
-        fish.curTween = tween(fish) // 对当前鱼对象进行 tween 动画
-            .delay(delay) // 每个对象延迟3秒开始
-            .to(15, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) })
+        fish.curTween = tween(fish)
+             // 对当前鱼对象进行 tween 动画
+            .delay(delay)// 每个对象延迟3秒开始
+            .by(duration, {position: new Vec3(fish.position.x -1600, fish.position.y, fish.position.z)},
+                {
+                    onUpdate:()=>{
+                        const elapsedTime = Date.now() - startTime;
+                        const progress = elapsedTime / 15000; // 计算动画的进度
+                        if(fish.position.y >= 600|| fish.position.y <= -600){
+                            num = -num;
+                        }
+                        const yOffset = Math.sin(progress * Math.PI * 2) * floatAmplitude * num; // 上下浮动效果
+                        const newPosition = new Vec3(fish.position.x, fish.position.y + yOffset, fish.position.z);
+                        fish.position = newPosition;
+                    }
+                }
+            )
             .call(() => {
                 this.randomFish(fish);
                 this.moveFishes(fish);
             })
             .start(); // 启动动画
-
     }
+
+    // let startPos= node.position //起点，抛物线开始的坐标let middlePos = new Vec3(node.position.x+ 400,node.position.y + 600,0)//中间坐标，即let destPos = new Vec3(node.position.x+800,node.position.y，0)//终点，抛物线落地点//计算贝塞尔曲线坐标函数
+    // let twoBezier =(t:number,pl:Vec3,cp:Vec3,p2:Vec3)=>{letx=(1-t)*(1-t)*p1.x+2*t*(1-t)*cp.x+t*t* p2.x;lety=(1-t)*(1-t)*p1.y+2*t*(1-t)*cp.y+t*t*p2.y;return new vec3(x,y,0);
+    // l;
 
 
     update(deltaTime: number) {
@@ -209,46 +236,85 @@ export class catchfish extends Component {
     }
 
     wangClick(event,data){
+         // 如果当前鱼不存在，则返回
         if(!this._curFish){
             return;
         }
+        // 遍历wangs数组
         let index = data;
         let len = this.wangs.length;
         for(let i = 0; i < len; i++){
+            // 如果当前索引等于传入的索引，则调用selectWang方法
             if(i == index){
-                this.selectWang(i);
+                this.errorClick(i);
             }else{
+                // 否则调用unSelectWang方法
                 this.unSelectWang(i);
             }
         }
 
         if(index == this._curFish.currentIndex){
             let wangPrefab = instantiate(this.wangPrefab);
-            wangPrefab.setWorldScale(new Vec3(3,3,3));
+            wangPrefab.setWorldScale(new Vec3(0.5,0.5,0.5));
+            // 获取当前索引对应的wang
             let wang = this.wangs[index];
             // 将wangPrefab添加到wang的子节点中
             wang.addChild(wangPrefab);
 
+            let self = this;
             // 启动动画
-            tween(wangPrefab).to(1, { position: new Vec3(this._curFish.worldPosition.x-100, this._curFish.worldPosition.y-100, this._curFish.worldPosition.z) })
-                .call(() => {
-                    wang.removeChild(wangPrefab);
-                    this.wangCount++;
-                    this.catchLabel.getComponent(Label).string = `0${this.wangCount}/4`;
-                    if(this.wangCount==this.wangMaxCount){
-                        this.gameSuccessView.active=true;
-                    }
-                 
-                    this._curFish.setSelect(this.unSelectColor,1)
-                 
-                    this.randomFish(this._curFish);
-                
-                    this.moveFishes(this._curFish);
-                })
+            // tween(wangPrefab).to(1, { position: new Vec3(this._curFish.worldPosition.x-100, this._curFish.worldPosition.y-100, this._curFish.worldPosition.z) })
+            //     .call(() => {
+            //         wang.removeChild(wangPrefab);
+            //         this.wangCount++;
+            //         this.catchLabel.getComponent(Label).string = `0${this.wangCount}/4`;
+            //         if(this.wangCount==this.wangMaxCount){
+            //             this.gameSuccessView.active=true;
+            //         }
+            //
+            //         this._curFish.setSelect(this.unSelectColor,1)
+            //
+            //         this.randomFish(this._curFish);
+            //
+            //         this.moveFishes(this._curFish);
+            //     })
+            tween(wangPrefab).parallel(
+                tween().to(1.1, { scale:new Vec3(3,3,3) },{ easing: 'bounceIn'}),
+                tween().to(0.5, { position: new Vec3(this._curFish.worldPosition.x-400, this._curFish.worldPosition.y-150, this._curFish.worldPosition.z)})
+            ).call(() => {
+                self._curFish.curTween.stop();
+                const scaleUp = 1.3; // 放大到2倍
+                const scaleDown = 1.0; // 恢复到原始大小
+                const duration = 0.2; // 每次放大和缩小的时长
+                tween(self._curFish.getFishNode())
+                    .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) },{ easing: 'bounceOut'}) // 放大
+                    .delay(0.1)
+                    .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) },{ easing: 'bounceOut'}) // 缩小
+                    .delay(0.1)
+                    .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) },{ easing: 'bounceOut'}) // 再次放大
+                    .delay(0.1)
+                    .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) },{ easing: 'bounceOut'}) // 再次缩小
+                    .call(()=>{
+                        // 移除wangPrefab
+                        wang.removeChild(wangPrefab);
+                        this.wangCount++;
+                        this.catchLabel.getComponent(Label).string = `0${this.wangCount}/4`;
+                        if(this.wangCount==this.wangMaxCount){
+                             this.gameSuccessView.active=true;
+                        }
+                        // 设置当前鱼为选中状态
+                        self._curFish.setSelect(this.unSelectColor,1)
+                        // 随机生成鱼
+                        self.randomFish(this._curFish);
+                        // 移动鱼
+                        self.moveFishes(this._curFish);
+                    })
+                    .start();
+            })
                 .start(); // 启动动画
 
             for(let i = 0; i < len; i++){
-              
+
                 this.unSelectWang(i);
             }
         }
@@ -263,6 +329,11 @@ export class catchfish extends Component {
     private unSelectWang(index:number){
         let wang = this.wangs[index];
         wang.getComponent(Sprite).color = this.unSelectColor;
+    }
+
+    private errorClick(i:number){
+        let wang = this.wangs[i];
+        wang.getComponent(Sprite).color = this.ErrorColor;
     }
 
     /**

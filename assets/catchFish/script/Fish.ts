@@ -26,6 +26,10 @@ export class Fish {
 
     }
 
+    getFishNode():Node{
+        return this._fish;
+    }
+
     setParent(parent:Node){
         this._fish.parent = parent;
     }
@@ -68,7 +72,7 @@ export class Fish {
     }
 
     setSelect(color,scale){
-        this._fishSprite.color = color;
+        // this._fishSprite.color = color;
         this.setScale(scale);
     }
 
