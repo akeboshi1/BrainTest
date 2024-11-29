@@ -27,8 +27,9 @@ export class EventManager extends BaseManager{
         if(!this.events[eventName]) {
             this.events[eventName] = [];
         }
+        const boundCallback = callback.bind(context);
         this.events[eventName].push({
-            callback,
+            callback: boundCallback,
             context
         });
     }
@@ -47,9 +48,7 @@ export class EventManager extends BaseManager{
     emit(eventName, data=null) {
       
         if(this.events[eventName]) {
-
             this.events[eventName].forEach(item => {
-       
                 item.callback(data,item.context);
             });
         }
