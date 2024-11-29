@@ -46,7 +46,7 @@ export class catchfish extends Component {
     @property(Node)
     gameStartView:Node;
 
-    @property(Label)
+    @property({type:Label,tooltip:"测试"})
     Timer:Label;
 
     @property([Node])

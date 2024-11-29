@@ -104,7 +104,6 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     agreeClick(){
-
         LoginManager.getInstance().request(this.login_send_mp_code, {"mp_no": this.phoneNumber});
     }
 
@@ -123,8 +122,21 @@ export class LoginPopUpPanel extends BasePanel{
        }
     }
 
-    private _initPhoneView(){
+    public updateView(isPhoneView:boolean=false){
+        this.XieyiView.active= !isPhoneView;
+        this.PhoneView.active = isPhoneView;
+        if(isPhoneView){
+            this._updatePhoneView();
+        }else{
+            this._updateXieyiView();
+        }
+    }
 
+    private _initPhoneView(){
+        this.agreeClick();
+    }
+
+    private _updatePhoneView(){
         let numbers: number[] = this.phoneCode.split("").map(Number);
         let len = numbers.length;
         for(let i=0;i<len;i++){
@@ -132,19 +144,20 @@ export class LoginPopUpPanel extends BasePanel{
             if(editBox == null)continue;
             editBox.string = numbers[i]+"";
         }
-        this.PhoneNumberTxt.string = this.phoneNumber;
-        // this.num0.string = "1";
-        // this.num1.string = "2";
-        // this.num2.string = "3";
-        // this.num3.string = "4";
+         this.PhoneNumberTxt.string = this.phoneNumber;
+// this.num0.string = "1";
+// this.num1.string = "2";
+// this.num2.string = "3";
+// this.num3.string = "4";
 
-        LoginManager.getInstance().request(this.login_login_by_mp, {"mp_no": this.phoneNumber, "code": this.phoneCode});
-
+       LoginManager.getInstance().request(this.login_login_by_mp, {"mp_no": this.phoneNumber, "code": this.phoneCode});
     }
 
     private _initXieyiView(){
 
     }
+
+    private _updateXieyiView(){}
 
     private addListener(){
         EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
@@ -191,7 +204,7 @@ export class LoginPopUpPanel extends BasePanel{
         }
 
         this.phoneCode = data['data']['code'];
-        context.switchView(true);
+        context.updateView(true);
     }
 
 

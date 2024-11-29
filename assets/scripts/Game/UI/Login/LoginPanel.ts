@@ -73,7 +73,7 @@ export class LoginPanel extends BasePanel {
     }
 
     public loginClick(){
-        LoginManager.getInstance().showPhoneView(this.node);
+        LoginManager.getInstance().showPhoneLoginPanel(this.node);
     }
 
     private loadPanelComplete(){
