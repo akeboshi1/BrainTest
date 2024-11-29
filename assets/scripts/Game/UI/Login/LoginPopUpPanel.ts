@@ -163,8 +163,8 @@ export class LoginPopUpPanel extends BasePanel{
             return;
         }
 
-        if(data['mp_no'] != this.phoneNumber){
-            DebugLog.instance.error(`${data['mp_no']} 手机号不匹配`);
+        if(data['data']['mp_no'] != this.phoneNumber){
+            DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
             return;
         }
         Global.userData.token = data.data['token'];
