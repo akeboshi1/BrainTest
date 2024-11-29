@@ -151,7 +151,7 @@ export class MainScene extends Component {
                 count++;
             }else{
                 if(task.status == TaskStatus.Expired){
-                    (btnBG as Sprite).color =  ColorUtil.hexToColor(context.ExpireColor);
+                    (btnBG as Sprite).color =  ColorUtil.hexToColor(context.expireColor);
                 }else{
                     (btnBG as Sprite).color =  ColorUtil.hexToColor(context.unCompleteColor);
                 }

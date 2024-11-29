@@ -86,6 +86,7 @@ export class Main extends Component {
         this.successView.active = true;
         this.successStartButton.node.active = true;
         this.successNextButton.node.active = false;
+        this.successViewProgressLabel.node.active = false;
         this.successLableText = this.successLable.getComponent(Label);
         this.buttonLableText = this.nextButton.node.children[0].getComponent(Label);
         this.buttonLableText.string = '开始游戏';
