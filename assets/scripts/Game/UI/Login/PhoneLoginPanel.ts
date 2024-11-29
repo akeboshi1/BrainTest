@@ -2,6 +2,7 @@ import { _decorator, Button, EditBox,SpriteFrame,sp } from 'cc';
 import {BasePanel} from "../../../../scripts/Core/UI/BasePanel";
 import {EventManager} from "../../../../scripts/Core/Manager/Event/EventManager";
 import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 @ccclass('PhoneLoginPanel')
@@ -43,6 +44,7 @@ export class PhoneLoginPanel extends BasePanel{
      * 登录操作
      */
     public enterClick(){
+        Global.userData.phoneNumber = this.phoneNumberEdit.string;
         LoginManager.getInstance().showPhoneView(this.node);
     }
 

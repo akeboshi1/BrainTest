@@ -348,9 +348,9 @@
     "panelContainer": {
       "__id__": 6
     },
-    "sceneName": "catchFish",
+    "sceneName": "",
     "isPad": false,
-    "isWebView": true,
+    "isWebView": false,
     "webView": {
       "__id__": 9
     },
