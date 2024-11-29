@@ -1,9 +1,11 @@
-import { director, Director, WebView } from "cc";
+import { director, Director, sys, WebView } from "cc";
 import { BaseManager } from "../../../../Core/Manager/BaseManager";
 import { EventManager } from "../../../../Core/Manager/Event/EventManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
 import { SocketManager } from "../../../../Core/Manager/Net/SocketManager";
 import { DebugLog } from "../../../../Core/Util/DebugLog";
+import { NativeEventManager } from "../../../../Core/Manager/Event/NativeEventManager";
+import { NativeEvent } from "../../../../Core/Manager/Event/NativeEvent";
 
 // 定义一个类来作为Model层管理聊天数据
 export class ChatFlowModel extends BaseManager {
@@ -54,7 +56,7 @@ export class ChatFlowModel extends BaseManager {
     private ttsPostUid: number = 0;
     private ttsLastPostUid: number = 0;
 
-    private asrOpenState:boolean = false;
+    private asrOpenState: boolean = false;
 
     private tts_open_resolveFn: (() => void) | null = null;
     private tts_post_cacheData: Map<number, string> = new Map();
@@ -70,60 +72,44 @@ export class ChatFlowModel extends BaseManager {
     }
 
     public initTTSandARS() {
-        window.addEventListener("message", (event) => {
-            if (event.data && event.data.type === "ASRResult") {
-                // asr 识别结果
-                if(this.asrOpenState){
+        console.log('sys.os = ', sys.os);
+        console.log('sys.platform=', sys.platform);
+
+        if (sys.platform === 'ANDROID') {
+            NativeEventManager.getInstance().on(NativeEvent.ASRResult,this.onASRResultHandle,this);
+            NativeEventManager.getInstance().on(NativeEvent.ASRConnected,this.onASRConnectedHandle,this);
+            NativeEventManager.getInstance().on(NativeEvent.ASRClosed,this.onASRClosedHandle,this);
+            NativeEventManager.getInstance().on(NativeEvent.TTSConnected,this.onTTSConnectedHandle,this);
+            NativeEventManager.getInstance().on(NativeEvent.TTSClosed,this.onTTSClosedHandle,this);
+            NativeEventManager.getInstance().on(NativeEvent.TTSEnd,this.onTTSEndHandle,this);
+        } else {
+            window.addEventListener("message", (event) => {
+                if (event.data && event.data.type === "ASRResult") {
                     let msg = JSON.parse(event.data.data);
-                    DebugLog.instance.log("ASR Result " + msg.content);
-                    
-                    this.sendToView(msg.content,1);
-                    this.currentSpeechSeq++;
-                    
-                    this.sendChatRequest(msg.content);
-                    this.onCloseASR();
+                    this.onASRResultHandle(msg);
                 }
-            }
 
-            if (event.data && event.data.type === "ASRConnected") {
-                // asr 连接
-                DebugLog.instance.log("ASRConnected ");
-                this.asrOpenState = true;
-                EventManager.getInstance().emit(ChatFlowModel.ASRFlowStartEvent, {});
-            }
-
-            if (event.data && event.data.type === "ASRClosed") {
-                // asr 断开
-                DebugLog.instance.log("ASRClosed ");
-                EventManager.getInstance().emit(ChatFlowModel.ASRFlowCompleteEvent, {});
-            }
-
-            if (event.data && event.data.type === "TTSConnected") {
-                // tts连接
-                DebugLog.instance.log("TTSConnected ");
-                this.ttsOpenFlag = true;
-                this.ttsInConnectFlow = false;
-                if (this.tts_open_resolveFn) {
-                    this.tts_open_resolveFn();
-                    this.tts_open_resolveFn = null;
+                if (event.data && event.data.type === "ASRConnected") {
+                    this.onASRConnectedHandle();
                 }
-            }
 
-            if (event.data && event.data.type === "TTSClosed") {
-                // tts断开
-                DebugLog.instance.log("TTSClosed ");
-                this.ttsOpenFlag = false;
-            }
-
-            if (event.data && event.data.type === "TTSEnd") {
-                // tts播放结束
-                DebugLog.instance.log("TTSEnd " + event.data);
-                if (event.data.uid == this.ttsLastPostUid) {
-                    DebugLog.instance.log("TTSEnd _last event");
-                    EventManager.getInstance().emit(ChatFlowModel.TTSFlowCompleteEvent, {});
+                if (event.data && event.data.type === "ASRClosed") {
+                    this.onASRClosedHandle();
                 }
-            }
-        });
+
+                if (event.data && event.data.type === "TTSConnected") {
+                    this.onTTSConnectedHandle();
+                }
+
+                if (event.data && event.data.type === "TTSClosed") {
+                    this.onTTSClosedHandle();
+                }
+
+                if (event.data && event.data.type === "TTSEnd") {
+                    this.onTTSEndHandle(event.data);
+                }
+            });
+        }
     }
 
     public initEventList() {
@@ -136,23 +122,67 @@ export class ChatFlowModel extends BaseManager {
         EventManager.getInstance().off(this.chat_chat, this);
     }
 
+    private onASRResultHandle(data: any) {
+        if (this.asrOpenState) {
+            DebugLog.instance.log("ASR Result " + data.content);
+
+            this.sendToView(data.content, 1);
+            this.currentSpeechSeq++;
+
+            this.sendChatRequest(data.content);
+            this.onCloseASR();
+        }
+    }
+
+    private onASRConnectedHandle(data: any = null) {
+        DebugLog.instance.log("ASRConnected");
+        this.asrOpenState = true;
+        EventManager.getInstance().emit(ChatFlowModel.ASRFlowStartEvent, {});
+    }
+
+    private onASRClosedHandle(data: any = null) {
+        DebugLog.instance.log("ASRClosed");
+        EventManager.getInstance().emit(ChatFlowModel.ASRFlowCompleteEvent, {});
+    }
+
+    private onTTSConnectedHandle(data: any = null) {
+        DebugLog.instance.log("TTSConnected");
+        this.ttsOpenFlag = true;
+        this.ttsInConnectFlow = false;
+        if (this.tts_open_resolveFn) {
+            this.tts_open_resolveFn();
+            this.tts_open_resolveFn = null;
+        }
+    }
+
+    private onTTSClosedHandle(data: any = null) {
+        DebugLog.instance.log("TTSClosed");
+        this.ttsOpenFlag = false;
+    }
+
+    private onTTSEndHandle(data: any) {
+        DebugLog.instance.log("TTSEnd " + data);
+        if (data.uid == this.ttsLastPostUid) {
+            DebugLog.instance.log("TTSEnd _last event");
+            EventManager.getInstance().emit(ChatFlowModel.TTSFlowCompleteEvent, {});
+        }
+    }
+
     // 发起greeting请求的方法，这里简单示意，实际可能涉及具体的网络请求库调用等
-    public async sendChatRequest(message:string, isGreeting:boolean = false): Promise<void> {
+    public async sendChatRequest(message: string, isGreeting: boolean = false): Promise<void> {
         return new Promise((resolve, reject) => {
             this.resolveFn = resolve;
             this.rejectFn = reject;
             this.inChatRequestFlow = true;
-           
+
             EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.normal });
-            if(isGreeting)
-            {
+            if (isGreeting) {
                 this.currentSpeechSeq = 0;
 
                 SocketManager.getInstance().send(new SocketData({ "action": this.chat_get_greeting, "data": {} }));
             }
-            else
-            {
-                SocketManager.getInstance().send(new SocketData({ "action": this.chat_chat, "data": {message:message} }));
+            else {
+                SocketManager.getInstance().send(new SocketData({ "action": this.chat_chat, "data": { message: message } }));
             }
         });
     }
@@ -189,8 +219,7 @@ export class ChatFlowModel extends BaseManager {
         self.seq++;
         self.waitingForSeq = null;
 
-        if(!content_type || content_type == "text")
-        {
+        if (!content_type || content_type == "text") {
             self.textCache += content;
         }
 
@@ -210,9 +239,9 @@ export class ChatFlowModel extends BaseManager {
                 self.sendToView(subString, 0);
 
                 self.ttsPostUid++;
-                
+
                 self.ttsLastPostUid = self.ttsPostUid;
-                
+
                 self.callTts(subString);
             }
             currentIndex++;
