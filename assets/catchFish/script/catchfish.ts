@@ -115,7 +115,7 @@ export class catchfish extends Component {
     private randomFish(fish:Fish){
 
         let x = 800;
-        let y = Math.random() * 700-200;
+        let y = Math.random() * 600-300;
 
         let spriteFramelen = this.spriteFrames.length;
 
@@ -165,38 +165,32 @@ export class catchfish extends Component {
     }
 
     moveFishes(fish:Fish,delay:number = 0) {
-        if(fish.curTween)fish.curTween.stop();
+        if(fish.curTween){
+            fish.curTween.stop();
+            fish.curTween = null;
+        }
 
-        const upDistance = 10; // 上下浮动的距离
+        const upDistance = 60 * Math.random(); // 上下浮动的距离
         const duration = 15; // 每次往返的时间
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
-        const floatAmplitude = 3.8;
-        // 定义上下移动的速度，控制单位时间内位置变化的快慢，可按需调整
-        const floatSpeed = 0.01;
-        // 记录动画开始的时间，用于后续计算动画进度相关逻辑
-        let startTime = Date.now();
-        let num = Math.random()>0.5?1:-1;
+        const floatAmplitude = 0.08*Math.random();
+        const phase = 0; // The initial phase of the wave
         // 使用 tween 创建运动效果
         fish.curTween = tween(fish)
              // 对当前鱼对象进行 tween 动画
             .delay(delay)// 每个对象延迟3秒开始
-            .by(duration, {position: new Vec3(fish.position.x -1600, fish.position.y, fish.position.z)},
+            .by(duration, {position: new Vec3(fish.position.x -2500, fish.position.y, fish.position.z)},
                 {
                     onUpdate:()=>{
-                        const elapsedTime = Date.now() - startTime;
-                        const progress = elapsedTime / 15000; // 计算动画的进度
-                        if(fish.position.y >= 600|| fish.position.y <= -600){
-                            num = -num;
-                        }
-                        const yOffset = Math.sin(progress * Math.PI * 2) * floatAmplitude * num; // 上下浮动效果
-                        const newPosition = new Vec3(fish.position.x, fish.position.y + yOffset, fish.position.z);
+                        const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
+                        const newPosition = new Vec3(fish.position.x, fish.position.y +y, fish.position.z);
                         fish.position = newPosition;
                     }
                 }
             )
             .call(() => {
                 this.randomFish(fish);
-                this.moveFishes(fish);
+                this.moveFishes(fish,SHOOT_INTERVAL);
             })
             .start(); // 启动动画
     }
@@ -309,7 +303,7 @@ export class catchfish extends Component {
                         // 随机生成鱼
                         self.randomFish(this._curFish);
                         // 移动鱼
-                        self.moveFishes(this._curFish);
+                        self.moveFishes(this._curFish,SHOOT_INTERVAL);
                     })
                     .start();
             })
