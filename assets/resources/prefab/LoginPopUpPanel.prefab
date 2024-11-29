@@ -736,7 +736,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "阅读并统一《发法撒旦利夫卡是等级分类》，加拉法大家开始发链",
+    "_string": "阅读并同意《电信服务协议》和\n《用户协议》和《隐私协议》",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
@@ -916,7 +916,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 270,
+      "width": 240,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -955,8 +955,8 @@
     "_string": "同意并继续",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 54,
-    "_fontSize": 54,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 54,
     "_overflow": 0,
@@ -1288,7 +1288,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 108,
+      "width": 96,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -1327,8 +1327,8 @@
     "_string": "取消",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 54,
-    "_fontSize": 54,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 54,
     "_overflow": 0,
