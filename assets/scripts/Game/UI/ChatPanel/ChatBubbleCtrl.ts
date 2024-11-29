@@ -27,6 +27,8 @@ export class ChatBubbleCtrl extends Component {
     private _maxCharNumInLine: number = 16;
     private _lineCharCount: number = 0;
 
+    private _isInterrupted:boolean = false;
+
     start() {
         this._label = this.labelNode.getComponent(Label);
         this._bgSprite = this.bgSpriteNode.getComponent(Sprite);
@@ -36,7 +38,7 @@ export class ChatBubbleCtrl extends Component {
     }
 
     update(deltaTime: number) {
-        if (this._isTyping) {
+        if (this._isTyping && !this._isInterrupted) {
             this._typingTimer += deltaTime;
             if (this._typingTimer >= this.typingInterval) {
                 this._typingTimer = 0;
@@ -69,18 +71,25 @@ export class ChatBubbleCtrl extends Component {
      * 外部调用的接口，用于传入要显示的文本并触发打字动画效果，新文本会拼接到之前缓存文本之后
      * @param text 要显示的文本内容
      */
-    public typeText(text: string): void {
+    public typeText(text: string,duration:number | null = null): void {
         // 将新传入的文本拼接到之前缓存的文本之后
         this._textToType += text;
-        //this._currentTypedIndex = 0;
         this._isTyping = true;
+        if(duration != null)
+        {
+            this.typingInterval = Math.min(this.typingInterval, duration/this._textToType.length);
+        }
+    }
+
+    public stopTyping():void {
+        this._isInterrupted = true;
     }
 
     private onLabelSizeChanged(): void {
         let labelSize = this.labelNode.getComponent(UITransform).contentSize;
 
         let margin = 40;
-        this._bgTransform.width = labelSize.width + margin;
+        this._bgTransform.width = labelSize.width + margin * 1.5;
         this._bgTransform.height = labelSize.height + margin;
         this.node.getComponent(UITransform).height = this._bgTransform.height;
     }

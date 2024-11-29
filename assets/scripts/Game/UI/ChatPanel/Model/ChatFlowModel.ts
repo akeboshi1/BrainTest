@@ -51,7 +51,7 @@ export class ChatFlowModel extends BaseManager {
     private currentSpeaker: 0 | 1 = 0; //0是机器人讲话， 1是用户
     private currentSpeechSeq: number = 0;
 
-    private ttsOpenFlag: boolean = false;
+    private ttsOpenState: boolean = false;
     private ttsInConnectFlow: boolean = false;
     private ttsPostUid: number = 0;
     private ttsLastPostUid: number = 0;
@@ -147,7 +147,7 @@ export class ChatFlowModel extends BaseManager {
 
     private onTTSConnectedHandle(data: any = null) {
         DebugLog.instance.log("TTSConnected");
-        this.ttsOpenFlag = true;
+        this.ttsOpenState = true;
         this.ttsInConnectFlow = false;
         if (this.tts_open_resolveFn) {
             this.tts_open_resolveFn();
@@ -157,7 +157,7 @@ export class ChatFlowModel extends BaseManager {
 
     private onTTSClosedHandle(data: any = null) {
         DebugLog.instance.log("TTSClosed");
-        this.ttsOpenFlag = false;
+        this.ttsOpenState = false;
     }
 
     private onTTSEndHandle(data: any) {
@@ -275,7 +275,7 @@ export class ChatFlowModel extends BaseManager {
     }
 
     private callTts(text: string): void {
-        if (this.ttsOpenFlag) {
+        if (this.ttsOpenState) {
             this.onPostTTS(text, this.ttsPostUid);
             if (this.ttsPostUid == 1) {
                 EventManager.getInstance().emit(ChatFlowModel.TTSFlowStartEvent, {});
@@ -312,7 +312,7 @@ export class ChatFlowModel extends BaseManager {
     }
 
     onCloseASR() {
-        // 断开ASR
+        if(!this.asrOpenState) return;
         var webViewNode = director.getScene().getChildByName("webview");
         let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
         this.asrOpenState = false;
@@ -338,10 +338,27 @@ export class ChatFlowModel extends BaseManager {
     }
 
     onCloseTTS() {
-        // 断开TTS
+        if(!this.ttsOpenState) return;
         var webViewNode = director.getScene().getChildByName("webview");
         let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
         EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.ttsClose });
         webviewTTS.evaluateJS("close()");
+    }
+
+    reset() {
+        this.onCloseTTS();
+        this.onCloseASR();
+
+        this.rejectFn = null;
+        this.resolveFn = null;
+        this.inChatRequestFlow = false;
+        this.currentSpeechSeq = 0;
+        this.currentSpeaker = 0;
+        this.ttsPostUid = 0;
+        this.ttsLastPostUid = 0;
+        this.textCache = "";
+        this.seq = 0; 
+        this.waitingForSeq = null;
+        this.chatMessageMap = new Map();
     }
 }

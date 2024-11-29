@@ -18,7 +18,7 @@ enum ChatState {
 
 @ccclass('ChatPanelCtrl')
 export class ChatPanelCtrl extends Component {
-    public static ChatPanelCloseEvent:string = "ChatPanelCtrl.ChatPanelCloseEvent";
+    public static ChatPanelCloseEvent: string = "ChatPanelCtrl.ChatPanelCloseEvent";
     private chatState: ChatState;
     private lastChatState: ChatState = ChatState.Empty;
 
@@ -47,17 +47,8 @@ export class ChatPanelCtrl extends Component {
     private lastEventTime: number = 0; // 记录最后一次收到事件回调的时间
     private timerInterval: number = 30; // 设定的时间间隔，单位为秒，这里设置为180秒，可以根据需求调整
 
-    private hasGreeted:boolean = false;
-
     start() {
-        this.chatState = ChatState.Loading;
-        this.playAnimationByState(this.chatState);
-        this.updateLastEventTime();
 
-        if(!this.hasGreeted)
-        {
-            this.clickGreeting();
-        }
     }
 
     private updateLastEventTime() {
@@ -72,6 +63,12 @@ export class ChatPanelCtrl extends Component {
         EventManager.getInstance().on(ChatFlowModel.TTSFlowStartEvent, this.onTTSFlowStart, this);
         EventManager.getInstance().on(ChatFlowModel.WaittingEvent, this.onWaittingEvent, this);
         EventManager.getInstance().on(ChatFlowModel.ASRFlowStartEvent, this.onASRConnected, this);
+
+        this.chatState = ChatState.Loading;
+        this.playAnimationByState(this.chatState);
+        this.updateLastEventTime();
+
+        this.clickGreeting();
     }
 
     protected onDisable(): void {
@@ -83,6 +80,20 @@ export class ChatPanelCtrl extends Component {
 
         const animationComponent = this.inOutAnimNode.getComponent(Animation);
         animationComponent.off(Animation.EventType.FINISHED);
+
+        this.chatFlowModel.reset();
+        this.resetPanel();
+    }
+
+    private resetPanel() {
+        while (this.chatBubbleNodeMap.size > 0) {
+            const oldestBubbleSeq = this.getOldestBubbleSeq();
+            const oldestBubbleNode = this.chatBubbleNodeMap.get(oldestBubbleSeq);
+            if (oldestBubbleNode) {
+                oldestBubbleNode.removeFromParent();
+                this.chatBubbleNodeMap.delete(oldestBubbleSeq);
+            }
+        }
     }
 
     enterState(state: ChatState) {
@@ -94,7 +105,6 @@ export class ChatPanelCtrl extends Component {
 
     public clickGreeting() {
         this.chatFlowModel.sendChatRequest("", true);
-        this.hasGreeted = true;
     }
 
     public clickChat() {
@@ -110,6 +120,12 @@ export class ChatPanelCtrl extends Component {
         DebugLog.instance.log("clickInterruptButton");
         this.chatFlowModel.onCloseTTS();
         this.enterUserSpeakState();
+
+        let lastEntry;
+        for (const value of this.chatBubbleNodeMap.values()) {
+            lastEntry = value;
+        }
+        lastEntry.getComponent(ChatBubbleCtrl).stopTyping();
     }
 
     public clickAwakeFromSleeping() {
@@ -120,7 +136,7 @@ export class ChatPanelCtrl extends Component {
 
     public clickBackButton() {
         this.fadeOut();
-        EventManager.getInstance().emit(ChatPanelCtrl.ChatPanelCloseEvent,{});
+        EventManager.getInstance().emit(ChatPanelCtrl.ChatPanelCloseEvent, {});
     }
 
     public fadeIn() {
@@ -257,8 +273,11 @@ export class ChatPanelCtrl extends Component {
 
             let ctb: ChatBubbleCtrl = newBubbleNode.getComponent(ChatBubbleCtrl);
             if (ctb) {
-                // 调用typeText方法显示文本内容
-                ctb.typeText(message);
+                if (speaker == 0) {
+                    ctb.typeText(message);
+                } else {
+                    ctb.typeText(message, 0.5);
+                }
             }
 
         }
