@@ -6,6 +6,7 @@ import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
 import {LoginPopUpPanel} from "db://assets/scripts/Game/UI/Login/LoginPopUpPanel";
 import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
 import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
+import {PhoneLoginPanel} from "db://assets/scripts/Game/UI/Login/PhoneLoginPanel";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -31,13 +32,22 @@ export class LoginManager {
         });
     }
 
+    showPhoneLoginPanel(parentNode:Node){
+        LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root+`prefab/PhoneLoginPanel`).then((resource)=>{
+            const node = instantiate(resource);
+            UIManager.getInstance().registerView(PhoneLoginPanel.NAME,node);
+            UIManager.getInstance().showView(PhoneLoginPanel.NAME,parentNode);
+            node.setPosition(0,0,0);
+        });
+    }
+
     showXieyi(parentNode:Node){
         LoaderManager.getInstance().resourcesLoad(Global.RES_Root+"prefab/LoginPopUpPanel").then((resource)=>{
             const node = instantiate(resource);
             UIManager.getInstance().registerView(LoginPopUpPanel.NAME,node);
             const parendNode = parentNode.parent;
             UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
-            UIManager.getInstance().hideView(LoginPanel.NAME);
+            UIManager.getInstance().hideView(PhoneLoginPanel.NAME);
             const logingpopupPanel:LoginPopUpPanel = UIManager.getInstance().getView(LoginPopUpPanel.NAME)as LoginPopUpPanel;
             if(logingpopupPanel)logingpopupPanel.switchView();
 
@@ -50,9 +60,9 @@ export class LoginManager {
             UIManager.getInstance().registerView(LoginPopUpPanel.NAME,node);
             const parendNode = parentNode.parent;
             UIManager.getInstance().showView(LoginPopUpPanel.NAME,parendNode);
-            UIManager.getInstance().hideView(LoginPanel.NAME);
+            UIManager.getInstance().hideView(PhoneLoginPanel.NAME);
             const logingpopupPanel = UIManager.getInstance().getView(LoginPopUpPanel.NAME)as LoginPopUpPanel;
-            if(logingpopupPanel)logingpopupPanel.switchView();
+            if(logingpopupPanel)logingpopupPanel.switchView(true);
         });
     }
 

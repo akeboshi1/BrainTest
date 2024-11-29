@@ -258,21 +258,6 @@ export class catchfish extends Component {
 
             let self = this;
             // 启动动画
-            // tween(wangPrefab).to(1, { position: new Vec3(this._curFish.worldPosition.x-100, this._curFish.worldPosition.y-100, this._curFish.worldPosition.z) })
-            //     .call(() => {
-            //         wang.removeChild(wangPrefab);
-            //         this.wangCount++;
-            //         this.catchLabel.getComponent(Label).string = `0${this.wangCount}/4`;
-            //         if(this.wangCount==this.wangMaxCount){
-            //             this.gameSuccessView.active=true;
-            //         }
-            //
-            //         this._curFish.setSelect(this.unSelectColor,1)
-            //
-            //         this.randomFish(this._curFish);
-            //
-            //         this.moveFishes(this._curFish);
-            //     })
             tween(wangPrefab).parallel(
                 tween().to(1.1, { scale:new Vec3(3,3,3) },{ easing: 'bounceIn'}),
                 tween().to(0.5, { position: new Vec3(this._curFish.worldPosition.x-400, this._curFish.worldPosition.y-150, this._curFish.worldPosition.z)})
@@ -294,9 +279,10 @@ export class catchfish extends Component {
                         // 移除wangPrefab
                         wang.removeChild(wangPrefab);
                         this.wangCount++;
-                        this.catchLabel.getComponent(Label).string = `0${this.wangCount}/4`;
+                        this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
                         if(this.wangCount==this.wangMaxCount){
                              this.gameSuccessView.active=true;
+                             this.clearGameView();
                         }
                         // 设置当前鱼为选中状态
                         self._curFish.setSelect(this.unSelectColor,1)
@@ -315,6 +301,26 @@ export class catchfish extends Component {
             }
         }
 
+    }
+
+    private clearGameView(){
+        if(this.timerId !=null){
+            clearInterval(this.timerId);
+        }
+
+        if(this.fishs){
+            let len = this.fishs.length;
+            for(let i :number=0;i<len;i++){
+                let fish = this.fishs[i];
+                if(fish){
+                    if(fish.curTween){
+                        fish.curTween.stop();
+                        fish.curTween = null;
+                    }
+                }
+            }
+            this.fishs = [];
+        }
     }
 
     private selectWang(index:number){
@@ -337,23 +343,7 @@ export class catchfish extends Component {
      */
     quitGame(){
         console.log("返回大厅")
-        if(this.timerId !=null){
-            clearInterval(this.timerId);
-        }
-
-        if(this.fishs){
-            let len = this.fishs.length;
-            for(let i :number=0;i<len;i++){
-                let fish = this.fishs[i];
-                if(fish){
-                    if(fish.curTween){
-                        fish.curTween.stop();
-                        fish.curTween = null;
-                    }
-                }
-            }
-            this.fishs = [];
-        }
+        this.clearGameView();
 
         SceneManager.getInstance().backToHall();
     }

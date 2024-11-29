@@ -10,6 +10,7 @@ import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
+import {UserData} from "db://assets/scripts/Core/Data/UserData";
 
 const { ccclass, property } = _decorator;
 
@@ -104,7 +105,8 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     agreeClick(){
-
+        this.phoneNumber = Global.userData.phoneNumber;
+        EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
         LoginManager.getInstance().request(this.login_send_mp_code, {"mp_no": this.phoneNumber});
     }
 
@@ -123,8 +125,21 @@ export class LoginPopUpPanel extends BasePanel{
        }
     }
 
-    private _initPhoneView(){
+    public updateView(isPhoneView:boolean=false){
+        this.XieyiView.active= !isPhoneView;
+        this.PhoneView.active = isPhoneView;
+        if(isPhoneView){
+            this._updatePhoneView();
+        }else{
+            this._updateXieyiView();
+        }
+    }
 
+    private _initPhoneView(){
+        this.agreeClick();
+    }
+
+    private _updatePhoneView(){
         let numbers: number[] = this.phoneCode.split("").map(Number);
         let len = numbers.length;
         for(let i=0;i<len;i++){
@@ -132,31 +147,33 @@ export class LoginPopUpPanel extends BasePanel{
             if(editBox == null)continue;
             editBox.string = numbers[i]+"";
         }
-        this.PhoneNumberTxt.string = this.phoneNumber;
-        // this.num0.string = "1";
-        // this.num1.string = "2";
-        // this.num2.string = "3";
-        // this.num3.string = "4";
-
+         this.PhoneNumberTxt.string = this.phoneNumber;
+// this.num0.string = "1";
+// this.num1.string = "2";
+// this.num2.string = "3";
+// this.num3.string = "4";
+        EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
         LoginManager.getInstance().request(this.login_login_by_mp, {"mp_no": this.phoneNumber, "code": this.phoneCode});
-
     }
 
     private _initXieyiView(){
 
     }
 
-    private addListener(){
-        EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
-        EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
-    }
+    private _updateXieyiView(){}
 
+    private addListener(){
+    //     EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
+    //     EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
+    }
+    //
     private removeListener(){
-        EventManager.getInstance().off(this.login_send_mp_code,this);
-        EventManager.getInstance().off(this.login_login_by_mp,this);
+    //     EventManager.getInstance().off(this.login_send_mp_code,this);
+    //     EventManager.getInstance().off(this.login_login_by_mp,this);
     }
 
     private requestLoginCallBack(data,context){
+        EventManager.getInstance().off(this.login_login_by_mp,this);
         DebugLog.instance.log(data);
         if(data['status']==0){
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
@@ -181,17 +198,19 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     private requestCodeCallBack(data,context){
+        EventManager.getInstance().off(this.login_send_mp_code,this);
         DebugLog.instance.log(data);
         if(data['status']==0){
-            DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
+            DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
             // test code
             this.phoneCode = "1234";
             context.switchView(true);
             return;
         }
 
+        this.phoneNumber = data['data']['mp_no'];
         this.phoneCode = data['data']['code'];
-        context.switchView(true);
+        context.updateView(true);
     }
 
 

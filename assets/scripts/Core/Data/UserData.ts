@@ -5,6 +5,7 @@ export class UserData {
     public name: string;
     public token: string;
     public tokenExpires:number=0;
+    public phoneNumber:string="";
 
 
     /**
