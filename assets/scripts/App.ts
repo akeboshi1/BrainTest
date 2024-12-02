@@ -29,14 +29,23 @@ export class App extends BaseObejct {
     @property()
     sceneName = "";
 
+    /**
+     * 是否适配paipai1.0
+     */
     @property({type:false})
     isPad = false;
+
+    /**
+     * debug标记
+     */
+    @property({type:false})
+    debug = true;
 
     /**
      * 用于本地调试tts/asr接口
      */
     @property({type:false})
-    isWebView = false;
+    isWebView = true;
 
     @property(Node)
     webView: Node;
@@ -59,13 +68,16 @@ export class App extends BaseObejct {
         // 用户数据
         Global.userData = new UserData();
 
-        // 常驻节点
+
+
         if(this.isWebView){
-            director.addPersistRootNode(this.webView);
             this.webView.active = true;
+            // 增加常驻节点
+            director.addPersistRootNode(this.webView);
         }else{
-            director.removePersistRootNode(this.webView);
             this.webView.active = false;
+            // 移除常驻节点
+            director.removePersistRootNode(this.webView);
         }
 
         this.initManager();

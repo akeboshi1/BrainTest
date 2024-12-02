@@ -1,9 +1,9 @@
-import { _decorator, Button, EditBox,SpriteFrame,sp } from 'cc';
-import {BasePanel} from "../../../../scripts/Core/UI/BasePanel";
-import {EventManager} from "../../../../scripts/Core/Manager/Event/EventManager";
-import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import { _decorator, Button, EditBox,Node,sp } from 'cc';
+import {BasePanel} from "../../../Core/UI/BasePanel";
+import {EventManager} from "../../..//Core/Manager/Event/EventManager";
+import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
+import {Global} from "../../../Core/Manager/Config/Global";
+import {UIManager} from "../../../Core/Manager/UI/UIManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('PhoneLoginPanel')
@@ -27,7 +27,18 @@ export class PhoneLoginPanel extends BasePanel{
          const eventName = PhoneLoginPanel.NAME;
          EventManager.getInstance().on(eventName,this.loadPanelComplete,this);
          EventManager.getInstance().emit(eventName,eventName);
+     }
 
+     start() {
+         this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END,this.checkBoxHandler,this);
+     }
+
+     onDisable() {
+         this.phoneNumberEdit.node.off(Node.EventType.TOUCH_END,this.checkBoxHandler);
+     }
+
+    private checkBoxHandler(evt:Event) {
+         this.phoneNumberEdit.setFocus();
      }
 
     private loadPanelComplete(){

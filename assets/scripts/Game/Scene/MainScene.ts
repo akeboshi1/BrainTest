@@ -1,13 +1,14 @@
 import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite,Color } from 'cc';
 import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
 import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
-import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {TaskData, TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
-import {StringUtil} from "db://assets/scripts/Core/Util/StringUtil";
-import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
+import {TaskManager} from "../../Game/Task/TaskManager";
+import {EventManager} from "../../Core/Manager/Event/EventManager";
+import {TaskData, TaskStatus} from "../../Game/Task/TaskData";
+import {StringUtil} from "../../Core/Util/StringUtil";
+import {ColorUtil} from "../../Core/Util/ColorUtil";
 import { ChatBubbleCtrl } from '../UI/ChatPanel/ChatBubbleCtrl';
 import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
+import {TimeUtil} from "../../Core/Util/TimeUtil";
 const { ccclass, property } = _decorator;
 
 @ccclass('MainScene')
@@ -33,6 +34,24 @@ export class MainScene extends Component {
     @property({ type: Node })
     taskScrollView: Node = null;
 
+    @property(Label)
+    timeLabel:Label = null;
+
+    @property(Label)
+    dayLabel:Label = null;
+
+    @property(Label)
+    titleLabel:Label = null;
+
+    @property(Label)
+    taskDesLabel:Label = null;
+
+
+    /**
+     * 当前页面
+     * @private
+     */
+    private _curPanel:Node = null;
 
     private completeColor = "#2DABFF";
     private unCompleteColor = "#FF2D55";
@@ -57,11 +76,54 @@ export class MainScene extends Component {
                 if(task)task.active =false;
             });
         }
+
+        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack,this.taskListRequestCallBack,this);
+        TaskManager.getInstance().start();
         this.backToTaskView();
+
+    }
+
+    updateTime(){
+        const now = new Date();
+        const hours = TimeUtil.padZero(now.getHours());
+        const minutes = TimeUtil.padZero(now.getMinutes());
+        const seconds = TimeUtil.padZero(now.getSeconds());
+        this.timeLabel.string = `${hours}:${minutes}:${seconds}`;
     }
 
     update(deltaTime: number) {
-        
+
+    }
+
+    backToTaskView(){
+        this.taskProgressNode.active = false;
+        this.taskScrollView.active = false;
+        this.switchTaskNode(true);
+        this._curPanel = this.taskNode;
+    }
+
+    private switchTaskNode(open:boolean = false){
+        if(open){
+            this.taskNode.active = true;
+            // 刷新时间
+            // 强行显示时间，防止updateTime间隔过长导致文本时间短暂不显示
+            this.updateTime();
+            this.schedule(this.updateTime, 1);
+            this.dayLabel.string = TimeUtil.getCurrentDate();
+            this.titleLabel.string = TimeUtil.getCurrentDate();
+            this.taskDesLabel.string = "当前暂无待办事宜";
+            this.timeLabel.node.active = true;
+            this.dayLabel.node.active = true;
+        }else{
+            this.taskNode.active = false;
+            this.unschedule(this.updateTime);
+            this.timeLabel.string="";
+            this.dayLabel.string="";
+            this.titleLabel.string = "";
+            this.taskDesLabel.string = "";
+            this.timeLabel.node.active = false;
+            this.dayLabel.node.active = false;
+        }
     }
 
     openChatPanel() {
@@ -69,18 +131,15 @@ export class MainScene extends Component {
         {
             this.createChatPanel();
         }
-
         this.chatPanel.getComponent(ChatPanelCtrl).fadeIn();
-
         this.taskProgressNode.active = false;
         this.taskScrollView.active = false;
-        this.taskNode.active = false;
+        this.switchTaskNode(false);
+        this._curPanel = this.chatPanel;
     }
 
     onChatPanelClose(data:any,context:MainScene){
-        //context.taskProgressNode.active = true;
-        //context.taskScrollView.active = true;
-        context.taskNode.active = true;
+        context.backToTaskView();
     }
 
     createChatPanel() {
@@ -96,7 +155,8 @@ export class MainScene extends Component {
         this.progressLabel.string = "";
         this.taskProgressNode.active = true;
         this.taskScrollView.active = false;
-        this.taskNode.active = false;
+        this.switchTaskNode(false);
+        this._curPanel = this.taskProgressNode;
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack,this.taskListRequestCallBack,this);
         TaskManager.getInstance().start();
     }
@@ -113,53 +173,61 @@ export class MainScene extends Component {
 
     }
 
-    backToTaskView(){
-        this.taskProgressNode.active = false;
-        this.taskScrollView.active = false;
-        this.taskNode.active = true;
-    }
-
     private taskListRequestCallBack(data,context){
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack,context);
-        let taskDatas = TaskManager.getInstance().taskList;
-        let index = 0;
-        let count = 0;
-        let self = context;
-        taskDatas.forEach((task:TaskData)=>{
-            let taskItem = self.taskList[index];
-            index++;
-            if(taskItem == null)return;
-            let label = taskItem.getChildByName("Label").getComponent(Label);
-            let timeLabel = taskItem.getChildByName("time1").getComponent(Label);
-            let complete = taskItem.getChildByName("complete");
-            let arrow = taskItem.getChildByName("arror_right");
-            let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
-            (label as Label).string = task.name;
-            let startTime = StringUtil.spliceStr(task.startTime+""," ")[1];
-            let endTime = StringUtil.spliceStr(task.endTime+""," ")[1];
-            let startTimes = StringUtil.spliceStr(startTime,":");
-            let endTimes = StringUtil.spliceStr(endTime,":");
-            startTime = startTimes[0]+":"+startTimes[1];
-            endTime = endTimes[0]+":"+endTimes[1];
-            (timeLabel as Label).string = startTime+"-"+ endTime;
-            taskItem.active =true;
-            if(task.status == TaskStatus.Completed){
-                complete.active = true;
-                arrow.active = false;
-                (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
-                DebugLog.instance.log("complete",complete)
-                count++;
-            }else{
-                if(task.status == TaskStatus.Expired){
-                    (btnBG as Sprite).color =  ColorUtil.hexToColor(context.expireColor);
-                }else{
-                    (btnBG as Sprite).color =  ColorUtil.hexToColor(context.unCompleteColor);
-                }
-                complete.active = false;
-                arrow.active = true;
-            }
-        });
-        context.progressLabel.string = `${count} / ${taskDatas.length}`;
+        switch (this._curPanel){
+            case this.taskNode:
+                // let taskUnCompleteDic = TaskManager.getInstance().getTodayUnCompleteTask();
+                // taskUnCompleteDic.forEach((task:TaskData)=>{
+                //
+                // })
+                break;
+            case this.taskProgressNode:
+                let taskDatas = TaskManager.getInstance().taskList;
+                let index = 0;
+                let count = 0;
+                let self = context;
+                taskDatas.forEach((task:TaskData)=>{
+                    let taskItem = self.taskList[index];
+                    index++;
+                    if(taskItem == null)return;
+                    let label = taskItem.getChildByName("Label").getComponent(Label);
+                    let timeLabel = taskItem.getChildByName("time1").getComponent(Label);
+                    let complete = taskItem.getChildByName("complete");
+                    let arrow = taskItem.getChildByName("arror_right");
+                    let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
+                    (label as Label).string = task.name;
+                    let startTime = StringUtil.spliceStr(task.startTime+""," ")[1];
+                    let endTime = StringUtil.spliceStr(task.endTime+""," ")[1];
+                    let startTimes = StringUtil.spliceStr(startTime,":");
+                    let endTimes = StringUtil.spliceStr(endTime,":");
+                    startTime = startTimes[0]+":"+startTimes[1];
+                    endTime = endTimes[0]+":"+endTimes[1];
+                    (timeLabel as Label).string = startTime+"-"+ endTime;
+                    taskItem.active =true;
+                    if(task.status == TaskStatus.Completed){
+                        complete.active = true;
+                        arrow.active = false;
+                        (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
+                        DebugLog.instance.log("complete",complete)
+                        count++;
+                    }else{
+                        if(task.status == TaskStatus.Expired){
+                            (btnBG as Sprite).color =  ColorUtil.hexToColor(context.expireColor);
+                        }else{
+                            (btnBG as Sprite).color =  ColorUtil.hexToColor(context.unCompleteColor);
+                        }
+                        complete.active = false;
+                        arrow.active = true;
+                    }
+                });
+                context.progressLabel.string = `${count} / ${taskDatas.length}`;
+                break;
+            case this.chatPanel:
+                break;
+            case this.taskScrollView:
+                break;
+        }
     }
 
 

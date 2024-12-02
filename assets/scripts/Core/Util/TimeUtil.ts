@@ -71,4 +71,55 @@ export class TimeUtil {
         return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 
     }
+
+    /**
+     * 将当前时间转换成00:00:00格式的时间字符串
+     * @param num
+     */
+    static padZero(num: number): string {
+        return num < 10 ? `0${num}` : `${num}`;
+    }
+
+    /**
+     * 获取当前时间(年月日星期)
+     */
+    static getCurrentDate(){
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1; // 月份从0开始，需要加1
+        const day = now.getDate();
+        const dayOfWeek = now.getDay(); // 星期几，0表示星期日，1表示星期一，依此类推
+        const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
+        const weekDayStr = weekDays[dayOfWeek]; // 获取星期几的中文表示
+        return `${year}年${month}月${day}日 星期${weekDayStr}`;
+    }
+
+    /**
+     * 获取当前时间段
+     */
+    static getTimePeriod() {
+        const now = new Date();
+        const timestamp = Math.floor(now.getTime() / 1000); // 转换为秒级时间戳
+        return TimeUtil.getTimePeriodFromTimestamp(timestamp);
+    }
+
+    /**
+     * 通过时间戳来判断当前是什么时间段
+     * @param timestamp 毫秒级别
+     */
+    static getTimePeriodFromTimestamp(timestamp) {
+        const date = new Date(timestamp); // 将时间戳转换为毫秒
+        const currentHour = date.getHours();
+
+        if (currentHour >= 0 && currentHour < 12) {
+            return "早上";
+        } else if (currentHour >= 12 && currentHour < 18) {
+            return "中午";
+        } else if (currentHour >= 18 && currentHour < 24) {
+            return "晚上";
+        } else {
+            return "晚上"; // 超过24点按晚上处理
+        }
+    }
+
 }

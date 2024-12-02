@@ -178,7 +178,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 959.9999999999999,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -350,7 +350,8 @@
     },
     "sceneName": "",
     "isPad": false,
-    "isWebView": false,
+    "debug": true,
+    "isWebView": true,
     "webView": {
       "__id__": 9
     },

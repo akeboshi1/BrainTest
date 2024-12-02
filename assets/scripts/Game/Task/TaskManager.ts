@@ -107,11 +107,22 @@ export class TaskManager {
                 context._taskList.push(task);
             }
 
-            // // todo test code
-            // context.requestStartTask(results[0].id);
-
             EventManager.getInstance().emit(TaskManager.TaskListRequestCallBack);
         }
+    }
+
+
+    /**
+     * 获取当天未完成的任务
+     */
+    public getTodayUnCompleteTask(){
+        let tmpDic:Map<number,TaskData>=new Map();
+        this._taskDic.forEach((task:TaskData)=>{
+            if(task.status <=1){
+                tmpDic.set(task.id,task);
+            }
+        })
+        return tmpDic;
     }
 
     /**
