@@ -41,6 +41,7 @@ export class PhoneLoginPanel extends BasePanel{
          this.phoneNumberEdit.setFocus();
      }
 
+
     private loadPanelComplete(){
         EventManager.getInstance().off(PhoneLoginPanel.NAME,this);
     }

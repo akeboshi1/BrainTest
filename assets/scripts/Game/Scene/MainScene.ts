@@ -1,12 +1,10 @@
-import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite,Color } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite,ProgressBar } from 'cc';
 import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
-import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
 import {TaskManager} from "../../Game/Task/TaskManager";
 import {EventManager} from "../../Core/Manager/Event/EventManager";
 import {TaskData, TaskStatus} from "../../Game/Task/TaskData";
 import {StringUtil} from "../../Core/Util/StringUtil";
 import {ColorUtil} from "../../Core/Util/ColorUtil";
-import { ChatBubbleCtrl } from '../UI/ChatPanel/ChatBubbleCtrl';
 import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
 import {TimeUtil} from "../../Core/Util/TimeUtil";
 const { ccclass, property } = _decorator;
@@ -45,6 +43,9 @@ export class MainScene extends Component {
 
     @property(Label)
     taskDesLabel:Label = null;
+
+    @property(ProgressBar)
+    progressBar:ProgressBar = null;
 
 
     /**
@@ -222,6 +223,7 @@ export class MainScene extends Component {
                     }
                 });
                 context.progressLabel.string = `${count} / ${taskDatas.length}`;
+                context.progressBar.progress = count/taskDatas.length;
                 break;
             case this.chatPanel:
                 break;
