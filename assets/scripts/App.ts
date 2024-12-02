@@ -60,7 +60,13 @@ export class App extends BaseObejct {
         Global.userData = new UserData();
 
         // 常驻节点
-        director.addPersistRootNode(this.webView);
+        if(this.isWebView){
+            director.addPersistRootNode(this.webView);
+            this.webView.active = true;
+        }else{
+            director.removePersistRootNode(this.webView);
+            this.webView.active = false;
+        }
 
         this.initManager();
 

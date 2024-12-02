@@ -3,6 +3,7 @@ import {BasePanel} from "../../../../scripts/Core/UI/BasePanel";
 import {EventManager} from "../../../../scripts/Core/Manager/Event/EventManager";
 import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('PhoneLoginPanel')
@@ -37,7 +38,8 @@ export class PhoneLoginPanel extends BasePanel{
      * 返回上一级界面
      */
     public backClick(){
-        LoginManager.getInstance().start(this.node);
+        EventManager.getInstance().emit(UIManager.BACK_TO_PARENT);
+        this.node.removeFromParent();
     }
 
     /**

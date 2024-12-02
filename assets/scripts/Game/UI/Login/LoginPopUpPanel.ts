@@ -198,7 +198,7 @@ export class LoginPopUpPanel extends BasePanel{
     }
 
     private requestCodeCallBack(data,context){
-        EventManager.getInstance().off(this.login_send_mp_code,this);
+        EventManager.getInstance().off(this.login_send_mp_code,context);
         DebugLog.instance.log(data);
         if(data['status']==0){
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
