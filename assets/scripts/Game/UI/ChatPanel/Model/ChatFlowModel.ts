@@ -1,4 +1,4 @@
-import { director, Director, sys, WebView } from "cc";
+import { director, Director, native, sys, WebView } from "cc";
 import { BaseManager } from "../../../../Core/Manager/BaseManager";
 import { EventManager } from "../../../../Core/Manager/Event/EventManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
@@ -76,12 +76,12 @@ export class ChatFlowModel extends BaseManager {
         console.log('sys.platform=', sys.platform);
 
         if (sys.platform === 'ANDROID') {
-            NativeEventManager.getInstance().on(NativeEvent.ASRResult,this.onASRResultHandle,this);
-            NativeEventManager.getInstance().on(NativeEvent.ASRConnected,this.onASRConnectedHandle,this);
-            NativeEventManager.getInstance().on(NativeEvent.ASRClosed,this.onASRClosedHandle,this);
-            NativeEventManager.getInstance().on(NativeEvent.TTSConnected,this.onTTSConnectedHandle,this);
-            NativeEventManager.getInstance().on(NativeEvent.TTSClosed,this.onTTSClosedHandle,this);
-            NativeEventManager.getInstance().on(NativeEvent.TTSEnd,this.onTTSEndHandle,this);
+            NativeEventManager.getInstance().on(NativeEvent.ASRResult, this.onASRResultHandle, this);
+            NativeEventManager.getInstance().on(NativeEvent.ASRConnected, this.onASRConnectedHandle, this);
+            NativeEventManager.getInstance().on(NativeEvent.ASRClosed, this.onASRClosedHandle, this);
+            NativeEventManager.getInstance().on(NativeEvent.TTSConnected, this.onTTSConnectedHandle, this);
+            NativeEventManager.getInstance().on(NativeEvent.TTSClosed, this.onTTSClosedHandle, this);
+            NativeEventManager.getInstance().on(NativeEvent.TTSEnd, this.onTTSEndHandle, this);
         } else {
             window.addEventListener("message", (event) => {
                 if (event.data && event.data.type === "ASRResult") {
@@ -305,44 +305,81 @@ export class ChatFlowModel extends BaseManager {
 
     onOpenASR() {
         // 连接ASR
-        var webViewNode = director.getScene().getChildByName("webview");
-        let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
-        webviewasr.evaluateJS("connect()");
-        EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.asrConnect });
+        if (sys.platform.toUpperCase().endsWith("BROWSER")) {
+            var webViewNode = director.getScene().getChildByName("webview");
+            let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
+            webviewasr.evaluateJS("connect()");
+            EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.asrConnect });
+        }
+
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('android asr connect');
+            native.bridge.sendToNative('ASR', 'connect');
+        }
+
     }
 
     onCloseASR() {
-        if(!this.asrOpenState) return;
-        var webViewNode = director.getScene().getChildByName("webview");
-        let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
-        this.asrOpenState = false;
-        webviewasr.evaluateJS("close()");
+        if (!this.asrOpenState) return;
+        if (sys.platform.toUpperCase().endsWith("BROWSER")) {
+            var webViewNode = director.getScene().getChildByName("webview");
+            let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
+            this.asrOpenState = false;
+            webviewasr.evaluateJS("close()");
+        }
+
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('android asr close');
+            native.bridge.sendToNative('ASR', 'close');
+        }
     }
 
     onPostTTS(message: string, uid: number) {
         DebugLog.instance.log(`Post TTS for: ${message} ; uid = ${uid}`);
-        var webViewNode = director.getScene().getChildByName("webview");
-        let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
-        webviewTTS.evaluateJS("start('" + uid + "', '" + message + "')");
+        if (sys.platform.toUpperCase().endsWith("BROWSER")) {
+            var webViewNode = director.getScene().getChildByName("webview");
+            let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
+            webviewTTS.evaluateJS("start('" + uid + "', '" + message + "')");
+        }
+
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('android tts post');
+            native.bridge.sendToNative('TTS', JSON.stringify({ uid: uid, text: message }));
+        }
     }
 
     public async onOpenTTS(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.tts_open_resolveFn = resolve;
             this.ttsInConnectFlow = true;
-            var webViewNode = director.getScene().getChildByName("webview");
-            let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
-            EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.ttsConnect });
-            webviewTTS.evaluateJS("connect()");
+
+            if (sys.platform.toUpperCase().endsWith("BROWSER")) {
+                var webViewNode = director.getScene().getChildByName("webview");
+                let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
+                EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.ttsConnect });
+                webviewTTS.evaluateJS("connect()");
+            }
+            if (sys.platform === 'ANDROID') {
+                DebugLog.instance.log('android tts connect');
+                native.bridge.sendToNative('TTS', 'connect');
+            }
         });
     }
 
     onCloseTTS() {
-        if(!this.ttsOpenState) return;
-        var webViewNode = director.getScene().getChildByName("webview");
-        let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
-        EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.ttsClose });
-        webviewTTS.evaluateJS("close()");
+        if (!this.ttsOpenState) return;
+
+        if (sys.platform.toUpperCase().endsWith("BROWSER")) {
+            var webViewNode = director.getScene().getChildByName("webview");
+            let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
+            EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.ttsClose });
+            webviewTTS.evaluateJS("close()");
+        }
+
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('android tts close');
+            native.bridge.sendToNative('TTS', 'close');
+        }
     }
 
     reset() {
@@ -357,7 +394,7 @@ export class ChatFlowModel extends BaseManager {
         this.ttsPostUid = 0;
         this.ttsLastPostUid = 0;
         this.textCache = "";
-        this.seq = 0; 
+        this.seq = 0;
         this.waitingForSeq = null;
         this.chatMessageMap = new Map();
     }
