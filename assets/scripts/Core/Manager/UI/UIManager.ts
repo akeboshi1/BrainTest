@@ -19,6 +19,8 @@ export class UIManager extends BaseManager {
 
     public static LOAD_PANEL= "LOADPANEL";
 
+    public static BACK_TO_PARENT:string = "BACK_TO_PARENT";
+
     private preActionMaps:{[key:string]:[BasePanel,PanelState]};
 
     init(){
