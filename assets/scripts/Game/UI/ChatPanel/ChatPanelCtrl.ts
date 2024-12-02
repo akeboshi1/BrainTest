@@ -69,6 +69,8 @@ export class ChatPanelCtrl extends Component {
         this.updateLastEventTime();
 
         this.clickGreeting();
+
+        //this.chatFlowModel.onOpenASR();
     }
 
     protected onDisable(): void {
@@ -86,12 +88,14 @@ export class ChatPanelCtrl extends Component {
     }
 
     private resetPanel() {
-        while (this.chatBubbleNodeMap.size > 0) {
-            const oldestBubbleSeq = this.getOldestBubbleSeq();
-            const oldestBubbleNode = this.chatBubbleNodeMap.get(oldestBubbleSeq);
-            if (oldestBubbleNode) {
-                oldestBubbleNode.removeFromParent();
-                this.chatBubbleNodeMap.delete(oldestBubbleSeq);
+        if (this.chatBubbleNodeMap) {
+            while (this.chatBubbleNodeMap.size > 0) {
+                const oldestBubbleSeq = this.getOldestBubbleSeq();
+                const oldestBubbleNode = this.chatBubbleNodeMap.get(oldestBubbleSeq);
+                if (oldestBubbleNode) {
+                    oldestBubbleNode.removeFromParent();
+                    this.chatBubbleNodeMap.delete(oldestBubbleSeq);
+                }
             }
         }
     }
