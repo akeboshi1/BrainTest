@@ -26,7 +26,7 @@ export class NativeEventManager extends BaseManager {
     init() {
         if (!this.initFlag) {
             if (!this.events) this.events = {};
-            native.bridge.onNative = this.nativeEventHandle;
+            native.bridge.onNative = this.nativeEventHandle.bind(this);
             this.initFlag = true;
         }
     }
