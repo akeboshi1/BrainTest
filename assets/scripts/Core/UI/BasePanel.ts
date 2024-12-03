@@ -46,7 +46,6 @@ export class BasePanel extends BaseObejct{
     }
 
     onDestroy(){
-        this.onDisable();
         this.state = PanelState.DESTROY;
     }
 
