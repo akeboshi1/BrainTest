@@ -10,4 +10,15 @@ export class ColorUtil {
         // 创建 cc.Color 对象
         return new Color(r, g, b);
     }
+
+    /**
+     * 通过rgba获取cc格式的color
+     * @param r
+     * @param g
+     * @param b
+     * @param a
+     */
+    static getCCColor(r,g,b,a=255):Color{
+       return new Color(r,g,b,a);
+    }
 }

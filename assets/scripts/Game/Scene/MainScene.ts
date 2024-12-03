@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite,ProgressBar } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab,Label,Sprite,ProgressBar,Button } from 'cc';
 import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
 import {TaskManager} from "../../Game/Task/TaskManager";
 import {EventManager} from "../../Core/Manager/Event/EventManager";
@@ -7,7 +7,9 @@ import {StringUtil} from "../../Core/Util/StringUtil";
 import {ColorUtil} from "../../Core/Util/ColorUtil";
 import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
 import {TimeUtil} from "../../Core/Util/TimeUtil";
-import {GameSocketManager} from "db://assets/scripts/Game/Socket/GameCenterManager";
+import {GameCenterManager} from "db://assets/scripts/Game/Socket/GameCenterManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('MainScene')
@@ -18,30 +20,13 @@ export class MainScene extends Component {
     @property(Node)
     parentNode: Node = null;
 
+
+    // ===================== 主界面
     /**
      * 主界面
      */
     @property(Node)
     taskNode: Node = null;
-
-    /**
-     * 任务详细界面
-     */
-    @property({ type: Node })
-    taskProgressNode: Node = null;
-
-    /**
-     * 任务提示界面
-     */
-    @property({ type: Node })
-    taskScrollView: Node = null;
-
-
-    @property({type:[Node]})
-    taskList:Node[] = [];
-
-    @property(Label)
-    progressLabel:Label = null;
 
     @property(Label)
     timeLabel:Label = null;
@@ -55,8 +40,52 @@ export class MainScene extends Component {
     @property(Label)
     taskDesLabel:Label = null;
 
+    // ====================== 任务详情页
+    /**
+     * 任务详细界面
+     */
+    @property({ type: Node })
+    taskProgressNode: Node = null;
+
     @property(ProgressBar)
     progressBar:ProgressBar = null;
+
+    @property(Label)
+    progressLabel:Label = null;
+
+    @property(Button)
+    taskTab:Button = null;
+
+    @property(Button)
+    infoTab:Button = null;
+
+    @property(Node)
+    progressContent:Node = null;
+
+    @property(Node)
+    progressTaskNode:Node = null;
+
+    @property(Node)
+    progressInfoNode:Node = null;
+
+
+    // ====================== 任务提示界面
+    /**
+     * 任务提示界面
+     */
+    @property({ type: Node })
+    taskScrollView: Node = null;
+
+    @property({type:[Node]})
+    taskList:Node[] = [];
+
+
+    // ====================== 脑力保健
+    @property(Node)
+    gameCenterNode:Node = null;
+
+    @property({type:[Node]})
+    gameList:Node[]=[];
 
 
     /**
@@ -70,6 +99,7 @@ export class MainScene extends Component {
     private expireColor="#686E72";
 
     private chatPanel:Node = null;
+    private tmpGameNames:string[]=['翻牌','捕鱼','拼图']
     onLoad(){
 
     }
@@ -108,6 +138,7 @@ export class MainScene extends Component {
     }
 
     backToTaskView(){
+        this.gameCenterNode.active = false;
         this.taskProgressNode.active = false;
         this.taskScrollView.active = false;
         this.switchTaskNode(true);
@@ -167,14 +198,46 @@ export class MainScene extends Component {
         this.progressLabel.string = "";
         this.taskProgressNode.active = true;
         this.taskScrollView.active = false;
+        this.tabClick(null,0);
         this.switchTaskNode(false);
         this._curPanel = this.taskProgressNode;
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack,this.taskListRequestCallBack,this);
         TaskManager.getInstance().start();
     }
 
+    tabClick(event,index:number){
+        switch (Number(index)){
+            case 0:
+                this.taskTab.normalColor = ColorUtil.getCCColor(245,80,80);
+                this.infoTab.normalColor = ColorUtil.getCCColor(255,255,255);
+                break;
+            case 1:
+                this.infoTab.normalColor = ColorUtil.getCCColor(245,80,80);
+                this.taskTab.normalColor = ColorUtil.getCCColor(255,255,255);
+                break;
+        }
+        this.progressTaskNode.active = !Number(index);
+        this.progressInfoNode.active = Boolean(Number(index));
+    }
+
+
     showGameCenter(){
-        GameSocketManager.getInstance().enterGameCenter();
+        let len = this.gameList.length;
+        for(let i=0;i<len;i++){
+            let gameItem = this.gameList[i];
+            if(this.tmpGameNames[i]==null){
+                gameItem.active = false;
+                continue;
+            }
+            gameItem.active = true;
+            let label = gameItem.getChildByName("Label").getComponent(Label);
+            label.string = this.tmpGameNames[i];
+        }
+        this.gameCenterNode.active = true;
+        this.taskProgressNode.active = false;
+        this.taskScrollView.active = false;
+        this.switchTaskNode(false);
+        this._curPanel = this.gameCenterNode;
     }
 
     showUserCenter(){
@@ -253,6 +316,36 @@ export class MainScene extends Component {
             return;
         }
         TaskManager.getInstance().requestStartTask(taskData.id);
+    }
+
+
+    gameItemClick(event,data){
+        let index = Number(data);
+        GameCenterManager.getInstance().startGame(index+1,(data)=>{
+            if(data.status  == 0){
+                DebugLog.instance.error(data.message);
+                return;
+            }
+            GameCenterManager.getInstance().enterGameCenter();
+            DebugLog.instance.log(data);
+            let gameid = data.data.game_id;
+            let sceneName = "";
+            switch (gameid){
+                case 1:
+                    sceneName = "fanpai";
+                    break;
+                case 2:
+                    sceneName = "puzzle";
+                    break;
+                case 3:
+                    sceneName = "catchFish";
+                    break;
+            }
+            let url = Global.RES_Root +sceneName;
+            SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
+                DebugLog.instance.log(`${sceneName} 场景切换成功`);
+            });
+        })
     }
 }
 

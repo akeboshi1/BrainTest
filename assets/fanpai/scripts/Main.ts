@@ -5,6 +5,7 @@ import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
+import {GameCenterManager} from "db://assets/scripts/Game/Socket/GameCenterManager";
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -76,6 +77,10 @@ export class Main extends Component {
 
 
     start() {
+
+        // test
+        GameCenterManager.getInstance().startGame(1);
+
         if(Global.isSkewersGame){
             this.hardIndex = Global.userData.curSkewerGameData.difficulty;
             this.timer = Global.userData.curSkewerGameData.timeLimit;
