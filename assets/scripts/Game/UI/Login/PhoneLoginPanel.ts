@@ -30,11 +30,11 @@ export class PhoneLoginPanel extends BasePanel{
      }
 
      start() {
-         this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END,this.checkBoxHandler,this);
+         if(this.phoneNumberEdit.node)this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END,this.checkBoxHandler,this);
      }
 
      onDisable() {
-         this.phoneNumberEdit.node.off(Node.EventType.TOUCH_END,this.checkBoxHandler);
+         if(this.phoneNumberEdit.node)this.phoneNumberEdit.node.off(Node.EventType.TOUCH_END,this.checkBoxHandler);
      }
 
     private checkBoxHandler(evt:Event) {
