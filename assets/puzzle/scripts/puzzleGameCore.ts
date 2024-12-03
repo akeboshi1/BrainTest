@@ -4,7 +4,7 @@ import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import {Global} from "../../scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
-import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import {GameCenterManager} from "../../scripts/Game/Socket/GameCenterManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleGameCore')
@@ -24,10 +24,10 @@ export class puzzleGameCore extends Component {
     private draggableNode: Node;
 
     @property(Number)
-    private chipGap: Number = 1;
+    private chipGap: number = 1;
 
     @property(Number)
-    private gameLength: Number = 180;
+    private gameLength: number = 180;
 
     @property(Sprite)
     private previewSprite: Sprite;
@@ -376,9 +376,16 @@ export class puzzleGameCore extends Component {
         this.summaryAlert.fadeIn();
     }
 
+    private gamepasslevelCallback(){
+
+    }
+
     processGameSuccess()
     {
         DebugLog.instance.log("成功");
+        // 通小关后发送消息
+        let curGame = GameCenterManager.getInstance().currentGame;
+        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
         this.timerComponent.resumeTimer();
 
         this.summaryAlert.node.active = true;

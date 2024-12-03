@@ -7,6 +7,7 @@ import {StringUtil} from "../../Core/Util/StringUtil";
 import {ColorUtil} from "../../Core/Util/ColorUtil";
 import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
 import {TimeUtil} from "../../Core/Util/TimeUtil";
+import {GameSocketManager} from "db://assets/scripts/Game/Socket/GameCenterManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('MainScene')
@@ -17,20 +18,30 @@ export class MainScene extends Component {
     @property(Node)
     parentNode: Node = null;
 
+    /**
+     * 主界面
+     */
     @property(Node)
     taskNode: Node = null;
+
+    /**
+     * 任务详细界面
+     */
+    @property({ type: Node })
+    taskProgressNode: Node = null;
+
+    /**
+     * 任务提示界面
+     */
+    @property({ type: Node })
+    taskScrollView: Node = null;
+
 
     @property({type:[Node]})
     taskList:Node[] = [];
 
     @property(Label)
     progressLabel:Label = null;
-
-    @property({ type: Node })
-    taskProgressNode: Node = null;
-
-    @property({ type: Node })
-    taskScrollView: Node = null;
 
     @property(Label)
     timeLabel:Label = null;
@@ -163,7 +174,7 @@ export class MainScene extends Component {
     }
 
     showGameCenter(){
-
+        GameSocketManager.getInstance().enterGameCenter();
     }
 
     showUserCenter(){
