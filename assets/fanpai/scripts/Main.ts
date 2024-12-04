@@ -6,6 +6,8 @@ import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { GameCenterManager } from "db://assets/scripts/Game/Socket/GameCenterManager";
+import { SocketManager } from '../../scripts/Core/Manager/Net/SocketManager';
+import { SocketData } from '../../scripts/Core/Manager/Net/SocketData';
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -14,6 +16,8 @@ function getRandomNumber(min: number, max: number) {
 
 @ccclass('Main')
 export class Main extends Component {
+
+    MATCH_ITEM = "game.match_item"
 
     @property(Node)
     successView: Node;
@@ -166,6 +170,12 @@ export class Main extends Component {
 
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
+            SocketManager.getInstance().send(new SocketData({
+                action: this.MATCH_ITEM,
+                data: {
+                    session_id: GameCenterManager.getInstance().currentGame.sessionid,
+                }
+            }));
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
             if (isDeletedCardCount == this.cardTotalCount) {
                 this.currentCustomsSuccess();
@@ -212,44 +222,16 @@ export class Main extends Component {
                 }
             }
         }
-        this.hardIndex++;
-        this.curHard = this.hards[this.hardIndex];
+        // this.hardIndex++;
+        // this.curHard = this.hards[this.hardIndex];
     }
     startGame() {
         this.isAbleClick = true;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
-
-        // if (this.curHard == this.hards[0]) {
         this.gameStartInit();
-        // }
-        // else if (this.curHard == this.hards[1]) {
-        //     if (this.cardTotalCount == this.calculCardTotalCount(0)) {
-        //         this.nextCustoms();
-        //         this.successView.children[0].active = false;
-        //     } else {
-        //         this.gameStartInit();
-        //     }
-        // }
-        // else if (this.curHard == this.hards[2]) {
-        //     if (this.cardTotalCount == this.calculCardTotalCount(1)) {
-        //         this.nextCustoms();
-        //         this.successView.children[0].active = false;
-        //         this.successView.children[1].active = false;
-        //     } else {
-        //         this.gameStartInit();
-        //     }
-        // }
+
     }
-    // nextCustoms() {
-    //     // 所有卡片设置为背板
-
-
-    //     this.buttonLableText.string = '开始游戏';
-    //     this.successView.children[6].active = false;
-    //     this.successView.children[7].active = true;
-    // }
-
     playNextCustoms() {
         // let curGame = GameCenterManager.getInstance().currentGame;
         //     GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
@@ -263,15 +245,30 @@ export class Main extends Component {
             }
             return;
         }
-        this.closeAllCard();
-        this.initCardView();
+        const curGame = GameCenterManager.getInstance().currentGame;
+        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,this.calculCardTotalCount(this.hardIndex) / 2,this.hards[this.hardIndex],1,this.INIT_TIME - this.timer,this.INIT_TIME,curGame.difficulty, () => {});
+
         // this.failView.active = false;
-        if (this.hardIndex >= this.hards.length) {
+        if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
+            this.successNextButton.node.active = false;
+            this.successStartButton.node.active = true;
+            this.successView.children[0].active = false;
+            this.successView.children[1].active = false;
+        } else {
+            this.hardIndex++;
         }
+        this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
+        this.initCardView();
+
         // this.nextCustoms();
-        this.gameStartInit()
+        this.gameStartInit();
+        this.closeFailView();
+    }
+
+    closeFailView() {
+        this.failView.active = false;
     }
 
 
@@ -405,11 +402,13 @@ export class Main extends Component {
 
     // 定时器
     timerId: any;
-    timer: number = 90;
+    timer: number;
+
+    INIT_TIME = 90;
 
     timerInit() {
         // this.timer = Global.userData.curSkewerGameData.timeLimit;
-
+        this.timer = this.INIT_TIME;
         this.Timer.string = TimeUtil.formatTime(this.timer);
     }
 
