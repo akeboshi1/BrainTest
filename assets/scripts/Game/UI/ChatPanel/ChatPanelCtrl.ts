@@ -51,7 +51,7 @@ export class ChatPanelCtrl extends Component {
     private speakerTitle: string[] = ["可乐派：", "你："];
 
     private lastEventTime: number = 0; // 记录最后一次收到事件回调的时间
-    private timerInterval: number = 5; // 设定的时间间隔，单位为秒，这里设置为180秒，可以根据需求调整
+    private timerInterval: number = 30; // 设定的时间间隔，单位为秒，这里设置为180秒，可以根据需求调整
 
     start() {
 
@@ -202,11 +202,15 @@ export class ChatPanelCtrl extends Component {
 
         if (state == ChatState.OpponentSpeaking) {
             //this.frameComponent.playAnimation("speaking", 24);
+            this.vp_idle.stop();
             this.vp_speak.play();
+            this.vp_speak.loop = true;
         }
-        else if (state != ChatState.Mute) {
+        else if (state != ChatState.Sleeping) {
             //this.frameComponent.playAnimation("idle", 24);
+            this.vp_speak.stop();
             this.vp_idle.play();
+            this.vp_speak.loop = true;
         }
     }
 
