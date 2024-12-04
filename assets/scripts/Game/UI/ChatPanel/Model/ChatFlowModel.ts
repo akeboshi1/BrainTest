@@ -29,11 +29,16 @@ export class ChatFlowModel extends BaseManager {
 
     public static WaittingEvent: string = "ChatFlowMode.WaittingEvent";
     public static WaittingEventStrings: any = {
+        // normal: "正在加载",
+        // ttsConnect: "链接tts中",
+        // ttsClose: "关闭tts中",
+        // asrConnect: "链接asr中",
+        // asrClose: "关闭asr中",
         normal: "正在加载",
-        ttsConnect: "链接tts中",
-        ttsClose: "关闭tts中",
-        asrConnect: "链接asr中",
-        asrClose: "关闭asr中",
+        ttsConnect: "正在加载",
+        ttsClose: "",
+        asrConnect: "正在加载",
+        asrClose: "",
     }
 
     private textCache: string = "";
@@ -53,7 +58,7 @@ export class ChatFlowModel extends BaseManager {
 
     private ttsOpenState: boolean = false;
     private ttsInConnectFlow: boolean = false;
-    private ttsPostUid: number = 0;
+    private ttsPostUid: number = -1;
     private ttsLastPostUid: number = 0;
 
     private asrOpenState: boolean = false;
@@ -107,6 +112,10 @@ export class ChatFlowModel extends BaseManager {
 
                 if (event.data && event.data.type === "TTSEnd") {
                     this.onTTSEndHandle(event.data);
+                }
+
+                if (event.data && event.data.type === "TTSStart") {
+                    this.onTTSStartHandle(event.data);
                 }
             });
         }
@@ -165,7 +174,14 @@ export class ChatFlowModel extends BaseManager {
         if (data.uid == this.ttsLastPostUid) {
             DebugLog.instance.log("TTSEnd _last event");
             EventManager.getInstance().emit(ChatFlowModel.TTSFlowCompleteEvent, {});
+
+            this.endChatRequestFlow();
         }
+    }
+
+    private onTTSStartHandle(data: any) {
+        DebugLog.instance.log("TTSStart " + data);
+        EventManager.getInstance().emit(ChatFlowModel.TTSFlowStartEvent, { ttsUid: data.uid });
     }
 
     // 发起greeting请求的方法，这里简单示意，实际可能涉及具体的网络请求库调用等
@@ -191,11 +207,14 @@ export class ChatFlowModel extends BaseManager {
     private handleMessageChunk(chunk: any, context: ChatFlowModel): void {
         const self = context;
         const data = chunk.data;
+        if (!data) {
+            DebugLog.instance.warn("handleMessageChunk get empty data !!!");
+            return;
+        }
         const seq = data.seq;
         const content_type = data.content_type;
         const content = data.content;
         const finish_reason = data.finish_reason;
-        //DebugLog.instance.log(`handleMessageChunk: ${content}`);
         // 校验序号是否连续
         if (seq !== self.seq) {
             if (self.waitingForSeq === null) {
@@ -221,6 +240,8 @@ export class ChatFlowModel extends BaseManager {
 
         if (!content_type || content_type == "text") {
             self.textCache += content;
+        } else if (content_type == "status") {
+            EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: content });
         }
 
         let textCache: string = self.textCache;
@@ -230,22 +251,20 @@ export class ChatFlowModel extends BaseManager {
 
         while (currentIndex < textCache.length) {
             // 定义标点符号集合，你可以根据实际需求增加更多标点符号
-            const punctuationMarks: string[] = [',', '.', ';', '!', '?', '，', '。', '；', '！', '？',];
+            const punctuationMarks: string[] = ['.', ';', '!', '?', '。', '；', '！', '？',];
             if (punctuationMarks.indexOf(textCache[currentIndex]) >= 0) {
                 // 截取从开始位置到当前标点符号位置（包含标点符号）的字符串
                 let subString: string = textCache.substring(startIndex, currentIndex + 1);
                 startIndex = currentIndex + 1;
 
+                self.ttsLastPostUid = self.ttsPostUid;
                 self.sendToView(subString, 0);
-
+                self.callTts(subString);
                 self.ttsPostUid++;
 
-                self.ttsLastPostUid = self.ttsPostUid;
-
-                self.callTts(subString);
             }
             currentIndex++;
-            // 处理最后一个字符的情况，避免遗漏
+
             if (currentIndex === textCache.length) {
                 self.textCache = textCache.substring(startIndex);
             }
@@ -253,10 +272,18 @@ export class ChatFlowModel extends BaseManager {
 
         // 如果是最后一个数据包，等待TTS接口的finish消息
         if (finish_reason === 'stop') {
+            //清空缓存文本
+            if (self.textCache.length > 0) {
+                self.ttsLastPostUid = self.ttsPostUid;
+                self.sendToView(self.textCache, 0);
+                self.callTts(self.textCache);
+                self.textCache = "";
+            }
+
             if (self.resolveFn) {
                 self.resolveFn();
             }
-            self.endChatRequestFlow();
+            //self.endChatRequestFlow();
         }
     }
 
@@ -266,20 +293,18 @@ export class ChatFlowModel extends BaseManager {
         this.inChatRequestFlow = false;
         this.currentSpeechSeq++;
         this.currentSpeaker = 0;
-        this.ttsPostUid = 0;
+        this.ttsPostUid = -1;
+        this.ttsLastPostUid = 0;
     }
 
     private sendToView(text: string, speaker: 0 | 1): void {
         DebugLog.instance.log(`Send to view: ${text}`);
-        EventManager.getInstance().emit(ChatFlowModel.ChatMessageEvent, { speaker: speaker, message: text, seq: this.currentSpeechSeq });
+        EventManager.getInstance().emit(ChatFlowModel.ChatMessageEvent, { speaker: speaker, message: text, seq: this.currentSpeechSeq, ttsUid: this.ttsPostUid });
     }
 
     private callTts(text: string): void {
         if (this.ttsOpenState) {
             this.onPostTTS(text, this.ttsPostUid);
-            if (this.ttsPostUid == 1) {
-                EventManager.getInstance().emit(ChatFlowModel.TTSFlowStartEvent, {});
-            }
         }
         else {
             this.tts_post_cacheData.set(this.ttsPostUid, text);
@@ -289,7 +314,6 @@ export class ChatFlowModel extends BaseManager {
                         this.onPostTTS(value, key);
                     }
                     this.tts_post_cacheData.clear();
-                    EventManager.getInstance().emit(ChatFlowModel.TTSFlowStartEvent, {});
                 });
             }
         }
@@ -320,7 +344,6 @@ export class ChatFlowModel extends BaseManager {
     }
 
     onCloseASR() {
-        if (!this.asrOpenState) return;
         if (sys.platform.toUpperCase().endsWith("BROWSER")) {
             var webViewNode = director.getScene().getChildByName("webview");
             let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
@@ -330,6 +353,7 @@ export class ChatFlowModel extends BaseManager {
 
         if (sys.platform === 'ANDROID') {
             DebugLog.instance.log('android asr close');
+            this.asrOpenState = false;
             native.bridge.sendToNative('ASR', 'close');
         }
     }
@@ -367,8 +391,6 @@ export class ChatFlowModel extends BaseManager {
     }
 
     onCloseTTS() {
-        if (!this.ttsOpenState) return;
-
         if (sys.platform.toUpperCase().endsWith("BROWSER")) {
             var webViewNode = director.getScene().getChildByName("webview");
             let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);

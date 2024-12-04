@@ -31,13 +31,19 @@
       },
       {
         "__id__": 26
+      },
+      {
+        "__id__": 31
+      },
+      {
+        "__id__": 36
       }
     ],
     "_exoticAnimation": null,
     "_events": [],
     "_embeddedPlayers": [],
     "_additiveSettings": {
-      "__id__": 31
+      "__id__": 41
     },
     "_auxiliaryCurveEntries": []
   },
@@ -106,7 +112,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "stateIconNode/iconsp"
+    "path": "tipsLabel"
   },
   {
     "__type__": "cc.animation.Channel",
@@ -147,7 +153,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "Mask/blackMask"
+    "path": "stateIconNode"
   },
   {
     "__type__": "cc.animation.Channel",
@@ -161,7 +167,7 @@
       0
     ],
     "_values": [
-      true
+      false
     ]
   },
   {
@@ -188,7 +194,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "tipsLabel"
+    "path": "buttonAwake"
   },
   {
     "__type__": "cc.animation.Channel",
@@ -202,7 +208,7 @@
       0
     ],
     "_values": [
-      false
+      true
     ]
   },
   {
@@ -229,7 +235,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "stateIconNode"
+    "path": "blackMask"
   },
   {
     "__type__": "cc.animation.Channel",
@@ -243,7 +249,7 @@
       0
     ],
     "_values": [
-      false
+      true
     ]
   },
   {
@@ -270,12 +276,94 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "buttonAwake"
+    "path": "vp_idle"
   },
   {
     "__type__": "cc.animation.Channel",
     "_curve": {
       "__id__": 30
+    }
+  },
+  {
+    "__type__": "cc.ObjectCurve",
+    "_times": [
+      0
+    ],
+    "_values": [
+      false
+    ]
+  },
+  {
+    "__type__": "cc.animation.ObjectTrack",
+    "_binding": {
+      "__type__": "cc.animation.TrackBinding",
+      "path": {
+        "__id__": 32
+      },
+      "proxy": null
+    },
+    "_channel": {
+      "__id__": 34
+    }
+  },
+  {
+    "__type__": "cc.animation.TrackPath",
+    "_paths": [
+      {
+        "__id__": 33
+      },
+      "active"
+    ]
+  },
+  {
+    "__type__": "cc.animation.HierarchyPath",
+    "path": "vp_speak"
+  },
+  {
+    "__type__": "cc.animation.Channel",
+    "_curve": {
+      "__id__": 35
+    }
+  },
+  {
+    "__type__": "cc.ObjectCurve",
+    "_times": [
+      0
+    ],
+    "_values": [
+      false
+    ]
+  },
+  {
+    "__type__": "cc.animation.ObjectTrack",
+    "_binding": {
+      "__type__": "cc.animation.TrackBinding",
+      "path": {
+        "__id__": 37
+      },
+      "proxy": null
+    },
+    "_channel": {
+      "__id__": 39
+    }
+  },
+  {
+    "__type__": "cc.animation.TrackPath",
+    "_paths": [
+      {
+        "__id__": 38
+      },
+      "active"
+    ]
+  },
+  {
+    "__type__": "cc.animation.HierarchyPath",
+    "path": "sp_sleep"
+  },
+  {
+    "__type__": "cc.animation.Channel",
+    "_curve": {
+      "__id__": 40
     }
   },
   {
