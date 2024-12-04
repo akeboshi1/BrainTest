@@ -65,8 +65,6 @@ export class GameCenterManager {
     }
 
 
-    
-    
 
     /**
      * 开始某个游戏
@@ -81,6 +79,7 @@ export class GameCenterManager {
 
 
     private startGameCallBack(data,context){
+        DebugLog.instance.log("startGameCallBack",data);
         let status = data.status;
         if(status == 0){
             DebugLog.instance.error(data.message);

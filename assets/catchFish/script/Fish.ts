@@ -85,6 +85,8 @@ export class Fish {
     }
 
     destroy():void{
-
+       if(this._fish){
+           this._fish.destroy();
+       }
     }
 }
