@@ -87,6 +87,7 @@ export class ChatFlowModel extends BaseManager {
             NativeEventManager.getInstance().on(NativeEvent.TTSConnected, this.onTTSConnectedHandle, this);
             NativeEventManager.getInstance().on(NativeEvent.TTSClosed, this.onTTSClosedHandle, this);
             NativeEventManager.getInstance().on(NativeEvent.TTSEnd, this.onTTSEndHandle, this);
+            NativeEventManager.getInstance().on(NativeEvent.TTSStart, this.onTTSStartHandle, this);
         } else {
             window.addEventListener("message", (event) => {
                 if (event.data && event.data.type === "ASRResult") {
