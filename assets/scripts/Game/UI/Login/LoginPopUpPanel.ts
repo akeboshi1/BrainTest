@@ -117,7 +117,7 @@ export class LoginPopUpPanel extends BasePanel{
 
     public switchView(isPhoneView:boolean=false){
        this.XieyiView.active= !isPhoneView;
-       this.PhoneView.active = isPhoneView;
+       this.PhoneView.active = false;
        if(isPhoneView){
            this._initPhoneView();
        }else{
@@ -207,7 +207,6 @@ export class LoginPopUpPanel extends BasePanel{
             context.switchView(true);
             return;
         }
-
         this.phoneNumber = data['data']['mp_no'];
         this.phoneCode = data['data']['code'];
         context.updateView(true);

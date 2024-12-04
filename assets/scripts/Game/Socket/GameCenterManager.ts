@@ -28,7 +28,6 @@ export class GameCenterData{
         this.gameid = data.game_id;
         this.sessionid = data.session_id;
         this.level = data.level;
-        this.difficulty = data.difficulty;
     }
 }
 

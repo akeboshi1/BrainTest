@@ -342,7 +342,7 @@ export class MainScene extends Component {
                     break;
             }
             let url = Global.RES_Root +sceneName;
-            SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
+            SceneManager.getInstance().changeScene(url,sceneName).then((scene)=>{
                 DebugLog.instance.log(`${sceneName} 场景切换成功`);
             });
         })
