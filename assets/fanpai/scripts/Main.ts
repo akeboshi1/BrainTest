@@ -17,7 +17,7 @@ function getRandomNumber(min: number, max: number) {
 @ccclass('Main')
 export class Main extends Component {
 
-    MATCH_ITEM = "game.match_item"
+    // MATCH_ITEM = "game.match_item"
 
     @property(Node)
     successView: Node;
@@ -40,8 +40,7 @@ export class Main extends Component {
     @property(Button)
     nextButton: Button;
 
-    @property(Label)
-    successLable: Label;
+
 
     @property(Button)
     successNextButton: Button;
@@ -63,7 +62,7 @@ export class Main extends Component {
 
     private currentCard: Node;
     private buttonLableText: Label;
-    private successLableText: Label;
+
 
     private cardTheme: string;
     private cardList: { index: number, imgUrl: string, isBacked: boolean, isDeleted: boolean }[];
@@ -91,10 +90,10 @@ export class Main extends Component {
     }
     sceneInit() {
         this.successView.active = true;
+        this.updateSuccessPopupTitle(1); 
         this.successStartButton.node.active = true;
         this.successNextButton.node.active = false;
         this.successViewProgressLabel.node.active = false;
-        this.successLableText = this.successLable.getComponent(Label);
         this.initCardView();
         this.timerInit();
     }
@@ -170,8 +169,9 @@ export class Main extends Component {
 
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
+            // DebugLog.instance.log('sessionid', GameCenterManager.getInstance().currentGame.sessionid);
             SocketManager.getInstance().send(new SocketData({
-                action: this.MATCH_ITEM,
+                action: GameCenterManager.GAMEMATCHITEM,
                 data: {
                     session_id: GameCenterManager.getInstance().currentGame.sessionid,
                 }
@@ -184,23 +184,59 @@ export class Main extends Component {
 
         DebugLog.instance.log(index, this.currentCard);
     }
-    currentCustomsSuccess(){
+    updateSuccessPopupTitle(num) {
+        if (num == 1) {
+            this.successView.getChildByName('top_Title1').active = true;
+            this.successView.getChildByName('top_Title2').active = false;
+        }
+        if (num == 2) {
+            this.successView.getChildByName('top_Title1').active = false;
+            this.successView.getChildByName('top_Title2').active = true;
+        }
+
+    }
+    updateSuccessPopupToptxt(num) {
+        if (num == 0) {
+            this.successView.getChildByName('top_txt1').active = true;
+            this.successView.getChildByName('top_txt2').active = false;
+        } else {
+            this.successView.getChildByName('top_txt1').active = false;
+            this.successView.getChildByName('top_txt2').active = true;
+            const topTxt=this.successView.getChildByName('top_txt2')
+            if (num == 1) {
+                topTxt.getChildByName('count').getComponent(Label).string = '1';
+            }
+            if (num == 2) {
+                topTxt.getChildByName('count').getComponent(Label).string = '2';
+            }
+            if(num == 3) {
+                topTxt.getChildByName('count').getComponent(Label).string = '3';
+            }
+        }
+
+    }
+    updateSuccessPopupStar(num) {
+        const lights = ['light1', 'light2', 'light3'];
+        lights.forEach((lightName, index) => {
+            this.successView.getChildByName(lightName).active = index < num;
+        });     
+    }
+    
+    currentCustomsSuccess() {
         this.isAbleClick = false
         clearInterval(this.timerId);
         this.successView.active = true;
         this.successStartButton.node.active = false;
         this.successNextButton.node.active = true;
-        
-        this.successView.children[7].active = false;
-        this.successView.children[6].active = true;
-        // this.buttonLableText.string = '下一关';
+     
         if (this.curHard == this.hards[0]) {
-            this.successView.children[0].active = true;
-            this.successLableText.string = '1'
+            this.updateSuccessPopupTitle(2);
+            this.updateSuccessPopupToptxt(this.curHard);
+            this.updateSuccessPopupStar(this.curHard);
         } else if (this.curHard == this.hards[1]) {
-            this.successView.children[0].active = true;
-            this.successView.children[1].active = true;
-            this.successLableText.string = '2'
+            this.updateSuccessPopupTitle(2);
+            this.updateSuccessPopupToptxt(this.curHard);
+            this.updateSuccessPopupStar(this.curHard);
         } else if (this.curHard == this.hards[2]) {
             // 是否是串烧游戏
             if (!Global.isSkewersGame) {
@@ -222,9 +258,10 @@ export class Main extends Component {
                 }
             }
         }
-        // this.hardIndex++;
-        // this.curHard = this.hards[this.hardIndex];
+        const curGame = GameCenterManager.getInstance().currentGame;
+        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex], this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
     }
+
     startGame() {
         this.isAbleClick = true;
         this.curHard = this.hards[this.hardIndex];
@@ -245,39 +282,31 @@ export class Main extends Component {
             }
             return;
         }
-        const curGame = GameCenterManager.getInstance().currentGame;
-        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,this.calculCardTotalCount(this.hardIndex) / 2,this.hards[this.hardIndex],1,this.INIT_TIME - this.timer,this.INIT_TIME,curGame.difficulty, () => {});
-
-        // this.failView.active = false;
+      
         if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
-            this.successNextButton.node.active = false;
-            this.successStartButton.node.active = true;
-            this.successView.children[0].active = false;
-            this.successView.children[1].active = false;
+            this.bigWin.active = false;
+            this.successView.active = true;
+            this.updateSuccessPopupTitle(1);
+            this.updateSuccessPopupToptxt(0);
+            this.updateSuccessPopupStar(this.curHard);
         } else {
             this.hardIndex++;
         }
         this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
         this.initCardView();
-
-        // this.nextCustoms();
         this.gameStartInit();
         this.closeFailView();
     }
-
     closeFailView() {
         this.failView.active = false;
     }
-
-
     private calculCardTotalCount(index: number): number {
         return (index + 2) * 4;
     }
 
     gameStartInit() {
-        DebugLog.instance.log("游戏开始");
         this.successView.active = false;
         // this.bigWin.active = false;
         // this.failView.active = false;
@@ -329,7 +358,7 @@ export class Main extends Component {
                 }
             }
         }
-        DebugLog.instance.log('this.cardList', this.cardList);
+        // DebugLog.instance.log('this.cardList', this.cardList);
         // 所有卡片设置为背板
         this.closeAllCard();
     }
@@ -407,7 +436,6 @@ export class Main extends Component {
     INIT_TIME = 90;
 
     timerInit() {
-        // this.timer = Global.userData.curSkewerGameData.timeLimit;
         this.timer = this.INIT_TIME;
         this.Timer.string = TimeUtil.formatTime(this.timer);
     }
@@ -447,21 +475,7 @@ export class Main extends Component {
         this.Timer.string = `0${fenzhong}:${second}`
     }
 
-    getAward() {
-        this.bigWin.active = false;
-        this.successView.children[6].active = false;
-        this.successView.children[7].active = true;
-        this.hardIndex = 0;
-        this.curHard = this.hards[this.hardIndex];
-        this.closeAllCard();
-        let subarray = this.cardPool.children[0].children.slice(8, 16);
-        subarray.forEach(item => {
-            item.active = false;
-        });
-        this.cardTotalCount = this.calculCardTotalCount(0);
-        this.cardList = [];
-        this.sceneInit();
-    }
+
     reCurrentCustoms() {
         this.failView.active = false;
         this.startGame();
@@ -473,7 +487,7 @@ export class Main extends Component {
      */
     private initCardView() {
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
-        DebugLog.instance.log('this.cardTotalCount', this.cardTotalCount)
+        // DebugLog.instance.log('this.cardTotalCount', this.cardTotalCount)
 
         const maxLen = this.cardPool.children[0].children.length;
         for (let i = 0; i < maxLen; i++) {

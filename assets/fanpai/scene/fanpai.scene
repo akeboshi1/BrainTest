@@ -88,7 +88,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960.0000000000002,
+      "y": 960,
       "z": 0
     },
     "_lrot": {
@@ -173,7 +173,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960.0000000000001,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -5480,7 +5480,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "9",
+    "_string": "0",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 50,
@@ -7587,7 +7587,7 @@
     },
     "component": "",
     "_componentId": "6b496Ktz2tIWIM7bSl8+ETS",
-    "handler": "getAward",
+    "handler": "playNextCustoms",
     "customEventData": ""
   },
   {
@@ -7992,9 +7992,6 @@
     "nextButton": {
       "__id__": 128
     },
-    "successLable": {
-      "__id__": 148
-    },
     "successNextButton": {
       "__id__": 137
     },
@@ -8028,7 +8025,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

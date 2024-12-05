@@ -50,7 +50,7 @@ export class GameCenterManager {
 
     private _callbackDic:Map<string,GameSocketData> =new Map();
 
-    private _curGame:GameCenterData
+    private _curGame:GameCenterData;
 
     public enterGameCenter(){
         Global.isSkewersGame = false;
@@ -176,9 +176,12 @@ export class GameCenterManager {
             DebugLog.instance.error(data.message);
             return;
         }
-        this._curGame = null;
+        this._curGame.sessionid = data.data.session_id;
+        this._curGame.level = data.data.level;
+        this._curGame.difficulty = data.data.difficulty;
         EventManager.getInstance().off(GameCenterManager.GAMEPASSLEVEL,context);
         let gsData = this._callbackDic.get(GameCenterManager.GAMEPASSLEVEL);
+        DebugLog.instance.log("gamePassLevelData",data);
         if(gsData && gsData.callback){
             gsData.socketData.data = data.data
             gsData.callback(data);
