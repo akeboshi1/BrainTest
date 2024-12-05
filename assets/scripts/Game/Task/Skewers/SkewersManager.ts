@@ -126,11 +126,17 @@ export class SkewersManager{
     //  }
 
      public getGameCount():number{
-         return this._gameDatas.length;
+         let curgameData = this.getUnCompleteGameData();
+         if(curgameData == null)return 0 ;
+         return curgameData.trains.length;
      }
 
      public getCurGameIndex():number{
-         return this._curIndex;
+         let curgameData = this.getUnCompleteGameData();
+         if(curgameData == null) return -1 ;
+         let trainData = curgameData.getCurTrainData();
+         if(trainData == null) return -1;
+         return trainData.seq;
      }
 
     /**
@@ -205,6 +211,7 @@ export class SkewersManager{
          if(!game){
              this._curIndex = -1;
              DebugLog.instance.error("当前脑力训练已经全部完成！");
+             SceneManager.getInstance().backToHall();
              return;
          }
          this._curIndex = index;
