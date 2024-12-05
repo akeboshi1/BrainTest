@@ -9,7 +9,7 @@ import { questions0, questions1, questions2 } from './questionsDate'
 
 
 const SHOOT_INTERVAL = 5;
-let questions = questions0;
+let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends Component {
     @property(Node)
@@ -78,6 +78,8 @@ export class catchfish extends Component {
         this.curHard = this.hards[this.hardIndex];
         this.gameBeforeView.active = false;
         this.gameStartView.active = true;
+        this.wangCount = 0;
+        this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
         this.timeInit();
         this.timeStart();
         this.createFish();
@@ -112,7 +114,9 @@ export class catchfish extends Component {
 
         fish.setSpriteFrame(spriteFrame);
 
-        const question = questions[Math.floor(Math.random() * questions.length)];
+        const currentQuestions = questions[this.hardIndex];
+
+        const question = currentQuestions[Math.floor(Math.random() * currentQuestions.length)];
 
         fish.setQuestion(question);
         EventManager.getInstance().off(Fish.FishClick, this);
@@ -298,7 +302,12 @@ export class catchfish extends Component {
         this.clearGameView();
         this.stars[this.hardIndex].getChildByName('star1').active = true;
         this.stars[this.hardIndex].scale = new Vec3(2, 2, 2);
-        this.hardIndex++;
+        if (this.hardIndex == this.hards.length - 1) {
+            this.hardIndex = 0;
+        } else {
+            this.hardIndex++;
+        }
+        
         for (let i = this.hardIndex; i < this.hards.length; i++) {
             DebugLog.instance.log('this.hards[i]')
             this.stars[i].getChildByName('star1').active = false;
@@ -323,7 +332,8 @@ export class catchfish extends Component {
                         fish.curTween = null;
     
                     }
-                    fish.destroy();
+                    this.fishParentNode.removeChild(fish.getFishNode());
+                    fish = null;
                 }
             }
             this.fishs = [];
@@ -356,7 +366,7 @@ export class catchfish extends Component {
     }
     private nextGame() {
         this.gameSuccessView.active = false;
-
+        this.startGame(); // 开始下一关
     }
 }
 
