@@ -496,6 +496,12 @@ export class Main extends Component {
     }
     private quitGame() {
         console.log("返回大厅")
+        SocketManager.getInstance().send(new SocketData({
+            action: GameCenterManager.GAMEMATCHITEM,
+            data: {
+                session_id: GameCenterManager.getInstance().currentGame.sessionid,
+            }
+        }));
         SceneManager.getInstance().backToHall();
     }
 

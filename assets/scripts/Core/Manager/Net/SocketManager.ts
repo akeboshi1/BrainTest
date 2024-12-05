@@ -15,13 +15,14 @@ export class SocketManager extends BaseManager{
     public static getInstance():SocketManager {
         if(!SocketManager._instance) {
             SocketManager._instance = new SocketManager();
+            SocketManager._instance.init();
         }
-        SocketManager._instance.init();
+    
         return SocketManager._instance;
     }
 
     init(){
-        this._socketDatas = new Map();
+       this._socketDatas = new Map();
     }
 
     update(){
