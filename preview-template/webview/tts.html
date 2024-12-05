@@ -26,14 +26,15 @@
       const arrayBuffer = await event.data.arrayBuffer(); // 将接收到的Blob数据转换为ArrayBuffer
       // console.log(arrayBuffer)
 
-      const prefix = Array.from(new Int8Array(arrayBuffer.slice(0, 21))) // 转为普通数组
+      const prefix = Array.from(new Int8Array(arrayBuffer.slice(0, 26))) // 转为普通数组
         .map(ascii => String.fromCharCode(ascii)) // 转换每个 ASCII 值为字符
         .join(''); // 拼接成字符串
 
       const uid = prefix.slice(0, 20);
       const isLast = prefix.slice(20, 21) === '1';
+      const seq = parseInt(prefix.slice(21, 26));
 
-      audioQueue.push([uid, isLast, arrayBuffer.slice(10)]);
+      audioQueue.push([uid, isLast, seq, arrayBuffer.slice(10)]);
       idx++
       if (!playing) {
         playNextInQueue();
@@ -94,7 +95,10 @@
     const arrayData = audioQueue.shift();
     const uid = arrayData[0].trim();
     const isLast = arrayData[1];
-    const arrayBuffer = arrayData[2];
+    const seq = arrayData[2];
+    const arrayBuffer = arrayData[3];
+
+    const targetOrigin = `http://${location.host}/tts.html`;
     try {
       idx--
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
@@ -106,10 +110,20 @@
 
       source.start();
 
+      if (seq === 1) {
+        window.parent.postMessage({
+          type: 'TTSStart',
+          uid: uid,
+        }, targetOrigin);
+        console.log('播放结束', {
+          type: 'TTSStart',
+          uid: uid,
+        }, targetOrigin)
+      }
+
       source.onended = () => {
         playNextInQueue(); // Play the next audio in the queue
         if (isLast) {
-          const targetOrigin = `http://${location.host}/tts.html`;
           window.parent.postMessage({
             type: 'TTSEnd',
             uid: uid,

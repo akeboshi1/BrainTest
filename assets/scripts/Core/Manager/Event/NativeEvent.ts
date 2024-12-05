@@ -6,4 +6,5 @@ export enum NativeEvent {
     TTSConnected = 'TTSConnected',
     TTSClosed = 'TTSClosed',
     TTSEnd = 'TTSEnd',
+    TTSStart = 'TTSStart',
 }

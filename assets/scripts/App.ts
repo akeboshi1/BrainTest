@@ -1,4 +1,4 @@
-import { _decorator, find,Camera,resources,Node,director,TextAsset,WebView } from 'cc';
+import { _decorator, find,Camera,resources,Node,director,TextAsset,WebView, sys } from 'cc';
 import {EventManager} from "./Core/Manager/Event/EventManager";
 import {SocketManager} from "./Core/Manager/Net/SocketManager";
 import {UIManager} from "./Core/Manager/UI/UIManager";
@@ -69,6 +69,10 @@ export class App extends BaseObejct {
         Global.userData = new UserData();
 
 
+        console.log('sys.os = ', sys.os);
+        console.log('sys.platform=', sys.platform);
+
+        this.isWebView = sys.platform != 'ANDROID';
 
         if(this.isWebView){
             this.webView.active = true;

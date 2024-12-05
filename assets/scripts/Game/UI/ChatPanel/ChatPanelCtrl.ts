@@ -1,4 +1,4 @@
-import { _decorator, Animation, AnimationClip, Component, instantiate, Label, Node, Prefab, UITransform, WebView } from 'cc';
+import { _decorator, Animation, AnimationClip, Component, instantiate, Label, Node, Prefab, UITransform, VideoPlayer, WebView } from 'cc';
 import { ChatFlowModel } from './Model/ChatFlowModel';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { DebugLog } from '../../../Core/Util/DebugLog';
@@ -11,9 +11,9 @@ enum ChatState {
     Empty = "empty",
     Loading = "loadingState",
     ReceivingSpeech = "reciveingSpeeshState",
-    CanReceiveSpeech = "reciveingSpeeshState_waitting",
     OpponentSpeaking = "opponentSpeakingState",
-    Sleeping = "asrSleeping"
+    Sleeping = "asrSleeping",
+    Mute = "muteState"
 }
 
 @ccclass('ChatPanelCtrl')
@@ -33,16 +33,22 @@ export class ChatPanelCtrl extends Component {
     @property({ type: Label })
     private waittingLabel: Label = null;
 
-    @property([Prefab])
-    private chatBubblePrefab: Prefab[] = [];
-
-    @property({ type: Node })
-    private chatBubbleParentNode: Node = null;
-
     @property({ type: FrameComponent })
     private frameComponent: FrameComponent = null;
 
-    private chatBubbleNodeMap: Map<string, Node> = null;
+    @property({ type: VideoPlayer })
+    private vp_idle: VideoPlayer = null;
+
+    @property({ type: VideoPlayer })
+    private vp_speak: VideoPlayer = null;
+
+    @property({ type: Label })
+    private subtitlesLabel: Label = null;
+
+    private chatMessageCachesMap: Map<number, string> = new Map();
+    private currentSpeechSeq: number = -1;
+
+    private speakerTitle: string[] = ["可乐派：", "你："];
 
     private lastEventTime: number = 0; // 记录最后一次收到事件回调的时间
     private timerInterval: number = 30; // 设定的时间间隔，单位为秒，这里设置为180秒，可以根据需求调整
@@ -69,8 +75,6 @@ export class ChatPanelCtrl extends Component {
         this.updateLastEventTime();
 
         this.clickGreeting();
-
-        //this.chatFlowModel.onOpenASR();
     }
 
     protected onDisable(): void {
@@ -88,16 +92,7 @@ export class ChatPanelCtrl extends Component {
     }
 
     private resetPanel() {
-        if (this.chatBubbleNodeMap) {
-            while (this.chatBubbleNodeMap.size > 0) {
-                const oldestBubbleSeq = this.getOldestBubbleSeq();
-                const oldestBubbleNode = this.chatBubbleNodeMap.get(oldestBubbleSeq);
-                if (oldestBubbleNode) {
-                    oldestBubbleNode.removeFromParent();
-                    this.chatBubbleNodeMap.delete(oldestBubbleSeq);
-                }
-            }
-        }
+        this.hideSubtitle();
     }
 
     enterState(state: ChatState) {
@@ -122,14 +117,10 @@ export class ChatPanelCtrl extends Component {
 
     public clickInterruptButton() {
         DebugLog.instance.log("clickInterruptButton");
+        if (this.chatState == ChatState.Loading) return;
+
         this.chatFlowModel.onCloseTTS();
         this.enterUserSpeakState();
-
-        let lastEntry;
-        for (const value of this.chatBubbleNodeMap.values()) {
-            lastEntry = value;
-        }
-        lastEntry.getComponent(ChatBubbleCtrl).stopTyping();
     }
 
     public clickAwakeFromSleeping() {
@@ -139,8 +130,25 @@ export class ChatPanelCtrl extends Component {
     }
 
     public clickBackButton() {
-        this.fadeOut();
+        if (this.chatState == ChatState.Loading) return;
+
+        //this.fadeOut();
+        this.node.active = false;
         EventManager.getInstance().emit(ChatPanelCtrl.ChatPanelCloseEvent, {});
+    }
+
+    public clickMuteButton() {
+        if (this.chatState == ChatState.Loading) return;
+
+        if (this.chatState != ChatState.Mute) {
+            this.chatFlowModel.onCloseASR();
+            this.chatFlowModel.onCloseTTS();
+            this.enterState(ChatState.Mute);
+        } else {
+            this.enterState(ChatState.Loading);
+            this.enterUserSpeakState();
+        }
+
     }
 
     public fadeIn() {
@@ -171,9 +179,10 @@ export class ChatPanelCtrl extends Component {
         const currentTime = Date.now() / 1000; // 获取当前时间（单位转换为秒）
         if (currentTime - this.lastEventTime >= this.timerInterval) {
             // 超过设定时间间隔，进入休眠状态
-            if (this.chatState == ChatState.CanReceiveSpeech || this.chatState == ChatState.ReceivingSpeech) {
+            if (this.chatState == ChatState.ReceivingSpeech) {
                 this.enterState(ChatState.Sleeping);
                 this.chatFlowModel.onCloseASR();
+                this.hideSubtitle();
             }
         }
 
@@ -186,16 +195,22 @@ export class ChatPanelCtrl extends Component {
     private playAnimationByState(state: ChatState) {
         let clipToPlay: AnimationClip = this.getAnimationClipByName(this.chatStateAnimNode, state);
 
-        if (state == ChatState.OpponentSpeaking) {
-            this.frameComponent.playAnimation("speaking", 24);
-        }
-        else {
-            this.frameComponent.playAnimation("idle", 24);
-        }
-
         if (clipToPlay) {
             const animationComponent = this.chatStateAnimNode.getComponent(Animation);
             animationComponent.play(clipToPlay.name);
+        }
+
+        if (state == ChatState.OpponentSpeaking) {
+            //this.frameComponent.playAnimation("speaking", 24);
+            this.vp_idle.stop();
+            this.vp_speak.play();
+            this.vp_speak.loop = true;
+        }
+        else if (state != ChatState.Sleeping) {
+            //this.frameComponent.playAnimation("idle", 24);
+            this.vp_speak.stop();
+            this.vp_idle.play();
+            this.vp_speak.loop = true;
         }
     }
 
@@ -209,18 +224,35 @@ export class ChatPanelCtrl extends Component {
     }
 
     private onTTSFlowCompleted(data: any, context: ChatPanelCtrl) {
-        context.enterUserSpeakState();
-        context.updateLastEventTime();
+        this.enterUserSpeakState();
+        this.updateLastEventTime();
     }
 
     private onTTSFlowStart(data: any, context: ChatPanelCtrl) {
+        if (this.chatState == ChatState.Mute) {
+            return;
+        }
+
         if (context.chatState != ChatState.OpponentSpeaking) {
             context.enterState(ChatState.OpponentSpeaking);
         }
+        const ttsUid: number = Number(data.ttsUid);
+        const chatmessage = this.chatMessageCachesMap.get(ttsUid);
+
+        if (chatmessage) {
+            this.showSubtitle(this.chatMessageCachesMap.get(ttsUid), ttsUid, 0);
+        }
+        else {
+            DebugLog.instance.log("chatMessageCachesMap lost data, ttsUid == " + ttsUid);
+        }
+
         context.updateLastEventTime();
     }
 
     private onWaittingEvent(data: any, context: ChatPanelCtrl) {
+        if (this.chatState == ChatState.Mute) {
+            return;
+        }
         context.waittingLabel.string = data.message;
         context.enterState(ChatState.Loading);
         context.updateLastEventTime();
@@ -236,74 +268,30 @@ export class ChatPanelCtrl extends Component {
     }
 
     private onGetChatMessage(data: any, context: ChatPanelCtrl) {
+        if (this.chatState == ChatState.Mute) {
+            return;
+        }
         DebugLog.instance.log("onGetChatMessage View Get ========= Message : " + data.message + ",seq : " + data.seq);
         context.updateLastEventTime();
-        const { message, seq, speaker } = data;
+        const { message, seq, speaker, ttsUid } = data;
 
-        // 创建一个Map用于存放以序号为键，对应的聊天气泡节点为值的键值对（如果还未创建的话）
-        if (!context.chatBubbleNodeMap) {
-            context.chatBubbleNodeMap = new Map();
+        DebugLog.instance.log("chatMessageCachesMap push data, seq == " + ttsUid + "   ----   " + message);
+        if (speaker == 0) {
+            this.chatMessageCachesMap.set(ttsUid, message);
         }
-
-        // 根据说话人获取对应的聊天气泡预制体
-        const bubblePrefab = context.chatBubblePrefab[speaker];
-        if (bubblePrefab) {
-            let newBubbleNode = context.chatBubbleNodeMap.get(seq);
-            if (!newBubbleNode) {
-                // 检查聊天气泡数量，如果超过4个，移除最旧的聊天气泡
-                if (context.chatBubbleNodeMap.size >= 4) {
-                    const oldestBubbleSeq = context.getOldestBubbleSeq();
-                    const oldestBubbleNode = context.chatBubbleNodeMap.get(oldestBubbleSeq);
-                    if (oldestBubbleNode) {
-                        context.removeBubble(oldestBubbleNode);
-                        context.chatBubbleNodeMap.delete(oldestBubbleSeq);
-                    }
-                }
-                // 实例化预制体
-                newBubbleNode = instantiate(bubblePrefab);
-                // 添加到聊天气泡父容器下
-                context.chatBubbleParentNode.addChild(newBubbleNode);
-
-                // 根据说话人设置位置（0左对齐，1右对齐），这里简单示例设置x坐标，你可按需调整具体位置布局逻辑
-                if (speaker === 0) {
-                    newBubbleNode.setPosition(-newBubbleNode.getComponent(UITransform).width / 2, 0);
-                } else {
-                    newBubbleNode.setPosition(newBubbleNode.getComponent(UITransform).width / 2, 0);
-                }
-
-                // 将新创建的聊天气泡节点存入Map，键为序号
-                context.chatBubbleNodeMap.set(seq, newBubbleNode);
-            }
-
-            let ctb: ChatBubbleCtrl = newBubbleNode.getComponent(ChatBubbleCtrl);
-            if (ctb) {
-                if (speaker == 0) {
-                    ctb.typeText(message);
-                } else {
-                    ctb.typeText(message, 0.5);
-                }
-            }
-
+        else {
+            this.showSubtitle(message, 0, 1);
         }
     }
 
-    private getOldestBubbleSeq(): string {
-        return this.chatBubbleNodeMap.keys().next().value;
+    private showSubtitle(message: string, seq: number, speaker: 0 | 1) {
+        this.subtitlesLabel.string = this.speakerTitle[speaker] + message;
+        this.currentSpeechSeq = seq;
     }
 
-    private removeBubble(bubbleNode: Node) {
-        const animationComponent = bubbleNode.getComponent(Animation);
-        if (animationComponent) {
-            const fadeOutClip = this.getAnimationClipByName(bubbleNode, 'chatBubbleFadeOut');
-            if (fadeOutClip) {
-                animationComponent.on(Animation.EventType.FINISHED, () => {
-                    bubbleNode.removeFromParent();
-                });
-                animationComponent.play(fadeOutClip.name);
-            }
-        } else {
-            bubbleNode.removeFromParent();
-        }
+    private hideSubtitle(delay: number = 0) {
+        this.currentSpeechSeq = -1;
+        this.subtitlesLabel.string = "";
     }
 }
 

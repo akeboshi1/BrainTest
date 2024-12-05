@@ -49,7 +49,7 @@ export class GameCenterManager {
 
     private _callbackDic:Map<string,GameSocketData> =new Map();
 
-    private _curGame:GameCenterData
+    private _curGame:GameCenterData;
 
     public enterGameCenter(){
         Global.isSkewersGame = false;
@@ -64,8 +64,6 @@ export class GameCenterManager {
     }
 
 
-    
-    
 
     /**
      * 开始某个游戏
@@ -80,6 +78,7 @@ export class GameCenterManager {
 
 
     private startGameCallBack(data,context){
+        DebugLog.instance.log("startGameCallBack",data);
         let status = data.status;
         if(status == 0){
             DebugLog.instance.error(data.message);
@@ -176,9 +175,12 @@ export class GameCenterManager {
             DebugLog.instance.error(data.message);
             return;
         }
-        this._curGame = null;
+        this._curGame.sessionid = data.data.session_id;
+        this._curGame.level = data.data.level;
+        this._curGame.difficulty = data.data.difficulty;
         EventManager.getInstance().off(GameCenterManager.GAMEPASSLEVEL,context);
         let gsData = this._callbackDic.get(GameCenterManager.GAMEPASSLEVEL);
+        DebugLog.instance.log("gamePassLevelData",data);
         if(gsData && gsData.callback){
             gsData.socketData.data = data.data
             gsData.callback(data);
