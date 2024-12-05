@@ -494,6 +494,10 @@ export class Main extends Component {
             this.cardPool.children[0].children[i].active = i < this.cardTotalCount ? true : false;
         }
     }
+    private quitGame() {
+        console.log("返回大厅")
+        SceneManager.getInstance().backToHall();
+    }
 
 }
 
