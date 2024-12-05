@@ -159,7 +159,7 @@ export class SkewersManager{
               DebugLog.instance.error("当前没有游戏可以运行");
               return;
           }
-          let game = this.getCurGameData();
+          let game = this.getUnCompleteGameData();
           if(!game){
               this._curIndex = -1;
               DebugLog.instance.error("当前脑力训练已经全部完成！");
@@ -201,7 +201,7 @@ export class SkewersManager{
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
-         const game = this.getCurGameData();
+         const game = this.getUnCompleteGameData();
          if(!game){
              this._curIndex = -1;
              DebugLog.instance.error("当前脑力训练已经全部完成！");
@@ -217,20 +217,22 @@ export class SkewersManager{
      }
 
     /**
-     * 运行下一类型游戏
+     * 运行下一个游戏
      */
     public runNextGame(){
          // 上报游戏完成数据
          this.requestGameComplete();
 
          if(!this._gameDatas||this._gameDatas.length <=0){
+             DebugLog.instance.log("当前串烧游戏已经全部完成");
+             Global.isSkewersGame = false;
              this._curIndex = -1;
-             DebugLog.instance.error("当前没有游戏可以运行");
+             // back to hall test
+             SceneManager.getInstance().backToHall();
              return;
          }
-         let game = this.getNextGameData();
-         this._curIndex +=1;
-         if(!game){
+         let curGame = this.getUnCompleteGameData();
+         if(!curGame){
              DebugLog.instance.log("当前串烧游戏已经全部完成");
              Global.isSkewersGame = false;
              this._curIndex = -1;
@@ -239,12 +241,21 @@ export class SkewersManager{
              return;
          }
 
+         // let game = this.getNextGameData();
+         // if(!game){
+         //     DebugLog.instance.log("当前串烧游戏已经全部完成");
+         //     Global.isSkewersGame = false;
+         //     this._curIndex = -1;
+         //     // back to hall test
+         //     SceneManager.getInstance().backToHall();
+         //     return;
+         // }
 
-         const sceneName = game.gameCode;
+         const sceneName = curGame.gameCode;
          let url = Global.RES_Root+sceneName;
          SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
              DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
-             Global.userData.curSkewerGameData = game;
+             Global.userData.curSkewerGameData = curGame;
          });
      }
 
@@ -252,7 +263,7 @@ export class SkewersManager{
      * 外部请求游戏过关
      */
     public requestGameComplete(){
-         let curGame = this.getCurGameData();
+         let curGame = this.getUnCompleteGameData();
          if(!curGame){
              DebugLog.instance.error("当前串烧游戏已经全部完成");
              return;
@@ -273,10 +284,14 @@ export class SkewersManager{
      * 是否全部通关
      */
     public isRunOver():boolean{
-        return this.getNextGameData() == null;
+        return this.getUnCompleteGameData() == null;
      }
 
-     private getCurGameData():SkewersGameData{
+    /**
+     * 游戏列表中是否还有未完成得游戏
+     * @private
+     */
+     private getUnCompleteGameData():SkewersGameData{
         if(this._curIndex!=-1){
             return this._gameDatas[this._curIndex];
         }
@@ -294,8 +309,8 @@ export class SkewersManager{
      }
 
      private getNextGameData(){
-        if(!this._gameDatas)return null;
-        let len = this._gameDatas.length;
+         if(!this._gameDatas)return null;
+         let len = this._gameDatas.length;
          if(this._curIndex + 1 > len - 1){
              return null;
          }

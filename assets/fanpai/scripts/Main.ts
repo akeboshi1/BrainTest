@@ -167,15 +167,19 @@ export class Main extends Component {
 
         isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
 
+
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
-            // DebugLog.instance.log('sessionid', GameCenterManager.getInstance().currentGame.sessionid);
-            SocketManager.getInstance().send(new SocketData({
-                action: GameCenterManager.GAMEMATCHITEM,
-                data: {
-                    session_id: GameCenterManager.getInstance().currentGame.sessionid,
-                }
-            }));
+            if(!Global.isSkewersGame){
+                // DebugLog.instance.log('sessionid', GameCenterManager.getInstance().currentGame.sessionid);
+                SocketManager.getInstance().send(new SocketData({
+                    action: GameCenterManager.GAMEMATCHITEM,
+                    data: {
+                        session_id: GameCenterManager.getInstance().currentGame.sessionid,
+                    }
+                }));
+            }
+
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
             if (isDeletedCardCount == this.cardTotalCount) {
                 this.currentCustomsSuccess();
@@ -243,6 +247,9 @@ export class Main extends Component {
                 this.successViewProgressLabel.node.active = false;
                 this.successView.active = false;
                 this.bigWin.active = true;
+                const curGame = GameCenterManager.getInstance().currentGame;
+                GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
+                    this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
             } else {
                 let maxCount = SkewersManager.getInstance().getGameCount();
                 let curCount = SkewersManager.getInstance().getCurGameIndex();
@@ -258,8 +265,7 @@ export class Main extends Component {
                 }
             }
         }
-        const curGame = GameCenterManager.getInstance().currentGame;
-        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex], this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+
     }
 
     startGame() {

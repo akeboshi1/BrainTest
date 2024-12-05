@@ -4,6 +4,7 @@ import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {GameSceneConst} from "../../../Core/Data/GameSceneConst";
 import {Global} from "../../../Core/Manager/Config/Global";
+import {MainScene} from "db://assets/scripts/Game/Scene/MainScene";
 
 export class SceneManager extends BaseManager{
 
@@ -96,6 +97,19 @@ export class SceneManager extends BaseManager{
             let url = Global.RES_Root + GameSceneConst.Hall;
             SceneManager.getInstance().changeScene(GameSceneConst.Hall,"main").then(()=>{
                 DebugLog.instance.log('返回大厅');
+                resolve();
+            }).catch(err=>{
+                reject(err);
+            })
+        })
+    }
+
+    async backToGameCenter():Promise<void>{
+        return new Promise((resolve,reject)=>{
+            let url = Global.RES_Root + GameSceneConst.GameCenter;
+            SceneManager.getInstance().changeScene(GameSceneConst.GameCenter,"main").then((scene)=>{
+                DebugLog.instance.log('返回游戏大厅');
+                // (scene as any).showGameCenter();
                 resolve();
             }).catch(err=>{
                 reject(err);
