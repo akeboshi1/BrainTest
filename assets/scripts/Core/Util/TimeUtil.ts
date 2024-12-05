@@ -52,6 +52,13 @@ export class TimeUtil {
         return loginData.getDate() !== currentDate.getDate();
     }
 
+    calculateSecondsBetweenTimestamps(currentTimeStamp, endTimeStamp) {
+        if (typeof currentTimeStamp !== 'number' || typeof endTimeStamp !== 'number') {
+            throw new Error('Time stamps must be numbers');
+        }
+        const differenceInSeconds = (endTimeStamp - currentTimeStamp) / 1000;
+        return Math.abs(differenceInSeconds);
+    }
     /**
      * 格式化时间
      * @param seconds
@@ -102,6 +109,8 @@ export class TimeUtil {
         const timestamp = Math.floor(now.getTime() / 1000); // 转换为秒级时间戳
         return TimeUtil.getTimePeriodFromTimestamp(timestamp);
     }
+
+
 
     /**
      * 通过时间戳来判断当前是什么时间段

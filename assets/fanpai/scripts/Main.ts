@@ -1,11 +1,13 @@
 import { _decorator, Component, Node, resources, Sprite, SpriteFrame, Texture2D, ImageAsset, Label, Button, random } from 'cc';
-import {LoaderManager} from "../../scripts/Core/Manager/Load/LoaderManager";
-import {Global} from "../../scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
-import {DebugLog} from "../../scripts/Core/Util/DebugLog";
-import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
-import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
-import {GameCenterManager} from "db://assets/scripts/Game/Socket/GameCenterManager";
+import { LoaderManager } from "../../scripts/Core/Manager/Load/LoaderManager";
+import { Global } from "../../scripts/Core/Manager/Config/Global";
+import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
+import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
+import { GameCenterManager } from "db://assets/scripts/Game/Socket/GameCenterManager";
+import { SocketManager } from '../../scripts/Core/Manager/Net/SocketManager';
+import { SocketData } from '../../scripts/Core/Manager/Net/SocketData';
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -14,6 +16,8 @@ function getRandomNumber(min: number, max: number) {
 
 @ccclass('Main')
 export class Main extends Component {
+
+    // MATCH_ITEM = "game.match_item"
 
     @property(Node)
     successView: Node;
@@ -36,8 +40,7 @@ export class Main extends Component {
     @property(Button)
     nextButton: Button;
 
-    @property(Label)
-    successLable: Label;
+
 
     @property(Button)
     successNextButton: Button;
@@ -59,7 +62,7 @@ export class Main extends Component {
 
     private currentCard: Node;
     private buttonLableText: Label;
-    private successLableText: Label;
+
 
     private cardTheme: string;
     private cardList: { index: number, imgUrl: string, isBacked: boolean, isDeleted: boolean }[];
@@ -67,21 +70,19 @@ export class Main extends Component {
     private cardTotalCount: number = 0;
     private curHard: number = 0;
 
-    private hards:number[]=[0,1,2];
+    private hards: number[] = [1, 2, 3];
 
-    private hardIndex:number=0;
+    private hardIndex: number = 0;
 
     private isAbleClick: boolean = false;
 
-    private bundleName:string = 'fanpai';
+    private bundleName: string = 'fanpai';
 
 
     start() {
-
         // test
-        GameCenterManager.getInstance().startGame(1);
-
-        if(Global.isSkewersGame){
+        // GameCenterManager.getInstance().startGame(1, this.startGame);
+        if (Global.isSkewersGame) {
             this.hardIndex = Global.userData.curSkewerGameData.difficulty;
             this.timer = Global.userData.curSkewerGameData.timeLimit;
         }
@@ -89,14 +90,15 @@ export class Main extends Component {
     }
     sceneInit() {
         this.successView.active = true;
+        this.updateSuccessPopupTitle(1); 
         this.successStartButton.node.active = true;
         this.successNextButton.node.active = false;
         this.successViewProgressLabel.node.active = false;
-        this.successLableText = this.successLable.getComponent(Label);
-        this.buttonLableText = this.nextButton.node.children[0].getComponent(Label);
-        this.buttonLableText.string = '开始游戏';
         this.initCardView();
         this.timerInit();
+    }
+    gamepasslevelCallback() {
+
     }
     clickCardHandler(event, data) {
         // if (!this.isAbleClick) { return; }
@@ -110,9 +112,8 @@ export class Main extends Component {
                 const cardNode = this.cardPool.children[0].children[card.index];
                 const sprite = cardNode.getComponent(Sprite);
 
-
-                LoaderManager.getInstance().assetBundleLoad(self.bundleName,self.bundleName).then((bundle)=>{
-                    LoaderManager.getInstance().loadABRes("texture/card/Card_back_d",self.bundleName).then((res)=>{
+                LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                    LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
                         const spriteFrame = new SpriteFrame();
                         const texture = new Texture2D();
                         texture.image = res;
@@ -138,11 +139,12 @@ export class Main extends Component {
             })
         }
 
+        // 获取当前卡片
         this.currentCard = this.cardPool.children[0].children[index];
         const sprite = this.currentCard.getComponent(Sprite);
 
-        LoaderManager.getInstance().assetBundleLoad(self.bundleName,self.bundleName).then((bundle)=>{
-            LoaderManager.getInstance().loadABRes(this.cardList[index].imgUrl,self.bundleName).then((res)=>{
+        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+            LoaderManager.getInstance().loadABRes(this.cardList[index].imgUrl, self.bundleName).then((res) => {
                 const spriteFrame = new SpriteFrame();
                 const texture = new Texture2D();
                 texture.image = res;
@@ -167,90 +169,148 @@ export class Main extends Component {
 
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
-            // 判断是否胜利
-            // 获取cardList中isDeleted为true的card的数量
+            // DebugLog.instance.log('sessionid', GameCenterManager.getInstance().currentGame.sessionid);
+            SocketManager.getInstance().send(new SocketData({
+                action: GameCenterManager.GAMEMATCHITEM,
+                data: {
+                    session_id: GameCenterManager.getInstance().currentGame.sessionid,
+                }
+            }));
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
             if (isDeletedCardCount == this.cardTotalCount) {
-                // this.bigWin.active = true;
-                this.isAbleClick = false
-                clearInterval(this.timerId);
-                this.successView.active = true;
-                this.successStartButton.node.active = false;
-                this.successNextButton.node.active = true;
-                this.successView.children[7].active = false;
-                this.successView.children[6].active = true;
-                this.buttonLableText.string = '下一关';
-                if (this.curHard == this.hards[0]) {
-                    this.successView.children[0].active = true;
-                    this.successLableText.string = '1'
-                } else if (this.curHard == this.hards[1]) {
-                    this.successView.children[0].active = true;
-                    this.successView.children[1].active = true;
-                    this.successLableText.string = '2'
-                } else if (this.curHard == this.hards[2]) {
-                    // 是否是串烧游戏
-                    if(!Global.isSkewersGame){
-                        this.successViewProgressLabel.node.active = false;
-                        this.successView.active = false;
-                        this.bigWin.active = true;
-                    }else{
-                        let maxCount = SkewersManager.getInstance().getGameCount();
-                        let curCount = SkewersManager.getInstance().getCurGameIndex();
-                        this.successViewProgressLabel.node.active = true;
-                        if(SkewersManager.getInstance().isRunOver()){
-                            this.successViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
-                            this.successView.active = false;
-                            this.bigWin.active = true;
-                        }else{
-                            this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
-                            this.successView.active = true;
-                            this.bigWin.active = false;
-                        }
-                    }
-                }
-                this.hardIndex ++;
-                this.curHard = this.hards[this.hardIndex];
+                this.currentCustomsSuccess();
             }
         }
 
         DebugLog.instance.log(index, this.currentCard);
     }
+    updateSuccessPopupTitle(num) {
+        if (num == 1) {
+            this.successView.getChildByName('top_Title1').active = true;
+            this.successView.getChildByName('top_Title2').active = false;
+        }
+        if (num == 2) {
+            this.successView.getChildByName('top_Title1').active = false;
+            this.successView.getChildByName('top_Title2').active = true;
+        }
+
+    }
+    updateSuccessPopupToptxt(num) {
+        if (num == 0) {
+            this.successView.getChildByName('top_txt1').active = true;
+            this.successView.getChildByName('top_txt2').active = false;
+        } else {
+            this.successView.getChildByName('top_txt1').active = false;
+            this.successView.getChildByName('top_txt2').active = true;
+            const topTxt=this.successView.getChildByName('top_txt2')
+            if (num == 1) {
+                topTxt.getChildByName('count').getComponent(Label).string = '1';
+            }
+            if (num == 2) {
+                topTxt.getChildByName('count').getComponent(Label).string = '2';
+            }
+            if(num == 3) {
+                topTxt.getChildByName('count').getComponent(Label).string = '3';
+            }
+        }
+
+    }
+    updateSuccessPopupStar(num) {
+        const lights = ['light1', 'light2', 'light3'];
+        lights.forEach((lightName, index) => {
+            this.successView.getChildByName(lightName).active = index < num;
+        });     
+    }
+    
+    currentCustomsSuccess() {
+        this.isAbleClick = false
+        clearInterval(this.timerId);
+        this.successView.active = true;
+        this.successStartButton.node.active = false;
+        this.successNextButton.node.active = true;
+     
+        if (this.curHard == this.hards[0]) {
+            this.updateSuccessPopupTitle(2);
+            this.updateSuccessPopupToptxt(this.curHard);
+            this.updateSuccessPopupStar(this.curHard);
+        } else if (this.curHard == this.hards[1]) {
+            this.updateSuccessPopupTitle(2);
+            this.updateSuccessPopupToptxt(this.curHard);
+            this.updateSuccessPopupStar(this.curHard);
+        } else if (this.curHard == this.hards[2]) {
+            // 是否是串烧游戏
+            if (!Global.isSkewersGame) {
+                this.successViewProgressLabel.node.active = false;
+                this.successView.active = false;
+                this.bigWin.active = true;
+            } else {
+                let maxCount = SkewersManager.getInstance().getGameCount();
+                let curCount = SkewersManager.getInstance().getCurGameIndex();
+                this.successViewProgressLabel.node.active = true;
+                if (SkewersManager.getInstance().isRunOver()) {
+                    this.successViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
+                    this.successView.active = false;
+                    this.bigWin.active = true;
+                } else {
+                    this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
+                    this.successView.active = true;
+                    this.bigWin.active = false;
+                }
+            }
+        }
+        const curGame = GameCenterManager.getInstance().currentGame;
+        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex], this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+    }
+
     startGame() {
         this.isAbleClick = true;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
-        if (this.curHard == this.hards[0]) {
-            this.gameStartInit();
-        }
-        else if (this.curHard == this.hards[1]) {
-            if (this.cardTotalCount == this.calculCardTotalCount(0)) {
-                this.nextCustoms();
-                this.successView.children[0].active = false;
-            } else {
-                this.gameStartInit();
-            }
-        }
-        else if (this.curHard == this.hards[2]) {
-            if (this.cardTotalCount == this.calculCardTotalCount(1)) {
-                this.nextCustoms();
-                this.successView.children[0].active = false;
-                this.successView.children[1].active = false;
-            } else {
-                this.gameStartInit();
-            }
-        }
-    }
+        this.gameStartInit();
 
-    private calculCardTotalCount(index:number):number{
+    }
+    playNextCustoms() {
+        // let curGame = GameCenterManager.getInstance().currentGame;
+        //     GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
+        // 串烧游戏状态下，运行下一个串烧游戏内容
+        if (Global.isSkewersGame) {
+            if (SkewersManager.getInstance().isRunOver()) {
+                SceneManager.getInstance().backToHall();
+            }
+            else {
+                SkewersManager.getInstance().runNextGame();
+            }
+            return;
+        }
+      
+        if (this.hardIndex >= this.hards.length - 1) {
+            this.hardIndex = 0;
+            this.bigWin.active = false;
+            this.successView.active = true;
+            this.updateSuccessPopupTitle(1);
+            this.updateSuccessPopupToptxt(0);
+            this.updateSuccessPopupStar(this.curHard);
+        } else {
+            this.hardIndex++;
+        }
+        this.closeAllCard();
+        this.curHard = this.hards[this.hardIndex];
+        this.initCardView();
+        this.gameStartInit();
+        this.closeFailView();
+    }
+    closeFailView() {
+        this.failView.active = false;
+    }
+    private calculCardTotalCount(index: number): number {
         return (index + 2) * 4;
     }
 
     gameStartInit() {
-        DebugLog.instance.log("游戏开始");
         this.successView.active = false;
         // this.bigWin.active = false;
         // this.failView.active = false;
-       this.initCardView();
+        this.initCardView();
 
         this.timerInit();
         this.timerTick();
@@ -298,20 +358,9 @@ export class Main extends Component {
                 }
             }
         }
-        DebugLog.instance.log('this.cardList', this.cardList);
+        // DebugLog.instance.log('this.cardList', this.cardList);
         // 所有卡片设置为背板
         this.closeAllCard();
-    }
-    
-    nextCustoms() {
-        // 所有卡片设置为背板
-        this.closeAllCard();
-
-        this.initCardView();
-
-        this.buttonLableText.string = '开始游戏';
-        this.successView.children[6].active = false;
-        this.successView.children[7].active = true;
     }
 
     showAllCard() {
@@ -321,8 +370,8 @@ export class Main extends Component {
             const sprite = cardNode.getComponent(Sprite);
 
 
-            LoaderManager.getInstance().assetBundleLoad(self.bundleName,self.bundleName).then((bundle)=>{
-                LoaderManager.getInstance().loadABRes(card.imgUrl,self.bundleName).then((res)=>{
+            LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                LoaderManager.getInstance().loadABRes(card.imgUrl, self.bundleName).then((res) => {
                     const spriteFrame = new SpriteFrame();
                     const texture = new Texture2D();
                     texture.image = res;
@@ -351,14 +400,14 @@ export class Main extends Component {
         this.cardList.forEach((card, index) => {
             const cardNode = this.cardPool.children[0].children[index];
             const sprite = cardNode.getComponent(Sprite);
-            LoaderManager.getInstance().assetBundleLoad(self.bundleName,self.bundleName).then((bundle)=>{
-                  LoaderManager.getInstance().loadABRes("texture/card/Card_back_d",self.bundleName).then((res)=>{
-                      const spriteFrame = new SpriteFrame();
-                      const texture = new Texture2D();
-                      texture.image = res;
-                      spriteFrame.texture = texture;
-                      sprite.spriteFrame = spriteFrame;
-                  })
+            LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
+                    const spriteFrame = new SpriteFrame();
+                    const texture = new Texture2D();
+                    texture.image = res;
+                    spriteFrame.texture = texture;
+                    sprite.spriteFrame = spriteFrame;
+                })
             });
             // resources.load("texture/card/Card_back_d", (err, image: ImageAsset) => {
             //     if (err) {
@@ -382,10 +431,12 @@ export class Main extends Component {
 
     // 定时器
     timerId: any;
-    timer: number = 90;
+    timer: number;
+
+    INIT_TIME = 90;
 
     timerInit() {
-        this.timer = Global.userData.curSkewerGameData.timeLimit;
+        this.timer = this.INIT_TIME;
         this.Timer.string = TimeUtil.formatTime(this.timer);
     }
 
@@ -397,18 +448,18 @@ export class Main extends Component {
                 this.isAbleClick = false
                 // 倒计时结束，游戏结束
                 this.failView.active = true;
-                if(Global.isSkewersGame){
+                if (Global.isSkewersGame) {
                     this.failViewProgressLabel.node.active = true;
                     let maxCount = SkewersManager.getInstance().getGameCount();
                     let curCount = SkewersManager.getInstance().getCurGameIndex();
                     this.failRetryButton.node.active = false;
-                    if(SkewersManager.getInstance().isRunOver()){
+                    if (SkewersManager.getInstance().isRunOver()) {
                         this.failViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
-                    }else{
+                    } else {
                         // 直接进入下一关
                         this.failViewProgressLabel.string = `当前游戏进度${curCount}/${maxCount}`;
                     }
-                }else{
+                } else {
                     this.failViewProgressLabel.node.active = false;
                     this.failRetryButton.node.active = true;
                 }
@@ -424,52 +475,19 @@ export class Main extends Component {
         this.Timer.string = `0${fenzhong}:${second}`
     }
 
-    getAward() {
-        this.bigWin.active = false;
-        this.successView.children[6].active = false;
-        this.successView.children[7].active = true;
-        this.hardIndex = 0;
-        this.curHard = this.hards[this.hardIndex];
-        this.closeAllCard();
-        let subarray = this.cardPool.children[0].children.slice(8, 16);
-        subarray.forEach(item => {
-            item.active = false;
-        });
-        this.cardTotalCount = this.calculCardTotalCount(0);
-        this.cardList = [];
-        this.sceneInit();
-    }
+
     reCurrentCustoms() {
         this.failView.active = false;
         this.startGame();
-    }
-    playNextCustoms() {
-        // 串烧游戏状态下，运行下一个串烧游戏内容
-        if(Global.isSkewersGame){
-            if(SkewersManager.getInstance().isRunOver()){
-                SceneManager.getInstance().backToHall();
-            }
-            else{
-                SkewersManager.getInstance().runNextGame();
-            }
-            return;
-        }
-        this.failView.active = false;
-        if(this.hardIndex >=this.hards.length) {
-            this.hardIndex = 0;
-        }
-        this.curHard = this.hards[this.hardIndex];
-        this.nextCustoms();
-        this.gameStartInit()
     }
 
     /**
      * 初始化卡牌view
      * @private
      */
-    private initCardView(){
+    private initCardView() {
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
-        DebugLog.instance.log('this.cardTotalCount', this.cardTotalCount)
+        // DebugLog.instance.log('this.cardTotalCount', this.cardTotalCount)
 
         const maxLen = this.cardPool.children[0].children.length;
         for (let i = 0; i < maxLen; i++) {

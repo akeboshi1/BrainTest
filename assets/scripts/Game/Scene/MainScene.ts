@@ -335,10 +335,10 @@ export class MainScene extends Component {
                     sceneName = "fanpai";
                     break;
                 case 2:
-                    sceneName = "puzzle";
+                    sceneName = "catchFish";
                     break;
                 case 3:
-                    sceneName = "catchFish";
+                    sceneName = "puzzle";
                     break;
             }
             let url = Global.RES_Root +sceneName;
