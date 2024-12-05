@@ -145,7 +145,7 @@ export class TaskManager {
                 return;
             case TaskStatus.Processing:
                 DebugLog.instance.log(`id：${id} 任务正在进行中！`);
-                SkewersManager.getInstance().start(id);
+                SkewersManager.getInstance().start();
                 return;
             case TaskStatus.UnComplete:
                 break;
@@ -173,7 +173,7 @@ export class TaskManager {
                 case TaskType.Remind:
                     break;
                 case TaskType.Brains:
-                    SkewersManager.getInstance().start(id);
+                    SkewersManager.getInstance().start();
                     break;
                 case TaskType.Interavtive:
                     break;

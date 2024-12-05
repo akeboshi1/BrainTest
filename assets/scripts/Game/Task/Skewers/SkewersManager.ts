@@ -33,10 +33,16 @@ export class SkewersManager{
 
     //===== 脑力保健
     /**
-     * 获取脑力保健任务
+     * 获取脑力保健任务 旧
      * @private
      */
     private task_get_brain_trainings:string = "task.get_brain_trainings";
+
+    /**
+     * 获取脑力保健任务队列 新
+     * @private
+     */
+    private task_get_grouped_brain_trainings:string = "task.get_grouped_brain_trainings";
 
     /**
      * 完成脑力保健任务
@@ -45,41 +51,79 @@ export class SkewersManager{
     private task_complete_brain_training:string = "task.complete_brain_training";
 
 
+    public static TASK_GET_BRAIN_TRAININGS:string = "TASK_GET_BRAIN_TRAININGS";
+
+
      public init(){
            this._gameDatas = [];
 
      }
 
-     start(id:number){
+     start(){
          Global.isSkewersGame =true;
-         this._gameDatas = [];
-         this.requestBranisTrainings(id);
+         this.startGame();
      }
+
 
     /**
-     * 请求脑力保健任务列表
+     * 请求脑力保健任务列表 新
      * @param taskID
      */
-     public requestBranisTrainings(taskID:number){
-        EventManager.getInstance().on(this.task_get_brain_trainings,this.requestBranisTrainingsCallback,this);
-        let requestBranisTrainingsSocket = new SocketData({action:this.task_get_brain_trainings,data:{task_id:taskID}});
-        SocketManager.getInstance().send(requestBranisTrainingsSocket);
+     public requestBranisTraining_list(taskID:number){
+         EventManager.getInstance().on(this.task_get_grouped_brain_trainings,this.requestBranisTraining_listCallBack,this);
+         let requestBranisTrainingsSocket = new SocketData({action:this.task_get_grouped_brain_trainings,data:{task_id:taskID}});
+         SocketManager.getInstance().send(requestBranisTrainingsSocket);
      }
 
-     private requestBranisTrainingsCallback(data:any,context:any){
-         context._gameDatas = [];
-         EventManager.getInstance().off(context.task_get_brain_trainings,context);
-         const result = data.data.result;
-         const len = result.length;
-         for(let i:number =0;i<len;i++){
-              let tmpData:any = result[i];
-              let data:SkewersGameData = new SkewersGameData();
-              data.refreshData(tmpData);
-              if(data.gameCode != "finding") context._gameDatas.push(data);
+     private requestBranisTraining_listCallBack(data:any,context:any){
+         EventManager.getInstance().off(this.task_get_grouped_brain_trainings,this);
+         this._gameDatas = [];
+         let status = data.status;
+         if(status == 0){
+             DebugLog.instance.error(data.message);
+         }else {
+             let result = data.data['result'];
+             let len = result.length;
+             for(let i=0; i<len; i++){
+                 let tmpData:any = result[i]; // skewersGameData_data
+                 let skewersGameData:SkewersGameData = new SkewersGameData();
+                 skewersGameData.refreshData(tmpData);
+                 this._gameDatas.push(skewersGameData);
+             }
+             Global.userData.skewerGameDatas = this._gameDatas;
          }
-         Global.userData.skewerGameDatas = context._gameDatas;
-         context.startGame();
+         EventManager.getInstance().emit(SkewersManager.TASK_GET_BRAIN_TRAININGS,this._gameDatas);
      }
+
+    // /**
+    //  * 请求脑力保健任务列表 旧
+    //  * @param taskID
+    //  */
+    //  public requestBranisTrainings(taskID:number){
+    //     EventManager.getInstance().on(this.task_get_brain_trainings,this.requestBranisTrainingsCallback,this);
+    //     let requestBranisTrainingsSocket = new SocketData({action:this.task_get_brain_trainings,data:{task_id:taskID}});
+    //     SocketManager.getInstance().send(requestBranisTrainingsSocket);
+    //  }
+    //
+    //  private requestBranisTrainingsCallback(data:any,context:any){
+    //      context._gameDatas = [];
+    //      EventManager.getInstance().off(context.task_get_brain_trainings,context);
+    //      let status = data.status;
+    //      if(status == 0){
+    //          DebugLog.instance.error(data.message);
+    //          return;
+    //      }
+    //      const result = data.data.result;
+    //      const len = result.length;
+    //      for(let i:number =0;i<len;i++){
+    //           let tmpData:any = result[i];
+    //           let data:SkewersGameData = new SkewersGameData();
+    //           data.refreshData(tmpData);
+    //           if(data.gameCode != "finding") context._gameDatas.push(data);
+    //      }
+    //      Global.userData.skewerGameDatas = context._gameDatas;
+    //      context.startGame();
+    //  }
 
      public getGameCount():number{
          return this._gameDatas.length;
@@ -148,7 +192,7 @@ export class SkewersManager{
     }
 
     /**
-     * 指定 某index 的串烧游戏
+     * 指定 某index/某一类型 的串烧游戏
      * @param index
      */
      public runGame(index:number=0){
@@ -172,7 +216,10 @@ export class SkewersManager{
          });
      }
 
-     public runNextGame(){
+    /**
+     * 运行下一类型游戏
+     */
+    public runNextGame(){
          // 上报游戏完成数据
          this.requestGameComplete();
 
@@ -206,8 +253,13 @@ export class SkewersManager{
      */
     public requestGameComplete(){
          let curGame = this.getCurGameData();
+         if(!curGame){
+             DebugLog.instance.error("当前串烧游戏已经全部完成");
+             return;
+         }
+         let curTrainData = curGame.getCurTrainData();
          let socketData = {action:this.task_complete_brain_training,data:{
-                 "brain_training_id": curGame.id, // 脑力训练（游戏小关）id （必填）
+                 "brain_training_id": curTrainData.id, // 脑力训练（游戏小关）id （必填）
                  "completion": 1, // 完成度
                  "duration": 40, // 用时（秒）
                  "score": 100, // 得分}}
