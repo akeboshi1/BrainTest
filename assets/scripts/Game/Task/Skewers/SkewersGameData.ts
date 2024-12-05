@@ -21,11 +21,9 @@ export enum GameType{
  * 游戏串烧数据
  */
 export class SkewersGameData {
-    // 任务id
-    public id:number;
-
-    // 游戏索引
-    public seq:number;
+    // ============== game
+    // 游戏名字
+    public gameName:string='未知';
 
     // 游戏id
     public gameID:number;
@@ -35,6 +33,121 @@ export class SkewersGameData {
 
     // 当前串烧游戏类型
     public type:GameType;
+
+    // 串烧游戏训练队列数据
+    public trains:SkewersGameTrainData[];
+
+    // 一类串烧游戏状态
+    private _status:number;
+
+    public refreshData(data:any){
+        this.gameID = data['game_id'];
+        this.gameCode = data['game_code'];
+        this.type = data['cog_ability'];
+        if(this.trains == null){
+            this.trains = [];
+        }
+        let trains = data['games'];
+        let len = trains.length;
+        for(let i:number = 0; i < len; ++i){
+            let tmpData = trains[i];
+            let train = new SkewersGameTrainData();
+            train.refreshData(tmpData);
+            this.trains.push(train);
+        }
+    }
+
+    /**
+     * 获取当前类型脑力保健小关数据
+     */
+    getCurTrainData():SkewersGameTrainData{
+        let len = this.trains.length;
+        for(let i:number = 0; i < len; ++i){
+            let tmpData:SkewersGameTrainData = this.trains[i];
+            if(tmpData.status == SkewersGameStatus.unCompleted){
+                return tmpData;
+            }
+        }
+        return null;
+    }
+
+    get difficulty():number{
+        let curTrainData = this.getCurTrainData();
+        if(!curTrainData){
+            return -1;
+        }
+        return curTrainData.difficulty;
+    }
+
+    get timeLimit():number{
+        let curTrainData = this.getCurTrainData();
+        if(!curTrainData){
+            return -1;
+        }
+        return curTrainData.timeLimit;
+    }
+
+    get seq():number{
+        let curTrainData = this.getCurTrainData();
+        if(!curTrainData){
+            return -1;
+        }
+        return curTrainData.seq;
+    }
+
+    get id():number{
+        let curTrainData = this.getCurTrainData();
+        if(!curTrainData){
+            return -1;
+        }
+        return curTrainData.id;
+    }
+
+    get progress():number{
+        let len = this.trains.length;
+        let count = 0;
+        for(let i:number = 0; i < len; ++i){
+            let tmpData:SkewersGameTrainData = this.trains[i];
+            if(tmpData.status == SkewersGameStatus.Completed){
+                count++;
+            }
+        }
+        return count / len ;
+    }
+
+    get progressStr():string{
+        let len = this.trains.length;
+        let count = 0;
+        for(let i:number = 0; i < len; ++i){
+            let tmpData:SkewersGameTrainData = this.trains[i];
+            if(tmpData.status == SkewersGameStatus.Completed){
+                count++;
+            }
+        }
+        return count +" / "+ len ;
+    }
+
+
+    /**
+     * 获取整个队列得数据状态
+     */
+    get status():number{
+        let curTrainData = this.getCurTrainData();
+        this._status = curTrainData?curTrainData.status:0;
+        return this._status;
+    }
+
+
+}
+
+export class SkewersGameTrainData{
+    // ============== trains
+
+    // 任务id
+    public id:number;
+
+    // 游戏索引
+    public seq:number;
 
     // 游戏状态 未完成0 已完成1
     public status:number=0;
@@ -60,9 +173,6 @@ export class SkewersGameData {
     public refreshData(data:any){
         this.id = data['id'];
         this.seq = data['seq'];
-        this.gameID = data['game_id'];
-        this.gameCode = data['game_code'];
-        this.type = data['cog_ability'];
         this.status = data['status'];
         this.difficulty = data['difficulty'];
         this.duration = data['duration'];
@@ -71,6 +181,4 @@ export class SkewersGameData {
         this.score = data['score']||0;
         this.completedAt = data['completed_at']||null;
     }
-
-
 }

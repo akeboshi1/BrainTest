@@ -10,6 +10,8 @@ import {TimeUtil} from "../../Core/Util/TimeUtil";
 import {GameCenterManager} from "db://assets/scripts/Game/Socket/GameCenterManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import {SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 const { ccclass, property } = _decorator;
 
 @ccclass('MainScene')
@@ -80,12 +82,23 @@ export class MainScene extends Component {
     taskList:Node[] = [];
 
 
-    // ====================== 脑力保健
+    // ====================== 游戏大厅
     @property(Node)
     gameCenterNode:Node = null;
 
     @property({type:[Node]})
     gameList:Node[]=[];
+
+
+    // ===================== 串烧游戏开始界面
+    @property(Node)
+    brainTrainNode:Node;
+
+    @property(Node)
+    brainTrainAlert:Node;
+
+    @property({type:[Node]})
+    skewersGameItems:Node[]=[];
 
 
     /**
@@ -141,6 +154,8 @@ export class MainScene extends Component {
         this.gameCenterNode.active = false;
         this.taskProgressNode.active = false;
         this.taskScrollView.active = false;
+        this.brainTrainNode.active = false;
+        this.brainTrainAlert.active = false;
         this.switchTaskNode(true);
         this._curPanel = this.taskNode;
     }
@@ -198,6 +213,8 @@ export class MainScene extends Component {
         this.progressLabel.string = "";
         this.taskProgressNode.active = true;
         this.taskScrollView.active = false;
+        this.brainTrainNode.active = false;
+        this.brainTrainAlert.active = false;
         this.tabClick(null,0);
         this.switchTaskNode(false);
         this._curPanel = this.taskProgressNode;
@@ -248,6 +265,7 @@ export class MainScene extends Component {
 
     }
 
+    // ======= 任务中心
     private taskListRequestCallBack(data,context){
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack,context);
         switch (this._curPanel){
@@ -307,18 +325,67 @@ export class MainScene extends Component {
     }
 
 
+    private _curTaskData:TaskData;
     taskItemClick(event,data){
         DebugLog.instance.log(data);
         let taskList = TaskManager.getInstance().taskList;
-        let taskData = taskList[Number(data)];
-        if(taskData.status ==  TaskStatus.Completed){
+        this._curTaskData = taskList[Number(data)];
+        if(this._curTaskData.status ==  TaskStatus.Completed){
             DebugLog.instance.log("当前任务已经完成");
             return;
         }
-        TaskManager.getInstance().requestStartTask(taskData.id);
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,this.requestBranisTraining_listCallBack,this);
+        SkewersManager.getInstance().requestBranisTraining_list(this._curTaskData.id);
+    }
+
+    private requestBranisTraining_listCallBack(data,context){
+        EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
+        this.brainTrainNode.active = true;
+        this.brainTrainAlert.active = false;
+        this.taskNode.active = false;
+        this.taskProgressNode.active = false;
+        this.gameCenterNode.active = false;
+        this.taskScrollView.active = false;
+
+        let gameDatas = data;
+        let len = this.gameList.length;
+        // let len = gameDatas.length;
+        for(let i = 0; i < len; i++){
+
+           let gameItem = this.skewersGameItems[i];
+            let _gameData:SkewersGameData = gameDatas[i];
+           if(_gameData){
+               gameItem.active = true;
+               let label = gameItem.getChildByName("label").getComponent(Label);
+               label.string = _gameData.gameCode;
+               let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
+               progressBar.progress = _gameData.progress;
+               let progressLabel = progressBar.node.getChildByName("Label").getComponent(Label);
+               let progressStr = _gameData.progressStr;
+               progressLabel.string = `当前进度: ${progressStr}`;
+           }else{
+               // gameItem.active = false;
+               let label = gameItem.getChildByName("label").getComponent(Label);
+               label.string = "未知";
+               let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
+               progressBar.progress = 1;
+           }
+
+        }
+
+
+    }
+
+    startTaskClick(){
+        TaskManager.getInstance().requestStartTask(this._curTaskData.id);
+    }
+
+    backToTaskCenter(){
+        this.showTaskProgress();
     }
 
 
+    // =========== 游戏中心
     gameItemClick(event,data){
         let index = Number(data);
         GameCenterManager.getInstance().startGame(index+1,(data)=>{
