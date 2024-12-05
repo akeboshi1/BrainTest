@@ -23,6 +23,7 @@ export class ChatFlowModel extends BaseManager {
 
     public static TTSFlowStartEvent: string = "ChatFlowMode.TTSFlowStartEvent";
     public static TTSFlowCompleteEvent: string = "ChatFlowMode.TTSFlowCompleteEvent";
+    public static TTSFlowClosedEvent: string = "ChatFlowMode.TTSFlowClosedEvent";
 
     public static ASRFlowStartEvent: string = "ChatFlowMode.ASRFlowStartEvent";
     public static ASRFlowCompleteEvent: string = "ChatFlowMode.ASRFlowCompleteEvent";
@@ -168,6 +169,7 @@ export class ChatFlowModel extends BaseManager {
     private onTTSClosedHandle(data: any = null) {
         DebugLog.instance.log("TTSClosed");
         this.ttsOpenState = false;
+        EventManager.getInstance().emit(ChatFlowModel.TTSFlowClosedEvent, {});
     }
 
     private onTTSEndHandle(data: any) {
@@ -392,6 +394,11 @@ export class ChatFlowModel extends BaseManager {
     }
 
     onCloseTTS() {
+        if(!this.ttsOpenState){
+            EventManager.getInstance().emit(ChatFlowModel.TTSFlowClosedEvent,{});
+            return;
+        }
+
         if (sys.platform.toUpperCase().endsWith("BROWSER")) {
             var webViewNode = director.getScene().getChildByName("webview");
             let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);

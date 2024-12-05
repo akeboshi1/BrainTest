@@ -33,6 +33,11 @@ export class FrameComponent extends Component {
     // 是否循环播放动画，默认为true（循环播放）
     private isLoop: boolean = true;
 
+    private isPingpang: boolean = false;
+
+    // 动画播放方向，1表示正向，-1表示反向，初始化为正向
+    private playDirection: number = 1;
+
     onLoad() {
         // 初始化每帧间隔时间
         this.frameInterval = 1 / this.fps;
@@ -53,7 +58,7 @@ export class FrameComponent extends Component {
     }
 
     // 对外提供的接口，用于根据动画名播放动画，添加了是否循环播放的参数
-    playAnimation(animationName: string, fps: number = 12, isLoop: boolean = true) {
+    playAnimation(animationName: string, fps: number = 12, isLoop: boolean = true ,isPingpang:boolean = false) {
         if (!this.spriteAtlas ||!this.sprite) {
             return;
         }
@@ -64,6 +69,8 @@ export class FrameComponent extends Component {
         this.currentFrameIndex = 0;
         this.isPlaying = true;
         this.isLoop = isLoop;
+        this.isPingpang = isPingpang;
+        this.playDirection = 1; 
 
         const frames = this.animationFrames[animationName];
         if (frames && frames.length > 0) {
@@ -73,20 +80,34 @@ export class FrameComponent extends Component {
 
     update(dt: number) {
         if (this.isPlaying) {
-            this.currentFrameIndex += dt / this.frameInterval;
-            if (this.currentFrameIndex >= 0) {
-                const frames = this.animationFrames[this.currentAnimation];
-                if (frames && frames.length > 0) {
-                    const frameIndex = Math.floor(this.currentFrameIndex) % frames.length;
-                    this.sprite.spriteFrame = frames[frameIndex];
-                    this.resizeSpriteFrameToNodeSize();
-
-                    // 判断是否播放到最后一帧且不循环播放，若是则停止动画
-                    if (!this.isLoop && frameIndex === frames.length - 1) {
-                        this.isPlaying = false;
+            this.currentFrameIndex += dt / this.frameInterval * this.playDirection;
+            const frames = this.animationFrames[this.currentAnimation];
+            if (frames && frames.length > 0) {
+                // 处理帧索引超出范围的情况（正向或反向），根据是否乒乓播放来调整逻辑
+                if (this.isPingpang) {
+                    if (this.playDirection === 1 && this.currentFrameIndex >= frames.length - 1) {
+                        // 正向播放到最后一帧，改变播放方向为反向
+                        this.playDirection = -1;
+                        this.currentFrameIndex = frames.length - 2; // 回退一帧，避免重复播放最后一帧
+                    } else if (this.playDirection === -1 && this.currentFrameIndex <= 0) {
+                        // 反向播放到第一帧，改变播放方向为正向
+                        this.playDirection = 1;
+                        this.currentFrameIndex = 1; // 前进一帧，避免重复播放第一帧
+                    }
+                } else {
+                    // 非乒乓播放时，正常处理帧索引超出范围的情况（循环或停止）
+                    if (this.currentFrameIndex >= frames.length) {
+                        if (this.isLoop) {
+                            this.currentFrameIndex %= frames.length;
+                        } else {
+                            this.isPlaying = false;
+                            this.currentFrameIndex = frames.length - 1;
+                        }
                     }
                 }
-                
+                const frameIndex = Math.floor(this.currentFrameIndex);
+                this.sprite.spriteFrame = frames[frameIndex];
+                this.resizeSpriteFrameToNodeSize();
             }
         }
     }

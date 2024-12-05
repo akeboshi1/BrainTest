@@ -1,4 +1,4 @@
-import { _decorator, Animation, AnimationClip, Component, instantiate, Label, Node, Prefab, UITransform, VideoPlayer, WebView } from 'cc';
+import { _decorator, Animation, AnimationClip, Component, instantiate, Label, Node, Prefab, UITransform, VideoClip, VideoPlayer, WebView } from 'cc';
 import { ChatFlowModel } from './Model/ChatFlowModel';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { DebugLog } from '../../../Core/Util/DebugLog';
@@ -36,12 +36,6 @@ export class ChatPanelCtrl extends Component {
     @property({ type: FrameComponent })
     private frameComponent: FrameComponent = null;
 
-    @property({ type: VideoPlayer })
-    private vp_idle: VideoPlayer = null;
-
-    @property({ type: VideoPlayer })
-    private vp_speak: VideoPlayer = null;
-
     @property({ type: Label })
     private subtitlesLabel: Label = null;
 
@@ -49,6 +43,8 @@ export class ChatPanelCtrl extends Component {
     private currentSpeechSeq: number = -1;
 
     private speakerTitle: string[] = ["可乐派：", "你："];
+
+    private ttsClosedHandler: ()=>void = null;
 
     private lastEventTime: number = 0; // 记录最后一次收到事件回调的时间
     private timerInterval: number = 30; // 设定的时间间隔，单位为秒，这里设置为180秒，可以根据需求调整
@@ -69,6 +65,7 @@ export class ChatPanelCtrl extends Component {
         EventManager.getInstance().on(ChatFlowModel.TTSFlowStartEvent, this.onTTSFlowStart, this);
         EventManager.getInstance().on(ChatFlowModel.WaittingEvent, this.onWaittingEvent, this);
         EventManager.getInstance().on(ChatFlowModel.ASRFlowStartEvent, this.onASRConnected, this);
+        EventManager.getInstance().on(ChatFlowModel.TTSFlowClosedEvent, this.onTTSClosedEvent, this);
 
         this.chatState = ChatState.Loading;
         this.playAnimationByState(this.chatState);
@@ -83,6 +80,7 @@ export class ChatPanelCtrl extends Component {
         EventManager.getInstance().off(ChatFlowModel.TTSFlowStartEvent, this);
         EventManager.getInstance().off(ChatFlowModel.WaittingEvent, this);
         EventManager.getInstance().off(ChatFlowModel.ASRFlowStartEvent, this);
+        EventManager.getInstance().off(ChatFlowModel.TTSFlowClosedEvent, this);
 
         const animationComponent = this.inOutAnimNode.getComponent(Animation);
         animationComponent.off(Animation.EventType.FINISHED);
@@ -119,7 +117,6 @@ export class ChatPanelCtrl extends Component {
         DebugLog.instance.log("clickInterruptButton");
         if (this.chatState == ChatState.Loading) return;
 
-        this.chatFlowModel.onCloseTTS();
         this.enterUserSpeakState();
     }
 
@@ -132,7 +129,9 @@ export class ChatPanelCtrl extends Component {
     public clickBackButton() {
         if (this.chatState == ChatState.Loading) return;
 
-        //this.fadeOut();
+        this.chatFlowModel.onCloseASR();
+        this.chatFlowModel.onCloseTTS();
+
         this.node.active = false;
         EventManager.getInstance().emit(ChatPanelCtrl.ChatPanelCloseEvent, {});
     }
@@ -201,16 +200,10 @@ export class ChatPanelCtrl extends Component {
         }
 
         if (state == ChatState.OpponentSpeaking) {
-            //this.frameComponent.playAnimation("speaking", 24);
-            this.vp_idle.stop();
-            this.vp_speak.play();
-            this.vp_speak.loop = true;
+            this.frameComponent.playAnimation("speak", 24, true, true);
         }
-        else if (state != ChatState.Sleeping) {
-            //this.frameComponent.playAnimation("idle", 24);
-            this.vp_speak.stop();
-            this.vp_idle.play();
-            this.vp_speak.loop = true;
+        else{
+            this.frameComponent.playAnimation("idle", 16, true, true);
         }
     }
 
@@ -226,6 +219,14 @@ export class ChatPanelCtrl extends Component {
     private onTTSFlowCompleted(data: any, context: ChatPanelCtrl) {
         this.enterUserSpeakState();
         this.updateLastEventTime();
+    }
+
+    private onTTSClosedEvent(data, context){
+        if(this.ttsClosedHandler)
+        {
+            this.ttsClosedHandler();
+            this.ttsClosedHandler = null;
+        }
     }
 
     private onTTSFlowStart(data: any, context: ChatPanelCtrl) {
@@ -264,7 +265,8 @@ export class ChatPanelCtrl extends Component {
     }
 
     private enterUserSpeakState() {
-        this.chatFlowModel.onOpenASR();
+        this.ttsClosedHandler = this.chatFlowModel.onOpenASR.bind(this);
+        this.chatFlowModel.onCloseTTS();
     }
 
     private onGetChatMessage(data: any, context: ChatPanelCtrl) {

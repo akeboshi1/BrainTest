@@ -52,22 +52,13 @@
       },
       {
         "__id__": 72
-      },
-      {
-        "__id__": 84
-      },
-      {
-        "__id__": 89
-      },
-      {
-        "__id__": 94
       }
     ],
     "_exoticAnimation": null,
     "_events": [],
     "_embeddedPlayers": [],
     "_additiveSettings": {
-      "__id__": 99
+      "__id__": 84
     },
     "_auxiliaryCurveEntries": []
   },
@@ -1316,129 +1307,6 @@
     ],
     "preExtrapolation": 1,
     "postExtrapolation": 1
-  },
-  {
-    "__type__": "cc.animation.ObjectTrack",
-    "_binding": {
-      "__type__": "cc.animation.TrackBinding",
-      "path": {
-        "__id__": 85
-      },
-      "proxy": null
-    },
-    "_channel": {
-      "__id__": 87
-    }
-  },
-  {
-    "__type__": "cc.animation.TrackPath",
-    "_paths": [
-      {
-        "__id__": 86
-      },
-      "active"
-    ]
-  },
-  {
-    "__type__": "cc.animation.HierarchyPath",
-    "path": "vp_idle"
-  },
-  {
-    "__type__": "cc.animation.Channel",
-    "_curve": {
-      "__id__": 88
-    }
-  },
-  {
-    "__type__": "cc.ObjectCurve",
-    "_times": [
-      0
-    ],
-    "_values": [
-      true
-    ]
-  },
-  {
-    "__type__": "cc.animation.ObjectTrack",
-    "_binding": {
-      "__type__": "cc.animation.TrackBinding",
-      "path": {
-        "__id__": 90
-      },
-      "proxy": null
-    },
-    "_channel": {
-      "__id__": 92
-    }
-  },
-  {
-    "__type__": "cc.animation.TrackPath",
-    "_paths": [
-      {
-        "__id__": 91
-      },
-      "active"
-    ]
-  },
-  {
-    "__type__": "cc.animation.HierarchyPath",
-    "path": "vp_speak"
-  },
-  {
-    "__type__": "cc.animation.Channel",
-    "_curve": {
-      "__id__": 93
-    }
-  },
-  {
-    "__type__": "cc.ObjectCurve",
-    "_times": [
-      0
-    ],
-    "_values": [
-      false
-    ]
-  },
-  {
-    "__type__": "cc.animation.ObjectTrack",
-    "_binding": {
-      "__type__": "cc.animation.TrackBinding",
-      "path": {
-        "__id__": 95
-      },
-      "proxy": null
-    },
-    "_channel": {
-      "__id__": 97
-    }
-  },
-  {
-    "__type__": "cc.animation.TrackPath",
-    "_paths": [
-      {
-        "__id__": 96
-      },
-      "active"
-    ]
-  },
-  {
-    "__type__": "cc.animation.HierarchyPath",
-    "path": "sp_sleep"
-  },
-  {
-    "__type__": "cc.animation.Channel",
-    "_curve": {
-      "__id__": 98
-    }
-  },
-  {
-    "__type__": "cc.ObjectCurve",
-    "_times": [
-      0
-    ],
-    "_values": [
-      false
-    ]
   },
   {
     "__type__": "cc.AnimationClipAdditiveSettings",

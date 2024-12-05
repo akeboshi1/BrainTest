@@ -34,22 +34,13 @@
       },
       {
         "__id__": 39
-      },
-      {
-        "__id__": 45
-      },
-      {
-        "__id__": 50
-      },
-      {
-        "__id__": 55
       }
     ],
     "_exoticAnimation": null,
     "_events": [],
     "_embeddedPlayers": [],
     "_additiveSettings": {
-      "__id__": 60
+      "__id__": 45
     },
     "_auxiliaryCurveEntries": []
   },
@@ -470,129 +461,6 @@
         "__uuid__": "5b60d48f-09aa-453a-af38-35bdc3bfbb26@f9941",
         "__expectedType__": "cc.SpriteFrame"
       }
-    ]
-  },
-  {
-    "__type__": "cc.animation.ObjectTrack",
-    "_binding": {
-      "__type__": "cc.animation.TrackBinding",
-      "path": {
-        "__id__": 46
-      },
-      "proxy": null
-    },
-    "_channel": {
-      "__id__": 48
-    }
-  },
-  {
-    "__type__": "cc.animation.TrackPath",
-    "_paths": [
-      {
-        "__id__": 47
-      },
-      "active"
-    ]
-  },
-  {
-    "__type__": "cc.animation.HierarchyPath",
-    "path": "vp_idle"
-  },
-  {
-    "__type__": "cc.animation.Channel",
-    "_curve": {
-      "__id__": 49
-    }
-  },
-  {
-    "__type__": "cc.ObjectCurve",
-    "_times": [
-      0
-    ],
-    "_values": [
-      true
-    ]
-  },
-  {
-    "__type__": "cc.animation.ObjectTrack",
-    "_binding": {
-      "__type__": "cc.animation.TrackBinding",
-      "path": {
-        "__id__": 51
-      },
-      "proxy": null
-    },
-    "_channel": {
-      "__id__": 53
-    }
-  },
-  {
-    "__type__": "cc.animation.TrackPath",
-    "_paths": [
-      {
-        "__id__": 52
-      },
-      "active"
-    ]
-  },
-  {
-    "__type__": "cc.animation.HierarchyPath",
-    "path": "vp_speak"
-  },
-  {
-    "__type__": "cc.animation.Channel",
-    "_curve": {
-      "__id__": 54
-    }
-  },
-  {
-    "__type__": "cc.ObjectCurve",
-    "_times": [
-      0
-    ],
-    "_values": [
-      false
-    ]
-  },
-  {
-    "__type__": "cc.animation.ObjectTrack",
-    "_binding": {
-      "__type__": "cc.animation.TrackBinding",
-      "path": {
-        "__id__": 56
-      },
-      "proxy": null
-    },
-    "_channel": {
-      "__id__": 58
-    }
-  },
-  {
-    "__type__": "cc.animation.TrackPath",
-    "_paths": [
-      {
-        "__id__": 57
-      },
-      "active"
-    ]
-  },
-  {
-    "__type__": "cc.animation.HierarchyPath",
-    "path": "sp_sleep"
-  },
-  {
-    "__type__": "cc.animation.Channel",
-    "_curve": {
-      "__id__": 59
-    }
-  },
-  {
-    "__type__": "cc.ObjectCurve",
-    "_times": [
-      0
-    ],
-    "_values": [
-      false
     ]
   },
   {
