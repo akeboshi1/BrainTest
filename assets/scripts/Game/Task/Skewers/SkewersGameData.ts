@@ -100,7 +100,7 @@ export class SkewersGameData {
         if(!curTrainData){
             return -1;
         }
-        return curTrainData.id;
+        return curTrainData.brain_training_id;
     }
 
     get progress():number{
@@ -133,10 +133,34 @@ export class SkewersGameData {
      */
     get status():number{
         let curTrainData = this.getCurTrainData();
-        this._status = curTrainData?curTrainData.status:0;
+        this._status = curTrainData?curTrainData.status:1;
         return this._status;
     }
 
+    /**
+     * 更新某一小关数据
+     * @param id
+     * @param data
+     */
+    updateData(id:number,data:any){
+        let len = this.trains.length;
+        for(let i:number = 0; i < len; ++i){
+            let tmpData:SkewersGameTrainData = this.trains[i];
+            if(tmpData.brain_training_id == id){
+                this.updateParam(tmpData,data.data);
+                return;
+            }
+        }
+    }
+
+    private updateParam(trainData:SkewersGameTrainData,data:any){
+        // 遍历data对象的属性
+        for (let key in data) {
+            if (data.hasOwnProperty(key)) {
+                trainData[key] = data[key];
+            }
+        }
+    }
 
 }
 
@@ -144,7 +168,7 @@ export class SkewersGameTrainData{
     // ============== trains
 
     // 任务id
-    public id:number;
+    public brain_training_id:number;
 
     // 游戏索引
     public seq:number;
@@ -153,7 +177,7 @@ export class SkewersGameTrainData{
     public status:number=0;
 
     // 游戏完成度 最低0 最高1
-    public completion:number=0;
+    public complete:number=0;
 
     // 游戏用时
     public duration:number = 0;
@@ -171,13 +195,13 @@ export class SkewersGameTrainData{
     public completedAt:string = null;
 
     public refreshData(data:any){
-        this.id = data['id'];
+        this.brain_training_id = data['id'];
         this.seq = data['seq'];
         this.status = data['status'];
         this.difficulty = data['difficulty'];
         this.duration = data['duration'];
         this.timeLimit = data['time_limit'];
-        this.completion = data['completion']||0;
+        this.complete = data['completion']||0;
         this.score = data['score']||0;
         this.completedAt = data['completed_at']||null;
     }

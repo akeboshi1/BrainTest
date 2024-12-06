@@ -1,6 +1,7 @@
 import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform} from "cc";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 const { ccclass, property } = _decorator;
 
 
@@ -38,6 +39,16 @@ export class Alert extends Component{
 
     @property(Label)
     progressLabel:Label = null;
+
+    /**
+     *
+     * @private
+     */
+    private _goonCallBack:Function = null;
+
+    public static ALERT_GOON:string ="ALERT_GOON";
+
+    public static ALERT_EXIT:string = "ALERT_EXIT";
 
     showView(type:AlertType) {
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
@@ -92,18 +103,28 @@ export class Alert extends Component{
         this.titleLabel.string = str;
     }
 
+    setDec(str:string){
+        this.decLabel.string = str;
+    }
+
     start(){
 
     }
 
     backToHall(){
-        this.backHandler();
+        this.node.removeFromParent();
         SceneManager.getInstance().backToHall();
+        EventManager.getInstance().emit(Alert.ALERT_EXIT);
     }
 
+    /**
+     * 继续
+     */
     backHandler(){
         this.node.removeFromParent();
+        EventManager.getInstance().emit(Alert.ALERT_GOON);
     }
+
 
 
 }
