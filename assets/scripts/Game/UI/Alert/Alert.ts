@@ -1,6 +1,7 @@
 import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform} from "cc";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -40,8 +41,11 @@ export class Alert extends Component{
     @property(Label)
     progressLabel:Label = null;
 
-    private callBackFuction:CallBackFunction;
-   
+
+    public static ALERT_GOON:string ="ALERT_GOON";
+
+    public static ALERT_EXIT:string = "ALERT_EXIT";
+
     showView(type:AlertType) {
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         switch (type) {
@@ -95,28 +99,28 @@ export class Alert extends Component{
         this.titleLabel.string = str;
     }
 
+    setDec(str:string){
+        this.decLabel.string = str;
+    }
+
     start(){
 
     }
 
     backToHall(){
-        this.backHandler();
+        this.node.removeFromParent();
         SceneManager.getInstance().backToHall();
+        EventManager.getInstance().emit(Alert.ALERT_EXIT);
     }
 
+    /**
+     * 继续
+     */
     backHandler(){
         this.node.removeFromParent();
-        this.callBackFuction.boundCallback;
+        EventManager.getInstance().emit(Alert.ALERT_GOON);
     }
 
-    setCallBack(callBack:Function,context:any){
-        if (!this.callBackFuction) {
-            this.callBackFuction = {};
-        }
-        this.callBackFuction = {
-            boundCallback:callBack.bind(context)
-        }
-        // this.callBackFuction = boundCallback;
-    }
+
 
 }

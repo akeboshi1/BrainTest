@@ -9,6 +9,7 @@ import {GameCenterManager} from "../../scripts/Game/Socket/GameCenterManager";
 import {SocketManager} from '../../scripts/Core/Manager/Net/SocketManager';
 import {SocketData} from '../../scripts/Core/Manager/Net/SocketData';
 import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 
 const { ccclass, property } = _decorator;
 
@@ -41,6 +42,10 @@ export class Main extends Component {
 
     @property(Button)
     nextButton: Button;
+
+
+    @property(Button)
+    startButton: Button;
 
     @property(Button)
     successNextButton: Button;
@@ -83,7 +88,7 @@ export class Main extends Component {
         // test
         // GameCenterManager.getInstance().startGame(1, this.startGame);
         if (Global.isSkewersGame) {
-            this.hardIndex = Global.userData.curSkewerGameData.difficulty;
+            this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
             this.timer = Global.userData.curSkewerGameData.timeLimit;
         }
         this.sceneInit()
@@ -229,43 +234,123 @@ export class Main extends Component {
     currentCustomsSuccess() {
         this.isAbleClick = false
         clearInterval(this.timerId);
-        this.successView.active = true;
-        this.successStartButton.node.active = false;
-        this.successNextButton.node.active = true;
-     
-        if (this.curHard == this.hards[0]) {
-            this.updateSuccessPopupTitle(2);
-            this.updateSuccessPopupToptxt(this.curHard);
-            this.updateSuccessPopupStar(this.curHard);
-        } else if (this.curHard == this.hards[1]) {
-            this.updateSuccessPopupTitle(2);
-            this.updateSuccessPopupToptxt(this.curHard);
-            this.updateSuccessPopupStar(this.curHard);
-        } else if (this.curHard == this.hards[2]) {
-            // 是否是串烧游戏
-            if (!Global.isSkewersGame) {
-                this.successViewProgressLabel.node.active = false;
-                this.successView.active = false;
-                this.bigWin.active = true;
-                const curGame = GameCenterManager.getInstance().currentGame;
-                GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
-                    this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
-            } else {
-                let maxCount = SkewersManager.getInstance().getGameCount();
-                let curCount = SkewersManager.getInstance().getCurGameIndex();
-                this.successViewProgressLabel.node.active = true;
-                if (SkewersManager.getInstance().isRunOver()) {
-                    this.successViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
+        if(SkewersManager.getInstance().isRunOver()){
+            let self = this;
+            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                const alertNode = instantiate(resource);
+                this.node.addChild(alertNode);
+                let alert = alertNode.getComponent("Alert");
+                alertNode.setPosition(0,0,0);
+                alert["showView"](AlertType.Sucess_Big);
+                alert["setTitle"]("太棒了，恭喜你全部通关");
+                alert["setDec"]("收获xxx点脑力值！");
+            });
+            return;
+        }
+
+        // 非串烧游戏
+        if (!Global.isSkewersGame) {
+            this.successView.active = true;
+            this.successStartButton.node.active = false;
+            this.successNextButton.node.active = true;
+            if (this.curHard == this.hards[0]) {
+                this.updateSuccessPopupTitle(2);
+                this.updateSuccessPopupToptxt(this.curHard);
+                this.updateSuccessPopupStar(this.curHard);
+            } else if (this.curHard == this.hards[1]) {
+                this.updateSuccessPopupTitle(2);
+                this.updateSuccessPopupToptxt(this.curHard);
+                this.updateSuccessPopupStar(this.curHard);
+            } else if (this.curHard == this.hards[2]) {
+                // 非串烧游戏
+                // if (!Global.isSkewersGame) {
+                    this.successViewProgressLabel.node.active = false;
                     this.successView.active = false;
                     this.bigWin.active = true;
-                } else {
-                    this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
-                    this.successView.active = true;
-                    this.bigWin.active = false;
+                    const curGame = GameCenterManager.getInstance().currentGame;
+                    GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
+                        this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+                // }
+                // else {
+                //     let maxCount = SkewersManager.getInstance().getGameCount();
+                //     let curCount = SkewersManager.getInstance().getCurGameIndex();
+                //     this.successViewProgressLabel.node.active = true;
+                //     if (!SkewersManager.getInstance().isRunOver()) {
+                //         this.successViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
+                //         this.successView.active = true;
+                //         this.bigWin.active = false;
+                //     } else {
+                //         let self = this;
+                //         LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                //             const alertNode = instantiate(resource);
+                //             this.node.addChild(alertNode);
+                //             let alert = alertNode.getComponent("Alert");
+                //             alertNode.setPosition(0,0,0);
+                //             alert["showView"](AlertType.Sucess_Small);
+                //             alert["setTitle"]("太棒了，恭喜你通关翻牌");
+                //             alert["setDec"]("收获xxx点脑力值！");
+                //         });
+                //         this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
+                //         // this.successView.active = true;
+                //         // this.bigWin.active = false;
+                //     }
+                // }
+            }
+        }else{
+
+            let curGameData = SkewersManager.getInstance().getUnCompleteGameData();
+            let maxCount = SkewersManager.getInstance().getGameCount();
+            let curCount = SkewersManager.getInstance().getCurGameIndex();
+            if(maxCount != curCount){
+                this.successViewProgressLabel.node.active = true;
+                this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
+                this.successView.active = true;
+                this.startButton.node.active = false;
+                this.nextButton.node.active = true;
+                this.bigWin.active = false;
+            }else{
+                EventManager.getInstance().on(Alert.ALERT_GOON,this.alertGoonHandler,this);
+                EventManager.getInstance().on(Alert.ALERT_GOON,this.alertExit,this);
+                if (!SkewersManager.getInstance().isRunOver()) {
+                    LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                        const alertNode = instantiate(resource);
+                        this.node.addChild(alertNode);
+                        let alert = alertNode.getComponent("Alert");
+                        alertNode.setPosition(0,0,0);
+                        alert["showView"](AlertType.Sucess_Small);
+                        alert["setTitle"]("太棒了，恭喜你通关翻牌");
+                        alert["setDec"]("收获xxx点脑力值！");
+                    });
+                }else{
+                    LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                        const alertNode = instantiate(resource);
+                        this.node.addChild(alertNode);
+                        let alert = alertNode.getComponent("Alert");
+                        alertNode.setPosition(0,0,0);
+                        alert["showView"](AlertType.Sucess_Big);
+                        alert["setTitle"]("太棒了，恭喜你全部通关");
+                        alert["setDec"]("收获xxx点脑力值！");
+                    });
                 }
             }
         }
+    }
 
+
+    private alertGoonHandler(){
+        EventManager.getInstance().off(Alert.ALERT_GOON,this);
+        if (!SkewersManager.getInstance().isRunOver()) {
+            SkewersManager.getInstance().runNextGame();
+        }else{
+            console.log("返回大厅")
+            SceneManager.getInstance().backToHall();
+        }
+    }
+
+    private alertExit(){
+        EventManager.getInstance().off(Alert.ALERT_GOON,this);
+        console.log("返回大厅")
+        SceneManager.getInstance().backToHall();
     }
 
     startGame() {
@@ -373,19 +458,18 @@ export class Main extends Component {
         let self = this;
         this.cardList.forEach((card, index) => {
             const cardNode = this.cardPool.children[0].children[index];
-            const sprite = cardNode.getComponent(Sprite);
-
-
-            LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                LoaderManager.getInstance().loadABRes(card.imgUrl, self.bundleName).then((res) => {
-                    const spriteFrame = new SpriteFrame();
-                    const texture = new Texture2D();
-                    texture.image = res;
-                    spriteFrame.texture = texture;
-                    sprite.spriteFrame = spriteFrame;
-                })
-            });
-
+            if(cardNode){
+                const sprite = cardNode.getComponent(Sprite);
+                LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                    LoaderManager.getInstance().loadABRes(card.imgUrl, self.bundleName).then((res) => {
+                        const spriteFrame = new SpriteFrame();
+                        const texture = new Texture2D();
+                        texture.image = res;
+                        spriteFrame.texture = texture;
+                        sprite.spriteFrame = spriteFrame;
+                    })
+                });
+            }
 
             // resources.load(card.imgUrl, (err, image: ImageAsset) => {
             //     if (err) {
@@ -405,16 +489,19 @@ export class Main extends Component {
         let self = this;
         this.cardList.forEach((card, index) => {
             const cardNode = this.cardPool.children[0].children[index];
-            const sprite = cardNode.getComponent(Sprite);
-            LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
-                    const spriteFrame = new SpriteFrame();
-                    const texture = new Texture2D();
-                    texture.image = res;
-                    spriteFrame.texture = texture;
-                    sprite.spriteFrame = spriteFrame;
-                })
-            });
+            if(cardNode){
+                const sprite = cardNode.getComponent(Sprite);
+                LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                    LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
+                        const spriteFrame = new SpriteFrame();
+                        const texture = new Texture2D();
+                        texture.image = res;
+                        spriteFrame.texture = texture;
+                        sprite.spriteFrame = spriteFrame;
+                    })
+                });
+            }
+
             // resources.load("texture/card/Card_back_d", (err, image: ImageAsset) => {
             //     if (err) {
             //         console.log(err);

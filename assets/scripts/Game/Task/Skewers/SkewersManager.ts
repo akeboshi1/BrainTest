@@ -139,14 +139,17 @@ export class SkewersManager{
          return trainData.seq;
      }
 
+
+     private _curRequestCompleteData:SocketData = null;
+
     /**
-     * 请求完成脑力保健
+     * 请求完成脑力保健小关
      * @param data
      */
      public requestCompleteBrainsTrainings(data:any){
          EventManager.getInstance().on(this.task_complete_brain_training,this.requestCompleteBrainsTrainingsCallback,this);
-         let socketData = new SocketData(data);
-         SocketManager.getInstance().send(socketData);
+         this._curRequestCompleteData = new SocketData(data);
+         SocketManager.getInstance().send(this._curRequestCompleteData);
      }
 
      private requestCompleteBrainsTrainingsCallback(data:any,context:any){
@@ -169,21 +172,12 @@ export class SkewersManager{
                  DebugLog.instance.log("当前串烧游戏已经全部完成");
                  Global.isSkewersGame = false;
                  this._curIndex = -1;
-                 // back to hall test
                  SceneManager.getInstance().backToHall();
                  return;
              }
-
-             // let game = this.getNextGameData();
-             // if(!game){
-             //     DebugLog.instance.log("当前串烧游戏已经全部完成");
-             //     Global.isSkewersGame = false;
-             //     this._curIndex = -1;
-             //     // back to hall test
-             //     SceneManager.getInstance().backToHall();
-             //     return;
-             // }
-
+             curGame.updateData(data.data["brain_training_id"], this._curRequestCompleteData);
+             // 可能换到了下一个类型游戏
+             curGame = this.getUnCompleteGameData();
              const sceneName = curGame.gameCode;
              let url = Global.RES_Root+sceneName;
              SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
@@ -260,15 +254,15 @@ export class SkewersManager{
     /**
      * 运行下一个游戏
      */
-    public runNextGame(){
+    public runNextGame(complete:number = 1,duration:number = 40){
          // 上报游戏完成数据
-         this.requestGameComplete();
+         this.requestGameComplete(complete,duration);
      }
 
     /**
      * 外部请求游戏过关
      */
-    public requestGameComplete(){
+    public requestGameComplete(complete:number,duration:number){
          let curGame = this.getUnCompleteGameData();
          if(!curGame){
              DebugLog.instance.error("当前串烧游戏已经全部完成");
@@ -276,10 +270,10 @@ export class SkewersManager{
          }
          let curTrainData = curGame.getCurTrainData();
          let socketData = {action:this.task_complete_brain_training,data:{
-                 "brain_training_id": curTrainData.id, // 脑力训练（游戏小关）id （必填）
-                 "completion": 1, // 完成度
-                 "duration": 40, // 用时（秒）
-                 "score": 100, // 得分}}
+                 "brain_training_id": curTrainData.brain_training_id, // 脑力训练（游戏小关）id （必填）
+                 "complete": complete, // 完成度
+                 "duration": duration, // 用时（秒）
+                 "status": 1
              }
          };
          this.requestCompleteBrainsTrainings(socketData);
@@ -297,10 +291,7 @@ export class SkewersManager{
      * 游戏列表中是否还有未完成得游戏
      * @private
      */
-     private getUnCompleteGameData():SkewersGameData{
-        if(this._curIndex!=-1){
-            return this._gameDatas[this._curIndex];
-        }
+     public getUnCompleteGameData():SkewersGameData{
 
          let len = this._gameDatas.length;
          for(let i:number = 0;i<len;i++){
