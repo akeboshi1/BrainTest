@@ -1,7 +1,7 @@
 import {BaseManager} from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import {EventManager} from "../Event/EventManager";
-import {SocketData} from "../../../Core/Manager/Net/SocketData";
+import {SocketData, SocketDataStatus} from "../../../Core/Manager/Net/SocketData";
 
 export class SocketManager extends BaseManager{
     private static _instance: SocketManager;
@@ -26,7 +26,6 @@ export class SocketManager extends BaseManager{
     }
 
     update(){
-
 
     }
 
@@ -72,6 +71,7 @@ export class SocketManager extends BaseManager{
                let socketData:SocketData = _tmpDatas[i];
                if(socketData.uid == uid){
                    tmpSocketData = socketData;
+                   tmpSocketData.netStatus = SocketDataStatus.complete;
                    //流式数据
                    if(streamstatus != null){
                        tmpSocketData.isStream =true;
@@ -97,7 +97,7 @@ export class SocketManager extends BaseManager{
        };
     }
 
-    public send(data:any){
+    public send(data:SocketData){
         let _tmpDatas:SocketData[]= this._socketDatas.get(data.action);
         if(!_tmpDatas){
             _tmpDatas = [];
@@ -113,6 +113,7 @@ export class SocketManager extends BaseManager{
         const jsonStr = JSON.stringify(data);
         DebugLog.instance.log(data);
         this._socket.send(jsonStr);
+        data.netStatus = SocketDataStatus.request;
         DebugLog.instance.log(`发送：${jsonStr}`);
         this._socketDatas.set(data.action, _tmpDatas);
     }

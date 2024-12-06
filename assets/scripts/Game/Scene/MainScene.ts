@@ -94,9 +94,6 @@ export class MainScene extends Component {
     @property(Node)
     brainTrainNode:Node;
 
-    @property(Node)
-    brainTrainAlert:Node;
-
     @property({type:[Node]})
     skewersGameItems:Node[]=[];
 
@@ -155,7 +152,6 @@ export class MainScene extends Component {
         this.taskProgressNode.active = false;
         this.taskScrollView.active = false;
         this.brainTrainNode.active = false;
-        this.brainTrainAlert.active = false;
         this.switchTaskNode(true);
         this._curPanel = this.taskNode;
     }
@@ -214,7 +210,6 @@ export class MainScene extends Component {
         this.taskProgressNode.active = true;
         this.taskScrollView.active = false;
         this.brainTrainNode.active = false;
-        this.brainTrainAlert.active = false;
         this.tabClick(null,0);
         this.switchTaskNode(false);
         this._curPanel = this.taskProgressNode;
@@ -341,7 +336,6 @@ export class MainScene extends Component {
     private requestBranisTraining_listCallBack(data,context){
         EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
         this.brainTrainNode.active = true;
-        this.brainTrainAlert.active = false;
         this.taskNode.active = false;
         this.taskProgressNode.active = false;
         this.gameCenterNode.active = false;
@@ -364,7 +358,7 @@ export class MainScene extends Component {
                let progressStr = _gameData.progressStr;
                progressLabel.string = `当前进度: ${progressStr}`;
            }else{
-               // gameItem.active = false;
+               gameItem.active = false;
                let label = gameItem.getChildByName("label").getComponent(Label);
                label.string = "未知";
                let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
