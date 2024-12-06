@@ -199,6 +199,7 @@ export class MainScene extends Component {
         if (this.chatPanelPrefab && this.parentNode) {
             this.chatPanel = instantiate(this.chatPanelPrefab);
             this.parentNode.addChild(this.chatPanel);
+            this.parentNode.active = true;
         } else {
             DebugLog.instance.error("预制体或者父节点未正确绑定，请检查！");
         }
