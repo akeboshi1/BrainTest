@@ -9,7 +9,7 @@ import { questions0, questions1, questions2 } from './questionsDate'
 
 
 const SHOOT_INTERVAL = 5;
-let questions = questions0;
+let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends Component {
     @property(Node)
@@ -64,7 +64,7 @@ export class catchfish extends Component {
     private wangCount: number = 0;
 
     private curHard: number = 0;
-    private hards: number[] = [0, 1, 2];
+    private hards: number[] = [1, 2, 3];
     private hardIndex: number = 0;
 
     private hasWangClick: boolean = false;
@@ -78,6 +78,8 @@ export class catchfish extends Component {
         this.curHard = this.hards[this.hardIndex];
         this.gameBeforeView.active = false;
         this.gameStartView.active = true;
+        this.wangCount = 0;
+        this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
         this.timeInit();
         this.timeStart();
         this.createFish();
@@ -112,7 +114,9 @@ export class catchfish extends Component {
 
         fish.setSpriteFrame(spriteFrame);
 
-        const question = questions[Math.floor(Math.random() * questions.length)];
+        const currentQuestions = questions[this.hardIndex];
+
+        const question = currentQuestions[Math.floor(Math.random() * currentQuestions.length)];
 
         fish.setQuestion(question);
         EventManager.getInstance().off(Fish.FishClick, this);
@@ -293,18 +297,22 @@ export class catchfish extends Component {
         }
 
     }
+    
+    updateSuccessPopupStar(num) {
+        this.stars.forEach((star, index) => {
+           star.active = index < num;
+        });     
+    }
     private endCurHardGame() {
         this.gameSuccessView.active = true;
         this.clearGameView();
-        this.stars[this.hardIndex].getChildByName('star1').active = true;
+        this.updateSuccessPopupStar(this.curHard);
         this.stars[this.hardIndex].scale = new Vec3(2, 2, 2);
-        this.hardIndex++;
-        for (let i = this.hardIndex; i < this.hards.length; i++) {
-            DebugLog.instance.log('this.hards[i]')
-            this.stars[i].getChildByName('star1').active = false;
-            this.stars[i].getChildByName('star2').active = true;
+        if (this.hardIndex == this.hards.length - 1) {
+            this.hardIndex = 0;
+        } else {
+            this.hardIndex++;
         }
-    
         this.curHard = this.hards[this.hardIndex];
     }
 
@@ -321,13 +329,17 @@ export class catchfish extends Component {
                     if (fish.curTween) {
                         fish.curTween.stop();
                         fish.curTween = null;
-    
                     }
-                    fish.destroy();
+                    this.fishParentNode.removeChild(fish.getFishNode());
+                    fish = null;
                 }
             }
             this.fishs = [];
         }
+    }
+    private nextGame() {
+        this.gameSuccessView.active = false;
+        this.startGame(); // 开始下一关
     }
 
     private selectWang(index: number) {
@@ -354,10 +366,7 @@ export class catchfish extends Component {
 
         SceneManager.getInstance().backToHall();
     }
-    private nextGame() {
-        this.gameSuccessView.active = false;
-
-    }
+ 
 }
 
 

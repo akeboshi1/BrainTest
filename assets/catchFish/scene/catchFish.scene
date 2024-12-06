@@ -175,7 +175,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 980.7972270363953,
+    "_orthoHeight": 1042.2099447513813,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -4907,7 +4907,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "stars",
+    "_name": "stars1",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -5647,7 +5647,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "stars",
+    "_name": "stars2",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -6162,7 +6162,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "stars",
+    "_name": "stars3",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -8372,13 +8372,13 @@
     ],
     "stars": [
       {
-        "__id__": 134
+        "__id__": 138
       },
       {
-        "__id__": 154
+        "__id__": 158
       },
       {
-        "__id__": 168
+        "__id__": 172
       }
     ],
     "catchLabel": {
@@ -8410,7 +8410,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1919.9999999999998
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
