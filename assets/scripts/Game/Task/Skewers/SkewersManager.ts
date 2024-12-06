@@ -133,9 +133,9 @@ export class SkewersManager{
 
      public getCurGameIndex():number{
          let curgameData = this.getUnCompleteGameData();
-         if(curgameData == null) return -1 ;
+         if(curgameData == null) return 0 ;
          let trainData = curgameData.getCurTrainData();
-         if(trainData == null) return -1;
+         if(trainData == null) return 0;
          return trainData.seq;
      }
 
@@ -154,8 +154,42 @@ export class SkewersManager{
          let status = data.status;
          if(status == 0){
              DebugLog.instance.error(data.message);
+             SceneManager.getInstance().backToHall();
          }else{
-             // back to hall
+             if(!this._gameDatas||this._gameDatas.length <=0){
+                 DebugLog.instance.log("当前串烧游戏已经全部完成");
+                 Global.isSkewersGame = false;
+                 this._curIndex = -1;
+                 // back to hall test
+                 SceneManager.getInstance().backToHall();
+                 return;
+             }
+             let curGame = this.getUnCompleteGameData();
+             if(!curGame){
+                 DebugLog.instance.log("当前串烧游戏已经全部完成");
+                 Global.isSkewersGame = false;
+                 this._curIndex = -1;
+                 // back to hall test
+                 SceneManager.getInstance().backToHall();
+                 return;
+             }
+
+             // let game = this.getNextGameData();
+             // if(!game){
+             //     DebugLog.instance.log("当前串烧游戏已经全部完成");
+             //     Global.isSkewersGame = false;
+             //     this._curIndex = -1;
+             //     // back to hall test
+             //     SceneManager.getInstance().backToHall();
+             //     return;
+             // }
+
+             const sceneName = curGame.gameCode;
+             let url = Global.RES_Root+sceneName;
+             SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
+                 DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
+                 Global.userData.curSkewerGameData = curGame;
+             });
          }
      }
 
@@ -229,41 +263,6 @@ export class SkewersManager{
     public runNextGame(){
          // 上报游戏完成数据
          this.requestGameComplete();
-
-         if(!this._gameDatas||this._gameDatas.length <=0){
-             DebugLog.instance.log("当前串烧游戏已经全部完成");
-             Global.isSkewersGame = false;
-             this._curIndex = -1;
-             // back to hall test
-             SceneManager.getInstance().backToHall();
-             return;
-         }
-         let curGame = this.getUnCompleteGameData();
-         if(!curGame){
-             DebugLog.instance.log("当前串烧游戏已经全部完成");
-             Global.isSkewersGame = false;
-             this._curIndex = -1;
-             // back to hall test
-             SceneManager.getInstance().backToHall();
-             return;
-         }
-
-         // let game = this.getNextGameData();
-         // if(!game){
-         //     DebugLog.instance.log("当前串烧游戏已经全部完成");
-         //     Global.isSkewersGame = false;
-         //     this._curIndex = -1;
-         //     // back to hall test
-         //     SceneManager.getInstance().backToHall();
-         //     return;
-         // }
-
-         const sceneName = curGame.gameCode;
-         let url = Global.RES_Root+sceneName;
-         SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-             DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
-             Global.userData.curSkewerGameData = curGame;
-         });
      }
 
     /**

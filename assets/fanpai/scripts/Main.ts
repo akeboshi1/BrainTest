@@ -1,13 +1,15 @@
-import { _decorator, Component, Node, resources, Sprite, SpriteFrame, Texture2D, ImageAsset, Label, Button, random } from 'cc';
-import { LoaderManager } from "../../scripts/Core/Manager/Load/LoaderManager";
-import { Global } from "../../scripts/Core/Manager/Config/Global";
-import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { GameCenterManager } from "db://assets/scripts/Game/Socket/GameCenterManager";
-import { SocketManager } from '../../scripts/Core/Manager/Net/SocketManager';
-import { SocketData } from '../../scripts/Core/Manager/Net/SocketData';
+import {_decorator, Button, Component, instantiate, Label, Node, Sprite, SpriteFrame, Texture2D} from 'cc';
+import {LoaderManager} from "../../scripts/Core/Manager/Load/LoaderManager";
+import {Global} from "../../scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
+import {DebugLog} from "../../scripts/Core/Util/DebugLog";
+import {SceneManager} from "../../scripts/Core/Manager/Scene/SceneManager";
+import {TimeUtil} from "../../scripts/Core/Util/TimeUtil";
+import {GameCenterManager} from "../../scripts/Game/Socket/GameCenterManager";
+import {SocketManager} from '../../scripts/Core/Manager/Net/SocketManager';
+import {SocketData} from '../../scripts/Core/Manager/Net/SocketData';
+import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -501,14 +503,28 @@ export class Main extends Component {
         }
     }
     private quitGame() {
-        console.log("返回大厅")
-        SocketManager.getInstance().send(new SocketData({
-            action: GameCenterManager.GAMEMATCHITEM,
-            data: {
-                session_id: GameCenterManager.getInstance().currentGame.sessionid,
-            }
-        }));
-        SceneManager.getInstance().backToHall();
+        clearInterval(this.timerId);
+        if(Global.isSkewersGame) {
+            let self = this;
+            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                const alertNode = instantiate(resource);
+                this.node.addChild(alertNode);
+                let alert = alertNode.getComponent("Alert");
+                alertNode.setPosition(0,0,0);
+                alert["showView"](AlertType.Normal);
+                alert["setTitle"]("是否退出当前游戏？");
+            });
+        }else{
+            // 游戏大厅
+            console.log("返回大厅")
+            SocketManager.getInstance().send(new SocketData({
+                action: GameCenterManager.GAMEEND,
+                data: {
+                    session_id: GameCenterManager.getInstance().currentGame.sessionid,
+                }
+            }));
+            SceneManager.getInstance().backToHall();
+        }
     }
 
 }
