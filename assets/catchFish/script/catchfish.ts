@@ -64,7 +64,7 @@ export class catchfish extends Component {
     private wangCount: number = 0;
 
     private curHard: number = 0;
-    private hards: number[] = [0, 1, 2];
+    private hards: number[] = [1, 2, 3];
     private hardIndex: number = 0;
 
     private hasWangClick: boolean = false;
@@ -297,23 +297,22 @@ export class catchfish extends Component {
         }
 
     }
+    
+    updateSuccessPopupStar(num) {
+        this.stars.forEach((star, index) => {
+           star.active = index < num;
+        });     
+    }
     private endCurHardGame() {
         this.gameSuccessView.active = true;
         this.clearGameView();
-        this.stars[this.hardIndex].getChildByName('star1').active = true;
+        this.updateSuccessPopupStar(this.curHard);
         this.stars[this.hardIndex].scale = new Vec3(2, 2, 2);
         if (this.hardIndex == this.hards.length - 1) {
             this.hardIndex = 0;
         } else {
             this.hardIndex++;
         }
-        
-        for (let i = this.hardIndex; i < this.hards.length; i++) {
-            DebugLog.instance.log('this.hards[i]')
-            this.stars[i].getChildByName('star1').active = false;
-            this.stars[i].getChildByName('star2').active = true;
-        }
-    
         this.curHard = this.hards[this.hardIndex];
     }
 
@@ -330,7 +329,6 @@ export class catchfish extends Component {
                     if (fish.curTween) {
                         fish.curTween.stop();
                         fish.curTween = null;
-    
                     }
                     this.fishParentNode.removeChild(fish.getFishNode());
                     fish = null;
@@ -338,6 +336,10 @@ export class catchfish extends Component {
             }
             this.fishs = [];
         }
+    }
+    private nextGame() {
+        this.gameSuccessView.active = false;
+        this.startGame(); // 开始下一关
     }
 
     private selectWang(index: number) {
@@ -364,10 +366,7 @@ export class catchfish extends Component {
 
         SceneManager.getInstance().backToHall();
     }
-    private nextGame() {
-        this.gameSuccessView.active = false;
-        this.startGame(); // 开始下一关
-    }
+ 
 }
 
 
