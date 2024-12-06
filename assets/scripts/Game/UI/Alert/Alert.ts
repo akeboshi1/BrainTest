@@ -2,7 +2,9 @@ import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform} from "cc
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
-
+interface CallBackFunction {
+    boundCallback?: Function;
+}
 
 export enum AlertType {
     Normal,
@@ -10,7 +12,6 @@ export enum AlertType {
     Sucess_Big,
     Failed
 }
-
 @ccclass('Alert')
 export class Alert extends Component{
 
@@ -39,6 +40,8 @@ export class Alert extends Component{
     @property(Label)
     progressLabel:Label = null;
 
+    private callBackFuction:CallBackFunction;
+   
     showView(type:AlertType) {
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         switch (type) {
@@ -103,7 +106,17 @@ export class Alert extends Component{
 
     backHandler(){
         this.node.removeFromParent();
+        this.callBackFuction.boundCallback;
     }
 
+    setCallBack(callBack:Function,context:any){
+        if (!this.callBackFuction) {
+            this.callBackFuction = {};
+        }
+        this.callBackFuction = {
+            boundCallback:callBack.bind(context)
+        }
+        // this.callBackFuction = boundCallback;
+    }
 
 }

@@ -42,8 +42,6 @@ export class Main extends Component {
     @property(Button)
     nextButton: Button;
 
-
-
     @property(Button)
     successNextButton: Button;
 
@@ -447,7 +445,6 @@ export class Main extends Component {
         this.timer = this.INIT_TIME;
         this.Timer.string = TimeUtil.formatTime(this.timer);
     }
-
     timerTick() {
         this.timerId = setInterval(() => {
             this.timer -= 1;
@@ -474,6 +471,15 @@ export class Main extends Component {
             }
             this.updateTimerLabel()
         }, 1 * 1000);
+    }
+    restoreTimer() {
+        // if (this.timerId) {
+        //     clearInterval(this.timerId);
+        //     this.timerId = undefined;
+        // }
+        this.updateTimerLabel();    
+       
+        this.timerTick();
     }
 
     updateTimerLabel() {
@@ -503,9 +509,11 @@ export class Main extends Component {
         }
     }
     private quitGame() {
-        clearInterval(this.timerId);
+        // clearInterval(this.timerId);
+        DebugLog.instance.log('this.timer1', this.timer)
         if(Global.isSkewersGame) {
             let self = this;
+            DebugLog.instance.log('this.timer2', this.timer)
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
                 const alertNode = instantiate(resource);
                 this.node.addChild(alertNode);
@@ -513,9 +521,12 @@ export class Main extends Component {
                 alertNode.setPosition(0,0,0);
                 alert["showView"](AlertType.Normal);
                 alert["setTitle"]("是否退出当前游戏？");
+                DebugLog.instance.log('this.timer3', this.timer)
+                alert["setCallBack"](self.restoreTimer,this)
             });
         }else{
             // 游戏大厅
+            clearInterval(this.timerId);
             console.log("返回大厅")
             SocketManager.getInstance().send(new SocketData({
                 action: GameCenterManager.GAMEEND,
