@@ -252,11 +252,10 @@ export class Main extends Component {
                 this.successViewProgressLabel.node.active = false;
                 this.successView.active = false;
                 this.bigWin.active = true;
-                const curGame = GameCenterManager.getInstance().currentGame;
-                GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
-                    this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
-
             }
+            const curGame = GameCenterManager.getInstance().currentGame;
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
+            this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
         }else{
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
@@ -583,7 +582,8 @@ export class Main extends Component {
                 alert["showView"](AlertType.Normal);
                 alert["setTitle"]("是否退出当前游戏？");
                 DebugLog.instance.log('this.timer3', this.timer)
-                alert["setCallBack"](self.restoreTimer,this)
+                EventManager.getInstance().on(Alert.ALERT_GOON,this.restoreTimer,this);
+                // alert["setCallBack"](self.restoreTimer,this)
             });
         }else{
             // 游戏大厅
