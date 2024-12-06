@@ -28,6 +28,8 @@ export class ChatFlowModel extends BaseManager {
     public static ASRFlowStartEvent: string = "ChatFlowMode.ASRFlowStartEvent";
     public static ASRFlowCompleteEvent: string = "ChatFlowMode.ASRFlowCompleteEvent";
 
+    public static ReciveEmptyChunk: string = "ChatFlowMode.ReciveEmptyChunk";
+
     public static WaittingEvent: string = "ChatFlowMode.WaittingEvent";
     public static WaittingEventStrings: any = {
         // normal: "正在加载",
@@ -49,23 +51,23 @@ export class ChatFlowModel extends BaseManager {
 
     private chat_get_greeting: string = "chat.get_greeting";
     private chat_chat: string = "chat.chat";
+    private chatRequestUidCount: number = 0;
+    private chatRequestUidHead: string = "chatReq";
+    private currentChatRequestUid: string = null;
 
-    private resolveFn: (() => void) | null = null;
-    private rejectFn: ((reason?: any) => void) | null = null;
-    private inChatRequestFlow: boolean = false;
     private chatMessageMap: Map<string, { speaker: 0 | 1, message: string }> = new Map();
-    private currentSpeaker: 0 | 1 = 0; //0是机器人讲话， 1是用户
     private currentSpeechSeq: number = 0;
 
     private ttsOpenState: boolean = false;
     private ttsInConnectFlow: boolean = false;
-    private ttsPostUid: number = -1;
-    private ttsLastPostUid: number = 0;
+    private ttsPostUid: string = null;
+    private ttsLastPostUid: string = null;
+    private ttsPostCount: number = 0;
 
     private asrOpenState: boolean = false;
 
     private tts_open_resolveFn: (() => void) | null = null;
-    private tts_post_cacheData: Map<number, string> = new Map();
+    private tts_post_cacheData: Map<string, string> = new Map();
 
     private initFlag = false;
 
@@ -177,8 +179,7 @@ export class ChatFlowModel extends BaseManager {
         if (data.uid == this.ttsLastPostUid) {
             DebugLog.instance.log("TTSEnd _last event");
             EventManager.getInstance().emit(ChatFlowModel.TTSFlowCompleteEvent, {});
-
-            this.endChatRequestFlow();
+            this.currentChatRequestUid = null;
         }
     }
 
@@ -188,32 +189,44 @@ export class ChatFlowModel extends BaseManager {
     }
 
     // 发起greeting请求的方法，这里简单示意，实际可能涉及具体的网络请求库调用等
-    public async sendChatRequest(message: string, isGreeting: boolean = false): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.resolveFn = resolve;
-            this.rejectFn = reject;
-            this.inChatRequestFlow = true;
+    public sendChatRequest(message: string, isGreeting: boolean = false) {
+        this.ttsPostCount = 0;
+        const curReqCount = this.chatRequestUidCount + 1;
+        this.currentChatRequestUid = this.chatRequestUidHead + curReqCount;
+        this.ttsPostUid = this.currentChatRequestUid + "-" + this.ttsPostCount;
+        this.ttsLastPostUid = null;
+        this.textCache = "";
 
-            EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.normal });
-            if (isGreeting) {
-                this.currentSpeechSeq = 0;
-
-                SocketManager.getInstance().send(new SocketData({ "action": this.chat_get_greeting, "data": {} }));
-            }
-            else {
-                SocketManager.getInstance().send(new SocketData({ "action": this.chat_chat, "data": { message: message } }));
-            }
-        });
+        EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.normal });
+        
+        if (isGreeting) {
+            this.currentSpeechSeq = 0;
+            SocketManager.getInstance().send(new SocketData({ "action": this.chat_get_greeting, "data": {}, uid: this.currentChatRequestUid }));
+        }
+        else {
+            this.currentSpeechSeq++;
+            SocketManager.getInstance().send(new SocketData({ "action": this.chat_chat, "data": { message: message }, uid: this.currentChatRequestUid }));
+        }
+        this.chatRequestUidCount = curReqCount;
     }
 
     // 处理消息块的方法，接收流式传输过来的每个数据块（这里假设是Buffer类型，根据实际可能需要调整）
     private handleMessageChunk(chunk: any, context: ChatFlowModel): void {
         const self = context;
+
+        const uid = chunk.uid;
+        if (!self.currentChatRequestUid || uid != self.currentChatRequestUid) {
+            DebugLog.instance.warn("ignore this chat message chunk , uid = " + uid);
+            return;
+        }
+
         const data = chunk.data;
         if (!data) {
             DebugLog.instance.warn("handleMessageChunk get empty data !!!");
+            EventManager.getInstance().emit(ChatFlowModel.ReciveEmptyChunk, {});
             return;
         }
+
         const seq = data.seq;
         const content_type = data.content_type;
         const content = data.content;
@@ -228,10 +241,6 @@ export class ChatFlowModel extends BaseManager {
                         // 超时处理，这里可以添加合适的日志或者错误提示等逻辑
                         console.error(`Seq ${seq} is missing and timeout!`);
                         self.waitingForSeq = null;
-                        if (self.rejectFn) {
-                            self.rejectFn({ reason: "seqError" });
-                        }
-                        self.endChatRequestFlow();
                     }
                 }, self.seqTimeout);
             }
@@ -254,16 +263,18 @@ export class ChatFlowModel extends BaseManager {
 
         while (currentIndex < textCache.length) {
             // 定义标点符号集合，你可以根据实际需求增加更多标点符号
-            const punctuationMarks: string[] = ['.', ';', '!', '?', '。', '；', '！', '？',];
+            const punctuationMarks: string[] = ['!', '?', '。', '！', '？',];
             if (punctuationMarks.indexOf(textCache[currentIndex]) >= 0) {
                 // 截取从开始位置到当前标点符号位置（包含标点符号）的字符串
                 let subString: string = textCache.substring(startIndex, currentIndex + 1);
+                subString = subString.replace(/[\r\n\s]+/g, "");
                 startIndex = currentIndex + 1;
 
-                self.ttsLastPostUid = self.ttsPostUid;
+                self.ttsLastPostUid = self.currentChatRequestUid + "-" + self.ttsPostCount;
                 self.sendToView(subString, 0);
                 self.callTts(subString);
-                self.ttsPostUid++;
+                self.ttsPostCount++;
+                self.ttsPostUid = self.currentChatRequestUid + "-" + self.ttsPostCount;
 
             }
             currentIndex++;
@@ -282,39 +293,26 @@ export class ChatFlowModel extends BaseManager {
                 self.callTts(self.textCache);
                 self.textCache = "";
             }
-
-            if (self.resolveFn) {
-                self.resolveFn();
-            }
-            //self.endChatRequestFlow();
         }
-    }
-
-    private endChatRequestFlow() {
-        this.rejectFn = null;
-        this.resolveFn = null;
-        this.inChatRequestFlow = false;
-        this.currentSpeechSeq++;
-        this.currentSpeaker = 0;
-        this.ttsPostUid = -1;
-        this.ttsLastPostUid = 0;
     }
 
     private sendToView(text: string, speaker: 0 | 1): void {
         DebugLog.instance.log(`Send to view: ${text}`);
-        EventManager.getInstance().emit(ChatFlowModel.ChatMessageEvent, { speaker: speaker, message: text, seq: this.currentSpeechSeq, ttsUid: this.ttsPostUid });
+        EventManager.getInstance().emit(ChatFlowModel.ChatMessageEvent, { speaker: speaker, message: text, seq: this.currentSpeechSeq, ttsUid: this.ttsPostUid});
     }
 
     private callTts(text: string): void {
+        const chatFlowUid = this.currentChatRequestUid;
         if (this.ttsOpenState) {
-            this.onPostTTS(text, this.ttsPostUid);
+            this.onPostTTS(text, this.ttsPostUid, chatFlowUid);
         }
         else {
             this.tts_post_cacheData.set(this.ttsPostUid, text);
+
             if (!this.ttsInConnectFlow) {
                 this.onOpenTTS().then(() => {
                     for (let [key, value] of this.tts_post_cacheData.entries()) {
-                        this.onPostTTS(value, key);
+                        this.onPostTTS(value, key, chatFlowUid);
                     }
                     this.tts_post_cacheData.clear();
                 });
@@ -361,8 +359,14 @@ export class ChatFlowModel extends BaseManager {
         }
     }
 
-    onPostTTS(message: string, uid: number) {
-        DebugLog.instance.log(`Post TTS for: ${message} ; uid = ${uid}`);
+    onPostTTS(message: string, uid: string, chatFlowUid: string) {
+        DebugLog.instance.log(`Post TTS for: ${message} ; uid = ${uid} ; chatFlowUid = ${chatFlowUid}`);
+
+        if (!this.currentChatRequestUid || chatFlowUid != this.currentChatRequestUid) {
+            DebugLog.instance.warn('ingnore this tts post');
+            return;
+        }
+
         if (sys.platform.toUpperCase().endsWith("BROWSER")) {
             var webViewNode = director.getScene().getChildByName("webview");
             let webviewTTS = webViewNode.getChildByName("tts").getComponent(WebView);
@@ -394,8 +398,8 @@ export class ChatFlowModel extends BaseManager {
     }
 
     onCloseTTS() {
-        if(!this.ttsOpenState){
-            EventManager.getInstance().emit(ChatFlowModel.TTSFlowClosedEvent,{});
+        if (!this.ttsOpenState) {
+            EventManager.getInstance().emit(ChatFlowModel.TTSFlowClosedEvent, {});
             return;
         }
 
@@ -412,20 +416,22 @@ export class ChatFlowModel extends BaseManager {
         }
     }
 
+    interruptChatRequestFlow(){
+        this.currentChatRequestUid = null;
+    }
+
     reset() {
         this.onCloseTTS();
         this.onCloseASR();
 
-        this.rejectFn = null;
-        this.resolveFn = null;
-        this.inChatRequestFlow = false;
         this.currentSpeechSeq = 0;
-        this.currentSpeaker = 0;
-        this.ttsPostUid = 0;
-        this.ttsLastPostUid = 0;
+        this.ttsPostUid = null;
+        this.ttsLastPostUid = null;
+        this.ttsPostCount = 0;
         this.textCache = "";
         this.seq = 0;
         this.waitingForSeq = null;
-        this.chatMessageMap = new Map();
+        this.chatMessageMap.clear();
+        this.currentChatRequestUid = null;
     }
 }

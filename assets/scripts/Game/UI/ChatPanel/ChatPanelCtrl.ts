@@ -39,8 +39,7 @@ export class ChatPanelCtrl extends Component {
     @property({ type: Label })
     private subtitlesLabel: Label = null;
 
-    private chatMessageCachesMap: Map<number, string> = new Map();
-    private currentSpeechSeq: number = -1;
+    private chatMessageCachesMap: Map<string, string> = new Map();
 
     private speakerTitle: string[] = ["可乐派：", "你："];
 
@@ -66,6 +65,7 @@ export class ChatPanelCtrl extends Component {
         EventManager.getInstance().on(ChatFlowModel.WaittingEvent, this.onWaittingEvent, this);
         EventManager.getInstance().on(ChatFlowModel.ASRFlowStartEvent, this.onASRConnected, this);
         EventManager.getInstance().on(ChatFlowModel.TTSFlowClosedEvent, this.onTTSClosedEvent, this);
+        EventManager.getInstance().on(ChatFlowModel.ReciveEmptyChunk, this.onReciveEmptyChunk, this);
 
         this.chatState = ChatState.Loading;
         this.playAnimationByState(this.chatState);
@@ -81,6 +81,7 @@ export class ChatPanelCtrl extends Component {
         EventManager.getInstance().off(ChatFlowModel.WaittingEvent, this);
         EventManager.getInstance().off(ChatFlowModel.ASRFlowStartEvent, this);
         EventManager.getInstance().off(ChatFlowModel.TTSFlowClosedEvent, this);
+        EventManager.getInstance().off(ChatFlowModel.ReciveEmptyChunk, this);
 
         const animationComponent = this.inOutAnimNode.getComponent(Animation);
         animationComponent.off(Animation.EventType.FINISHED);
@@ -105,18 +106,15 @@ export class ChatPanelCtrl extends Component {
     }
 
     public clickChat() {
-        this.chatFlowModel.sendChatRequest("我打算出去玩请给我推荐一个景点。").then(() => {
-            console.log('chat request completed.');
-        }).catch((error) => {
-            console.error('Error sending chat request:', error);
-        });
-        this.chatFlowModel.onCloseASR();
+        this.chatFlowModel.sendChatRequest("请说一个故事");
     }
 
     public clickInterruptButton() {
         DebugLog.instance.log("clickInterruptButton");
         if (this.chatState == ChatState.Loading) return;
 
+        this.chatMessageCachesMap.clear();
+        this.chatFlowModel.interruptChatRequestFlow();
         this.enterUserSpeakState();
     }
 
@@ -140,6 +138,8 @@ export class ChatPanelCtrl extends Component {
         if (this.chatState == ChatState.Loading) return;
 
         if (this.chatState != ChatState.Mute) {
+            this.chatMessageCachesMap.clear();
+            this.chatFlowModel.interruptChatRequestFlow();
             this.chatFlowModel.onCloseASR();
             this.chatFlowModel.onCloseTTS();
             this.enterState(ChatState.Mute);
@@ -229,6 +229,10 @@ export class ChatPanelCtrl extends Component {
         }
     }
 
+    private onReciveEmptyChunk(data, context){
+        this.enterUserSpeakState();
+    }
+
     private onTTSFlowStart(data: any, context: ChatPanelCtrl) {
         if (this.chatState == ChatState.Mute) {
             return;
@@ -237,7 +241,7 @@ export class ChatPanelCtrl extends Component {
         if (context.chatState != ChatState.OpponentSpeaking) {
             context.enterState(ChatState.OpponentSpeaking);
         }
-        const ttsUid: number = Number(data.ttsUid);
+        const ttsUid = data.ttsUid;
         const chatmessage = this.chatMessageCachesMap.get(ttsUid);
 
         if (chatmessage) {
@@ -288,11 +292,9 @@ export class ChatPanelCtrl extends Component {
 
     private showSubtitle(message: string, seq: number, speaker: 0 | 1) {
         this.subtitlesLabel.string = this.speakerTitle[speaker] + message;
-        this.currentSpeechSeq = seq;
     }
 
     private hideSubtitle(delay: number = 0) {
-        this.currentSpeechSeq = -1;
         this.subtitlesLabel.string = "";
     }
 }

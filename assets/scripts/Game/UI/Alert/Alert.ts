@@ -3,7 +3,9 @@ import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 const { ccclass, property } = _decorator;
-
+interface CallBackFunction {
+    boundCallback?: Function;
+}
 
 export enum AlertType {
     Normal,
@@ -11,7 +13,6 @@ export enum AlertType {
     Sucess_Big,
     Failed
 }
-
 @ccclass('Alert')
 export class Alert extends Component{
 
@@ -40,11 +41,6 @@ export class Alert extends Component{
     @property(Label)
     progressLabel:Label = null;
 
-    /**
-     *
-     * @private
-     */
-    private _goonCallBack:Function = null;
 
     public static ALERT_GOON:string ="ALERT_GOON";
 
