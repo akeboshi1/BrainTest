@@ -6911,7 +6911,7 @@
     },
     "component": "",
     "_componentId": "6b496Ktz2tIWIM7bSl8+ETS",
-    "handler": "reCurrentCustoms",
+    "handler": "replayGame",
     "customEventData": ""
   },
   {

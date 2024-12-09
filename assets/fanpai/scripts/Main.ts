@@ -373,6 +373,15 @@ export class Main extends Component {
         this.gameStartInit();
         this.closeFailView();
     }
+
+    replayGame() {
+        this.closeAllCard();
+        this.timerInit();
+        this.timerTick();
+        this.closeFailView();
+        this.previewCard(2);
+    }
+
     closeFailView() {
         this.failView.active = false;
     }
@@ -471,6 +480,8 @@ export class Main extends Component {
     closeAllCard() {
         let self = this;
         this.cardList.forEach((card, index) => {
+            card.isBacked = false;
+            card.isDeleted = false;
             const cardNode = this.cardPool.children[0].children[index];
             if(cardNode){
                 const sprite = cardNode.getComponent(Sprite);
@@ -509,7 +520,7 @@ export class Main extends Component {
     timerId: any;
     timer: number;
 
-    INIT_TIME = 90;
+    INIT_TIME = 10;
 
     timerInit() {
         this.timer = this.INIT_TIME;
