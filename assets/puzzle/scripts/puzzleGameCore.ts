@@ -218,13 +218,32 @@ export class puzzleGameCore extends Component {
     quitGame(){
         this.pauseTime();
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().quitGame(this.viewNode,this.resumeTime,this);
+            SkewersManager.getInstance().quitGame(this.viewNode,this.goonCallBack,this.exitCallBack,this);
         }else{
-            GameCenterManager.getInstance().quitGame();
+            GameCenterManager.getInstance().quitGame(this.viewNode,this.goonCallBack,this.exitCallBack,this);
         }
     }
 
-    private
+    private goonCallBack(context){
+        if(Global.isSkewersGame) {
+            if(!SkewersManager.getInstance().isRunOver()){
+                context.resumeTime();
+                // if(!context._previewBoo)context.previewCard(2);
+            }
+        }else{
+            context.resumeTime();
+            // if(!context._previewBoo)context.previewCard(2);
+        }
+    }
+
+    private exitCallBack(context){
+        context.resumeTime();
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().exitCallBack();
+        }else{
+            GameCenterManager.getInstance().exitCallBack();
+        }
+    }
 
     private checkTouchedObjectIndex(currentPos: Vec2): number {
         //先确定触摸的格子
@@ -406,11 +425,16 @@ export class puzzleGameCore extends Component {
     processGameSuccess()
     {
         DebugLog.instance.log("成功");
-        // 通小关后发送消息
-        let curGame = GameCenterManager.getInstance().currentGame;
-        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
-        this.timerComponent.resumeTimer();
-
+        if(Global.isSkewersGame){
+            let complete = 1;//this.s/this.cardTotalCount;
+            let duration= 40;
+            SkewersManager.getInstance().requestGameComplete(complete,duration);
+        }else{
+            // 通小关后发送消息
+            let curGame = GameCenterManager.getInstance().currentGame;
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
+        }
+        this.timerComponent.pauseTimer();
         this.summaryAlert.node.active = true;
         this.summaryAlert.initByResult(true);
         this.summaryAlert.fadeIn();

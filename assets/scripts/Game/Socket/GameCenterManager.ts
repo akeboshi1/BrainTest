@@ -2,8 +2,11 @@ import {EventManager} from "../../Core/Manager/Event/EventManager";
 import {SocketManager} from "../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../Core/Manager/Net/SocketData";
 import {Global} from "../../Core/Manager/Config/Global";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import {DebugLog} from "../../Core/Util/DebugLog";
+import {SceneManager} from "../../Core/Manager/Scene/SceneManager";
+import {LoaderManager} from "../../Core/Manager/Load/LoaderManager";
+import {instantiate,Node} from "cc";
+import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
 
 /**
  * 游戏大厅通信数据
@@ -32,6 +35,9 @@ export class GameCenterData{
     }
 }
 
+/**
+ * 游戏大厅管理器
+ */
 export class GameCenterManager {
     private static _instance: GameCenterManager;
     public static getInstance() {
@@ -48,9 +54,13 @@ export class GameCenterManager {
     public static GAMEPASSLEVEL = "game.pass_level";
 
 
+
+
     private _callbackDic:Map<string,GameSocketData> =new Map();
 
     private _curGame:GameCenterData;
+
+    private _alertInstance:Node = null;
 
     public enterGameCenter(){
         Global.isSkewersGame = false;
@@ -188,7 +198,39 @@ export class GameCenterManager {
         }
     }
 
-    public quitGame(){
+    /**
+     * 中途退出游戏大厅游戏
+     * @param parentNode
+     * @param goon_callback
+     * @param exit_callback
+     * @param context
+     */
+    public quitGame(parentNode:Node,goon_callback:Function,exit_callback:Function,context){
+        let alertNode = GameCenterManager.getInstance()._alertInstance;
+        if(alertNode == null){
+            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                alertNode = GameCenterManager.getInstance()._alertInstance = instantiate(resource);
+                parentNode.addChild(alertNode);
+                let alert = alertNode.getComponent("Alert");
+                alertNode.setPosition(0,0,0);
+                alert["showView"](AlertType.Game_Center);
+                alert["setTitle"]("是否退出当前游戏？");
+                alert["bindCallBack"](goon_callback,exit_callback,context);
+            });
+        }else{
+            parentNode.addChild(alertNode);
+            let alert = alertNode.getComponent("Alert");
+            alertNode.setPosition(0,0,0);
+            alert["showView"](AlertType.Game_Center);
+            alert["setTitle"]("是否退出当前游戏？");
+            alert["bindCallBack"](goon_callback,exit_callback,context);
+        }
+    }
+
+    /**
+     * 退出游戏大厅游戏
+     */
+    public exitCallBack(){
         SocketManager.getInstance().send(new SocketData({
             action: GameCenterManager.GAMEEND,
             data: {
@@ -197,4 +239,6 @@ export class GameCenterManager {
         }));
         SceneManager.getInstance().backToHall();
     }
+
+
 }

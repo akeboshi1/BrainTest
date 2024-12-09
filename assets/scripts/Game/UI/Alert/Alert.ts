@@ -11,8 +11,13 @@ export enum AlertType {
     Normal,
     Sucess_Small,
     Sucess_Big,
-    Failed
+    Failed,
+    Game_Center
 }
+
+/**
+ * 通用型alert
+ */
 @ccclass('Alert')
 export class Alert extends Component{
 
@@ -41,10 +46,18 @@ export class Alert extends Component{
     @property(Label)
     progressLabel:Label = null;
 
-
     public static ALERT_GOON:string ="ALERT_GOON";
 
     public static ALERT_EXIT:string = "ALERT_EXIT";
+
+    public goonCallBack:Function = null;
+
+    public exitCallBack:Function = null;
+
+    /**
+     * 回调函数上下文
+     */
+    public context:any = null;
 
     showView(type:AlertType) {
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
@@ -93,6 +106,16 @@ export class Alert extends Component{
             case AlertType.Failed:
                 // todo
                 break;
+            case AlertType.Game_Center:
+                this.startBtn.node.active = true;
+                this.decLabel.node.active = false;
+                this.titleLabel.node.active = true;
+                this.progressBar.node.active = false;
+                this.icon.active = false;
+                this.exitBtn.node.active = true;
+
+                startBtnUITransform.width = 250;
+                break;
         }
     }
 
@@ -108,18 +131,42 @@ export class Alert extends Component{
 
     }
 
-    backToHall(){
-        SceneManager.getInstance().backToHall();
+    exitHandler(){
+        // SceneManager.getInstance().backToHall();
         EventManager.getInstance().emit(Alert.ALERT_EXIT);
+        if(this.exitCallBack){
+            this.exitCallBack(this.context);
+        }
         this.node.removeFromParent();
     }
 
     /**
      * 继续
      */
-    backHandler(){
+    goHandler(){
         EventManager.getInstance().emit(Alert.ALERT_GOON);
+        if(this.goonCallBack){
+            this.goonCallBack(this.context);
+        }
         this.node.removeFromParent();
+    }
+
+    /**
+     * 外部绑定alert交互事件
+     * @param goonCallBack
+     * @param exitCallBack
+     * @param context
+     */
+    bindCallBack(goonCallBack:Function,exitCallBack:Function,context:any){
+        this.context = context;
+       if(goonCallBack){
+           this.goonCallBack = goonCallBack;
+           this.goonCallBack.bind(context);
+       }
+       if(exitCallBack){
+           this.exitCallBack = exitCallBack;
+           this.exitCallBack.bind(context);
+       }
     }
 
 

@@ -8,7 +8,7 @@ import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
-import {instantiate,Node} from "cc";
+import {instantiate,Node,Vec3} from "cc";
 
 /**
  * 脑力串烧管理器
@@ -55,6 +55,8 @@ export class SkewersManager{
 
 
     public static TASK_GET_BRAIN_TRAININGS:string = "TASK_GET_BRAIN_TRAININGS";
+
+    private _alertInstance:Node = null;
 
 
      public init(){
@@ -145,18 +147,71 @@ export class SkewersManager{
     /**
      * 中途退出串烧游戏接口
      * @param parentNode
-     * @param callback
+     * @param goonCallBack
+     * @param exitCallBack
+     * @param context
      */
-     public quitGame(parentNode:Node,callback:Function,context){
-         LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
-             const alertNode = instantiate(resource);
+     public quitGame(parentNode:Node,goonCallBack:Function,exitCallBack:Function,context){
+         let alertNode =  SkewersManager.getInstance()._alertInstance;
+         if(alertNode == null){
+             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
+                 parentNode.addChild(alertNode);
+                 let alert = alertNode.getComponent("Alert");
+                 alertNode.setPosition(0,0,0);
+                 alert["showView"](AlertType.Normal);
+                 alert["setTitle"]("是否退出当前游戏？");
+                 alert['bindCallBack'](goonCallBack,exitCallBack,context);
+             });
+         }else{
              parentNode.addChild(alertNode);
              let alert = alertNode.getComponent("Alert");
              alertNode.setPosition(0,0,0);
              alert["showView"](AlertType.Normal);
              alert["setTitle"]("是否退出当前游戏？");
-             EventManager.getInstance().on(Alert.ALERT_GOON,callback,context);
-         });
+             alert['bindCallBack'](goonCallBack,exitCallBack,context);
+         }
+     }
+
+    /**
+     * 串烧游戏中途显示alert
+     * @param parentNode
+     * @param type
+     * @param title
+     * @param desc
+     * @param goonCallBack
+     * @param exitCallBack
+     * @param context
+     */
+     public showGameAlert(parentNode:Node,type:AlertType,title="",desc="",goonCallBack:Function,exitCallBack:Function,context:any){
+        let alertNode =  SkewersManager.getInstance()._alertInstance;
+        if(alertNode == null){
+            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
+                alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
+                parentNode.addChild(alertNode);
+                let alert = alertNode.getComponent("Alert");
+                alertNode.setPosition(0,0,0);
+                alert["showView"](type);
+                alert["setTitle"](title);
+                alert["setDec"](desc);
+                alert['bindCallBack'](goonCallBack,exitCallBack,context);
+            });
+        }else{
+            parentNode.addChild(alertNode);
+            let alert = alertNode.getComponent("Alert");
+            alertNode.setPosition(0,0,0);
+            alert["showView"](type);
+            alert["setTitle"](title);
+            alert["setDec"](desc);
+            alert['bindCallBack'](goonCallBack,exitCallBack,context);
+        }
+     }
+
+    /**
+     * 退出串烧游戏
+     */
+    public exitCallBack(){
+         SceneManager.getInstance().backToHall();
      }
 
 

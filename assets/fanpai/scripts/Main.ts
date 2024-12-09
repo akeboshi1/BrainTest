@@ -234,7 +234,6 @@ export class Main extends Component {
     currentCustomsSuccess() {
         this.isAbleClick = false
         clearInterval(this.timerId);
-
         // 非串烧游戏
         if (!Global.isSkewersGame) {
             this.successView.active = true;
@@ -257,6 +256,7 @@ export class Main extends Component {
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
             this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
         }else{
+
             // 优先上报数据
             // 上报数据
             let complete = 1;//this.s/this.cardTotalCount;
@@ -264,16 +264,7 @@ export class Main extends Component {
             SkewersManager.getInstance().requestGameComplete(complete,duration);
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
-                let self = this;
-                LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
-                    const alertNode = instantiate(resource);
-                    this.node.addChild(alertNode);
-                    let alert = alertNode.getComponent("Alert");
-                    alertNode.setPosition(0,0,0);
-                    alert["showView"](AlertType.Sucess_Big);
-                    alert["setTitle"]("太棒了，恭喜你全部通关");
-                    alert["setDec"]("收获xxx点脑力值！");
-                });
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",null,this.exitCallBack,this);
                 return;
             }
             let curGameData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -281,6 +272,8 @@ export class Main extends Component {
             let curCount = SkewersManager.getInstance().getCurGameIndex();
             // 游戏内界面提示
             if(maxCount != curCount){
+                this.updateSuccessPopupTitle(2);
+                this.successView.getChildByName('top_txt1').active = false;
                 this.successViewProgressLabel.node.active = true;
                 this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
                 this.successView.active = true;
@@ -292,25 +285,9 @@ export class Main extends Component {
                 EventManager.getInstance().on(Alert.ALERT_GOON,this.alertGoonHandler,this);
                 EventManager.getInstance().on(Alert.ALERT_EXIT,this.alertExit,this);
                 if (!SkewersManager.getInstance().isRunOver()) {
-                    LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
-                        const alertNode = instantiate(resource);
-                        this.node.addChild(alertNode);
-                        let alert = alertNode.getComponent("Alert");
-                        alertNode.setPosition(0,0,0);
-                        alert["showView"](AlertType.Sucess_Small);
-                        alert["setTitle"]("太棒了，恭喜你通关翻牌");
-                        alert["setDec"]("收获xxx点脑力值！");
-                    });
+                    SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关翻牌游戏","收获xxx点脑力值！",null,this.exitCallBack,this);
                 }else{
-                    LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
-                        const alertNode = instantiate(resource);
-                        this.node.addChild(alertNode);
-                        let alert = alertNode.getComponent("Alert");
-                        alertNode.setPosition(0,0,0);
-                        alert["showView"](AlertType.Sucess_Big);
-                        alert["setTitle"]("太棒了，恭喜你全部通关");
-                        alert["setDec"]("收获xxx点脑力值！");
-                    });
+                    SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",null,this.exitCallBack,this);
                 }
             }
         }
@@ -499,10 +476,11 @@ export class Main extends Component {
         })
     }
 
+    private _setTimeOutId = -1;
     // 预览卡片，time，秒数
     previewCard(time: number) {
         this.showAllCard();
-        setTimeout(() => this.closeAllCard(), time * 1000);
+        this._setTimeOutId = setTimeout(() => this.closeAllCard(), time * 1000);
     }
 
     // 定时器
@@ -543,11 +521,6 @@ export class Main extends Component {
         }, 1 * 1000);
     }
     restoreTimer() {
-        // if (this.timerId) {
-        //     clearInterval(this.timerId);
-        //     this.timerId = undefined;
-        // }
-        EventManager.getInstance().off(Alert.ALERT_GOON,this);
         this.updateTimerLabel();
         this.timerTick();
     }
@@ -583,11 +556,33 @@ export class Main extends Component {
         clearInterval(this.timerId);
         DebugLog.instance.log('this.timer1', this.timer)
         if(Global.isSkewersGame) {
-            SkewersManager.getInstance().quitGame(this.node,this.restoreTimer,this);
+            SkewersManager.getInstance().quitGame(this.node,this.goonCallBack,this.exitCallBack,this);
         }else{
             // 游戏大厅
             console.log("返回大厅")
-            GameCenterManager.getInstance().quitGame();
+            GameCenterManager.getInstance().quitGame(this.node,this.goonCallBack,this.exitCallBack,this);
+        }
+    }
+
+    private goonCallBack(context){
+        if(Global.isSkewersGame) {
+            if(!SkewersManager.getInstance().isRunOver()){
+                context.restoreTimer();
+                // if(!context._previewBoo)context.previewCard(2);
+            }
+        }else{
+            context.restoreTimer();
+            // if(!context._previewBoo)context.previewCard(2);
+        }
+    }
+
+    private exitCallBack(context){
+        clearInterval(context.timerId);
+        clearTimeout(context._setTimeOutId);
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().exitCallBack();
+        }else{
+            GameCenterManager.getInstance().exitCallBack();
         }
     }
 
