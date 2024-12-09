@@ -4,7 +4,7 @@ import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
 import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
 import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
-import { GameCenterManager } from "../../scripts/Game/Socket/GameCenterManager";
+import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 const { ccclass, property } = _decorator;
 import { questions0, questions1, questions2 } from './questionsDate'
 

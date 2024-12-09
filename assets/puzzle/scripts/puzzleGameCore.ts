@@ -20,7 +20,7 @@ import {puzzleSummaryAlert} from './puzzleSummaryAlert';
 import {Global} from "../../scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
-import {GameCenterManager} from "../../scripts/Game/Socket/GameCenterManager";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
 
 const { ccclass, property } = _decorator;

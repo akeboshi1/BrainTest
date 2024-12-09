@@ -5,7 +5,7 @@ import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 import {SceneManager} from "../../scripts/Core/Manager/Scene/SceneManager";
 import {TimeUtil} from "../../scripts/Core/Util/TimeUtil";
-import {GameCenterManager} from "../../scripts/Game/Socket/GameCenterManager";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {SocketManager} from '../../scripts/Core/Manager/Net/SocketManager';
 import {SocketData} from '../../scripts/Core/Manager/Net/SocketData';
 import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";

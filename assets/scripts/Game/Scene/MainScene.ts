@@ -7,7 +7,7 @@ import { StringUtil } from "../../Core/Util/StringUtil";
 import { ColorUtil } from "../../Core/Util/ColorUtil";
 import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
 import {TimeUtil} from "../../Core/Util/TimeUtil";
-import {GameCenterManager} from "db://assets/scripts/Game/Socket/GameCenterManager";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
