@@ -44,6 +44,9 @@ export class puzzleGameCore extends Component {
     @property(puzzleSummaryAlert)
     private summaryAlert: puzzleSummaryAlert;
 
+    @property(Node)
+    private viewNode:Node = null;
+
     //显示对象
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
@@ -212,6 +215,17 @@ export class puzzleGameCore extends Component {
         this.processTouchCancel();
     }
 
+    quitGame(){
+        this.pauseTime();
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().quitGame(this.viewNode,this.resumeTime,this);
+        }else{
+            GameCenterManager.getInstance().quitGame();
+        }
+    }
+
+    private
+
     private checkTouchedObjectIndex(currentPos: Vec2): number {
         //先确定触摸的格子
         var puzzlePos = -1;
@@ -237,6 +251,7 @@ export class puzzleGameCore extends Component {
         this.dragInstance.setSiblingIndex(0);
         this.dragInstance = null;
     }
+
 
     private swapPuzzleChips(puzzlePos1: number, puzzlePos2: number) {
         const chipData1 = this.getChipDataByPuzzlePos(puzzlePos1);
@@ -346,6 +361,14 @@ export class puzzleGameCore extends Component {
         const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
         newSpriteFrame.texture = this.cachedTextures[textureIndex];
         this.previewSprite.spriteFrame = newSpriteFrame;
+    }
+
+    pauseTime(){
+       this.timerComponent.pauseTimer();
+    }
+
+    resumeTime(){
+        this.timerComponent.resumeTimer();
     }
 
     onClickStartTimer()

@@ -65,6 +65,7 @@ export class Alert extends Component{
                    this.progressBar.progress = 1;
                    curProgress = "1/1"
                }else{
+                   curcount = curcount -1<0 ? 0 : curcount-1;
                    this.progressBar.progress = curcount/maxcount;
                    curProgress= `${curcount} / ${maxcount}`;
                }
@@ -108,17 +109,17 @@ export class Alert extends Component{
     }
 
     backToHall(){
-        this.node.removeFromParent();
         SceneManager.getInstance().backToHall();
         EventManager.getInstance().emit(Alert.ALERT_EXIT);
+        this.node.removeFromParent();
     }
 
     /**
      * 继续
      */
     backHandler(){
-        this.node.removeFromParent();
         EventManager.getInstance().emit(Alert.ALERT_GOON);
+        this.node.removeFromParent();
     }
 
 

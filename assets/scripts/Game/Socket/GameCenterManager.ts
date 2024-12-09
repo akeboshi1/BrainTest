@@ -3,6 +3,7 @@ import {SocketManager} from "../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../Core/Manager/Net/SocketData";
 import {Global} from "../../Core/Manager/Config/Global";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 
 /**
  * 游戏大厅通信数据
@@ -185,5 +186,15 @@ export class GameCenterManager {
             gsData.socketData.data = data.data
             gsData.callback(data);
         }
+    }
+
+    public quitGame(){
+        SocketManager.getInstance().send(new SocketData({
+            action: GameCenterManager.GAMEEND,
+            data: {
+                session_id: GameCenterManager.getInstance().currentGame.sessionid,
+            }
+        }));
+        SceneManager.getInstance().backToHall();
     }
 }
