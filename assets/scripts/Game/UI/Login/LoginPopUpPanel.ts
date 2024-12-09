@@ -1,81 +1,84 @@
-import { _decorator, Component, Node,Label,Button,EditBox } from 'cc';
-import {BasePanel} from "../../../Core/UI/BasePanel";
-import {DebugLog} from "../../../Core/Util/DebugLog";
-import {EventManager} from "../../../Core/Manager/Event/EventManager";
-import {UIManager} from "../../../Core/Manager/UI/UIManager";
-import {SocketData} from "../../../Core/Manager/Net/SocketData";
-import {LoginPanel} from "../../../Game/UI/Login/LoginPanel";
-import {TaskManager} from "../../../Game/Task/TaskManager";
-import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import { _decorator, Component, Node, Label, Button, EditBox } from 'cc';
+import { BasePanel } from "../../../Core/UI/BasePanel";
+import { DebugLog } from "../../../Core/Util/DebugLog";
+import { EventManager } from "../../../Core/Manager/Event/EventManager";
+import { UIManager } from "../../../Core/Manager/UI/UIManager";
+import { SocketData } from "../../../Core/Manager/Net/SocketData";
+import { LoginPanel } from "../../../Game/UI/Login/LoginPanel";
+import { TaskManager } from "../../../Game/Task/TaskManager";
+import { LoginErrorCode, LoginManager } from "../../../Core/Manager/LoginManager/LoginManager";
+import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
+import { SkewersManager } from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
-import {UserData} from "db://assets/scripts/Core/Data/UserData";
+import { UserData } from "db://assets/scripts/Core/Data/UserData";
+import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
+import { TimeUtil } from '../../../Core/Util/TimeUtil';
+import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
-export class LoginPopUpPanel extends BasePanel{
+export class LoginPopUpPanel extends BasePanel {
 
     //==== XieyiView
     @property(Node)
-    XieyiView:Node;
+    XieyiView: Node;
 
     @property(Label)
-    XieyiTitleTxt:Label;
+    XieyiTitleTxt: Label;
 
     @property(Label)
-    XieyiDescTxt:Label;
+    XieyiDescTxt: Label;
 
     @property(Button)
-    AgreeButton:Button;
+    AgreeButton: Button;
 
     @property(Button)
-    CancelButton:Button;
+    CancelButton: Button;
 
     //==== PhoneView
 
     @property(Node)
-    PhoneView:Node;
+    PhoneView: Node;
 
     @property(Label)
-    PhoneViewTitle:Label;
+    PhoneViewTitle: Label;
 
     @property(Label)
-    PhoneNumberTxt:Label;
+    PhoneNumberTxt: Label;
 
     @property(Label)
-    PhoneDescTxt:Label;
+    PhoneDescTxt: Label;
 
     @property(EditBox)
-    num0:EditBox;
+    num0: EditBox;
 
     @property(EditBox)
-    num1:EditBox;
+    num1: EditBox;
 
     @property(EditBox)
-    num2:EditBox;
+    num2: EditBox;
 
     @property(EditBox)
-    num3:EditBox;
+    num3: EditBox;
 
-    @property({type:[EditBox]})
-    numBox:EditBox[]=[];
+    @property({ type: [EditBox] })
+    numBox: EditBox[] = [];
 
     /**
      * 手机验证码下发
      * @private
      */
-    private login_send_mp_code:string="login.send_mp_code";
+    private login_send_mp_code: string = "login.send_mp_code";
 
     /**
      * 手机登录（验证)
      * @private
      */
-    private login_login_by_mp:string ="login.login_by_mp";
+    private login_login_by_mp: string = "login.login_by_mp";
 
-    private phoneNumber:string = "13611613393";
-    private phoneCode:string="1234";
+    private phoneNumber: string = "13611613393";
+    private phoneCode: string = "1234";
 
     constructor() {
         super();
@@ -91,103 +94,117 @@ export class LoginPopUpPanel extends BasePanel{
 
     }
 
-    onEnable(){
+    onEnable() {
 
         this.addListener();
     }
 
-    onDisable(){
+    onDisable() {
         this.removeListener();
     }
 
-    bgClick(){
+    bgClick() {
         this.hidePanel();
     }
 
-    agreeClick(){
+    agreeClick() {
         this.phoneNumber = Global.userData.phoneNumber;
-        EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
-        LoginManager.getInstance().request(this.login_send_mp_code, {"mp_no": this.phoneNumber});
+        EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this);
+        LoginManager.getInstance().request(this.login_send_mp_code, { "mp_no": this.phoneNumber });
     }
 
-    cancelClick(){
-        UIManager.getInstance().showView(LoginPanel.NAME,this.node.parent);
+    cancelClick() {
+        UIManager.getInstance().showView(LoginPanel.NAME, this.node.parent);
         this.hidePanel();
     }
 
-    public switchView(isPhoneView:boolean=false){
-       this.XieyiView.active= !isPhoneView;
-       this.PhoneView.active = false;
-       if(isPhoneView){
-           this._initPhoneView();
-       }else{
-           this._initXieyiView();
-       }
+    public switchView(isPhoneView: boolean = false) {
+        this.XieyiView.active = !isPhoneView;
+        this.PhoneView.active = false;
+        if (isPhoneView) {
+            this._initPhoneView();
+        } else {
+            this._initXieyiView();
+        }
     }
 
-    public updateView(isPhoneView:boolean=false){
-        this.XieyiView.active= !isPhoneView;
+    public updateView(isPhoneView: boolean = false) {
+        this.XieyiView.active = !isPhoneView;
         this.PhoneView.active = isPhoneView;
-        if(isPhoneView){
+        if (isPhoneView) {
             this._updatePhoneView();
-        }else{
+        } else {
             this._updateXieyiView();
         }
     }
 
-    private _initPhoneView(){
+    private _initPhoneView() {
         this.agreeClick();
     }
 
-    private _updatePhoneView(){
+    private _updatePhoneView() {
         let numbers: number[] = this.phoneCode.split("").map(Number);
         let len = numbers.length;
-        for(let i=0;i<len;i++){
+        for (let i = 0; i < len; i++) {
             let editBox = this.numBox[i];
-            if(editBox == null)continue;
-            editBox.string = numbers[i]+"";
+            if (editBox == null) continue;
+            editBox.string = numbers[i] + "";
         }
-         this.PhoneNumberTxt.string = this.phoneNumber;
-// this.num0.string = "1";
-// this.num1.string = "2";
-// this.num2.string = "3";
-// this.num3.string = "4";
-        EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
-        LoginManager.getInstance().request(this.login_login_by_mp, {"mp_no": this.phoneNumber, "code": this.phoneCode});
+        this.PhoneNumberTxt.string = this.phoneNumber;
+        // this.num0.string = "1";
+        // this.num1.string = "2";
+        // this.num2.string = "3";
+        // this.num3.string = "4";
+        EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginCallBack, this);
+        LoginManager.getInstance().request(this.login_login_by_mp, { "mp_no": this.phoneNumber, "code": this.phoneCode });
     }
 
-    private _initXieyiView(){
+    private _initXieyiView() {
 
     }
 
-    private _updateXieyiView(){}
+    private _updateXieyiView() { }
 
-    private addListener(){
-    //     EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
-    //     EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
+    private addListener() {
+        //     EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
+        //     EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
     }
     //
-    private removeListener(){
-    //     EventManager.getInstance().off(this.login_send_mp_code,this);
-    //     EventManager.getInstance().off(this.login_login_by_mp,this);
+    private removeListener() {
+        //     EventManager.getInstance().off(this.login_send_mp_code,this);
+        //     EventManager.getInstance().off(this.login_login_by_mp,this);
     }
 
-    private requestLoginCallBack(data,context){
-        EventManager.getInstance().off(this.login_login_by_mp,this);
+    private requestLoginCallBack(data, context) {
+        EventManager.getInstance().off(this.login_login_by_mp, this);
         DebugLog.instance.log(data);
-        if(data['status']==0){
+        if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
+
+            const alertData:AlertData = new AlertData;
+            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
+            AlertManager.getInstance().showAlert(alertData);
+
             return;
         }
 
-        if(data['data']['mp_no'] != this.phoneNumber){
+        if (data['data']['mp_no'] != this.phoneNumber) {
             DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
+
+            const alertData:AlertData = new AlertData;
+            alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;
+            AlertManager.getInstance().showAlert(alertData);
+
             return;
         }
         Global.userData.token = data.data['token'];
         DebugLog.instance.log(`${data} ====`);
         Global.userData.tokenExpires = data.data['expires'];
-        context.PhoneDescTxt.string="登录成功！！！";
+        context.PhoneDescTxt.string = "登录成功！！！";
+
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
+        const expiredTime:number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
 
         // test
         // TaskManager.getInstance().start();
@@ -197,19 +214,22 @@ export class LoginPopUpPanel extends BasePanel{
         // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
     }
 
-    private requestCodeCallBack(data,context){
-        EventManager.getInstance().off(this.login_send_mp_code,context);
+    private requestCodeCallBack(data, context) {
+        EventManager.getInstance().off(this.login_send_mp_code, context);
         DebugLog.instance.log(data);
-        if(data['status']==0){
+        if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
-            // test code
-            this.phoneCode = "1234";
-            context.switchView(true);
+
+            const alertData:AlertData = new AlertData;
+            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
+
+            AlertManager.getInstance().showAlert(alertData);
+
             return;
         }
         this.phoneNumber = data['data']['mp_no'];
         this.phoneCode = data['data']['code'];
-        context.updateView(true);
+        this.updateView(true);
     }
 
 
