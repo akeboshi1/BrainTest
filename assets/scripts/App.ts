@@ -13,6 +13,7 @@ import {Global} from "./Core/Manager/Config/Global";
 import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
 import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
+import AlertManager from './Core/Manager/Alert/AlertManager';
 
 
 const { ccclass, property } = _decorator;
@@ -137,6 +138,7 @@ export class App extends BaseObejct {
         TaskManager.getInstance().init();
         ChatFlowModel.getInstance().init();
         SpriteManager.getInstance().init();
+        AlertManager.getInstance().init();
     }
 
     private preLoadRes(){
@@ -183,13 +185,9 @@ export class App extends BaseObejct {
         //    Global.API_Root = data.apiRoot;
         //    Global.RES_Root = data.resRoot;
 
-        LoginManager.getInstance().start(context.panelContainer);
+        LoginManager.getInstance().start();
 
         // },this);
-
-
-
-
     }
 
     /**

@@ -12,6 +12,8 @@ import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
+import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
 const { ccclass, property } = _decorator;
 
 @ccclass('MainScene')
@@ -257,7 +259,12 @@ export class MainScene extends Component {
     }
 
     showMore() {
+        const ad:AlertData = new AlertData();
+        ad.title = "";
+        ad.message = "开发中";
+        AlertManager.getInstance().showAlert(ad);
 
+        LocalStorageUtil.clean();
     }
 
     // ======= 任务中心

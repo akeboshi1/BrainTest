@@ -65,8 +65,8 @@ export class UIManager extends BaseManager {
         if(parentNode){
             parentNode.addChild(view);
         }else{
-            const scene = SceneManager.getInstance().getCurrentScene();
-            scene.addChild(view);
+            const canvas = SceneManager.getInstance().getCurrentScene().getChildByName("Canvas");
+            canvas.addChild(view);
         }
 
         // if(view.state == PanelState.INIT){
