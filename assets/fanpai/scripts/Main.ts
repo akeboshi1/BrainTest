@@ -270,20 +270,19 @@ export class Main extends Component {
             let curGameData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = SkewersManager.getInstance().getGameCount();
             let curCount = SkewersManager.getInstance().getCurGameIndex();
+
             // 游戏内界面提示
             if(maxCount != curCount){
-                this.updateSuccessPopupTitle(2);
-                this.successView.getChildByName('top_txt1').active = false;
-                this.successViewProgressLabel.node.active = true;
-                this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
-                this.successView.active = true;
-                this.startButton.node.active = false;
-                this.nextButton.node.active = true;
-                this.bigWin.active = false;
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"太棒了，请继续！","",this.alertGoonHandler,this.exitCallBack,this);
+                // this.updateSuccessPopupTitle(2);
+                // this.successView.getChildByName('top_txt1').active = false;
+                // this.successViewProgressLabel.node.active = false;
+                // this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
+                // this.successView.active = false;
+                // this.startButton.node.active = false;
+                // this.nextButton.node.active = false;
+                // this.bigWin.active = false;
             }else{
-                // alert界面提示
-                EventManager.getInstance().on(Alert.ALERT_GOON,this.alertGoonHandler,this);
-                EventManager.getInstance().on(Alert.ALERT_EXIT,this.alertExit,this);
                 if (!SkewersManager.getInstance().isRunOver()) {
                     SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关翻牌游戏","收获xxx点脑力值！",null,this.exitCallBack,this);
                 }else{
@@ -295,7 +294,6 @@ export class Main extends Component {
 
 
     private alertGoonHandler(){
-        EventManager.getInstance().off(Alert.ALERT_GOON,this);
         if (!SkewersManager.getInstance().isRunOver()) {
             this.node.active = false;
             SkewersManager.getInstance().runNextGame();
@@ -305,13 +303,6 @@ export class Main extends Component {
         }
     }
 
-    private alertExit(){
-        EventManager.getInstance().off(Alert.ALERT_EXIT,this);
-        console.log("返回大厅");
-        if(SkewersManager.getInstance().isRunOver()){
-            SceneManager.getInstance().backToHall();
-        }
-    }
 
     startGame() {
         this.isAbleClick = true;
@@ -511,19 +502,19 @@ export class Main extends Component {
                 clearInterval(this.timerId);
                 this.isAbleClick = false
                 // 倒计时结束，游戏结束
-                this.failView.active = true;
+
                 if (Global.isSkewersGame) {
-                    this.failViewProgressLabel.node.active = true;
-                    let maxCount = SkewersManager.getInstance().getGameCount();
-                    let curCount = SkewersManager.getInstance().getCurGameIndex();
-                    this.failRetryButton.node.active = false;
-                    if (SkewersManager.getInstance().isRunOver()) {
-                        this.failViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
-                    } else {
-                        // 直接进入下一关
-                        this.failViewProgressLabel.string = `当前游戏进度${curCount}/${maxCount}`;
-                    }
+                    SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"真遗憾，请加油！","",this.alertGoonHandler,this.exitCallBack,this);
+                    // let maxCount = SkewersManager.getInstance().getGameCount();
+                    // let curCount = SkewersManager.getInstance().getCurGameIndex();
+                    // if (SkewersManager.getInstance().isRunOver()) {
+                    //     this.failViewProgressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
+                    // } else {
+                    //     // 直接进入下一关
+                    //     this.failViewProgressLabel.string = `当前游戏进度${curCount}/${maxCount}`;
+                    // }
                 } else {
+                    this.failView.active = true;
                     this.failViewProgressLabel.node.active = false;
                     this.failRetryButton.node.active = true;
                 }

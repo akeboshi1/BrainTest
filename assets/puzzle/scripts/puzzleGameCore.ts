@@ -1,10 +1,28 @@
-import { _decorator, Component, Node, SpriteFrame, Texture2D, Size, Rect, Sprite, Prefab, instantiate, UITransform, EventTouch, Vec2, Vec3, tween } from 'cc';
-import { timerComponent } from './timerComponent';
-import { puzzleSummaryAlert } from './puzzleSummaryAlert';
+import {
+    _decorator,
+    Component,
+    EventTouch,
+    instantiate,
+    Node,
+    Prefab,
+    Rect,
+    Size,
+    Sprite,
+    SpriteFrame,
+    Texture2D,
+    tween,
+    UITransform,
+    Vec2,
+    Vec3
+} from 'cc';
+import {timerComponent} from './timerComponent';
+import {puzzleSummaryAlert} from './puzzleSummaryAlert';
 import {Global} from "../../scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 import {GameCenterManager} from "../../scripts/Game/Socket/GameCenterManager";
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleGameCore')
@@ -413,9 +431,13 @@ export class puzzleGameCore extends Component {
     {
         DebugLog.instance.log("失败");
 
-        this.summaryAlert.node.active = true;
-        this.summaryAlert.initByResult(false);
-        this.summaryAlert.fadeIn();
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',this.onClickGotoNextlevel,this.exitCallBack,this);
+        }else{
+            this.summaryAlert.node.active = true;
+            this.summaryAlert.initByResult(false);
+            this.summaryAlert.fadeIn();
+        }
     }
 
     private gamepasslevelCallback(){
@@ -425,19 +447,23 @@ export class puzzleGameCore extends Component {
     processGameSuccess()
     {
         DebugLog.instance.log("成功");
+        this.timerComponent.pauseTimer();
         if(Global.isSkewersGame){
             let complete = 1;//this.s/this.cardTotalCount;
             let duration= 40;
             SkewersManager.getInstance().requestGameComplete(complete,duration);
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真厉害，请继续！",'',this.onClickGotoNextlevel,this.exitCallBack,this);
         }else{
             // 通小关后发送消息
             let curGame = GameCenterManager.getInstance().currentGame;
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
+            this.summaryAlert.node.active = true;
+            this.summaryAlert.initByResult(true);
+            this.summaryAlert.fadeIn();
         }
-        this.timerComponent.pauseTimer();
-        this.summaryAlert.node.active = true;
-        this.summaryAlert.initByResult(true);
-        this.summaryAlert.fadeIn();
+
+
+
     }
 
     onClickGotoNextlevel(){
