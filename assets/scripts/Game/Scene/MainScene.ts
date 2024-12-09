@@ -298,7 +298,6 @@ export class MainScene extends Component {
                         arrow.active = false;
                         (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
                         DebugLog.instance.log("complete", complete)
-                        count++;
                     } else {
                         if (task.status == TaskStatus.Expired) {
                             (btnBG as Sprite).color = ColorUtil.hexToColor(context.expireColor);

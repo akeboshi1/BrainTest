@@ -257,6 +257,11 @@ export class Main extends Component {
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
             this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
         }else{
+            // 优先上报数据
+            // 上报数据
+            let complete = 1;//this.s/this.cardTotalCount;
+            let duration= 40;
+            SkewersManager.getInstance().requestGameComplete(complete,duration);
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
                 let self = this;
@@ -274,6 +279,7 @@ export class Main extends Component {
             let curGameData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = SkewersManager.getInstance().getGameCount();
             let curCount = SkewersManager.getInstance().getCurGameIndex();
+            // 游戏内界面提示
             if(maxCount != curCount){
                 this.successViewProgressLabel.node.active = true;
                 this.successViewProgressLabel.string = `当前游戏进度:${curCount}/${maxCount}`;
@@ -282,8 +288,9 @@ export class Main extends Component {
                 this.nextButton.node.active = true;
                 this.bigWin.active = false;
             }else{
+                // alert界面提示
                 EventManager.getInstance().on(Alert.ALERT_GOON,this.alertGoonHandler,this);
-                EventManager.getInstance().on(Alert.ALERT_GOON,this.alertExit,this);
+                EventManager.getInstance().on(Alert.ALERT_EXIT,this.alertExit,this);
                 if (!SkewersManager.getInstance().isRunOver()) {
                     LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
                         const alertNode = instantiate(resource);
@@ -313,17 +320,20 @@ export class Main extends Component {
     private alertGoonHandler(){
         EventManager.getInstance().off(Alert.ALERT_GOON,this);
         if (!SkewersManager.getInstance().isRunOver()) {
+            this.node.active = false;
             SkewersManager.getInstance().runNextGame();
         }else{
-            console.log("返回大厅")
+            console.log("返回大厅");
             SceneManager.getInstance().backToHall();
         }
     }
 
     private alertExit(){
-        EventManager.getInstance().off(Alert.ALERT_GOON,this);
-        console.log("返回大厅")
-        SceneManager.getInstance().backToHall();
+        EventManager.getInstance().off(Alert.ALERT_EXIT,this);
+        console.log("返回大厅");
+        if(SkewersManager.getInstance().isRunOver()){
+            SceneManager.getInstance().backToHall();
+        }
     }
 
     startGame() {
@@ -537,8 +547,8 @@ export class Main extends Component {
         //     clearInterval(this.timerId);
         //     this.timerId = undefined;
         // }
-        this.updateTimerLabel();    
-       
+        EventManager.getInstance().off(Alert.ALERT_GOON,this);
+        this.updateTimerLabel();
         this.timerTick();
     }
 
@@ -568,34 +578,16 @@ export class Main extends Component {
             this.cardPool.children[0].children[i].active = i < this.cardTotalCount ? true : false;
         }
     }
+
     private quitGame() {
-        // clearInterval(this.timerId);
+        clearInterval(this.timerId);
         DebugLog.instance.log('this.timer1', this.timer)
         if(Global.isSkewersGame) {
-            let self = this;
-            DebugLog.instance.log('this.timer2', this.timer)
-            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
-                const alertNode = instantiate(resource);
-                this.node.addChild(alertNode);
-                let alert = alertNode.getComponent("Alert");
-                alertNode.setPosition(0,0,0);
-                alert["showView"](AlertType.Normal);
-                alert["setTitle"]("是否退出当前游戏？");
-                DebugLog.instance.log('this.timer3', this.timer)
-                EventManager.getInstance().on(Alert.ALERT_GOON,this.restoreTimer,this);
-                // alert["setCallBack"](self.restoreTimer,this)
-            });
+            SkewersManager.getInstance().quitGame(this.node,this.restoreTimer,this);
         }else{
             // 游戏大厅
-            clearInterval(this.timerId);
             console.log("返回大厅")
-            SocketManager.getInstance().send(new SocketData({
-                action: GameCenterManager.GAMEEND,
-                data: {
-                    session_id: GameCenterManager.getInstance().currentGame.sessionid,
-                }
-            }));
-            SceneManager.getInstance().backToHall();
+            GameCenterManager.getInstance().quitGame();
         }
     }
 
