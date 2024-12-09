@@ -3091,7 +3091,7 @@
     },
     "component": "",
     "_componentId": "d5f73UIhpFFuLy5Y2l10qFX",
-    "handler": "",
+    "handler": "showMore",
     "customEventData": ""
   },
   {

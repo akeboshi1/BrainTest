@@ -176,13 +176,13 @@ export class Main extends Component {
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
             if(!Global.isSkewersGame){
-                // DebugLog.instance.log('sessionid', GameCenterManager.getInstance().currentGame.sessionid);
-                SocketManager.getInstance().send(new SocketData({
-                    action: GameCenterManager.GAMEMATCHITEM,
-                    data: {
-                        session_id: GameCenterManager.getInstance().currentGame.sessionid,
-                    }
-                }));
+                // SocketManager.getInstance().send(new SocketData({
+                //     action: GameCenterManager.GAMEMATCHITEM,
+                //     data: {
+                //         session_id: GameCenterManager.getInstance().currentGame.sessionid,
+                //     }
+                // }));
+                GameCenterManager.getInstance().gameMatch( GameCenterManager.getInstance().currentGame.sessionid,()=>{})
             }
 
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
@@ -333,7 +333,7 @@ export class Main extends Component {
             }
             return;
         }
-      
+        
         if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
             this.bigWin.active = false;
@@ -350,6 +350,15 @@ export class Main extends Component {
         this.gameStartInit();
         this.closeFailView();
     }
+
+    replayGame() {
+        this.closeAllCard();
+        this.timerInit();
+        this.timerTick();
+        this.closeFailView();
+        this.previewCard(2);
+    }
+
     closeFailView() {
         this.failView.active = false;
     }
@@ -448,6 +457,8 @@ export class Main extends Component {
     closeAllCard() {
         let self = this;
         this.cardList.forEach((card, index) => {
+            card.isBacked = false;
+            card.isDeleted = false;
             const cardNode = this.cardPool.children[0].children[index];
             if(cardNode){
                 const sprite = cardNode.getComponent(Sprite);

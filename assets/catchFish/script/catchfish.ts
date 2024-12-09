@@ -4,6 +4,7 @@ import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
 import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
 import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
+import { GameCenterManager } from "../../scripts/Game/Socket/GameCenterManager";
 const { ccclass, property } = _decorator;
 import { questions0, questions1, questions2 } from './questionsDate'
 
@@ -100,7 +101,7 @@ export class catchfish extends Component {
     }
 
     private randomFish(fish: Fish) {
-       
+
         let x = 800;
         let y = Math.random() * 600 - 300;
 
@@ -133,7 +134,7 @@ export class catchfish extends Component {
         }
 
         context._curFish = fish;
-
+        DebugLog.instance.log("选中鱼currentIndex",fish.currentIndex);
         let data = fish.getData();
 
         let options = data.options;
@@ -151,6 +152,9 @@ export class catchfish extends Component {
             label.string = answer;
         }
         context._curFish.setSelect(context.selectColor, 1.3);
+        for (let i = 0; i < len; i++) {
+            this.unSelectWang(i);
+        }
     }
 
     moveFishes(fish: Fish, delay: number = 0) {
@@ -171,7 +175,7 @@ export class catchfish extends Component {
             .by(duration, { position: new Vec3(fish.position.x - 2500, fish.position.y, fish.position.z) },
                 {
                     onUpdate: () => {
-                        if(this.gameSuccessView.active||this.gameFailView.active){
+                        if (this.gameSuccessView.active || this.gameFailView.active) {
                             return;
                         }
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
@@ -181,7 +185,7 @@ export class catchfish extends Component {
                 }
             )
             .call(() => {
-                if(this.gameSuccessView.active||this.gameFailView.active){
+                if (this.gameSuccessView.active || this.gameFailView.active) {
                     return;
                 }
                 this.randomFish(fish);
@@ -194,10 +198,12 @@ export class catchfish extends Component {
 
     }
     timerId: any;
-    timer: number = 120
+    timer: number;
+    INIT_TIME = 120;
     timeInit() {
-        this.timer = 120;
+        this.timer = this.INIT_TIME;
         this.Timer.string = "2:00";
+
 
     }
     timeStart() {
@@ -208,6 +214,7 @@ export class catchfish extends Component {
                 this.Timer.string = "0:00";
                 if (this.wangCount !== this.wangMaxCount) {
                     this.gameFailView.active = true;
+                    this.updateSuccessPopupStar(this.curHard)
                 }
                 clearInterval(this.timerId);
 
@@ -224,6 +231,15 @@ export class catchfish extends Component {
 
     }
 
+    rePlayGame() {
+        this.gameFailView.active = false;
+        this.wangCount = 0;
+        this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
+        this.clearGameView();
+        this.timeInit();
+        this.timeStart();
+        this.createFish();
+    }
     wangClick(event, data) {
         // 如果当前鱼不存在，则返回
         if (!this._curFish) {
@@ -231,82 +247,98 @@ export class catchfish extends Component {
         }
         this.hasWangClick = true;
         // 遍历wangs数组
-        let index = data;
+        let index =Number(data) ;
         let len = this.wangs.length;
-        for (let i = 0; i < len; i++) {
-            // 如果当前索引等于传入的索引，则调用selectWang方法
-            if (i == index) {
-                this.errorClick(i);
-            } else {
-                // 否则调用unSelectWang方法
-                this.unSelectWang(i);
-            }
-        }
-
-        if (index == this._curFish.currentIndex) {
-            let wangPrefab = instantiate(this.wangPrefab);
-            wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
-            // 获取当前索引对应的wang
-            let wang = this.wangs[index];
-            // 将wangPrefab添加到wang的子节点中
-            wang.addChild(wangPrefab);
-
-            let self = this;
-            // 启动动画
-            tween(wangPrefab).parallel(
-                tween().to(1.1, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
-                tween().to(0.5, { position: new Vec3(this._curFish.worldPosition.x - 400, this._curFish.worldPosition.y - 150, this._curFish.worldPosition.z) })
-            ).call(() => {
-                self._curFish.curTween.stop();
-                const scaleUp = 1.3; // 放大到2倍
-                const scaleDown = 1.0; // 恢复到原始大小
-                const duration = 0.2; // 每次放大和缩小的时长
-                tween(self._curFish.getFishNode())
-                    .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
-                    .delay(0.1)
-                    .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 缩小
-                    .delay(0.1)
-                    .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 再次放大
-                    .delay(0.1)
-                    .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 再次缩小
-                    .call(() => {
-                        this.hasWangClick = false;
-                        // 移除wangPrefab
-                        wang.removeChild(wangPrefab);
-                        this.wangCount++;
-                        this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
-                        if (this.wangCount == this.wangMaxCount) {
-                            this.endCurHardGame();
-
-                        }
-                        // 设置当前鱼为选中状态
-                        self._curFish.setSelect(this.unSelectColor, 1)
-                        // 随机生成鱼
-                        self.randomFish(this._curFish);
-                        // 移动鱼
-                        self.moveFishes(this._curFish, SHOOT_INTERVAL);
-                    })
-                    .start();
-            })
-                .start(); // 启动动画
-
+        if (index !== this._curFish.currentIndex) {
             for (let i = 0; i < len; i++) {
-
-                this.unSelectWang(i);
+                // 如果当前索引等于传入的索引，则调用selectWang方法
+                if (i == index) {
+                    console.log("点击了第" + i + "个网");
+                    this._curFish.setSelect(this.unSelectColor, 1);
+                    this.errorClick(i);
+                } else {
+                    // 否则调用unSelectWang方法
+                    this.unSelectWang(i);
+                }
             }
+            this.hasWangClick = false;
+            return;
         }
 
+        this.clearWangNubmer();
+        let wangPrefab = instantiate(this.wangPrefab);
+        wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
+        // 获取当前索引对应的wang
+        let wang = this.wangs[index];
+        // 将wangPrefab添加到wang的子节点中
+        wang.addChild(wangPrefab);
+        GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
+
+        let self = this;
+        // 启动动画
+        tween(wangPrefab).parallel(
+            tween().to(1.1, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
+            tween().to(0.5, { position: new Vec3(this._curFish.worldPosition.x - 400, this._curFish.worldPosition.y - 150, this._curFish.worldPosition.z) })
+        ).call(() => {
+            self._curFish.curTween.stop();
+            const scaleUp = 1.3; // 放大到2倍
+            const scaleDown = 1.0; // 恢复到原始大小
+            const duration = 0.2; // 每次放大和缩小的时长
+            tween(self._curFish.getFishNode())
+                .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
+                .delay(0.1)
+                .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 缩小
+                .delay(0.1)
+                .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 再次放大
+                .delay(0.1)
+                .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 再次缩小
+                .call(() => {
+                    this.hasWangClick = false;
+                    // 移除wangPrefab
+                    wang.removeChild(wangPrefab);
+                    this.wangCount++;
+                    this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
+                    if (this.wangCount == this.wangMaxCount) {
+                        this.endCurHardGame();
+
+                    }
+                    // 设置当前鱼为选中状态
+                    self._curFish.setSelect(this.unSelectColor, 1)
+                    // 随机生成鱼
+                    self.randomFish(this._curFish);
+                    // 移动鱼
+                    self.moveFishes(this._curFish, SHOOT_INTERVAL);
+                })
+                .start();
+        })
+            .start(); // 启动动画
+
+       
     }
-    
+    clearWangNubmer() {
+        for (let i = 0; i < 4; i++) {
+
+            let wangNode = this.wangs[i];
+
+            let label = wangNode.getChildByName('Label').getComponent(Label);
+
+            label.string = '?';
+        }
+    }
+
     updateSuccessPopupStar(num) {
         this.stars.forEach((star, index) => {
-           star.active = index < num;
-        });     
+            star.active = index < num;
+        });
     }
     private endCurHardGame() {
+        const curGame = GameCenterManager.getInstance().currentGame;
+        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 4, this.hards[this.hardIndex],
+            this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
         this.gameSuccessView.active = true;
         this.clearGameView();
         this.updateSuccessPopupStar(this.curHard);
+
         this.stars[this.hardIndex].scale = new Vec3(2, 2, 2);
         if (this.hardIndex == this.hards.length - 1) {
             this.hardIndex = 0;
@@ -366,7 +398,7 @@ export class catchfish extends Component {
 
         SceneManager.getInstance().backToHall();
     }
- 
+
 }
 
 
