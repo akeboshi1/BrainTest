@@ -93,7 +93,7 @@ export class GameCenterManager {
             gsData.callback(data);
         }
     }
-
+  
 
     /**
      * 结束游戏

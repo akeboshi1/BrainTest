@@ -176,13 +176,13 @@ export class Main extends Component {
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
             if(!Global.isSkewersGame){
-                // DebugLog.instance.log('sessionid', GameCenterManager.getInstance().currentGame.sessionid);
-                SocketManager.getInstance().send(new SocketData({
-                    action: GameCenterManager.GAMEMATCHITEM,
-                    data: {
-                        session_id: GameCenterManager.getInstance().currentGame.sessionid,
-                    }
-                }));
+                // SocketManager.getInstance().send(new SocketData({
+                //     action: GameCenterManager.GAMEMATCHITEM,
+                //     data: {
+                //         session_id: GameCenterManager.getInstance().currentGame.sessionid,
+                //     }
+                // }));
+                GameCenterManager.getInstance().gameMatch( GameCenterManager.getInstance().currentGame.sessionid,()=>{})
             }
 
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
@@ -356,7 +356,7 @@ export class Main extends Component {
             }
             return;
         }
-      
+        
         if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
             this.bigWin.active = false;
@@ -520,7 +520,7 @@ export class Main extends Component {
     timerId: any;
     timer: number;
 
-    INIT_TIME = 10;
+    INIT_TIME = 90;
 
     timerInit() {
         this.timer = this.INIT_TIME;
