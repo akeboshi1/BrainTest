@@ -264,7 +264,7 @@ export class puzzleGameCore extends Component {
         }
     }
 
-    private requestGameResult(win:boolean = true,callBack:Function = null){
+    private requestGameResult(win:boolean = true){
         // 上报数据
         let endTime = TimeUtil.getNow();
         let complete= Number(win);
@@ -272,7 +272,6 @@ export class puzzleGameCore extends Component {
             this._startTime = endTime;
         }
         let duration= (endTime - this._startTime)/1000;
-        if(callBack)EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,callBack,this);
         SkewersManager.getInstance().requestGameComplete(complete,duration);
     }
 
@@ -476,18 +475,23 @@ export class puzzleGameCore extends Component {
         DebugLog.instance.log("失败");
 
         if(Global.isSkewersGame){
-            this.requestGameResult(false,()=>{
-                let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-                let maxCount = SkewersManager.getInstance().getGameCount();
-                let curCount = trainData.seq-1;
-                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel,this.autoExitCallBack,this);
-            });
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.failRequestSkewersGameComplete,this);
+            this.requestGameResult(false);
         }else{
             this.summaryAlert.node.active = true;
             this.summaryAlert.initByResult(false);
             this.summaryAlert.fadeIn();
         }
     }
+
+    private failRequestSkewersGameComplete(){
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
+        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        let maxCount = SkewersManager.getInstance().getGameCount();
+        let curCount = trainData.seq-1;
+        SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel,this.autoExitCallBack,this);
+    }
+
 
     private gamepasslevelCallback(){
 
@@ -502,8 +506,8 @@ export class puzzleGameCore extends Component {
                 SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
                 return;
             }
-
-            this.requestGameResult(true,this.requestSkewersGameComplete)
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
+            this.requestGameResult(true)
 
 
         }else{

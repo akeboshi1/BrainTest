@@ -271,8 +271,9 @@ export class Main extends Component {
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
                 return;
             }
-
-            this.requestGameResult(this.requestSkewersGameComplete);
+            //上报数据
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
+            this.requestGameResult();
         }
     }
 
@@ -505,12 +506,8 @@ export class Main extends Component {
                 // 倒计时结束，游戏结束
                 if (Global.isSkewersGame) {
                     //上报数据
-                    this.requestGameResult(()=>{
-                        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-                        let maxCount = SkewersManager.getInstance().getGameCount();
-                        let curCount = trainData.seq;
-                        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"真遗憾，请加油！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
-                    });
+                    EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.failRequestSkewersGameComplete,this);
+                    this.requestGameResult();
                 } else {
                     this.failView.active = true;
                     this.failViewProgressLabel.node.active = false;
@@ -520,6 +517,15 @@ export class Main extends Component {
             this.updateTimerLabel()
         }, 1 * 1000);
     }
+
+    private failRequestSkewersGameComplete(){
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this)
+        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        let maxCount = SkewersManager.getInstance().getGameCount();
+        let curCount = trainData.seq;
+        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"真遗憾，请加油！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+    }
+
     restoreTimer() {
         this.updateTimerLabel();
         this.timerTick();
@@ -552,13 +558,12 @@ export class Main extends Component {
         }
     }
 
-    private requestGameResult(callBack:Function = null){
+    private requestGameResult(){
         // 上报数据
         this._endTime = TimeUtil.getNow();
         const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
         let complete =isDeletedCardCount/this.cardTotalCount;
         let duration= (this._endTime - this._startTime)/1000;
-        if(callBack)EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,callBack,this);
         SkewersManager.getInstance().requestGameComplete(complete,duration);
     }
 

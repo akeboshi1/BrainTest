@@ -1,10 +1,10 @@
-import { assetManager, director,AssetManager, Scene } from 'cc';
+import { assetManager, director,AssetManager, Scene,find } from 'cc';
 import {BaseManager} from "../BaseManager";
 import {LoaderManager} from "../../../Core/Manager/Load/LoaderManager";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {GameSceneConst} from "../../../Core/Data/GameSceneConst";
 import {Global} from "../../../Core/Manager/Config/Global";
-import {MainScene} from "db://assets/scripts/Game/Scene/MainScene";
+import {MainScene, MainSceneView} from "db://assets/scripts/Game/Scene/MainScene";
 
 export class SceneManager extends BaseManager{
 
@@ -106,10 +106,29 @@ export class SceneManager extends BaseManager{
 
     async backToGameCenter():Promise<void>{
         return new Promise((resolve,reject)=>{
-            let url = Global.RES_Root + GameSceneConst.GameCenter;
-            SceneManager.getInstance().changeScene(GameSceneConst.GameCenter,"main").then((scene)=>{
+            let url = Global.RES_Root + GameSceneConst.Hall;
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall,"main").then((scene)=>{
                 DebugLog.instance.log('返回游戏大厅');
-                // (scene as any).showGameCenter();
+                let node = find("Canvas");
+                let scriptNode = node.getChildByName("scriptNode");
+                let mainScene = scriptNode.getComponent("MainScene");
+                mainScene['setCurrentIndex'](MainSceneView.GameCenter);
+                resolve();
+            }).catch(err=>{
+                reject(err);
+            })
+        })
+    }
+
+    async backToSkewersGameCenter():Promise<void>{
+        return new Promise((resolve,reject)=>{
+            let url = Global.RES_Root + GameSceneConst.Hall;
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall,"main").then((scene)=>{
+                DebugLog.instance.log('返回串烧游戏大厅');
+                let node = find("Canvas");
+                let scriptNode = node.getChildByName("scriptNode");
+                let mainScene = scriptNode.getComponent("MainScene");
+                mainScene['setCurrentIndex'](MainSceneView.BrainTrainView);
                 resolve();
             }).catch(err=>{
                 reject(err);

@@ -173,11 +173,11 @@ export class Alert extends Component{
         this.context = context;
        if(goonCallBack){
            this.goonCallBack = goonCallBack;
-           this.goonCallBack.bind(context);
+           goonCallBack.bind(context);
        }
        if(exitCallBack){
            this.exitCallBack = exitCallBack;
-           this.exitCallBack.bind(context);
+           exitCallBack.bind(context);
        }
     }
 

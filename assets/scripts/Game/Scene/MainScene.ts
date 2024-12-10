@@ -1,20 +1,28 @@
-import { _decorator, Component, instantiate, Node, Prefab, Label, Sprite, ProgressBar, Button } from 'cc';
-import { DebugLog } from "../../../scripts/Core/Util/DebugLog";
-import { TaskManager } from "../../Game/Task/TaskManager";
-import { EventManager } from "../../Core/Manager/Event/EventManager";
-import { TaskData, TaskStatus } from "../../Game/Task/TaskData";
-import { StringUtil } from "../../Core/Util/StringUtil";
-import { ColorUtil } from "../../Core/Util/ColorUtil";
-import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
+import {_decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, Sprite} from 'cc';
+import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
+import {TaskManager} from "../../Game/Task/TaskManager";
+import {EventManager} from "../../Core/Manager/Event/EventManager";
+import {TaskData, TaskStatus} from "../../Game/Task/TaskData";
+import {StringUtil} from "../../Core/Util/StringUtil";
+import {ColorUtil} from "../../Core/Util/ColorUtil";
+import {ChatPanelCtrl} from '../UI/ChatPanel/ChatPanelCtrl';
 import {TimeUtil} from "../../Core/Util/TimeUtil";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
-import {SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
-import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
-import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
+import {GameType, SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import AlertManager, {AlertData} from '../../Core/Manager/Alert/AlertManager';
+import {LocalStorageUtil} from '../../Core/Util/LocalStorageUtil';
+
 const { ccclass, property } = _decorator;
+
+export enum MainSceneView{
+    TaskNode,
+    GameCenter,
+    TaskProgressView,
+    BrainTrainView
+}
 
 @ccclass('MainScene')
 export class MainScene extends Component {
@@ -124,17 +132,42 @@ export class MainScene extends Component {
         EventManager.getInstance().off(ChatPanelCtrl.ChatPanelCloseEvent, this);
     }
 
+
+    /**
+     * 切换主场景页面
+     */
+    startShowView(){
+       switch (this._viewIndex){
+           case MainSceneView.TaskNode:
+               this.backToTaskView();
+               break;
+           case MainSceneView.GameCenter:
+               this.showGameCenter();
+               break;
+           case MainSceneView.TaskProgressView:
+               this.showTaskProgress()
+               break;
+           case MainSceneView.BrainTrainView:
+               this.tabItemClickByRemote();
+               break;
+       }
+    }
+
+    private _viewIndex:number =0;
+    setCurrentIndex(index:number){
+        this._viewIndex = index;
+    }
+
     start() {
         if (this.taskList.length != 0) {
             this.taskList.forEach(task => {
                 if (task) task.active = false;
             });
         }
-
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
         TaskManager.getInstance().start();
-        this.backToTaskView();
 
+        this.startShowView();
     }
 
     updateTime() {
@@ -239,7 +272,7 @@ export class MainScene extends Component {
         let len = this.gameList.length;
         for (let i = 0; i < len; i++) {
             let gameItem = this.gameList[i];
-            if (this.tmpGameNames[i] == null) {
+            if (this.tmpGameNames[i] == null||i==0) {
                 gameItem.active = false;
                 continue;
             }
@@ -336,8 +369,19 @@ export class MainScene extends Component {
             DebugLog.instance.log("当前任务已经完成");
             return;
         }
+        Global.userData.curTaskData = this._curTaskData;
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,this.requestBranisTraining_listCallBack,this);
         SkewersManager.getInstance().requestBranisTraining_list(this._curTaskData.id);
+    }
+
+    tabItemClickByRemote(){
+        this._curTaskData =  Global.userData.curTaskData;
+        if(!this._curTaskData || this._curTaskData.status == TaskStatus.Completed){
+            DebugLog.instance.log("当前任务已经完成或不存在");
+            return;
+        } EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,this.requestBranisTraining_listCallBack,this);
+        SkewersManager.getInstance().requestBranisTraining_list(this._curTaskData.id);
+
     }
 
     private requestBranisTraining_listCallBack(data,context){
@@ -358,7 +402,27 @@ export class MainScene extends Component {
            if(_gameData){
                gameItem.active = true;
                let label = gameItem.getChildByName("label").getComponent(Label);
-               label.string = _gameData.gameCode;
+               let type = _gameData.type;
+               switch(type){
+                   case GameType.Memory:
+                       label.string = "记忆";
+                       break;
+                   case GameType.Judgment:
+                       label.string = "判断";
+                       break;
+                   case GameType.Calculator:
+                       label.string = "计算";
+                       break;
+                   case GameType.Executionability:
+                       label.string = "执行力";
+                       break;
+                   case GameType.Language:
+                       label.string = "语言";
+                       break;
+                   case GameType.cognition:
+                       label.string = "认知";
+                       break;
+               }
                let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
                progressBar.progress = _gameData.progress;
                let progressLabel = progressBar.node.getChildByName("Label").getComponent(Label);

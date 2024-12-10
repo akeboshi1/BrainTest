@@ -237,7 +237,7 @@ export class GameCenterManager {
                 session_id: GameCenterManager.getInstance().currentGame.sessionid,
             }
         }));
-        SceneManager.getInstance().backToHall();
+        SceneManager.getInstance().backToGameCenter();
     }
 
 

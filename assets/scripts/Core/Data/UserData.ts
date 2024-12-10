@@ -1,4 +1,5 @@
 import {SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import {TaskData} from "db://assets/scripts/Game/Task/TaskData";
 
 export class UserData {
     public id: string;
@@ -19,4 +20,8 @@ export class UserData {
      */
     public curSkewerGameData:SkewersGameData;
 
+    /**
+     * 当前任务数据
+     */
+    public curTaskData:TaskData;
 }
