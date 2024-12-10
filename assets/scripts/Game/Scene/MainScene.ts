@@ -367,26 +367,7 @@ export class MainScene extends Component {
         // let len = gameDatas.length;
         for (let i = 0; i < len; i++) {
 
-<<<<<<< HEAD
-            let gameItem = this.skewersGameItems[i];
-            let _gameData: SkewersGameData = gameDatas[i];
-            if (_gameData) {
-                gameItem.active = true;
-                let label = gameItem.getChildByName("label").getComponent(Label);
-                label.string = _gameData.gameCode;
-                let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
-                progressBar.progress = _gameData.progress;
-                let progressLabel = progressBar.node.getChildByName("Label").getComponent(Label);
-                let progressStr = _gameData.progressStr;
-                progressLabel.string = `当前进度: ${progressStr}`;
-            } else {
-                gameItem.active = false;
-                let label = gameItem.getChildByName("label").getComponent(Label);
-                label.string = "未知";
-                let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
-                progressBar.progress = 1;
-            }
-=======
+
            let gameItem = this.skewersGameItems[i];
             let _gameData:SkewersGameData = gameDatas[i];
            if(_gameData){
@@ -411,7 +392,6 @@ export class MainScene extends Component {
                let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
                progressBar.progress = 1;
            }
->>>>>>> e2e84d8cf1b06340c1b16a084728ebcbacc7fb21
 
         }
 
