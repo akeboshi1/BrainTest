@@ -589,7 +589,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 405.1,
+      "y": 475.1,
       "z": 0
     },
     "_lrot": {
@@ -727,7 +727,7 @@
     "_target": null,
     "_left": 0,
     "_right": 0,
-    "_top": 100,
+    "_top": 30.00000000000003,
     "_bottom": 0,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
@@ -1499,7 +1499,7 @@
       "__id__": 45
     },
     "_mode": 0,
-    "_totalLength": 300,
+    "_totalLength": 460,
     "_progress": 0.5,
     "_reverse": false,
     "_id": ""

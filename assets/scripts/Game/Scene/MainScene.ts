@@ -243,7 +243,6 @@ export class MainScene extends Component {
     }
     public notificationRequestCallBack(data, context) {
         this.notificationArr = data;
-        DebugLog.instance.log("通知列表11111111111", this.notificationArr);
     }
     public clickNotificationBtn() {
         this.progressTaskNode.active = false;
@@ -319,6 +318,7 @@ export class MainScene extends Component {
                         complete.active = true;
                         arrow.active = false;
                         (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
+                        count++;
                         DebugLog.instance.log("complete", complete)
                     } else {
                         if (task.status == TaskStatus.Expired) {
@@ -367,6 +367,7 @@ export class MainScene extends Component {
         // let len = gameDatas.length;
         for (let i = 0; i < len; i++) {
 
+<<<<<<< HEAD
             let gameItem = this.skewersGameItems[i];
             let _gameData: SkewersGameData = gameDatas[i];
             if (_gameData) {
@@ -385,6 +386,32 @@ export class MainScene extends Component {
                 let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
                 progressBar.progress = 1;
             }
+=======
+           let gameItem = this.skewersGameItems[i];
+            let _gameData:SkewersGameData = gameDatas[i];
+           if(_gameData){
+               gameItem.active = true;
+               let label = gameItem.getChildByName("label").getComponent(Label);
+               label.string = _gameData.gameCode;
+               let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
+               progressBar.progress = _gameData.progress;
+               let progressLabel = progressBar.node.getChildByName("Label").getComponent(Label);
+               let progressStr = _gameData.progressStr;
+               progressLabel.string = `当前进度: ${progressStr}`;
+               let completeIcon = gameItem.getChildByName("completeIcon");
+               if(_gameData.progress>=1){
+                   completeIcon.active = true;
+               }else{
+                   completeIcon.active = false;
+               }
+           }else{
+               gameItem.active = false;
+               let label = gameItem.getChildByName("label").getComponent(Label);
+               label.string = "未知";
+               let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
+               progressBar.progress = 1;
+           }
+>>>>>>> e2e84d8cf1b06340c1b16a084728ebcbacc7fb21
 
         }
 

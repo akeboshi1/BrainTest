@@ -32,7 +32,7 @@ export class TimeUtil {
     }
 
     /**
-     * 获取当前时间戳
+     * 获取当前时间
      */
     public static getNow():number{
         let now = new Date();

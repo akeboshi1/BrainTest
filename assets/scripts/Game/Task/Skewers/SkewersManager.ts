@@ -1,4 +1,4 @@
-import {SkewersGameData} from "./SkewersGameData";
+import {SkewersGameData, SkewersGameTrainData} from "./SkewersGameData";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {Global} from "../../../Core/Manager/Config/Global";
@@ -9,6 +9,7 @@ import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
 import {instantiate,Node,Vec3} from "cc";
+import {TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 
 /**
  * 脑力串烧管理器
@@ -55,6 +56,11 @@ export class SkewersManager{
 
 
     public static TASK_GET_BRAIN_TRAININGS:string = "TASK_GET_BRAIN_TRAININGS";
+
+    /**
+     * 请求上传串烧数据事件
+     */
+    public static REQUEST_SKEWERSGAME_COMPLETE = "REQUEST_SKEWERSGAME_COMPLETE";
 
     private _alertInstance:Node = null;
 
@@ -132,7 +138,9 @@ export class SkewersManager{
 
      public getGameCount():number{
          let curgameData = this.getUnCompleteGameData();
-         if(curgameData == null)return 0 ;
+         if(curgameData == null){
+            curgameData = this._gameDatas[this._gameDatas.length - 1];
+         }
          return curgameData.trains.length;
      }
 
@@ -144,6 +152,15 @@ export class SkewersManager{
          return trainData.seq;
      }
 
+     public getTrainData(id:number):SkewersGameTrainData{
+         for(let i=0; i<this._gameDatas.length; i++){
+             let gameData = this._gameDatas[i];
+             let trainData = gameData.getTrainDataByID(id);
+             if(trainData) return trainData;
+         }
+         return null;
+     }
+
     /**
      * 中途退出串烧游戏接口
      * @param parentNode
@@ -151,7 +168,7 @@ export class SkewersManager{
      * @param exitCallBack
      * @param context
      */
-     public quitGame(parentNode:Node,goonCallBack:Function,exitCallBack:Function,context){
+     public quitGame(parentNode:Node,curCount:number,maxCount:number,goonCallBack:Function,exitCallBack:Function,context){
          let alertNode =  SkewersManager.getInstance()._alertInstance;
          if(alertNode == null){
              LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
@@ -161,14 +178,17 @@ export class SkewersManager{
                  alertNode.setPosition(0,0,0);
                  alert["showView"](AlertType.Normal);
                  alert["setTitle"]("是否退出当前游戏？");
+                 alert['setProgress'](curCount,maxCount);
                  alert['bindCallBack'](goonCallBack,exitCallBack,context);
              });
          }else{
+             alertNode.active = true;
              parentNode.addChild(alertNode);
              let alert = alertNode.getComponent("Alert");
              alertNode.setPosition(0,0,0);
              alert["showView"](AlertType.Normal);
              alert["setTitle"]("是否退出当前游戏？");
+             alert['setProgress'](curCount,maxCount);
              alert['bindCallBack'](goonCallBack,exitCallBack,context);
          }
      }
@@ -183,7 +203,7 @@ export class SkewersManager{
      * @param exitCallBack
      * @param context
      */
-     public showGameAlert(parentNode:Node,type:AlertType,title="",desc="",goonCallBack:Function,exitCallBack:Function,context:any){
+     public showGameAlert(parentNode:Node,type:AlertType,title="",desc="",curCount:number,maxCount:number,goonCallBack:Function,exitCallBack:Function,context:any){
         let alertNode =  SkewersManager.getInstance()._alertInstance;
         if(alertNode == null){
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
@@ -194,15 +214,18 @@ export class SkewersManager{
                 alert["showView"](type);
                 alert["setTitle"](title);
                 alert["setDec"](desc);
+                alert['setProgress'](curCount,maxCount);
                 alert['bindCallBack'](goonCallBack,exitCallBack,context);
             });
         }else{
+            alertNode.active = true;
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("Alert");
             alertNode.setPosition(0,0,0);
             alert["showView"](type);
             alert["setTitle"](title);
             alert["setDec"](desc);
+            alert['setProgress'](curCount,maxCount);
             alert['bindCallBack'](goonCallBack,exitCallBack,context);
         }
      }
@@ -239,22 +262,22 @@ export class SkewersManager{
                  this._curIndex = -1;
                  return;
              }
-             let curGame = this.getUnCompleteGameData();
+             let curGame;
+             for(let i = 0; i < this._gameDatas.length; i++){
+                 curGame = this._gameDatas[i];
+                 if(curGame.status == TaskStatus.UnComplete){
+                     curGame.updateData(data.data["brain_training_id"], this._curRequestCompleteData);
+                     break;
+                 }
+             }
+             //let curGame = this.getUnCompleteGameData();
              if(!curGame){
                  DebugLog.instance.log("当前串烧游戏已经全部完成");
                  Global.isSkewersGame = false;
                  this._curIndex = -1;
                  return;
              }
-             curGame.updateData(data.data["brain_training_id"], this._curRequestCompleteData);
-             // // 可能换到了下一个类型游戏
-             // curGame = this.getUnCompleteGameData();
-             // const sceneName = curGame.gameCode;
-             // let url = Global.RES_Root+sceneName;
-             // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-             //     DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
-             //     Global.userData.curSkewerGameData = curGame;
-             // });
+             EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,data.data["brain_training_id"]);
          }
      }
 
@@ -381,6 +404,7 @@ export class SkewersManager{
          }
          return null;
      }
+
 
      private getNextGameData(){
          if(!this._gameDatas)return null;
