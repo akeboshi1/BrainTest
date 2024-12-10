@@ -12,7 +12,8 @@ export enum AlertType {
     Sucess_Small,
     Sucess_Big,
     Failed,
-    Game_Center
+    Game_Center,
+    Init
 }
 
 /**
@@ -20,7 +21,6 @@ export enum AlertType {
  */
 @ccclass('Alert')
 export class Alert extends Component{
-
 
     @property(Node)
     alert:Node = null;
@@ -71,18 +71,7 @@ export class Alert extends Component{
                 this.decLabel.node.active = false;
 
                 startBtnUITransform.width = 250;
-               let curcount =  SkewersManager.getInstance().getCurGameIndex();
-               let maxcount = SkewersManager.getInstance().getGameCount();
-               let curProgress = "";
-               if(maxcount == 0){
-                   this.progressBar.progress = 1;
-                   curProgress = "1/1"
-               }else{
-                   curcount = curcount -1<0 ? 0 : curcount-1;
-                   this.progressBar.progress = curcount/maxcount;
-                   curProgress= `${curcount} / ${maxcount}`;
-               }
-               this.progressLabel.string = `当前游戏进度:${curProgress}`;
+
                 break;
             case AlertType.Sucess_Small:
                 this.exitBtn.node.active = true;
@@ -106,6 +95,16 @@ export class Alert extends Component{
             case AlertType.Failed:
                 // todo
                 break;
+            case AlertType.Init:
+                this.startBtn.node.active = true;
+                this.decLabel.node.active = false;
+                this.titleLabel.node.active = true;
+                this.progressBar.node.active = false;
+                this.icon.active = false;
+                this.exitBtn.node.active = false;
+
+                startBtnUITransform.width = 500;
+                break;
             case AlertType.Game_Center:
                 this.startBtn.node.active = true;
                 this.decLabel.node.active = false;
@@ -117,6 +116,19 @@ export class Alert extends Component{
                 startBtnUITransform.width = 250;
                 break;
         }
+    }
+
+    setProgress(curcount:number,maxcount:number) {
+        let curProgress = "";
+        if(maxcount == 0){
+            this.progressBar.progress = 1;
+            curProgress = "1/1"
+        }else{
+            curcount = curcount<0 ? 0 : curcount;
+            this.progressBar.progress = curcount/maxcount;
+            curProgress= `${curcount} / ${maxcount}`;
+        }
+        this.progressLabel.string = `当前游戏进度:${curProgress}`;
     }
 
     setTitle(str:string){

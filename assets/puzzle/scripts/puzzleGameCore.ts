@@ -22,6 +22,7 @@ import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 
 const { ccclass, property } = _decorator;
 
@@ -88,7 +89,7 @@ export class puzzleGameCore extends Component {
         this.cleanChipsCache();
         let playIndex = 0;
         if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty;
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
             this.gameLength = Global.userData.curSkewerGameData.timeLimit;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
@@ -432,7 +433,7 @@ export class puzzleGameCore extends Component {
         DebugLog.instance.log("失败");
 
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',this.onClickGotoNextlevel,this.exitCallBack,this);
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',0,0,this.onClickGotoNextlevel,this.exitCallBack,this);
         }else{
             this.summaryAlert.node.active = true;
             this.summaryAlert.initByResult(false);
@@ -449,10 +450,18 @@ export class puzzleGameCore extends Component {
         DebugLog.instance.log("成功");
         this.timerComponent.pauseTimer();
         if(Global.isSkewersGame){
+            if(SkewersManager.getInstance().isRunOver()){
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
+                return;
+            }
+
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
+            // 上报数据
             let complete = 1;//this.s/this.cardTotalCount;
             let duration= 40;
             SkewersManager.getInstance().requestGameComplete(complete,duration);
-            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真厉害，请继续！",'',this.onClickGotoNextlevel,this.exitCallBack,this);
+
+
         }else{
             // 通小关后发送消息
             let curGame = GameCenterManager.getInstance().currentGame;
@@ -461,9 +470,24 @@ export class puzzleGameCore extends Component {
             this.summaryAlert.initByResult(true);
             this.summaryAlert.fadeIn();
         }
+    }
 
-
-
+    private requestSkewersGameComplete(data){
+        let trainid = data;
+        let trainData = SkewersManager.getInstance().getTrainData(trainid);
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
+        let maxCount = SkewersManager.getInstance().getGameCount();
+        let curCount = trainData.seq;
+        // 游戏内界面提示
+        if(maxCount != curCount){
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
+        }else{
+            if (!SkewersManager.getInstance().isRunOver()) {
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Small,"太棒了，恭喜你通关拼图游戏","收获xxx点脑力值！",0,0,this.onClickGotoNextlevel,this.exitCallBack,this);
+            }else{
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.exitCallBack,this.exitCallBack,this);
+            }
+        }
     }
 
     onClickGotoNextlevel(){

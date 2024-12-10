@@ -71,6 +71,18 @@ export class SkewersGameData {
         return null;
     }
 
+
+
+    getTrainDataByID(id){
+        let len = this.trains.length;
+        for(let i:number = 0; i < len; ++i){
+            let tmpData:SkewersGameTrainData = this.trains[i];
+            if(tmpData.brain_training_id == id)return tmpData;
+        }
+        return null;
+    }
+
+
     get difficulty():number{
         let curTrainData = this.getCurTrainData();
         if(!curTrainData){
