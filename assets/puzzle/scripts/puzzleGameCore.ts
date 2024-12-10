@@ -23,6 +23,7 @@ import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 
 const { ccclass, property } = _decorator;
 
@@ -79,6 +80,8 @@ export class puzzleGameCore extends Component {
 
     private levelList:number[] = [2,3,4];
     private selectedLevel:number = this.levelList[this.selectedLevelIndex];
+
+    private _startTime:number = 0;
 
     onLoad() {
 
@@ -237,7 +240,10 @@ export class puzzleGameCore extends Component {
     quitGame(){
         this.pauseTime();
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().quitGame(this.viewNode,this.goonCallBack,this.exitCallBack,this);
+            let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+            let maxCount = SkewersManager.getInstance().getGameCount();
+            let curCount = trainData.seq - 1<0?0:trainData.seq -1;
+            SkewersManager.getInstance().quitGame(this.viewNode,curCount,maxCount,this.goonCallBack,this.autoExitCallBack,this);
         }else{
             GameCenterManager.getInstance().quitGame(this.viewNode,this.goonCallBack,this.exitCallBack,this);
         }
@@ -255,8 +261,32 @@ export class puzzleGameCore extends Component {
         }
     }
 
+    private requestGameResult(win:boolean = true,callBack:Function = null){
+        // 上报数据
+        let endTime = TimeUtil.getNow();
+        let complete= Number(win);
+        if(this._startTime==0){
+            this._startTime = endTime;
+        }
+        let duration= (endTime - this._startTime)/1000;
+        if(callBack)EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,callBack,this);
+        SkewersManager.getInstance().requestGameComplete(complete,duration);
+    }
+
     private exitCallBack(context){
         context.resumeTime();
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().exitCallBack();
+        }else{
+            GameCenterManager.getInstance().exitCallBack();
+        }
+    }
+
+    private autoExitCallBack(context){
+        clearInterval(context.timerId);
+        clearTimeout(context._setTimeOutId);
+        //上报数据
+        context.requestGameResult(false);
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{
@@ -421,6 +451,7 @@ export class puzzleGameCore extends Component {
     {
         this.timerComponent.resetTimer();
         this.timerComponent.startTimer(10);
+        this._startTime = TimeUtil.getNow();
     }
 
     onTimerEnd() {
@@ -430,6 +461,7 @@ export class puzzleGameCore extends Component {
 
     onClickStartGame()
     {
+        this._startTime = TimeUtil.getNow();
         this.timerComponent.startTimer(this.gameLength.valueOf());
         this.onClickDisturbPuzzleButton();
         this.buttonStartGame.active = false;
@@ -441,7 +473,12 @@ export class puzzleGameCore extends Component {
         DebugLog.instance.log("失败");
 
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',0,0,this.onClickGotoNextlevel,this.exitCallBack,this);
+            this.requestGameResult(false,()=>{
+                let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+                let maxCount = SkewersManager.getInstance().getGameCount();
+                let curCount = trainData.seq-1;
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel,this.autoExitCallBack,this);
+            });
         }else{
             this.summaryAlert.node.active = true;
             this.summaryAlert.initByResult(false);
@@ -463,11 +500,7 @@ export class puzzleGameCore extends Component {
                 return;
             }
 
-            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
-            // 上报数据
-            let complete = 1;//this.s/this.cardTotalCount;
-            let duration= 40;
-            SkewersManager.getInstance().requestGameComplete(complete,duration);
+            this.requestGameResult(true,this.requestSkewersGameComplete)
 
 
         }else{
@@ -509,6 +542,7 @@ export class puzzleGameCore extends Component {
         this.buttonStartGame.active = true;
         this.timerComponent.resetTimer();
     }
+
 
     onClickRetryCurrentLevel(){
 

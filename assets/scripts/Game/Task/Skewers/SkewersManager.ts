@@ -168,7 +168,7 @@ export class SkewersManager{
      * @param exitCallBack
      * @param context
      */
-     public quitGame(parentNode:Node,goonCallBack:Function,exitCallBack:Function,context){
+     public quitGame(parentNode:Node,curCount:number,maxCount:number,goonCallBack:Function,exitCallBack:Function,context){
          let alertNode =  SkewersManager.getInstance()._alertInstance;
          if(alertNode == null){
              LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
@@ -178,6 +178,7 @@ export class SkewersManager{
                  alertNode.setPosition(0,0,0);
                  alert["showView"](AlertType.Normal);
                  alert["setTitle"]("是否退出当前游戏？");
+                 alert['setProgress'](curCount,maxCount);
                  alert['bindCallBack'](goonCallBack,exitCallBack,context);
              });
          }else{
@@ -187,6 +188,7 @@ export class SkewersManager{
              alertNode.setPosition(0,0,0);
              alert["showView"](AlertType.Normal);
              alert["setTitle"]("是否退出当前游戏？");
+             alert['setProgress'](curCount,maxCount);
              alert['bindCallBack'](goonCallBack,exitCallBack,context);
          }
      }
