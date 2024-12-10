@@ -23834,7 +23834,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 219.36865234375,
+      "width": 245.212890625,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -23867,8 +23867,8 @@
     "_string": "当前进度：100/100",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25,
-    "_fontSize": 25,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -24588,7 +24588,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 219.36865234375,
+      "width": 245.212890625,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -24621,8 +24621,8 @@
     "_string": "当前进度：100/100",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25,
-    "_fontSize": 25,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -25342,7 +25342,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 219.36865234375,
+      "width": 245.212890625,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -25375,8 +25375,8 @@
     "_string": "当前进度：100/100",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25,
-    "_fontSize": 25,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -26096,7 +26096,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 219.36865234375,
+      "width": 245.212890625,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -26129,8 +26129,8 @@
     "_string": "当前进度：100/100",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25,
-    "_fontSize": 25,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -26850,7 +26850,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 219.36865234375,
+      "width": 245.212890625,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -26883,8 +26883,8 @@
     "_string": "当前进度：100/100",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25,
-    "_fontSize": 25,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -27604,7 +27604,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 219.36865234375,
+      "width": 245.212890625,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -27637,8 +27637,8 @@
     "_string": "当前进度：100/100",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25,
-    "_fontSize": 25,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,

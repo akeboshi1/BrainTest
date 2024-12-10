@@ -242,7 +242,7 @@ export class catchfish extends Component {
     }
     wangClick(event, data) {
         // 如果当前鱼不存在，则返回
-        if (!this._curFish) {
+        if (!this._curFish||this.hasWangClick) {
             return;
         }
         this.hasWangClick = true;
@@ -279,6 +279,13 @@ export class catchfish extends Component {
         tween(wangPrefab).parallel(
             tween().to(1.1, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
             tween().to(0.5, { position: new Vec3(this._curFish.worldPosition.x - 400, this._curFish.worldPosition.y - 150, this._curFish.worldPosition.z) })
+
+
+
+
+
+
+
         ).call(() => {
             self._curFish.curTween.stop();
             const scaleUp = 1.3; // 放大到2倍
@@ -293,21 +300,23 @@ export class catchfish extends Component {
                 .delay(0.1)
                 .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 再次缩小
                 .call(() => {
-                    this.hasWangClick = false;
+                    self.hasWangClick = false;
                     // 移除wangPrefab
                     wang.removeChild(wangPrefab);
-                    this.wangCount++;
-                    this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
-                    if (this.wangCount == this.wangMaxCount) {
-                        this.endCurHardGame();
+                    self.wangCount++;
+                    self.catchLabel.getComponent(Label).string = `${self.wangCount}/4`;
+                    if (self.wangCount == self.wangMaxCount) {
+                        self.endCurHardGame();
 
                     }
                     // 设置当前鱼为选中状态
-                    self._curFish.setSelect(this.unSelectColor, 1)
+                    self._curFish.setSelect(self.unSelectColor, 1)
                     // 随机生成鱼
-                    self.randomFish(this._curFish);
+                    self.randomFish(self._curFish);
                     // 移动鱼
-                    self.moveFishes(this._curFish, SHOOT_INTERVAL);
+                    self.moveFishes(self._curFish, SHOOT_INTERVAL);
+
+                    self._curFish=null;
                 })
                 .start();
         })

@@ -569,7 +569,7 @@ export class Main extends Component {
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = SkewersManager.getInstance().getGameCount();
             let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-            SkewersManager.getInstance().quitGame(this.node,curCount,maxCount,this.goonCallBack,this.autoExitCallBack,this);
+            SkewersManager.getInstance().quitGame(this.node,curCount,maxCount,this.goonCallBack,this.exitCallBack,this);
         }else{
             // 游戏大厅
             console.log("返回大厅")

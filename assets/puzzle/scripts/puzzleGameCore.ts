@@ -67,6 +67,9 @@ export class puzzleGameCore extends Component {
     @property(Node)
     private viewNode:Node = null;
 
+    @property(Node)
+    private bgNode:Node = null;
+
     //显示对象
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
@@ -243,7 +246,7 @@ export class puzzleGameCore extends Component {
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = SkewersManager.getInstance().getGameCount();
             let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-            SkewersManager.getInstance().quitGame(this.viewNode,curCount,maxCount,this.goonCallBack,this.autoExitCallBack,this);
+            SkewersManager.getInstance().quitGame(this.viewNode,curCount,maxCount,this.goonCallBack,this.exitCallBack,this);
         }else{
             GameCenterManager.getInstance().quitGame(this.viewNode,this.goonCallBack,this.exitCallBack,this);
         }
@@ -464,7 +467,7 @@ export class puzzleGameCore extends Component {
         this._startTime = TimeUtil.getNow();
         this.timerComponent.startTimer(this.gameLength.valueOf());
         this.onClickDisturbPuzzleButton();
-        this.buttonStartGame.active = false;
+        this.bgNode.active = false;
         this.startGameMask.active = false;
     }
 
@@ -539,7 +542,7 @@ export class puzzleGameCore extends Component {
         // 下一关
         this.onClickChangeLevel();
         this.startGameMask.active = true;
-        this.buttonStartGame.active = true;
+        this.bgNode.active = true;
         this.timerComponent.resetTimer();
     }
 
@@ -564,7 +567,7 @@ export class puzzleGameCore extends Component {
         this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
 
         this.startGameMask.active = true;
-        this.buttonStartGame.active = true;
+        this.bgNode.active = true;
         this.timerComponent.resetTimer();
     }
 
