@@ -373,12 +373,21 @@ export class puzzleGameCore extends Component {
 
     onClickDisturbPuzzleButton()
     {
+        if(Global.isSkewersGame){
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
+            this.selectedLevel= this.levelList[this.selectedLevelIndex];
+        }
         this.randomSwapPuzzleChipsNTimes(this.selectedLevel * this.selectedLevel);
     }
 
     onClickChangeLevel()
     {
-        this.selectedLevelIndex = (this.selectedLevelIndex + 1) % this.levelList.length;
+        if(Global.isSkewersGame){
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
+        }else{
+            this.selectedLevelIndex = (this.selectedLevelIndex + 1) % this.levelList.length;
+        }
+
         this.selectedLevel = this.levelList[this.selectedLevelIndex];
 
         this.cleanChipsCache();
@@ -392,7 +401,6 @@ export class puzzleGameCore extends Component {
 
         let playIndex=0;
         if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
 
@@ -514,7 +522,7 @@ export class puzzleGameCore extends Component {
 
         let playIndex = 0;
         if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty;
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
 
