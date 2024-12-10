@@ -111,6 +111,7 @@ export class App extends BaseObejct {
 
 
     /**
+     * socket连接成功回调   
      * debug环境下tts 连接成功回调
      */
     ttsComplete(){

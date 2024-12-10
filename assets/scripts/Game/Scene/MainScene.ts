@@ -1,4 +1,4 @@
-import {_decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, Sprite} from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, Label, Sprite, ProgressBar, Button } from 'cc';
 import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
 import {TaskManager} from "../../Game/Task/TaskManager";
 import {EventManager} from "../../Core/Manager/Event/EventManager";
@@ -14,7 +14,7 @@ import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManag
 import {GameType, SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 import AlertManager, {AlertData} from '../../Core/Manager/Alert/AlertManager';
 import {LocalStorageUtil} from '../../Core/Util/LocalStorageUtil';
-
+import { TaskAndNotificationPanelCtrl } from './TaskAndNotificationPanelCtrl';
 const { ccclass, property } = _decorator;
 
 export enum MainSceneView{
@@ -94,18 +94,18 @@ export class MainScene extends Component {
 
     // ====================== 游戏大厅
     @property(Node)
-    gameCenterNode:Node = null;
+    gameCenterNode: Node = null;
 
-    @property({type:[Node]})
-    gameList:Node[]=[];
+    @property({ type: [Node] })
+    gameList: Node[] = [];
 
 
     // ===================== 串烧游戏开始界面
     @property(Node)
-    brainTrainNode:Node;
+    brainTrainNode: Node;
 
-    @property({type:[Node]})
-    skewersGameItems:Node[]=[];
+    @property({ type: [Node] })
+    skewersGameItems: Node[] = [];
 
 
     /**
@@ -119,7 +119,8 @@ export class MainScene extends Component {
     private expireColor = "#686E72";
 
     private chatPanel: Node = null;
-    private tmpGameNames: string[] = ["找茬",'翻牌','拼图', '捕鱼']
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼'];
+    private notificationArr: [];
     onLoad() {
 
     }
@@ -243,9 +244,11 @@ export class MainScene extends Component {
     showTaskProgress() {
         this.progressLabel.string = "";
         this.taskProgressNode.active = true;
+        EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
+        TaskManager.getInstance().requestStartInform();
         this.taskScrollView.active = false;
         this.brainTrainNode.active = false;
-        this.tabClick(null,0);
+        this.tabClick(null, 0);
         this.switchTaskNode(false);
         this._curPanel = this.taskProgressNode;
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
@@ -261,13 +264,23 @@ export class MainScene extends Component {
             case 1:
                 this.infoTab.normalColor = ColorUtil.getCCColor(245, 80, 80);
                 this.taskTab.normalColor = ColorUtil.getCCColor(255, 255, 255);
+                this.clickNotificationBtn();
                 break;
         }
+
         this.progressTaskNode.active = !Number(index);
         this.progressInfoNode.active = Boolean(Number(index));
+
+
     }
-
-
+    public notificationRequestCallBack(data, context) {
+        this.notificationArr = data;
+    }
+    public clickNotificationBtn() {
+        this.progressTaskNode.active = false;
+        this.progressInfoNode.active = true;
+        this.taskProgressNode.getComponent(TaskAndNotificationPanelCtrl).updateList(this.notificationArr);
+    }
     showGameCenter() {
         let len = this.gameList.length;
         for (let i = 0; i < len; i++) {
@@ -292,7 +305,7 @@ export class MainScene extends Component {
     }
 
     showMore() {
-        const ad:AlertData = new AlertData();
+        const ad: AlertData = new AlertData();
         ad.title = "";
         ad.message = "开发中";
         AlertManager.getInstance().showAlert(ad);
@@ -301,9 +314,9 @@ export class MainScene extends Component {
     }
 
     // ======= 任务中心
-    private taskListRequestCallBack(data,context){
-        EventManager.getInstance().off(TaskManager.TaskListRequestCallBack,context);
-        switch (this._curPanel){
+    private taskListRequestCallBack(data, context) {
+        EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
+        switch (this._curPanel) {
             case this.taskNode:
                 // let taskUnCompleteDic = TaskManager.getInstance().getTodayUnCompleteTask();
                 // taskUnCompleteDic.forEach((task:TaskData)=>{
@@ -360,17 +373,17 @@ export class MainScene extends Component {
     }
 
 
-    private _curTaskData:TaskData;
-    taskItemClick(event,data){
+    private _curTaskData: TaskData;
+    taskItemClick(event, data) {
         DebugLog.instance.log(data);
         let taskList = TaskManager.getInstance().taskList;
         this._curTaskData = taskList[Number(data)];
-        if(this._curTaskData.status ==  TaskStatus.Completed){
+        if (this._curTaskData.status == TaskStatus.Completed) {
             DebugLog.instance.log("当前任务已经完成");
             return;
         }
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
         Global.userData.curTaskData = this._curTaskData;
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,this.requestBranisTraining_listCallBack,this);
         SkewersManager.getInstance().requestBranisTraining_list(this._curTaskData.id);
     }
 
@@ -384,8 +397,8 @@ export class MainScene extends Component {
 
     }
 
-    private requestBranisTraining_listCallBack(data,context){
-        EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
+    private requestBranisTraining_listCallBack(data, context) {
+        EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
         this.brainTrainNode.active = true;
         this.taskNode.active = false;
         this.taskProgressNode.active = false;
@@ -395,7 +408,8 @@ export class MainScene extends Component {
         let gameDatas = data;
         let len = this.gameList.length;
         // let len = gameDatas.length;
-        for(let i = 0; i < len; i++){
+        for (let i = 0; i < len; i++) {
+
 
            let gameItem = this.skewersGameItems[i];
             let _gameData:SkewersGameData = gameDatas[i];
@@ -447,17 +461,17 @@ export class MainScene extends Component {
 
     }
 
-    startTaskClick(){
+    startTaskClick() {
         TaskManager.getInstance().requestStartTask(this._curTaskData.id);
     }
 
-    backToTaskCenter(){
+    backToTaskCenter() {
         this.showTaskProgress();
     }
 
 
     // =========== 游戏中心
-    gameItemClick(event,data){
+    gameItemClick(event, data) {
         let index = Number(data);
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
