@@ -14,6 +14,7 @@ import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginManager";
 import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
 import AlertManager from './Core/Manager/Alert/AlertManager';
+import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
 
 
 const { ccclass, property } = _decorator;
@@ -140,6 +141,7 @@ export class App extends BaseObejct {
         ChatFlowModel.getInstance().init();
         SpriteManager.getInstance().init();
         AlertManager.getInstance().init();
+        BundlePreloadManager.getInstance().init();
     }
 
     private preLoadRes(){
