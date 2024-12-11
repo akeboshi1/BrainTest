@@ -99,6 +99,7 @@ export class puzzleGameCore extends Component {
             this.gameLength = Global.userData.curSkewerGameData.timeLimit;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
+        this.cachedTextures.sort(()=>Math.random() - 0.5);
 
         const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
         this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);

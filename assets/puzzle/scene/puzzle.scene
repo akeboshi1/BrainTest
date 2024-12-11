@@ -1621,6 +1621,34 @@
       {
         "__uuid__": "e9e95a52-5977-495e-ad8a-fb50692550bf@6c48a",
         "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "a75b2f5b-f0e3-4580-a551-57de5c856ef1@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "4f2e3dc6-c7b7-41dd-83a6-16bc706530ec@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "ec5fbe63-63ba-40b0-9a3a-5142fffecc43@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "edaa5797-dcd1-48f0-a79f-bf1fa6431853@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "e4ddd1e7-fca3-4ed5-a924-9cf9c24052ed@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "74e5e4dd-e0ce-463a-9a0f-09248a5cf605@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "de9e7c9b-0342-4f0a-af46-bec1387f7dae@6c48a",
+        "__expectedType__": "cc.Texture2D"
       }
     ],
     "chipNodePrefab": {
