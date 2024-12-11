@@ -1333,7 +1333,7 @@
     "_verticalAlign": 1,
     "_actualFontSize": 60,
     "_fontSize": 60,
-    "_fontFamily": "",
+    "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
     "_enableWrapText": false,
@@ -2435,7 +2435,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 800,
-      "height": 1200
+      "height": 1700
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2544,6 +2544,9 @@
     },
     "verifyNode": {
       "__id__": 30
+    },
+    "loadEffect": {
+      "__id__": 15
     },
     "_id": ""
   },
