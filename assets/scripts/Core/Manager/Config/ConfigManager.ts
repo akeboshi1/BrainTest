@@ -1,5 +1,5 @@
 
-import {loader,JsonAsset,TextAsset} from "cc";
+import {JsonAsset,TextAsset, resources} from "cc";
 import {BaseManager} from "../BaseManager";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 
@@ -27,7 +27,7 @@ export class ConfigManager extends BaseManager {
     async loadJson(filepath:string) :Promise<any>{
         return new Promise((resolve, reject) => {
             type kv = { key: string, value: string };
-            loader.loadRes("config/" + filepath, JsonAsset, (err, conf: JsonAsset) => {
+            resources.load("config/" + filepath, JsonAsset, (err, conf: JsonAsset) => {
                 if (err) {
                     DebugLog.instance.error(err)
                     reject();
@@ -42,7 +42,7 @@ export class ConfigManager extends BaseManager {
     async readConfig (filepath: string, c: any) :Promise<any> {
         return new Promise((resolve, reject) => {
             type kv = { key: string, value: string };
-            loader.loadRes("config/" + filepath, TextAsset, (err, conf: TextAsset) => {
+            resources.load("config/" + filepath, TextAsset, (err, conf: TextAsset) => {
                 if (err) {
                     DebugLog.instance.error(err)
                     reject();
