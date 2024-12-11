@@ -235,7 +235,7 @@ export class SkewersManager{
      */
     public exitCallBack(){
         if(SkewersManager.getInstance().isRunOver()){
-            SceneManager.getInstance().backToHall();
+            SceneManager.getInstance().backToTaskProgress();
         }else{
             SceneManager.getInstance().backToSkewersGameCenter();
         }

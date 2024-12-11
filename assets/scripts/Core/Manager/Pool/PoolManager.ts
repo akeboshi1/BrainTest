@@ -16,7 +16,7 @@ export class PoolManager extends BaseManager{
     private pools:any = {};
 
 
-    initPool(key: any, prefab: Prefab, count: number) {
+    initPool(key: any, prefab: Prefab, count: number = 1) {
         this.prefabs[key] = prefab;
         this.pools[key] = new NodePool();
         for (var i = 0; i < count; ++i) {

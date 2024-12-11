@@ -136,6 +136,22 @@ export class SceneManager extends BaseManager{
         })
     }
 
+    async backToTaskProgress():Promise<void>{
+        return new Promise((resolve,reject)=>{
+            let url = Global.RES_Root + GameSceneConst.Hall;
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall,"main").then((scene)=>{
+                DebugLog.instance.log('返回串烧游戏界面');
+                let node = find("Canvas");
+                let scriptNode = node.getChildByName("scriptNode");
+                let mainScene = scriptNode.getComponent("MainScene");
+                mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                resolve();
+            }).catch(err=>{
+                reject(err);
+            })
+        })
+    }
+
     /**
      * 手动销毁当前scene
      */

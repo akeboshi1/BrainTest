@@ -126,6 +126,13 @@ export class LoginManager {
         });
     }
 
+    showVerifryView(parentNode: Node) {
+        LoaderManager.getInstance().resourcesLoad(Global.RES_Root + "prefab/UserCenter/VerifyPanel").then((resource) => {
+            const node = instantiate(resource);
+            parentNode.addChild(node);
+        });
+    }
+
 
     request(action: string, data: any) {
         const socketData = new SocketData({ "action": action, "data": data })

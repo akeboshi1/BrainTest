@@ -202,16 +202,20 @@ export class LoginPopUpPanel extends BasePanel {
         Global.userData.tokenExpires = data.data['expires'];
         context.PhoneDescTxt.string = "登录成功！！！";
 
+
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
         const expiredTime:number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
 
-        // test
-        // TaskManager.getInstance().start();
 
-        // test chat 打开游戏大厅scene
-        SceneManager.getInstance().backToHall();
-        // UIManager.getInstance().hideView(LoginPopUpPanel.NAME);
+        // 根据是否是新用户来调整ui显示逻辑
+        let isNew = data.data["is_new"];
+        if(isNew){
+            // 主动弹出验证码界面
+            LoginManager.getInstance().showVerifryView(this.node.parent);
+        }else{
+            SceneManager.getInstance().backToHall();
+        }
     }
 
     private requestCodeCallBack(data, context) {
