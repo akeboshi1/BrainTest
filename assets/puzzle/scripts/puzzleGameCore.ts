@@ -488,8 +488,8 @@ export class puzzleGameCore extends Component {
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
         let trainData = SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq-1;
-        SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel,this.autoExitCallBack,this);
+        let curCount = trainData.seq - 1<0?0:trainData.seq -1;
+        SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
     }
 
 
@@ -563,11 +563,11 @@ export class puzzleGameCore extends Component {
 
         let playIndex = 0;
         if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty - 1;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
 
-        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
+        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex;
         this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
 
         this.startGameMask.active = true;

@@ -234,7 +234,12 @@ export class SkewersManager{
      * 退出串烧游戏
      */
     public exitCallBack(){
-         SceneManager.getInstance().backToSkewersGameCenter();
+        if(SkewersManager.getInstance().isRunOver()){
+            SceneManager.getInstance().backToHall();
+        }else{
+            SceneManager.getInstance().backToSkewersGameCenter();
+        }
+
      }
 
 

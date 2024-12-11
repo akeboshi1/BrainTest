@@ -522,7 +522,7 @@ export class Main extends Component {
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this)
         let trainData = SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq;
+        let curCount = trainData.seq - 1<0?0:trainData.seq -1;
         SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"真遗憾，请加油！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
     }
 
