@@ -94,6 +94,9 @@ export class LoginManager {
                 this.showVerifryView();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
+
+            const verifyPanel:VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
+            if(verifyPanel)verifyPanel.start();
             return;
         }
         Global.userData.inviteCode = data.data['invite_code'];

@@ -99,12 +99,12 @@ export class VerifyPanel extends BasePanel{
         }else{
             // 钩子tween
             this._tween = tween(progressBar)
-                .to(1, { progress: 1 }) // 从0到1，持续1秒
+                .to(0.5, { progress: 1 }) // 从0到1，持续0.5秒
                 .call(()=>{
                     self.descLable.string = "提交成功";
                     self._tween = null;
                     tween({})
-                        .delay(durTime) // 延时2秒
+                        .delay(0.5) // 延时0.5秒
                         .call(() => {
                             // 在延时之后执行的操作
                             self.close();
