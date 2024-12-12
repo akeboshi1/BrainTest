@@ -9,7 +9,7 @@ const { ccclass, property } = _decorator;
 import { questions0, questions1, questions2 } from './questionsDate'
 
 
-const SHOOT_INTERVAL = 5;
+const SHOOT_INTERVAL = 8;
 let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends Component {
@@ -92,6 +92,7 @@ export class catchfish extends Component {
 
             for (let i = 0; i < len; i++) {
                 let fish = new Fish(this.fishPrefab);
+                fish.positionYIndex = i;
                 fish.setParent(this.fishParentNode);
                 this.randomFish(fish);
                 this.fishs.push(fish);
@@ -100,10 +101,12 @@ export class catchfish extends Component {
         }
     }
 
+    private fishYs:number[]=[-300,-100,100,300];
+
     private randomFish(fish: Fish) {
 
         let x = 800;
-        let y = Math.random() * 600 - 300;
+        let y = this.fishYs[fish.positionYIndex];
 
         let spriteFramelen = this.spriteFrames.length;
 
@@ -112,6 +115,7 @@ export class catchfish extends Component {
         let spriteFrame = this.spriteFrames[index];
 
         fish.setPosition(x, y);
+        DebugLog.instance.log(`create ---- ${fish.position}`)
 
         fish.setSpriteFrame(spriteFrame);
 
@@ -126,7 +130,7 @@ export class catchfish extends Component {
 
     private selectFish(fish, context) {
         if (context.hasWangClick) {
-            DebugLog.instance.log("已经有网飞出来")
+            // DebugLog.instance.log("已经有网飞出来")
             return;
         }
         if (context._curFish) {
@@ -134,7 +138,7 @@ export class catchfish extends Component {
         }
 
         context._curFish = fish;
-        DebugLog.instance.log("选中鱼currentIndex",fish.currentIndex);
+        // DebugLog.instance.log("选中鱼currentIndex",fish.currentIndex);
         let data = fish.getData();
 
         let options = data.options;
@@ -163,16 +167,16 @@ export class catchfish extends Component {
             fish.curTween = null;
         }
 
-        const upDistance = 60 * Math.random(); // 上下浮动的距离
-        const duration = 15; // 每次往返的时间
+        const upDistance = 10; // 上下浮动的距离
+        const duration = 10; // 每次往返的时间
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
-        const floatAmplitude = 0.08 * Math.random();
+        const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave
         // 使用 tween 创建运动效果
         fish.curTween = tween(fish)
             // 对当前鱼对象进行 tween 动画
             .delay(delay)// 每个对象延迟3秒开始
-            .by(duration, { position: new Vec3(fish.position.x - 2500, fish.position.y, fish.position.z) },
+            .by(duration, { position: new Vec3(fish.position.x - 2200, fish.position.y, fish.position.z) },
                 {
                     onUpdate: () => {
                         if (this.gameSuccessView.active || this.gameFailView.active) {
@@ -240,6 +244,8 @@ export class catchfish extends Component {
         this.timeStart();
         this.createFish();
     }
+
+    private _wangTween;
     wangClick(event, data) {
         // 如果当前鱼不存在，则返回
         if (!this._curFish||this.hasWangClick) {
@@ -253,8 +259,8 @@ export class catchfish extends Component {
             for (let i = 0; i < len; i++) {
                 // 如果当前索引等于传入的索引，则调用selectWang方法
                 if (i == index) {
-                    console.log("点击了第" + i + "个网");
-                    this._curFish.setSelect(this.unSelectColor, 1);
+                    // console.log("点击了第" + i + "个网");
+                    // this._curFish.setSelect(this.unSelectColor, 1);
                     this.errorClick(i);
                 } else {
                     // 否则调用unSelectWang方法
@@ -265,6 +271,8 @@ export class catchfish extends Component {
             return;
         }
 
+        this._curFish.curTween.stop();
+        DebugLog.instance.log(`click ---- ${this._curFish.position}`)
         this.clearWangNubmer();
         let wangPrefab = instantiate(this.wangPrefab);
         wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
@@ -274,19 +282,14 @@ export class catchfish extends Component {
         wang.addChild(wangPrefab);
         GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
 
-        let self = this;
+        let self = this;// -600.-520.-440.-360
+        let offsetX = this._curFish.positionYIndex * 38 + 600;
+        let offsetTime = this._curFish.positionYIndex * 0.01;
+        if(this._wangTween)this._wangTween.stop();
         // 启动动画
-        tween(wangPrefab).parallel(
-            tween().to(1.1, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
-            tween().to(0.5, { position: new Vec3(this._curFish.worldPosition.x - 400, this._curFish.worldPosition.y - 150, this._curFish.worldPosition.z) })
-
-
-
-
-
-
-
-        ).call(() => {
+        this._wangTween = tween(wangPrefab).parallel(
+            tween().to(1.1-offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
+            tween().to(0.5-offsetTime, { position: new Vec3(this._curFish.worldPosition.x - offsetX, this._curFish.worldPosition.y - 150, this._curFish.worldPosition.z) })).call(() => {
             self._curFish.curTween.stop();
             const scaleUp = 1.3; // 放大到2倍
             const scaleDown = 1.0; // 恢复到原始大小
@@ -300,6 +303,8 @@ export class catchfish extends Component {
                 .delay(0.1)
                 .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 再次缩小
                 .call(() => {
+                    self._wangTween.stop();
+                    self._wangTween = null;
                     self.hasWangClick = false;
                     // 移除wangPrefab
                     wang.removeChild(wangPrefab);
@@ -402,7 +407,7 @@ export class catchfish extends Component {
      * 返回应用大厅
      */
     private quitGame() {
-        console.log("返回大厅")
+        // console.log("返回大厅")
         this.clearGameView();
 
         SceneManager.getInstance().backToHall();

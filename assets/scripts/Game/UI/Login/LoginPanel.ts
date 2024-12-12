@@ -2,7 +2,6 @@ import { _decorator, Sprite, Node,VideoPlayer,find } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
-import {PhoneLoginPanel} from "db://assets/scripts/Game/UI/Login/PhoneLoginPanel";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {FrameComponent} from "db://assets/scripts/Core/Component/FrameComponent";
 const { ccclass, property } = _decorator;

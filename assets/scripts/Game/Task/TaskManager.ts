@@ -47,10 +47,11 @@ export class TaskManager {
 
     private _taskList: TaskData[];
     // 通知
-    private  notification_start_notifications: string = "notification.get_notifications";
-    private _notificationList : NotificationData[];
-   
- 
+    private notification_start_notifications: string = "notification.get_notifications";
+    private _notificationList: NotificationData[];
+    private notification_read: string = "notification.read";
+
+
     constructor() {
     }
 
@@ -198,12 +199,13 @@ export class TaskManager {
         let requestStartTaskSocket: SocketData = new SocketData({
             action: this.notification_start_notifications, data: {
                 "is_read": false,
-                "notification_type": 1
+                "notification_type": 2
             }
         });
         SocketManager.getInstance().send(requestStartTaskSocket);
     }
     public requestStartNotificationCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(context.notification_start_notifications, context);
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
@@ -217,8 +219,22 @@ export class TaskManager {
                 notification.refrehData(data);
                 context._notificationList.push(notification);
             }
-            EventManager.getInstance().emit(TaskManager.NotificationListRequestCallBack,context._notificationList);
+            EventManager.getInstance().emit(TaskManager.NotificationListRequestCallBack, context._notificationList);
 
         }
+    }
+    /**
+  * 是否已读
+  */
+    public isReadNotification(notification_ids: number[]) {
+        EventManager.getInstance().on(this.notification_read, this.requestReadNotificationCallback, this);
+        let requestStartTaskSocket: SocketData = new SocketData({
+            action: this.notification_read, data: { notification_ids }
+        });
+        SocketManager.getInstance().send(requestStartTaskSocket);
+    }
+    public requestReadNotificationCallback(data: SocketData, context: any) {
+        DebugLog.instance.log(`是否已读`,data);
+        EventManager.getInstance().off(context.notification_read, context);
     }
 }
