@@ -212,7 +212,7 @@ export class LoginPopUpPanel extends BasePanel {
         let isNew = data.data["is_new"];
         if(isNew){
             // 主动弹出验证码界面
-            LoginManager.getInstance().showVerifryView(this.node.parent);
+            LoginManager.getInstance().showVerifryView();
         }else{
             SceneManager.getInstance().backToHall();
         }

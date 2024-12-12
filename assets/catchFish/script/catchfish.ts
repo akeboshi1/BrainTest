@@ -9,7 +9,7 @@ const { ccclass, property } = _decorator;
 import { questions0, questions1, questions2 } from './questionsDate'
 
 
-const SHOOT_INTERVAL = 5;
+const SHOOT_INTERVAL = 8;
 let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends Component {
@@ -244,6 +244,8 @@ export class catchfish extends Component {
         this.timeStart();
         this.createFish();
     }
+
+    private _wangTween;
     wangClick(event, data) {
         // 如果当前鱼不存在，则返回
         if (!this._curFish||this.hasWangClick) {
@@ -283,8 +285,9 @@ export class catchfish extends Component {
         let self = this;// -600.-520.-440.-360
         let offsetX = this._curFish.positionYIndex * 38 + 600;
         let offsetTime = this._curFish.positionYIndex * 0.01;
+        if(this._wangTween)this._wangTween.stop();
         // 启动动画
-        tween(wangPrefab).parallel(
+        this._wangTween = tween(wangPrefab).parallel(
             tween().to(1.1-offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
             tween().to(0.5-offsetTime, { position: new Vec3(this._curFish.worldPosition.x - offsetX, this._curFish.worldPosition.y - 150, this._curFish.worldPosition.z) })).call(() => {
             self._curFish.curTween.stop();
@@ -300,6 +303,8 @@ export class catchfish extends Component {
                 .delay(0.1)
                 .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 再次缩小
                 .call(() => {
+                    self._wangTween.stop();
+                    self._wangTween = null;
                     self.hasWangClick = false;
                     // 移除wangPrefab
                     wang.removeChild(wangPrefab);

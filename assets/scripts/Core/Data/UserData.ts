@@ -8,6 +8,11 @@ export class UserData {
     public tokenExpires:number=0;
     public phoneNumber:string="";
 
+    /**
+     * 邀请码
+     */
+    public inviteCode:string="";
+
 
     /**
      * 当前游戏串烧数据组
