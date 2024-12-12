@@ -142,9 +142,9 @@ export class BundlePreloadManager extends BaseManager {
 
 // 定义预加载相关的事件枚举，方便外部统一监听和处理不同阶段的预加载事件
 export enum BundlePreloadEvent {
-    START = "start",
-    BUNDLELOADED = "bundleLoaded",
-    FINISH = "finish",
-    PROGRESS = "progress",
-    FAILED = "failed",
+    START = "BundlePreloadEvent.start",
+    BUNDLELOADED = "BundlePreloadEvent.bundleLoaded",
+    FINISH = "BundlePreloadEvent.finish",
+    PROGRESS = "BundlePreloadEvent.progress",
+    FAILED = "BundlePreloadEvent.failed",
 }

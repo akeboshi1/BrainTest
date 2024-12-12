@@ -15,6 +15,7 @@ import {LoginManager} from "db://assets/scripts/Core/Manager/LoginManager/LoginM
 import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
 import AlertManager from './Core/Manager/Alert/AlertManager';
 import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
+import { AudioManager } from './Core/Manager/Audio/AudioManager';
 
 
 const { ccclass, property } = _decorator;
@@ -142,6 +143,7 @@ export class App extends BaseObejct {
         SpriteManager.getInstance().init();
         AlertManager.getInstance().init();
         BundlePreloadManager.getInstance().init();
+        AudioManager.getInstance().init();
     }
 
     private preLoadRes(){
