@@ -120,7 +120,7 @@ export class MainScene extends Component {
     private expireColor = "#686E72";
 
     private chatPanel: Node = null;
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼'];
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜'];
     private notificationArr: [];
     onLoad() {
 
@@ -307,15 +307,12 @@ export class MainScene extends Component {
     }
 
     showMore() {
-        // const ad: AlertData = new AlertData();
-        // ad.title = "";
-        // ad.message = "开发中";
-        // AlertManager.getInstance().showAlert(ad);
+        const ad: AlertData = new AlertData();
+        ad.title = "";
+        ad.message = "开发中";
+        AlertManager.getInstance().showAlert(ad);
 
         LocalStorageUtil.clean();
-
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH,this.onPreloadFinish.bind(this,Global.RES_Root + 'guessingGame','guessingGame'),this);
-        BundlePreloadManager.getInstance().preload('guessingGame');
     }
 
     // ======= 任务中心
@@ -500,10 +497,13 @@ export class MainScene extends Component {
                 case 4:
                     sceneName = "catchFish";
                     break;
+                case 5:
+                    sceneName = "guessingGame";
+                    break;
             }
             let url = Global.RES_Root + sceneName;
 
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH,this.onPreloadFinish.bind(this,url,sceneName),this);
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
             BundlePreloadManager.getInstance().preload(sceneName);
         })
     }
