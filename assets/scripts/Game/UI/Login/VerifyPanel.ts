@@ -31,7 +31,7 @@ export class VerifyPanel extends BasePanel{
     private _stopTween:boolean = false;
     public static NAME:string = "VerifyPanel";
 
-    private _inviteCode:string = "9038765838";
+    private _inviteCode:string = "9038765838"; // 默认
 
     start(){
        this.loadNode.active = false;
