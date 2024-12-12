@@ -13,12 +13,12 @@ export class Fish {
 
     public currentIndex = -1;
     public curTween;
+    public positionYIndex = -1;
     constructor(prefab:Prefab){
         this._fishPrefab = prefab;
         this.create();
     }
     create(){
-   
         this._fish = instantiate(this._fishPrefab);
         this._fishSprite = this._fish.getChildByName("fish").getComponent(Sprite);
         this._label = this._fish.getChildByName("label").getComponent(Label);
