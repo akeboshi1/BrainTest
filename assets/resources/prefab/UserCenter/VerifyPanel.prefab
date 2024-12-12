@@ -1379,7 +1379,7 @@
       "a": 255
     },
     "_string": "",
-    "_horizontalAlign": 0,
+    "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
     "_fontSize": 60,
@@ -1538,7 +1538,7 @@
       "a": 255
     },
     "_string": "请填写验证码",
-    "_horizontalAlign": 0,
+    "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
     "_fontSize": 60,
