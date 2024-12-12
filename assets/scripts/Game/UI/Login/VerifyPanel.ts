@@ -34,6 +34,8 @@ export class VerifyPanel extends BasePanel{
     private _inviteCode:string = "9038765838"; // 默认
 
     start(){
+        if(this._tween)this._tween.stop();
+        this._tween = null;
        this.loadNode.active = false;
        this.verifyNode.active = true;
 
@@ -103,13 +105,7 @@ export class VerifyPanel extends BasePanel{
                 .call(()=>{
                     self.descLable.string = "提交成功";
                     self._tween = null;
-                    tween({})
-                        .delay(0.5) // 延时0.5秒
-                        .call(() => {
-                            // 在延时之后执行的操作
-                            self.close();
-                        })
-                        .start();
+                    self.close();
                 })
                 .start(); // 启动Tween
         }

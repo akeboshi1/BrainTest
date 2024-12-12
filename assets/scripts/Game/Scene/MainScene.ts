@@ -292,7 +292,7 @@
         }
         scrollViewEvent(event, index: number) {
             this.taskAndNotificationPanelCtrl.hideRedDot();
-            const subIds: number[] = this.notificationArr.map(item => item.id);
+            const subIds: number[] = this.notificationArr.map(item => (item as any).id);
             if(subIds.length!==0){
                 TaskManager.getInstance().isReadNotification(subIds);
             }

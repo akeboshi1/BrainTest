@@ -178,4 +178,5 @@ export enum LoginErrorCode {
     LOGIN_ERROR_MP_CODE = "短信验证码错误",
     USER_NOT_FOUND = "用户不存在",
     INVALID_TOKEN = "无效的token, 或token过期",
+
 }
