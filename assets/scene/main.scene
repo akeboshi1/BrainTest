@@ -350,9 +350,7 @@
         "__id__": 745
       }
     ],
-    "scrollViewNode": {
-      "__id__": 330
-    },
+    "scrollViewNode": null,
     "_id": "52sveUOE9FDqJa2ODEKka6"
   },
   {
@@ -9740,9 +9738,7 @@
       "__uuid__": "cbc0853b-b79c-4bfd-a402-3c4504c84f0f",
       "__expectedType__": "cc.Prefab"
     },
-    "redDotNode": {
-      "__id__": 362
-    },
+    "redDotNode": null,
     "_id": "5cI+av77pOd4zXQyI1Z/vx"
   },
   {
