@@ -9,6 +9,9 @@ export class TaskAndNotificationPanelCtrl extends Component {
     @property(Prefab)
     notificationItemPrefab: Prefab ;
 
+    @property(Node)
+    redDotNode: Node = null;
+
     start() {
 
     }
@@ -16,9 +19,17 @@ export class TaskAndNotificationPanelCtrl extends Component {
     update(deltaTime: number) {
         
     }
-
-    updateList(notificationArr){
-
+    hideRedDot(){
+        this.redDotNode.active=false;
+    }
+    showRedDot(){
+        this.redDotNode.active=true;
+    }
+    clearList(){
+        this.notifictionListNode.removeAllChildren();   
+    }
+    updateList(notificationArr: any[]=[]){
+        this.clearList();
         for (let index = 0; index < notificationArr.length; index++) {
            let notificationPrefab = instantiate(this.notificationItemPrefab)
             this.notifictionListNode.addChild(notificationPrefab);
