@@ -80,8 +80,8 @@ export class LoginPopUpPanel extends BasePanel {
      */
     private login_login_by_mp: string = "login.login_by_mp";
 
-    private phoneNumber: string = "13611613393";
-    private phoneCode: string = "1234";
+    private phoneNumber: string = "";
+    private phoneCode: string = "";
 
     constructor() {
         super();
@@ -99,11 +99,10 @@ export class LoginPopUpPanel extends BasePanel {
 
     onEnable() {
 
-        this.addListener();
     }
 
     onDisable() {
-        this.removeListener();
+
     }
 
     bgClick() {
@@ -148,18 +147,7 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     private _updatePhoneView() {
-        let numbers: number[] = this.phoneCode.split("").map(Number);
-        let len = numbers.length;
-        for (let i = 0; i < len; i++) {
-            let editBox = this.numBox[i];
-            if (editBox == null) continue;
-            editBox.string = numbers[i] + "";
-        }
         this.PhoneNumberTxt.string = this.phoneNumber;
-        // this.num0.string = "1";
-        // this.num1.string = "2";
-        // this.num2.string = "3";
-        // this.num3.string = "4";
     }
 
     private _initXieyiView() {
@@ -168,15 +156,6 @@ export class LoginPopUpPanel extends BasePanel {
 
     private _updateXieyiView() { }
 
-    private addListener() {
-        //     EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
-        //     EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
-    }
-    //
-    private removeListener() {
-        //     EventManager.getInstance().off(this.login_send_mp_code,this);
-        //     EventManager.getInstance().off(this.login_login_by_mp,this);
-    }
 
     private requestLoginCallBack(data, context) {
         EventManager.getInstance().off(this.login_login_by_mp, this);
@@ -238,11 +217,19 @@ export class LoginPopUpPanel extends BasePanel {
         this.PhoneDescTxt.node.active = false;
         this.enterTxt.node.active = true;
         this.phoneNumber = data['data']['mp_no'];
-        this.phoneCode = data['data']['code'];
+        // this.phoneCode = data['data']['code'];
         this.updateView(true);
     }
 
     public requestEnter(){
+        let len =  this.numBox.length;
+        let codeStr = "";
+        for (let i = 0; i < len; i++) {
+            let editBox = this.numBox[i];
+            if (editBox == null) continue;
+            codeStr+=editBox.string;
+        }
+        this.phoneCode = codeStr;
         EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginCallBack, this);
         LoginManager.getInstance().request(this.login_login_by_mp, { "mp_no": this.phoneNumber, "code": this.phoneCode });
     }
