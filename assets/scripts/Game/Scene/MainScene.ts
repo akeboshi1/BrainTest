@@ -382,6 +382,19 @@ export class MainScene extends Component {
         this._curTaskData = taskList[Number(data)];
         if (this._curTaskData.status == TaskStatus.Completed) {
             DebugLog.instance.log("当前任务已经完成");
+            const ad:AlertData= new AlertData();
+            ad.title = "提示";
+            ad.message = "当前任务已经完成";
+            AlertManager.getInstance().showAlert(ad);
+            ad.cancelButtonVisible = false;
+            return;
+        }
+        if(this._curTaskData.status == TaskStatus.Expired) {
+            const ad:AlertData= new AlertData();
+            ad.title = "提示";
+            ad.message = "当前任务已经过期";
+            AlertManager.getInstance().showAlert(ad);
+            ad.cancelButtonVisible = false;
             return;
         }
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
@@ -391,10 +404,16 @@ export class MainScene extends Component {
 
     tabItemClickByRemote() {
         this._curTaskData = Global.userData.curTaskData;
-        if (!this._curTaskData || this._curTaskData.status == TaskStatus.Completed) {
+        if (!this._curTaskData || this._curTaskData.status == TaskStatus.Completed|| this._curTaskData.status == TaskStatus.Expired) {
             DebugLog.instance.log("当前任务已经完成或不存在");
+            const ad:AlertData= new AlertData();
+            ad.title = "提示";
+            ad.message = "当前任务已经完成或不存在";
+            AlertManager.getInstance().showAlert(ad);
+            ad.cancelButtonVisible = false;
             return;
-        } EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
+        }
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
         SkewersManager.getInstance().requestBranisTraining_list(this._curTaskData.id);
 
     }

@@ -50,23 +50,29 @@ export class LoginPopUpPanel extends BasePanel {
     @property(Label)
     PhoneDescTxt: Label;
 
-    @property(EditBox)
-    num0: EditBox;
+    @property(Label)
+    num0: Label;
+
+    @property(Label)
+    num1: Label;
+
+    @property(Label)
+    num2: Label;
+
+    @property(Label)
+    num3: Label;
 
     @property(EditBox)
-    num1: EditBox;
+    editBox: EditBox;
 
-    @property(EditBox)
-    num2: EditBox;
-
-    @property(EditBox)
-    num3: EditBox;
-
-    @property({ type: [EditBox] })
-    numBox: EditBox[] = [];
 
     @property(Label)
     enterTxt: Label;
+
+    @property(Node)
+    labelNode:Node;
+
+    private numStrs:Label[];
 
     /**
      * 手机验证码下发
@@ -94,7 +100,8 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     start() {
-       this.PhoneDescTxt.string = "发送>>"
+       this.PhoneDescTxt.string = "发送>>";
+       this.numStrs = [this.num0,this.num1,this.num2,this.num3];
     }
 
     onEnable() {
@@ -106,7 +113,8 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     bgClick() {
-        this.hidePanel();
+        // this.hidePanel();
+        this.startEditbox();
     }
 
     agreeClick() {
@@ -222,16 +230,36 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     public requestEnter(){
-        let len =  this.numBox.length;
+        let len =  this.numStrs.length;
         let codeStr = "";
         for (let i = 0; i < len; i++) {
-            let editBox = this.numBox[i];
+            let editBox = this.numStrs[i];
             if (editBox == null) continue;
             codeStr+=editBox.string;
         }
         this.phoneCode = codeStr;
         EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginCallBack, this);
         LoginManager.getInstance().request(this.login_login_by_mp, { "mp_no": this.phoneNumber, "code": this.phoneCode });
+    }
+
+    public startEditbox(){
+       this.editBox.node.active = true;
+       this.labelNode.active = false;
+    }
+
+    public editBoxValue(event){
+        var str = this.editBox.string;
+        let characters = str.split('');
+        let len = characters.length;
+        for(let i=0;i<len;i++){
+            let tmpStr = characters[i];
+            let numLabel = this.numStrs[i];
+            if(numLabel)numLabel.string = tmpStr;
+        }
+        if(len == 4){
+            this.editBox.node.active = false;
+            this.labelNode.active = true;
+        }
     }
 
 

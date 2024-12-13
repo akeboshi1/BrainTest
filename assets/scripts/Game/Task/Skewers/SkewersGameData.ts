@@ -2,17 +2,17 @@ import {GameState, SkewersGameStatus} from "../../../Core/Data/GameState";
 
 export enum GameType{
     // 认知
-    cognition,
+    cognition="COGNITION",
     // 执行力
-    Executionability,
+    Executionability="EXECUTION",
     // 语言
-    Language,
+    Language="LANGUAGE",
     // 计算力
-    Calculator,
+    Calculator="CALCULATOR",
     // 判断力
-    Judgment,
+    Judgment="JUDGMENT",
     // 记忆力
-    Memory
+    Memory="MEMORY",
 }
 
 

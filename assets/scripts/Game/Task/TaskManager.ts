@@ -8,6 +8,7 @@ import { SocketManager } from "../../Core/Manager/Net/SocketManager";
 import { TaskData, TaskStatus, TaskType, NotificationData } from "../../Game/Task/TaskData";
 import { DebugLog } from "../../Core/Util/DebugLog";
 import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
 
 /**
  * 任务管理器
@@ -106,6 +107,11 @@ export class TaskManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
+            const ad: AlertData = new AlertData();
+            ad.title = "提示";
+            ad.message = data.message;
+            AlertManager.getInstance().showAlert(ad);
+            return;
         } else {
             let results = data.data['result'];
 
@@ -145,32 +151,57 @@ export class TaskManager {
             DebugLog.instance.error(`id：${id} 任务不存在！`);
             return;
         }
+        let message = "";
+        let ad:AlertData;
         switch (task.status) {
             case TaskStatus.Expired:
-                DebugLog.instance.log(`id：${id} 任务已经过期！`);
-                return;
+                message = `id：${id} 任务已经过期！`;
+                DebugLog.instance.log(message);
+                ad = new AlertData();
+                ad.title = "提示";
+                ad.message = message;
+                AlertManager.getInstance().showAlert(ad);
+                ad.cancelButtonVisible = false;
+                ad.confirmCb = this.backToSkewersGameCenter.bind(this);
+                break;
             case TaskStatus.Completed:
-                DebugLog.instance.log(`id：${id} 任务已经完成！`);
-                SceneManager.getInstance().backToHall();
-                return;
+                message = `id：${id} 任务已经完成！`;
+                DebugLog.instance.log(message);
+                ad = new AlertData();
+                ad.title = "提示";
+                ad.message = message;
+                AlertManager.getInstance().showAlert(ad);
+                ad.cancelButtonVisible = false;
+                ad.confirmCb = this.backToSkewersGameCenter.bind(this);
+                break;
             case TaskStatus.Processing:
                 DebugLog.instance.log(`id：${id} 任务正在进行中！`);
                 SkewersManager.getInstance().start();
-                return;
+                break;
             case TaskStatus.UnComplete:
+                EventManager.getInstance().on(this.task_start_task, this.requestStartTaskCallback, this);
+                let requestStartTaskSocket: SocketData = new SocketData({ action: this.task_start_task, data: { task_id: id } });
+                SocketManager.getInstance().send(requestStartTaskSocket);
                 break;
         }
-
-        EventManager.getInstance().on(this.task_start_task, this.requestStartTaskCallback, this);
-        let requestStartTaskSocket: SocketData = new SocketData({ action: this.task_start_task, data: { task_id: id } });
-        SocketManager.getInstance().send(requestStartTaskSocket);
     }
+
+    private backToSkewersGameCenter(){
+        SceneManager.getInstance().backToSkewersGameCenter();
+    }
+
+
 
 
     private requestStartTaskCallback(data: SocketData, context: any) {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
+            const ad: AlertData = new AlertData();
+            ad.title = "提示";
+            ad.message = data.message;
+            AlertManager.getInstance().showAlert(ad);
+            return;
         } else {
             let id = data.data['task_id'];
             let task = context._taskDic.get(id);
@@ -209,6 +240,11 @@ export class TaskManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
+            const ad: AlertData = new AlertData();
+            ad.title = "提示";
+            ad.message = data.message;
+            AlertManager.getInstance().showAlert(ad);
+            return;
         } else {
             // DebugLog.instance.log(`获取通知成功`);
             let results = data.data['result'];
