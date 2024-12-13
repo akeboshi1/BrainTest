@@ -64,7 +64,7 @@ export class BundlePreloadManager extends BaseManager {
         }
 
         DebugLog.instance.log(`加载资源包 ${bundleName} 完成！`);
-        EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+        EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
         let loadedAssets = 0;
         let totalAssets = 0;
         // 预加载场景
@@ -88,7 +88,7 @@ export class BundlePreloadManager extends BaseManager {
             });
         } catch (err) {
             DebugLog.instance.error(`加载场景 ${bundleName} 出错: ${err}`);
-            EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+            EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
             return;
         }
 
@@ -99,7 +99,16 @@ export class BundlePreloadManager extends BaseManager {
             const type = this.config.stringToAssetType(assetTypeStr);
             if (type) {
                 try {
-                    await bundle.preload(assetPath, type);
+                    await new Promise((res,rej)=>{
+                        bundle.preload(assetPath, type, (err,data)=>{
+                            if(err){
+                                rej(err);
+                            }else{
+                                res(data);
+                            }
+                        });
+                    });
+
                     loadedAssets++;
                     const progress = loadedAssets / totalAssets;
                     // 触发预加载进度事件，通知外部当前的加载进度
@@ -142,9 +151,9 @@ export class BundlePreloadManager extends BaseManager {
 
 // 定义预加载相关的事件枚举，方便外部统一监听和处理不同阶段的预加载事件
 export enum BundlePreloadEvent {
-    START = "start",
-    BUNDLELOADED = "bundleLoaded",
-    FINISH = "finish",
-    PROGRESS = "progress",
-    FAILED = "failed",
+    START = "BundlePreloadEvent.start",
+    BUNDLELOADED = "BundlePreloadEvent.bundleLoaded",
+    FINISH = "BundlePreloadEvent.finish",
+    PROGRESS = "BundlePreloadEvent.progress",
+    FAILED = "BundlePreloadEvent.failed",
 }

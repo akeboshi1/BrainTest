@@ -1,7 +1,9 @@
-import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform} from "cc";
+import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,SpriteFrame,Sprite} from "cc";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -80,6 +82,7 @@ export class Alert extends Component{
                 this.icon.active = true;
                 this.decLabel.node.active = true;
                 this.progressBar.node.active = false;
+
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
@@ -137,6 +140,17 @@ export class Alert extends Component{
 
     setDec(str:string){
         this.decLabel.string = str;
+    }
+
+    setIcon(iconUrl:string){
+        LoaderManager.getInstance().resourcesLoadFrame(iconUrl).then((spriteframe)=>{
+            if(this.icon){
+                let sprite = this.icon.getComponent(Sprite);
+                sprite.spriteFrame = spriteframe;
+            }
+        }).catch((error)=>{
+            DebugLog.instance.error(error);
+        })
     }
 
     start(){

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Button, EditBox } from 'cc';
+import { _decorator, Sprite, Node, Label, Button, EditBox,Vec3 } from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
@@ -14,6 +14,7 @@ import { UserData } from "db://assets/scripts/Core/Data/UserData";
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { TimeUtil } from '../../../Core/Util/TimeUtil';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
+import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
 
 const { ccclass, property } = _decorator;
 
@@ -50,20 +51,29 @@ export class LoginPopUpPanel extends BasePanel {
     @property(Label)
     PhoneDescTxt: Label;
 
-    @property(EditBox)
-    num0: EditBox;
+    @property(Node)
+    num0: Node;
+
+    @property(Node)
+    num1: Node;
+
+    @property(Node)
+    num2: Node;
+
+    @property(Node)
+    num3: Node;
 
     @property(EditBox)
-    num1: EditBox;
+    editBox: EditBox;
 
-    @property(EditBox)
-    num2: EditBox;
 
-    @property(EditBox)
-    num3: EditBox;
+    @property(Label)
+    enterTxt: Label;
 
-    @property({ type: [EditBox] })
-    numBox: EditBox[] = [];
+    @property(Node)
+    labelNode:Node;
+
+    private numNodes:Node[];
 
     /**
      * 手机验证码下发
@@ -77,8 +87,8 @@ export class LoginPopUpPanel extends BasePanel {
      */
     private login_login_by_mp: string = "login.login_by_mp";
 
-    private phoneNumber: string = "13611613393";
-    private phoneCode: string = "1234";
+    private phoneNumber: string = "";
+    private phoneCode: string = "";
 
     constructor() {
         super();
@@ -91,24 +101,27 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     start() {
-
+       this.PhoneDescTxt.string = "发送>>";
+       this.numNodes = [this.num0,this.num1,this.num2,this.num3];
     }
 
     onEnable() {
 
-        this.addListener();
     }
 
     onDisable() {
-        this.removeListener();
+
     }
 
     bgClick() {
-        this.hidePanel();
+        // this.hidePanel();
+        this.startEditbox();
     }
 
     agreeClick() {
         this.phoneNumber = Global.userData.phoneNumber;
+        this.PhoneDescTxt.node.active = true;
+        this.enterTxt.node.active = false;
         EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this);
         LoginManager.getInstance().request(this.login_send_mp_code, { "mp_no": this.phoneNumber });
     }
@@ -143,20 +156,7 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     private _updatePhoneView() {
-        let numbers: number[] = this.phoneCode.split("").map(Number);
-        let len = numbers.length;
-        for (let i = 0; i < len; i++) {
-            let editBox = this.numBox[i];
-            if (editBox == null) continue;
-            editBox.string = numbers[i] + "";
-        }
         this.PhoneNumberTxt.string = this.phoneNumber;
-        // this.num0.string = "1";
-        // this.num1.string = "2";
-        // this.num2.string = "3";
-        // this.num3.string = "4";
-        EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginCallBack, this);
-        LoginManager.getInstance().request(this.login_login_by_mp, { "mp_no": this.phoneNumber, "code": this.phoneCode });
     }
 
     private _initXieyiView() {
@@ -165,22 +165,13 @@ export class LoginPopUpPanel extends BasePanel {
 
     private _updateXieyiView() { }
 
-    private addListener() {
-        //     EventManager.getInstance().on(this.login_send_mp_code,this.requestCodeCallBack,this);
-        //     EventManager.getInstance().on(this.login_login_by_mp,this.requestLoginCallBack,this);
-    }
-    //
-    private removeListener() {
-        //     EventManager.getInstance().off(this.login_send_mp_code,this);
-        //     EventManager.getInstance().off(this.login_login_by_mp,this);
-    }
 
     private requestLoginCallBack(data, context) {
         EventManager.getInstance().off(this.login_login_by_mp, this);
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
-
+            this.PhoneDescTxt.string = "重新发送>>";
             const alertData:AlertData = new AlertData;
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             AlertManager.getInstance().showAlert(alertData);
@@ -212,7 +203,7 @@ export class LoginPopUpPanel extends BasePanel {
         let isNew = data.data["is_new"];
         if(isNew){
             // 主动弹出验证码界面
-            LoginManager.getInstance().showVerifryView(this.node.parent);
+            LoginManager.getInstance().showVerifryView();
         }else{
             SceneManager.getInstance().backToHall();
         }
@@ -223,7 +214,8 @@ export class LoginPopUpPanel extends BasePanel {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
-
+            this.PhoneDescTxt.string = "重新发送>>";
+            this.node.removeFromParent();
             const alertData:AlertData = new AlertData;
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
 
@@ -231,9 +223,64 @@ export class LoginPopUpPanel extends BasePanel {
 
             return;
         }
+
+        this.PhoneDescTxt.node.active = false;
+        this.enterTxt.node.active = true;
         this.phoneNumber = data['data']['mp_no'];
-        this.phoneCode = data['data']['code'];
+        // this.phoneCode = data['data']['code'];
         this.updateView(true);
+    }
+
+    public requestEnter(){
+        let len =  this.numNodes.length;
+        let codeStr = "";
+        for (let i = 0; i < len; i++) {
+            let editBox = this.numNodes[i];
+            if (editBox == null) continue;
+            codeStr+=editBox.getChildByName('label').getComponent(Label).string;
+        }
+        this.phoneCode = codeStr;
+        EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginCallBack, this);
+        LoginManager.getInstance().request(this.login_login_by_mp, { "mp_no": this.phoneNumber, "code": this.phoneCode });
+    }
+
+    public startEditbox(){
+       if(!this.editBox.isFocused()){
+           this.editBox.setFocus();
+           if(this.numNodes[3].getChildByName('label').getComponent(Label).string != ""){
+               this.numNodes[3].setScale(new Vec3(1.2,1.2,1.2));
+           }else{
+               this.numNodes[0].setScale(new Vec3(1.2,1.2,1.2));
+           }
+
+       }
+    }
+
+    public editBoxValue(event){
+        var str = this.editBox.string;
+        let characters = str.split('');
+        let len = characters.length;
+        this.numNodes.forEach((node)=>{
+             node.getChildByName('label').getComponent(Label).string = "";
+             node.setScale(new Vec3(1,1,1))
+        })
+        let selectIndex = 0;
+        for(let i=0;i<len;i++){
+            let tmpStr = characters[i];
+            let numLabel = this.numNodes[i].getChildByName('label').getComponent(Label);
+            if(numLabel){
+                numLabel.string = tmpStr;
+            }
+            selectIndex ++;
+        }
+        let selectNode = this.numNodes[selectIndex];
+        if(selectNode){
+            selectNode.setScale(new Vec3(1.2,1.2,1.2));
+        }
+        if(len == 4){
+            this.editBox.node.active = false;
+            this.labelNode.active = true;
+        }
     }
 
 

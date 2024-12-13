@@ -12,6 +12,7 @@ import { LocalStorageKeyEnum, LocalStorageUtil } from "../../Util/LocalStorageUt
 import { EventManager } from "../Event/EventManager";
 import { SceneManager } from "../Scene/SceneManager";
 import AlertManager, { AlertData } from "../Alert/AlertManager";
+import {VerifyPanel} from "db://assets/scripts/Game/UI/Login/VerifyPanel";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -29,10 +30,14 @@ export class LoginManager {
      */
     private login_login_by_token: string = "login.login_by_token";
 
+    public static user_set_invite_code:string = "user.set_invite_code";
+
     init() {
 
     }
 
+
+    // ================ 请求token
     private tokenExpirationVerification(): boolean {
         const cur = TimeUtil.getNow();
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
@@ -70,6 +75,33 @@ export class LoginManager {
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
 
         SceneManager.getInstance().backToHall();
+    }
+
+    // ===================== 设置邀请码
+    public setInviteCode(code:string){
+        EventManager.getInstance().on(LoginManager.user_set_invite_code,this.setInviteCodeCallBack,this);
+        this.request(LoginManager.user_set_invite_code,{invite_code:code});
+
+
+    }
+
+    private setInviteCodeCallBack(data:any){
+        EventManager.getInstance().off(LoginManager.user_set_invite_code,this);
+        if (data.status == 0) {
+            const alertData:AlertData = new AlertData;
+            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
+            alertData.confirmCb = function(){
+                this.showVerifryView();
+            }.bind(this);
+            AlertManager.getInstance().showAlert(alertData);
+
+            const verifyPanel:VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
+            if(verifyPanel)verifyPanel.start();
+            return;
+        }
+        Global.userData.inviteCode = data.data['invite_code'];
+        const verifyPanel:VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
+        if(verifyPanel)verifyPanel.stopTween();
     }
 
 
@@ -126,10 +158,11 @@ export class LoginManager {
         });
     }
 
-    showVerifryView(parentNode: Node) {
+    showVerifryView() {
         LoaderManager.getInstance().resourcesLoad(Global.RES_Root + "prefab/UserCenter/VerifyPanel").then((resource) => {
             const node = instantiate(resource);
-            parentNode.addChild(node);
+            UIManager.getInstance().registerView(VerifyPanel.NAME, node);
+            UIManager.getInstance().showView(VerifyPanel.NAME);
         });
     }
 
@@ -145,4 +178,6 @@ export enum LoginErrorCode {
     LOGIN_ERROR_MP_CODE = "短信验证码错误",
     USER_NOT_FOUND = "用户不存在",
     INVALID_TOKEN = "无效的token, 或token过期",
+    INVALID_INVITE_CODE = "无效邀请码",
+
 }

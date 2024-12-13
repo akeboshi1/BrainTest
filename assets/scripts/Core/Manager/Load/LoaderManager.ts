@@ -59,7 +59,7 @@ export class LoaderManager extends BaseManager {
      */
     async resourcesLoadTexture(url:string):Promise<Texture2D> {
         return new Promise((resolve, reject) => {
-            resources.load(url, Texture2D,(err, texture) => {
+            resources.load(url+"/texture", Texture2D,(err, texture) => {
                 if(err){
                     DebugLog.instance.error(err);
                     reject(err);
@@ -76,7 +76,7 @@ export class LoaderManager extends BaseManager {
      */
     async resourcesLoadFrame(url:string):Promise<SpriteFrame> {
         return new Promise((resolve, reject) => {
-            resources.load(url, SpriteFrame,(err, frame) => {
+            resources.load(url+"/spriteFrame", SpriteFrame,(err, frame) => {
                 if(err){
                     DebugLog.instance.error(err);
                     reject(err);

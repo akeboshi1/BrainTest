@@ -168,7 +168,7 @@ export class GameCenterManager {
             "data":{
                 session_id:sessionid,
                 match_count:count,
-                level:level,
+                level:level+"",
                 complete:complete,
                 duration:duration,
                 time_limit:timelimit,

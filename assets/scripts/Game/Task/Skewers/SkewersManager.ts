@@ -1,4 +1,4 @@
-import {SkewersGameData, SkewersGameTrainData} from "./SkewersGameData";
+import {GameType, SkewersGameData, SkewersGameTrainData} from "./SkewersGameData";
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {Global} from "../../../Core/Manager/Config/Global";
@@ -10,6 +10,7 @@ import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager
 import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
 import {instantiate,Node,Vec3} from "cc";
 import {TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
+import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
 
 /**
  * 脑力串烧管理器
@@ -64,10 +65,18 @@ export class SkewersManager{
 
     private _alertInstance:Node = null;
 
+    private _iconUrlMap:Map<GameType,string>;
+
 
      public init(){
            this._gameDatas = [];
-
+           this._iconUrlMap = new Map();
+           this._iconUrlMap.set(GameType.cognition,"");
+           this._iconUrlMap.set(GameType.Executionability,"texture/game/icon/puzzleicon");
+           this._iconUrlMap.set(GameType.Language,"");
+           this._iconUrlMap.set(GameType.Calculator,"texture/game/icon/fishicon");
+           this._iconUrlMap.set(GameType.Judgment,"");
+           this._iconUrlMap.set(GameType.Memory,"texture/game/icon/memoryicon");
      }
 
      start(){
@@ -92,6 +101,11 @@ export class SkewersManager{
          let status = data.status;
          if(status == 0){
              DebugLog.instance.error(data.message);
+             const ad: AlertData = new AlertData();
+             ad.title = "";
+             ad.message = data.message;
+             AlertManager.getInstance().showAlert(ad);
+             return;
          }else {
              let result = data.data['result'];
              let len = result.length;
@@ -205,6 +219,8 @@ export class SkewersManager{
      */
      public showGameAlert(parentNode:Node,type:AlertType,title="",desc="",curCount:number,maxCount:number,goonCallBack:Function,exitCallBack:Function,context:any){
         let alertNode =  SkewersManager.getInstance()._alertInstance;
+        let gameType = Global.userData.curSkewerGameData.type;
+        let iconUrl = this._iconUrlMap.get(gameType);
         if(alertNode == null){
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
@@ -215,7 +231,9 @@ export class SkewersManager{
                 alert["setTitle"](title);
                 alert["setDec"](desc);
                 alert['setProgress'](curCount,maxCount);
+                alert['setIcon'](iconUrl);
                 alert['bindCallBack'](goonCallBack,exitCallBack,context);
+                // if(Global.userData.curSkewerGameData.type)
             });
         }else{
             alertNode.active = true;
@@ -225,6 +243,7 @@ export class SkewersManager{
             alert["showView"](type);
             alert["setTitle"](title);
             alert["setDec"](desc);
+            alert['setIcon'](iconUrl);
             alert['setProgress'](curCount,maxCount);
             alert['bindCallBack'](goonCallBack,exitCallBack,context);
         }
@@ -260,6 +279,11 @@ export class SkewersManager{
          let status = data.status;
          if(status == 0){
              DebugLog.instance.error(data.message);
+             const ad: AlertData = new AlertData();
+             ad.title = "";
+             ad.message = data.message;
+             AlertManager.getInstance().showAlert(ad);
+             return;
          }else{
              if(!this._gameDatas||this._gameDatas.length <=0){
                  DebugLog.instance.log("当前串烧游戏已经全部完成");
