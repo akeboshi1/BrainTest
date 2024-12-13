@@ -60,8 +60,7 @@ export class MainScene extends Component {
     @property(Node)
     remindView: Node = null;
 
-    @property(ScrollView)
-    scrollViewNode: ScrollView = null;
+
 
         // ====================== 任务详情页
         /**
@@ -124,6 +123,9 @@ export class MainScene extends Component {
     skewersGameItems: Node[] = [];
 
 
+    @property(ScrollView)
+    scrollViewNode: ScrollView = null;
+
     /**
      * 当前页面
      * @private
@@ -149,6 +151,7 @@ export class MainScene extends Component {
     protected onDisable(): void {
         EventManager.getInstance().off(ChatPanelCtrl.ChatPanelCloseEvent, this);
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
+        EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
     }
 
 
@@ -223,6 +226,7 @@ export class MainScene extends Component {
           
         }
         hideInfoListPop() {
+            EventManager.getInstance().off("hideInfoListPop",this);
             this.taskScrollView.active = false;
         }
         updateTime() {
@@ -236,6 +240,7 @@ export class MainScene extends Component {
     update(deltaTime: number) {
 
     }
+
 
     backToTaskView() {
         this.gameCenterNode.active = false;
@@ -312,11 +317,11 @@ export class MainScene extends Component {
     tabClick(event, index: number) {
         switch (Number(index)) {
             case 0:
-                this.taskTab.normalColor = ColorUtil.getCCColor(245, 80, 80);
+                this.taskTab.normalColor = ColorUtil.getCCColor(18, 197, 241);
                 this.infoTab.normalColor = ColorUtil.getCCColor(255, 255, 255);
                 break;
             case 1:
-                this.infoTab.normalColor = ColorUtil.getCCColor(245, 80, 80);
+                this.infoTab.normalColor = ColorUtil.getCCColor(18, 197, 241);
                 this.taskTab.normalColor = ColorUtil.getCCColor(255, 255, 255);
                 this.clickNotificationBtn();
                 break;
@@ -328,6 +333,7 @@ export class MainScene extends Component {
 
         public notificationRequestCallBack(data, context) {
             this.notificationArr = data;
+            console.log("通知列表",this.notificationArr);
             if(this.notificationArr){
                 if(this.notificationArr.length>0){
                     this.taskAndNotificationPanelCtrl.showRedDot()

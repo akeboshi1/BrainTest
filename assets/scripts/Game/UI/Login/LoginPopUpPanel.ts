@@ -254,6 +254,7 @@ export class LoginPopUpPanel extends BasePanel {
            }
 
        }
+
     }
 
     public editBoxValue(event){

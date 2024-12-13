@@ -28,6 +28,7 @@
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 126
       },
       {
@@ -36,6 +37,16 @@
     ],
     "_prefab": {
       "__id__": 130
+=======
+        "__id__": 127
+      },
+      {
+        "__id__": 129
+      }
+    ],
+    "_prefab": {
+      "__id__": 131
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -299,6 +310,7 @@
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 121
       },
       {
@@ -307,6 +319,16 @@
     ],
     "_prefab": {
       "__id__": 125
+=======
+        "__id__": 122
+      },
+      {
+        "__id__": 124
+      }
+    ],
+    "_prefab": {
+      "__id__": 126
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -356,6 +378,7 @@
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 114
       },
       {
@@ -367,6 +390,19 @@
     ],
     "_prefab": {
       "__id__": 120
+=======
+        "__id__": 115
+      },
+      {
+        "__id__": 117
+      },
+      {
+        "__id__": 119
+      }
+    ],
+    "_prefab": {
+      "__id__": 121
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -1004,20 +1040,35 @@
         "__id__": 73
       },
       {
+<<<<<<< Updated upstream
         "__id__": 81
       },
       {
         "__id__": 96
+=======
+        "__id__": 82
+      },
+      {
+        "__id__": 97
+>>>>>>> Stashed changes
       }
     ],
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 111
       }
     ],
     "_prefab": {
       "__id__": 113
+=======
+        "__id__": 112
+      }
+    ],
+    "_prefab": {
+      "__id__": 114
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -1890,7 +1941,11 @@
       }
     ],
     "_prefab": {
+<<<<<<< Updated upstream
       "__id__": 80
+=======
+      "__id__": 81
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -2006,7 +2061,15 @@
     "__prefab": {
       "__id__": 79
     },
+<<<<<<< Updated upstream
     "clickEvents": [],
+=======
+    "clickEvents": [
+      {
+        "__id__": 80
+      }
+    ],
+>>>>>>> Stashed changes
     "_interactable": true,
     "_transition": 0,
     "_normalColor": {
@@ -2053,6 +2116,19 @@
     "fileId": "44CwxmNkRH94EKKakjbTY7"
   },
   {
+<<<<<<< Updated upstream
+=======
+    "__type__": "cc.ClickEvent",
+    "target": {
+      "__id__": 1
+    },
+    "component": "",
+    "_componentId": "7967dFVBIZC3ZX+kEaJtxIV",
+    "handler": "useCamera",
+    "customEventData": ""
+  },
+  {
+>>>>>>> Stashed changes
     "__type__": "cc.PrefabInfo",
     "root": {
       "__id__": 1
@@ -2075,12 +2151,17 @@
     },
     "_children": [
       {
+<<<<<<< Updated upstream
         "__id__": 82
+=======
+        "__id__": 83
+>>>>>>> Stashed changes
       }
     ],
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 88
       },
       {
@@ -2092,6 +2173,19 @@
     ],
     "_prefab": {
       "__id__": 95
+=======
+        "__id__": 89
+      },
+      {
+        "__id__": 91
+      },
+      {
+        "__id__": 94
+      }
+    ],
+    "_prefab": {
+      "__id__": 96
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -2128,12 +2222,17 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
+<<<<<<< Updated upstream
       "__id__": 81
+=======
+      "__id__": 82
+>>>>>>> Stashed changes
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 83
       },
       {
@@ -2142,6 +2241,16 @@
     ],
     "_prefab": {
       "__id__": 87
+=======
+        "__id__": 84
+      },
+      {
+        "__id__": 86
+      }
+    ],
+    "_prefab": {
+      "__id__": 88
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -2178,11 +2287,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 82
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 84
+=======
+      "__id__": 83
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 85
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -2206,11 +2323,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 82
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 86
+=======
+      "__id__": 83
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 87
+>>>>>>> Stashed changes
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -2287,11 +2412,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 81
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 89
+=======
+      "__id__": 82
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 90
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -2315,6 +2448,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 81
     },
     "_enabled": true,
@@ -2324,6 +2458,17 @@
     "clickEvents": [
       {
         "__id__": 92
+=======
+      "__id__": 82
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 92
+    },
+    "clickEvents": [
+      {
+        "__id__": 93
+>>>>>>> Stashed changes
       }
     ],
     "_interactable": true,
@@ -2363,7 +2508,11 @@
     "_duration": 0.1,
     "_zoomScale": 0.8,
     "_target": {
+<<<<<<< Updated upstream
       "__id__": 81
+=======
+      "__id__": 82
+>>>>>>> Stashed changes
     },
     "_id": ""
   },
@@ -2387,11 +2536,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 81
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 94
+=======
+      "__id__": 82
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 95
+>>>>>>> Stashed changes
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -2449,12 +2606,17 @@
     },
     "_children": [
       {
+<<<<<<< Updated upstream
         "__id__": 97
+=======
+        "__id__": 98
+>>>>>>> Stashed changes
       }
     ],
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 103
       },
       {
@@ -2466,6 +2628,19 @@
     ],
     "_prefab": {
       "__id__": 110
+=======
+        "__id__": 104
+      },
+      {
+        "__id__": 106
+      },
+      {
+        "__id__": 109
+      }
+    ],
+    "_prefab": {
+      "__id__": 111
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -2502,12 +2677,17 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
+<<<<<<< Updated upstream
       "__id__": 96
+=======
+      "__id__": 97
+>>>>>>> Stashed changes
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
+<<<<<<< Updated upstream
         "__id__": 98
       },
       {
@@ -2516,6 +2696,16 @@
     ],
     "_prefab": {
       "__id__": 102
+=======
+        "__id__": 99
+      },
+      {
+        "__id__": 101
+      }
+    ],
+    "_prefab": {
+      "__id__": 103
+>>>>>>> Stashed changes
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -2552,11 +2742,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 97
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 99
+=======
+      "__id__": 98
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 100
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -2580,11 +2778,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 97
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 101
+=======
+      "__id__": 98
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 102
+>>>>>>> Stashed changes
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -2661,11 +2867,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 96
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 104
+=======
+      "__id__": 97
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 105
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -2689,6 +2903,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 96
     },
     "_enabled": true,
@@ -2698,6 +2913,17 @@
     "clickEvents": [
       {
         "__id__": 107
+=======
+      "__id__": 97
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 107
+    },
+    "clickEvents": [
+      {
+        "__id__": 108
+>>>>>>> Stashed changes
       }
     ],
     "_interactable": true,
@@ -2737,7 +2963,11 @@
     "_duration": 0.1,
     "_zoomScale": 0.8,
     "_target": {
+<<<<<<< Updated upstream
       "__id__": 96
+=======
+      "__id__": 97
+>>>>>>> Stashed changes
     },
     "_id": ""
   },
@@ -2761,11 +2991,19 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
+<<<<<<< Updated upstream
       "__id__": 96
     },
     "_enabled": true,
     "__prefab": {
       "__id__": 109
+=======
+      "__id__": 97
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 110
+>>>>>>> Stashed changes
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -2823,7 +3061,11 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 112
+=======
+      "__id__": 113
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -2864,7 +3106,11 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 115
+=======
+      "__id__": 116
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -2892,7 +3138,11 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 117
+=======
+      "__id__": 118
+>>>>>>> Stashed changes
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -2937,7 +3187,11 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 119
+=======
+      "__id__": 120
+>>>>>>> Stashed changes
     },
     "_resizeMode": 1,
     "_layoutType": 2,
@@ -2988,7 +3242,11 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 122
+=======
+      "__id__": 123
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -3016,7 +3274,11 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 124
+=======
+      "__id__": 125
+>>>>>>> Stashed changes
     },
     "_resizeMode": 1,
     "_layoutType": 2,
@@ -3067,7 +3329,11 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 127
+=======
+      "__id__": 128
+>>>>>>> Stashed changes
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -3095,10 +3361,14 @@
     },
     "_enabled": true,
     "__prefab": {
+<<<<<<< Updated upstream
       "__id__": 129
     },
     "editBox": {
       "__id__": 64
+=======
+      "__id__": 130
+>>>>>>> Stashed changes
     },
     "loadNode": {
       "__id__": 14
@@ -3114,6 +3384,12 @@
     },
     "descLable": {
       "__id__": 26
+<<<<<<< Updated upstream
+=======
+    },
+    "editBox": {
+      "__id__": 64
+>>>>>>> Stashed changes
     },
     "_id": ""
   },

@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, Prefab, instantiate, Label } from 'cc';
 import { EventManager } from '../../Core/Manager/Event/EventManager';
 import { TaskManager } from '../Task/TaskManager';
+import { SkewersManager } from '../Task/Skewers/SkewersManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('InfoListPopCtrl')
@@ -31,10 +32,17 @@ export class InfoListPopCtrl extends Component {
         btn1.on('click', this.gotaskList,this);
         btn2.on('click', this.hideInfoAlert,this);
     }
+    private _taskID:number = -1;
     gotaskList(event) {
         event.target.off('click', this.gotaskList);
-        let taskid = event.target["sub_id"];
-        TaskManager.getInstance().requestStartTask(Number(taskid))
+        this._taskID = Number(event.target["sub_id"]);
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,this.gotaskListCallBack,this);
+        SkewersManager.getInstance().requestBranisTraining_list(this._taskID)
+    }
+
+    private gotaskListCallBack(){
+        EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
+        TaskManager.getInstance().requestStartTask(this._taskID);
     }
 
     hideInfoAlert(event) {
