@@ -20,10 +20,10 @@ export class TaskAndNotificationPanelCtrl extends Component {
         
     }
     hideRedDot(){
-        this.redDotNode.active=false;
+        if(this.redDotNode)this.redDotNode.active=false;
     }
     showRedDot(){
-        this.redDotNode.active=true;
+        if(this.redDotNode)this.redDotNode.active=true;
     }
     clearList(){
         this.notifictionListNode.removeAllChildren();   
