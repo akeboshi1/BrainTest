@@ -26,6 +26,8 @@ export class TaskManager {
 
     public static TaskListRequestCallBack: string = "TaskListRequestCallBack";
     public static NotificationListRequestCallBack: string = "NotificationListRequestCallBack";
+    public static PushEvetCallBack: string = "PushEvetCallBack";
+    // public static infoAlertEvent: string = "infoAlertEvent";
 
     //===== 串烧任务
     /**
@@ -43,6 +45,8 @@ export class TaskManager {
     private task_event: string = "event";
 
 
+
+
     private _taskDic: Map<number, TaskData>;
 
     private _taskList: TaskData[];
@@ -50,6 +54,10 @@ export class TaskManager {
     private notification_start_notifications: string = "notification.get_notifications";
     private _notificationList: NotificationData[];
     private notification_read: string = "notification.read";
+    private pushEvet: string = "event";
+    // private _pushEvetList:string [];
+
+  
 
 
     constructor() {
@@ -224,8 +232,8 @@ export class TaskManager {
         }
     }
     /**
-  * 是否已读
-  */
+     * 是否已读
+     */
     public isReadNotification(notification_ids: number[]) {
         EventManager.getInstance().on(this.notification_read, this.requestReadNotificationCallback, this);
         let requestStartTaskSocket: SocketData = new SocketData({
@@ -236,5 +244,21 @@ export class TaskManager {
     public requestReadNotificationCallback(data: SocketData, context: any) {
         DebugLog.instance.log(`是否已读`,data);
         EventManager.getInstance().off(context.notification_read, context);
+    }
+
+    /**
+     * 服务器推送 任务
+     */
+
+    public pushTask() {
+        EventManager.getInstance().on(this.pushEvet, this.pushEventCallback, this);
+    }
+    public pushEventCallback(data: SocketData, context: any) {
+        // EventManager.getInstance().off(context.pushEvet, context);
+        DebugLog.instance.log(`服务器推送任务`, data);
+        if(data.status == 1){
+            EventManager.getInstance().emit(TaskManager.PushEvetCallBack, data.data);
+        }
+       
     }
 }

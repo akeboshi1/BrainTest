@@ -15,6 +15,7 @@
     import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
     import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
     import { TaskAndNotificationPanelCtrl } from './TaskAndNotificationPanelCtrl';
+    import { InfoListPopCtrl } from './InfoListPopCtrl';
     const { ccclass, property } = _decorator;
 
     export enum MainSceneView {
@@ -58,6 +59,9 @@
         @property({ type: Node })
         taskProgressNode: Node = null;
 
+        @property({ type: Node })
+        infoListPopNode: Node = null;
+
         @property(ProgressBar)
         progressBar: ProgressBar = null;
 
@@ -89,6 +93,8 @@
 
         @property({ type: [Node] })
         taskList: Node[] = [];
+
+
 
 
         // ====================== 游戏大厅
@@ -162,6 +168,8 @@
         }
 
         start() {
+            EventManager.getInstance().on(TaskManager.PushEvetCallBack, this.pushEvetCallBack, this);
+            TaskManager.getInstance().pushTask();
             if (this.taskList.length != 0) {
                 this.taskList.forEach(task => {
                     if (task) task.active = false;
@@ -170,10 +178,18 @@
             this.taskAndNotificationPanelCtrl=this.taskProgressNode.getComponent(TaskAndNotificationPanelCtrl)
             EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
             TaskManager.getInstance().start();
-
             this.startShowView();
         }
-
+        pushEvetCallBack(data) {
+            this.taskScrollView.active = true;
+            EventManager.getInstance().on("hideInfoListPop",this.hideInfoListPop, this);
+            TaskManager.getInstance().isReadNotification([data.id])
+            this.infoListPopNode.getComponent(InfoListPopCtrl).updateInfoList(data);
+          
+        }
+        hideInfoListPop() {
+            this.taskScrollView.active = false;
+        }
         updateTime() {
             const now = new Date();
             const hours = TimeUtil.padZero(now.getHours());
@@ -278,10 +294,12 @@
 
         public notificationRequestCallBack(data, context) {
             this.notificationArr = data;
-            if(this.notificationArr.length>0){
-                this.taskAndNotificationPanelCtrl.showRedDot()
-            }else {
-                this.taskAndNotificationPanelCtrl.hideRedDot()
+            if(this.notificationArr){
+                if(this.notificationArr.length>0){
+                    this.taskAndNotificationPanelCtrl.showRedDot()
+                }else {
+                    this.taskAndNotificationPanelCtrl.hideRedDot()
+                }
             }
         }
         public clickNotificationBtn() {
