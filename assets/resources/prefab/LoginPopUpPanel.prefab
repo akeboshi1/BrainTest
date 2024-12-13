@@ -2737,7 +2737,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "0",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -3036,7 +3036,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "1",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -3335,7 +3335,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "2",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -3634,7 +3634,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "3",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
