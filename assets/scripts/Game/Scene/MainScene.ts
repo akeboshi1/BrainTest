@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, Label, Sprite, ProgressBar, Button } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, Label, Sprite, ProgressBar, Button,UITransform } from 'cc';
 import { DebugLog } from "../../../scripts/Core/Util/DebugLog";
 import { TaskManager } from "../../Game/Task/TaskManager";
 import { EventManager } from "../../Core/Manager/Event/EventManager";
@@ -52,6 +52,12 @@ export class MainScene extends Component {
 
     @property(Label)
     taskDesLabel: Label = null;
+
+    @property(Node)
+    taskView: Node = null;
+
+    @property(Node)
+    remindView: Node = null;
 
     // ====================== 任务详情页
     /**
@@ -154,6 +160,31 @@ export class MainScene extends Component {
                 this.tabItemClickByRemote();
                 break;
         }
+    }
+
+    /**
+     * 切换任务界面顶部ui
+     */
+    switchTaskNodeTopView(remind:boolean){
+        this.remindView.active = remind;
+        let taskViewTransform = this.taskView.getComponent(UITransform);
+        let titleTransform = this.titleLabel.getComponent(UITransform);
+        let descTransform = this.taskDesLabel.getComponent(UITransform);
+        if(remind){
+            taskViewTransform.width = 475;
+            this.titleLabel.node.active = false;
+            titleTransform.width=descTransform.width = 475;
+        }else{
+            taskViewTransform.width = 1000;
+            this.titleLabel.node.active = true;
+            titleTransform.width=descTransform.width = 1000;
+        }
+    }
+
+    private _boo = true;
+    remindClick(){
+        this._boo=!this._boo;
+        this.switchTaskNodeTopView(this._boo);
     }
 
     private _viewIndex: number = 0;

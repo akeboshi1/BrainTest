@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Button, EditBox } from 'cc';
+import { _decorator, Sprite, Node, Label, Button, EditBox,Vec3 } from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
@@ -14,6 +14,7 @@ import { UserData } from "db://assets/scripts/Core/Data/UserData";
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { TimeUtil } from '../../../Core/Util/TimeUtil';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
+import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
 
 const { ccclass, property } = _decorator;
 
@@ -50,17 +51,17 @@ export class LoginPopUpPanel extends BasePanel {
     @property(Label)
     PhoneDescTxt: Label;
 
-    @property(Label)
-    num0: Label;
+    @property(Node)
+    num0: Node;
 
-    @property(Label)
-    num1: Label;
+    @property(Node)
+    num1: Node;
 
-    @property(Label)
-    num2: Label;
+    @property(Node)
+    num2: Node;
 
-    @property(Label)
-    num3: Label;
+    @property(Node)
+    num3: Node;
 
     @property(EditBox)
     editBox: EditBox;
@@ -72,7 +73,7 @@ export class LoginPopUpPanel extends BasePanel {
     @property(Node)
     labelNode:Node;
 
-    private numStrs:Label[];
+    private numNodes:Node[];
 
     /**
      * 手机验证码下发
@@ -101,7 +102,7 @@ export class LoginPopUpPanel extends BasePanel {
 
     start() {
        this.PhoneDescTxt.string = "发送>>";
-       this.numStrs = [this.num0,this.num1,this.num2,this.num3];
+       this.numNodes = [this.num0,this.num1,this.num2,this.num3];
     }
 
     onEnable() {
@@ -170,7 +171,7 @@ export class LoginPopUpPanel extends BasePanel {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
-            this.PhoneDescTxt.string = "重新发送>>"
+            this.PhoneDescTxt.string = "重新发送>>";
             const alertData:AlertData = new AlertData;
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             AlertManager.getInstance().showAlert(alertData);
@@ -214,6 +215,7 @@ export class LoginPopUpPanel extends BasePanel {
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
             this.PhoneDescTxt.string = "重新发送>>";
+            this.node.removeFromParent();
             const alertData:AlertData = new AlertData;
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
 
@@ -230,12 +232,12 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     public requestEnter(){
-        let len =  this.numStrs.length;
+        let len =  this.numNodes.length;
         let codeStr = "";
         for (let i = 0; i < len; i++) {
-            let editBox = this.numStrs[i];
+            let editBox = this.numNodes[i];
             if (editBox == null) continue;
-            codeStr+=editBox.string;
+            codeStr+=editBox.getChildByName('label').getComponent(Label).string;
         }
         this.phoneCode = codeStr;
         EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginCallBack, this);
@@ -243,18 +245,37 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     public startEditbox(){
-       this.editBox.node.active = true;
-       this.labelNode.active = false;
+       if(!this.editBox.isFocused()){
+           this.editBox.setFocus();
+           if(this.numNodes[3].getChildByName('label').getComponent(Label).string != ""){
+               this.numNodes[3].setScale(new Vec3(1.2,1.2,1.2));
+           }else{
+               this.numNodes[0].setScale(new Vec3(1.2,1.2,1.2));
+           }
+
+       }
     }
 
     public editBoxValue(event){
         var str = this.editBox.string;
         let characters = str.split('');
         let len = characters.length;
+        this.numNodes.forEach((node)=>{
+             node.getChildByName('label').getComponent(Label).string = "";
+             node.setScale(new Vec3(1,1,1))
+        })
+        let selectIndex = 0;
         for(let i=0;i<len;i++){
             let tmpStr = characters[i];
-            let numLabel = this.numStrs[i];
-            if(numLabel)numLabel.string = tmpStr;
+            let numLabel = this.numNodes[i].getChildByName('label').getComponent(Label);
+            if(numLabel){
+                numLabel.string = tmpStr;
+            }
+            selectIndex ++;
+        }
+        let selectNode = this.numNodes[selectIndex];
+        if(selectNode){
+            selectNode.setScale(new Vec3(1.2,1.2,1.2));
         }
         if(len == 4){
             this.editBox.node.active = false;
