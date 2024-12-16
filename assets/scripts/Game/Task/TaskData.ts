@@ -16,6 +16,7 @@ export class TaskData {
     public id: number = 0;
     public name: string = "";
     public type: TaskType;
+    public isAvailable: boolean = false;
     public startTime: number = 0;
     public endTime: number = 0;
     public status: number = 0; // 0 未完成 1 处理中 10 完成 2 过期
@@ -37,6 +38,7 @@ export class TaskData {
         this.id = data["id"];
         this.name = data["task_name"];
         this.type = data["task_type"];
+        this.isAvailable=data["is_available"],
         this.startTime = data["available_start_time"];
         this.endTime = data["available_end_time"];
         this.status = data["status"];

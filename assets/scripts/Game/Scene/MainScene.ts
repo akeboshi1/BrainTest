@@ -175,31 +175,6 @@ export class MainScene extends Component {
         }
     }
 
-    /**
-     * 切换任务界面顶部ui
-     */
-    switchTaskNodeTopView(remind:boolean){
-        this.remindView.active = remind;
-        let taskViewTransform = this.taskView.getComponent(UITransform);
-        let titleTransform = this.titleLabel.getComponent(UITransform);
-        let descTransform = this.taskDesLabel.getComponent(UITransform);
-        if(remind){
-            taskViewTransform.width = 475;
-            this.titleLabel.node.active = false;
-            titleTransform.width=descTransform.width = 475;
-        }else{
-            taskViewTransform.width = 1000;
-            this.titleLabel.node.active = true;
-            titleTransform.width=descTransform.width = 1000;
-        }
-    }
-
-    private _boo = true;
-    remindClick(){
-        this._boo=!this._boo;
-        this.switchTaskNodeTopView(this._boo);
-    } 
-
     private _viewIndex: number = 0;
     setCurrentIndex(index: number) {
         this._viewIndex = index;
@@ -397,6 +372,7 @@ export class MainScene extends Component {
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
         switch (this._curPanel) {
             case this.taskNode:
+                this.taskRemind();
                 // let taskUnCompleteDic = TaskManager.getInstance().getTodayUnCompleteTask();
                 // taskUnCompleteDic.forEach((task:TaskData)=>{
                 //
@@ -450,8 +426,47 @@ export class MainScene extends Component {
                 break;
         }
     }
+        /**
+     * 切换任务界面顶部ui
+     */
+        switchTaskNodeTopView(remind:boolean){
+            this.remindView.active = remind;
+            let taskViewTransform = this.taskView.getComponent(UITransform);
+            let titleTransform = this.titleLabel.getComponent(UITransform);
+            let descTransform = this.taskDesLabel.getComponent(UITransform);
+            if(remind){
+                taskViewTransform.width = 475;
+                this.titleLabel.node.active = false;
+                titleTransform.width=descTransform.width = 475;
+            }else{
+                taskViewTransform.width = 1000;
+                this.titleLabel.node.active = true;
+                titleTransform.width=descTransform.width = 1000;
+            }
+        }
+    
+       
+        remindClick(){
+            EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
+            TaskManager.getInstance().requestStartTask(this.firstElement.id);
+        } 
+    private firstElement;
+    private _boo = true;
+    taskRemind(){
+        
+        // this.remindView.active = false;
 
-
+        let taskDatas = TaskManager.getInstance().taskList;
+        this.firstElement= taskDatas[2];
+        this.remindView.active =this.firstElement.isAvailable;
+        this.switchTaskNodeTopView(this.firstElement.isAvailable);
+        this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = this.firstElement.name;
+        this.titleLabel.node.active = false;
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{},this);
+    }
+    goBrainTraining() {
+      
+    }
     private _curTaskData: TaskData;
     taskItemClick(event, data) {
         DebugLog.instance.log(data);
