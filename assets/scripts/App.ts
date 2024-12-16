@@ -5,7 +5,6 @@ import {UIManager} from "./Core/Manager/UI/UIManager";
 import {SceneManager} from "./Core/Manager/Scene/SceneManager";
 import {LoaderManager} from "./Core/Manager/Load/LoaderManager";
 import {PoolManager} from "./Core/Manager/Pool/PoolManager";
-import {SpriteManager} from "./Core/Manager/Sprite/SpriteManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import {BaseObejct} from "./Core/Object/BaseObject";
 import {UserData} from "./Core/Data/UserData";
@@ -137,10 +136,8 @@ export class App extends BaseObejct {
         SceneManager.getInstance().init();
         EventManager.getInstance().init();
         PoolManager.getInstance().init();
-        SpriteManager.getInstance().init();
         TaskManager.getInstance().init();
         ChatFlowModel.getInstance().init();
-        SpriteManager.getInstance().init();
         AlertManager.getInstance().init();
         BundlePreloadManager.getInstance().init();
         AudioManager.getInstance().init();
