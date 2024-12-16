@@ -88,6 +88,7 @@ export class TaskManager {
 
     }
 
+    // start 生命周期
     start() {
         this.clearData();
         this.requestTaskList();
