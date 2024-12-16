@@ -332,6 +332,7 @@ export class MainScene extends Component {
         }
 
         public notificationRequestCallBack(data, context) {
+            if(!this.taskAndNotificationPanelCtrl)return;
             this.notificationArr = data;
             console.log("通知列表",this.notificationArr);
             if(this.notificationArr){
