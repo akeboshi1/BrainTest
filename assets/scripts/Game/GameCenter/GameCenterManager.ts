@@ -6,7 +6,7 @@ import {DebugLog} from "../../Core/Util/DebugLog";
 import {SceneManager} from "../../Core/Manager/Scene/SceneManager";
 import {LoaderManager} from "../../Core/Manager/Load/LoaderManager";
 import {instantiate,Node} from "cc";
-import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 
 /**
  * 游戏大厅通信数据

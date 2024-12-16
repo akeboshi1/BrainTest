@@ -7,7 +7,7 @@ import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {instantiate,Node,Vec3} from "cc";
 import {TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";

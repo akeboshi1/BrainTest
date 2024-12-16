@@ -21,8 +21,8 @@ export enum AlertType {
 /**
  * 通用型alert
  */
-@ccclass('Alert')
-export class Alert extends Component{
+@ccclass('GameAlert')
+export class GameAlert extends Component{
 
     @property(Node)
     alert:Node = null;
@@ -47,6 +47,9 @@ export class Alert extends Component{
 
     @property(Label)
     progressLabel:Label = null;
+
+    @property(Node)
+    completeIcon:Node = null;
 
     public static ALERT_GOON:string ="ALERT_GOON";
 
@@ -159,7 +162,7 @@ export class Alert extends Component{
 
     exitHandler(){
         // SceneManager.getInstance().backToHall();
-        EventManager.getInstance().emit(Alert.ALERT_EXIT);
+        EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
         if(this.exitCallBack){
             this.exitCallBack(this.context);
         }
@@ -170,7 +173,7 @@ export class Alert extends Component{
      * 继续
      */
     goHandler(){
-        EventManager.getInstance().emit(Alert.ALERT_GOON);
+        EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         if(this.goonCallBack){
             this.goonCallBack(this.context);
         }

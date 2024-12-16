@@ -21,7 +21,7 @@ import {Global} from "../../scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
 import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-import {AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 

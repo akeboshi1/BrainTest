@@ -6,7 +6,7 @@ import {DebugLog} from "../../scripts/Core/Util/DebugLog";
 import {SceneManager} from "../../scripts/Core/Manager/Scene/SceneManager";
 import {TimeUtil} from "../../scripts/Core/Util/TimeUtil";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-import {AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 
 const { ccclass, property } = _decorator;

@@ -9,7 +9,7 @@ const { ccclass, property } = _decorator;
 import { questions0, questions1, questions2 } from './questionsDate'
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
-import {AlertType} from "db://assets/scripts/Game/UI/Alert/Alert";
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 
 

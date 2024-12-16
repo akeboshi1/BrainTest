@@ -55,6 +55,9 @@ export class MainScene extends Component {
     taskDesLabel: Label = null;
 
     @property(Node)
+    taskEnterLabel: Label = null;
+
+    @property(Node)
     taskView: Node = null;
 
     @property(Node)
