@@ -58,7 +58,7 @@ export class MainScene extends Component {
     taskView: Node = null;
 
     @property(Node)
-    remindView: Node = null;
+    remindView: Node = null; 
 
 
 
@@ -198,7 +198,7 @@ export class MainScene extends Component {
     remindClick(){
         this._boo=!this._boo;
         this.switchTaskNodeTopView(this._boo);
-    }
+    } 
 
     private _viewIndex: number = 0;
     setCurrentIndex(index: number) {
@@ -341,18 +341,19 @@ export class MainScene extends Component {
                     this.taskAndNotificationPanelCtrl.hideRedDot()
                 }
             }
+           
         }
         public clickNotificationBtn() {
             this.progressTaskNode.active = false;
             this.progressInfoNode.active = true;
             this.taskAndNotificationPanelCtrl.updateList(this.notificationArr);
-            
+            this.scrollViewNode.node.on("scroll-to-bottom", this.scrollViewEvent, this);
         }
         scrollViewEvent(event, index: number) {
             this.taskAndNotificationPanelCtrl.hideRedDot();
             const subIds: number[] = this.notificationArr.map(item => (item as any).id);
-            if(subIds.length!==0){
-                TaskManager.getInstance().isReadNotification(subIds);
+            if(subIds.length!==0){ 
+                // TaskManager.getInstance().isReadNotification(subIds);
             }
             this.notificationArr=[];
             this.scrollViewNode.node.off("scroll-to-bottom", this.scrollViewEvent, this);
