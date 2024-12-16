@@ -1,4 +1,4 @@
-import { _decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate } from 'cc';
+import { _decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform } from 'cc';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
@@ -204,7 +204,7 @@ export class catchfish extends Component {
                         }
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
                         const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
-                        fish.position = newPosition;
+                        fish.setPosition(newPosition.x,newPosition.y);
                     }
                 }
             )
@@ -289,6 +289,7 @@ export class catchfish extends Component {
         // 遍历wangs数组
         let index =Number(data) ;
         let len = this.wangs.length;
+
         if (index !== this._curFish.currentIndex) {
             for (let i = 0; i < len; i++) {
                 // 如果当前索引等于传入的索引，则调用selectWang方法
@@ -304,9 +305,10 @@ export class catchfish extends Component {
             this.hasWangClick = false;
             return;
         }
-
+        for (let i = 0; i < len; i++) {
+            this.unSelectWang(i);
+        }
         this._curFish.curTween.stop();
-        DebugLog.instance.log(`click ---- ${this._curFish.position}`)
         this.clearWangNubmer();
         let wangPrefab = instantiate(this.wangPrefab);
         wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
@@ -314,16 +316,21 @@ export class catchfish extends Component {
         let wang = this.wangs[index];
         // 将wangPrefab添加到wang的子节点中
         wang.addChild(wangPrefab);
+        wangPrefab.setPosition(new Vec3(0, 0, 0));
+        wang.setPosition(new Vec3(0,0,0));
         GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
 
         let self = this;// -600.-520.-440.-360
-        let offsetX = this._curFish.positionYIndex * 38 + 600;
+        let offsetX = this._curFish.currentIndex * 10 + 550;
         let offsetTime = this._curFish.positionYIndex * 0.01;
+        let fishWorldPos = self._curFish.getFishNode().parent.getComponent(UITransform).convertToWorldSpaceAR(this._curFish.position);
+        let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wangPrefab.position);
         if(this._wangTween)this._wangTween.stop();
         // 启动动画
         this._wangTween = tween(wangPrefab).parallel(
-            tween().to(1.1-offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
-            tween().to(0.5-offsetTime, { position: new Vec3(this._curFish.worldPosition.x - offsetX, this._curFish.worldPosition.y - 150, this._curFish.worldPosition.z) })).call(() => {
+            tween().to(0.8 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
+            tween().to(0.5 - offsetTime, { position: new Vec3(fishWorldPos.x - wangWorldPos.x,fishWorldPos.y - 100,fishWorldPos.z)}))
+    .call(() => {
             self._curFish.curTween.stop();
             const scaleUp = 1.3; // 放大到2倍
             const scaleDown = 1.0; // 恢复到原始大小
