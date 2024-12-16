@@ -152,7 +152,7 @@ export class LoginManager {
             UIManager.getInstance().registerView(LoginPopUpPanel.NAME, node);
             const parendNode = parentNode.parent;
             UIManager.getInstance().showView(LoginPopUpPanel.NAME, parendNode);
-            UIManager.getInstance().hideView(PhoneLoginPanel.NAME);
+            // UIManager.getInstance().hideView(PhoneLoginPanel.NAME);
             const logingpopupPanel = UIManager.getInstance().getView(LoginPopUpPanel.NAME) as LoginPopUpPanel;
             if (logingpopupPanel) logingpopupPanel.agreeClick();
         });
