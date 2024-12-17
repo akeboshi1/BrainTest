@@ -5,6 +5,7 @@ import { DebugLog } from "../../../Core/Util/DebugLog";
 import { GameSceneConst } from "../../../Core/Data/GameSceneConst";
 import { Global } from "../../../Core/Manager/Config/Global";
 import { MainScene, MainSceneView } from "db://assets/scripts/Game/Scene/MainScene";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 
 export class SceneManager extends BaseManager {
 
@@ -46,8 +47,12 @@ export class SceneManager extends BaseManager {
                                 DebugLog.instance.error(err);
                                 return;
                             }
-                            DebugLog.instance.log(`${sceneName} 场景切换成功`);
-                            resolve(scene);
+                            // 切换场景时，由于上一个场景得node被销毁，所以一些通用界面需要重新被注册，后续改进
+                            UIManager.getInstance().destroy();
+                            UIManager.getInstance().addLoadRes().then(()=>{
+                                DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                                resolve(scene);
+                            });
                         });
                     });
                 }).catch(err => {
@@ -60,8 +65,13 @@ export class SceneManager extends BaseManager {
                         DebugLog.instance.error(err);
                         return;
                     }
-                    DebugLog.instance.log(`${sceneName} 场景切换成功`);
-                    resolve(scene);
+                    UIManager.getInstance().destroy();
+                    UIManager.getInstance().addLoadRes().then(()=>{
+                        DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                        resolve(scene);
+                    });
+                    // DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                    // resolve(scene);
                 })
             }
         })

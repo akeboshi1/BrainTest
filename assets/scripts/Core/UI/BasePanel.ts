@@ -1,6 +1,7 @@
 import { _decorator, Component, Node,tween,Vec3 } from 'cc';
 import {BaseObejct} from "../../../scripts/Core/Object/BaseObject";
 import {UIManager} from "../../../scripts/Core/Manager/UI/UIManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 export enum PanelState {
@@ -45,8 +46,9 @@ export class BasePanel extends BaseObejct{
         this.state = PanelState.ONDISABLE;
     }
 
-    onDestroy(){
+    protected onDestroy(){
         this.state = PanelState.DESTROY;
+        DebugLog.instance.log(`${this.name} onDestroy`);
     }
 
 
