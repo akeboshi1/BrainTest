@@ -437,6 +437,8 @@ export class MainScene extends Component {
             let taskViewTransform = this.taskView.getComponent(UITransform);
             let titleTransform = this.titleLabel.getComponent(UITransform);
             let descTransform = this.taskDesLabel.getComponent(UITransform);
+            let taskEnterTransform = this.taskEnterLabel.getComponent(UITransform);
+            let taskEnterTransformPos = taskEnterTransform.node.position;
             if(remind){
                 taskViewTransform.width = 475;
                 this.titleLabel.node.active = false;
@@ -444,8 +446,9 @@ export class MainScene extends Component {
             }else{
                 taskViewTransform.width = 1000;
                 this.titleLabel.node.active = true;
-                titleTransform.width=descTransform.width = 1000;
+                taskEnterTransform.width = titleTransform.width=descTransform.width = 1000;
             }
+            taskEnterTransform.node.setPosition(taskViewTransform.width-taskEnterTransform.width/2,taskEnterTransformPos.y);
         }
     
        
@@ -461,7 +464,10 @@ export class MainScene extends Component {
 
         let taskDatas = TaskManager.getInstance().taskList;
         this.firstElement= taskDatas[2];
-        if(!this.firstElement)return;
+        if(!this.firstElement){
+            this.switchTaskNodeTopView(false);
+            return;
+        }
         this.remindView.active =this.firstElement.isAvailable;
         this.switchTaskNodeTopView(this.firstElement.isAvailable);
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = this.firstElement.name;
