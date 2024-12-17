@@ -181,6 +181,7 @@ export class MainScene extends Component {
     private _viewIndex: number = 0;
     setCurrentIndex(index: number) {
         this._viewIndex = index;
+        this.startShowView();
     }
 
         start() {
