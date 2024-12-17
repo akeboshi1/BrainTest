@@ -1,5 +1,4 @@
 import {BasePanel} from "../../../Core/UI/BasePanel";
-import {UIManager} from "../../../Core/Manager/UI/UIManager";
 import { _decorator,Label } from "cc";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 
@@ -14,11 +13,8 @@ export class LoadPanel extends BasePanel{
       @property(Label)
       progressLabel:Label;
 
-      public static NAME = UIManager.LOAD_PANEL;
-
       constructor() {
             super();
-            this.name = LoadPanel.NAME;
       }
 
       onLoad() {
