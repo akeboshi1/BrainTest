@@ -429,28 +429,6 @@ export class MainScene extends Component {
                 break;
         }
     }
-        /**
-     * 切换任务界面顶部ui
-     */
-        switchTaskNodeTopView(remind:boolean){
-            this.remindView.active = remind;
-            let taskViewTransform = this.taskView.getComponent(UITransform);
-            let titleTransform = this.titleLabel.getComponent(UITransform);
-            let descTransform = this.taskDesLabel.getComponent(UITransform);
-            let taskEnterTransform = this.taskEnterLabel.getComponent(UITransform);
-            let taskEnterTransformPos = taskEnterTransform.node.position;
-            if(remind){
-                taskViewTransform.width = 475;
-                this.titleLabel.node.active = false;
-                titleTransform.width=descTransform.width = 475;
-            }else{
-                taskViewTransform.width = 1000;
-                this.titleLabel.node.active = true;
-                taskEnterTransform.width = titleTransform.width=descTransform.width = 1000;
-            }
-            taskEnterTransform.node.setPosition(taskViewTransform.width-taskEnterTransform.width/2,taskEnterTransformPos.y);
-        }
-    
        
         remindClick(){
             EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
@@ -459,17 +437,9 @@ export class MainScene extends Component {
     private firstElement;
     private _boo = true;
     taskRemind(){
-        
-        // this.remindView.active = false;
-
         let taskDatas = TaskManager.getInstance().taskList;
-        this.firstElement= taskDatas[2];
-        if(!this.firstElement){
-            this.switchTaskNodeTopView(false);
-            return;
-        }
+        this.firstElement= taskDatas[0];
         this.remindView.active =this.firstElement.isAvailable;
-        this.switchTaskNodeTopView(this.firstElement.isAvailable);
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = this.firstElement.name;
         this.titleLabel.node.active = false;
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{},this);

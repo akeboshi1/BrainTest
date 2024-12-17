@@ -3403,7 +3403,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 0,
     "_originalHeight": 0,
-    "_alignMode": 2,
+    "_alignMode": 1,
     "_lockFlags": 0,
     "_id": "a7GM2V8DxPYKUD4iHgw/+6"
   },
@@ -3822,7 +3822,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 0,
     "_originalHeight": 0,
-    "_alignMode": 2,
+    "_alignMode": 1,
     "_lockFlags": 0,
     "_id": "eaOn9wlBZEe65gXjvF4diZ"
   },
@@ -4907,7 +4907,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "_resizeMode": 1,
+    "_resizeMode": 2,
     "_layoutType": 1,
     "_cellSize": {
       "__type__": "cc.Size",
