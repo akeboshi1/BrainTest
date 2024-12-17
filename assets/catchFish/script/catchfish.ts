@@ -78,8 +78,13 @@ export class catchfish extends Component {
     private hasWangClick: boolean = false;
 
     start() {
-        this.gameBeforeView.active = true;
         this.fishs = []
+        if(Global.isSkewersGame){
+            this.gameBeforeView.active = false;
+            this.startGame();
+        }else{
+            this.gameBeforeView.active = true;
+        }
     }
 
     startGame() {
@@ -279,8 +284,10 @@ export class catchfish extends Component {
     }
 
     restoreTimer() {
+        this._clearBoo = false;
         this.calculateTime();
         this.timeStart();
+        this.createFish();
     }
 
     rePlayGame() {
