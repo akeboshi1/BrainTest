@@ -1,6 +1,4 @@
 import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,SpriteFrame,Sprite} from "cc";
-import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
-import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
@@ -51,6 +49,9 @@ export class GameAlert extends Component{
     @property(Node)
     completeIcon:Node = null;
 
+    @property(Node)
+    iconConNode:Node = null;
+
     public static ALERT_GOON:string ="ALERT_GOON";
 
     public static ALERT_EXIT:string = "ALERT_EXIT";
@@ -72,9 +73,8 @@ export class GameAlert extends Component{
                 this.startBtn.node.active = true;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
-                this.icon.active = false;
+                this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-
                 startBtnUITransform.width = 250;
 
                 break;
@@ -82,7 +82,7 @@ export class GameAlert extends Component{
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
                 this.titleLabel.node.active = true;
-                this.icon.active = true;
+                this.iconConNode.active = true;
                 this.decLabel.node.active = true;
                 this.progressBar.node.active = false;
 
@@ -93,7 +93,7 @@ export class GameAlert extends Component{
                 this.decLabel.node.active = true;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
-                this.icon.active = false;
+                this.iconConNode.active = false;
                 this.exitBtn.node.active = false;
 
                 startBtnUITransform.width = 500;
@@ -106,7 +106,7 @@ export class GameAlert extends Component{
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
-                this.icon.active = false;
+                this.iconConNode.active = false;
                 this.exitBtn.node.active = false;
 
                 startBtnUITransform.width = 500;
@@ -116,9 +116,8 @@ export class GameAlert extends Component{
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
-                this.icon.active = false;
+                this.iconConNode.active = false;
                 this.exitBtn.node.active = true;
-
                 startBtnUITransform.width = 250;
                 break;
         }

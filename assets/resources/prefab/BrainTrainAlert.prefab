@@ -2119,7 +2119,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "df708iMhk5DNqPNvbtLyYA0",
+    "_componentId": "11102ruIktAZ6riyu2wwEpB",
     "handler": "exitHandler",
     "customEventData": ""
   },
@@ -2491,7 +2491,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "df708iMhk5DNqPNvbtLyYA0",
+    "_componentId": "11102ruIktAZ6riyu2wwEpB",
     "handler": "goHandler",
     "customEventData": ""
   },
@@ -2901,6 +2901,9 @@
     },
     "completeIcon": {
       "__id__": 42
+    },
+    "iconConNode": {
+      "__id__": 35
     },
     "_id": ""
   },

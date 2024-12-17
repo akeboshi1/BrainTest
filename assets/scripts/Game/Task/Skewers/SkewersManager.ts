@@ -7,7 +7,7 @@ import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {Alert, AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import {GameAlert, AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {instantiate,Node,Vec3} from "cc";
 import {TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
@@ -188,7 +188,7 @@ export class SkewersManager{
              LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
                  alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                  parentNode.addChild(alertNode);
-                 let alert = alertNode.getComponent("Alert");
+                 let alert = alertNode.getComponent("GameAlert");
                  alertNode.setPosition(0,0,0);
                  alert["showView"](AlertType.Normal);
                  alert["setTitle"]("是否退出当前游戏？");
@@ -198,7 +198,7 @@ export class SkewersManager{
          }else{
              alertNode.active = true;
              parentNode.addChild(alertNode);
-             let alert = alertNode.getComponent("Alert");
+             let alert = alertNode.getComponent("GameAlert");
              alertNode.setPosition(0,0,0);
              alert["showView"](AlertType.Normal);
              alert["setTitle"]("是否退出当前游戏？");
@@ -225,7 +225,7 @@ export class SkewersManager{
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
-                let alert = alertNode.getComponent("Alert");
+                let alert = alertNode.getComponent("GameAlert");
                 alertNode.setPosition(0,0,0);
                 alert["showView"](type);
                 alert["setTitle"](title);
@@ -238,7 +238,7 @@ export class SkewersManager{
         }else{
             alertNode.active = true;
             parentNode.addChild(alertNode);
-            let alert = alertNode.getComponent("Alert");
+            let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0,0,0);
             alert["showView"](type);
             alert["setTitle"](title);
