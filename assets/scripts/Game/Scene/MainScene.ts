@@ -332,7 +332,7 @@ export class MainScene extends Component {
             this.taskAndNotificationPanelCtrl.hideRedDot();
             const subIds: number[] = this.notificationArr.map(item => (item as any).id);
             if(subIds.length!==0){ 
-                // TaskManager.getInstance().isReadNotification(subIds);
+                TaskManager.getInstance().isReadNotification(subIds);
             }
             this.notificationArr=[];
             this.scrollViewNode.node.off("scroll-to-bottom", this.scrollViewEvent, this);
