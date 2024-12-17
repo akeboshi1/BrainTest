@@ -7,8 +7,10 @@ const { ccclass, property } = _decorator;
 @ccclass('InfoListPopCtrl')
 export class InfoListPopCtrl extends Component {
     @property(Prefab)
-    infoAlertPrefab: Prefab = null;
+    taskAlertPrefab: Prefab = null;
 
+    @property(Prefab)
+    remindAlertPrefab: Prefab = null;
 
     @property(Node)
     parentNode: Node = null;
@@ -21,16 +23,26 @@ export class InfoListPopCtrl extends Component {
 
     }
     updateInfoList(InfoData) {
-        let alertPrefab = instantiate(this.infoAlertPrefab);
+        let alertPrefab=null;
+        if(InfoData.notification_type=="1"){
+            alertPrefab = instantiate(this.taskAlertPrefab);
+            let btn1 = alertPrefab.getChildByName('btn1');
+            btn1["sub_id"] = InfoData.sub_id;
+            btn1.on('click', this.gotaskList,this);
+            let btn2 = alertPrefab.getChildByName('btn2');
+            btn2["id"] = InfoData.id;
+            btn2.on('click', this.hideInfoAlert,this);
+        }else if(InfoData.notification_type=="2"){
+            alertPrefab = instantiate(this.remindAlertPrefab);
+            let btn1 = alertPrefab.getChildByName('btn1');
+            btn1["id"] = InfoData.id;
+            btn1.on('click', this.hideInfoAlert,this);
+        }
         alertPrefab.parent = this.parentNode;
         alertPrefab.getChildByName('ScrollView').getChildByName('view').getChildByName('content').getChildByName('item').getComponent(Label).string = InfoData.content;
         InfoListPopCtrl._infoDic.set(InfoData.id, alertPrefab);
-        let btn1 = alertPrefab.getChildByName('btn1');
-        let btn2 = alertPrefab.getChildByName('btn2');
-        btn1["sub_id"] = InfoData.sub_id;
-        btn2["id"] = InfoData.id;
-        btn1.on('click', this.gotaskList,this);
-        btn2.on('click', this.hideInfoAlert,this);
+       
+       
     }
     private _taskID:number = -1;
     gotaskList(event) {
