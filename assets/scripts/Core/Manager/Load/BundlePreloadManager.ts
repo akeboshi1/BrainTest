@@ -5,6 +5,8 @@ import { EventManager } from "../Event/EventManager";
 import { assetManager, AssetManager, resources, Scene, Texture2D } from "cc";
 import { LoaderManager } from "./LoaderManager";
 import { Global } from "../Config/Global";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {LoadPanel} from "db://assets/scripts/Game/UI/Load/LoadPanel";
 
 // BundlePreloadManager类用于管理资源包的预加载和释放操作，通过配置文件获取预加载信息，并触发相应事件通知外部相关进度和状态
 export class BundlePreloadManager extends BaseManager {
@@ -67,15 +69,24 @@ export class BundlePreloadManager extends BaseManager {
         EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
         let loadedAssets = 0;
         let totalAssets = 0;
+
+        UIManager.getInstance().showLoadingPanel();
+        let loadPanel:LoadPanel = UIManager.getInstance().getView(UIManager.LOAD_PANEL) as LoadPanel;
+        loadPanel.titleLabel.node.active = true;
+        loadPanel.setTitle("正在进入场景");
+        loadPanel.setProgress('开始加载');
+
         // 预加载场景
         try {
             await new Promise((resolve, reject) => {
+
                 bundle.preloadScene(preloadScene, (finished, total, item) => {
                     totalAssets = preloadAssets.length + total;
                     loadedAssets = finished;
-                    const progress = loadedAssets / totalAssets;
+                    const progress = Math.round(loadedAssets / totalAssets * 100);
                     // 触发预加载进度事件，通知外部当前的加载进度
                     DebugLog.instance.log(`加载场景中 ${progress}`);
+                    loadPanel.setProgress(`加载场景中 ${progress}%`);
                     EventManager.getInstance().emit(BundlePreloadEvent.PROGRESS, { bundleName, progress });
                 }, (err: Error | null) => {
                     if (err) {
@@ -110,9 +121,10 @@ export class BundlePreloadManager extends BaseManager {
                     });
 
                     loadedAssets++;
-                    const progress = loadedAssets / totalAssets;
+                    const progress = Math.round(loadedAssets / totalAssets * 100);
                     // 触发预加载进度事件，通知外部当前的加载进度
                     DebugLog.instance.log(`加载资源中 ${progress}`);
+                    loadPanel.setProgress(`加载资源中 ${progress}%`);
                     EventManager.getInstance().emit(BundlePreloadEvent.PROGRESS, { bundleName, progress });
                 } catch (err) {
                     DebugLog.instance.error(`加载资源 ${assetPath} 出错: ${err}`);
@@ -123,6 +135,8 @@ export class BundlePreloadManager extends BaseManager {
         }
 
         DebugLog.instance.log(`全部加载完成！`);
+        loadPanel.setProgress(`全部加载完成！`);
+        UIManager.getInstance().hideView(LoadPanel.NAME);
         if (this.loadedBundle.indexOf(bundleName) < 0) {
             this.loadedBundle.push(bundleName);
         }

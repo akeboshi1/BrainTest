@@ -11,6 +11,7 @@ import {GameAlert, AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert"
 import {instantiate,Node,Vec3} from "cc";
 import {TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
+import {BundlePreloadEvent, BundlePreloadManager} from "db://assets/scripts/Core/Manager/Load/BundlePreloadManager";
 
 /**
  * 脑力串烧管理器
@@ -310,27 +311,36 @@ export class SkewersManager{
          }
      }
 
+     private _game;
+
      public startGame(){
           if(!this._gameDatas||this._gameDatas.length <=0){
               this._curIndex = -1;
               DebugLog.instance.error("当前没有游戏可以运行");
               return;
           }
-          let game = this.getUnCompleteGameData();
-          if(!game){
+          this._game = this.getUnCompleteGameData();
+          if(!this._game){
               this._curIndex = -1;
               DebugLog.instance.error("当前脑力训练已经全部完成！");
             //   SceneManager.getInstance().backToHall();
               return;
           }
-          const sceneName = game.gameCode;
+          const sceneName = this._game.gameCode;
           let url = Global.RES_Root+sceneName;
-          SceneManager.getInstance().changeScene(url,sceneName).then((scene)=>{
-              DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
-              Global.userData.curSkewerGameData = game;
-          });
+
+         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+         BundlePreloadManager.getInstance().preload(sceneName);
+
 
      }
+
+    private onPreloadFinish(url: string, sceneName: string, data: any) {
+        SceneManager.getInstance().changeScene(url,sceneName).then((scene)=>{
+            DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
+            Global.userData.curSkewerGameData = this._game;
+        });
+    }
 
     /**
      * 跳出串烧游戏，记录当前游戏index进度

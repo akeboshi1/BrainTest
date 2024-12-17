@@ -5,7 +5,7 @@ import { DebugLog } from "../../Util/DebugLog";
 import {LoaderManager} from "../Load/LoaderManager";
 import {PoolManager} from "../Pool/PoolManager";
 import {SceneManager} from "../Scene/SceneManager";
-import {Node} from "cc";
+import {Node,instantiate} from "cc";
 
 
 export class UIManager extends BaseManager {
@@ -17,7 +17,7 @@ export class UIManager extends BaseManager {
         return UIManager._instance;
     }
 
-    public static LOAD_PANEL= "LOADPANEL";
+    public static LOAD_PANEL= "LoadPanel";
 
 
     public static BACK_TO_PARENT:string = "BACK_TO_PARENT";
@@ -111,8 +111,7 @@ export class UIManager extends BaseManager {
         const url = 'prefab/LoadPanel';
         return new Promise((resolve,reject)=>{
             LoaderManager.getInstance().resourcesLoadPrefab(url).then((prefab)=>{
-                PoolManager.getInstance().initPool(UIManager.LOAD_PANEL,prefab);
-                const node = PoolManager.getInstance().get(UIManager.LOAD_PANEL);
+                const node = instantiate(prefab)
                 UIManager.getInstance().registerView(UIManager.LOAD_PANEL,node);
                 resolve();
                 // UIManager.getInstance().showLoadingPanel(parentNode);
@@ -124,6 +123,8 @@ export class UIManager extends BaseManager {
     }
 
     public showLoadingPanel(parentNode = null){
+
+
         UIManager.getInstance().showView(UIManager.LOAD_PANEL,parentNode);
     }
 
