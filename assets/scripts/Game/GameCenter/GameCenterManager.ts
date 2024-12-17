@@ -99,7 +99,7 @@ export class GameCenterManager {
         this._curGame = new GameCenterData(data.data);
         let gsData = this._callbackDic.get(GameCenterManager.GAMESTART);
         if(gsData && gsData.callback){
-            gsData.socketData.data = data.data
+            gsData.socketData.data = data.data;
             gsData.callback(data);
         }
     }
@@ -211,7 +211,7 @@ export class GameCenterManager {
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
                 alertNode = GameCenterManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
-                let alert = alertNode.getComponent("Alert");
+                let alert = alertNode.getComponent("GameAlert");
                 alertNode.setPosition(0,0,0);
                 alert["showView"](AlertType.Game_Center);
                 alert["setTitle"]("是否退出当前游戏？");
@@ -219,7 +219,7 @@ export class GameCenterManager {
             });
         }else{
             parentNode.addChild(alertNode);
-            let alert = alertNode.getComponent("Alert");
+            let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0,0,0);
             alert["showView"](AlertType.Game_Center);
             alert["setTitle"]("是否退出当前游戏？");
