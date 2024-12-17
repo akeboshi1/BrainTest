@@ -197,6 +197,7 @@ export class MainScene extends Component {
             this.startShowView();
         }
         pushEvetCallBack(data) {
+            if(!data.id){return}
             this.taskScrollView.active = true;
             EventManager.getInstance().on("hideInfoListPop",this.hideInfoListPop, this);
             TaskManager.getInstance().isReadNotification([data.id])
@@ -438,11 +439,14 @@ export class MainScene extends Component {
     private _boo = true;
     taskRemind(){
         let taskDatas = TaskManager.getInstance().taskList;
+        DebugLog.instance.log('8888888888888888888',taskDatas);
+        if(!taskDatas.length){ return; }
         this.firstElement= taskDatas[0];
         this.remindView.active =this.firstElement.isAvailable;
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = this.firstElement.name;
         this.titleLabel.node.active = false;
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{},this);
+        SkewersManager.getInstance().requestBranisTraining_list(this.firstElement.id);
     }
     goBrainTraining() {
       
@@ -477,12 +481,13 @@ export class MainScene extends Component {
     tabItemClickByRemote() {
         this._curTaskData = Global.userData.curTaskData;
         if (!this._curTaskData || this._curTaskData.status == TaskStatus.Completed|| this._curTaskData.status == TaskStatus.Expired) {
-            DebugLog.instance.log("当前任务已经完成或不存在");
-            const ad:AlertData= new AlertData();
-            ad.title = "提示";
-            ad.message = "当前任务已经完成或不存在";
-            AlertManager.getInstance().showAlert(ad);
-            ad.cancelButtonVisible = false;
+            this.backToTaskView();
+            // DebugLog.instance.log("当前任务已经完成或不存在");
+            // const ad:AlertData= new AlertData();
+            // ad.title = "提示";
+            // ad.message = "当前任务已经完成或不存在";
+            // AlertManager.getInstance().showAlert(ad);
+            // ad.cancelButtonVisible = false;
             return;
         }
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
