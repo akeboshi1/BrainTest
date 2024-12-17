@@ -461,6 +461,7 @@ export class MainScene extends Component {
 
         let taskDatas = TaskManager.getInstance().taskList;
         this.firstElement= taskDatas[2];
+        if(!this.firstElement)return;
         this.remindView.active =this.firstElement.isAvailable;
         this.switchTaskNodeTopView(this.firstElement.isAvailable);
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = this.firstElement.name;
