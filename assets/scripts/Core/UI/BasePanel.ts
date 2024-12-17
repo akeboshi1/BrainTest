@@ -46,7 +46,7 @@ export class BasePanel extends BaseObejct{
         this.state = PanelState.ONDISABLE;
     }
 
-    protected onDestroy(){
+    onDestroy(){
         this.state = PanelState.DESTROY;
         DebugLog.instance.log(`${this.name} onDestroy`);
     }
