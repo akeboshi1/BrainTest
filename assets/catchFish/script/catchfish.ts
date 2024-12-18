@@ -416,6 +416,7 @@ export class catchfish extends Component {
     private endCurHardGame() {
         if(Global.isSkewersGame){
             this.clearGameView();
+            this.requestGameResult();
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
@@ -423,7 +424,7 @@ export class catchfish extends Component {
             }
             //上报数据
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
-            this.requestGameResult();
+
 
         } else {
             const curGame = GameCenterManager.getInstance().currentGame;
@@ -446,7 +447,7 @@ export class catchfish extends Component {
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
-        let maxCount = SkewersManager.getInstance().getGameCount();
+        let maxCount = trainData.parentSkewersGameData.trains.length;
         let curCount = trainData.seq;
 
         // 游戏内界面提示
@@ -454,7 +455,7 @@ export class catchfish extends Component {
             SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
         }else{
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关捕鱼游戏","收获xxx点脑力值！",0,0,this.alertGoonHandler,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关捕鱼游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.alertGoonHandler,this);
             }else{
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.alertGoonHandler,this.exitCallBack,this);
             }
@@ -470,6 +471,12 @@ export class catchfish extends Component {
             console.log("返回大厅");
             SceneManager.getInstance().backToHall();
         }
+    }
+
+    private nextAlertHandler(context){
+        clearInterval(context.timerId);
+        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
+        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`下一关${gameData.gameName}`,'',0,0,this.alertGoonHandler,null,context);
     }
 
 

@@ -1,4 +1,4 @@
-import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,SpriteFrame,Sprite} from "cc";
+import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,tween,Sprite,Vec3} from "cc";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
@@ -13,7 +13,8 @@ export enum AlertType {
     Sucess_Big,
     Failed,
     Game_Center,
-    Init
+    Init,
+    Next
 }
 
 /**
@@ -65,7 +66,10 @@ export class GameAlert extends Component{
      */
     public context:any = null;
 
+    private _type = null
+
     showView(type:AlertType) {
+        this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         switch (type) {
             case AlertType.Normal:
@@ -76,16 +80,29 @@ export class GameAlert extends Component{
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
                 startBtnUITransform.width = 250;
-
                 break;
-            case AlertType.Sucess_Small:
+            case AlertType.Next:
+                this.titleLabel.node.active = true;
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
+                this.iconConNode.active = true;
+                this.decLabel.node.active = true;
+                this.completeIcon.active = false;
+                this.progressBar.node.active = false;
+                startBtnUITransform.width = 250;
+                break;
+            case AlertType.Sucess_Small:
                 this.titleLabel.node.active = true;
+                tween(this.completeIcon)
+                    .to(0.3,{scale:new Vec3(1,1,1)}, { easing: 'cubicOut' })
+                    .call(()=>{
+                        this.exitBtn.node.active = true;
+                        this.startBtn.node.active = true;
+                    })
+                    .start();
                 this.iconConNode.active = true;
                 this.decLabel.node.active = true;
                 this.progressBar.node.active = false;
-
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
@@ -95,7 +112,6 @@ export class GameAlert extends Component{
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = false;
-
                 startBtnUITransform.width = 500;
                 break;
             case AlertType.Failed:
@@ -162,10 +178,10 @@ export class GameAlert extends Component{
     exitHandler(){
         // SceneManager.getInstance().backToHall();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
+       this.node.removeFromParent();
         if(this.exitCallBack){
             this.exitCallBack(this.context);
         }
-        this.node.removeFromParent();
     }
 
     /**
@@ -173,10 +189,10 @@ export class GameAlert extends Component{
      */
     goHandler(){
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
+        this.node.removeFromParent();
         if(this.goonCallBack){
             this.goonCallBack(this.context);
         }
-        this.node.removeFromParent();
     }
 
     /**

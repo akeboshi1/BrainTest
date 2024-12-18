@@ -72,11 +72,11 @@ export class SkewersManager{
      public init(){
            this._gameDatas = [];
            this._iconUrlMap = new Map();
-           this._iconUrlMap.set(GameType.cognition,"");
+           this._iconUrlMap.set(GameType.Comprehension,"texture/game/icon/caimiIcon");
            this._iconUrlMap.set(GameType.Executionability,"texture/game/icon/puzzleicon");
            this._iconUrlMap.set(GameType.Language,"");
            this._iconUrlMap.set(GameType.Calculator,"texture/game/icon/fishicon");
-           this._iconUrlMap.set(GameType.Judgment,"");
+           this._iconUrlMap.set(GameType.Judgment,"texture/game/icon/findingIcon");
            this._iconUrlMap.set(GameType.Memory,"texture/game/icon/memoryicon");
      }
 
@@ -259,7 +259,6 @@ export class SkewersManager{
         }else{
             SceneManager.getInstance().backToSkewersGameCenter();
         }
-
      }
 
 

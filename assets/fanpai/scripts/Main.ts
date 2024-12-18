@@ -265,7 +265,7 @@ export class Main extends Component {
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
             this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
         }else{
-
+            this.requestGameResult();
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
@@ -273,7 +273,7 @@ export class Main extends Component {
             }
             //上报数据
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
-            this.requestGameResult();
+
         }
     }
 
@@ -281,7 +281,7 @@ export class Main extends Component {
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
-        let maxCount = SkewersManager.getInstance().getGameCount();
+        let maxCount = trainData.parentSkewersGameData.trains.length;
         let curCount = trainData.seq;
 
         // 游戏内界面提示
@@ -289,7 +289,7 @@ export class Main extends Component {
             SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
         }else{
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关翻牌游戏","收获xxx点脑力值！",0,0,this.alertGoonHandler,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关翻牌游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.alertGoonHandler,this);
             }else{
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.alertGoonHandler,this.exitCallBack,this);
             }
@@ -603,6 +603,14 @@ export class Main extends Component {
             SceneManager.getInstance().backToHall();
         }
     }
+
+    private nextAlertHandler(context){
+        clearInterval(context.timerId);
+        clearTimeout(context._setTimeOutId);
+        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
+        SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,`下一关${gameData.gameName}`,'',0,0,context.alertGoonHandler,null,context);
+    }
+
 
 
     private exitCallBack(context){

@@ -10,7 +10,7 @@ export class GuessingGameModel{
     private bundleName:string = "guessingGame";
 
     private config:GuessingGameConfig = null;
-    private currentQuestionIndex = 1;
+    public currentQuestionIndex = 1;
 
     private binit:boolean = false;
 
@@ -92,6 +92,10 @@ export class GuessingGameModel{
 
     stopAudio(){
         AudioManager.getInstance().stop();
+    }
+
+    resumeAudio(){
+        AudioManager.getInstance().resume();
     }
 
     goNextQuestion(){

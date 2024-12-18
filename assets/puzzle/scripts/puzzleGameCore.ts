@@ -277,7 +277,7 @@ export class puzzleGameCore extends Component {
     }
 
     private exitCallBack(context){
-        context.pauseTimer();
+        context.pauseTime();
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{
@@ -523,14 +523,14 @@ export class puzzleGameCore extends Component {
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
-        let maxCount = SkewersManager.getInstance().getGameCount();
+        let maxCount = trainData.parentSkewersGameData.trains.length;
         let curCount = trainData.seq;
         // 游戏内界面提示
         if(maxCount != curCount){
             SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
         }else{
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Small,"太棒了，恭喜你通关拼图游戏","收获xxx点脑力值！",0,0,this.onClickGotoNextlevel,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Small,"太棒了，恭喜你通关拼图游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.onClickGotoNextlevel,this);
             }else{
                 SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.exitCallBack,this.exitCallBack,this);
             }
@@ -547,6 +547,12 @@ export class puzzleGameCore extends Component {
         this.startGameMask.active = true;
         this.bgNode.active = true;
         this.timerComponent.resetTimer();
+    }
+
+    private nextAlertHandler(context){
+        context.pauseTime();
+        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
+        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`下一关${gameData.gameName}`,'',0,0,context.onClickGotoNextlevel,null,context);
     }
 
 

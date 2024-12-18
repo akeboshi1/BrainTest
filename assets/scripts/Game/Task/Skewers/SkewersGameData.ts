@@ -1,14 +1,14 @@
 import {GameState, SkewersGameStatus} from "../../../Core/Data/GameState";
 
 export enum GameType{
-    // 认知
-    cognition="COGNITION",
+    // 理解力
+    Comprehension="COMPREHENSION",
     // 执行力
     Executionability="EXECUTION",
     // 语言
     Language="LANGUAGE",
     // 计算力
-    Calculator="CALCULATOR",
+    Calculator="CALCULATION",
     // 判断力
     Judgment="JUDGMENT",
     // 记忆力
@@ -40,10 +40,32 @@ export class SkewersGameData {
     // 一类串烧游戏状态
     private _status:number;
 
+    // 难度
+    private _difficulty:number;
+
     public refreshData(data:any){
         this.gameID = data['game_id'];
         this.gameCode = data['game_code'];
         this.type = data['cog_ability'];
+        switch(this.type){
+            case GameType.Memory:
+                this.gameName = "翻牌";
+                break;
+            case GameType.Executionability:
+                this.gameName = "拼图";
+                break;
+            case GameType.Language:
+                break;
+           case GameType.Comprehension:
+                this.gameName = "猜谜";
+                break;
+            case GameType.Calculator:
+                this.gameName = "数字捕鱼"
+                break;
+            case GameType.Judgment:
+                this.gameName = "找茬";
+                break;
+        }
         if(this.trains == null){
             this.trains = [];
         }
@@ -52,6 +74,7 @@ export class SkewersGameData {
         for(let i:number = 0; i < len; ++i){
             let tmpData = trains[i];
             let train = new SkewersGameTrainData();
+            train.parentSkewersGameData = this;
             train.refreshData(tmpData);
             this.trains.push(train);
         }
@@ -86,9 +109,15 @@ export class SkewersGameData {
     get difficulty():number{
         let curTrainData = this.getCurTrainData();
         if(!curTrainData){
-            return -1;
+            this._difficulty = -1;
+            return this._difficulty;
         }
-        return curTrainData.difficulty;
+        this._difficulty = curTrainData.difficulty;
+        return this._difficulty;
+    }
+
+    set difficulty(value:number){
+        this._difficulty = value;
     }
 
     get timeLimit():number{
@@ -178,6 +207,9 @@ export class SkewersGameData {
 
 export class SkewersGameTrainData{
     // ============== trains
+
+    // 串烧任务
+    public parentSkewersGameData:SkewersGameData;
 
     // 任务id
     public brain_training_id:number;
