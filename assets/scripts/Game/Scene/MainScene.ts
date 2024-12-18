@@ -408,10 +408,8 @@ export class MainScene extends Component {
                     let complete = taskItem.getChildByName("complete");
                     let arrow = taskItem.getChildByName("arror_right");
                     let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
-                    // let cornor = taskItem
-                    if(task.type == TaskType.Review){
-
-                    }
+                    let cornorNode = taskItem.getChildByName("cornorNode");
+                    cornorNode.active = task.type == TaskType.Review;
                     (label as Label).string = task.name;
                     let startTime = StringUtil.spliceStr(task.startTime + "", " ")[1];
                     let endTime = StringUtil.spliceStr(task.endTime + "", " ")[1];
