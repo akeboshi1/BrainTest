@@ -111,8 +111,8 @@ export class MainScene extends Component {
     @property({ type: [Node] })
     taskList: Node[] = [];
 
-
-
+    @property(Node)
+    virturalLecturerPanel:Node = null;
 
     // ====================== 游戏大厅
     @property(Node)
@@ -234,6 +234,10 @@ export class MainScene extends Component {
         this.brainTrainNode.active = false;
         this.switchTaskNode(true);
         this._curPanel = this.taskNode;
+    }
+
+    onClickVirtualLecturer(){
+        this.virturalLecturerPanel.active = true;
     }
 
     private switchTaskNode(open: boolean = false) {
