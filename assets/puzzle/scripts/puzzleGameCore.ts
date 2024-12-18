@@ -552,7 +552,7 @@ export class puzzleGameCore extends Component {
     private nextAlertHandler(context){
         context.pauseTime();
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`下一关${gameData.gameName}`,'',0,0,context.onClickGotoNextlevel,null,context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`接下来将进入${gameData.gameName}游戏`,'',0,0,context.onClickGotoNextlevel,context.exitCallBack,context);
     }
 
 

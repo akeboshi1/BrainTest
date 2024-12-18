@@ -476,7 +476,7 @@ export class catchfish extends Component {
     private nextAlertHandler(context){
         clearInterval(context.timerId);
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`下一关${gameData.gameName}`,'',0,0,this.alertGoonHandler,null,context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`接下来将进入${gameData.gameName}游戏`,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 
 

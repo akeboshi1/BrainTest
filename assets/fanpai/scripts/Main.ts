@@ -608,7 +608,7 @@ export class Main extends Component {
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,`下一关${gameData.gameName}`,'',0,0,context.alertGoonHandler,null,context);
+        SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,`接下来将进入${gameData.gameName}游戏`,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 
 

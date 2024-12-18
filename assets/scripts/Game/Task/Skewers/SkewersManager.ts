@@ -2,13 +2,13 @@ import {GameType, SkewersGameData, SkewersGameTrainData} from "./SkewersGameData
 import {DebugLog} from "../../../Core/Util/DebugLog";
 import {SceneManager} from "../../../Core/Manager/Scene/SceneManager";
 import {Global} from "../../../Core/Manager/Config/Global";
-import { SkewersGameStatus} from "../../../Core/Data/GameState";
+import {SkewersGameStatus} from "../../../Core/Data/GameState";
 import {SocketManager} from "../../../Core/Manager/Net/SocketManager";
 import {SocketData} from "../../../Core/Manager/Net/SocketData";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {GameAlert, AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
-import {instantiate,Node,Vec3} from "cc";
+import {AlertType, GameAlert} from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import {instantiate, Node} from "cc";
 import {TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
 import {BundlePreloadEvent, BundlePreloadManager} from "db://assets/scripts/Core/Manager/Load/BundlePreloadManager";
@@ -220,7 +220,7 @@ export class SkewersManager{
      */
      public showGameAlert(parentNode:Node,type:AlertType,title="",desc="",curCount:number,maxCount:number,goonCallBack:Function,exitCallBack:Function,context:any){
         let alertNode =  SkewersManager.getInstance()._alertInstance;
-        let gameType = Global.userData.curSkewerGameData.type;
+        let gameType = type == AlertType.Next? SkewersManager.getInstance().getUnCompleteGameData().type: Global.userData.curSkewerGameData.type;
         let iconUrl = this._iconUrlMap.get(gameType);
         if(alertNode == null){
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource)=>{
