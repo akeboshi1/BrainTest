@@ -1,4 +1,4 @@
-import { _decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform } from 'cc';
+import { _decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform,Tween } from 'cc';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
@@ -53,6 +53,9 @@ export class catchfish extends Component {
     @property(Prefab)
     wangPrefab: Prefab;
 
+    @property(Node)
+    private viewNode:Node = null;
+
     // @property(Button)
     // startBtn:Button;
 
@@ -75,41 +78,44 @@ export class catchfish extends Component {
     private hasWangClick: boolean = false;
 
     start() {
-        this.gameBeforeView.active = true;
         this.fishs = []
-    }
-
-    startGame() {
-        this._startTime = TimeUtil.getNow();
         if(Global.isSkewersGame){
             this.gameBeforeView.active = false;
-            this.gameStartView.active = false;
-            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Init, "开始游戏!","",0,0,this.startGameByAlert,null,this);
+            this.startGame();
         }else{
-            this.curHard = this.hards[this.hardIndex];
-            this.gameBeforeView.active = false;
-            this.gameStartView.active = true;
-            this.wangCount = 0;
-            this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
-            this.timeInit();
-            this.timeStart();
-            this.createFish();
+            this.gameBeforeView.active = true;
         }
     }
 
-    startGameByAlert(context){
-        context.curHard = Global.userData.curSkewerGameData.difficulty;
-        context.wangCount = 0;
-        context.catchLabel.getComponent(Label).string = `${context.wangCount}/${context.wangMaxCount}`;
-        context.timeInit();
-        context.timeStart();
-        context.createFish();
+    startGame() {
+        this._clearBoo = false;
+        this._startTime = TimeUtil.getNow();
+        this.gameBeforeView.active = false;
+        this.gameStartView.active = true;
+        this.wangCount = 0;
+        if(Global.isSkewersGame){
+            this.curHard = Global.userData.curSkewerGameData.difficulty;
+        }else{
+            this.curHard = this.hards[this.hardIndex];
+        }
+        this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
+        this.timeInit();
+        this.timeStart();
+        this.createFish();
     }
+
+    // startGameByAlert(context){
+    //     context.curHard = Global.userData.curSkewerGameData.difficulty;
+    //     context.wangCount = 0;
+    //     context.catchLabel.getComponent(Label).string = `${context.wangCount}/${context.wangMaxCount}`;
+    //     context.timeInit();
+    //     context.timeStart();
+    //     context.createFish();
+    // }
 
     private createFish(count: number = 4) {
         if (this.fishParentNode && this.fishPrefab) {
             let len = count;
-
             for (let i = 0; i < len; i++) {
                 let fish = new Fish(this.fishPrefab);
                 fish.positionYIndex = i;
@@ -124,7 +130,9 @@ export class catchfish extends Component {
     private fishYs:number[]=[-300,-100,100,300];
 
     private randomFish(fish: Fish) {
-
+        if(this._clearBoo){
+            return;
+        }
         let x = 800;
         let y = this.fishYs[fish.positionYIndex];
 
@@ -199,8 +207,11 @@ export class catchfish extends Component {
             .by(duration, { position: new Vec3(fish.position.x - 2200, fish.position.y, fish.position.z) },
                 {
                     onUpdate: () => {
-                        if (this.gameSuccessView.active || this.gameFailView.active) {
-                            return;
+                        if(this._clearBoo)return;
+                        if(!Global.isSkewersGame){
+                            if (this.gameSuccessView.active || this.gameFailView.active) {
+                                return;
+                            }
                         }
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
                         const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
@@ -209,9 +220,12 @@ export class catchfish extends Component {
                 }
             )
             .call(() => {
-                if (this.gameSuccessView.active || this.gameFailView.active) {
-                    return;
+                if(!Global.isSkewersGame){
+                    if (this.gameSuccessView.active || this.gameFailView.active) {
+                        return;
+                    }
                 }
+                if(this._clearBoo)return;
                 this.randomFish(fish);
                 this.moveFishes(fish, SHOOT_INTERVAL);
             })
@@ -269,7 +283,15 @@ export class catchfish extends Component {
 
     }
 
+    restoreTimer() {
+        this._clearBoo = false;
+        this.calculateTime();
+        this.timeStart();
+        this.createFish();
+    }
+
     rePlayGame() {
+        this._clearBoo = false;
         this.gameFailView.active = false;
         this.wangCount = 0;
         this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
@@ -318,7 +340,12 @@ export class catchfish extends Component {
         wang.addChild(wangPrefab);
         wangPrefab.setPosition(new Vec3(0, 0, 0));
         wang.setPosition(new Vec3(0,0,0));
-        GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
+        if(Global.isSkewersGame){
+
+        }else{
+            GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
+        }
+
 
         let self = this;// -600.-520.-440.-360
         let offsetX = this._curFish.currentIndex * 10 + 550;
@@ -388,6 +415,7 @@ export class catchfish extends Component {
     }
     private endCurHardGame() {
         if(Global.isSkewersGame){
+            this.clearGameView();
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
@@ -455,10 +483,18 @@ export class catchfish extends Component {
         SkewersManager.getInstance().requestGameComplete(complete,duration);
     }
 
+    private _clearBoo = false;
     private clearGameView() {
+        this._clearBoo = true;
         if (this.timerId != null) {
             clearInterval(this.timerId);
         }
+        if(this._wangTween){
+            this._wangTween.stop();
+            this._wangTween = null;
+        }
+        Tween.stopAll();
+        EventManager.getInstance().off(Fish.FishClick, this);
 
         if (this.fishs) {
             let len = this.fishs.length;
@@ -502,12 +538,28 @@ export class catchfish extends Component {
     private quitGame() {
         // console.log("返回大厅")
         this.clearGameView();
+        if(Global.isSkewersGame){
+            let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+            let maxCount = SkewersManager.getInstance().getGameCount();
+            let curCount = trainData.seq - 1<0?0:trainData.seq -1;
+            SkewersManager.getInstance().quitGame(this.viewNode,curCount,maxCount,this.goonCallBack,this.exitCallBack,this);
+        }else{
+            GameCenterManager.getInstance().quitGame(this.viewNode,this.goonCallBack,this.exitCallBack,this);
+        }
+    }
 
-        SceneManager.getInstance().backToHall();
+    private goonCallBack(context){
+        if(Global.isSkewersGame) {
+            if(!SkewersManager.getInstance().isRunOver()){
+                context.restoreTimer();
+            }
+        }else{
+            context.restoreTimer();
+        }
     }
 
     private exitCallBack(context){
-        clearInterval(context.timerId);
+        context.clearGameView();
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{

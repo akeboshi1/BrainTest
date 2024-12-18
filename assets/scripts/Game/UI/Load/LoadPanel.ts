@@ -14,11 +14,9 @@ export class LoadPanel extends BasePanel{
       @property(Label)
       progressLabel:Label;
 
-      public static NAME = UIManager.LOAD_PANEL;
 
       constructor() {
             super();
-            this.name = LoadPanel.NAME;
       }
 
       onLoad() {

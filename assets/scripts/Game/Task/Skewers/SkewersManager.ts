@@ -232,7 +232,7 @@ export class SkewersManager{
                 alert["setTitle"](title);
                 alert["setDec"](desc);
                 alert['setProgress'](curCount,maxCount);
-                alert['setIcon'](iconUrl);
+                if(iconUrl)alert['setIcon'](iconUrl);
                 alert['bindCallBack'](goonCallBack,exitCallBack,context);
                 // if(Global.userData.curSkewerGameData.type)
             });
@@ -244,7 +244,7 @@ export class SkewersManager{
             alert["showView"](type);
             alert["setTitle"](title);
             alert["setDec"](desc);
-            alert['setIcon'](iconUrl);
+            if(iconUrl)alert['setIcon'](iconUrl);
             alert['setProgress'](curCount,maxCount);
             alert['bindCallBack'](goonCallBack,exitCallBack,context);
         }
@@ -328,7 +328,7 @@ export class SkewersManager{
           }
           const sceneName = this._game.gameCode;
           let url = Global.RES_Root+sceneName;
-
+         Global.userData.curSkewerGameData = this._game;
          EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
          BundlePreloadManager.getInstance().preload(sceneName);
 
@@ -336,9 +336,9 @@ export class SkewersManager{
      }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         SceneManager.getInstance().changeScene(url,sceneName).then((scene)=>{
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
-            Global.userData.curSkewerGameData = this._game;
         });
     }
 
@@ -368,20 +368,24 @@ export class SkewersManager{
              DebugLog.instance.error("当前没有游戏可以运行");
              return;
          }
-         const game = this.getUnCompleteGameData();
-         if(!game){
+        this._game = this.getUnCompleteGameData();
+         if(!this._game){
              this._curIndex = -1;
              DebugLog.instance.error("当前脑力训练已经全部完成！");
              SceneManager.getInstance().backToHall();
              return;
          }
          this._curIndex = index;
-         const sceneName = game.gameCode;
-         let url = Global.RES_Root+sceneName;
-         SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-             DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
-             Global.userData.curSkewerGameData = game;
-         });
+         const sceneName = this._game.gameCode;
+        let url = Global.RES_Root+sceneName;
+        Global.userData.curSkewerGameData = this._game;
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        BundlePreloadManager.getInstance().preload(sceneName);
+
+         // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
+         //     DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
+         //     Global.userData.curSkewerGameData = game;
+         // });
      }
 
     /**
@@ -389,13 +393,18 @@ export class SkewersManager{
      */
     public runNextGame(){
         // 可能换到了下一个类型游戏
-        let curGame = this.getUnCompleteGameData();
-        const sceneName = curGame.gameCode;
+        this._game = this.getUnCompleteGameData();
+        const sceneName = this._game.gameCode;
         let url = Global.RES_Root+sceneName;
-        SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-            DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
-            Global.userData.curSkewerGameData = curGame;
-        });
+
+        Global.userData.curSkewerGameData = this._game;
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        BundlePreloadManager.getInstance().preload(sceneName);
+
+        // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
+        //     DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
+        //     Global.userData.curSkewerGameData = this._game;
+        // });
      }
 
     /**
