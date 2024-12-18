@@ -143,7 +143,7 @@ export class MainScene extends Component {
     private completeColor = "#2DABFF";
     private unCompleteColor = "#FF2D55";
     private expireColor = "#686E72";
-    private processingColor = "";
+    private processingColor = "#FF2D55";
 
     private chatPanel: Node = null;
     private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜'];
@@ -409,7 +409,13 @@ export class MainScene extends Component {
                     let arrow = taskItem.getChildByName("arror_right");
                     let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
                     let cornorNode = taskItem.getChildByName("cornorNode");
-                    cornorNode.active = task.type == TaskType.Review;
+                    cornorNode.active = task.type == TaskType.Review || task.status == TaskStatus.Processing;
+                    let cornorLabel = cornorNode.getChildByName("cornorLabel").getComponent(Label);
+                    if(task.type == TaskType.Review){
+                        cornorLabel.string = "评测";
+                    }else if(task.status == TaskStatus.Processing){
+                        cornorLabel.string = "正在做";
+                    }
                     (label as Label).string = task.name;
                     let startTime = StringUtil.spliceStr(task.startTime + "", " ")[1];
                     let endTime = StringUtil.spliceStr(task.endTime + "", " ")[1];

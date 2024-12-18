@@ -132,6 +132,9 @@ export class TaskManager {
                 context._taskList.push(task);
             }
 
+            context._taskList.sort((a, b) => {
+                return a.type - b.type;
+            })
             EventManager.getInstance().emit(TaskManager.TaskListRequestCallBack);
         }
     }
