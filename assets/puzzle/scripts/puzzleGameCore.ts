@@ -277,7 +277,7 @@ export class puzzleGameCore extends Component {
     }
 
     private exitCallBack(context){
-        context.resumeTime();
+        context.pauseTimer();
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{
@@ -503,14 +503,12 @@ export class puzzleGameCore extends Component {
         DebugLog.instance.log("成功");
         this.timerComponent.pauseTimer();
         if(Global.isSkewersGame){
+            this.requestGameResult(true)
             if(SkewersManager.getInstance().isRunOver()){
                 SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
                 return;
             }
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
-            this.requestGameResult(true)
-
-
         }else{
             // 通小关后发送消息
             let curGame = GameCenterManager.getInstance().currentGame;

@@ -7,6 +7,11 @@ import { GuessingQuestion } from './GuessingGameConfig';
 import { RollingSubtitleComponent } from './RollingSubtitleComponent';
 import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('GuessingGameScene')
@@ -45,12 +50,17 @@ export class GuessingGameScene extends Component {
     @property(Node)
     private failedTextNode: Node = null;
 
+    @property(Node)
+    viewNode:Node = null;
+
     private options: string[] = ['a', 'b', 'c', 'd'];
 
     private guessingGameModel: GuessingGameModel = new GuessingGameModel();
     private bInit: boolean = false;
 
     private currentQuestion:GuessingQuestion = null;
+
+    private _startTime:number = 0;
 
     start() {
         if (!this.bInit) {
@@ -130,10 +140,9 @@ export class GuessingGameScene extends Component {
 
     private onAudioFinish() {
         this.frameComponent.playAnimation("idle", 16, true, true);
-
-        this.timerStartGame.node.active = true;;
+        this._startTime = TimeUtil.getNow();
+        this.timerStartGame.node.active = true;
         this.timerStartGame.startTimer(5);
-
     }
 
     private startAnswer(){
@@ -157,8 +166,65 @@ export class GuessingGameScene extends Component {
 
         const result:boolean = ans && this.currentQuestion.answer == ans;
         this.resultPanel.active = true;
-        this.successTextNode.active = result;
-        this.failedTextNode.active = !result;
+        if(Global.isSkewersGame){
+
+            this.requestGameResult(true)
+            if(SkewersManager.getInstance().isRunOver()){
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
+                return;
+            }
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
+        }else{
+            this.successTextNode.active = result;
+            this.failedTextNode.active = !result;
+        }
+    }
+
+    private requestSkewersGameComplete(data){
+        let trainid = data;
+        let trainData = SkewersManager.getInstance().getTrainData(trainid);
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
+        let maxCount = SkewersManager.getInstance().getGameCount();
+        let curCount = trainData.seq;
+        // 游戏内界面提示
+        if(maxCount != curCount){
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
+        }else{
+            if (!SkewersManager.getInstance().isRunOver()) {
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Small,"太棒了，恭喜你通关猜谜游戏","收获xxx点脑力值！",0,0,this.onClickGotoNextlevel,this.exitCallBack,this);
+            }else{
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.exitCallBack,this.exitCallBack,this);
+            }
+        }
+    }
+
+    private requestGameResult(win:boolean = true){
+        // 上报数据
+        let endTime = TimeUtil.getNow();
+        let complete= Number(win);
+        if(this._startTime==0){
+            this._startTime = endTime;
+        }
+        let duration= (endTime - this._startTime)/1000;
+        SkewersManager.getInstance().requestGameComplete(complete,duration);
+    }
+
+    private exitCallBack(context){
+        context.pauseTime();
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().exitCallBack();
+        }else{
+            GameCenterManager.getInstance().exitCallBack();
+        }
+    }
+
+    onClickGotoNextlevel(){
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().runNextGame();
+            return;
+        }
+        // 下一关
+       this.onClickContinueGame();
     }
 
     onClickReplay(){
@@ -169,10 +235,12 @@ export class GuessingGameScene extends Component {
         this.processAnswer(p);
     }
 
+    /**
+     * 进入下一局游戏
+     */
     onClickContinueGame(){
         this.resetPanel();
         this.guessingGameModel.goNextQuestion();
-
         this.resultPanel.active = false;
     }
 
@@ -181,11 +249,21 @@ export class GuessingGameScene extends Component {
         SceneManager.getInstance().backToHall();
     }
 
+    resumeTime(){
+        this.timerRT.resumeTimer();
+        this.timerStartGame.resumeTimer();
+    }
+
+    pauseTime(){
+        this.timerRT.pauseTimer();
+        this.timerStartGame.pauseTimer();
+    }
+
+
     resetPanel() {
         this.guessingGameModel.stopAudio();
 
-        this.timerRT.resetTimer();
-        this.timerStartGame.resetTimer();
+        this.resumeTime();
         this.timerRT.node.active = false;
         this.timerStartGame.node.active = false;
 
