@@ -17,6 +17,7 @@
     import { TaskAndNotificationPanelCtrl } from './TaskAndNotificationPanelCtrl';
     import { BundlePreloadEvent, BundlePreloadManager } from '../../Core/Manager/Load/BundlePreloadManager';
     import { InfoListPopCtrl } from './InfoListPopCtrl';
+import { FrameComponent } from '../../Core/Component/FrameComponent';
     const { ccclass, property } = _decorator;
 
 export enum MainSceneView {
@@ -62,6 +63,9 @@ export class MainScene extends Component {
 
     @property(Node)
     remindView: Node = null; 
+
+    @property(FrameComponent)
+    frame: FrameComponent = null;
 
 
 
@@ -184,6 +188,7 @@ export class MainScene extends Component {
     }
 
         start() {
+            this.frame.playAnimation("idle", 24, true, true);
             EventManager.getInstance().on(TaskManager.PushEvetCallBack, this.pushEvetCallBack, this);
             TaskManager.getInstance().pushTask();
             if (this.taskList.length != 0) {
