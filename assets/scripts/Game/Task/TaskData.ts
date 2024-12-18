@@ -1,4 +1,5 @@
 export enum TaskType {
+    Review=0,
     Brains = 1,
     Remind,
     Interavtive

@@ -1,24 +1,25 @@
-    import { _decorator, Component, instantiate, Node, Prefab, Label, Sprite, ProgressBar, Button, ScrollView,UITransform } from 'cc';
-    import { DebugLog } from "../../../scripts/Core/Util/DebugLog";
-    import { TaskManager } from "../../Game/Task/TaskManager";
-    import { EventManager } from "../../Core/Manager/Event/EventManager";
-    import { TaskData, TaskStatus } from "../../Game/Task/TaskData";
-    import { StringUtil } from "../../Core/Util/StringUtil";
-    import { ColorUtil } from "../../Core/Util/ColorUtil";
-    import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
-    import { TimeUtil } from "../../Core/Util/TimeUtil";
-    import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-    import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
-    import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
-    import { SkewersManager } from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
-    import { GameType, SkewersGameData } from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
-    import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
-    import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
-    import { TaskAndNotificationPanelCtrl } from './TaskAndNotificationPanelCtrl';
-    import { BundlePreloadEvent, BundlePreloadManager } from '../../Core/Manager/Load/BundlePreloadManager';
-    import { InfoListPopCtrl } from './InfoListPopCtrl';
-import { FrameComponent } from '../../Core/Component/FrameComponent';
-    const { ccclass, property } = _decorator;
+import {_decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, ScrollView, Sprite} from 'cc';
+import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
+import {TaskManager} from "../../Game/Task/TaskManager";
+import {EventManager} from "../../Core/Manager/Event/EventManager";
+import {TaskData, TaskStatus, TaskType} from "../../Game/Task/TaskData";
+import {StringUtil} from "../../Core/Util/StringUtil";
+import {ColorUtil} from "../../Core/Util/ColorUtil";
+import {ChatPanelCtrl} from '../UI/ChatPanel/ChatPanelCtrl';
+import {TimeUtil} from "../../Core/Util/TimeUtil";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import {GameType, SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import AlertManager, {AlertData} from '../../Core/Manager/Alert/AlertManager';
+import {LocalStorageUtil} from '../../Core/Util/LocalStorageUtil';
+import {TaskAndNotificationPanelCtrl} from './TaskAndNotificationPanelCtrl';
+import {BundlePreloadEvent, BundlePreloadManager} from '../../Core/Manager/Load/BundlePreloadManager';
+import {InfoListPopCtrl} from './InfoListPopCtrl';
+import {FrameComponent} from '../../Core/Component/FrameComponent';
+
+const { ccclass, property } = _decorator;
 
 export enum MainSceneView {
     TaskNode,
@@ -142,6 +143,7 @@ export class MainScene extends Component {
     private completeColor = "#2DABFF";
     private unCompleteColor = "#FF2D55";
     private expireColor = "#686E72";
+    private processingColor = "";
 
     private chatPanel: Node = null;
     private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜'];
@@ -406,6 +408,10 @@ export class MainScene extends Component {
                     let complete = taskItem.getChildByName("complete");
                     let arrow = taskItem.getChildByName("arror_right");
                     let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
+                    // let cornor = taskItem
+                    if(task.type == TaskType.Review){
+
+                    }
                     (label as Label).string = task.name;
                     let startTime = StringUtil.spliceStr(task.startTime + "", " ")[1];
                     let endTime = StringUtil.spliceStr(task.endTime + "", " ")[1];
@@ -424,7 +430,11 @@ export class MainScene extends Component {
                     } else {
                         if (task.status == TaskStatus.Expired) {
                             (btnBG as Sprite).color = ColorUtil.hexToColor(context.expireColor);
-                        } else {
+                        }
+                        else if(task.status == TaskStatus.Processing){
+                            (btnBG as Sprite).color = ColorUtil.hexToColor(context.processingColor);
+                        }
+                        else {
                             (btnBG as Sprite).color = ColorUtil.hexToColor(context.unCompleteColor);
                         }
                         complete.active = false;
@@ -541,8 +551,8 @@ export class MainScene extends Component {
                     case GameType.Language:
                         label.string = "语言";
                         break;
-                    case GameType.cognition:
-                        label.string = "认知";
+                    case GameType.Comprehension:
+                        label.string = "理解力";
                         break;
                 }
                 let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);

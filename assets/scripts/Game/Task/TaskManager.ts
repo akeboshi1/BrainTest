@@ -1,13 +1,13 @@
-import { SkewersManager } from "./Skewers/SkewersManager";
-import { RemindManager } from "./Remind/RemindManager";
-import { InteractiveManager } from "./Interactive/InteractiveManager";
-import { EventManager } from "../../Core/Manager/Event/EventManager";
-import { SocketData } from "../../Core/Manager/Net/SocketData";
-import { TimeUtil } from "../../Core/Util/TimeUtil";
-import { SocketManager } from "../../Core/Manager/Net/SocketManager";
-import { TaskData, TaskStatus, TaskType, NotificationData } from "../../Game/Task/TaskData";
-import { DebugLog } from "../../Core/Util/DebugLog";
-import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import {SkewersManager} from "./Skewers/SkewersManager";
+import {RemindManager} from "./Remind/RemindManager";
+import {InteractiveManager} from "./Interactive/InteractiveManager";
+import {EventManager} from "../../Core/Manager/Event/EventManager";
+import {SocketData} from "../../Core/Manager/Net/SocketData";
+import {TimeUtil} from "../../Core/Util/TimeUtil";
+import {SocketManager} from "../../Core/Manager/Net/SocketManager";
+import {NotificationData, TaskData, TaskStatus, TaskType} from "../../Game/Task/TaskData";
+import {DebugLog} from "../../Core/Util/DebugLog";
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
 
 /**
@@ -222,6 +222,7 @@ export class TaskManager {
             switch (type) {
                 case TaskType.Remind:
                     break;
+                case TaskType.Review:
                 case TaskType.Brains:
                     SkewersManager.getInstance().start();
                     break;
