@@ -1055,7 +1055,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 500,
-      "height": 763
+      "height": 1628.2
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1093,10 +1093,10 @@
     "_string": "您有一个新任务，请在脑力保健中打开您有一个新任务，您有一个新任务，请在脑力保健中打开您有一个新任务，您有一个新任务，请在脑力保健中打开您有一个新任务，您有一个新任务，请在脑力保健中打开您有一个新任务，您有一个新任务，请在脑力保健中打开您有一个新任务，您有一个新任务，请在脑力保健中打开您有一个新任务，您有一个新任务，请在脑力保健中打开您有一个新任务，您有一个新任务，请在脑力保健中打开您有一个新任务，务，请在脑力保健中打开您有一个新任务，您有一个新任",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 50,
+    "_lineHeight": 70,
     "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
@@ -1164,7 +1164,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 500,
-      "height": 763
+      "height": 1628.2
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
