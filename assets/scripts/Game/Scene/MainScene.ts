@@ -599,6 +599,12 @@ export class MainScene extends Component {
     }
 
     startTaskClick() {
+        let taskList = TaskManager.getInstance().taskList;
+        taskList.forEach(task => {
+            if(task&&task.id == this.showTaskId){
+                this._curTaskData = task;
+            }
+        });
         TaskManager.getInstance().requestStartTask(this._curTaskData.id);
     }
 
