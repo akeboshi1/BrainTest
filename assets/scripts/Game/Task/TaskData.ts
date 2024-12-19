@@ -39,7 +39,7 @@ export class TaskData {
         this.id = data["id"];
         this.name = data["task_name"];
         this.type = data["task_type"];
-        this.isAvailable=data["is_available"],
+        this.isAvailable=data["is_available"];
         this.startTime = data["available_start_time"];
         this.endTime = data["available_end_time"];
         this.status = data["status"];

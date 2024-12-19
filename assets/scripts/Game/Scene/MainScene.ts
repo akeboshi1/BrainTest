@@ -456,10 +456,12 @@ export class MainScene extends Component {
         }
     }
        
-        remindClick(){
-            EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
-            TaskManager.getInstance().requestStartTask(this.showTaskId);
-        } 
+    remindClick(){
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
+        SkewersManager.getInstance().requestBranisTraining_list(this.showTaskId);
+        // EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
+        // TaskManager.getInstance().requestStartTask(this.showTaskId,true);
+    }
     private showTaskId;
     taskRemind(){
         let taskDatas = TaskManager.getInstance().taskList;
@@ -473,7 +475,8 @@ export class MainScene extends Component {
         this.titleLabel.node.active = false;
         let count = TaskManager.getInstance().getSkewersGameCount();
         this.taskDesLabel.string = `今日待完成事项${count}`;
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{},this);
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{
+        },this);
         SkewersManager.getInstance().requestBranisTraining_list(obj.id);
     }
     findFirstAvailableName(taskDatas) {
