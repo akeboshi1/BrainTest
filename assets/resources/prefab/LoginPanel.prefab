@@ -801,10 +801,7 @@
     "_fillRange": 0,
     "_isTrimmedMode": true,
     "_useGrayscale": false,
-    "_atlas": {
-      "__uuid__": "011e88f5-3709-4dd7-b505-3e5fddbccd39",
-      "__expectedType__": "cc.SpriteAtlas"
-    },
+    "_atlas": null,
     "_id": ""
   },
   {
@@ -936,7 +933,7 @@
       "__id__": 29
     },
     "spriteAtlas": {
-      "__uuid__": "011e88f5-3709-4dd7-b505-3e5fddbccd39",
+      "__uuid__": "d05ef73f-dae9-4042-a81b-1bd22d82653e",
       "__expectedType__": "cc.SpriteAtlas"
     },
     "_id": ""
@@ -1221,10 +1218,7 @@
     "propertyPath": [
       "_atlas"
     ],
-    "value": {
-      "__uuid__": "011e88f5-3709-4dd7-b505-3e5fddbccd39",
-      "__expectedType__": "cc.SpriteAtlas"
-    }
+    "value": null
   },
   {
     "__type__": "cc.TargetInfo",
@@ -1251,7 +1245,7 @@
       "spriteAtlas"
     ],
     "value": {
-      "__uuid__": "011e88f5-3709-4dd7-b505-3e5fddbccd39",
+      "__uuid__": "d05ef73f-dae9-4042-a81b-1bd22d82653e",
       "__expectedType__": "cc.SpriteAtlas"
     }
   },
@@ -1722,7 +1716,7 @@
       "__id__": 86
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 88
@@ -2299,7 +2293,7 @@
       "__id__": 86
     },
     "checkEvents": [],
-    "_isChecked": true,
+    "_isChecked": false,
     "_checkMark": {
       "__id__": 90
     },
@@ -2525,7 +2519,7 @@
       "__id__": 71
     },
     "toggle": {
-      "__id__": 86
+      "__id__": 110
     },
     "roleContainer": {
       "__id__": 14
