@@ -159,6 +159,23 @@ export class SkewersManager{
          return curgameData.trains.length;
      }
 
+    /**
+     * 获取全部没有完成得游戏数量
+     */
+    public getUnCompleteGameCount():number{
+         let len = this._gameDatas.length;
+         let count = 0;
+         for(let i:number = 0;i<len; i++){
+             let gameData = this._gameDatas[i];
+             if(gameData != null){
+                 if(gameData.status != TaskStatus.Completed&&gameData.status != TaskStatus.Expired){
+                     count++;
+                 }
+             }
+         }
+         return count;
+     }
+
      public getCurGameIndex():number{
          let curgameData = this.getUnCompleteGameData();
          if(curgameData == null) return 0 ;

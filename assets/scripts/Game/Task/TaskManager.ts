@@ -140,6 +140,21 @@ export class TaskManager {
     }
 
 
+    public getSkewersGameCount():number{
+        let len = this._taskList.length;
+        let count = 0;
+        for(let i=0; i<len; i++){
+            let taskData = this._taskList[i];
+            if(taskData != null){
+                if(taskData.type == TaskType.Brains && taskData.status != TaskStatus.Completed && taskData.status != TaskStatus.Expired){
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+
     /**
      * 获取当天未完成的任务
      */
