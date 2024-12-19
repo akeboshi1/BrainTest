@@ -134,6 +134,13 @@ export class MainScene extends Component {
     @property(ScrollView)
     scrollViewNode: ScrollView = null;
 
+    @property(Node)
+    userCenterNode: Node = null;
+
+    @property(Node)
+    reportUINode: Node = null;
+
+
     /**
      * 当前页面
      * @private
@@ -372,7 +379,13 @@ export class MainScene extends Component {
         }
 
     showUserCenter() {
-
+        this.taskNode.active = false;
+        this.userCenterNode.active = true;
+    }
+    reportNode() {
+        DebugLog.instance.log("reportNode");
+        this.userCenterNode.active = false;
+        this.reportUINode.active = true;
     }
 
     showMore() {
@@ -640,6 +653,14 @@ export class MainScene extends Component {
         })
     }
 
+    backToCenteter() {
+        SceneManager.getInstance().backToHall();
+    }
+
+    backToReport() {
+        this.reportUINode.active = false;
+        this.userCenterNode.active = true;
+    }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
