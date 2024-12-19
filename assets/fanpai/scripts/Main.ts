@@ -9,8 +9,6 @@ import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterM
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
-import {GuessingGameEvent} from "db://assets/guessingGame/script/GuessingGameModel";
-
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -128,12 +126,10 @@ export class Main extends Component {
 
     private onAudioStart(){
         DebugLog.instance.log("Audio Started!!!");
-        EventManager.getInstance().emit(GuessingGameEvent.AUDIO_STARTED,{});
     }
 
     private onAudioFinished(){
         DebugLog.instance.log("Audio Finished!!!");
-        EventManager.getInstance().emit(GuessingGameEvent.AUDIO_FINISHED,{});
     }
 
     private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
