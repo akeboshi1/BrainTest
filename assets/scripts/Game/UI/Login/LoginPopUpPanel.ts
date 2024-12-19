@@ -121,6 +121,7 @@ export class LoginPopUpPanel extends BasePanel {
     agreeClick() {
         this.phoneNumber = Global.userData.phoneNumber;
         this.PhoneDescTxt.node.active = true;
+        this.PhoneDescTxt.string = "登录中。。。";
         this.enterTxt.node.active = false;
         EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this);
         LoginManager.getInstance().request(this.login_send_mp_code, { "mp_no": this.phoneNumber });
@@ -202,7 +203,7 @@ export class LoginPopUpPanel extends BasePanel {
         // 根据是否是新用户来调整ui显示逻辑
         let isNew = data.data["is_new"];
         if(isNew){
-            // 主动弹出验证码界面
+            // 主动弹出邀请码界面
             LoginManager.getInstance().showVerifryView();
         }else{
             SceneManager.getInstance().backToHall();
@@ -281,6 +282,7 @@ export class LoginPopUpPanel extends BasePanel {
         if(len == 4){
             this.editBox.node.active = false;
             this.labelNode.active = true;
+            this.requestEnter();
         }
     }
 
