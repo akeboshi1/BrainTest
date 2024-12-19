@@ -252,7 +252,7 @@ export class MainScene extends Component {
             this.dayLabel.string = TimeUtil.getCurrentDate();
             this.titleLabel.string = TimeUtil.getCurrentDate();
             let count = TaskManager.getInstance().getSkewersGameCount();
-            this.taskDesLabel.string = `今日待完成事项${count}`;
+            this.taskDesLabel.string = `今日待完成事项:${count}`;
             this.timeLabel.node.active = true;
             this.dayLabel.node.active = true;
         } else {
@@ -474,7 +474,7 @@ export class MainScene extends Component {
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string =obj.name;
         this.titleLabel.node.active = false;
         let count = TaskManager.getInstance().getSkewersGameCount();
-        this.taskDesLabel.string = `今日待完成事项${count}`;
+        this.taskDesLabel.string = `今日待完成事项:${count}`;
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{
         },this);
         SkewersManager.getInstance().requestBranisTraining_list(obj.id);
