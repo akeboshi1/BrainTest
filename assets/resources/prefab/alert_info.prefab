@@ -1487,7 +1487,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "我吃了",
+    "_string": "去完成",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
@@ -1857,7 +1857,7 @@
       "b": 247,
       "a": 255
     },
-    "_string": "一会吃",
+    "_string": "再等等",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,

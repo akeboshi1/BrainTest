@@ -40,17 +40,24 @@ export class SceneManager extends BaseManager {
         return new Promise((resolve, reject) => {
             let sceneBundle = assetManager.getBundle(sceneName);
             if (!sceneBundle) {
+   // 获取LoaderManager实例
                 LoaderManager.getInstance().assetBundleLoad(url, sceneName).then((bundle: AssetManager.Bundle) => {
+                    // 加载场景
                     bundle.loadScene(sceneName, (err, scene) => {
+                        // 加载场景
                         director.loadScene(sceneName, (err, scene) => {
+                            // 如果加载失败，打印错误信息
                             if (err) {
                                 DebugLog.instance.error(err);
                                 return;
                             }
                             // 切换场景时，由于上一个场景得node被销毁，所以一些通用界面需要重新被注册，后续改进
                             UIManager.getInstance().destroy();
+                            // 添加加载资源
                             UIManager.getInstance().addLoadRes().then(()=>{
+                                // 打印场景切换成功信息
                                 DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                                // 返回场景
                                 resolve(scene);
                             });
                         });
