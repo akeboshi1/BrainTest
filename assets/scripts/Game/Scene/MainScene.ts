@@ -460,19 +460,18 @@ export class MainScene extends Component {
             TaskManager.getInstance().requestStartTask(this.showTaskId);
         } 
     private showTaskId;
-    private _boo = true;
     taskRemind(){
         let taskDatas = TaskManager.getInstance().taskList;
-        // if(!taskDatas.length){ return; }
-        // DebugLog.instance.log('8888888888888888888',taskDatas);
-        let {name,id} = this.findFirstAvailableName(taskDatas);
-        this.showTaskId = id;
-        if(!name){ return; }
+        let obj = this.findFirstAvailableName(taskDatas);
+        if(!obj){
+            return;
+        }
+        this.showTaskId = obj.id;
         this.remindView.active =true;
-        this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = name;
+        this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string =obj.name;
         this.titleLabel.node.active = false;
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{},this);
-        SkewersManager.getInstance().requestBranisTraining_list(id);
+        SkewersManager.getInstance().requestBranisTraining_list(obj.id);
     }
     findFirstAvailableName(taskDatas) {
         for (const item of taskDatas) {
