@@ -1,4 +1,4 @@
-import {_decorator,js, Button, Component, Label, Node, Sprite, SpriteFrame, Texture2D} from 'cc';
+import {_decorator,assetManager, Button, Component, Label, Node, Sprite, SpriteFrame, Texture2D,tween,Vec3,AudioClip} from 'cc';
 import {LoaderManager} from "../../scripts/Core/Manager/Load/LoaderManager";
 import {Global} from "../../scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
@@ -8,6 +8,8 @@ import {TimeUtil} from "../../scripts/Core/Util/TimeUtil";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import {GuessingGameEvent} from "db://assets/guessingGame/script/GuessingGameModel";
 
 const { ccclass, property } = _decorator;
 
@@ -82,6 +84,8 @@ export class Main extends Component {
     private bundleName: string = 'fanpai';
 
 
+    private audioUrls=["music/fanpai","music/win"];
+    private audioMap:Map<string,AudioClip> = new Map();
     start() {
         // test
         // GameCenterManager.getInstance().startGame(1, this.startGame);
@@ -89,8 +93,60 @@ export class Main extends Component {
             this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
             this.timer = Global.userData.curSkewerGameData.timeLimit;
         }
-        this.sceneInit()
+
+        AudioManager.getInstance().onAudioStart(this.onAudioStart,this);
+        AudioManager.getInstance().onAudioEnd(this.onAudioFinished,this);
+
+
+        this.loadAudio();
+        this.sceneInit();
     }
+
+    private async loadAudio() {
+        const bundle = assetManager.getBundle(this.bundleName);
+        if(!bundle){
+            DebugLog.instance.error("bundle is not exist! ---- bundle name:"+ this.bundleName);
+            return;
+        }
+        let self = this;
+       let len = this.audioUrls.length;
+       for(let i:number = 0;i<len;i++){
+           let audioUrl = this.audioUrls[i];
+           const audioRes:AudioClip = await new Promise<AudioClip>((resolve,reject)=>{
+               bundle.load(audioUrl,AudioClip,(err,data:AudioClip)=>{
+                   if(err){
+                       DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
+                       reject(err);
+                   }else{
+                       resolve(data);
+                   }
+               })
+           });
+           this.audioMap.set(audioUrl,audioRes);
+       }
+    }
+
+    private onAudioStart(){
+        DebugLog.instance.log("Audio Started!!!");
+        EventManager.getInstance().emit(GuessingGameEvent.AUDIO_STARTED,{});
+    }
+
+    private onAudioFinished(){
+        DebugLog.instance.log("Audio Finished!!!");
+        EventManager.getInstance().emit(GuessingGameEvent.AUDIO_FINISHED,{});
+    }
+
+    private playAudio(url:string,isShot:boolean = false){
+        let audioRes = this.audioMap.get(url);
+        if(audioRes != null){
+            if(isShot){
+                AudioManager.getInstance().playOneShot(audioRes);
+            }else{
+                AudioManager.getInstance().play(audioRes);
+            }
+        }
+    }
+
     sceneInit() {
 
 
@@ -113,11 +169,12 @@ export class Main extends Component {
     }
     clickCardHandler(event, data) {
         // if (!this.isAbleClick) { return; }
+        // 播放音效
+        this.playAudio("music/fanpai",true);
         const index = Number(data);
         let self = this;
         let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
         if (isBackedCards.length === 2) {
-
             // 复原翻过来但未被消除的卡片
             isBackedCards.forEach(card => {
                 const cardNode = this.cardPool.children[0].children[card.index];
@@ -156,24 +213,16 @@ export class Main extends Component {
 
         LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
             LoaderManager.getInstance().loadABRes(this.cardList[index].imgUrl, self.bundleName).then((res) => {
-                const spriteFrame = new SpriteFrame();
                 const texture = new Texture2D();
                 texture.image = res;
+                const spriteFrame = new SpriteFrame();
                 spriteFrame.texture = texture;
                 sprite.spriteFrame = spriteFrame;
+
+
             })
         });
-        // resources.load(this.cardList[index].imgUrl, (err, image: ImageAsset) => {
-        //     if (err) {
-        //         console.log(err);
-        //         return;
-        //     }
-        //     const spriteFrame = new SpriteFrame();
-        //     const texture = new Texture2D();
-        //     texture.image = image;
-        //     spriteFrame.texture = texture;
-        //     sprite.spriteFrame = spriteFrame;
-        // });
+
         this.cardList[index].isBacked = true;
 
         isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
@@ -182,12 +231,6 @@ export class Main extends Component {
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
             if(!Global.isSkewersGame){
-                // SocketManager.getInstance().send(new SocketData({
-                //     action: GameCenterManager.GAMEMATCHITEM,
-                //     data: {
-                //         session_id: GameCenterManager.getInstance().currentGame.sessionid,
-                //     }
-                // }));
                 GameCenterManager.getInstance().gameMatch( GameCenterManager.getInstance().currentGame.sessionid,()=>{})
             }
 
@@ -198,6 +241,26 @@ export class Main extends Component {
         }
 
         DebugLog.instance.log(index, this.currentCard);
+    }
+
+    private flipCard(sprite:Sprite,texture:Texture2D){
+        let flipDuration = 1;
+        // 定义翻牌动画
+
+        let scaleAction1 = tween().to(flipDuration / 2, { scale: new Vec3(0, 1,1) });
+        let scaleAction2 = tween().to(flipDuration / 2, { scale: new Vec3(1, 1,1) });
+
+        sprite.node.scale = new Vec3(0,sprite.node.scale.y);
+        tween(sprite)
+            .then(scaleAction1)
+            .call(() => {
+                // 在翻转到一半时，更新卡片内容
+                const spriteFrame = new SpriteFrame();
+                spriteFrame.texture = texture;
+                sprite.spriteFrame = spriteFrame;
+            })
+            .then(scaleAction2)
+            .start();
     }
     updateSuccessPopupTitle(num) {
         if (num == 1) {
@@ -243,6 +306,9 @@ export class Main extends Component {
         this.isAbleClick = false;
         this._endTime = TimeUtil.getNow();
         clearInterval(this.timerId);
+
+        this.playAudio("music/win");
+
         // 非串烧游戏
         if (!Global.isSkewersGame) {
             this.successView.active = true;
@@ -289,7 +355,7 @@ export class Main extends Component {
             SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
         }else{
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关翻牌游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.alertGoonHandler,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关翻牌游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.alertGoonHandler,this.exitCallBack,this);
             }

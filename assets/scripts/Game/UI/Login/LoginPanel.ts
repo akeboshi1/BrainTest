@@ -1,9 +1,11 @@
-import { _decorator, Sprite, Node,VideoPlayer,find } from 'cc';
+import { _decorator, Toggle, Node,VideoPlayer,find } from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {EventManager} from "../../../Core/Manager/Event/EventManager";
 import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {FrameComponent} from "db://assets/scripts/Core/Component/FrameComponent";
+import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -15,8 +17,8 @@ export class LoginPanel extends BasePanel {
     @property(Node)
     loginBtn:Node;
 
-    @property(Node)
-    toggle:Node;
+    @property(Toggle)
+    toggle:Toggle;
 
     @property(Node)
     roleContainer:Node;
@@ -92,6 +94,15 @@ export class LoginPanel extends BasePanel {
     }
 
     public loginClick(){
+        if(!this.toggle.isChecked){
+            let ad:AlertData = new AlertData();
+            ad.title = "提示";
+            ad.message = "请确认同意协议";
+            AlertManager.getInstance().showAlert(ad);
+            ad.cancelButtonVisible = false;
+            ad.confirmCb = this.confirmHandler.bind(this);
+            return;
+        }
        // this.video.node.active = false;
         EventManager.getInstance().on(UIManager.BACK_TO_PARENT,this.backClick,this);
         LoginManager.getInstance().showPhoneLoginPanel(this.node);
@@ -107,6 +118,10 @@ export class LoginPanel extends BasePanel {
         EventManager.getInstance().off(LoginPanel.NAME,this);
     }
 
+    private confirmHandler() {
+        //todo
+        DebugLog.instance.log("请点击确认协议");
+    }
 
 
 }

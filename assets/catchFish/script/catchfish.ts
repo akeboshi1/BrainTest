@@ -455,7 +455,7 @@ export class catchfish extends Component {
             SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
         }else{
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关捕鱼游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.alertGoonHandler,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关捕鱼游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.alertGoonHandler,this.exitCallBack,this);
             }

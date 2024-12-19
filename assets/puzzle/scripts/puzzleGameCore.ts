@@ -530,7 +530,7 @@ export class puzzleGameCore extends Component {
             SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
         }else{
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Small,"太棒了，恭喜你通关拼图游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.onClickGotoNextlevel,this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Small,"太棒了，恭喜你通关拼图游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
                 SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.exitCallBack,this.exitCallBack,this);
             }
