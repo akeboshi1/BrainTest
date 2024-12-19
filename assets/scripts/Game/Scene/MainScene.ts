@@ -457,21 +457,31 @@ export class MainScene extends Component {
        
         remindClick(){
             EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
-            TaskManager.getInstance().requestStartTask(this.firstElement.id);
+            TaskManager.getInstance().requestStartTask(this.showTaskId);
         } 
-    private firstElement;
+    private showTaskId;
     private _boo = true;
     taskRemind(){
         let taskDatas = TaskManager.getInstance().taskList;
-        DebugLog.instance.log('8888888888888888888',taskDatas);
-        if(!taskDatas.length){ return; }
-        this.firstElement= taskDatas[0];
-        this.remindView.active =this.firstElement.isAvailable;
-        this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = this.firstElement.name;
+        // if(!taskDatas.length){ return; }
+        // DebugLog.instance.log('8888888888888888888',taskDatas);
+        let {name,id} = this.findFirstAvailableName(taskDatas);
+        this.showTaskId = id;
+        if(!name){ return; }
+        this.remindView.active =true;
+        this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = name;
         this.titleLabel.node.active = false;
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{},this);
-        SkewersManager.getInstance().requestBranisTraining_list(this.firstElement.id);
+        SkewersManager.getInstance().requestBranisTraining_list(id);
     }
+    findFirstAvailableName(taskDatas) {
+        for (const item of taskDatas) {
+          if (item.isAvailable) {
+            return {name:item.name,id:item.id};
+          }
+        }
+        return null; // 如果没有找到符合条件的对象，则返回null
+      }
     goBrainTraining() {
       
     }
