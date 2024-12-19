@@ -83,10 +83,11 @@ export class AudioManager extends BaseManager {
      * @param sound clip or url for the sound
      * @param volume 
      */
-    play(sound: AudioClip | string, volume: number = 1.0) {
+    play(sound: AudioClip | string,loop:boolean = false, volume: number = 1.0) {
         if (sound instanceof AudioClip) {
             this._audioSource.stop();
             this._audioSource.clip = sound;
+            this._audioSource.loop = loop;
             this._audioSource.play();
             this.audioSource.volume = volume;
         }
@@ -98,6 +99,7 @@ export class AudioManager extends BaseManager {
                 else {
                     this._audioSource.stop();
                     this._audioSource.clip = clip;
+                    this._audioSource.loop = loop;
                     this._audioSource.play();
                     this.audioSource.volume = volume;
                 }

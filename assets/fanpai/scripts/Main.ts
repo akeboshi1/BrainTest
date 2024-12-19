@@ -84,7 +84,7 @@ export class Main extends Component {
     private bundleName: string = 'fanpai';
 
 
-    private audioUrls=["music/fanpai","music/win"];
+    private audioUrls=["music/fanpai","music/win",'music/bgMusic'];
     private audioMap:Map<string,AudioClip> = new Map();
     start() {
         // test
@@ -136,13 +136,13 @@ export class Main extends Component {
         EventManager.getInstance().emit(GuessingGameEvent.AUDIO_FINISHED,{});
     }
 
-    private playAudio(url:string,isShot:boolean = false){
+    private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
         let audioRes = this.audioMap.get(url);
         if(audioRes != null){
             if(isShot){
                 AudioManager.getInstance().playOneShot(audioRes);
             }else{
-                AudioManager.getInstance().play(audioRes);
+                AudioManager.getInstance().play(audioRes,isLoop);
             }
         }
     }
@@ -436,6 +436,8 @@ export class Main extends Component {
 
 
         this.previewCard(2);
+
+        this.playAudio("music/bgMusic");
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
@@ -680,6 +682,7 @@ export class Main extends Component {
 
 
     private exitCallBack(context){
+        AudioManager.getInstance().stop();
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
         if(Global.isSkewersGame){
@@ -690,6 +693,7 @@ export class Main extends Component {
     }
 
     private autoExitCallBack(context){
+        AudioManager.getInstance().stop();
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
         //上报数据
