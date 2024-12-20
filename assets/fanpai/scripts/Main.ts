@@ -663,8 +663,7 @@ export class Main extends Component {
             context.node.active = false;
             SkewersManager.getInstance().runNextGame();
         }else{
-            console.log("返回大厅");
-            SceneManager.getInstance().backToHall();
+            SkewersManager.getInstance().exitCallBack();
         }
     }
 
