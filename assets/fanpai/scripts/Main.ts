@@ -325,7 +325,7 @@ export class Main extends Component {
             }
             const curGame = GameCenterManager.getInstance().currentGame;
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
-            this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+            this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex]);
         }else{
             this.requestGameResult();
             // 串烧游戏逻辑
