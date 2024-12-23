@@ -112,6 +112,7 @@ export class TaskManager {
     }
 
     private requestTaskListCallback(data: SocketData, context: any) {
+        context._taskList=[];
         EventManager.getInstance().off(context.task_get_tasks, context);
         let status = data.status;
         if (status == 0) {

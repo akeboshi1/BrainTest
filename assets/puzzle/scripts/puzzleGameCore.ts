@@ -539,7 +539,11 @@ export class puzzleGameCore extends Component {
 
     onClickGotoNextlevel(){
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().runNextGame();
+            if (!SkewersManager.getInstance().isRunOver()) {
+                SkewersManager.getInstance().runNextGame();
+            }else{
+                SkewersManager.getInstance().exitCallBack();
+            }
             return;
         }
         // 下一关
