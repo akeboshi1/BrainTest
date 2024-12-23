@@ -135,7 +135,7 @@ export class MainScene extends Component {
     scrollViewNode: ScrollView = null;
 
     @property(Node)
-    userCenterNode: Node = null;
+    personalInfoNode: Node = null;
 
     @property(Node)
     reportUINode: Node = null;
@@ -379,12 +379,11 @@ export class MainScene extends Component {
         }
 
     showUserCenter() {
-        this.taskNode.active = false;
-        this.userCenterNode.active = true;
+        this.personalInfoNode.active = true;
     }
     reportNode() {
         DebugLog.instance.log("reportNode");
-        this.userCenterNode.active = false;
+        this.personalInfoNode.getChildByName('PersonalCenter').active = false;
         this.reportUINode.active = true;
     }
 
@@ -668,7 +667,7 @@ export class MainScene extends Component {
 
     backToReport() {
         this.reportUINode.active = false;
-        this.userCenterNode.active = true;
+        this.personalInfoNode.getChildByName('PersonalCenter').active = true;
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
