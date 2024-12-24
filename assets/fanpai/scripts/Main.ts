@@ -325,7 +325,7 @@ export class Main extends Component {
             }
             const curGame = GameCenterManager.getInstance().currentGame;
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
-            this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex]);
+            1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex]);
         }else{
             this.requestGameResult();
             // 串烧游戏逻辑
@@ -555,7 +555,7 @@ export class Main extends Component {
     timerId: any;
     timer: number;
 
-    INIT_TIME = 90;
+    INIT_TIME = 30;
 
     timerInit() {
         this.timer = this.INIT_TIME;
@@ -567,12 +567,16 @@ export class Main extends Component {
             if (this.timer <= 0) {
                 clearInterval(this.timerId);
                 this.isAbleClick = false
+                let { complete, duration}=this.requestGameResult();
                 // 倒计时结束，游戏结束
                 if (Global.isSkewersGame) {
                     //上报数据
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.failRequestSkewersGameComplete,this);
-                    this.requestGameResult();
+                    SkewersManager.getInstance().requestGameComplete(complete,duration);
                 } else {
+                    const curGame = GameCenterManager.getInstance().currentGame;
+                    GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
+                    complete, duration, this.INIT_TIME, this.hards[this.hardIndex]);
                     this.failView.active = true;
                     this.failViewProgressLabel.node.active = false;
                     this.failRetryButton.node.active = true;
@@ -628,7 +632,11 @@ export class Main extends Component {
         const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
         let complete =isDeletedCardCount/this.cardTotalCount;
         let duration= (this._endTime - this._startTime)/1000;
-        SkewersManager.getInstance().requestGameComplete(complete,duration);
+        return {
+            complete,
+            duration
+        }
+      
     }
 
     private quitGame() {

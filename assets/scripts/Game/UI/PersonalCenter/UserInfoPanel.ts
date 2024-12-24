@@ -10,5 +10,9 @@ export class UserInfoPanel extends Component {
     update(deltaTime: number) {
         
     }
+    backToParent() {
+        this.node.active =false;
+    }
 }
-
+
+
