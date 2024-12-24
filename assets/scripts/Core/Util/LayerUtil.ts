@@ -1,4 +1,4 @@
-import { Canvas, Component, director, find, instantiate, Node } from "cc";
+import { director, Node, UITransform } from "cc";
 import { DebugLog } from "./DebugLog";
 
 
@@ -25,6 +25,9 @@ export class LayerUtil {
             layer = new Node('LayerUtil_PanelLayer');
             canvas.addChild(layer);
             layer.setSiblingIndex(LayerUtil.panelLayerSortOrder);
+            layer.addComponent(UITransform);
+            let size = canvas.getComponent(UITransform).contentSize;
+            layer.getComponent(UITransform).setContentSize(size);
         }
 
         return layer;    
@@ -48,6 +51,9 @@ export class LayerUtil {
             layer = new Node('LayerUtil_AlertLayer');
             canvas.addChild(layer);
             layer.setSiblingIndex(LayerUtil.alertLayerSortOrder);
+            layer.addComponent(UITransform);
+            let size = canvas.getComponent(UITransform).contentSize;
+            layer.getComponent(UITransform).setContentSize(size);
         }
 
         return layer;   
@@ -71,6 +77,9 @@ export class LayerUtil {
             layer = new Node('LayerUtil_LoaderLayer');
             canvas.addChild(layer);
             layer.setSiblingIndex(LayerUtil.loaderLayerSortOrder);
+            layer.addComponent(UITransform);
+            let size = canvas.getComponent(UITransform).contentSize;
+            layer.getComponent(UITransform).setContentSize(size);
         }
 
         return layer;  
