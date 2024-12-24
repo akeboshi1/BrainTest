@@ -53,13 +53,25 @@ export class BasePanel extends BaseObejct{
 
 
     // 显示面板
-    showPanel(parentNode?:Node) {
-        UIManager.getInstance().showView(this.name,parentNode);
+    async showPanel() {
+        await new Promise<null>((resolve,reject)=>{
+            setTimeout(() => {
+                resolve(null);
+            }, 500);
+        });
+    }
+
+    restore(data:any){
+        
     }
 
     // 隐藏面板
-    hidePanel() {
-       UIManager.getInstance().hideView(this.name)
+    async hidePanel() {
+        await new Promise<null>((resolve,reject)=>{
+            setTimeout(() => {
+                resolve(null);
+            }, 1);
+        });
     }
 
 }

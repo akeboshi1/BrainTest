@@ -12,7 +12,9 @@ import { LocalStorageKeyEnum, LocalStorageUtil } from "../../Util/LocalStorageUt
 import { EventManager } from "../Event/EventManager";
 import { SceneManager } from "../Scene/SceneManager";
 import AlertManager, { AlertData } from "../Alert/AlertManager";
-import {VerifyPanel} from "db://assets/scripts/Game/UI/Login/VerifyPanel";
+import { VerifyPanel } from "db://assets/scripts/Game/UI/Login/VerifyPanel";
+import { BundleName } from "../Load/BundleName";
+import { DebugLog } from "../../Util/DebugLog";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -24,20 +26,26 @@ export class LoginManager {
         return LoginManager._instance;
     }
 
-    /**
-     * token登录
-     * @private
-     */
     private login_login_by_token: string = "login.login_by_token";
+    private login_send_mp_code: string = "login.send_mp_code";
+    private login_login_by_mp: string = "login.login_by_mp";
+    private user_set_invite_code: string = "user.set_invite_code";
 
-    public static user_set_invite_code:string = "user.set_invite_code";
-
-    init() {
-
+    private _phoneNum:string = "";
+    get phoneNum():string{
+        return this._phoneNum;
+    }
+    set phoneNum(v:string){
+        this._phoneNum = v;
     }
 
+    init() {
+        UIManager.getInstance().registerPanel(LoginPanel.NAME, BundleName.RESOURCES, "prefab/LoginPanel", LoginPanel);
+        UIManager.getInstance().registerPanel(PhoneLoginPanel.NAME, BundleName.RESOURCES, "prefab/PhoneLoginPanel", PhoneLoginPanel);
+        UIManager.getInstance().registerPanel(LoginPopUpPanel.NAME, BundleName.RESOURCES, "prefab/LoginPopUpPanel", LoginPopUpPanel);
+        UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
+    }
 
-    // ================ 请求token
     private tokenExpirationVerification(): boolean {
         const cur = TimeUtil.getNow();
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
@@ -48,18 +56,11 @@ export class LoginManager {
         return false;
     }
 
-    private requestTokenVerification() {
-        const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
-        EventManager.getInstance().on(this.login_login_by_token, this.onTokenVerificationCompleted, this);
-        this.request(this.login_login_by_token, { token: token });
-    }
-
     private onTokenVerificationCompleted(data, context) {
-        EventManager.getInstance().off(this.login_login_by_token, this);
         if (data.status == 0) {
-            const alertData:AlertData = new AlertData;
+            const alertData: AlertData = new AlertData;
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            alertData.confirmCb = function(){
+            alertData.confirmCb = function () {
                 this.showLoginPanel();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
@@ -77,95 +78,106 @@ export class LoginManager {
         SceneManager.getInstance().backToHall();
     }
 
-    // ===================== 设置邀请码
-    public setInviteCode(code:string){
-        EventManager.getInstance().on(LoginManager.user_set_invite_code,this.setInviteCodeCallBack,this);
-        this.request(LoginManager.user_set_invite_code,{invite_code:code});
-
-
-    }
-
-    private setInviteCodeCallBack(data:any){
-        EventManager.getInstance().off(LoginManager.user_set_invite_code,this);
+    private setInviteCodeCallBack(data: any) {
         if (data.status == 0) {
-            const alertData:AlertData = new AlertData;
+            const alertData: AlertData = new AlertData;
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            alertData.confirmCb = function(){
+            alertData.confirmCb = function () {
                 this.showVerifryView();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
 
-            const verifyPanel:VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
-            if(verifyPanel)verifyPanel.start();
+            //const verifyPanel: VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
+           // if (verifyPanel) verifyPanel.start();
             return;
         }
+
         Global.userData.inviteCode = data.data['invite_code'];
-        const verifyPanel:VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
-        if(verifyPanel)verifyPanel.stopTween();
+        //const verifyPanel: VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
+        //if (verifyPanel) verifyPanel.stopTween();
     }
 
+    private requestSendMpCodeHandler(data:any){
+        DebugLog.instance.log(data);
+        if (data['status'] == 0) {
+            DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
+            const alertData: AlertData = new AlertData;
+            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
+            AlertManager.getInstance().showAlert(alertData);
+            return;
+        }
+        this._phoneNum = data['data']['mp_no'];
+        Global.userData.phoneNumber = this._phoneNum;
+    }
+
+    private requestLoginByMpHandler(data:any){
+        DebugLog.instance.log(data);
+        if (data['status'] == 0) {
+            DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
+            const alertData: AlertData = new AlertData;
+            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
+            AlertManager.getInstance().showAlert(alertData);
+            return;
+        }
+
+        if (data['data']['mp_no'] != this.phoneNum) {
+            DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
+            const alertData: AlertData = new AlertData;
+            alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;
+            AlertManager.getInstance().showAlert(alertData);
+            return;
+        }
+
+        Global.userData.token = data.data['token'];
+        DebugLog.instance.log(`${data} ====`);
+        Global.userData.tokenExpires = data.data['expires'];
+
+
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
+        const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
+
+
+        // 根据是否是新用户来调整ui显示逻辑
+        let isNew = data.data["is_new"];
+        if (isNew) {
+            // 主动弹出邀请码界面
+            UIManager.getInstance().showPanel(VerifyPanel.NAME);
+        } else {
+            SceneManager.getInstance().backToHall();
+        }
+    }
+
+    public requestTokenVerification() {
+        const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+        EventManager.getInstance().on(this.login_login_by_token, this.onTokenVerificationCompleted, this, true);
+        this.request(this.login_login_by_token, { token: token });
+    }
+
+    // ===================== 设置邀请码
+    public setInviteCode(code: string) {
+        EventManager.getInstance().on(this.user_set_invite_code, this.setInviteCodeCallBack, this, true);
+        this.request(this.user_set_invite_code, { invite_code: code });
+    }
+
+    public requestSendMpCode(phoneNum:string){
+        EventManager.getInstance().on(this.login_send_mp_code, this.requestSendMpCodeHandler, this, true);
+        this._phoneNum = phoneNum;
+        this.request(this.login_send_mp_code, { "mp_no": phoneNum});
+    }    
+
+    public requestLoginByMp(mpCode:string){
+        EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginByMpHandler, this, true);
+        this.request(this.login_login_by_mp, { "mp_no": this.phoneNum, "code": mpCode });
+    }
 
     start() {
         if (this.tokenExpirationVerification()) {
-            this.showLoginPanel();
+            UIManager.getInstance().showPanel(LoginPanel.NAME);
         } else {
             this.requestTokenVerification();
         }
     }
-
-
-    showLoginPanel() {
-        LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/LoginPanel").then((resource) => {
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(LoginPanel.NAME, node);
-
-            UIManager.getInstance().showView(LoginPanel.NAME);
-            node.setPosition(0, 0, 0);
-        });
-    }
-
-    showPhoneLoginPanel(parentNode: Node) {
-        LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + `prefab/PhoneLoginPanel`).then((resource) => {
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(PhoneLoginPanel.NAME, node);
-            UIManager.getInstance().showView(PhoneLoginPanel.NAME, parentNode);
-            node.setPosition(0, 0, 0);
-        });
-    }
-
-    showXieyi(parentNode: Node) {
-        LoaderManager.getInstance().resourcesLoad(Global.RES_Root + "prefab/LoginPopUpPanel").then((resource) => {
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(LoginPopUpPanel.NAME, node);
-            const parendNode = parentNode.parent;
-            UIManager.getInstance().showView(LoginPopUpPanel.NAME, parendNode);
-            UIManager.getInstance().hideView(PhoneLoginPanel.NAME);
-            const logingpopupPanel: LoginPopUpPanel = UIManager.getInstance().getView(LoginPopUpPanel.NAME) as LoginPopUpPanel;
-            if (logingpopupPanel) logingpopupPanel.switchView();
-
-        });
-    }
-
-    showPhoneView(parentNode: Node) {
-        LoaderManager.getInstance().resourcesLoad(Global.RES_Root + "prefab/LoginPopUpPanel").then((resource) => {
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(LoginPopUpPanel.NAME, node);
-            const parendNode = parentNode.parent;
-            UIManager.getInstance().showView(LoginPopUpPanel.NAME, parendNode);
-            // UIManager.getInstance().hideView(PhoneLoginPanel.NAME);
-            const logingpopupPanel = UIManager.getInstance().getView(LoginPopUpPanel.NAME) as LoginPopUpPanel;
-            if (logingpopupPanel) logingpopupPanel.agreeClick();
-        });
-    }
-
-    showVerifryView() {
-        LoaderManager.getInstance().resourcesLoad(Global.RES_Root + "prefab/UserCenter/VerifyPanel").then((resource) => {
-            const node = instantiate(resource);
-            UIManager.getInstance().registerView(VerifyPanel.NAME, node);
-            UIManager.getInstance().showView(VerifyPanel.NAME);
-        });
-    }
-
 
     request(action: string, data: any) {
         const socketData = new SocketData({ "action": action, "data": data })
@@ -179,5 +191,4 @@ export enum LoginErrorCode {
     USER_NOT_FOUND = "用户不存在",
     INVALID_TOKEN = "无效的token, 或token过期",
     INVALID_INVITE_CODE = "无效邀请码",
-
 }

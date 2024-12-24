@@ -1,85 +1,79 @@
-import { _decorator, Button, EditBox,Node,Sprite } from 'cc';
-import {BasePanel} from "../../../Core/UI/BasePanel";
-import {EventManager} from "../../..//Core/Manager/Event/EventManager";
-import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
-import {Global} from "../../../Core/Manager/Config/Global";
-import {UIManager} from "../../../Core/Manager/UI/UIManager";
-import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
+import { _decorator, Button, EditBox, Node, Sprite } from 'cc';
+import { BasePanel } from "../../../Core/UI/BasePanel";
+import { EventManager } from "../../..//Core/Manager/Event/EventManager";
+import { LoginManager } from "../../../Core/Manager/LoginManager/LoginManager";
+import { Global } from "../../../Core/Manager/Config/Global";
+import { UIManager } from "../../../Core/Manager/UI/UIManager";
+import { ColorUtil } from "db://assets/scripts/Core/Util/ColorUtil";
+import { LoginPopUpPanel } from './LoginPopUpPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('PhoneLoginPanel')
-export class PhoneLoginPanel extends BasePanel{
+export class PhoneLoginPanel extends BasePanel {
     @property(Button)
-    enterBtn:Button;
+    enterBtn: Button;
 
     @property(Button)
-    backBtn:Button;
+    backBtn: Button;
 
     @property(EditBox)
-     phoneNumberEdit:EditBox;
+    phoneNumberEdit: EditBox;
 
     @property(Node)
-    phoneNumberEditBG:Node;
+    phoneNumberEditBG: Node;
 
-     constructor() {
-         super();
-         PhoneLoginPanel.NAME = "PhoneLoginPanel";
-         this.name = PhoneLoginPanel.NAME;
-     }
+    public static NAME: string = "PhoneLoginPanel";
 
-     onLoad() {
-         const eventName = PhoneLoginPanel.NAME;
-         EventManager.getInstance().on(eventName,this.loadPanelComplete,this);
-         EventManager.getInstance().emit(eventName,eventName);
-     }
+    constructor() {
+        super();
+        this.name = PhoneLoginPanel.NAME;
+    }
 
-     start() {
-         if(this.phoneNumberEdit.node){
-             this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END,this.checkBoxHandler,this);
-         }
-     }
+    onLoad() {
+    }
 
-     onDisable() {
-         if(this.phoneNumberEdit.node)this.phoneNumberEdit.node.off(Node.EventType.TOUCH_END,this.checkBoxHandler);
-     }
+    start() {
+        if (this.phoneNumberEdit.node) {
+            this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END, this.checkBoxHandler, this);
+        }
+    }
 
-    private checkBoxHandler(evt:Event) {
-         this.phoneNumberEdit.setFocus();
-     }
+    onDisable() {
+        if (this.phoneNumberEdit.node) this.phoneNumberEdit.node.off(Node.EventType.TOUCH_END, this.checkBoxHandler);
+    }
 
-
-    private loadPanelComplete(){
-        EventManager.getInstance().off(PhoneLoginPanel.NAME,this);
+    private checkBoxHandler(evt: Event) {
+        this.phoneNumberEdit.setFocus();
     }
 
     /**
      * 返回上一级界面
      */
-    public backClick(){
+    public backClick() {
         EventManager.getInstance().emit(UIManager.BACK_TO_PARENT);
-        this.node.removeFromParent();
+        UIManager.getInstance().hidePanel(PhoneLoginPanel.NAME);
     }
 
     /**
      * 登录操作
      */
-    public enterClick(){
-        Global.userData.phoneNumber = this.phoneNumberEdit.string;
-        LoginManager.getInstance().showPhoneView(this.node);
+    public enterClick() {
+        LoginManager.getInstance().phoneNum = this.phoneNumberEdit.string;
+        UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
     }
 
     /**
      * editbox change
      */
-    public textChange(){
+    public textChange() {
         let sprite = this.phoneNumberEditBG.getComponent(Sprite);
         let btnSprite = this.enterBtn.node.getComponent(Sprite);
-        if(this.phoneNumberEdit.string.length>0){
-            sprite.color = ColorUtil.getCCColor(10,89,247);
-            btnSprite.color = ColorUtil.getCCColor(10,89,247);
-        }else{
-            sprite.color = ColorUtil.getCCColor(255,255,255);
-            btnSprite.color = ColorUtil.getCCColor(255,255,255);
+        if (this.phoneNumberEdit.string.length > 0) {
+            sprite.color = ColorUtil.getCCColor(10, 89, 247);
+            btnSprite.color = ColorUtil.getCCColor(10, 89, 247);
+        } else {
+            sprite.color = ColorUtil.getCCColor(255, 255, 255);
+            btnSprite.color = ColorUtil.getCCColor(255, 255, 255);
         }
     }
 

@@ -1,6 +1,7 @@
 import { AudioClip, JsonAsset, Prefab, Scene, SpriteFrame, Texture2D } from "cc";
 import { ConfigManager } from "../Core/Manager/Config/ConfigManager";
 import { DebugLog } from "../Core/Util/DebugLog";
+import { BundleName } from "../Core/Manager/Load/BundleName";
 
 export class BundlePreloadConfig {
     private configData: any = {};
@@ -26,12 +27,12 @@ export class BundlePreloadConfig {
     }
 
     // 获取指定游戏模块的预加载场景名称的方法
-    getPreloadScene(gameModule: string): string | undefined {
+    getPreloadScene(gameModule: BundleName): string | undefined {
         return this.configData[gameModule]?.preloadScene;
     }
 
     // 获取指定游戏模块的预加载资源列表的方法
-    getPreloadAssets(gameModule: string): any[] {
+    getPreloadAssets(gameModule: BundleName): any[] {
         return this.configData[gameModule]?.preloadAssets || [];
     }
 

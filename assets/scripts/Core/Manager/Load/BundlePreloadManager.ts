@@ -2,11 +2,12 @@ import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { BundlePreloadConfig } from "../../../Config/BundlePreloadConfig";
 import { EventManager } from "../Event/EventManager";
-import { assetManager, AssetManager, resources, Scene, Texture2D } from "cc";
+import { assetManager, AssetManager } from "cc";
 import { LoaderManager } from "./LoaderManager";
 import { Global } from "../Config/Global";
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {LoadPanel} from "db://assets/scripts/Game/UI/Load/LoadPanel";
+import { BundleName } from "./BundleName";
+import { UIManager } from "../UI/UIManager";
+import { LoadPanel } from "../../../Game/UI/Load/LoadPanel";
 
 // BundlePreloadManager类用于管理资源包的预加载和释放操作，通过配置文件获取预加载信息，并触发相应事件通知外部相关进度和状态
 export class BundlePreloadManager extends BaseManager {
@@ -24,18 +25,20 @@ export class BundlePreloadManager extends BaseManager {
         return this._instance;
     }
 
-    private loadedBundle: string[] = [];
+    private loadedBundle: BundleName[] = [];
 
     // 初始化方法，加载资源包预加载的配置文件，如果尚未加载则进行加载操作，并标记为已初始化
     init() {
         if (!this.bInit) {
             this.config.loadConfig();
             this.bInit = true;
+
+            UIManager.getInstance().registerPanel(LoadPanel.NAME,BundleName.RESOURCES,'prefab/LoadPanel',LoadPanel);
         }
     }
 
     // 预加载指定资源包的方法，根据配置文件中的信息，加载对应资源包下的场景和其他资源，并触发相应的事件通知外部加载进度等情况
-    async preload(bundleName: string) {
+    async preload(bundleName: BundleName) {
         if (!this.bInit) {
             DebugLog.instance.error("BundlePreloadManager尚未初始化，请先调用init方法");
             return;
@@ -43,15 +46,13 @@ export class BundlePreloadManager extends BaseManager {
 
         let isBundleConfigExist: boolean = this.config.getGameModuleNames().indexOf(bundleName) >= 0;
 
-        let preloadScene = bundleName;
+        let preloadScene = bundleName.valueOf();
         let preloadAssets = [];
 
         if (isBundleConfigExist) {
             preloadScene = this.config.getPreloadScene(bundleName);
             preloadAssets = this.config.getPreloadAssets(bundleName);
         }
-
-
 
         // 触发预加载开始事件，通知外部预加载操作即将开始
         EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
@@ -70,11 +71,7 @@ export class BundlePreloadManager extends BaseManager {
         let loadedAssets = 0;
         let totalAssets = 0;
 
-        UIManager.getInstance().showLoadingPanel();
-        let loadPanel:LoadPanel = UIManager.getInstance().getView(UIManager.LOAD_PANEL) as LoadPanel;
-        loadPanel.titleLabel.node.active = true;
-        loadPanel.setTitle("正在进入场景");
-        loadPanel.setProgress('开始加载');
+        UIManager.getInstance().showPanel(LoadPanel.NAME);
 
         // 预加载场景
         try {
@@ -86,7 +83,6 @@ export class BundlePreloadManager extends BaseManager {
                     const progress = Math.round(loadedAssets / totalAssets * 100);
                     // 触发预加载进度事件，通知外部当前的加载进度
                     DebugLog.instance.log(`加载场景中 ${progress}`);
-                    loadPanel.setProgress(`加载场景中 ${progress}%`);
                     EventManager.getInstance().emit(BundlePreloadEvent.PROGRESS, { bundleName, progress });
                 }, (err: Error | null) => {
                     if (err) {
@@ -124,7 +120,6 @@ export class BundlePreloadManager extends BaseManager {
                     const progress = Math.round(loadedAssets / totalAssets * 100);
                     // 触发预加载进度事件，通知外部当前的加载进度
                     DebugLog.instance.log(`加载资源中 ${progress}`);
-                    loadPanel.setProgress(`加载资源中 ${progress}%`);
                     EventManager.getInstance().emit(BundlePreloadEvent.PROGRESS, { bundleName, progress });
                 } catch (err) {
                     DebugLog.instance.error(`加载资源 ${assetPath} 出错: ${err}`);
@@ -135,8 +130,6 @@ export class BundlePreloadManager extends BaseManager {
         }
 
         DebugLog.instance.log(`全部加载完成！`);
-        loadPanel.setProgress(`全部加载完成！`);
-        UIManager.getInstance().hideView(LoadPanel.NAME);
         if (this.loadedBundle.indexOf(bundleName) < 0) {
             this.loadedBundle.push(bundleName);
         }
@@ -145,7 +138,7 @@ export class BundlePreloadManager extends BaseManager {
     }
 
     // 释放指定资源包及其相关资源的方法，释放资源包中的所有资源，并从相关缓存等机制中移除对应的资源记录
-    public release(bundleName: string) {
+    public release(bundleName: BundleName) {
         if (!this.bInit) {
             DebugLog.instance.error("BundlePreloadManager尚未初始化，请先调用init方法");
             return;
@@ -160,6 +153,10 @@ export class BundlePreloadManager extends BaseManager {
                 this.loadedBundle.splice(this.loadedBundle.indexOf(bundleName), 1);
             }
         }
+    }
+
+    public isBundleLoaded(bundleName:BundleName){
+        return assetManager.getBundle(bundleName) != null;
     }
 }
 

@@ -18,6 +18,7 @@ import {TaskAndNotificationPanelCtrl} from './TaskAndNotificationPanelCtrl';
 import {BundlePreloadEvent, BundlePreloadManager} from '../../Core/Manager/Load/BundlePreloadManager';
 import {InfoListPopCtrl} from './InfoListPopCtrl';
 import {FrameComponent} from '../../Core/Component/FrameComponent';
+import { BundleName } from '../../Core/Manager/Load/BundleName';
 
 const { ccclass, property } = _decorator;
 
@@ -658,7 +659,7 @@ export class MainScene extends Component {
             let url = Global.RES_Root + sceneName;
 
             EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
-            BundlePreloadManager.getInstance().preload(sceneName);
+            BundlePreloadManager.getInstance().preload(sceneName as BundleName);
         })
     }
 

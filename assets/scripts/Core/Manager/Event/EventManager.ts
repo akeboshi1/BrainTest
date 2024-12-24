@@ -10,19 +10,19 @@ export class EventManager extends BaseManager{
         }
         return EventManager._instance;
     }
-    private events;
+    private events:Map<string,{callback,context,isOnce:boolean}[]> = null;
 
     constructor() {
         super();
     }
 
     init() {
-        if(!this.events) this.events = {};
+        if(!this.events) this.events = new Map();
     }
 
 
     // 添加监听
-    on(eventName, callback, context) {
+    on(eventName, callback, context, isOnce:boolean = false) {
         this.init();
         if(!this.events[eventName]) {
             this.events[eventName] = [];
@@ -30,7 +30,8 @@ export class EventManager extends BaseManager{
         const boundCallback = callback.bind(context);
         this.events[eventName].push({
             callback: boundCallback,
-            context
+            context,
+            isOnce
         });
     }
 
@@ -46,11 +47,19 @@ export class EventManager extends BaseManager{
 
     // 触发事件
     emit(eventName, data=null) {
-      
+        let onceEvent:{eventName,context}[] = [];
         if(this.events[eventName]) {
             this.events[eventName].forEach(item => {
                 item.callback(data,item.context);
+                if(item.isOnce){
+                    onceEvent.push({eventName,context:item.context});
+                }
             });
+        }
+
+        for (const key in onceEvent) {
+            const element = onceEvent[key];
+            this.off(element.eventName,element.context);
         }
     }
 
@@ -59,7 +68,7 @@ export class EventManager extends BaseManager{
     }
 
     destory(){
-        this.events = {};
+        this.events.clear();
     }
 
 }

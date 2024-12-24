@@ -1,167 +1,186 @@
-import {BaseManager} from "../BaseManager";
-import {BasePanel, PanelState} from "../../UI/BasePanel";
-import {EventManager} from "../Event/EventManager";
+import { BaseManager } from "../BaseManager";
+import { BasePanel } from "../../UI/BasePanel";
 import { DebugLog } from "../../Util/DebugLog";
-import {LoaderManager} from "../Load/LoaderManager";
-import {PoolManager} from "../Pool/PoolManager";
-import {SceneManager} from "../Scene/SceneManager";
-import {Node,instantiate} from "cc";
+import { SceneManager } from "../Scene/SceneManager";
+import { Constructor, Node, Prefab, assetManager, instantiate, resources } from "cc";
+import { BundleName } from "../Load/BundleName";
+import { BundlePreloadManager } from "../Load/BundlePreloadManager";
+import { LayerUtil } from "../../Util/LayerUtil";
+import { EventManager } from "../Event/EventManager";
 
+export interface PanelInfo {
+    bundleName: BundleName;
+    prefabUrl: string;
+    comp: Constructor<BasePanel>;
+    compPath: string;
+    exclusive: boolean; //是否排斥其他Panel，如果为true，其他panel打开时会关闭当前panel
+}
 
 export class UIManager extends BaseManager {
     private static _instance: UIManager;
     public static getInstance(): UIManager {
-        if(!UIManager._instance){
+        if (!UIManager._instance) {
             UIManager._instance = new UIManager();
         }
         return UIManager._instance;
     }
 
-    public static LOAD_PANEL= "LoadPanel";
+    public static LOAD_PANEL = "LoadPanel";
+    public static BACK_TO_PARENT: string = "BACK_TO_PARENT";
 
+    public static SCREEN_LOCKER_PREFAB_PATH: string = "prefab/Common/ScreenLocker";
+    private panelRegisterConfig: Map<string, PanelInfo> = new Map();
+    private activePanelMap: Map<string, { rootNode: Node, comp: BasePanel }> = new Map();
+    private panelHistory: [] = [];
+    private screenLockerNode:Node = null;
 
-    public static BACK_TO_PARENT:string = "BACK_TO_PARENT";
-
-    private preActionMaps:{[key:string]:[BasePanel,PanelState]};
-
-    init(){
-        this.maps= {};
-        this.preActionMaps = {};
+    init() {
+        this.maps = {};
+        EventManager.getInstance().on(SceneManager.SCENE_CHANGED,this.onSceneChanged,this);
     }
 
-    async perloadRes():Promise<void>{
-        return new Promise((resolve, reject)=>{
-            this.addLoadRes().then(()=>{
-                resolve();
-                DebugLog.instance.log("preloadRes");
-            }).catch((error)=>{
-                    reject(error);
+    registerPanel(name: string, bundleName: BundleName, prefabUrl: string, comp: Constructor<BasePanel>, exclusive: boolean = true, compPath: string = "") {
+        let panelInfo = { bundleName, prefabUrl, comp, compPath, exclusive };
+        this.panelRegisterConfig.set(name, panelInfo);
+    }
+
+    async showPanel(name: string, rdata:any = null, needPreload: boolean = false, parentNode: Node | null = null): Promise<boolean> {
+        let panelInfo = this.panelRegisterConfig.get(name);
+        if (!panelInfo) {
+            DebugLog.instance.error('Panel did not register into UIManager === name : ' + name);
+            return false;
+        }
+
+        let isBundleLoaded = BundlePreloadManager.getInstance().isBundleLoaded(panelInfo.bundleName);
+        if (!isBundleLoaded) {
+            DebugLog.instance.error('Bundle is not Loaded === bundleName : ' + panelInfo.bundleName);
+            return false;
+        }
+
+        let bundle = resources;
+        if (panelInfo.bundleName != BundleName.RESOURCES) {
+            bundle = assetManager.getBundle(panelInfo.bundleName);
+        }
+
+        await this.openScreenLocker();
+        
+        if (needPreload) {
+            await new Promise((resolve, reject) => {
+                bundle.preload(panelInfo.prefabUrl, Prefab, null, (err: Error, data) => {
+                    if (err) {
+                        DebugLog.instance.error('Prefab preload error , url:' + panelInfo.prefabUrl);
+                        reject(err);
+                    } else {
+                        resolve(data);
+                    }
                 });
-        });
-
-    }
-
-
-
-    registerView(name:string,view:Node){
-        if(this.has(name)){
-            DebugLog.instance.error(`${name}已经存在`);
-            return;
-        }
-        this.set(name, view);
-    }
-
-    showView(name:string,parentNode?:any){
-        if(!this.checkPanel(name)){
-            return;
-        }
-        if(name != UIManager.LOAD_PANEL){
-            UIManager.getInstance().hideView(UIManager.LOAD_PANEL);
-        }
-        const view:Node = this.get(name)as Node;
-        if(!view){
-            DebugLog.instance.error(`${name} not exists`);
-            return;
-        }
-        if(parentNode){
-            parentNode.addChild(view);
-        }else{
-            const canvas = SceneManager.getInstance().getCurrentScene().getChildByName("Canvas");
-            canvas.addChild(view);
+            });
         }
 
-        // if(view.state == PanelState.INIT){
-        //     EventManager.getInstance().on(name,this.loadPanelComplete,this);
-        //     this.preActionMaps[name]=[view,PanelState.SHOW];
-        //     return;
-        // }
-        // if(view.state == PanelState.LOADED || view.state == PanelState.HIDE){
-        //     view.showPanel();
-        // }
-    }
-
-
-
-    hideView(name:string){
-        if(!this.checkPanel(name)){
-            return;
-        }
-        const view:any = this.get(name);
-        if(!view){
-           DebugLog.instance.error(`${name} not exists`);
-           return;
-        }
-        view.removeFromParent(false);
-    }
-
-    getView(name:string):BasePanel{
-        if(!this.checkPanel(name)){
-            return null;
-        }
-        const view:any = this.get(name);
-        if(!view){
-            DebugLog.instance.error(`${name} not exists`);
-            return null;
-        }
-
-        return view.getComponent(name);
-    }
-
-    public async addLoadRes():Promise<void>{
-        const url = 'prefab/LoadPanel';
-        return new Promise((resolve,reject)=>{
-            LoaderManager.getInstance().resourcesLoadPrefab(url).then((prefab)=>{
-                const node = instantiate(prefab)
-                UIManager.getInstance().registerView(UIManager.LOAD_PANEL,node);
-                resolve();
-                // UIManager.getInstance().showLoadingPanel(parentNode);
-            }).catch((error) => {
-                // 处理失败的错误
-                reject(error);
+        let prefab = await new Promise<Prefab>((resolve, reject) => {
+            bundle.load(panelInfo.prefabUrl, Prefab, null, (err: Error, data: Prefab) => {
+                if (err) {
+                    DebugLog.instance.error('Prefab load error , url:' + panelInfo.prefabUrl);
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
             });
         });
-    }
 
-    public showLoadingPanel(parentNode = null){
-
-
-        UIManager.getInstance().showView(UIManager.LOAD_PANEL,parentNode);
-    }
-
-    update(){
-
-    }
-
-    destroy(){
-        this.maps = {};
-    }
-
-    private checkPanel(name:string):boolean {
-        if(!this.has(name)){
-            DebugLog.instance.error(`${name}不存在`);
+        if (!prefab) {
+            this.closeSceenLocker();
             return false;
         }
-        const view = this.get(name) as BasePanel;
-        if(view.state == PanelState.NONE){
-            DebugLog.instance.error(`${name}没有被初始化`)
+        let panel = instantiate(prefab);
+
+        let parent = parentNode ? parentNode : LayerUtil.getPanelLayer();
+        if (!parent) {
+            DebugLog.instance.error('Panel Parent node empty :' + panelInfo.prefabUrl);
+            this.closeSceenLocker();
             return false;
         }
+
+        parent.addChild(panel);
+
+        let compNode = panel;
+        let compPathArr = panelInfo.compPath.split('/');
+
+        for (let i = 0; i < compPathArr.length; i++) {
+            const nodeName = compPathArr[i];
+            if (nodeName == "") {
+                continue;
+            }
+            compNode = compNode.getChildByName(nodeName);
+            if (!compNode) {
+                DebugLog.instance.error('Can not find children : compPath ' + panelInfo.compPath);
+                this.closeSceenLocker();
+                return false;
+            }
+        }
+
+        let comp = compNode.getComponent(panelInfo.comp);
+        await comp.showPanel();
+        comp.restore(rdata);
+
+        this.closeSceenLocker();
+
+        this.activePanelMap.set(name, { rootNode: panel, comp: comp });
+
         return true;
     }
 
-    // private loadPanelComplete(name:string){
-    //    if(!(name in this.preActionMaps)){
-    //        DebugLog.instance.error(`不存在${name}界面`);
-    //        return;
-    //    }
-    //    const dataArr = this.preActionMaps[name];
-    //    const panel = dataArr[0];
-    //    const state = dataArr[1];
-    //    if(state == PanelState.SHOW){
-    //        this.showView(name);
-    //    }else{
-    //        this.hideView(name);
-    //    }
-    //    delete this.preActionMaps[name];
-    // }
+    async hidePanel(name: string) {
+        let panelCache = this.activePanelMap.get(name);
+        if(panelCache){
+            await panelCache.comp.hidePanel();
+            panelCache.rootNode.removeFromParent();
+            this.activePanelMap.delete(name);
+        }
+    }
+
+    async openScreenLocker(){
+        let prefab = await new Promise<Prefab>((resolve, reject) => {
+            resources.load(UIManager.SCREEN_LOCKER_PREFAB_PATH, Prefab, null, (err: Error, data: Prefab) => {
+                if (err) {
+                    DebugLog.instance.error('Prefab load error , url:' + UIManager.SCREEN_LOCKER_PREFAB_PATH);
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+
+        if (!prefab) {
+            return;
+        }
+
+        let sl = instantiate(prefab);
+
+        let parent = LayerUtil.getLoaderLayer();
+        if (!parent) {
+            DebugLog.instance.error('get LoaderLayer failed');
+            return;
+        }else{
+            parent.addChild(sl);
+        }
+
+        this.screenLockerNode = sl;
+    }
+
+    closeSceenLocker(){
+        if(this.screenLockerNode){
+            this.screenLockerNode.removeFromParent();
+            this.screenLockerNode = null;
+        }
+    }
+
+    private onSceneChanged(){
+        this.closeSceenLocker();
+        this.activePanelMap.clear();
+    }
+
+    destroy() {
+        this.maps = {};
+    }
 }

@@ -3,6 +3,7 @@ import { BaseManager } from "../BaseManager";
 import { Global } from "../Config/Global";
 import { LoaderManager } from "../Load/LoaderManager";
 import { DebugLog } from "../../Util/DebugLog";
+import { LayerUtil } from "../../Util/LayerUtil";
 
 export default class AlertManager extends BaseManager {
     private static _instance: AlertManager;
@@ -41,9 +42,11 @@ export default class AlertManager extends BaseManager {
 
         // 实例化预制体
         let alertNode = instantiate(this.commonAlertPrefab);
-        let rootNode: Node = new Node();
-        let canvas = find('Canvas');
-        canvas.addChild(rootNode);
+        let rootNode: Node = LayerUtil.getAlertLayer();
+        if(!rootNode){
+            DebugLog.instance.error("Can not find alert layer!");
+            return;
+        }
 
         rootNode.addChild(alertNode);
         this.currentAlert = alertNode;
