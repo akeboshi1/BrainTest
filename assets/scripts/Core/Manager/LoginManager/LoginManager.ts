@@ -31,11 +31,14 @@ export class LoginManager {
     private login_login_by_mp: string = "login.login_by_mp";
     private user_set_invite_code: string = "user.set_invite_code";
 
-    private _phoneNum:string = "";
-    get phoneNum():string{
+    private _phoneNum: string = "";
+
+    private _loginByTokenCb: (arg0: boolean) => void = null;
+
+    get phoneNum(): string {
         return this._phoneNum;
     }
-    set phoneNum(v:string){
+    set phoneNum(v: string) {
         this._phoneNum = v;
     }
 
@@ -58,13 +61,17 @@ export class LoginManager {
 
     private onTokenVerificationCompleted(data, context) {
         if (data.status == 0) {
-            const alertData: AlertData = new AlertData;
+            const alertData: AlertData = new AlertData();
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             alertData.confirmCb = function () {
                 this.showLoginPanel();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
 
+            if (this._loginByTokenCb) {
+                this._loginByTokenCb(false);
+                this._loginByTokenCb = null;
+            }
             return;
         }
 
@@ -76,11 +83,16 @@ export class LoginManager {
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
 
         SceneManager.getInstance().backToHall();
+
+        if (this._loginByTokenCb) {
+            this._loginByTokenCb(true);
+            this._loginByTokenCb = null;
+        }
     }
 
     private setInviteCodeCallBack(data: any) {
         if (data.status == 0) {
-            const alertData: AlertData = new AlertData;
+            const alertData: AlertData = new AlertData();
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             alertData.confirmCb = function () {
                 this.showVerifryView();
@@ -88,7 +100,7 @@ export class LoginManager {
             AlertManager.getInstance().showAlert(alertData);
 
             //const verifyPanel: VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
-           // if (verifyPanel) verifyPanel.start();
+            // if (verifyPanel) verifyPanel.start();
             return;
         }
 
@@ -97,11 +109,11 @@ export class LoginManager {
         //if (verifyPanel) verifyPanel.stopTween();
     }
 
-    private requestSendMpCodeHandler(data:any){
+    private requestSendMpCodeHandler(data: any) {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
-            const alertData: AlertData = new AlertData;
+            const alertData: AlertData = new AlertData();
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             AlertManager.getInstance().showAlert(alertData);
             return;
@@ -110,11 +122,11 @@ export class LoginManager {
         Global.userData.phoneNumber = this._phoneNum;
     }
 
-    private requestLoginByMpHandler(data:any){
+    private requestLoginByMpHandler(data: any) {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
-            const alertData: AlertData = new AlertData;
+            const alertData: AlertData = new AlertData();
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             AlertManager.getInstance().showAlert(alertData);
             return;
@@ -122,7 +134,7 @@ export class LoginManager {
 
         if (data['data']['mp_no'] != this.phoneNum) {
             DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
-            const alertData: AlertData = new AlertData;
+            const alertData: AlertData = new AlertData();
             alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;
             AlertManager.getInstance().showAlert(alertData);
             return;
@@ -148,8 +160,9 @@ export class LoginManager {
         }
     }
 
-    public requestTokenVerification() {
+    public requestTokenVerification(cb: (result: boolean) => void = null) {
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+        this._loginByTokenCb = cb;
         EventManager.getInstance().on(this.login_login_by_token, this.onTokenVerificationCompleted, this, true);
         this.request(this.login_login_by_token, { token: token });
     }
@@ -160,13 +173,13 @@ export class LoginManager {
         this.request(this.user_set_invite_code, { invite_code: code });
     }
 
-    public requestSendMpCode(phoneNum:string){
+    public requestSendMpCode(phoneNum: string) {
         EventManager.getInstance().on(this.login_send_mp_code, this.requestSendMpCodeHandler, this, true);
         this._phoneNum = phoneNum;
-        this.request(this.login_send_mp_code, { "mp_no": phoneNum});
-    }    
+        this.request(this.login_send_mp_code, { "mp_no": phoneNum });
+    }
 
-    public requestLoginByMp(mpCode:string){
+    public requestLoginByMp(mpCode: string) {
         EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginByMpHandler, this, true);
         this.request(this.login_login_by_mp, { "mp_no": this.phoneNum, "code": mpCode });
     }

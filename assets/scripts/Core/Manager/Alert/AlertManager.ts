@@ -19,13 +19,18 @@ export default class AlertManager extends BaseManager {
     private alertQueue: AlertData[] = []; // 用于存储等待显示的alert数据队列
     private currentAlert: Node = null; // 当前正在显示的alert节点
 
-    public init() {
-        LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/Common/CommonAlert").then((resource) => {
-            DebugLog.instance.log("Common Alert Prefab Load success!!!");
-            this.commonAlertPrefab = resource;
-        }).catch((error) => {
-            DebugLog.instance.warn("Common Alert Prefab Load failed!!!");
+    public async init() {
+        return new Promise<void>((resolve,reject)=>{
+            LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/Common/CommonAlert").then((resource) => {
+                DebugLog.instance.log("Common Alert Prefab Load success!!!");
+                this.commonAlertPrefab = resource;
+                resolve();
+            }).catch((error) => {
+                DebugLog.instance.warn("Common Alert Prefab Load failed!!!");
+                reject();
+            });
         });
+        
     }
 
     public showAlert(alertData: AlertData) {
