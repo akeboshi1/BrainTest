@@ -71,7 +71,7 @@ export class BundlePreloadManager extends BaseManager {
         let loadedAssets = 0;
         let totalAssets = 0;
 
-        UIManager.getInstance().showPanel(LoadPanel.NAME);
+        await UIManager.getInstance().showPanel(LoadPanel.NAME);
 
         // 预加载场景
         try {

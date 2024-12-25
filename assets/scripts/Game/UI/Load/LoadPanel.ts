@@ -58,4 +58,8 @@ export class LoadPanel extends BasePanel {
       setProgress(str: string) {
             this.progressLabel.string = str;
       }
+
+      async showPanel(): Promise<void> {}
+
+      async hidePanel(): Promise<void> {}
 }
