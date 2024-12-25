@@ -56,12 +56,6 @@ export class catchfish extends Component {
     @property(Node)
     private viewNode:Node = null;
 
-    // @property(Button)
-    // startBtn:Button;
-
-    // @property(Button)
-    // failBtn:Button;
-
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
     private unSelectColor = ColorUtil.hexToColor("#FFFFFF");
     private ErrorColor = ColorUtil.hexToColor("#FC0505");

@@ -903,7 +903,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 450,
-      "y": 668,
+      "y": 644,
       "z": 0
     },
     "_lrot": {
@@ -1873,7 +1873,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -124.5,
+      "x": -206,
       "y": 0,
       "z": 0
     },
@@ -1886,8 +1886,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 2,
+      "y": 2,
       "z": 1
     },
     "_mobility": 0,
@@ -2149,7 +2149,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -61.5,
+      "x": -103,
       "y": 0,
       "z": 0
     },
@@ -2162,8 +2162,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 2,
+      "y": 2,
       "z": 1
     },
     "_mobility": 0,
@@ -2425,7 +2425,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 1.5,
+      "x": 0,
       "y": 0,
       "z": 0
     },
@@ -2438,8 +2438,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 2,
+      "y": 2,
       "z": 1
     },
     "_mobility": 0,
@@ -2701,7 +2701,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 64.5,
+      "x": 103,
       "y": 0,
       "z": 0
     },
@@ -2714,8 +2714,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 2,
+      "y": 2,
       "z": 1
     },
     "_mobility": 0,
@@ -2977,7 +2977,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 127.5,
+      "x": 206,
       "y": 0,
       "z": 0
     },
@@ -2990,8 +2990,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 2,
+      "y": 2,
       "z": 1
     },
     "_mobility": 0,
@@ -3240,7 +3240,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 300,
+      "width": 463,
       "height": 65
     },
     "_anchorPoint": {
@@ -3266,7 +3266,7 @@
     "__prefab": {
       "__id__": 140
     },
-    "_resizeMode": 0,
+    "_resizeMode": 1,
     "_layoutType": 1,
     "_cellSize": {
       "__type__": "cc.Size",
@@ -3278,7 +3278,7 @@
     "_paddingRight": 0,
     "_paddingTop": 0,
     "_paddingBottom": 0,
-    "_spacingX": 12,
+    "_spacingX": 52,
     "_spacingY": 0,
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
@@ -3819,7 +3819,7 @@
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 159

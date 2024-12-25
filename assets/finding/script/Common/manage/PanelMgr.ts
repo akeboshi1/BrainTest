@@ -33,6 +33,7 @@ export default class PanelMgr extends Component {
         Emit.instance().emit(EventCode.PanelMgrInitOK)
     }
 
+
     /**
      * @param param{
      *     layer : 在哪一个容器打开页面

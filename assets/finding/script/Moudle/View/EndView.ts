@@ -22,46 +22,40 @@ export default class EndView extends LayerPanel {
 
     private result: boolean = null;
 
-    // private coinNode: Node = null;
     private btn1Node: Node = null;
     private btn2Node: Node = null;
     private btn2Sprite: Sprite = null;
-    private winCoin: number = 0;
-
-    // private coinPool: NodePool = null;
-    //
-    // private coinPrefab: Prefab = null;
-
-    private startPos: Vec3 = null;
-    private endPos: Vec3 = null;
 
     private effectNode: Node = null;
-
-    private residueTime: number = null;
 
     private getOver: boolean = false;
 
     private loseTitle: Node = null;
 
+    private winTitle:Node = null;
+
+    private winImage:Node = null;
+
+    private loseImage:Node = null;
+
     hide() {
     }
 
     initUI() {
-        //this.coinNode = this.getNode("result/coin");
         this.btn1Node = this.getNode("result/btn1");
         this.btn2Node = this.getNode("result/btn2");
-        this.loseTitle = this.getNode("result/title")
+        this.loseTitle = this.getNode("result/title");
+        this.winTitle = this.getNode("result/titleImage");
         this.btn2Sprite = this.btn2Node.getComponent(Sprite);
+        this.winImage = this.getNode("result/success");
+        this.loseImage = this.getNode("result/lose");
+        this.winTitle.active = this.winImage.active = false;
+        this.loseTitle.active =this.loseImage.active =  false;
         this.effectNode = this.getNode("result/particle");
         this.effectNode.active = false;
-        //this.coinPool = new NodePool();
-        // LoadMgr.loadPrefab("sub/prefab/game/coin").then((prefab: Prefab) => {
-        //     this.coinPrefab = prefab;
-        // })
     }
 
     show(param: any): void {
-        this.residueTime = param.residueTime;
         this.result = param.isWin;
         let residueTime = param.residue
         if (residueTime > 0) {
@@ -73,114 +67,19 @@ export default class EndView extends LayerPanel {
         this.initEnd();
     }
 
-    // public initPool(count: number = 20) {
-    //     for (let i = 0; i < count; i++) {
-    //         let coin = instantiate(this.coinPrefab);
-    //         this.coinPool.put(coin);
-    //     }
-    // }
-
     public initEnd() {
         if (this.result) {
-            //this.coinNode.active = true;
-            this.loseTitle.active = false;
-            //let coinLabel: Label = this.coinNode.getChildByName("count").getComponent(Label);
-            this.winCoin = Math.ceil(this.residueTime);
-            //let coinPos = this.coinNode.getPosition();
-            let scene = director.getScene();
-            let gameInfoView = scene.children[0].getChildByName("gameInfoLayer");
-            let selfCoin = gameInfoView.getChildByName("gameInfoView").getChildByName("gold");
-            // let coinParentUITransform = this.coinNode.parent.getComponent(UITransform);
-            // let coinWorldPos = coinParentUITransform.convertToWorldSpaceAR(coinPos);
-            // let coinUITransform = this.node.getComponent(UITransform);
-            // let coinNodePos = coinUITransform.convertToNodeSpaceAR(coinWorldPos);
-            // let selfCoinNodePos = selfCoin.getPosition()
-            // this.startPos = coinNodePos;
-            // this.endPos = selfCoinNodePos;
-            // this.scheduleOnce(() => {
-            //     this.flyCoin(coinNodePos, selfCoinNodePos);
-            // }, 0.5)
-            // coinLabel.string = this.winCoin + "";
+            this.winTitle.active = this.winImage.active = true;
+            this.loseTitle.active =this.loseImage.active =  false;
             LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_no").then();
-            // this.scheduleOnce(() => {
-            //     this.onTouch(this.btn2Node, this.onClickNext);
-            // }, 1)
-            // this.effectNode.active = true;
             AudioMgr.play("sub/audio/view/game/win", 1, false).then();
         } else {
-            // this.coinNode.active = false;
-            this.loseTitle.active = true;
+            this.winTitle.active = this.winImage.active = false;
+            this.loseTitle.active =this.loseImage.active =  true;
             LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_startOver").then();
             this.onTouch(this.btn2Node, this.onClickAgain)
             AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
         }
-    }
-
-    public flyCoin(startPos, endPos, callback?: Function) {
-        // let randomCount = Math.random() * 15 + 10;
-        let count = Math.ceil(this.winCoin / 10);
-        this.playCoinFlyAnim(count, startPos, endPos, callback);
-    }
-
-    public playCoinFlyAnim(count: number, stPos: Vec3, edPos: Vec3, callback?: Function, r: number = 130,) {
-        // const poolSize = this.coinPool.size();
-        // const reCreateCoinCount = poolSize > count ? 0 : count - poolSize;
-        // this.initPool(reCreateCoinCount);
-        //
-        // // 生成圆，并且对圆上的点进行排序
-        // let points = this.getCirclePoints(r, stPos, count);
-        // let coinNodeList = points.map(pos => {
-        //     let coin = this.coinPool.get();
-        //     coin.setPosition(stPos);
-        //     this.node.addChild(coin);
-        //     return {
-        //         node: coin,
-        //         stPos: stPos,
-        //         mdPos: pos,
-        //         edPos: edPos,
-        //         dis: (pos as any).sub(edPos).mag()
-        //     };
-        // });
-        // coinNodeList = coinNodeList.sort((a, b) => {
-        //     if (a.dis - b.dis > 0) return 1;
-        //     if (a.dis - b.dis < 0) return -1;
-        //     return 0;
-        // });
-        // let isPlay = false;
-        // // 执行金币落袋的动画
-        // coinNodeList.forEach((item, idx) => {
-        //     //贝塞尔左右
-        //     let leftRight = idx % 2;
-        //     let flyY = 300;
-        //     let flyX;
-        //     if (leftRight == 0) {
-        //         flyX = 300;
-        //     } else {
-        //         flyX = -300;
-        //     }
-        //     tween(item.node)
-        //         .to(0.3, {position:new Vec3( item.mdPos.x, item.mdPos.y)})
-        //         .call(() => {
-        //             if (!isPlay) {
-        //                 isPlay = true;
-        //                 AudioMgr.play("view/game/boomCoin").then();
-        //             }
-        //         })
-        //         .delay(idx * 0.05)
-        //         .bezierTo(0.5, v2(flyX, flyY), v2(flyX, flyY), v2(item.edPos.x, item.edPos.y))
-        //         // .to(0.5, {x: item.edPos.x, y: item.edPos.y})
-        //         .call(() => {
-        //             this.coinPool.put(item.node);
-        //             if (idx == coinNodeList.length - 1) {
-        //                 if (callback) {
-        //                     let callObj = this;
-        //                     callback.call(callObj);
-        //                 }
-        //             }
-        //             AudioMgr.play("view/game/getCoin").then();
-        //         })
-        //         .start();
-        // });
     }
 
     public static bezierTo(target:any,duration:number,c1:Vec3,c2:Vec3,to:Vec3,opts:any){
@@ -209,34 +108,12 @@ export default class EndView extends LayerPanel {
         return points;
     }
 
-    public onClickDoubleCoin() {
-        if (this.getOver) return
-        this.getOver = true;
-        Tools.handleVideo(Constant.VIDEO_TYPE.GET_DOUBLE).then((res) =>{
-            if (res){
-                this.flyCoin(this.startPos, this.endPos, this.closeEnd)
-            }
-        })
-    }
-
     public onClickNext() {
         this.closeEnd();
-        // let isCanPlay = Tools.changeStamina(-1);
-        // if (isCanPlay) {
-        //     this.closeEnd();
-        // } else {
-        //     this.openHome();
-        // }
     }
 
     public onClickAgain() {
         this.closeEnd();
-        // let isCanPlay = Tools.changeStamina(-1);
-        // if (isCanPlay) {
-        //     this.closeEnd();
-        // } else {
-        //     this.openHome();
-        // }
     }
 
     public onClickDouble() {
