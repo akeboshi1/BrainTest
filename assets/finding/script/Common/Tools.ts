@@ -1,11 +1,7 @@
 import Global, {ExportData} from "./Global";
 import Constant from "./Constant";
-import LoadMgr from "./manage/LoadMgr";
 import CacheMgr from "./manage/CacheMgr";
 import GameLogMgr from "./manage/GameLogMgr";
-import Game from "../Scene/Game";
-import TestMgr from "./Test";
-import PanelMgr, {Layer} from "./manage/PanelMgr";
 import {js,ScrollView,Layout,v2,tween,view,screen,UITransform,Node,Vec3,Vec2,math} from "cc";
 import isNumber = js.isNumber;
 
@@ -38,13 +34,6 @@ export default class Tools {
                 return;
             }
 
-            // if (WechatApi.systemInterface.vibrateShort) {
-            //     WechatApi.systemInterface.vibrateShort({
-            //         type: t,
-            //     });
-            // } else {
-            //     GameLogMgr.warn('短震动 api 无法使用。');
-            // }
 
         } catch (e) {
             GameLogMgr.error(e);
@@ -60,11 +49,7 @@ export default class Tools {
                 GameLogMgr.warn('当前 震动关闭。');
                 return;
             }
-            // if (WechatApi.systemInterface.vibrateLong) {
-            //     WechatApi.systemInterface.vibrateLong();
-            // } else {
-            //     GameLogMgr.warn('长震动 api 无法使用。');
-            // }
+
 
         } catch (e) {
             GameLogMgr.error(e);
@@ -83,54 +68,6 @@ export default class Tools {
         }
     }
 
-
-    // public static openBox(box) {
-    //     return new Promise((resolve) => {
-    //         if (box === null || box === undefined || box === 0) {
-    //             resolve(true);
-    //         } else {
-    //             // UIMgr.openUI(this.getBox(box), lay, {boxPromise: resolve});
-    //             PanelMgr.INS.openPanel({
-    //                 panel: this.getBox(box),
-    //                 layer: Layer.gameBoxLayer,
-    //                 param: {boxPromise: resolve},
-    //             })
-    //         }
-    //     });
-    // }
-
-    // public static openTrea(pre) {
-    //     return new Promise((resolve) => {
-    //         if (Tools.checkPer(pre)) {
-    //             PanelMgr.INS.openPanel({
-    //                 panel: TreaView,
-    //                 layer: Layer.chestLayer,
-    //                 param: {promise: resolve},
-    //             })
-    //         } else {
-    //             resolve(true);
-    //         }
-    //     });
-    // }
-    //
-    // /**
-    //  * 根据配置获取 box
-    //  */
-    // public static getBox(index: number) {
-    //     let box;
-    //     switch (index) {
-    //         case 1 :
-    //             box = OneBox;
-    //             break;
-    //         case 2 :
-    //             box = TwoBox;
-    //             break;
-    //         case 3 :
-    //             box = ThreeBox;
-    //             break;
-    //     }
-    //     return box;
-    // }
 
     /**
      * 获取整数随机值
@@ -260,39 +197,7 @@ export default class Tools {
      * @param resolve
      */
     public static navigateTo(gameBox: ExportData, name, resolve ?: any) {
-        // try {
-        //     if (!gameBox) {
-        //         GameLogMgr.error('跳转移除', gameBox);
-        //     }
-        //     WechatApi.systemInterface_do("navigateToMiniProgram", null, () => {
-        //             if (resolve) {
-        //                 resolve(true)
-        //             }
-        //         },
-        //         {
-        //             appId: gameBox.appId,
-        //             path: gameBox.exportSrc,
-        //             extraData: {
-        //                 exportId: gameBox.id
-        //             },
-        //             envVersion: "develop",
-        //             success: (res) => {
-        //                 GameLogMgr.log("进入导出成功！", res);
-        //                 JiuWuSDK.exportLog(gameBox.id).then();
-        //                 JiuWuSDK.pushAction(5, name).then()
-        //                 if (resolve) {
-        //                     resolve(true)
-        //                 }
-        //             },
-        //             fail: (res) => {
-        //                 GameLogMgr.error("进入导出失败", res, gameBox, name);
-        //                 resolve(true)
-        //             }
-        //         },
-        //     )
-        // } catch (e) {
-        //     GameLogMgr.error('进入导出移除', gameBox, name);
-        // }
+
     }
 
     /**
@@ -490,74 +395,8 @@ export default class Tools {
      * @param duration
      */
     public static showToast(title, duration = 1500) {
-        // WechatApi.systemInterface_do('showToast', null, () => {
-        //     PanelMgr.INS.openPanel({
-        //         layer: Layer.gameBoxLayer,
-        //         panel: ToastTips,
-        //         param: {title: title, time: duration}
-        //     })
-        // }, {
-        //     title: title,
-        //     duration: duration,
-        //     icon: 'none'
-        // })
+
     }
-
-    /**
-     * 改变节点位置的 y 为 banner 位置的 y (骗点用)
-     * @param node
-     */
-    // public static changeNodePosition(node: Node) {
-    //     let banner = Game.Ins.banner;
-    //     const bannerUiTransform = banner.getComponent(UITransform);
-    //     if(!bannerUiTransform){
-    //         bannerUiTransform.addComponent(UITransform);
-    //     }
-    //     const y = banner.position.y + bannerUiTransform.height / 2;
-    //     node.setPosition(new Vec3(node.position.x,y));
-    // }
-
-    /**
-     * 调整按钮位置到 banner上方
-     * @param button
-     */
-    // public static setExportPos(button: Node) {
-    //     let banner = Game.Ins.banner;
-    //     this.changeNodePosition(button);
-    //     const bannerUiTransform = banner.getComponent(UITransform);
-    //     if(!bannerUiTransform){
-    //         bannerUiTransform.addComponent(UITransform);
-    //     }
-    //     const buttonUiTransform = button.getComponent(UITransform);
-    //     if(!buttonUiTransform){
-    //         buttonUiTransform.addComponent(UITransform);
-    //     }
-    //     const y = button.position.y + bannerUiTransform.height / 2 + buttonUiTransform.height/2;
-    //     button.setPosition(new Vec3(button.position.x,y))
-    // }
-
-
-    /**
-     * 骗点结束移动 按钮
-     * @param time
-     * @param button
-     */
-    // public static setExportPos_Animation(time: number, button: Node) {
-    //     let banner = Game.Ins.banner
-    //     this.changeNodePosition(button);
-    //     const bannerUiTransform = banner.getComponent(UITransform);
-    //     if(!bannerUiTransform){
-    //         bannerUiTransform.addComponent(UITransform);
-    //     }
-    //     const buttonUiTransform = button.getComponent(UITransform);
-    //     if(!buttonUiTransform){
-    //         buttonUiTransform.addComponent(UITransform);
-    //     }
-    //     tween(button)
-    //         .to(time, {position:new Vec3(button.position.x,button.position.y+bannerUiTransform.height/2+buttonUiTransform.height/2)}, {easing: "smooth"})
-    //         // .to(time, {y: button.y + banner.height / 2 + button.height / 2}, {easing: "smooth"})
-    //         .start();
-    // }
 
     /**
      * 判断百分比
@@ -583,24 +422,6 @@ export default class Tools {
      */
     public static model_initModel(f: Function): number {
         let functions: Function[] = [
-            // () => {
-            //     let names = ["sub", "common"]
-            //     LoadMgr.loadBundle(names).then(() => {
-            //         f()
-            //     })
-            // },
-            // () => {
-            //     TestMgr.start("加载SDK")
-            //     // JiuWuSDK.initSDK().then((res: any) => {
-            //     //     if (res.code) {
-            //     //         GameLogMgr.warn(Constant.LOGIN_CODE[res.code]);
-            //     //     }
-            //     //     TestMgr.end("加载SDK")
-            //     //     WechatApi.screenAdv.init();
-            //     //     WechatApi.rewardedVideo.init();
-            //     //     f();
-            //     // });
-            // },
         ]
 
         for (let i = 0; i < functions.length; i++) {
@@ -614,21 +435,6 @@ export default class Tools {
      * 将关卡数据储存到微信托管中
      */
     public static setUserCloudStorage() {
-        // let data = {
-        //     'wxgame': {
-        //         'score': CacheMgr.checkpoint,
-        //         'update_time': new Date().getTime() / 1000
-        //     }
-        // }
-        // WechatApi.systemInterface_do('setUserCloudStorage', null, null, {
-        //     KVDataList: [{key: 'level', value: JSON.stringify(data)}],
-        //     success: () => {
-        //         GameLogMgr.log('储存成功 ... ');
-        //     },
-        //     fail: (err) => {
-        //         GameLogMgr.error('储存失败 ... ', err);
-        //     }
-        // });
     }
 
     /**
@@ -670,9 +476,7 @@ export default class Tools {
      * @param data
      */
     public static subToOpenData(data: { key: string, value: any }) {
-        // WechatApi.systemInterface_do('getOpenDataContext', (res) => {
-        //     res.postMessage(data);
-        // }, null, null);
+
     }
 
     /**
@@ -681,62 +485,10 @@ export default class Tools {
     public static handleVideo(adType: number) {
         return new Promise((resolve) => {
             resolve(true);
-            // WechatApi.rewardedVideo.show({
-            //     code: adType,
-            //     success: (code) => {
-            //         switch (code) {
-            //             case Constant.REWARDED_VIDEO_END_TYPE.END:
-            //                 resolve(true);
-            //                 break;
-            //             case Constant.REWARDED_VIDEO_END_TYPE.NOT_END:
-            //                 resolve(false);
-            //                 break;
-            //             case Constant.REWARDED_VIDEO_END_TYPE.ERROR:
-            //                 Tools.activeShare();
-            //                 resolve(true)
-            //                 break
-            //             case Constant.REWARDED_VIDEO_END_TYPE.INSERT_SCREEN:
-            //             case Constant.REWARDED_VIDEO_END_TYPE.SHARE:
-            //                 resolve(true);
-            //                 break;
-            //         }
-            //     },
-            //     callObj: this
-            // });
         });
     }
 
-    /**
-     * 打开或关闭 碰撞系统功能
-     * @param isOpen 碰撞系统
-     * @param draw debug 绘制
-     * @param bounding 包围盒
-     */
-    // public static getCollision(isOpen: boolean = true, draw: boolean = false, bounding: boolean = false) {
-    //     let Manager = director.getCollisionManager();
-    //     Manager.enabled = isOpen;
-    //     Manager.enabledDebugDraw = draw;
-    //     Manager.enabledDrawBoundingBox = bounding;
-    // }
 
-    /**
-     * 打开或关闭 物理系统
-     * @param isOpen
-     * @param draw
-     */
-    // public static getPhysics(isOpen: boolean = true, draw: boolean = false) {
-    //     let Manager = director.getPhysicsManager();
-    //     Manager.enabled = true;
-    //     if (draw) {
-    //         director.getPhysicsManager().debugDrawFlags =
-    //             PhysicsManager.DrawBits.e_aabbBit
-    //             |
-    //             PhysicsManager.DrawBits.e_jointBit
-    //             |
-    //             PhysicsManager.DrawBits.e_shapeBit
-    //         ;
-    //     }
-    // }
 
     /**
      *  注册一组 touch 事件
@@ -837,17 +589,6 @@ export default class Tools {
     }
 
     /**
-     * 获取当前主机地址
-     */
-    // public static getHost(): string {
-    //     if (WechatApi.systemInterface == AppApi) {
-    //         return JiuWuSDK.url.test;
-    //     } else {
-    //         return JiuWuSDK.url.host;
-    //     }
-    // }
-
-    /**
      * 根据一个矩形 ，创建一个节点
      */
     public static getNodeForRect(rect: math.Rect): Node {
@@ -864,11 +605,6 @@ export default class Tools {
      * 主动分享
      */
     public static activeShare() {
-        // WechatApi.systemInterface_do('shareAppMessage', null, null, {
-        //     title: Global.config.share.title,
-        //     imageUrl: Global.config.share.img,
-        //     query: 'shareMsg = ' + '分享卡片上所带的信息'
-        // });
     }
 
     /**
@@ -965,33 +701,6 @@ export default class Tools {
             top: top
         }
     }
-
-
-    /**
-     * 修改体力 ， 如果体力不足 ，修改失败的话 ，会自动弹出体力不足框
-     * @param num 需要改动的体力
-     * @param callBack
-     */
-    // public static changeStamina(num: number, callBack?: Function): boolean {
-    //     if (CacheMgr.stamina + num < 0) {
-    //         PanelMgr.INS.openPanel({
-    //             panel: ShortageView,
-    //             layer: Layer.gameLayer,
-    //             param: {
-    //                 type: "stamina",
-    //                 callBack: callBack,
-    //                 price: Math.abs(num),
-    //             }
-    //         })
-    //         return false;
-    //     } else {
-    //         if (callBack) {
-    //             callBack();
-    //         }
-    //     }
-    //     CacheMgr.stamina = CacheMgr.stamina + num;
-    //     return true;
-    // }
 
 }
 

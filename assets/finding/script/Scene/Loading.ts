@@ -1,7 +1,4 @@
 import Tools from "../Common/Tools";
-import GameLogMgr from "../Common/manage/GameLogMgr";
-import CacheMgr from "../Common/manage/CacheMgr";
-import Global from "../Common/Global";
 import TestMgr from "../Common/Test";
 import LoadMgr from "../Common/manage/LoadMgr";
 import { _decorator,Component,Node,tween,director,Vec3,v3 } from "cc";
@@ -49,45 +46,6 @@ export default class Loading extends Component {
     }
 
     _initSystemEvent() {
-        // WechatApi.systemInterface_do('setKeepScreenOn', null, null, {
-        //     keepScreenOn: true
-        // });
-        // WechatApi.systemInterface_do('getLaunchOptionsSync', (res) => {
-        //     JiuWuSDK.launchData = res;
-        //     JiuWuSDK.joinTime = new Date().getTime();
-        //     GameLogMgr.log('获取小游戏冷启动时参数调用成功:', res);
-        // }, null);
-        // WechatApi.systemInterface_do('onHide', null, null, () => {
-        //     GameLogMgr.log('微信 onHide ... ');
-        //     CacheMgr.updateData();
-        //     JiuWuSDK.pushAction(1).then();
-        //     if (JiuWuSDK.systemInfo.platform == "ios"){
-        //         console.log("暂停背景音乐")
-        //         audioEngine.pauseMusic()
-        //     }
-        // });
-        // WechatApi.systemInterface_do('onShow', null, null, (res) => {
-        //     JiuWuSDK.launchData = res;
-        //     if (Global.isShowBanner && Global.config.adv_unit_conf.bannerBeClick_Refresh) {
-        //         WechatApi.bottomAdv.bannerIns.activeRefreshBanner()
-        //     }
-        //     GameLogMgr.log('微信 onShow:', res);
-        //
-        //     if (JiuWuSDK.systemInfo.platform == "ios"){
-        //         console.log("恢复背景音乐")
-        //         audioEngine.resumeMusic()
-        //     }
-        // });
-        // WechatApi.systemInterface_do('showShareMenu', null, null, {
-        //     withShareTicket: true,
-        //     menus: ['shareAppMessage', 'shareTimeline'],
-        //     success: () => {
-        //         GameLogMgr.log('显示当前页面的转发按钮成功 ... ');
-        //     }
-        // });
-        // WechatApi.systemInterface_do("getSystemInfoSync", (res) => {
-        //     JiuWuSDK.systemInfo = res;
-        //     GameLogMgr.log("获取系统信息成功", res);
-        // }, null);
+
     }
 }

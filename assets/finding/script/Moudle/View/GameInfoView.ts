@@ -41,46 +41,11 @@ export default class GameInfoView extends LayerPanel {
     }
 
     initUI(): void {
-        // GameInfoView.gameInfoViewIns = this;
-        // this.gold_num = CacheMgr.gold;
-        // this.stamina_num = CacheMgr.stamina;
-        // this.diamond_num = CacheMgr.diamond;
-        // this.animationTime = Global.config.gameInfo.animation;
-        // this.gold = this.getNode("gold/num");
-        // this.stamina = this.getNode("stamina/num");
-        // this.gold_add_button = this.getNode("gold/add");
-        // this.stamina_add_button = this.getNode("stamina/add");
-        // this.residue_node = this.getNode("stamina/time");
-        // this.residue_sprite = this.getNode("stamina/man");
-        // this.timeouts.set("gold", []);
-        // this.timeouts.set("stamina", []);
-        // this.timeouts.set("diamond", []);
+
     }
 
     show(param: any): void {
-        // this.gold.getComponent(Label).string = this.gold_num.toString();
-        //
-        // this.stamina.getComponent(Label).string = this.stamina_num.toString();
-        //
-        // this.onTouch(this.gold_add_button, () => {
-        //     PanelMgr.INS.openPanel({
-        //         panel: ShortageView,
-        //         layer: Layer.gameLayer,
-        //         param: {
-        //             type: "gold",
-        //         }
-        //     })
-        // });
-        //
-        // this.onTouch(this.stamina_add_button, () => {
-        //     PanelMgr.INS.openPanel({
-        //         panel: ShortageView,
-        //         layer: Layer.gameLayer,
-        //         param: {
-        //             type: "stamina",
-        //         }
-        //     })
-        // });
+
     }
 
     hide() {
@@ -93,26 +58,6 @@ export default class GameInfoView extends LayerPanel {
      * @protected
      */
     protected update(dt: number) {
-        // let newGold = CacheMgr.gold;
-        // if (this.gold_num != newGold) {
-        //     this.changeAnimation("gold", newGold - this.gold_num);
-        // }
-        //
-        // let newStamina = CacheMgr.stamina;
-        // if (this.stamina_num != newStamina) {
-        //     this.changeAnimation("stamina", newStamina - this.stamina_num);
-        // }
-        //
-        // if (CacheMgr.stamina >= Global.config.gameInfo.maxStamina) {
-        //     this.residue_node.active = false;
-        //     this.residue_sprite.active = true;
-        //     this.stamina_minute = 0;
-        //     this.stamina_second = 0;
-        //     return;
-        // }
-        // this.residue_sprite.active = false;
-        // this.residue_node.active = true;
-        // this.residue_node.getComponent(Label).string = this.customPadStart(this.stamina_minute.toString(),2, "0") + ":" + this.customPadStart(this.stamina_second.toString(),2, "0");
     }
 
 
