@@ -194,6 +194,7 @@ export default class GameView extends LayerPanel {
             }else{
                GameCenterManager.getInstance().exitCallBack();
             }
+            AudioMgr.audioSource.stop();
             // PanelMgr.INS.openPanel({
             //     layer: Layer.gameLayer,
             //     panel: HomeView,
