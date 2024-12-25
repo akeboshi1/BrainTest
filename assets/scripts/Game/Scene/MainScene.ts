@@ -364,7 +364,7 @@ export class MainScene extends Component {
             let len = this.gameList.length;
             for (let i = 0; i < len; i++) {
                 let gameItem = this.gameList[i];
-                if (this.tmpGameNames[i] == null || i == 0) {
+                if (this.tmpGameNames[i] == null) {
                     gameItem.active = false;
                     continue;
                 }
@@ -641,7 +641,7 @@ export class MainScene extends Component {
             switch (gameid) {
                 case 1:
                     sceneName = "finding";
-                    return;
+                    break;
                 case 2:
                     sceneName = "fanpai";
                     break;

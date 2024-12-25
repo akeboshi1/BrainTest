@@ -13394,7 +13394,7 @@
         "__id__": 492
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 559
@@ -14770,7 +14770,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "2a3b7df2-3c8d-4f39-8d50-bddb120a60d9@f9941",
+      "__uuid__": "2869684f-e584-4790-9d57-4fc69a99426f@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,

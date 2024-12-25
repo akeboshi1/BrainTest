@@ -349,8 +349,8 @@
       "__id__": 6
     },
     "sceneName": "guessingGame",
-    "isPad": true,
-    "debug": false,
+    "isPad": false,
+    "debug": true,
     "isWebView": true,
     "webView": {
       "__id__": 9
