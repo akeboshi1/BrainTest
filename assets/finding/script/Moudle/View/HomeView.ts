@@ -7,6 +7,7 @@ import Tools from "../../Common/Tools";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
 import {_decorator,Node,instantiate,Prefab,Sprite} from "cc";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -18,12 +19,6 @@ export default class HomeView extends LayerPanel {
         }
     }
 
-    private btn_setting: Node = null;
-
-    private btn_shop: Node = null;
-
-    private btn_signIn: Node = null;
-
     private pictureNode: Node = null;
 
     private beClick: boolean = false;
@@ -33,33 +28,13 @@ export default class HomeView extends LayerPanel {
             panel: GameInfoView,
             layer: Layer.gameInfoLayer
         })
-        this.btn_setting = this.getNode("setting");
-        this.btn_shop = this.getNode("shop");
-        this.btn_signIn = this.getNode("signIn");
+
         this.pictureNode = this.getNode("bg/picture")
     }
 
 
     show(param: any): void {
-        // this.onTouch(this.btn_setting, () => {
-        //     LoadMgr.loadPrefab("game/settingBox").then((prefab: Prefab) => {
-        //         let node: Node = instantiate(prefab);
-        //         this.node.addChild(node);
-        //     })
-        // })
-        // this.onTouch(this.btn_shop, () => {
-        //     LoadMgr.loadPrefab("game/shop").then((prefab: Prefab) => {
-        //         let node: Node = instantiate(prefab);
-        //         this.node.addChild(node);
-        //     })
-        // })
-        // this.onTouch(this.btn_signIn, () => {
-        //     LoadMgr.loadPrefab("game/signIn").then((prefab: Prefab) => {
-        //         let node: Node = instantiate(prefab);
-        //         this.node.addChild(node);
-        //     })
-        // })
-        let checkPoint = CacheMgr.checkpoint;
+        let checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.difficulty:CacheMgr.checkpoint;
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
             checkPoint = 1;
@@ -71,16 +46,9 @@ export default class HomeView extends LayerPanel {
         pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
         let way = () => {
             let url = "level" + custom+"/image/bg";
-            // LoadMgr.getBundle("level" + custom)
             LoadMgr.loadSprite(pictureSprite, url).then();
         }
-        // if (!this.loadBundle(custom)) {
-        //     LoadMgr.loadBundle_Single("level" + custom).then(() => {
-        //         way();
-        //     })
-        // } else {
-            way();
-        // }
+        way();
 
         this.onTouch(this.getNode("next"), () => {
             if (this.beClick) return;
@@ -94,13 +62,7 @@ export default class HomeView extends LayerPanel {
                     }
                 })
             }
-            // if (!this.loadBundle(custom)) {
-            //     LoadMgr.loadBundle_Single("level" + custom).then(() => {
-            //         way2();
-            //     })
-            // } else {
-                way2();
-            // }
+            way2();
         })
     }
 
