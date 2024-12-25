@@ -134,14 +134,16 @@ export class App extends BaseObejct {
     private initManager() {
         EventManager.getInstance().init();
         LoaderManager.getInstance().init();
-        LoginManager.getInstance().init();
+        if(!this.isPad){
+            LoginManager.getInstance().init();
+            TaskManager.getInstance().init();
+            BundlePreloadManager.getInstance().init();
+            ChatFlowModel.getInstance().init();
+        }
         UIManager.getInstance().init();
         SceneManager.getInstance().init();
         PoolManager.getInstance().init();
-        TaskManager.getInstance().init();
-        ChatFlowModel.getInstance().init();
         AlertManager.getInstance().init();
-        BundlePreloadManager.getInstance().init();
         AudioManager.getInstance().init();
     }
 
