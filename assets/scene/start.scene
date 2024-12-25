@@ -348,7 +348,7 @@
     "panelContainer": {
       "__id__": 6
     },
-    "sceneName": "",
+    "sceneName": "guessingGame",
     "isPad": false,
     "debug": true,
     "isWebView": true,

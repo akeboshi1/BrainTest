@@ -7,8 +7,7 @@ export class UserInfoData{
     public mp_no:String = "";
     public is_invited:Boolean ;
     public birthday:String = "";
-    
-    refrehData(data: any) {
+    constructor(data){
         this.id = data["id"];
         this.nickname = data["nickname"];
         this.gender = data["gender"];

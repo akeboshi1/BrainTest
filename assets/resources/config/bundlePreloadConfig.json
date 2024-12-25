@@ -8,7 +8,7 @@
         "preloadAssets": []
     },
     "finding": {
-        "preloadScene":"fanpai",
+        "preloadScene":"finding",
         "preloadAssets": []
     },
     "guessingGame": {
