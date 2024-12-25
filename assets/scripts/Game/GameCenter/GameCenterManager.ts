@@ -31,7 +31,7 @@ export class GameCenterData{
     constructor(data){
         this.gameid = data.game_id;
         this.sessionid = data.session_id;
-        this.level = data.level;
+        this.level = data.level.length<1?1:Number(data.level);
     }
 }
 
