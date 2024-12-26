@@ -77,6 +77,8 @@ export class Main extends Component {
 
     private hardIndex: number = 0;
 
+    private customsSendDataState: boolean;
+
     private isAbleClick: boolean = false;
 
     private bundleName: string = 'fanpai';
@@ -323,9 +325,11 @@ export class Main extends Component {
                 this.successView.active = false;
                 this.bigWin.active = true;
             }
+            if(!this.customsSendDataState ){
             const curGame = GameCenterManager.getInstance().currentGame;
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
             1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex]);
+            }
         }else{
             let obj = this.requestGameResult();
             SkewersManager.getInstance().requestGameComplete(obj.complete,obj.duration);
@@ -423,6 +427,7 @@ export class Main extends Component {
         this.successView.active = false;
         // this.bigWin.active = false;
         // this.failView.active = false;
+        this.customsSendDataState = false;
         this.initCardView();
 
         this.timerInit();
@@ -575,9 +580,12 @@ export class Main extends Component {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.failRequestSkewersGameComplete,this);
                     SkewersManager.getInstance().requestGameComplete(complete,duration);
                 } else {
-                    const curGame = GameCenterManager.getInstance().currentGame;
-                    GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
-                    complete, duration, this.INIT_TIME, this.hards[this.hardIndex]);
+                    if (!this.customsSendDataState) {
+                        const curGame = GameCenterManager.getInstance().currentGame;
+                        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
+                        complete, duration, this.INIT_TIME, this.hards[this.hardIndex]);
+                        this.customsSendDataState = true;
+                    }
                     this.failView.active = true;
                     this.failViewProgressLabel.node.active = false;
                     this.failRetryButton.node.active = true;
