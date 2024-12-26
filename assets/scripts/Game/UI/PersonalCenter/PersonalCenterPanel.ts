@@ -4,6 +4,7 @@ import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { DebugLog } from '../../../Core/Util/DebugLog';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 
+
 const { ccclass, property } = _decorator;
 
 @ccclass('PersonalCenterPanel')
@@ -20,9 +21,8 @@ export class PersonalCenterPanel extends Component {
 
     getUserInfoCallBack(data: any) {
        let userData= PersonalCenterManager.getInstance().userInfoData
-        // this.titleLabel.string=String(userData.nickname);
-        // DebugLog.instance.log("userData", userData);
     }
+   
     update(deltaTime: number) {
        
     }
