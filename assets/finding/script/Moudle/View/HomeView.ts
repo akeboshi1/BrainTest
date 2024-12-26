@@ -50,19 +50,36 @@ export default class HomeView extends LayerPanel {
         }
         way();
 
-        this.onTouch(this.getNode("next"), () => {
-            if (this.beClick) return;
-            this.beClick = true;
-            let way2 = () => {
-                PanelMgr.INS.openPanel({
-                    layer: Layer.gameLayer,
-                    panel: GameView,
-                    call: () => {
-                        PanelMgr.INS.closePanel(HomeView, true)
-                    }
-                })
+        // this.onTouch(this.getNode("next"), () => {
+        //     if (this.beClick) return;
+        //     this.beClick = true;
+        //     let way2 = () => {
+        //         PanelMgr.INS.openPanel({
+        //             layer: Layer.gameLayer,
+        //             panel: GameView,
+        //             call: () => {
+        //                 PanelMgr.INS.closePanel(HomeView, true)
+        //             }
+        //         })
+        //     }
+        //     way2();
+        // })
+    }
+
+    private nextHandler(){
+        if (this.beClick) return;
+        this.beClick = true;
+
+        this.way2();
+    }
+
+    private way2(){
+        PanelMgr.INS.openPanel({
+            layer: Layer.gameLayer,
+            panel: GameView,
+            call: () => {
+                PanelMgr.INS.closePanel(HomeView, true)
             }
-            way2();
         })
     }
 

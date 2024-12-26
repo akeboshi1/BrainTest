@@ -17,6 +17,7 @@ import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterM
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
 
 const {ccclass} = _decorator;
 
@@ -166,6 +167,7 @@ export default class GameView extends LayerPanel {
             let sprite = node.addComponent(Sprite);
             LoadMgr.loadSprite(sprite, bundleName+"/image/"+String(i)).then()
             sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+            sprite.color = ColorUtil.hexToColor("#9724d3");
             this.picture1.addChild(node);
             this.frameList.push(nodeUITransform.getBoundingBox());
             this.frameList[i].id = i + 1;
