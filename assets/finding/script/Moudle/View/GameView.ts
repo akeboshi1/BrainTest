@@ -126,7 +126,7 @@ export default class GameView extends LayerPanel {
              if (Global.isSkewersGame) {
                  this._curHard = Global.userData.curSkewerGameData.difficulty;
                  // test code
-                 checkPoint = 1;//Global.userData.curSkewerGameData.level;
+                 checkPoint = Global.userData.curSkewerGameData.seq;
              } else {
                  let _level = GameCenterManager.getInstance().currentGame.level;
                  if (_level % 3 == 0) {
