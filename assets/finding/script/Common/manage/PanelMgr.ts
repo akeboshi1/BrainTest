@@ -73,25 +73,22 @@ export default class PanelMgr extends Component {
                 return;
             }
             this.LoadingList.set(urlInfo.name, 1) //添加一个加载标识， 防止重复添加
-            let self = this;
             let panel: Node = null;
+            let self = this;
             //判断有没有旧的panel可用，有的话就不重新实例化了
-            if (self.hideList.has(urlInfo.name)) {
-                panel = self.hideList.get(urlInfo.name)
+            if (this.hideList.has(urlInfo.name)) {
+                panel = this.hideList.get(urlInfo.name)
                 panel.parent = layer
                 panel.active = false
-                // this.scheduleOnce(() => {
-                self.openList.set(urlInfo.name, panel)
-                self.showPanel(panel, param.param, config)
-                self.LoadingList.delete(urlInfo.name)
-                if (self.LoadingList.size == 0) {
+                this.scheduleOnce(() => {
+                    self.openList.set(urlInfo.name, panel)
+                    self.showPanel(panel, param.param, config)
+                    self.LoadingList.delete(urlInfo.name)
+                    if (self.LoadingList.size == 0) {
                     //todo mask
-                }
-                resolve();
-                // if (param.call) {
-                //     param.call()
-                // }
-                // }, 0)
+                    }
+                    resolve();
+                }, 0)
             } else {
                 LoadMgr.loadPrefab(urlInfo.name).then((prefab: Prefab) => {
                     panel = instantiate(prefab);
@@ -111,6 +108,10 @@ export default class PanelMgr extends Component {
                 })
             }
         })
+    }
+
+    public preloadPanel(){
+
     }
 
     private showPanel(panel: Node, param: any, config: any) {

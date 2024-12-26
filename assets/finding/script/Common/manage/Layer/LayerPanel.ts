@@ -21,7 +21,7 @@ export default class LayerPanel extends LayerUI {
      *  面板初始化,第一次生成的时候调用
      */
     public initUI():Promise<void> {
-        return new Promise<void>((resolve, reject) => {})
+        return new Promise<void>((resolve, reject) => {resolve()})
     }
 
     /**
