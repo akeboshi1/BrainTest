@@ -8,6 +8,8 @@ import Tools from "../Tools";
 import CacheMgr from "./CacheMgr";
 import Constant from "../Constant";
 import {_decorator,Node,Component,instantiate,Prefab} from "cc"
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {BundleName} from "db://assets/scripts/Core/Manager/Load/BundleName";
 
 const {ccclass, property} = _decorator;
 @ccclass
@@ -90,21 +92,23 @@ export default class PanelMgr extends Component {
                     resolve();
                 }, 0)
             } else {
-                LoadMgr.loadPrefab(urlInfo.name).then((prefab: Prefab) => {
-                    panel = instantiate(prefab);
-                    panel.parent = layer;
-                    panel.active = false;
-                    self.openList.set(urlInfo.name, panel);
-                    const layerpanel = panel.getComponent(LayerPanel) as LayerPanel;
-                    layerpanel.initUI().then(()=>{
-                        self.showPanel(panel, param.param, config);
-                        self.LoadingList.delete(urlInfo.name);
-                        if (self.LoadingList.size == 0) {
-                            // todo mask
-                        }
-                        resolve();
-                    });
+                LoaderManager.getInstance().assetBundleLoad(BundleName.FINGING,BundleName.FINGING).then((bundle) => {
+                    LoadMgr.loadPrefab(urlInfo.name).then((prefab: Prefab) => {
+                        panel = instantiate(prefab);
+                        panel.parent = layer;
+                        panel.active = false;
+                        self.openList.set(urlInfo.name, panel);
+                        const layerpanel = panel.getComponent(LayerPanel) as LayerPanel;
+                        layerpanel.initUI().then(()=>{
+                            self.showPanel(panel, param.param, config);
+                            self.LoadingList.delete(urlInfo.name);
+                            if (self.LoadingList.size == 0) {
+                                // todo mask
+                            }
+                            resolve();
+                        });
 
+                    })
                 })
             }
         })
