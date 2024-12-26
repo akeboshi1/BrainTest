@@ -72,14 +72,14 @@ export default class GameView extends LayerPanel {
 
     private customsNode: Node = null;
 
-    private victory: Node = null;
+    // private victory: Node = null;
 
     @property(Node)
     private backNode: Node = null;
 
     private clockTime: number = null;
 
-    private plistNode: Node = null;
+    // private plistNode: Node = null;
 
     private tempList = [];
 
@@ -118,10 +118,10 @@ export default class GameView extends LayerPanel {
              this.progress = this.getNode("countDown/progress");
              this.progressSprite = this.progress.getComponent(Sprite);
              this.customsNode = this.getNode("customs/Label");
-             this.victory = this.getNode("victory");
-             this.victory.active = false;
-             this.plistNode = this.getNode("caidai");
-             this.plistNode.active = false;
+             // this.victory = this.getNode("victory");
+             // this.victory.active = false;
+             // this.plistNode = this.getNode("caidai");
+             // this.plistNode.active = false;
              let checkPoint = CacheMgr.checkpoint;
              if (Global.isSkewersGame) {
                  this._curHard = Global.userData.curSkewerGameData.difficulty;
@@ -518,7 +518,7 @@ export default class GameView extends LayerPanel {
     public closeGame(isWin) {
         if (this.gameOver) return;
         if (isWin) {
-            this.victory.active = true;
+            // this.victory.active = true;
         }
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
@@ -564,7 +564,7 @@ export default class GameView extends LayerPanel {
     public createParticle(clickPos) {
         let result = this.resultList.length;
         if (this.resultList.length == 5) {
-            this.plistNode.active = true;
+            // this.plistNode.active = true;
             AudioMgr.play("sub/audio/view/game/sahua").then();
         }
         let resultNode = this.resultNode.children[result - 1];
