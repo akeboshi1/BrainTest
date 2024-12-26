@@ -74,12 +74,10 @@ export default class HomeView extends LayerPanel {
     }
 
     private way2(){
+        PanelMgr.INS.closePanel(HomeView, true)
         PanelMgr.INS.openPanel({
             layer: Layer.gameLayer,
-            panel: GameView,
-            call: () => {
-                PanelMgr.INS.closePanel(HomeView, true)
-            }
+            panel: GameView
         })
     }
 

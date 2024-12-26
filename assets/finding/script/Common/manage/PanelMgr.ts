@@ -69,7 +69,6 @@ export default class PanelMgr extends Component {
             return;
         }
         this.LoadingList.set(urlInfo.name, 1) //添加一个加载标识， 防止重复添加
-        //todo  mask
         let openPanelWay = () => {
             let way = () => {
                 let panel: Node = null
@@ -137,22 +136,22 @@ export default class PanelMgr extends Component {
 
     private showPanel(panel: Node, param: any, config: any) {
         let script = panel.getComponent(LayerPanel)
-        if (config) {
-            if (Tools.checkPer(config.gameBox_probability)) {
-                script.initGameBox()
-            } else {
-                script.noInitGameBox()
-            }
-
-
-            // if (config.more_game && config.more_game.length > 0) {
-            //     script.initMoreGame(() => {
-            //         this.handlePanelMorePlay(config.more_game)
-            //     })
-            // } else {
-            //
-            // }
-        }
+        // if (config) {
+        //     if (Tools.checkPer(config.gameBox_probability)) {
+        //         script.initGameBox()
+        //     } else {
+        //         script.noInitGameBox()
+        //     }
+        //
+        //
+        //     // if (config.more_game && config.more_game.length > 0) {
+        //     //     script.initMoreGame(() => {
+        //     //         this.handlePanelMorePlay(config.more_game)
+        //     //     })
+        //     // } else {
+        //     //
+        //     // }
+        // }
         script.show(param)
         panel.active = true
     }

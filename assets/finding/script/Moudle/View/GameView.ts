@@ -183,15 +183,19 @@ export default class GameView extends LayerPanel {
                 this.resultNode.children[j].active = false;
             }
         }
-        this.onTouch(this.backNode, () => {
-            this.pause = true;
-            if(Global.isSkewersGame){
-                SkewersManager.getInstance().quitGame(this.node,this.resultList.length,this._maxCount,this.goonCallBack,this.exitCallBack,this);
-            }else{
-                GameCenterManager.getInstance().quitGame(this.node,this.goonCallBack,this.exitCallBack,this);
-            }
-         })
+
     }
+
+    private backHandler() {
+        this.pause = true;
+        if(Global.isSkewersGame){
+            SkewersManager.getInstance().quitGame(this.node,this.resultList.length,this._maxCount,this.goonCallBack,this.exitCallBack,this);
+        }else{
+            GameCenterManager.getInstance().quitGame(this.node,this.goonCallBack,this.exitCallBack,this);
+        }
+    }
+
+
 
     private goonCallBack(context){
         if(Global.isSkewersGame) {
