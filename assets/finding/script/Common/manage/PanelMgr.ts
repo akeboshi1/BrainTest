@@ -69,19 +69,20 @@ export default class PanelMgr extends Component {
             return;
         }
         this.LoadingList.set(urlInfo.name, 1) //添加一个加载标识， 防止重复添加
+        let self = this;
         let openPanelWay = () => {
             let way = () => {
                 let panel: Node = null
                 //判断有没有旧的panel可用，有的话就不重新实例化了
-                if (this.hideList.has(urlInfo.name)) {
-                    panel = this.hideList.get(urlInfo.name)
+                if (self.hideList.has(urlInfo.name)) {
+                    panel = self.hideList.get(urlInfo.name)
                     panel.parent = layer
                     panel.active = false
                     // this.scheduleOnce(() => {
-                    this.openList.set(urlInfo.name, panel)
-                    this.showPanel(panel, param.param, config)
-                    this.LoadingList.delete(urlInfo.name)
-                    if (this.LoadingList.size == 0) {
+                    self.openList.set(urlInfo.name, panel)
+                    self.showPanel(panel, param.param, config)
+                    self.LoadingList.delete(urlInfo.name)
+                    if (self.LoadingList.size == 0) {
                         //todo mask
                     }
                     if (param.call) {
@@ -94,12 +95,12 @@ export default class PanelMgr extends Component {
                         panel.parent = layer
                         panel.active = false
                         // this.scheduleOnce(() => {
-                        this.openList.set(urlInfo.name, panel);
+                        self.openList.set(urlInfo.name, panel);
                         const layerpanel = panel.getComponent(LayerPanel)as LayerPanel;
                         layerpanel.initUI()
-                        this.showPanel(panel, param.param, config)
-                        this.LoadingList.delete(urlInfo.name)
-                        if (this.LoadingList.size == 0) {
+                        self.showPanel(panel, param.param, config)
+                        self.LoadingList.delete(urlInfo.name)
+                        if (self.LoadingList.size == 0) {
                             //todo mask
                         }
                         if (param.call) {
