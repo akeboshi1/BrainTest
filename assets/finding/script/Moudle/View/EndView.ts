@@ -41,18 +41,21 @@ export default class EndView extends LayerPanel {
     hide() {
     }
 
-    initUI() {
-        this.btn1Node = this.getNode("result/btn1");
-        this.btn2Node = this.getNode("result/btn2");
-        this.loseTitle = this.getNode("result/title");
-        this.winTitle = this.getNode("result/titleImage");
-        this.btn2Sprite = this.btn2Node.getComponent(Sprite);
-        this.winImage = this.getNode("result/success");
-        this.loseImage = this.getNode("result/lose");
-        this.winTitle.active = this.winImage.active = false;
-        this.loseTitle.active =this.loseImage.active =  false;
-        this.effectNode = this.getNode("result/particle");
-        this.effectNode.active = false;
+     initUI():Promise<void> {
+        return new Promise(resolve => {
+            this.btn1Node = this.getNode("result/btn1");
+            this.btn2Node = this.getNode("result/btn2");
+            this.loseTitle = this.getNode("result/title");
+            this.winTitle = this.getNode("result/titleImage");
+            this.btn2Sprite = this.btn2Node.getComponent(Sprite);
+            this.winImage = this.getNode("result/success");
+            this.loseImage = this.getNode("result/lose");
+            this.winTitle.active = this.winImage.active = false;
+            this.loseTitle.active =this.loseImage.active =  false;
+            this.effectNode = this.getNode("result/particle");
+            this.effectNode.active = false;
+            resolve();
+        })
     }
 
     show(param: any): void {
@@ -130,26 +133,23 @@ export default class EndView extends LayerPanel {
     public closeEnd() {
         this.offTouch(this.btn1Node);
         this.offTouch(this.btn2Node);
-        setTimeout(() => {
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
-                panel: HomeView,
-                call: ()=>{
-                    PanelMgr.INS.closePanel(EndView);
-                }
-            })
-        }, 500)
+                panel: HomeView
+            }).then(()=>{
+                PanelMgr.INS.closePanel(EndView);
+            });
+
     }
 
     public openHome() {
-        setTimeout(() => {
+
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: HomeView,
-                call: ()=>{
-                    PanelMgr.INS.closePanel(EndView);
-                }
-            })
-        }, 500)
+            }).then(()=>{
+                PanelMgr.INS.closePanel(EndView);
+            });
+
     }
 }

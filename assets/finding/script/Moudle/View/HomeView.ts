@@ -23,13 +23,17 @@ export default class HomeView extends LayerPanel {
 
     private beClick: boolean = false;
 
-    initUI() {
-        PanelMgr.INS.openPanel({
-            panel: GameInfoView,
-            layer: Layer.gameInfoLayer
+    initUI():Promise<void> {
+        return new Promise(resolve => {
+            PanelMgr.INS.openPanel({
+                panel: GameInfoView,
+                layer: Layer.gameInfoLayer
+            }).then(()=>{
+                this.pictureNode = this.getNode("bg/picture")
+                return resolve();
+            });
         })
 
-        this.pictureNode = this.getNode("bg/picture")
     }
 
 
@@ -69,15 +73,18 @@ export default class HomeView extends LayerPanel {
     private nextHandler(){
         if (this.beClick) return;
         this.beClick = true;
-
         this.way2();
     }
 
-    private way2(){
-        PanelMgr.INS.closePanel(HomeView, true)
-        PanelMgr.INS.openPanel({
-            layer: Layer.gameLayer,
-            panel: GameView
+    private way2():Promise<void>{
+        return new Promise(resolve => {
+            PanelMgr.INS.openPanel({
+                layer: Layer.gameLayer,
+                panel: GameView
+            }).then(()=>{
+                this.beClick = false;
+                PanelMgr.INS.closePanel(HomeView, false)
+            })
         })
     }
 

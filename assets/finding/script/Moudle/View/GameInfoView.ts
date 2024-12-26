@@ -40,8 +40,10 @@ export default class GameInfoView extends LayerPanel {
         return this.gameInfoViewIns;
     }
 
-    initUI(): void {
-
+    initUI():Promise<void> {
+        return new Promise(resolve => {
+            resolve();
+        })
     }
 
     show(param: any): void {
