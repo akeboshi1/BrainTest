@@ -4,11 +4,11 @@ import Emit from "../Common/manage/Emit/Emit";
 import {EventCode} from "../Common/manage/Emit/EmitData";
 import HomeView from "../Moudle/View/HomeView";
 import Global from "../Common/Global";
-import {macro,dynamicAtlasManager,_decorator,Component,JsonAsset,Node} from "cc";
+import {_decorator,Component,JsonAsset,Node} from "cc";
 import AudioMgr from "../Common/manage/AudioMgr";
-
-macro.CLEANUP_IMAGE_CACHE = false;
-dynamicAtlasManager.enabled = true;
+//
+// macro.CLEANUP_IMAGE_CACHE = false;
+// dynamicAtlasManager.enabled = true;
 const {ccclass, property} = _decorator;
 
 @ccclass
