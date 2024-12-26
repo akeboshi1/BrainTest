@@ -327,7 +327,8 @@ export class Main extends Component {
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
             1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex]);
         }else{
-            this.requestGameResult();
+            let obj = this.requestGameResult();
+            SkewersManager.getInstance().requestGameComplete(obj.complete,obj.duration);
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
@@ -636,7 +637,6 @@ export class Main extends Component {
             complete,
             duration
         }
-      
     }
 
     private quitGame() {

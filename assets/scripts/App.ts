@@ -129,8 +129,6 @@ export class App extends BaseObejct {
     }
 
 
-
-
     private initManager() {
         EventManager.getInstance().init();
         LoaderManager.getInstance().init();

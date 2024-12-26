@@ -1,9 +1,7 @@
-// cc.macro.CLEANUP_IMAGE_CACHE = false;
 import PanelMgr, {Layer, View} from "../Common/manage/PanelMgr";
 import Emit from "../Common/manage/Emit/Emit";
 import {EventCode} from "../Common/manage/Emit/EmitData";
 import HomeView from "../Moudle/View/HomeView";
-import Global from "../Common/Global";
 import {_decorator,Component,JsonAsset,Node} from "cc";
 import AudioMgr from "../Common/manage/AudioMgr";
 //
