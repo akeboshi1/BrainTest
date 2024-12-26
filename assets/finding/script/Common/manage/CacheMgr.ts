@@ -165,7 +165,7 @@ class CachesMgr {
     }
 
     get checkpoint(): number {
-        return this._checkpoint;
+        return Number(this._checkpoint);
     }
 
     set checkpoint(value: number) {

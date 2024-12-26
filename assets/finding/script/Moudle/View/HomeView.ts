@@ -8,6 +8,7 @@ import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
 import {_decorator,Node,instantiate,Prefab,Sprite} from "cc";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -38,7 +39,7 @@ export default class HomeView extends LayerPanel {
 
 
     show(param: any): void {
-        let checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.seq:CacheMgr.checkpoint;
+        let checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.seq:CacheMgr.checkpoint==0?CacheMgr.checkpoint = GameCenterManager.getInstance().currentGame.level:CacheMgr.checkpoint;
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
             checkPoint = 1;

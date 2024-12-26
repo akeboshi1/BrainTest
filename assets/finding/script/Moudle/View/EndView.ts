@@ -133,12 +133,13 @@ export default class EndView extends LayerPanel {
     public closeEnd() {
         this.offTouch(this.btn1Node);
         this.offTouch(this.btn2Node);
-            PanelMgr.INS.openPanel({
+        PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: HomeView
-            }).then(()=>{
+        }).then(()=>{
+
                 PanelMgr.INS.closePanel(EndView);
-            });
+       });
 
     }
 

@@ -72,14 +72,14 @@ export default class GameView extends LayerPanel {
 
     private customsNode: Node = null;
 
-    // private victory: Node = null;
+    private victory: Node = null;
 
     @property(Node)
     private backNode: Node = null;
 
     private clockTime: number = null;
 
-    // private plistNode: Node = null;
+    private plistNode: Node = null;
 
     private tempList = [];
 
@@ -118,17 +118,18 @@ export default class GameView extends LayerPanel {
              this.progress = this.getNode("countDown/progress");
              this.progressSprite = this.progress.getComponent(Sprite);
              this.customsNode = this.getNode("customs/Label");
-             // this.victory = this.getNode("victory");
-             // this.victory.active = false;
-             // this.plistNode = this.getNode("caidai");
-             // this.plistNode.active = false;
+             this.victory = this.getNode("victory");
+             this.victory.active = false;
+             this.plistNode = this.getNode("caidai");
+             this.plistNode.active = false;
              let checkPoint = CacheMgr.checkpoint;
              if (Global.isSkewersGame) {
                  this._curHard = Global.userData.curSkewerGameData.difficulty;
                  // test code
                  checkPoint = Global.userData.curSkewerGameData.seq;
              } else {
-                 let _level = GameCenterManager.getInstance().currentGame.level;
+                 let _level = CacheMgr.checkpoint;
+                 checkPoint = CacheMgr.checkpoint = _level;
                  if (_level % 3 == 0) {
                      if (_level == 0) {
                          this._curHard = 1;
@@ -162,7 +163,7 @@ export default class GameView extends LayerPanel {
                  let nodeUITransform = node.addComponent(UITransform);
                  nodeUITransform.width = sizeData[i].w;
                  nodeUITransform.height = sizeData[i].h;
-                 node.setScale(1.2,1.2);
+                 node.setScale(1.4,1.4);
                  node.setPosition(custData[i].x * 1.5, custData[i].y * 1.5)
                  nodeUITransform.setAnchorPoint(0.5, 0.5);
                  let sprite = node.addComponent(Sprite);
@@ -214,29 +215,6 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
         this.monitorEvent();
         this.clockTime = GameConfig.clockTime;
-    }
-
-    public initProp() {
-        // let time: number = CacheMgr.addTime;
-        // let hint: number = CacheMgr.hint;
-        // if (time <= 0) {
-        //     // this.addTimeVideo.active = true;
-        //     // this.addTimeCountNode.active = false;
-        // } else {
-        //     // this.addTimeVideo.active = false;
-        //     // this.addTimeCountNode.active = true;
-        //     // let label = this.addTimeCountNode.getChildByName("label").getComponent(Label);
-        //     // label.string = time + "";
-        // }
-        // if (hint <= 0) {
-        //     // this.hintVideoNode.active = true;
-        //     // this.hintCountNode.active = false;
-        // } else {
-        //     // this.hintVideoNode.active = false;
-        //     // this.hintCountNode.active = true;
-        //     // let label = this.hintCountNode.getChildByName("label").getComponent(Label);
-        //     // label.string = hint + "";
-        // }
     }
 
     public newHandHint() {
@@ -379,6 +357,7 @@ export default class GameView extends LayerPanel {
     }
 
     public onTouchDown(event) {
+        if (this.gameOver) return;
         let clickPos =  event.getUILocation();
         let target: Node = event.target;
         let targetUITransform = target.getComponent(UITransform);
@@ -488,6 +467,7 @@ export default class GameView extends LayerPanel {
     private alertGoonHandler(context){
         context.pause = false;
         context._pauseDurTime += context._pauseEndTime - TimeUtil.getNow();
+        AudioMgr.audioSource.stop();
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().runNextGame();
         }else{
@@ -506,19 +486,19 @@ export default class GameView extends LayerPanel {
 
     private exitCallBack(context){
         context.pause = false;
+        AudioMgr.audioSource.stop();
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{
             GameCenterManager.getInstance().exitCallBack();
         }
-        AudioMgr.audioSource.stop();
     }
 
 
     public closeGame(isWin) {
         if (this.gameOver) return;
         if (isWin) {
-            // this.victory.active = true;
+            this.victory.active = true;
         }
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
@@ -530,7 +510,8 @@ export default class GameView extends LayerPanel {
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, curGame.level,
                 this.resultList.length / this._maxCount, this._endTime-this._startTime, GameConfig.customTime, this._curHard, () => { });
 
-            PanelMgr.INS.openPanel({
+            setTimeout(() => {
+                PanelMgr.INS.openPanel({
                     layer: Layer.gameLayer,
                     panel: EndView,
                     param: {
@@ -538,9 +519,10 @@ export default class GameView extends LayerPanel {
                         isWin: isWin,
                         residueTime: this.countDownTime
                     }
-            }).then(()=>{
-                PanelMgr.INS.closePanel(GameView);
-            });
+                }).then(() => {
+                    PanelMgr.INS.closePanel(GameView);
+                })
+            },1500);
         }
     }
 
@@ -563,8 +545,8 @@ export default class GameView extends LayerPanel {
 
     public createParticle(clickPos) {
         let result = this.resultList.length;
-        if (this.resultList.length == 5) {
-            // this.plistNode.active = true;
+        if (this.resultList.length == this._maxCount) {
+            this.plistNode.active = true;
             AudioMgr.play("sub/audio/view/game/sahua").then();
         }
         let resultNode = this.resultNode.children[result - 1];
@@ -646,6 +628,7 @@ export default class GameView extends LayerPanel {
         let sprite: Sprite = node.addComponent(Sprite);
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
         LoadMgr.loadSprite(sprite, "sub/image/view/gameView/public/err").then();
+        node.setScale(1.6,1.6);
         this.node.addChild(node);
         this.errNode = node;
         let opacityComponent = node.getComponent(UIOpacity);
