@@ -75,7 +75,7 @@ export class catchfish extends Component {
 
     private hasWangClick: boolean = false;
 
-    private audioUrls=["music/fishBG","music/fishCatch","music/win"];
+    private audioUrls=["music/fishCatch","music/win"];
     private audioMap:Map<string,AudioClip> = new Map();
     private bundleName: string = 'catchFish';
     onLoad(){
@@ -83,7 +83,6 @@ export class catchfish extends Component {
         tween(this.mask)
             .to(0.4, {scale: v3(1,1,1)}, {easing: 'quadOut'})
             .call(() => {
-                director.loadScene('Game');
             })
             .start();
         this.loadAudio();
@@ -138,7 +137,6 @@ export class catchfish extends Component {
         this.timeInit();
         this.timeStart();
         this.createFish();
-        this.playAudio("music/fishBG");
     }
 
     // startGameByAlert(context){
