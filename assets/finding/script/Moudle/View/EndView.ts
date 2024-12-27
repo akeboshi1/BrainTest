@@ -70,11 +70,13 @@ export default class EndView extends LayerPanel {
         if (this.result) {
             this.winTitle.active = this.winImage.active = true;
             this.loseTitle.active =this.loseImage.active =  false;
+            this.btn1Node.active = false;
             // LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_no").then();
             AudioMgr.play("sub/audio/view/game/win", 1, false).then();
         } else {
             this.winTitle.active = this.winImage.active = false;
             this.loseTitle.active =this.loseImage.active =  true;
+            this.btn1Node.active = true;
             // LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_startOver").then();
             // this.onTouch(this.btn2Node, this.onClickAgain)
             AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
