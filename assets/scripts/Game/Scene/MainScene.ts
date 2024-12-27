@@ -19,6 +19,8 @@ import {BundlePreloadEvent, BundlePreloadManager} from '../../Core/Manager/Load/
 import {InfoListPopCtrl} from './InfoListPopCtrl';
 import {FrameComponent} from '../../Core/Component/FrameComponent';
 import { BundleName } from '../../Core/Manager/Load/BundleName';
+import { UIManager } from '../../Core/Manager/UI/UIManager';
+import { PersonalCenterPanel } from '../UI/PersonalCenter/PersonalCenterPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -134,12 +136,6 @@ export class MainScene extends Component {
 
     @property(ScrollView)
     scrollViewNode: ScrollView = null;
-
-    @property(Node)
-    personalInfoNode: Node = null;
-
-    @property(Node)
-    reportUINode: Node = null;
 
 
     /**
@@ -380,12 +376,13 @@ export class MainScene extends Component {
         }
 
     showUserCenter() {
-        this.personalInfoNode.active = true;
+        UIManager.getInstance().registerPanel(PersonalCenterPanel.NAME, BundleName.RESOURCES, "prefab/personalCenter/PersonalCenterPanel",PersonalCenterPanel);
+        UIManager.getInstance().showPanel(PersonalCenterPanel.NAME);
     }
     reportNode() {
-        DebugLog.instance.log("reportNode");
-        this.personalInfoNode.getChildByName('PersonalCenter').active = false;
-        this.reportUINode.active = true;
+        // DebugLog.instance.log("reportNode");
+        // this.personalInfoNode.getChildByName('PersonalCenter').active = false;
+        // this.reportUINode.active = true;
     }
 
     showMore() {
@@ -667,11 +664,6 @@ export class MainScene extends Component {
 
     backToCenteter() {
         SceneManager.getInstance().backToHall();
-    }
-
-    backToReport() {
-        this.reportUINode.active = false;
-        this.personalInfoNode.getChildByName('PersonalCenter').active = true;
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {

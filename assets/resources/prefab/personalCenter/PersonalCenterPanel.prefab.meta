@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "8486d070-0ff7-44dd-9a8b-d78193d5f892",
+  "uuid": "e000ec48-3071-4d98-a889-3d4f32b35614",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "PersonalCenter"
+    "syncNodeName": "PersonalCenterPanel"
   }
 }
