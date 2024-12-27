@@ -68,6 +68,7 @@ export class catchfish extends Component {
     private curHard: number = 0;
     private hards: number[] = [1, 2, 3];
     private hardIndex: number = 0;
+    private customsSendDataState: boolean;
 
     private hasWangClick: boolean = false;
 
@@ -82,6 +83,7 @@ export class catchfish extends Component {
     }
 
     startGame() {
+        this.customsSendDataState=false;
         this._clearBoo = false;
         this._startTime = TimeUtil.getNow();
         this.gameBeforeView.active = false;
@@ -250,8 +252,15 @@ export class catchfish extends Component {
                         EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.failRequestSkewersGameComplete,this);
                         this.requestGameResult();
                     }else{
+                        if(!this.customsSendDataState){ //未发送数据的状态
+                        const curGame = GameCenterManager.getInstance().currentGame;
+                        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, this.hards[this.hardIndex],
+                            this.wangCount/this.wangMaxCount, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+                            this.customsSendDataState= true;
+                        }
                         this.gameFailView.active = true;
                         this.updateSuccessPopupStar(this.curHard);
+                 
                     }
                 }
                 clearInterval(this.timerId);
@@ -337,7 +346,9 @@ export class catchfish extends Component {
         if(Global.isSkewersGame){
 
         }else{
+            if(!this.customsSendDataState){
             GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
+            }
         }
 
 
@@ -421,9 +432,11 @@ export class catchfish extends Component {
 
 
         } else {
+            if(!this.customsSendDataState){
             const curGame = GameCenterManager.getInstance().currentGame;
             GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, this.hards[this.hardIndex],
-                this.hards[this.hardIndex] / this.hards.length, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+                1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+            }
             this.gameSuccessView.active = true;
             this.clearGameView();
             this.updateSuccessPopupStar(this.curHard);

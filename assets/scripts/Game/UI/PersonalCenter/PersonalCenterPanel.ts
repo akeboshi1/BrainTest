@@ -20,13 +20,21 @@ export class PersonalCenterPanel extends Component {
     }
 
     getUserInfoCallBack(data: any) {
-       let userData= PersonalCenterManager.getInstance().userInfoData
+       let userData= PersonalCenterManager.getInstance().userInfoData;
+       this.setPersonalCenterTitle(userData.full_name.toString());
+       
     }
-   
+    setPersonalCenterTitle(title: string) {
+        this.titleLabel.string = title;
+    }
+    backToParent() {
+        this.node.active =false;
+    }
     update(deltaTime: number) {
        
     }
     showUserInfo() {
+        this.node.active = false;
         this.node.parent.getChildByName('UserInfoPanel').active = true;
     }
 }

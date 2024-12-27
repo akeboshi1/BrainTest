@@ -229,7 +229,9 @@ export class Main extends Component {
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
             if(!Global.isSkewersGame){
+                if(!this.customsSendDataState){
                 GameCenterManager.getInstance().gameMatch( GameCenterManager.getInstance().currentGame.sessionid,()=>{})
+                }
             }
 
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
@@ -561,7 +563,7 @@ export class Main extends Component {
     timerId: any;
     timer: number;
 
-    INIT_TIME = 30;
+    INIT_TIME = 90;
 
     timerInit() {
         this.timer = this.INIT_TIME;
