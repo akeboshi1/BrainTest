@@ -1,4 +1,4 @@
-import { _decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform,Tween } from 'cc';
+import { assetManager,AudioClip,_decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform,Tween,v3,director } from 'cc';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
@@ -11,9 +11,10 @@ import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
+import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 
 
-const SHOOT_INTERVAL = 8;
+const SHOOT_INTERVAL = 2;
 let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends Component {
@@ -54,6 +55,9 @@ export class catchfish extends Component {
     wangPrefab: Prefab;
 
     @property(Node)
+    mask: Node = null;
+
+    @property(Node)
     private viewNode:Node = null;
 
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
@@ -71,6 +75,43 @@ export class catchfish extends Component {
     private customsSendDataState: boolean;
 
     private hasWangClick: boolean = false;
+
+    private audioUrls=["music/fishCatch","music/win"];
+    private audioMap:Map<string,AudioClip> = new Map();
+    private bundleName: string = 'catchFish';
+    onLoad(){
+        this.mask.scale = v3(0,1,1);
+        tween(this.mask)
+            .to(0.4, {scale: v3(1,1,1)}, {easing: 'quadOut'})
+            .call(() => {
+            })
+            .start();
+        this.loadAudio();
+    }
+
+    private async loadAudio() {
+        const bundle = assetManager.getBundle(this.bundleName);
+        if(!bundle){
+            DebugLog.instance.error("bundle is not exist! ---- bundle name:"+ this.bundleName);
+            return;
+        }
+        let self = this;
+        let len = this.audioUrls.length;
+        for(let i:number = 0;i<len;i++){
+            let audioUrl = this.audioUrls[i];
+            const audioRes:AudioClip = await new Promise<AudioClip>((resolve,reject)=>{
+                bundle.load(audioUrl,AudioClip,(err,data:AudioClip)=>{
+                    if(err){
+                        DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
+                        reject(err);
+                    }else{
+                        resolve(data);
+                    }
+                })
+            });
+            this.audioMap.set(audioUrl,audioRes);
+        }
+    }
 
     start() {
         this.fishs = []
@@ -199,7 +240,7 @@ export class catchfish extends Component {
         // 使用 tween 创建运动效果
         fish.curTween = tween(fish)
             // 对当前鱼对象进行 tween 动画
-            .delay(delay)// 每个对象延迟3秒开始
+            .delay(delay)// 每个对象延迟4秒开始
             .by(duration, { position: new Vec3(fish.position.x - 2200, fish.position.y, fish.position.z) },
                 {
                     onUpdate: () => {
@@ -360,13 +401,14 @@ export class catchfish extends Component {
         if(this._wangTween)this._wangTween.stop();
         // 启动动画
         this._wangTween = tween(wangPrefab).parallel(
-            tween().to(0.8 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
-            tween().to(0.5 - offsetTime, { position: new Vec3(fishWorldPos.x - wangWorldPos.x,fishWorldPos.y - 100,fishWorldPos.z)}))
+            tween().to(0.4 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
+            tween().to(0.25 - offsetTime, { position: new Vec3(fishWorldPos.x - wangWorldPos.x,fishWorldPos.y - 100,fishWorldPos.z)}))
     .call(() => {
             self._curFish.curTween.stop();
             const scaleUp = 1.3; // 放大到2倍
             const scaleDown = 1.0; // 恢复到原始大小
-            const duration = 0.2; // 每次放大和缩小的时长
+            const duration = 0.06; // 每次放大和缩小的时长
+            self.playAudio("music/fishCatch",true);
             tween(self._curFish.getFishNode())
                 .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
                 .delay(0.1)
@@ -422,6 +464,7 @@ export class catchfish extends Component {
         if(Global.isSkewersGame){
             this.clearGameView();
             this.requestGameResult();
+            this.playAudio("music/win");
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
@@ -429,8 +472,6 @@ export class catchfish extends Component {
             }
             //上报数据
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
-
-
         } else {
             if(!this.customsSendDataState){
             const curGame = GameCenterManager.getInstance().currentGame;
@@ -439,6 +480,7 @@ export class catchfish extends Component {
             }
             this.gameSuccessView.active = true;
             this.clearGameView();
+            this.playAudio("music/win");
             this.updateSuccessPopupStar(this.curHard);
             this.stars[this.hardIndex].scale = new Vec3(2, 2, 2);
             if (this.hardIndex == this.hards.length - 1) {
@@ -506,6 +548,7 @@ export class catchfish extends Component {
             this._wangTween.stop();
             this._wangTween = null;
         }
+        AudioManager.getInstance().stop();
         Tween.stopAll();
         EventManager.getInstance().off(Fish.FishClick, this);
 
@@ -528,6 +571,17 @@ export class catchfish extends Component {
     private nextGame() {
         this.gameSuccessView.active = false;
         this.startGame(); // 开始下一关
+    }
+
+    private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
+        let audioRes = this.audioMap.get(url);
+        if(audioRes != null){
+            if(isShot){
+                AudioManager.getInstance().playOneShot(audioRes);
+            }else{
+                AudioManager.getInstance().play(audioRes,isLoop);
+            }
+        }
     }
 
     private selectWang(index: number) {

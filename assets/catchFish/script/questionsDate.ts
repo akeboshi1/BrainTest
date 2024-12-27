@@ -53,126 +53,126 @@ export const questions0 = [
 
 export const questions1 = [
     {
-        "question": "5 + 3",
-        "options": ["7", "8", "9", "6"],
-        "correctAnswer": "8"
+        "question": "15 + 13",
+        "options": ["27", "28", "29", "26"],
+        "correctAnswer": "28"
     },
     {
-        "question": "7 - 2",
+        "question": "17 - 12",
         "options": ["4", "6", "5", "3"],
         "correctAnswer": "5"
     },
     {
-        "question": "9 + 1",
-        "options": ["11", "8", "10", "9"],
-        "correctAnswer": "10"
+        "question": "19 + 11",
+        "options": ["21", "28", "30", "29"],
+        "correctAnswer": "30"
     },
     {
-        "question": "4 - 1",
-        "options": ["4", "3", "5", "2"],
-        "correctAnswer": "3"
+        "question": "24 - 11",
+        "options": ["14", "13", "15", "12"],
+        "correctAnswer": "13"
     },
     {
-        "question": "6 + 15",
-        "options": ["22", "20", "21", "23"],
-        "correctAnswer": "21"
+        "question": "16 + 15",
+        "options": ["32", "30", "31", "33"],
+        "correctAnswer": "31"
     },
     {
-        "question": "8 - 3",
+        "question": "18 - 13",
         "options": ["7", "5", "4", "6"],
         "correctAnswer": "5"
     },
     {
-        "question": "7 + 12",
-        "options": ["17", "19", "18", "20"],
-        "correctAnswer": "19"
+        "question": "27 + 12",
+        "options": ["37", "39", "38", "40"],
+        "correctAnswer": "39"
     },
     {
-        "question": "18 - 4",
-        "options": ["16", "14", "15", "13"],
-        "correctAnswer": "14"
+        "question": "18 - 14",
+        "options": ["6", "4", "5", "3"],
+        "correctAnswer": "4"
     },
     {
-        "question": "1 + 17",
-        "options": ["17", "19", "18", "20"],
-        "correctAnswer": "18"
+        "question": "21 + 17",
+        "options": ["37", "39", "38", "40"],
+        "correctAnswer": "38"
     },
     {
-        "question": "20 - 5",
-        "options": ["14", "15", "13", "16"],
-        "correctAnswer": "15"
+        "question": "20 - 15",
+        "options": ["4", "5", "3", "6"],
+        "correctAnswer": "5"
     }
 ];
 export const questions2 = [
     {
-        "question": "12 + 7",
-        "options": ["18", "19", "20", "17"],
-        "correctAnswer": "19"
+        "question": "(12 + 17) x 2",
+        "options": ["58", "59", "60", "57"],
+        "correctAnswer": "58"
     },
     {
-        "question": "15 - 6",
-        "options": ["9", "8", "10", "11"],
-        "correctAnswer": "9"
+        "question": "(25 - 16) x 3",
+        "options": ["29", "28", "30", "27"],
+        "correctAnswer": "27"
     },
     {
-        "question": "13 + 6",
-        "options": ["19", "18", "20", "17"],
-        "correctAnswer": "19"
+        "question": "(13 + 26) x 2",
+        "options": ["79", "78", "80", "77"],
+        "correctAnswer": "78"
     },
     {
-        "question": "18 - 9",
-        "options": ["9", "8", "10", "7"],
-        "correctAnswer": "9"
+        "question": "(19 - 17) x 5",
+        "options": ["19", "18", "10", "17"],
+        "correctAnswer": "10"
     },
     {
-        "question": "14 + 5",
-        "options": ["19", "18", "20", "17"],
-        "correctAnswer": "19"
+        "question": "(14 + 26) x 4",
+        "options": ["140", "120", "144", "160"],
+        "correctAnswer": "160"
     },
     {
-        "question": "17 - 8",
-        "options": ["9", "8", "10", "11"],
-        "correctAnswer": "9"
+        "question": "(27 - 18) x 3",
+        "options": ["29", "28", "30", "27"],
+        "correctAnswer": "27"
     },
     {
-        "question": "12 + 8",
-        "options": ["20", "21", "19", "22"],
-        "correctAnswer": "20"
+        "question": "(12 + 18) x 5",
+        "options": ["150", "140", "130", "120"],
+        "correctAnswer": "150"
     },
     {
-        "question": "16 - 7",
-        "options": ["9", "8", "10", "11"],
-        "correctAnswer": "9"
+        "question": "(52 - 37) x 3",
+        "options": ["42", "36", "45", "39"],
+        "correctAnswer": "45"
     },
     {
-        "question": "11 + 9",
-        "options": ["20", "19", "21", "22"],
-        "correctAnswer": "20"
+        "question": "(11 + 19) x 2",
+        "options": ["50", "60", "41", "42"],
+        "correctAnswer": "60"
     },
     {
-        "question": "19 - 5",
-        "options": ["14", "15", "13", "16"],
-        "correctAnswer": "14"
+        "question": "(31 - 26) x 3",
+        "options": ["14", "15", "12", "16"],
+        "correctAnswer": "15"
     },
 
     {
-        "question": "12 + 18",
-        "options": ["30", "29", "31", "32"],
-        "correctAnswer": "30"
+        "question": "(12 + 18) x 2",
+        "options": ["60", "59", "51", "52"],
+        "correctAnswer": "60"
     },
     {
-        "question": "14 + 16",
-        "options": ["30", "31", "29", "32"],
-        "correctAnswer": "30"
+        "question": "(14 + 16) x 3",
+        "options": ["80", "81", "89", "90"],
+        "correctAnswer": "90"
     },
     {
-        "question": "18 - 12",
-        "options": ["6", "7", "5", "8"],
-        "correctAnswer": "6"
+        "question": "(18 - 15) x 3",
+        "options": ["9", "6", "12", "21"],
+        "correctAnswer": "9"
     },
     {
-        "question": "17 - 13",
-        "options": ["4", "5", "3", "6"],
-        "correctAnswer": "4"
+        "question": "(17 - 13) x 2",
+        "options": ["4", "5", "8", "6"],
+        "correctAnswer": "8"
     }
 ];
