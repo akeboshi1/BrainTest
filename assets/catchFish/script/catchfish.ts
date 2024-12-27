@@ -1,4 +1,4 @@
-import { assetManager,AudioClip,_decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform,Tween,v3,director } from 'cc';
+import { Canvas,assetManager,AudioClip,_decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform,Tween,v3,director } from 'cc';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
@@ -79,6 +79,7 @@ export class catchfish extends Component {
     private audioUrls=["music/fishCatch","music/win"];
     private audioMap:Map<string,AudioClip> = new Map();
     private bundleName: string = 'catchFish';
+    private _leftSceneX:number = -1;
     onLoad(){
         this.mask.scale = v3(0,1,1);
         tween(this.mask)
@@ -87,6 +88,10 @@ export class catchfish extends Component {
             })
             .start();
         this.loadAudio();
+        const scene = director.getScene();
+        const canvas = scene.getComponentInChildren(Canvas);
+        const uitransform = canvas.getComponent(UITransform);
+        this._leftSceneX = -uitransform.width/2;
     }
 
     private async loadAudio() {
@@ -181,6 +186,7 @@ export class catchfish extends Component {
         let spriteFrame = this.spriteFrames[index];
 
         fish.setPosition(x, y);
+        fish.setScale(1);
         DebugLog.instance.log(`create ---- ${fish.position}`)
 
         fish.setSpriteFrame(spriteFrame);
@@ -375,8 +381,13 @@ export class catchfish extends Component {
         for (let i = 0; i < len; i++) {
             this.unSelectWang(i);
         }
-        this._curFish.curTween.stop();
+
         this.clearWangNubmer();
+        if(this._curFish.position.x<this._leftSceneX){
+            this.hasWangClick = false;
+            return;
+        }
+        this._curFish.curTween.stop();
         let wangPrefab = instantiate(this.wangPrefab);
         wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
         // 获取当前索引对应的wang
@@ -389,7 +400,7 @@ export class catchfish extends Component {
 
         }else{
             if(!this.customsSendDataState){
-            GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
+               GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
             }
         }
 
