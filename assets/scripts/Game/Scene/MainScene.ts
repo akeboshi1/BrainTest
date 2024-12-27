@@ -154,7 +154,7 @@ export class MainScene extends Component {
     private processingColor = "#FF2D55";
 
     private chatPanel: Node = null;
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜'];
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜' ,'麻将组句'];
     private notificationArr: [];
     private taskAndNotificationPanelCtrl = null;
     onLoad() {
@@ -640,19 +640,22 @@ export class MainScene extends Component {
             let sceneName = "";
             switch (gameid) {
                 case 1:
-                    sceneName = "finding";
+                    sceneName = BundleName.FINGING;
                     break;
                 case 2:
-                    sceneName = "fanpai";
+                    sceneName = BundleName.FANPAI;
                     break;
                 case 3:
-                    sceneName = "puzzle";
+                    sceneName = BundleName.PUZZLE;
                     break;
                 case 4:
-                    sceneName = "catchFish";
+                    sceneName = BundleName.CATCHFISH;
                     break;
                 case 5:
-                    sceneName = "guessingGame";
+                    sceneName = BundleName.GUESSINGGAME;
+                    break;
+                case 6:
+                    sceneName = BundleName.SENTENCEMAKING;
                     break;
             }
             let url = Global.RES_Root + sceneName;
