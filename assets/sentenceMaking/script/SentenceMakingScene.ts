@@ -396,6 +396,12 @@ export class SentenceMakingScene extends Component {
 
         for (let i = 0; i < this.resultContainerMap.size; i++) {
             let node = this.resultContainerMap.get(i);
+            if(!node){
+                ad.title = "提示";
+                ad.message = "你还有词语没有使用";
+                AlertManager.getInstance().showAlert(ad);
+                return;
+            }
             let cardCtrl = node.getComponent(CardCtrl);
             node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
