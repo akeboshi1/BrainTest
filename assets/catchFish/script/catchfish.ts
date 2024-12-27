@@ -132,6 +132,7 @@ export class catchfish extends Component {
         this.wangCount = 0;
         if(Global.isSkewersGame){
             this.curHard = Global.userData.curSkewerGameData.difficulty;
+            this.hardIndex = this.hards.indexOf(this.curHard);
         }else{
             this.curHard = this.hards[this.hardIndex];
         }
@@ -470,6 +471,7 @@ export class catchfish extends Component {
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
                 return;
             }
+            this.hardIndex = this.hards.indexOf(this.curHard);
             //上报数据
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
         } else {

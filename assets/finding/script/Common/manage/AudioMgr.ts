@@ -1,7 +1,7 @@
 /**
  * 音乐管理器
  */
-import Global from "../Global";
+import Global from "../FindingGlobal";
 import GameLog from "./GameLogMgr";
 import CacheMgr from "./CacheMgr";
 import LoadMgr from "./LoadMgr";

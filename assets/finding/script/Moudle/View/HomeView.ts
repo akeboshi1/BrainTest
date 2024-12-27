@@ -39,7 +39,12 @@ export default class HomeView extends LayerPanel {
 
 
     show(param: any): void {
-        let checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.seq:CacheMgr.checkpoint==0?CacheMgr.checkpoint = GameCenterManager.getInstance().currentGame.level:CacheMgr.checkpoint;
+        let checkPoint=0;
+        if(Global.isAgain){
+            checkPoint = CacheMgr.checkpoint;
+        }else{
+            checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.seq:CacheMgr.checkpoint==0?CacheMgr.checkpoint = GameCenterManager.getInstance().currentGame.level:CacheMgr.checkpoint;
+        }
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
             checkPoint = 1;

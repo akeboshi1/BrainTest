@@ -1,4 +1,4 @@
-import Global, {ExportData} from "./Global";
+import Global, {ExportData} from "./FindingGlobal";
 import Constant from "./Constant";
 import CacheMgr from "./manage/CacheMgr";
 import GameLogMgr from "./manage/GameLogMgr";

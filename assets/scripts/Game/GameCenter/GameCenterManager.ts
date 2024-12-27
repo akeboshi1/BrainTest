@@ -137,6 +137,9 @@ export class GameCenterManager {
      * @param sessionid
      */
     public gameMatch(sessionid:string,callback:Function = null){
+        if(Global.isAgain){
+            return;
+        }
         let socketData = new SocketData({"action": GameCenterManager.GAMEMATCHITEM,  "data":{session_id:sessionid}});
         this._callbackDic.set(GameCenterManager.GAMEMATCHITEM,new GameSocketData(socketData,callback));
         EventManager.getInstance().on(GameCenterManager.GAMEMATCHITEM,this.gameMatchCallBack,this);
@@ -164,6 +167,9 @@ export class GameCenterManager {
      * @param difficulty 游戏难度1，2，3
      */
     public gamePassLevel(sessionid:string,count:number,level:number,complete:number,duration:number,timelimit:number,difficulty:number,callback:Function = null){
+        if(Global.isAgain){
+            return;
+        }
         let socketData = new SocketData({"action":GameCenterManager.GAMEPASSLEVEL,
             "data":{
                 session_id:sessionid,
