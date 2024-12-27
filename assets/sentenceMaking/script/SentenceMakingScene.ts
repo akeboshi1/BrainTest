@@ -16,13 +16,13 @@ export class SentenceMakingScene extends Component {
     emptyModel: Prefab = null;
 
     @property(Node)
-    sourceContainer: Node;
+    cardContainer: Node;
+
+    @property(Node)
+    resultOffsetNode: Node;
 
     @property(Node)
     emptyContainer: Node;
-
-    @property(Node)
-    resultContainer: Node;
 
     @property(Button)
     btn_commitresult: Button;
@@ -55,6 +55,7 @@ export class SentenceMakingScene extends Component {
     private startDragObjectPos: Vec2;
     private touchResult: number = 0;
     private touchIndex: number = 0;
+    private currentQuestion: SentenceMakingQuestion = null;
 
     start() {
         this.initRects();
@@ -64,11 +65,11 @@ export class SentenceMakingScene extends Component {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
             ad.message = "配置加载失败，请检查网络";
-            AlertManager.getInstance().showAlert(ad);
             ad.cancelButtonVisible = false;
             ad.confirmCb = () => {
                 SceneManager.getInstance().backToHall();
             };
+            AlertManager.getInstance().showAlert(ad);
         });
     }
 
@@ -83,13 +84,15 @@ export class SentenceMakingScene extends Component {
             let sourceRect = new Rect();
             let resultRect = new Rect();
             let offsetPos = this.getPositionByIndex(i);
-            sourceRect.x = this.sourceContainer.position.x + offsetPos.x;
-            sourceRect.y = this.sourceContainer.position.y + offsetPos.y - this.itemheight;
+            sourceRect.x = this.cardContainer.position.x + offsetPos.x;
+            sourceRect.y = this.cardContainer.position.y + offsetPos.y - this.itemheight;
             sourceRect.height = this.itemheight;
             sourceRect.width = this.itemWidth;
             this.sourceContainerRects.push(sourceRect);
-            resultRect.x = this.resultContainer.position.x + offsetPos.x;
-            resultRect.y = this.resultContainer.position.y + offsetPos.y - this.itemheight;
+
+            offsetPos = this.getPositionByIndex(i, true);
+            resultRect.x = this.cardContainer.position.x + offsetPos.x;
+            resultRect.y = this.cardContainer.position.y + offsetPos.y - this.itemheight;
             resultRect.height = this.itemheight;
             resultRect.width = this.itemWidth;
             this.resultContainerRects.push(resultRect);
@@ -100,16 +103,17 @@ export class SentenceMakingScene extends Component {
         let ad: AlertData = new AlertData();
         ad.title = "提示";
         ad.message = "将麻将按照正确语序，移动到地板上，组成句子，然后点击“胡”！";
-        AlertManager.getInstance().showAlert(ad);
         ad.cancelButtonVisible = false;
         ad.confirmCb = () => {
             this.startGameFlow();
         };
+        AlertManager.getInstance().showAlert(ad);
     }
 
     private async startGameFlow() {
         this.recyleCardModel();
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
+        this.currentQuestion = question;
         await this.initCardsInstance(question);
     }
 
@@ -127,12 +131,15 @@ export class SentenceMakingScene extends Component {
     }
 
 
-    private getPositionByIndex(index: number): Vec3 {
+    private getPositionByIndex(index: number, isResult: boolean = false): Vec3 {
         const col = index % this.rawMaxNum;
         const row = Math.floor(index / this.rawMaxNum);
         const x = this.leftOffset + col * (this.itemWidth + this.paddingX);
-        const y = this.topOffset + row * (this.itemheight + this.paddingy);
-        return new Vec3(x, -y, 0);
+        let y = 0 - this.topOffset - row * (this.itemheight + this.paddingy);
+        if (isResult) {
+            y += this.resultOffsetNode.position.y;
+        }
+        return new Vec3(x, y, 0);
     }
 
     private initCardsInstance(question: SentenceMakingQuestion) {
@@ -146,15 +153,16 @@ export class SentenceMakingScene extends Component {
             } else {
                 inst = instantiate(this.cardModel);
                 inst.getComponent(UITransform).setContentSize(this.itemWidth, this.itemheight);
+                inst.parent = this.cardContainer;
             }
 
             let cardCtrl = inst.getComponent(CardCtrl);
             cardCtrl.setid(i);
             cardCtrl.setLabel(sentence[i]);
+            cardCtrl.setNormal();
 
             if (fixed.indexOf(i) > 0) {
-                inst.parent = this.resultContainer;
-                inst.setPosition(this.getPositionByIndex(i));
+                inst.setPosition(this.getPositionByIndex(i, true));
                 inst.off(Node.EventType.TOUCH_START, this.onDragStart, this);
                 inst.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
                 inst.off(Node.EventType.TOUCH_END, this.onDragEnd, this);
@@ -162,7 +170,6 @@ export class SentenceMakingScene extends Component {
                 this.resultContainerMap.set(i, inst);
                 cardCtrl.lock();
             } else {
-                inst.parent = this.sourceContainer;
                 inst.setPosition(this.getPositionByIndex(i));
                 inst.on(Node.EventType.TOUCH_START, this.onDragStart, this);
                 inst.on(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
@@ -182,7 +189,12 @@ export class SentenceMakingScene extends Component {
             }
         }
 
-        // 清理cardModelInstPool
+        // 清理cardModelInstPool 遍历一下然后把其中的node都removefromparent
+        for (let node of this.cardModelInstPool) {
+            if (node && node.parent) {
+                node.removeFromParent();
+            }
+        }
         this.cardModelInstPool = [];
         // 清理resultContainerEmptyInstance里超过sentence长度的实例
         let keysToDelete: number[] = [];
@@ -227,22 +239,14 @@ export class SentenceMakingScene extends Component {
 
     private onDragEnd(event: EventTouch) {
         this.isDragging = false;
-        
 
         if (this.touchResult == 0) {
             this.processTouchCancel(event.target);
         } else {
             let targetInstMap = this.touchResult == 1 ? this.sourceContainerMap : this.resultContainerMap;
-            let mp1 = event.target.parent == this.sourceContainer ? this.sourceContainerMap : this.resultContainerMap;
+            let mp1 = this.getMapKeyByValue(event.target, this.sourceContainerMap) >= 0 ? this.sourceContainerMap : this.resultContainerMap;
             let mp2 = targetInstMap;
-            let i1;
-            for (let [key, value] of mp1.entries()) {
-                if (value === event.target) {
-                    i1 = key;
-                    break;
-                }
-            }
-
+            let i1 = this.getMapKeyByValue(event.target, mp1);
             let i2 = this.touchIndex;
 
             if (targetInstMap.has(this.touchIndex)) {
@@ -256,6 +260,15 @@ export class SentenceMakingScene extends Component {
                 this.processSwapCard(mp1, i1, mp2, i2);
             }
         }
+    }
+
+    private getMapKeyByValue(target, map: Map<number, Node>): number {
+        for (let [key, value] of map.entries()) {
+            if (value === target) {
+                return key;
+            }
+        }
+        return -1;
     }
 
     private processTouchCancel(target: Node) {
@@ -272,12 +285,6 @@ export class SentenceMakingScene extends Component {
         const hast2 = mp2.has(index2);
         let t2 = hast2 ? mp2.get(index2) : null;
 
-        const tp1 = t1.parent;
-        let tp2 = t2 ? t2.parent : null;
-        if(!tp2){
-            tp2 = mp2 == this.sourceContainerMap ? this.sourceContainer : this.resultContainer;
-        }
-
         mp2.set(index2, t1);
         if (t2) {
             mp1.set(index1, t2);
@@ -285,22 +292,8 @@ export class SentenceMakingScene extends Component {
             mp1.delete(index1);
         }
 
-        const targetPosition1 = this.getPositionByIndex(index2);
-        const targetPosition2 = this.getPositionByIndex(index1);
-
-        //计算出t1当前位置 如果使用t2的父节点需要添加的偏移量
-        if (tp1 != tp2) {
-            let tp1p = tp1.position;
-            let tp2p = tp2.position;
-            let t2tot1 = tp1p.subtract(tp2p);
-            let t1tot2 = tp2p.subtract(tp1p);
-            t1.position = new Vec3(t1.position.add(t1tot2));
-            t1.parent = tp2;
-            if(t2){
-                t2.position = new Vec3(t2.position.add(t2tot1));
-                t2.parent = tp1;
-            }
-        }
+        const targetPosition1 = this.getPositionByIndex(index2, mp2 == this.resultContainerMap);
+        const targetPosition2 = this.getPositionByIndex(index1, mp1 == this.resultContainerMap);
 
         const duration = 0.3;
         tween(t1).to(duration, { position: targetPosition1 }).start();
@@ -312,9 +305,6 @@ export class SentenceMakingScene extends Component {
     }
 
     private printMpData() {
-        //遍历sourceContainerMap 和resultContainerMap 中的node
-        //打印sourceContainerMap , index , value.getComponent(CardCtrl).getid(); 这三项
-        // 遍历sourceContainerMap
         for (let [index, node] of this.sourceContainerMap.entries()) {
             let cardCtrl = node.getComponent(CardCtrl);
             if (cardCtrl) {
@@ -322,7 +312,6 @@ export class SentenceMakingScene extends Component {
             }
         }
 
-        // 遍历resultContainerMap
         for (let [index, node] of this.resultContainerMap.entries()) {
             let cardCtrl = node.getComponent(CardCtrl);
             if (cardCtrl) {
@@ -387,7 +376,62 @@ export class SentenceMakingScene extends Component {
         return xOverlap * yOverlap;
     }
 
-    public onClickBack(){
+    public onClickBack() {
         SceneManager.getInstance().backToHall();
+    }
+
+
+    public processGameSummary() {
+        let isSuccess = true;
+        let wrongIndices = [];
+        let ad: AlertData = new AlertData();
+        ad.cancelButtonVisible = false;
+
+        if (this.sourceContainerMap.size > 0) {
+            ad.title = "提示";
+            ad.message = "你还有词语没有使用";
+            AlertManager.getInstance().showAlert(ad);
+            return;
+        }
+
+        for (let i = 0; i < this.resultContainerMap.size; i++) {
+            let node = this.resultContainerMap.get(i);
+            let cardCtrl = node.getComponent(CardCtrl);
+            node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
+            node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
+            node.off(Node.EventType.TOUCH_END, this.onDragEnd, this);
+            node.off(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
+            if (cardCtrl) {
+                let currentIndex = cardCtrl.getid();
+                if (currentIndex !== i) {
+                    isSuccess = false;
+                    wrongIndices.push(node);
+                }
+            }
+        }
+
+        if (isSuccess) {
+            // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
+            DebugLog.instance.log("游戏成功！");
+            ad.title = "恭喜";
+            ad.message = "挑战成功！";
+        } else {
+            // 处理游戏失败逻辑，标记错误位置
+            for (let wrongNode of wrongIndices) {
+                let cardCtrl = wrongNode.getComponent(CardCtrl);
+                if (cardCtrl) {
+                    cardCtrl.setWrong();
+                }
+            }
+            ad.title = "可恶啊";
+            ad.message = "挑战失败了";
+        }
+
+        AlertManager.getInstance().showAlert(ad);
+    }
+
+    public clickNextLeve() {
+        this.model.goNextQuestion();
+        this.startGameFlow();
     }
 }
