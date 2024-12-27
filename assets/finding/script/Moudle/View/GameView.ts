@@ -507,8 +507,9 @@ export default class GameView extends LayerPanel {
             this.requestGameResult();
         }else{
             const curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, curGame.level,
-                this.resultList.length / this._maxCount, this._endTime-this._startTime, GameConfig.customTime, this._curHard, () => { });
+            let duration= (this._endTime - this._startTime - this._pauseDurTime)/1000;
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
+                this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
 
             setTimeout(() => {
                 PanelMgr.INS.openPanel({
