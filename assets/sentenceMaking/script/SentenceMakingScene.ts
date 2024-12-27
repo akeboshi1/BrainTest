@@ -386,4 +386,8 @@ export class SentenceMakingScene extends Component {
         const yOverlap = Math.max(0, Math.min(rect1.y + rect1.height, rect2.y + rect2.height) - Math.max(rect1.y, rect2.y));
         return xOverlap * yOverlap;
     }
+
+    public onClickBack(){
+        SceneManager.getInstance().backToHall();
+    }
 }
