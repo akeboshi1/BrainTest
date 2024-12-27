@@ -1,4 +1,4 @@
-import Global from "../Global";
+import Global from "../FindingGlobal";
 import {log,warn,error} from 'cc'
 export default class GameLogMgr {
 

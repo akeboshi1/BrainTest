@@ -1,6 +1,6 @@
 import CacheMgr from "./CacheMgr";
 import Tools from "../Tools";
-import Global from "../Global";
+import Global from "../FindingGlobal";
 import GameInfoView from "../../Moudle/View/GameInfoView";
 
 /**

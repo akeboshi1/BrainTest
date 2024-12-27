@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Color, Component, Label, Node, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('CardCtrl')
@@ -8,6 +8,9 @@ export class CardCtrl extends Component {
 
     @property(Label)
     label:Label;
+
+    @property(Sprite)
+    sp:Sprite;
 
     private id:number;
     private locked:boolean = false;
@@ -42,6 +45,14 @@ export class CardCtrl extends Component {
 
     isLocked():boolean{
         return this.locked;
+    }
+
+    setWrong(){
+        this.sp.color = new Color(255,139,139);
+    }
+
+    setNormal(){
+        this.sp.color = new Color(255,255,255);
     }
 }
 

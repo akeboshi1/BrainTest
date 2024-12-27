@@ -1,4 +1,4 @@
-import Global from "../Global";
+import Global from "../FindingGlobal";
 import GameLog from "./GameLogMgr";
 import {Texture2D , AssetManager,assetManager,AudioClip,Sprite,SpriteFrame,Prefab,SpriteAtlas,ParticleAsset} from "cc"
 import GameLogMgr from "./GameLogMgr";

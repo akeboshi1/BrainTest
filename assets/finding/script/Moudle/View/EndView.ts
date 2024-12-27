@@ -3,11 +3,12 @@ import HomeView from "./HomeView";
 import LayerPanel, {UrlInfo} from "../../Common/manage/Layer/LayerPanel";
 import Tools from "../../Common/Tools";
 import PanelMgr, {Layer} from "../../Common/manage/PanelMgr";
-import LoadMgr from "../../Common/manage/LoadMgr";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
 import Constant from "../../Common/Constant";
 import AudioMgr from "../../Common/manage/AudioMgr";
+import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 
 const {ccclass, property} = _decorator;
 
@@ -22,9 +23,10 @@ export default class EndView extends LayerPanel {
 
     private result: boolean = null;
 
+    private residueTime:number = 0;
+
     private btn1Node: Node = null;
     private btn2Node: Node = null;
-    private btn2Sprite: Sprite = null;
 
     private effectNode: Node = null;
 
@@ -43,11 +45,10 @@ export default class EndView extends LayerPanel {
 
      initUI():Promise<void> {
         return new Promise(resolve => {
-            this.btn1Node = this.getNode("result/btn1");
-            this.btn2Node = this.getNode("result/btn2");
+            this.btn1Node = this.getNode("result/btnGroup/btn1");
+            this.btn2Node = this.getNode("result/btnGroup/btn2");
             this.loseTitle = this.getNode("result/title");
             this.winTitle = this.getNode("result/titleImage");
-            this.btn2Sprite = this.btn2Node.getComponent(Sprite);
             this.winImage = this.getNode("result/success");
             this.loseImage = this.getNode("result/lose");
             this.winTitle.active = this.winImage.active = false;
@@ -60,12 +61,7 @@ export default class EndView extends LayerPanel {
 
     show(param: any): void {
         this.result = param.isWin;
-        let residueTime = param.residue
-        if (residueTime > 0) {
-            if (param.isWin) {
-                CacheMgr.checkpoint = CacheMgr.checkpoint + 1
-            }
-        }
+        this.residueTime = param.residue
         GameConfig.customTime = GameConfig.allTime;
         this.initEnd();
     }
@@ -74,13 +70,13 @@ export default class EndView extends LayerPanel {
         if (this.result) {
             this.winTitle.active = this.winImage.active = true;
             this.loseTitle.active =this.loseImage.active =  false;
-            LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_no").then();
+            // LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_no").then();
             AudioMgr.play("sub/audio/view/game/win", 1, false).then();
         } else {
             this.winTitle.active = this.winImage.active = false;
             this.loseTitle.active =this.loseImage.active =  true;
-            LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_startOver").then();
-            this.onTouch(this.btn2Node, this.onClickAgain)
+            // LoadMgr.loadSprite(this.btn2Sprite, "sub/image/view/endView/btn_startOver").then();
+            // this.onTouch(this.btn2Node, this.onClickAgain)
             AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
         }
     }
@@ -112,10 +108,12 @@ export default class EndView extends LayerPanel {
     }
 
     public onClickNext() {
+        Global.isAgain = false;
         this.closeEnd();
     }
 
     public onClickAgain() {
+        Global.isAgain = true;
         this.closeEnd();
     }
 
@@ -133,6 +131,11 @@ export default class EndView extends LayerPanel {
     public closeEnd() {
         this.offTouch(this.btn1Node);
         this.offTouch(this.btn2Node);
+        if (this.residueTime > 0) {
+            if (this.result && !Global.isAgain) {
+                CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
+            }
+        }
         PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: HomeView

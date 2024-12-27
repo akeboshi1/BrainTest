@@ -1,4 +1,4 @@
-import Global from "../Global";
+import Global from "../FindingGlobal";
 class CachesMgr {
     constructor() {
         let string = Object.keys(this)
