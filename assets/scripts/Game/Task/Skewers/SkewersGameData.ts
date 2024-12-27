@@ -43,10 +43,12 @@ export class SkewersGameData {
     // 难度
     private _difficulty:number;
 
+
     public refreshData(data:any){
         this.gameID = data['game_id'];
         this.gameCode = data['game_code'];
         this.type = data['cog_ability'];
+        this._difficulty = data['difficulty'];
         switch(this.type){
             case GameType.Memory:
                 this.gameName = "翻牌";

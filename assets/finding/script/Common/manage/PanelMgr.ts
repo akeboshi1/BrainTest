@@ -8,6 +8,8 @@ import Tools from "../Tools";
 import CacheMgr from "./CacheMgr";
 import Constant from "../Constant";
 import {_decorator,Node,Component,instantiate,Prefab} from "cc"
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {BundleName} from "db://assets/scripts/Core/Manager/Load/BundleName";
 
 const {ccclass, property} = _decorator;
 @ccclass
@@ -42,117 +44,82 @@ export default class PanelMgr extends Component {
      *     param: 传递给下一个面板的参数
      * }
      */
-    openPanel(param: openParam) {
-        let layer = this.layers[param.layer]
+    openPanel(param: openParam):Promise<void> {
+        return new Promise((resolve, reject)=>{
+            let layer = this.layers[param.layer]
 
-        if (!layer) {
-            GameLogMgr.error("openPanel layer 为空 ,打开失败. ", layer)
-            return
-        }
-
-        //加载分包
-        let urlInfo = param.panel.getUrl()
-        let config = Global.config.panel_config[urlInfo.name]
-
-        if (urlInfo.name == "homeView" && Global.LoginFlag) {
-            Global.LoginFlag = false
-            config = Global.config.panel_config["loginView"]
-        }
-        //检测是否已经再加载了
-        if (this.LoadingList.has(urlInfo.name)) {
-            GameLogMgr.warn("面板", urlInfo.name, "已经在加载中，重复加载失败")
-            return;
-        }
-
-        if (this.openList.has(param.panel.getUrl().name)) {
-            GameLogMgr.warn("不允许重复打开", param.panel)
-            return;
-        }
-        this.LoadingList.set(urlInfo.name, 1) //添加一个加载标识， 防止重复添加
-        //todo  mask
-        let openPanelWay = () => {
-            let way = () => {
-                let panel: Node = null
-                //判断有没有旧的panel可用，有的话就不重新实例化了
-                if (this.hideList.has(urlInfo.name)) {
-                    panel = this.hideList.get(urlInfo.name)
-                    panel.parent = layer
-                    panel.active = false
-                    // this.scheduleOnce(() => {
-                    this.openList.set(urlInfo.name, panel)
-                    this.showPanel(panel, param.param, config)
-                    this.LoadingList.delete(urlInfo.name)
-                    if (this.LoadingList.size == 0) {
-                        //todo mask
-                    }
-                    if (param.call) {
-                        param.call()
-                    }
-                    // }, 0)
-                } else {
-                    LoadMgr.loadPrefab(urlInfo.name).then((prefab: Prefab) => {
-                        panel = instantiate(prefab)
-                        panel.parent = layer
-                        panel.active = false
-                        // this.scheduleOnce(() => {
-                        this.openList.set(urlInfo.name, panel);
-                        const layerpanel = panel.getComponent(LayerPanel)as LayerPanel;
-                        layerpanel.initUI()
-                        this.showPanel(panel, param.param, config)
-                        this.LoadingList.delete(urlInfo.name)
-                        if (this.LoadingList.size == 0) {
-                            //todo mask
-                        }
-                        if (param.call) {
-                            param.call()
-                        }
-                        // }, 0)
-                    })
-                }
+            if (!layer) {
+                GameLogMgr.error("openPanel layer 为空 ,打开失败. ", layer)
+                reject("openPanel layer 为空 ,打开失败. ");
+                return
             }
-            way();
-            // if (LoadMgr.judgeBundleLoad(urlInfo.name)) {
-            //     GameLogMgr.log("bundle已经加载好了:", urlInfo.name)
-            //     way()
-            // } else {
-            //     GameLogMgr.log("bundle还没加载好,需要加载一下")
-            //     LoadMgr.loadBundle_Single(urlInfo.bundle).then(() => {
-            //         way()
-            //     })
-            // }
-        }
-        //获取配置信息
-        // if (config) {
-        //     this.handlePanelConfig(config).then(
-        //         () => {
-        //             //存在配置 ，需要先打开配置
-        //             openPanelWay()
-        //         }
-        //     )
-        // } else {
-            //没有配置立即准备打开目标panel
-            openPanelWay()
-        // }
+
+            //加载分包
+            let urlInfo = param.panel.getUrl()
+            let config = Global.config.panel_config[urlInfo.name]
+
+            if (urlInfo.name == "homeView" && Global.LoginFlag) {
+                Global.LoginFlag = false
+                config = Global.config.panel_config["loginView"]
+            }
+            //检测是否已经再加载了
+            if (this.LoadingList.has(urlInfo.name)) {
+                GameLogMgr.warn("面板", urlInfo.name, "已经在加载中，重复加载失败")
+                reject("已经在加载中，重复加载失败");
+                return;
+            }
+
+            if (this.openList.has(param.panel.getUrl().name)) {
+                GameLogMgr.warn("不允许重复打开", param.panel)
+                reject("不允许重复打开");
+                return;
+            }
+            this.LoadingList.set(urlInfo.name, 1) //添加一个加载标识， 防止重复添加
+            let panel: Node = null;
+            let self = this;
+            //判断有没有旧的panel可用，有的话就不重新实例化了
+            if (this.hideList.has(urlInfo.name)) {
+                panel = this.hideList.get(urlInfo.name)
+                panel.parent = layer
+                panel.active = false
+                this.scheduleOnce(() => {
+                    self.openList.set(urlInfo.name, panel)
+                    self.showPanel(panel, param.param, config)
+                    self.LoadingList.delete(urlInfo.name)
+                    if (self.LoadingList.size == 0) {
+                    //todo mask
+                    }
+                    resolve();
+                }, 0)
+            } else {
+                LoaderManager.getInstance().assetBundleLoad(BundleName.FINGING,BundleName.FINGING).then((bundle) => {
+                    LoadMgr.loadPrefab(urlInfo.name).then((prefab: Prefab) => {
+                        panel = instantiate(prefab);
+                        panel.parent = layer;
+                        panel.active = false;
+                        self.openList.set(urlInfo.name, panel);
+                        const layerpanel = panel.getComponent(LayerPanel) as LayerPanel;
+                        layerpanel.initUI().then(()=>{
+                            self.showPanel(panel, param.param, config);
+                            self.LoadingList.delete(urlInfo.name);
+                            if (self.LoadingList.size == 0) {
+                                // todo mask
+                            }
+                            resolve();
+                        });
+
+                    })
+                })
+            }
+        })
+    }
+
+    public preloadPanel(){
+
     }
 
     private showPanel(panel: Node, param: any, config: any) {
         let script = panel.getComponent(LayerPanel)
-        if (config) {
-            if (Tools.checkPer(config.gameBox_probability)) {
-                script.initGameBox()
-            } else {
-                script.noInitGameBox()
-            }
-
-
-            // if (config.more_game && config.more_game.length > 0) {
-            //     script.initMoreGame(() => {
-            //         this.handlePanelMorePlay(config.more_game)
-            //     })
-            // } else {
-            //
-            // }
-        }
         script.show(param)
         panel.active = true
     }

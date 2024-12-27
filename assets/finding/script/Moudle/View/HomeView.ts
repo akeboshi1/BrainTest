@@ -8,6 +8,7 @@ import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
 import {_decorator,Node,instantiate,Prefab,Sprite} from "cc";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -23,18 +24,22 @@ export default class HomeView extends LayerPanel {
 
     private beClick: boolean = false;
 
-    initUI() {
-        PanelMgr.INS.openPanel({
-            panel: GameInfoView,
-            layer: Layer.gameInfoLayer
+    initUI():Promise<void> {
+        return new Promise(resolve => {
+            PanelMgr.INS.openPanel({
+                panel: GameInfoView,
+                layer: Layer.gameInfoLayer
+            }).then(()=>{
+                this.pictureNode = this.getNode("bg/picture")
+                return resolve();
+            });
         })
 
-        this.pictureNode = this.getNode("bg/picture")
     }
 
 
     show(param: any): void {
-        let checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.difficulty:CacheMgr.checkpoint;
+        let checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.seq:CacheMgr.checkpoint==0?CacheMgr.checkpoint = GameCenterManager.getInstance().currentGame.level:CacheMgr.checkpoint;
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
             checkPoint = 1;
@@ -50,19 +55,37 @@ export default class HomeView extends LayerPanel {
         }
         way();
 
-        this.onTouch(this.getNode("next"), () => {
-            if (this.beClick) return;
-            this.beClick = true;
-            let way2 = () => {
-                PanelMgr.INS.openPanel({
-                    layer: Layer.gameLayer,
-                    panel: GameView,
-                    call: () => {
-                        PanelMgr.INS.closePanel(HomeView, true)
-                    }
-                })
-            }
-            way2();
+        // this.onTouch(this.getNode("next"), () => {
+        //     if (this.beClick) return;
+        //     this.beClick = true;
+        //     let way2 = () => {
+        //         PanelMgr.INS.openPanel({
+        //             layer: Layer.gameLayer,
+        //             panel: GameView,
+        //             call: () => {
+        //                 PanelMgr.INS.closePanel(HomeView, true)
+        //             }
+        //         })
+        //     }
+        //     way2();
+        // })
+    }
+
+    private nextHandler(){
+        if (this.beClick) return;
+        this.beClick = true;
+        this.way2();
+    }
+
+    private way2():Promise<void>{
+        return new Promise(resolve => {
+            PanelMgr.INS.openPanel({
+                layer: Layer.gameLayer,
+                panel: GameView
+            }).then(()=>{
+                this.beClick = false;
+                PanelMgr.INS.closePanel(HomeView, false)
+            })
         })
     }
 

@@ -26,7 +26,7 @@ export class GameSocketData{
 export class GameCenterData{
     public gameid:number;
     public sessionid:string;
-    public level:number;
+    public level:number = 0;
     public difficulty:number = 1;
     constructor(data){
         this.gameid = data.game_id;
