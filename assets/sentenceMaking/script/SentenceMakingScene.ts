@@ -223,6 +223,7 @@ export class SentenceMakingScene extends Component {
         const startpos = new Vec2(vec3.x, vec3.y);
         this.startDragPos = startpos;
         this.startDragObjectPos = new Vec2(event.target.position.x, event.target.position.y);
+        event.target.setSiblingIndex(1000);
     }
 
     private onDragMove(event: EventTouch) {
@@ -239,7 +240,7 @@ export class SentenceMakingScene extends Component {
 
     private onDragEnd(event: EventTouch) {
         this.isDragging = false;
-
+        event.target.setSiblingIndex(0);
         if (this.touchResult == 0) {
             this.processTouchCancel(event.target);
         } else {
