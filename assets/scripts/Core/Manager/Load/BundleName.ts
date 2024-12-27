@@ -6,4 +6,5 @@ export enum BundleName{
     PUZZLE = 'puzzle',
     MAIN = 'main',
     RESOURCES = 'resources',
+    SENTENCEMAKING = 'sentenceMaking',
 }
