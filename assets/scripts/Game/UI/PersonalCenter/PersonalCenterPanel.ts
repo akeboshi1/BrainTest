@@ -1,41 +1,62 @@
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Label, Node } from 'cc';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
-// import { PersonalCenterManager } from '../../GameCenter/PersonalCenterManager';
 import { DebugLog } from '../../../Core/Util/DebugLog';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
-
+import { BasePanel } from '../../../Core/UI/BasePanel';
+import { UIManager } from '../../../Core/Manager/UI/UIManager';
+import { UserInfoPanel } from './UserInfoPanel';
+import { BundleName } from '../../../Core/Manager/Load/BundleName';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('PersonalCenterPanel')
-export class PersonalCenterPanel extends Component {
+export class PersonalCenterPanel extends BasePanel {
+    public static NAME: string = "PersonalCenterPanel";
 
     @property(Label)
     titleLabel: Label = null;
 
+    @property(Node)
+    reportNode: Node = null;
+
     onEnable() {
         DebugLog.instance.log("PersonalCenterPanel start");
-         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-         PersonalCenterManager.getInstance().requestUserInfo();
+        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
+        PersonalCenterManager.getInstance().requestUserInfo();
+    }
+
+    onDisable(): void {
+        EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
     }
 
     getUserInfoCallBack(data: any) {
-       let userData= PersonalCenterManager.getInstance().userInfoData;
-       this.setPersonalCenterTitle(userData.full_name.toString());
-       
+        let userData = PersonalCenterManager.getInstance().userInfoData;
+        this.setPersonalCenterTitle(userData.full_name.toString());
     }
+
     setPersonalCenterTitle(title: string) {
         this.titleLabel.string = title;
     }
+
     backToParent() {
-        this.node.parent.active = false;
+        UIManager.getInstance().hidePanel(PersonalCenterPanel.NAME);
     }
+
     update(deltaTime: number) {
-       
+
     }
+
     showUserInfo() {
-        this.node.active = false;
-        this.node.parent.getChildByName('UserInfoPanel').active = true;
+        UIManager.getInstance().registerPanel(UserInfoPanel.NAME, BundleName.RESOURCES, "prefab/personalCenter/UserInfoPanel", UserInfoPanel);
+        UIManager.getInstance().showPanel(UserInfoPanel.NAME);
+    }
+
+    showReport() {
+        this.reportNode.active = true;
+    }
+
+    hideReport() {
+        this.reportNode.active = false;
     }
 }
 

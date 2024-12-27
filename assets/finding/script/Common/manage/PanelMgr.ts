@@ -3,7 +3,7 @@ import Emit from "./Emit/Emit";
 import {EventCode} from "./Emit/EmitData";
 import LayerPanel, {UrlInfo} from "./Layer/LayerPanel";
 import LoadMgr from "./LoadMgr";
-import Global from "../Global";
+import Global from "../FindingGlobal";
 import Tools from "../Tools";
 import CacheMgr from "./CacheMgr";
 import Constant from "../Constant";

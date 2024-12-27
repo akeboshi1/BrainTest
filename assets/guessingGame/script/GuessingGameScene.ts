@@ -142,9 +142,10 @@ export class GuessingGameScene extends Component {
 
     private onAudioFinish() {
         this.frameComponent.playAnimation("idle", 16, true, true);
-        this._startTime = TimeUtil.getNow();
-        this.timerStartGame.node.active = true;
-        this.timerStartGame.startTimer(5);
+        // this._startTime = TimeUtil.getNow();
+        // this.timerStartGame.node.active = true;
+        // this.timerStartGame.startTimer(5);
+        this.startAnswer();
     }
 
     private startAnswer(){
@@ -152,7 +153,7 @@ export class GuessingGameScene extends Component {
         this.optionsNode.active = true;
         this._startTime = TimeUtil.getNow();
         this.timerRT.node.active = true;
-        this.timerRT.startTimer(120);
+        this.timerRT.startTimer(30);
 
         this.replayNode.active = true;
 
@@ -176,13 +177,13 @@ export class GuessingGameScene extends Component {
                 SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
                 return;
             }
-            if(!result){
-                let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-                let maxCount = SkewersManager.getInstance().getGameCount();
-                let curCount = trainData.seq<0?0:trainData.seq;
-                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel1,this.exitCallBack,this);
-                return;
-            }
+            // if(!result){
+            //     let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+            //     let maxCount = SkewersManager.getInstance().getGameCount();
+            //     let curCount = trainData.seq<0?0:trainData.seq-1;
+            //     SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel1,this.exitCallBack,this);
+            //     return;
+            // }
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
         }else{
             this.successTextNode.active = result;

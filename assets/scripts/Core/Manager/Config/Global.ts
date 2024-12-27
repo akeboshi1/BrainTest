@@ -15,4 +15,9 @@ export class Global {
      * false 游戏大厅游戏状态
      */
     static isSkewersGame:boolean = false;
+
+    /**
+     * 当前游戏是否处于重玩
+     */
+    static isAgain:boolean = false;
 }
