@@ -1,4 +1,4 @@
-import { _decorator, Component, Node,Label,EditBox } from 'cc';
+import { _decorator, Component, Node,Label,EditBox ,Color} from 'cc';
 import { SelectDate } from '../../PersonalCenterManager/SelectDate';
 import { SelectSex } from '../../PersonalCenterManager/SelectSex';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
@@ -59,12 +59,15 @@ export class UserInfoPanel extends Component {
     }
     backToParent() {
         this.node.active =false;
+        this.node.parent.getChildByName("PersonalCenter").active = true;
     }
    
     setSex(data) {
+        this.sexContentNode.getComponent(Label).color = new Color(0, 0, 0);
         this.sexContentNode.getComponent(Label).string = data;
     }
     setBirthday(year, month, day) {
+        this.birthdayContentNode.getComponent(Label).color = new Color(0, 0, 0);
         this.birthdayContentNode.getComponent(Label).string = year + "-" + month + "-" + day;
     }
     // formatDate(birthday) {
@@ -79,6 +82,7 @@ export class UserInfoPanel extends Component {
     //     return value.toString().padStart(2, '0'); 
     // }
     setEducation(data) {
+        this.educationContentNode.getComponent(Label).color = new Color(0, 0, 0);
         this.educationContentNode.getComponent(Label).string = data;
     }
     clickSelectSex() {
