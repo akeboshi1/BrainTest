@@ -280,7 +280,7 @@ export class GuessingGameScene extends Component {
             let curCount = trainData.seq - 1<0?0:trainData.seq -1;
             SkewersManager.getInstance().quitGame(this.viewNode,curCount,maxCount,this.goonCallBack,this.exitCallBack,this);
         }else{
-            SceneManager.getInstance().backToHall();
+            GameCenterManager.getInstance().exitCallBack();
         }
     }
 
