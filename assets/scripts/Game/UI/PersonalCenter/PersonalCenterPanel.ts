@@ -25,10 +25,13 @@ export class PersonalCenterPanel extends BasePanel {
         PersonalCenterManager.getInstance().requestUserInfo();
     }
 
+    onDisable(): void {
+        EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
+    }
+
     getUserInfoCallBack(data: any) {
         let userData = PersonalCenterManager.getInstance().userInfoData;
         this.setPersonalCenterTitle(userData.full_name.toString());
-
     }
 
     setPersonalCenterTitle(title: string) {

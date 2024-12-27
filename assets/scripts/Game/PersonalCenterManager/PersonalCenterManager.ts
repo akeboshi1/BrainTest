@@ -22,7 +22,6 @@ export class PersonalCenterManager {
     //更新用户信息
     private user_update_info: string = "user.update_user_info";
 
-    //  private _curGame:GameCenterData;
     private _userInfoData: UserInfoData;
     constructor() {
     }
@@ -37,24 +36,25 @@ export class PersonalCenterManager {
 
     public requestUserInfo() {
         //请求个人中心数据
-        EventManager.getInstance().on(this.user_get_info, this.requestUserInfoCallback, this);
+        EventManager.getInstance().on(this.user_get_info, this.requestUserInfoCallback, this, true);
         let requestStartUserInfoSocket: SocketData = new SocketData({
             action: this.user_get_info
         });
         SocketManager.getInstance().send(requestStartUserInfoSocket);
     }
+
     public requestUserInfoCallback(data: SocketData, context: any) {
         DebugLog.instance.log("请求个人中心数据", data);
         if(data.status == 0) {
             DebugLog.instance.error(data.message);
         }else {
             this._userInfoData = new UserInfoData(data.data);
-            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, data.data);
+            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
         }
     }
 
     public updateUserInfo(full_name: string, gender: number, birthday: string, education: number) {
-        EventManager.getInstance().on(this.user_update_info, this.requestUpdateInfoCallback, this);
+        EventManager.getInstance().on(this.user_update_info, this.requestUpdateInfoCallback, this, true);
         let requestUpdateUserInfoSocket: SocketData = new SocketData({
             "action": this.user_update_info,
             "data":{
@@ -66,8 +66,15 @@ export class PersonalCenterManager {
         });
         SocketManager.getInstance().send(requestUpdateUserInfoSocket);
     }
+
     public requestUpdateInfoCallback(data: SocketData, context: any){
         DebugLog.instance.log("更新个人中心数据", data);
+        if(data.data){
+            this._userInfoData.birthday = data.data.birthday;
+            this._userInfoData.full_name = data.data.full_name;
+            this._userInfoData.birthday = data.data.birthday;
+        }
+        EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
     }
 }
 

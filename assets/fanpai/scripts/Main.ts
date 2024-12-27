@@ -584,7 +584,7 @@ export class Main extends Component {
                 } else {
                     if (!this.customsSendDataState) {
                         const curGame = GameCenterManager.getInstance().currentGame;
-                        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
+                        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete*this.cardTotalCount, this.hards[this.hardIndex],
                         complete, duration, this.INIT_TIME, this.hards[this.hardIndex]);
                         this.customsSendDataState = true;
                     }
