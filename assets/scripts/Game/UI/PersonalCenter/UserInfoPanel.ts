@@ -55,6 +55,8 @@ export class UserInfoPanel extends BasePanel {
     start() {
 
     }
+    setDefaultData() {
+    }
 
     update(deltaTime: number) {
 
