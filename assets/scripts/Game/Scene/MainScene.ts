@@ -205,7 +205,6 @@ export class MainScene extends Component {
             TaskManager.getInstance().pushTask();
             this.taskAndNotificationPanelCtrl=this.taskProgressNode.getComponent(TaskAndNotificationPanelCtrl);
             EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
-            TaskManager.getInstance().start();
             this.startShowView();
         }
         pushEvetCallBack(data) {
@@ -251,6 +250,7 @@ export class MainScene extends Component {
             this.taskNode.active = true;
             // 刷新时间
             // 强行显示时间，防止updateTime间隔过长导致文本时间短暂不显示
+            // 更新时间
             this.updateTime();
             this.schedule(this.updateTime, 1);
             this.dayLabel.string = TimeUtil.getCurrentDate();
@@ -299,7 +299,7 @@ export class MainScene extends Component {
     showTaskProgress() {
         this.progressLabel.string = "";
         this.taskProgressNode.active = true;
-        EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
+        //EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
         TaskManager.getInstance().requestStartInform();
         this.taskScrollView.active = false;
         this.brainTrainNode.active = false;

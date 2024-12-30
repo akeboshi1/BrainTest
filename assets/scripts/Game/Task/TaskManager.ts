@@ -92,6 +92,7 @@ export class TaskManager {
     start() {
         this.clearData();
         this.requestTaskList();
+        EventManager.getInstance().emit(TaskManager.TaskListRequestCallBack);
     }
 
     clearData() {
@@ -132,6 +133,7 @@ export class TaskManager {
                 context._taskDic.set(task.id, task);
                 context._taskList.push(task);
             }
+
 
             context._taskList.sort((a, b) => {
                 return a.type - b.type;
