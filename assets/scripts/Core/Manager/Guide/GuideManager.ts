@@ -69,9 +69,9 @@ export class GuideManager extends BaseManager{
             DebugLog.instance.error(`${name} 引导不存在`);
             return null;
         }
-
+        guide.start(data,name);
         this._curGuide = guide;
-        guide.start(data);
+        this._curGuide.name = name;
         return guide;
     }
 
@@ -102,6 +102,11 @@ export class GuideManager extends BaseManager{
         }
         this._curGuide = null;
         return guide;
+    }
+
+    public destory() {
+        this._map.clear();
+        this._curGuide = null;
     }
 
     /**

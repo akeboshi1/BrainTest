@@ -233,6 +233,7 @@ export default class GameView extends LayerPanel {
     }
 
     show(param: any): void {
+         this.tempList = [];
         this.clockTime = GameConfig.clockTime;
     }
 
@@ -400,8 +401,8 @@ export default class GameView extends LayerPanel {
     public onDisable(){
         if(this.picture1)this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
         if(this.picture2)this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
-        EventManager.getInstance().off(FindingGuide.GUIDE_FIND_EMIT,this.guideClick.bind(this));
-        EventManager.getInstance().off(FindingGuide.GUIDE_FIND_END,this.guideEND.bind(this));
+        EventManager.getInstance().off(FindingGuide.GUIDE_FIND_EMIT,this);
+        EventManager.getInstance().off(FindingGuide.GUIDE_FIND_END,this);
     }
 
     public onTouchDown(event) {
@@ -582,6 +583,7 @@ export default class GameView extends LayerPanel {
     private exitCallBack(context){
         context.pause = false;
         AudioMgr.audioSource.stop();
+        PanelMgr.INS.closePanel(GameView);
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{
@@ -616,7 +618,6 @@ export default class GameView extends LayerPanel {
                         residueTime: this.countDownTime
                     }
                 }).then(() => {
-                    this.picture2.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
                     PanelMgr.INS.closePanel(GameView);
                 })
             },1500);
