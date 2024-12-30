@@ -8,9 +8,22 @@ import AudioMgr from "../../Common/manage/AudioMgr";
 import HintPrefab from "../Game/HintPrefab";
 import EndView from "./EndView";
 import Constant from "../../Common/Constant";
-import ActionMgr from "../../Common/manage/ActionMgr";
-import HomeView from "./HomeView";
-import {_decorator,Sprite,Node,Label,UITransform,Vec3,Rect,instantiate,Prefab,ParticleSystem2D,ParticleAsset,tween,Color,UIOpacity} from "cc";
+import {
+    _decorator,
+    Color,
+    instantiate,
+    Label,
+    Node,
+    ParticleAsset,
+    ParticleSystem2D,
+    Prefab,
+    Rect,
+    Sprite,
+    tween,
+    UIOpacity,
+    UITransform,
+    Vec3
+} from "cc";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
@@ -18,9 +31,8 @@ import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager"
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
-import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
-import {GuideFindingGuide} from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
-import {BaseGuide} from "db://assets/scripts/Core/Manager/Guide/BaseGuide";
+import {GuideManager, GuideState} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
+import {FindingGuide} from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
 
 const {ccclass,property} = _decorator;
 
@@ -176,7 +188,7 @@ export default class GameView extends LayerPanel {
                  LoadMgr.loadSprite(sprite, bundleName + "/image/" + String(i)).then()
                  sprite.sizeMode = Sprite.SizeMode.CUSTOM;
                  sprite.color = ColorUtil.hexToColor("rgba(230,237,7,0.8)");
-                 nodeUITransform.convertToWorldSpace(node.position);
+                 nodeUITransform.convertToWorldSpaceAR(node.position);
                  this.framePostions.push(node.position);
                  this.picture1.addChild(node);
                  this.frameList.push(nodeUITransform.getBoundingBox());
@@ -221,14 +233,25 @@ export default class GameView extends LayerPanel {
     }
 
     show(param: any): void {
-        this.monitorEvent();
         this.clockTime = GameConfig.clockTime;
     }
 
     public newHandHint() {
         console.log("进入新手提示");
-        GuideManager.getInstance().start(GuideFindingGuide.NAME,this.framePostions);
+        EventManager.getInstance().on(FindingGuide.GUIDE_FIND_EMIT,this.guideClick.bind(this),this);
+        EventManager.getInstance().on(FindingGuide.GUIDE_FIND_END,this.guideEND.bind(this),this);
+        GuideManager.getInstance().start(FindingGuide.NAME,{root:this.picture1,data:this.frameList});
         // this.clickHint(false);
+    }
+
+    private guideClick(data){
+         console.log(data);
+         this.onTouchDown(data);
+    }
+
+    private guideEND(data){
+        this.onTouchDown(data);
+        this.monitorEvent();
     }
 
     update(dt) {
@@ -341,9 +364,6 @@ export default class GameView extends LayerPanel {
                 this.hintRoundNode1 = this.createRound(i, j, url, 120);
             } else {
                 this.hintRoundNode2 = this.createRound(i, j, url, 120);
-                GuideManager.getInstance().start(GuideFindingGuide.NAME,this.hintRoundNode2);
-
-
                 // let node = new Node();
                 // node.name = "hand";
                 // let nodeUITransform = node.getComponent(UITransform);
@@ -367,14 +387,62 @@ export default class GameView extends LayerPanel {
     }
 
     public monitorEvent() {
-        this.picture1.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
-        this.picture2.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        if(this.picture1)this.picture1.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        if(this.picture2)this.picture2.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
     }
 
     public onTouchDown(event) {
         if (this.gameOver) return;
-        let clickPos =  event.getUILocation();
+        let clickPos;
+        let url = "sub/image/view/gameView/public/rightRound";
+         if(!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().getGuide(FindingGuide.name).state == GuideState.processing){
+             if(Global.isSkewersGame){
+             }else{
+                  GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
+             }
+             AudioMgr.play("sub/audio/view/game/right", 1, false).then()
+             let destroyHint = () => {
+                this.hintData = null;
+                if (this.hintRoundNode1) {
+                             this.hintRoundNode1.destroy();
+                             this.hintRoundNode1 = null;
+                }
+                if (this.hintRoundNode2) {
+                             this.hintRoundNode2.destroy();
+                             this.hintRoundNode2 = null;
+                }
+                if (this.handNode) {
+                             // this.handNode.destroy();
+                             this.handNode = null;
+                  }
+              }
+              let isDestroy = true;
+              let i = event.i;
+              if (this.tempList.length == 0) isDestroy = true;
+                     for (let j = 0; j < this.tempList.length; j++) {
+                         if (this.frameList[i].id == this.tempList[j]) {
+                             isDestroy = false;
+                             break;
+                         }
+                     }
+                     if (isDestroy) destroyHint();
+                     if (this.frameList[i].dot) return;
+                     this.frameList[i].dot = true;
+                     this.resultList.push(i);
+                     for (let j = 0; j < this.pictureList.length; j++) {
+                         this.createRound(i, j, url, 70);
+                     }
+              this.createHintPrefab();
+              clickPos = event.pos;
+              this.createParticle(clickPos);
+              this.tempList.push(this.frameList[i].id);
+              return;
+         }
+
+
+        clickPos =  event.getUILocation();
         let target: Node = event.target;
+
         let targetUITransform = target.getComponent(UITransform);
         if(!targetUITransform){
             targetUITransform = target.addComponent(UITransform);
@@ -384,7 +452,6 @@ export default class GameView extends LayerPanel {
         rect.x -= GameConfig.checkArea / 2;
         rect.y -= GameConfig.checkArea / 2;
         let isRight: boolean = false;
-        let url = "sub/image/view/gameView/public/rightRound";
         for (let i = 0; i < this.frameList.length; i++) {
             let checkRect = this.frameList[i];
             let isClick = rect.intersects(checkRect);

@@ -1,5 +1,6 @@
 import {Node} from "cc";
-import {GuideManager, GuideState} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
+import {GuideState} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 
 export class BaseGuide {
     public static NAME:string;
@@ -7,6 +8,14 @@ export class BaseGuide {
 
     constructor() {
         this._state = GuideState.Init;
+    }
+
+    public get name():string{
+        return BaseGuide.NAME;
+    }
+
+    public set name(value:string){
+
     }
 
     public get state():GuideState{
@@ -19,6 +28,7 @@ export class BaseGuide {
 
     public start(data:any = null){
        this._state = GuideState.processing;
+
     }
 
     public step(node:Node = null){
@@ -27,13 +37,17 @@ export class BaseGuide {
 
     public pause(){
        this._state = GuideState.pause;
+        DebugLog.instance.log(`${this.name} 引导暂停`);
     }
 
     public resume(){
         this._state = GuideState.processing;
+        DebugLog.instance.log(`${this.name} 引导恢复`);
     }
 
-    public end(){
+    public end(event=null){
        this._state = GuideState.complete;
+
+
     }
 }

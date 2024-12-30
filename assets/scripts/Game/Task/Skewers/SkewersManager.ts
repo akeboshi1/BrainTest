@@ -12,6 +12,7 @@ import {instantiate, Node} from "cc";
 import {TaskStatus} from "db://assets/scripts/Game/Task/TaskData";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
 import {BundlePreloadEvent, BundlePreloadManager} from "db://assets/scripts/Core/Manager/Load/BundlePreloadManager";
+import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 
 /**
  * 脑力串烧管理器
@@ -271,6 +272,7 @@ export class SkewersManager{
      * 退出串烧游戏
      */
     public exitCallBack(){
+        GuideManager.getInstance().quitGame();
         if(SkewersManager.getInstance().isRunOver()){
             SceneManager.getInstance().backToTaskProgress();
         }else{
