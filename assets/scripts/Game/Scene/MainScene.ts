@@ -204,6 +204,7 @@ export class MainScene extends Component {
             TaskManager.getInstance().pushTask();
             this.taskAndNotificationPanelCtrl=this.taskProgressNode.getComponent(TaskAndNotificationPanelCtrl);
             EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
+            TaskManager.getInstance().start();
             this.startShowView();
         }
         pushEvetCallBack(data) {
