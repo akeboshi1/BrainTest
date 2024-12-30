@@ -92,7 +92,6 @@ export class TaskManager {
     start() {
         this.clearData();
         this.requestTaskList();
-        EventManager.getInstance().emit(TaskManager.TaskListRequestCallBack);
     }
 
     clearData() {
@@ -286,7 +285,7 @@ export class TaskManager {
                 notification.refrehData(data);
                 context._notificationList.push(notification);
             }
-            EventManager.getInstance().emit(TaskManager.NotificationListRequestCallBack, context._notificationList);
+            EventManager.getInstance().emit(TaskManager.NotificationListRequestCallBack);
 
         }
     }
