@@ -1,4 +1,4 @@
-import {Node,EventTouch,UITransform,Rect,Size} from "cc";
+import {Node,EventTouch,UITransform,Rect,Vec3} from "cc";
 import {BaseGuide} from "db://assets/scripts/Core/Manager/Guide/BaseGuide";
 import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
@@ -15,6 +15,11 @@ export class FindingGuide extends BaseGuide{
         this.name = FindingGuide.NAME;
     }
 
+    /**
+     * 开始引导
+     * @param data
+     * @param name
+     */
     public start(data:any = null,name:string = null):void{
         super.start(data,name);
         DebugLog.instance.log(`${name}引导开始`);
@@ -23,21 +28,40 @@ export class FindingGuide extends BaseGuide{
         this._root.addChild(GuideManager.getInstance().handNode);
         GuideManager.getInstance().handNode.active = true;
         GuideManager.getInstance().handNode.once(Node.EventType.TOUCH_START,this.step1.bind(this),this);
-        this.dealPostiont(this._data.data,0);
+
+        let diffX = this._data.data[0].width / 2;
+        let diffY = this._data.data[0].height / 2;
+        GuideManager.getInstance().guideHand.start(new Vec3(this._data.data[0].x + diffX, this._data.data[0].y + diffY,0))
+
+
     }
 
+    /**
+     * 引导第一步
+     * @param event
+     * @private
+     */
     private step1(event):void{
         GuideManager.getInstance().handNode.once(Node.EventType.TOUCH_START,this.step2.bind(this),this);
         EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_EMIT,{pos:event.getUILocation(),i:0});
         this.dealPostiont(this._data.data,1);
     }
 
+    /**
+     * 引导第二部
+     * @param event
+     * @private
+     */
     private step2(event):void{
         GuideManager.getInstance().handNode.once(Node.EventType.TOUCH_START,this.end.bind(this),this);
         EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_EMIT,{pos:event.getUILocation(),i:1});
         this.dealPostiont(this._data.data,2);
     }
 
+    /**
+     * 结束引导
+     * @param event
+     */
     public end(event):void{
         EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_END,{pos:event.getUILocation(),i:2});
         GuideManager.getInstance().handNode.active = false;
@@ -49,7 +73,7 @@ export class FindingGuide extends BaseGuide{
     private dealPostiont(boundLists:Rect[],index:number){
         let diffX = boundLists[index].width / 2;
         let diffY = boundLists[index].height / 2;
-        GuideManager.getInstance().handNode.setPosition(boundLists[index].x + diffX, boundLists[index].y + diffY)
+        GuideManager.getInstance().guideHand.move(new Vec3(boundLists[index].x + diffX, boundLists[index].y + diffY,0))
     }
 
 

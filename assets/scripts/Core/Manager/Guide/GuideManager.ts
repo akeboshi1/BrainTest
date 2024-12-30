@@ -5,6 +5,7 @@ import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {FindingGuide} from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {GuideHand} from "db://assets/scripts/Core/Manager/Guide/GuideHand";
 
 export enum GuideState{
     Init,
@@ -23,22 +24,11 @@ export class GuideManager extends BaseManager{
         return GuideManager._instance;
     }
 
-    private _handNode:Node = null;
-    private _curGuide:BaseGuide = null;
-    public handPrefab:Prefab = null;
-    /**
-     * 手型特效
-     */
-    public get handNode():Node{
-        if(this._handNode == null){
-            this._handNode = instantiate(this.handPrefab);
-        }
-        return this._handNode;
-    };
 
-    public set handNode(value:Node){
-        this._handNode = value;
-    }
+    private _curGuide:BaseGuide = null;
+
+    private _hand:GuideHand;
+
 
     public get curGuide():BaseGuide{
         return this._curGuide;
@@ -47,13 +37,21 @@ export class GuideManager extends BaseManager{
     public getGuide(name):BaseGuide{
         return this._map.get(name);
     }
+
+    public get guideHand():GuideHand{
+        return this._hand;
+    }
+
+    public get handNode():Node{
+        return this._hand.node;
+    }
     private _map:Map<string,BaseGuide> = new Map();
 
     public init(){
         let self = this;
         LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/hand/handPrefab").then((res)=>{
-             self.handPrefab = res;
-             self.handNode = instantiate(res);
+             self._hand = new GuideHand(res);
+             self._hand.init();
              self._initGuideData();
         });
     }
@@ -94,19 +92,22 @@ export class GuideManager extends BaseManager{
     }
 
     public end(name:string):BaseGuide {
-        this.handNode = null;
+        GuideManager.getInstance().guideHand.end();
         let guide = this._map.get(name);
         if(!guide){
             DebugLog.instance.error(`${name} 引导不存在`);
             return null;
         }
-        this._curGuide = null;
         return guide;
     }
 
     public destory() {
+        if(this._curGuide){
+            this.end(this._curGuide.name);
+        }
         this._map.clear();
         this._curGuide = null;
+        this._hand = null;
     }
 
     /**

@@ -85,8 +85,6 @@ export default class GameView extends LayerPanel {
 
     private reminderNode: Node = null;
 
-    private handNode: Node = null;
-
     private customsNode: Node = null;
 
     private victory: Node = null;
@@ -357,32 +355,11 @@ export default class GameView extends LayerPanel {
     public handler_hint(i) {
         let url = "sub/image/view/gameView/public/hint";
         this.hintData = this.frameList[i];
-        if(this.handNode == null){
-            this.handNode = GuideManager.getInstance().handNode;
-        }
         for (let j = 0; j < this.pictureList.length; j++) {
             if (j == 0) {
                 this.hintRoundNode1 = this.createRound(i, j, url, 120);
             } else {
                 this.hintRoundNode2 = this.createRound(i, j, url, 120);
-                // let node = new Node();
-                // node.name = "hand";
-                // let nodeUITransform = node.getComponent(UITransform);
-                // if(!nodeUITransform){
-                //     nodeUITransform = node.addComponent(UITransform);
-                // }
-                // nodeUITransform.width = 90;
-                // nodeUITransform.height = 90;
-                // nodeUITransform.setAnchorPoint(0.5, 0.5)
-                // node.angle = 90;
-                // let sprite: Sprite = node.addComponent(Sprite);
-                // sprite.sizeMode = Sprite.SizeMode.CUSTOM;
-                // LoadMgr.loadSprite(sprite, "sub/image/view/gameView/public/hand").then();
-                // this.hintRoundNode2.addChild(node);
-                // node.setPosition(new Vec3(node.position.x+nodeUITransform.width/2,node.position.y-nodeUITransform.height/2));
-                // // node.y -= node.width / 2;
-                // // node.x += node.height;
-                // this.handNode = node;
             }
         }
     }
@@ -425,10 +402,6 @@ export default class GameView extends LayerPanel {
                              this.hintRoundNode2.destroy();
                              this.hintRoundNode2 = null;
                 }
-                if (this.handNode) {
-                             // this.handNode.destroy();
-                             this.handNode = null;
-                  }
               }
               let isDestroy = true;
               let i = event.i;
@@ -487,10 +460,7 @@ export default class GameView extends LayerPanel {
                         this.hintRoundNode2.destroy();
                         this.hintRoundNode2 = null;
                     }
-                    if (this.handNode) {
-                        // this.handNode.destroy();
-                        this.handNode = null;
-                    }
+
                 }
                 let isDestroy = true;
                 if (this.tempList.length == 0) isDestroy = true;
