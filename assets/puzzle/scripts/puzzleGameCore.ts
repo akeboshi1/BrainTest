@@ -15,15 +15,15 @@ import {
     Vec2,
     Vec3
 } from 'cc';
-import {timerComponent} from './timerComponent';
-import {puzzleSummaryAlert} from './puzzleSummaryAlert';
-import {Global} from "../../scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
-import {DebugLog} from "../../scripts/Core/Util/DebugLog";
-import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
+import { timerComponent } from './timerComponent';
+import { puzzleSummaryAlert } from './puzzleSummaryAlert';
+import { Global } from "../../scripts/Core/Manager/Config/Global";
+import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
+import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
+import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 
 const { ccclass, property } = _decorator;
 
@@ -65,10 +65,10 @@ export class puzzleGameCore extends Component {
     private summaryAlert: puzzleSummaryAlert;
 
     @property(Node)
-    private viewNode:Node = null;
+    private viewNode: Node = null;
 
     @property(Node)
-    private bgNode:Node = null;
+    private bgNode: Node = null;
 
     //显示对象
     private chipsInstances: Node[] = [];
@@ -76,15 +76,16 @@ export class puzzleGameCore extends Component {
     private chipsDataMap: Map<number, Object> = new Map();
 
     private dragStartPos: Vec2 = new Vec2(); //触点起始位置
-    private dragObjectStartPos: Vec3 = new Vec3(); 
+    private dragObjectStartPos: Vec3 = new Vec3();
     private dragInstance: Node = null;
     private dragStartFlag: boolean = false;
     private selectedLevelIndex: number = 0;
 
-    private levelList:number[] = [2,3,4];
-    private selectedLevel:number = this.levelList[this.selectedLevelIndex];
+    private levelList: number[] = [2, 3, 4];
+    private selectedLevel: number = this.levelList[this.selectedLevelIndex];
+    private textureIndex: number = 0;
 
-    private _startTime:number = 0;
+    private _startTime: number = 0;
 
     onLoad() {
 
@@ -94,31 +95,31 @@ export class puzzleGameCore extends Component {
         this.summaryAlert.node.active = false;
         this.cleanChipsCache();
         let playIndex = 0;
-        if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
+        if (Global.isSkewersGame) {
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty - 1;
             this.gameLength = Global.userData.curSkewerGameData.timeLimit;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
-        this.cachedTextures.sort(()=>Math.random() - 0.5);
+        this.cachedTextures.sort(() => Math.random() - 0.5);
 
-        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
-        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
+        this.textureIndex = this.selectedLevelIndex + playIndex > this.cachedTextures.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
+        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.textureIndex]);
         this.updatePreviewSprite();
     }
 
-    onEnable(){
-        if(this.draggableNode){
+    onEnable() {
+        if (this.draggableNode) {
             this.draggableNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
             this.draggableNode.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
             this.draggableNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
             this.draggableNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         }
-        if(this.timerComponent)this.timerComponent.on('timer-end', this.onTimerEnd, this);
+        if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
 
-    onDisable(){
-        if(this.timerComponent)this.timerComponent.off('timer-end', this.onTimerEnd, this);
-        if(this.draggableNode){
+    onDisable() {
+        if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
+        if (this.draggableNode) {
             this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
             this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
             this.draggableNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
@@ -223,8 +224,7 @@ export class puzzleGameCore extends Component {
 
             const puzzleResult = this.checkPuzzleResult();
             DebugLog.instance.log("puzzleResult  ----  " + puzzleResult);
-            if(puzzleResult)
-            {
+            if (puzzleResult) {
                 this.processGameSuccess();
             }
         }
@@ -241,58 +241,58 @@ export class puzzleGameCore extends Component {
         this.processTouchCancel();
     }
 
-    quitGame(){
+    quitGame() {
         this.pauseTime();
-        if(Global.isSkewersGame){
+        if (Global.isSkewersGame) {
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = SkewersManager.getInstance().getGameCount();
-            let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-            SkewersManager.getInstance().quitGame(this.viewNode,curCount,maxCount,this.goonCallBack,this.exitCallBack,this);
-        }else{
-            GameCenterManager.getInstance().quitGame(this.viewNode,this.goonCallBack,this.exitCallBack,this);
+            let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
+            SkewersManager.getInstance().quitGame(this.viewNode, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
+        } else {
+            GameCenterManager.getInstance().quitGame(this.viewNode, this.goonCallBack, this.exitCallBack, this);
         }
     }
 
-    private goonCallBack(context){
-        if(Global.isSkewersGame) {
-            if(!SkewersManager.getInstance().isRunOver()){
+    private goonCallBack(context) {
+        if (Global.isSkewersGame) {
+            if (!SkewersManager.getInstance().isRunOver()) {
                 context.resumeTime();
                 // if(!context._previewBoo)context.previewCard(2);
             }
-        }else{
+        } else {
             context.resumeTime();
             // if(!context._previewBoo)context.previewCard(2);
         }
     }
 
-    private requestGameResult(win:boolean = true){
+    private requestGameResult(win: boolean = true) {
         // 上报数据
         let endTime = TimeUtil.getNow();
-        let complete= Number(win);
-        if(this._startTime==0){
+        let complete = Number(win);
+        if (this._startTime == 0) {
             this._startTime = endTime;
         }
-        let duration= (endTime - this._startTime)/1000;
-        SkewersManager.getInstance().requestGameComplete(complete,duration);
+        let duration = (endTime - this._startTime) / 1000;
+        SkewersManager.getInstance().requestGameComplete(complete, duration);
     }
 
-    private exitCallBack(context){
+    private exitCallBack(context) {
         context.pauseTime();
-        if(Global.isSkewersGame){
+        if (Global.isSkewersGame) {
             SkewersManager.getInstance().exitCallBack();
-        }else{
+        } else {
             GameCenterManager.getInstance().exitCallBack();
         }
     }
 
-    private autoExitCallBack(context){
+    private autoExitCallBack(context) {
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
         //上报数据
         context.requestGameResult(false);
-        if(Global.isSkewersGame){
+        if (Global.isSkewersGame) {
             SkewersManager.getInstance().exitCallBack();
-        }else{
+        } else {
             GameCenterManager.getInstance().exitCallBack();
         }
     }
@@ -358,8 +358,7 @@ export class puzzleGameCore extends Component {
         let outputString = "";
         let lineCount = 0;
         for (let [key, value] of this.chipsDataMap.entries()) {
-            if(lineCount % this.selectedLevel == 0)
-            {
+            if (lineCount % this.selectedLevel == 0) {
                 DebugLog.instance.log("outputMapData  ---- " + outputString);
                 outputString = "";
             }
@@ -368,16 +367,13 @@ export class puzzleGameCore extends Component {
         }
     }
 
-    private checkPuzzleResult():boolean
-    {
+    private checkPuzzleResult(): boolean {
         let index = 0;
         for (let [key, value] of this.chipsDataMap.entries()) {
-            if(value["puzzlePos"] == index)
-            {
+            if (value["puzzlePos"] == index) {
                 index++;
             }
-            else
-            {
+            else {
                 return false;
             }
         }
@@ -404,54 +400,45 @@ export class puzzleGameCore extends Component {
         }
     }
 
-    onClickDisturbPuzzleButton()
-    {
-        if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
-            this.selectedLevel= this.levelList[this.selectedLevelIndex];
+    onClickDisturbPuzzleButton() {
+        if (Global.isSkewersGame) {
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty - 1;
+            this.selectedLevel = this.levelList[this.selectedLevelIndex];
         }
         this.randomSwapPuzzleChipsNTimes(this.selectedLevel * this.selectedLevel);
     }
 
-    onClickChangeLevel()
-    {
-        if(Global.isSkewersGame){
-            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty-1;
-        }else{
+    onClickChangeLevel() {
+        if (Global.isSkewersGame) {
+            this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty - 1;
+        } else {
             this.selectedLevelIndex = (this.selectedLevelIndex + 1) % this.levelList.length;
         }
 
         this.selectedLevel = this.levelList[this.selectedLevelIndex];
+        this.textureIndex = (this.textureIndex + 1) % this.cachedTextures.length;
 
         this.cleanChipsCache();
-        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.selectedLevelIndex]);
-        
+        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.textureIndex]);
+
         this.updatePreviewSprite();
     }
 
-    private updatePreviewSprite(){
+    private updatePreviewSprite() {
         let newSpriteFrame = new SpriteFrame();
-
-        let playIndex=0;
-        if(Global.isSkewersGame){
-            playIndex = Global.userData.curSkewerGameData.seq;
-        }
-
-        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex
-        newSpriteFrame.texture = this.cachedTextures[textureIndex];
+        newSpriteFrame.texture = this.cachedTextures[this.textureIndex];
         this.previewSprite.spriteFrame = newSpriteFrame;
     }
 
-    pauseTime(){
-       this.timerComponent.pauseTimer();
+    pauseTime() {
+        this.timerComponent.pauseTimer();
     }
 
-    resumeTime(){
+    resumeTime() {
         this.timerComponent.resumeTimer();
     }
 
-    onClickStartTimer()
-    {
+    onClickStartTimer() {
         this.timerComponent.resetTimer();
         this.timerComponent.startTimer(10);
         this._startTime = TimeUtil.getNow();
@@ -462,8 +449,7 @@ export class puzzleGameCore extends Component {
         this.processGameFail();
     }
 
-    onClickStartGame()
-    {
+    onClickStartGame() {
         this._startTime = TimeUtil.getNow();
         this.timerComponent.startTimer(this.gameLength.valueOf());
         this.onClickDisturbPuzzleButton();
@@ -471,77 +457,75 @@ export class puzzleGameCore extends Component {
         this.startGameMask.active = false;
     }
 
-    processGameFail()
-    {
+    processGameFail() {
         DebugLog.instance.log("失败");
 
-        if(Global.isSkewersGame){
-            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.failRequestSkewersGameComplete,this);
+        if (Global.isSkewersGame) {
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult(false);
-        }else{
+        } else {
             this.summaryAlert.node.active = true;
             this.summaryAlert.initByResult(false);
             this.summaryAlert.fadeIn();
         }
     }
 
-    private failRequestSkewersGameComplete(){
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
+    private failRequestSkewersGameComplete() {
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
         let trainData = SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-        SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal, "真遗憾，请加油！",'',curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
+        let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
+        SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, "真遗憾，请加油！", '', curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
     }
 
 
-    private gamepasslevelCallback(){
+    private gamepasslevelCallback() {
 
     }
 
-    processGameSuccess()
-    {
+    processGameSuccess() {
         DebugLog.instance.log("成功");
         this.timerComponent.pauseTimer();
-        if(Global.isSkewersGame){
+        if (Global.isSkewersGame) {
             this.requestGameResult(true)
-            if(SkewersManager.getInstance().isRunOver()){
-                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
+            if (SkewersManager.getInstance().isRunOver()) {
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, null, this.exitCallBack, this);
                 return;
             }
-            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
-        }else{
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this);
+        } else {
             // 通小关后发送消息
             let curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, this.gameLength, curGame.difficulty, this.gamepasslevelCallback);
             this.summaryAlert.node.active = true;
             this.summaryAlert.initByResult(true);
             this.summaryAlert.fadeIn();
         }
     }
 
-    private requestSkewersGameComplete(data){
+    private requestSkewersGameComplete(data) {
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
         let maxCount = trainData.parentSkewersGameData.trains.length;
         let curCount = trainData.seq;
         // 游戏内界面提示
-        if(maxCount != curCount){
-            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
-        }else{
+        if (maxCount != curCount) {
+            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, "太棒了，请继续！", "", curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
+        } else {
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Small,"太棒了，恭喜你通关拼图游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.exitCallBack,this);
-            }else{
-                SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.exitCallBack,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, "太棒了，恭喜你通关拼图游戏", "收获xxx点脑力值！", 0, 0, this.nextAlertHandler, this.exitCallBack, this);
+            } else {
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, this.exitCallBack, this.exitCallBack, this);
             }
         }
     }
 
-    onClickGotoNextlevel(){
-        if(Global.isSkewersGame){
+    onClickGotoNextlevel() {
+        if (Global.isSkewersGame) {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().runNextGame();
-            }else{
+            } else {
                 SkewersManager.getInstance().exitCallBack();
             }
             return;
@@ -553,16 +537,16 @@ export class puzzleGameCore extends Component {
         this.timerComponent.resetTimer();
     }
 
-    private nextAlertHandler(context){
+    private nextAlertHandler(context) {
         context.pauseTime();
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`接下来将进入${gameData.gameName}游戏`,'',0,0,context.onClickGotoNextlevel,context.exitCallBack,context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, `接下来将进入${gameData.gameName}游戏`, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
     }
 
 
-    onClickRetryCurrentLevel(){
+    onClickRetryCurrentLevel() {
 
-        if(Global.isSkewersGame){
+        if (Global.isSkewersGame) {
             SkewersManager.getInstance().runNextGame();
             return;
         }
@@ -571,12 +555,12 @@ export class puzzleGameCore extends Component {
 
 
         let playIndex = 0;
-        if(Global.isSkewersGame){
+        if (Global.isSkewersGame) {
             this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty - 1;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
 
-        const textureIndex = this.selectedLevelIndex+playIndex>this.cachedTextures.length-1?0:this.selectedLevelIndex+playIndex;
+        const textureIndex = this.selectedLevelIndex + playIndex > this.cachedTextures.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
         this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
 
         this.startGameMask.active = true;
@@ -584,7 +568,7 @@ export class puzzleGameCore extends Component {
         this.timerComponent.resetTimer();
     }
 
-    onClickTimeOut(){
+    onClickTimeOut() {
         this.timerComponent.resetTimer();
         this.onTimerEnd();
     }
