@@ -387,8 +387,21 @@ export default class GameView extends LayerPanel {
     }
 
     public monitorEvent() {
-        if(this.picture1)this.picture1.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
-        if(this.picture2)this.picture2.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        if(this.picture1){
+            this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
+            this.picture1.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        }
+        if(this.picture2){
+            this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
+            this.picture2.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        }
+    }
+
+    public onDisable(){
+        if(this.picture1)this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        if(this.picture2)this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        EventManager.getInstance().off(FindingGuide.GUIDE_FIND_EMIT,this.guideClick.bind(this));
+        EventManager.getInstance().off(FindingGuide.GUIDE_FIND_END,this.guideEND.bind(this));
     }
 
     public onTouchDown(event) {
@@ -603,6 +616,7 @@ export default class GameView extends LayerPanel {
                         residueTime: this.countDownTime
                     }
                 }).then(() => {
+                    this.picture2.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
                     PanelMgr.INS.closePanel(GameView);
                 })
             },1500);
