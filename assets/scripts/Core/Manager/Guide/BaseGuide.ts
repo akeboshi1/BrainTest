@@ -2,7 +2,7 @@ import {Node} from "cc";
 import {GuideState} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 
-export abstract class BaseGuide {
+export class BaseGuide {
     public static NAME:string;
     protected _state:GuideState;
 
@@ -28,7 +28,7 @@ export abstract class BaseGuide {
 
     public start(data:any = null,name:string = null){
        this._state = GuideState.processing;
-       this.name=name;
+       this.name = name;
     }
 
     public step(node:Node = null){
