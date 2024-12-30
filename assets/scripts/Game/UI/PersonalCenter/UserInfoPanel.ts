@@ -4,6 +4,9 @@ import { SelectSex } from '../../PersonalCenterManager/SelectSex';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
+import { SkewersManager } from '../../Task/Skewers/SkewersManager';
+import { AlertType } from '../Alert/GameAlert';
+
 
 
 const { ccclass, property } = _decorator;
@@ -54,6 +57,8 @@ export class UserInfoPanel extends BasePanel {
     }
     start() {
 
+    }
+    setDefaultData() {
     }
 
     update(deltaTime: number) {
@@ -120,12 +125,9 @@ export class UserInfoPanel extends BasePanel {
     }
 
     commitUserInfo() {
-        console.log("this.user_name", this.user_name);
-        console.log("this.user_sex", this.user_sex);
-        console.log("this.user_birthday", this.user_birthday);
-        console.log("this.user_education", this.user_education);
-
         PersonalCenterManager.getInstance().updateUserInfo(this.user_name, this.user_sex, this.user_birthday, this.user_education);
+    
+        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"真遗憾，请加油！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
     }
 }
 

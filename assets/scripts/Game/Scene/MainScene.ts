@@ -134,8 +134,7 @@ export class MainScene extends Component {
     skewersGameItems: Node[] = [];
 
 
-    @property(ScrollView)
-    scrollViewNode: ScrollView = null;
+
 
 
     /**
@@ -151,7 +150,7 @@ export class MainScene extends Component {
 
     private chatPanel: Node = null;
     private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜' ,'麻将组句'];
-    private notificationArr: [];
+ 
     private taskAndNotificationPanelCtrl = null;
     onLoad() {
 
@@ -251,6 +250,7 @@ export class MainScene extends Component {
             this.taskNode.active = true;
             // 刷新时间
             // 强行显示时间，防止updateTime间隔过长导致文本时间短暂不显示
+            // 更新时间
             this.updateTime();
             this.schedule(this.updateTime, 1);
             this.dayLabel.string = TimeUtil.getCurrentDate();
@@ -299,7 +299,7 @@ export class MainScene extends Component {
     showTaskProgress() {
         this.progressLabel.string = "";
         this.taskProgressNode.active = true;
-        EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
+        //EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
         TaskManager.getInstance().requestStartInform();
         this.taskScrollView.active = false;
         this.brainTrainNode.active = false;
@@ -327,34 +327,12 @@ export class MainScene extends Component {
             this.progressInfoNode.active = Boolean(Number(index));
         }
 
-        public notificationRequestCallBack(data, context) {
-            if(!this.taskAndNotificationPanelCtrl)return;
-            this.notificationArr = data;
-            console.log("通知列表",this.notificationArr);
-            if(this.notificationArr){
-                if(this.notificationArr.length>0){
-                    this.taskAndNotificationPanelCtrl.showRedDot()
-                }else {
-                    this.taskAndNotificationPanelCtrl.hideRedDot()
-                }
-            }
-           
-        }
+
         public clickNotificationBtn() {
             this.progressTaskNode.active = false;
             this.progressInfoNode.active = true;
-            this.taskAndNotificationPanelCtrl.updateList(this.notificationArr);
-            this.scrollViewNode.node.on("scroll-to-bottom", this.scrollViewEvent, this);
         }
-        scrollViewEvent(event, index: number) {
-            this.taskAndNotificationPanelCtrl.hideRedDot();
-            const subIds: number[] = this.notificationArr.map(item => (item as any).id);
-            if(subIds.length!==0){ 
-                TaskManager.getInstance().isReadNotification(subIds);
-            }
-            this.notificationArr=[];
-            this.scrollViewNode.node.off("scroll-to-bottom", this.scrollViewEvent, this);
-        }
+        
 
         showGameCenter() {
             let len = this.gameList.length;

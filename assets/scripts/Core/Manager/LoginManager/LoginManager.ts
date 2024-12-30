@@ -82,8 +82,6 @@ export class LoginManager {
         const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
 
-        SceneManager.getInstance().backToHall();
-
         if (this._loginByTokenCb) {
             this._loginByTokenCb(true);
             this._loginByTokenCb = null;
@@ -188,7 +186,11 @@ export class LoginManager {
         if (this.tokenExpirationVerification()) {
             UIManager.getInstance().showPanel(LoginPanel.NAME);
         } else {
-            this.requestTokenVerification();
+            this.requestTokenVerification((result)=>{
+                if(result){
+                    SceneManager.getInstance().backToHall();
+                }
+            });
         }
     }
 

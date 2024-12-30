@@ -7,6 +7,7 @@ export class UserInfoData {
     public mp_no: String = "";
     public is_invited: Boolean;
     public birthday: String = "";
+    public education: String = "";
     constructor(data) {
         this.id = data["id"];
         this.nickname = data["nickname"];
@@ -15,6 +16,7 @@ export class UserInfoData {
         this.mp_no = data["mp_no"];
         this.is_invited = data["is_invited"];
         this.birthday = data["birthday"];
+        this.education = data["education"];
     }
 }
 

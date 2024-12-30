@@ -133,6 +133,7 @@ export class TaskManager {
                 context._taskList.push(task);
             }
 
+
             context._taskList.sort((a, b) => {
                 return a.type - b.type;
             })
@@ -284,7 +285,7 @@ export class TaskManager {
                 notification.refrehData(data);
                 context._notificationList.push(notification);
             }
-            EventManager.getInstance().emit(TaskManager.NotificationListRequestCallBack, context._notificationList);
+            EventManager.getInstance().emit(TaskManager.NotificationListRequestCallBack);
 
         }
     }

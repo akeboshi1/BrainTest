@@ -70,9 +70,10 @@ export class PersonalCenterManager {
     public requestUpdateInfoCallback(data: SocketData, context: any){
         DebugLog.instance.log("更新个人中心数据", data);
         if(data.data){
-            this._userInfoData.birthday = data.data.birthday;
+            this._userInfoData.gender = data.data.gender;
             this._userInfoData.full_name = data.data.full_name;
             this._userInfoData.birthday = data.data.birthday;
+            this._userInfoData.education = data.data.education;
         }
         EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
     }
