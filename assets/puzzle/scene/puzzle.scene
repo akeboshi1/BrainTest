@@ -1649,6 +1649,46 @@
       {
         "__uuid__": "de9e7c9b-0342-4f0a-af46-bec1387f7dae@6c48a",
         "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "9455af28-8a91-4223-917e-5a0ad5ae7041@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "8d2c0a02-7d2e-4f91-bd4e-3ddae433aefb@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "89fe36b5-ca7d-40b9-8917-4c7041ab7ff4@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "c6b75b07-9472-41c3-91b3-dfc93ab59f4c@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "643c4c8f-2b43-4849-a89e-1cd3b0e1269f@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "04840e65-69e8-4b4f-8b9b-a101a4d71c97@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "61a49f9a-66ca-42da-b30e-3716d164545f@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "02b2c389-0c87-4d62-9542-c0a32b12ea0b@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "0c78eeaf-f68f-4b83-95fd-53dcbd1bd44a@6c48a",
+        "__expectedType__": "cc.Texture2D"
+      },
+      {
+        "__uuid__": "d64abbfe-a7b6-42ec-b33d-31895950e118@6c48a",
+        "__expectedType__": "cc.Texture2D"
       }
     ],
     "chipNodePrefab": {
