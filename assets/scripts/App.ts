@@ -17,6 +17,7 @@ import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
 import { AudioManager } from './Core/Manager/Audio/AudioManager';
 import { BundleName } from './Core/Manager/Load/BundleName';
 import { LoginPanel } from './Game/UI/Login/LoginPanel';
+import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 
 
 const { ccclass, property } = _decorator;
@@ -138,6 +139,7 @@ export class App extends BaseObejct {
             BundlePreloadManager.getInstance().init();
             ChatFlowModel.getInstance().init();
         }
+        GuideManager.getInstance().init();
         UIManager.getInstance().init();
         SceneManager.getInstance().init();
         PoolManager.getInstance().init();

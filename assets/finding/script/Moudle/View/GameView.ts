@@ -18,6 +18,9 @@ import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager"
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
+import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
+import {GuideFindingGuide} from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
+import {BaseGuide} from "db://assets/scripts/Core/Manager/Guide/BaseGuide";
 
 const {ccclass,property} = _decorator;
 
@@ -37,6 +40,8 @@ export default class GameView extends LayerPanel {
     private pictureList: Node[] = [];
 
     private frameList = [];
+
+    private framePostions : Vec3[]=[];
 
     private errNode: Node = null;
 
@@ -104,6 +109,7 @@ export default class GameView extends LayerPanel {
 
      initUI():Promise<void> {
          return new Promise(async resolve => {
+             this.framePostions = [];
              this._startTime = TimeUtil.getNow();
              this.canAddTime = true;
              this.picture1 = this.getNode("pictureBg/mask/picture");
@@ -170,13 +176,15 @@ export default class GameView extends LayerPanel {
                  LoadMgr.loadSprite(sprite, bundleName + "/image/" + String(i)).then()
                  sprite.sizeMode = Sprite.SizeMode.CUSTOM;
                  sprite.color = ColorUtil.hexToColor("rgba(230,237,7,0.8)");
+                 nodeUITransform.convertToWorldSpace(node.position);
+                 this.framePostions.push(node.position);
                  this.picture1.addChild(node);
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-             if (checkPoint == 1) {
+             //if (checkPoint == 1) {
                  this.newHandHint();
-             }
+             //}
 
              for (let j = 0; j < this.resultNode.children.length; j++) {
                  let children = this.resultNode.children[j].getChildByName("right");
@@ -219,7 +227,8 @@ export default class GameView extends LayerPanel {
 
     public newHandHint() {
         console.log("进入新手提示");
-        this.clickHint(false);
+        GuideManager.getInstance().start(GuideFindingGuide.NAME,this.framePostions);
+        // this.clickHint(false);
     }
 
     update(dt) {
@@ -324,29 +333,35 @@ export default class GameView extends LayerPanel {
     public handler_hint(i) {
         let url = "sub/image/view/gameView/public/hint";
         this.hintData = this.frameList[i];
+        if(this.handNode == null){
+            this.handNode = GuideManager.getInstance().handNode;
+        }
         for (let j = 0; j < this.pictureList.length; j++) {
             if (j == 0) {
                 this.hintRoundNode1 = this.createRound(i, j, url, 120);
             } else {
                 this.hintRoundNode2 = this.createRound(i, j, url, 120);
-                let node = new Node();
-                node.name = "hand";
-                let nodeUITransform = node.getComponent(UITransform);
-                if(!nodeUITransform){
-                    nodeUITransform = node.addComponent(UITransform);
-                }
-                nodeUITransform.width = 90;
-                nodeUITransform.height = 90;
-                nodeUITransform.setAnchorPoint(0.5, 0.5)
-                node.angle = 90;
-                let sprite: Sprite = node.addComponent(Sprite);
-                sprite.sizeMode = Sprite.SizeMode.CUSTOM;
-                LoadMgr.loadSprite(sprite, "sub/image/view/gameView/public/hand").then();
-                this.hintRoundNode2.addChild(node);
-                node.setPosition(new Vec3(node.position.x+nodeUITransform.width/2,node.position.y-nodeUITransform.height/2));
-                // node.y -= node.width / 2;
-                // node.x += node.height;
-                this.handNode = node;
+                GuideManager.getInstance().start(GuideFindingGuide.NAME,this.hintRoundNode2);
+
+
+                // let node = new Node();
+                // node.name = "hand";
+                // let nodeUITransform = node.getComponent(UITransform);
+                // if(!nodeUITransform){
+                //     nodeUITransform = node.addComponent(UITransform);
+                // }
+                // nodeUITransform.width = 90;
+                // nodeUITransform.height = 90;
+                // nodeUITransform.setAnchorPoint(0.5, 0.5)
+                // node.angle = 90;
+                // let sprite: Sprite = node.addComponent(Sprite);
+                // sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+                // LoadMgr.loadSprite(sprite, "sub/image/view/gameView/public/hand").then();
+                // this.hintRoundNode2.addChild(node);
+                // node.setPosition(new Vec3(node.position.x+nodeUITransform.width/2,node.position.y-nodeUITransform.height/2));
+                // // node.y -= node.width / 2;
+                // // node.x += node.height;
+                // this.handNode = node;
             }
         }
     }
@@ -392,7 +407,7 @@ export default class GameView extends LayerPanel {
                         this.hintRoundNode2 = null;
                     }
                     if (this.handNode) {
-                        this.handNode.destroy();
+                        // this.handNode.destroy();
                         this.handNode = null;
                     }
                 }
