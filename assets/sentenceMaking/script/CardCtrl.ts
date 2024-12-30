@@ -1,58 +1,74 @@
-import { _decorator, Color, Component, Label, Node, Sprite } from 'cc';
+import { _decorator, AnimationComponent, Color, Component, Label, Node, Sprite, Vec2, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('CardCtrl')
 export class CardCtrl extends Component {
     @property(Node)
-    showNode:Node;
+    showNode: Node;
 
     @property(Label)
-    label:Label;
+    label: Label;
 
     @property(Sprite)
-    sp:Sprite;
+    sp: Sprite;
 
-    private id:number;
-    private locked:boolean = false;
+    @property(Node)
+    cardBack: Node;
+
+    @property(AnimationComponent)
+    anim: AnimationComponent;
+
+    private id: number;
+    private locked: boolean = false;
 
     start() {
 
     }
 
     update(deltaTime: number) {
-        
+
     }
 
-    setLabel(v:string){
+    setLabel(v: string) {
         this.label.string = v;
     }
 
-    setid(id:number){
+    setid(id: number) {
         this.id = id;
     }
 
-    getid():number{
+    getid(): number {
         return this.id;
     }
 
-    lock(){
+    lock() {
         this.locked = true;
     }
 
-    unlock(){
+    unlock() {
         this.locked = false;
     }
 
-    isLocked():boolean{
+    isLocked(): boolean {
         return this.locked;
     }
 
-    setWrong(){
-        this.sp.color = new Color(255,139,139);
+    setWrong() {
+        this.sp.color = new Color(255, 139, 139);
     }
 
-    setNormal(){
-        this.sp.color = new Color(255,255,255);
+    setNormal() {
+        this.sp.color = new Color(255, 255, 255);
+    }
+
+    playFlip() {
+        this.anim.play();
+    }
+
+    resetAnim() {
+        this.cardBack.active = true;
+        this.cardBack.setScale(1, 1);
+        this.cardBack.setPosition(0, 0);
     }
 }
 

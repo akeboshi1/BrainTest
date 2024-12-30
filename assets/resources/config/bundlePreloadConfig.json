@@ -1,51 +1,40 @@
 {
     "catchFish": {
-        "preloadScene":"catchFish",
+        "preloadScene": "catchFish",
         "preloadAssets": []
     },
     "fanpai": {
-        "preloadScene":"fanpai",
+        "preloadScene": "fanpai",
         "preloadAssets": []
     },
     "finding": {
-        "preloadScene":"finding",
+        "preloadScene": "finding",
         "preloadAssets": []
     },
     "guessingGame": {
-        "preloadScene":"guessingGame",
+        "preloadScene": "guessingGame",
         "preloadAssets": [
             {
                 "path": "config/guessingGameConfig",
                 "type": "JsonAsset"
-            },
-            {
-                "path": "audio/1",
-                "type": "AudioClip"
-            },
-            {
-                "path": "audio/2",
-                "type": "AudioClip"
-            },
-            {
-                "path": "audio/3",
-                "type": "AudioClip"
-            },
-            {
-                "path": "audio/4",
-                "type": "AudioClip"
-            },
-            {
-                "path": "audio/5",
-                "type": "AudioClip"
             }
         ]
     },
     "puzzle": {
-        "preloadScene":"puzzle",
+        "preloadScene": "puzzle",
         "preloadAssets": []
     },
     "resources": {
-        "preloadScene":"main",
+        "preloadScene": "main",
         "preloadAssets": []
+    },
+    "sentenceMaking": {
+        "preloadScene": "sentenceMaking",
+        "preloadAssets": [
+            {
+                "path": "audio/majiang",
+                "type": "AudioClip"
+            }
+        ]
     }
 }

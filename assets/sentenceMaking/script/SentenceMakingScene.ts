@@ -1,10 +1,12 @@
-import { _decorator, Button, Component, EventMouse, EventTouch, instantiate, Node, Prefab, Rect, tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, AudioClip, Button, Component, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
 import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
 import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../scripts/Core/Util/DebugLog';
+import { AudioManager } from '../../scripts/Core/Manager/Audio/AudioManager';
+import { SentenceMakingTimerComponent } from './SentenceMakingTimerComponent';
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -30,6 +32,15 @@ export class SentenceMakingScene extends Component {
     @property(Button)
     btn_nextlevel: Button;
 
+    @property(AudioClip)
+    cardAudioClip: AudioClip;
+
+    @property([SpriteFrame])
+    btnSps: SpriteFrame[] = [];
+
+    @property(SentenceMakingTimerComponent)
+    timer: SentenceMakingTimerComponent;
+
     private rawMaxNum: number = 5;//一行最多放几个对象
     private lineMaxNum: number = 3;//最大行数
     private leftOffset: number = 50;//左侧的留白像素
@@ -38,6 +49,8 @@ export class SentenceMakingScene extends Component {
     private paddingy: number = 10;//垂直间距
     private itemWidth: number = 188;//对象宽度
     private itemheight: number = 235;//对象高度
+
+    private gameTime: number = 180;
 
     private sourceContainerRects: Rect[] = [];
     private resultContainerRects: Rect[] = [];
@@ -71,6 +84,14 @@ export class SentenceMakingScene extends Component {
             };
             AlertManager.getInstance().showAlert(ad);
         });
+    }
+
+    protected onEnable(): void {
+        this.timer.on("timer-end", this.onTimeout, this);
+    }
+
+    protected onDisable(): void {
+        this.timer.off("timer-end", this.onTimeout, this);
     }
 
     protected onDestroy(): void {
@@ -111,6 +132,9 @@ export class SentenceMakingScene extends Component {
     }
 
     private async startGameFlow() {
+        this.btn_nextlevel.node.active = false;
+        this.btn_commitresult.node.active = true;
+
         this.recyleCardModel();
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
         this.currentQuestion = question;
@@ -119,13 +143,23 @@ export class SentenceMakingScene extends Component {
 
     private recyleCardModel() {
         //遍历sourceContainerMap和resultContainerMap 把其中的Node实例转移到cardModelInstPool中
-        for (let [key, value] of this.sourceContainerMap) {
-            this.cardModelInstPool.push(value);
+        for (let [key, node] of this.sourceContainerMap) {
+            this.cardModelInstPool.push(node);
+            node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
+            node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
+            node.off(Node.EventType.TOUCH_END, this.onDragEnd, this);
+            node.off(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
+            node.active = false;
         }
         this.sourceContainerMap.clear();
 
-        for (let [key, value] of this.resultContainerMap) {
-            this.cardModelInstPool.push(value);
+        for (let [key, node] of this.resultContainerMap) {
+            this.cardModelInstPool.push(node);
+            node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
+            node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
+            node.off(Node.EventType.TOUCH_END, this.onDragEnd, this);
+            node.off(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
+            node.active = false;
         }
         this.resultContainerMap.clear();
     }
@@ -142,14 +176,27 @@ export class SentenceMakingScene extends Component {
         return new Vec3(x, y, 0);
     }
 
-    private initCardsInstance(question: SentenceMakingQuestion) {
+    private async initCardsInstance(question: SentenceMakingQuestion) {
         let sentence: string[] = question.sentence;
         let fixed: number[] = question.fixed;
 
+        let durationList: number[] = [];
+        let moveDuration = 0.1;
+        for (let i = 0; i < sentence.length; i++) {
+            durationList.push((i + 1) * moveDuration);
+        }
+
+        let emptyIndexList: number[] = [];
+        for (let i = 0; i < sentence.length - fixed.length; i++) {
+            emptyIndexList.push(i);
+        }
+
+        const flipDelay = 0.1;
         for (let i = 0; i < sentence.length; i++) {
             let inst: Node;
             if (this.cardModelInstPool.length > 0) {
                 inst = this.cardModelInstPool.pop();
+                inst.active = true;
             } else {
                 inst = instantiate(this.cardModel);
                 inst.getComponent(UITransform).setContentSize(this.itemWidth, this.itemheight);
@@ -161,22 +208,25 @@ export class SentenceMakingScene extends Component {
             cardCtrl.setLabel(sentence[i]);
             cardCtrl.setNormal();
 
-            if (fixed.indexOf(i) > 0) {
-                inst.setPosition(this.getPositionByIndex(i, true));
-                inst.off(Node.EventType.TOUCH_START, this.onDragStart, this);
-                inst.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
-                inst.off(Node.EventType.TOUCH_END, this.onDragEnd, this);
-                inst.off(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
+            const rdduration = Math.floor(Math.random() * durationList.length);
+            const dur = durationList[rdduration];
+            durationList.splice(rdduration, 1);
+            const delay = dur - moveDuration;
+
+            if (fixed.indexOf(i) >= 0) {
                 this.resultContainerMap.set(i, inst);
                 cardCtrl.lock();
+
+                this.cardMoveInFlow(inst, this.getPositionByIndex(i, true), moveDuration, delay);
             } else {
-                inst.setPosition(this.getPositionByIndex(i));
-                inst.on(Node.EventType.TOUCH_START, this.onDragStart, this);
-                inst.on(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
-                inst.on(Node.EventType.TOUCH_END, this.onDragEnd, this);
-                inst.on(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
-                this.sourceContainerMap.set(i, inst);
                 cardCtrl.unlock();
+                const randomIndex = Math.floor(Math.random() * emptyIndexList.length);
+                const pos = emptyIndexList[randomIndex];
+                emptyIndexList.splice(randomIndex, 1);
+                this.sourceContainerMap.set(pos, inst);
+
+                this.cardMoveInFlow(inst, this.getPositionByIndex(pos), moveDuration, delay);
+                cardCtrl.resetAnim();
             }
 
             // 去resultContainerEmptyInstance查看是否存在当前index的emptyModel实例，如果没有则创建（并且设置位置），有的话就不动；
@@ -210,6 +260,48 @@ export class SentenceMakingScene extends Component {
                 this.resultContainerEmptyInstance.delete(key);
             }
         }
+
+        this.timer.resetTimer();
+
+        await this.processFlipAnim();
+
+        this.timer.startTimer(this.gameTime);
+
+        for (let [key, inst] of this.sourceContainerMap) {
+            inst.on(Node.EventType.TOUCH_START, this.onDragStart, this);
+            inst.on(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
+            inst.on(Node.EventType.TOUCH_END, this.onDragEnd, this);
+            inst.on(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
+        }
+    }
+
+    private async processFlipAnim(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            let moveDuration = 0.1;
+            let flipDelay = 0.1;
+            let finishCount = 0;
+            for (let [key, inst] of this.sourceContainerMap) {
+                tween(inst).delay(this.currentQuestion.sentence.length * moveDuration + key * flipDelay).call(() => {
+                    inst.getComponent(CardCtrl).playFlip();
+                    AudioManager.getInstance().playOneShot(this.cardAudioClip);
+                    finishCount++;
+                    if (finishCount == this.sourceContainerMap.size) {
+                        resolve();
+                    }
+                }).start();
+            }
+        });
+    }
+
+    private async cardMoveInFlow(node: Node, targetPos: Vec3, duration: number, delay: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            node.setPosition(new Vec3(targetPos.x + 1080, targetPos.y, 0));
+            tween(node).delay(delay).call(() => {
+                AudioManager.getInstance().playOneShot(this.cardAudioClip);
+            }).to(duration, { position: targetPos }).call(() => {
+                resolve();
+            }).start();
+        });
     }
 
     private onDragStart(event: EventTouch) {
@@ -239,8 +331,13 @@ export class SentenceMakingScene extends Component {
     }
 
     private onDragEnd(event: EventTouch) {
+        if(!this.isDragging){
+            return;
+        }
+
         this.isDragging = false;
         event.target.setSiblingIndex(0);
+
         if (this.touchResult == 0) {
             this.processTouchCancel(event.target);
         } else {
@@ -260,6 +357,8 @@ export class SentenceMakingScene extends Component {
             } else {
                 this.processSwapCard(mp1, i1, mp2, i2);
             }
+
+            this.updateCommitButtonState();
         }
     }
 
@@ -297,7 +396,9 @@ export class SentenceMakingScene extends Component {
         const targetPosition2 = this.getPositionByIndex(index1, mp1 == this.resultContainerMap);
 
         const duration = 0.3;
-        tween(t1).to(duration, { position: targetPosition1 }).start();
+        AudioManager.getInstance().playOneShot(this.cardAudioClip);
+        tween(t1).to(duration, { position: targetPosition1 }).call(() => {
+        }).start();
         if (t2) {
             tween(t2).to(duration, { position: targetPosition2 }).start();
         }
@@ -381,6 +482,22 @@ export class SentenceMakingScene extends Component {
         SceneManager.getInstance().backToHall();
     }
 
+    private updateCommitButtonState() {
+        let isActive = true;
+        if (this.sourceContainerMap.size > 0) {
+            isActive = false;
+        }
+
+        for (let i = 0; i < this.resultContainerMap.size; i++) {
+            let node = this.resultContainerMap.get(i);
+            if (!node) {
+                isActive = false;
+                break;
+            }
+        }
+
+        this.btn_commitresult.node.getComponent(Sprite).spriteFrame = isActive ? this.btnSps[0] : this.btnSps[1];
+    }
 
     public processGameSummary() {
         let isSuccess = true;
@@ -397,7 +514,7 @@ export class SentenceMakingScene extends Component {
 
         for (let i = 0; i < this.resultContainerMap.size; i++) {
             let node = this.resultContainerMap.get(i);
-            if(!node){
+            if (!node) {
                 ad.title = "提示";
                 ad.message = "你还有词语没有使用";
                 AlertManager.getInstance().showAlert(ad);
@@ -435,10 +552,34 @@ export class SentenceMakingScene extends Component {
         }
 
         AlertManager.getInstance().showAlert(ad);
+        this.btn_nextlevel.node.active = true;
+        this.btn_commitresult.node.active = false;
+        this.timer.resetTimer();
     }
 
     public clickNextLeve() {
         this.model.goNextQuestion();
         this.startGameFlow();
+    }
+
+    private onTimeout() {
+        let ad: AlertData = new AlertData();
+        ad.cancelButtonVisible = false;
+        ad.title = "没有时间啦";
+        ad.message = "挑战失败";
+        AlertManager.getInstance().showAlert(ad);
+
+        for (let [key, node] of this.sourceContainerMap) {
+            node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
+            node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
+        }
+
+        for (let [key, node] of this.resultContainerMap) {
+            node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
+            node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
+        }
+
+        this.btn_nextlevel.node.active = true;
+        this.btn_commitresult.node.active = false;
     }
 }
