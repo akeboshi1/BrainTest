@@ -403,7 +403,7 @@ export default class GameView extends LayerPanel {
         if (this.gameOver) return;
         let clickPos;
         let url = "sub/image/view/gameView/public/rightRound";
-         if(!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().getGuide(FindingGuide.name).state == GuideState.processing){
+         if(!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().getGuide(FindingGuide.name) && GuideManager.getInstance().getGuide(FindingGuide.name).state == GuideState.processing){
              if(Global.isSkewersGame){
              }else{
                   GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
@@ -441,6 +441,10 @@ export default class GameView extends LayerPanel {
               this.createParticle(clickPos);
               this.tempList.push(this.frameList[i].id);
               return;
+         }
+
+         if(!event.target){
+             return;
          }
 
 
