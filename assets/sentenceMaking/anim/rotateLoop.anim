@@ -8,10 +8,10 @@
     },
     "_native": "",
     "sample": 60,
-    "speed": 1,
+    "speed": 0.8,
     "wrapMode": 2,
     "enableTrsBlending": false,
-    "_duration": 2,
+    "_duration": 2.6666666666666665,
     "_hash": 500763545,
     "_tracks": [
       {
@@ -67,7 +67,7 @@
     "__type__": "cc.RealCurve",
     "_times": [
       0,
-      2
+      2.6666666666666665
     ],
     "_values": [
       {
@@ -108,7 +108,7 @@
     "__type__": "cc.RealCurve",
     "_times": [
       0,
-      2
+      2.6666666666666665
     ],
     "_values": [
       {
@@ -149,7 +149,7 @@
     "__type__": "cc.RealCurve",
     "_times": [
       0,
-      2
+      2.6666666666666665
     ],
     "_values": [
       {

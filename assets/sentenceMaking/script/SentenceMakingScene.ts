@@ -142,6 +142,8 @@ export class SentenceMakingScene extends Component {
         this.btn_commitresult.node.active = true;
         this.hideAnimHupai();
 
+        this.btn_commitresult.node.getComponent(Sprite).spriteFrame = this.btnSps[1];
+
         this.recyleCardModel();
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
         this.currentQuestion = question;
@@ -515,7 +517,7 @@ export class SentenceMakingScene extends Component {
 
         if (this.sourceContainerMap.size > 0) {
             ad.title = "提示";
-            ad.message = "你还有词语没有使用";
+            ad.message = "你还有牌没有使用";
             AlertManager.getInstance().showAlert(ad);
             return;
         }
@@ -524,7 +526,7 @@ export class SentenceMakingScene extends Component {
             let node = this.resultContainerMap.get(i);
             if (!node) {
                 ad.title = "提示";
-                ad.message = "你还有词语没有使用";
+                ad.message = "你还有牌没有使用";
                 AlertManager.getInstance().showAlert(ad);
                 return;
             }
@@ -555,7 +557,7 @@ export class SentenceMakingScene extends Component {
                     cardCtrl.setWrong();
                 }
             }
-            ad.title = "可恶啊";
+            ad.title = "可惜";
             ad.message = "挑战失败了";
         }
 
