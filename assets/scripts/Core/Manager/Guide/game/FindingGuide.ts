@@ -31,7 +31,8 @@ export class FindingGuide extends BaseGuide{
 
         let diffX = this._data.data[0].width / 2;
         let diffY = this._data.data[0].height / 2;
-        GuideManager.getInstance().guideHand.start(new Vec3(this._data.data[0].x + diffX, this._data.data[0].y + diffY,0))
+        GuideManager.getInstance().guideHand.start(new Vec3(this._data.data[0].x + diffX, this._data.data[0].y + diffY,0));
+        GuideManager.getInstance().guideHand.string = "请点击";
 
 
     }

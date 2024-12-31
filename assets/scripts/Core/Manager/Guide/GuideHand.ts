@@ -1,9 +1,11 @@
-import {Prefab,Node,instantiate,tween,Vec3} from "cc";
+import {Prefab,Node,instantiate,tween,Vec3,Label} from "cc";
 export class GuideHand {
 
     private _handPrefab:Prefab;
 
     private _handNode :Node = null;
+
+    private _label:Label;
 
     private _tween;
     constructor(prefab:Prefab) {
@@ -13,6 +15,11 @@ export class GuideHand {
     init(){
         this._handNode = instantiate(this._handPrefab);
         this._handNode.setScale(0,0,0);
+        this._label = this._handNode.getChildByName("node").getChildByName("Label").getComponent(Label);
+    }
+
+    public set string(value:string){
+        this._label.string = value;
     }
 
     /**
