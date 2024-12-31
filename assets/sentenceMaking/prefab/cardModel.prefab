@@ -248,7 +248,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 188,
-      "height": 80
+      "height": 150
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -278,25 +278,28 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 162,
+      "g": 2,
+      "b": 2,
       "a": 255
     },
-    "_string": "一二三四",
+    "_string": "一",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 46,
-    "_fontSize": 80,
+    "_actualFontSize": 112,
+    "_fontSize": 150,
     "_fontFamily": "Kaiti",
-    "_lineHeight": 80,
+    "_lineHeight": 200,
     "_overflow": 2,
-    "_enableWrapText": true,
-    "_font": null,
-    "_isSystemFontUsed": true,
+    "_enableWrapText": false,
+    "_font": {
+      "__uuid__": "b4cbf1cf-4808-4073-9255-4d3bfb5d179c",
+      "__expectedType__": "cc.TTFFont"
+    },
+    "_isSystemFontUsed": false,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": true,
+    "_isBold": false,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
