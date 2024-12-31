@@ -1,4 +1,4 @@
-import { _decorator, AudioClip, Button, Component, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, AnimationComponent, AudioClip, Button, Component, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
 import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
@@ -7,6 +7,9 @@ import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../scripts/Core/Util/DebugLog';
 import { AudioManager } from '../../scripts/Core/Manager/Audio/AudioManager';
 import { SentenceMakingTimerComponent } from './SentenceMakingTimerComponent';
+import { Global } from '../../scripts/Core/Manager/Config/Global';
+import { GameCenterManager } from '../../scripts/Game/GameCenter/GameCenterManager';
+import { SkewersManager } from '../../scripts/Game/Task/Skewers/SkewersManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -40,6 +43,12 @@ export class SentenceMakingScene extends Component {
 
     @property(SentenceMakingTimerComponent)
     timer: SentenceMakingTimerComponent;
+
+    @property(AnimationComponent)
+    animShow: AnimationComponent;
+
+    @property(AnimationComponent)
+    animRotate: AnimationComponent;
 
     private rawMaxNum: number = 5;//一行最多放几个对象
     private lineMaxNum: number = 3;//最大行数
@@ -80,7 +89,7 @@ export class SentenceMakingScene extends Component {
             ad.message = "配置加载失败，请检查网络";
             ad.cancelButtonVisible = false;
             ad.confirmCb = () => {
-                SceneManager.getInstance().backToHall();
+                this.processBack();
             };
             AlertManager.getInstance().showAlert(ad);
         });
@@ -134,6 +143,9 @@ export class SentenceMakingScene extends Component {
     private async startGameFlow() {
         this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
+        this.hideAnimHupai();
+
+        this.btn_commitresult.node.getComponent(Sprite).spriteFrame = this.btnSps[1];
 
         this.recyleCardModel();
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
@@ -331,7 +343,7 @@ export class SentenceMakingScene extends Component {
     }
 
     private onDragEnd(event: EventTouch) {
-        if(!this.isDragging){
+        if (!this.isDragging) {
             return;
         }
 
@@ -479,7 +491,15 @@ export class SentenceMakingScene extends Component {
     }
 
     public onClickBack() {
-        SceneManager.getInstance().backToHall();
+        this.processBack();
+    }
+
+    private processBack(){
+        if (Global.isSkewersGame) {
+            SkewersManager.getInstance().exitCallBack();
+        } else {
+            GameCenterManager.getInstance().exitCallBack();
+        }
     }
 
     private updateCommitButtonState() {
@@ -504,10 +524,11 @@ export class SentenceMakingScene extends Component {
         let wrongIndices = [];
         let ad: AlertData = new AlertData();
         ad.cancelButtonVisible = false;
+        let showAlert = true;
 
         if (this.sourceContainerMap.size > 0) {
             ad.title = "提示";
-            ad.message = "你还有词语没有使用";
+            ad.message = "你还有牌没有使用";
             AlertManager.getInstance().showAlert(ad);
             return;
         }
@@ -516,7 +537,7 @@ export class SentenceMakingScene extends Component {
             let node = this.resultContainerMap.get(i);
             if (!node) {
                 ad.title = "提示";
-                ad.message = "你还有词语没有使用";
+                ad.message = "你还有牌没有使用";
                 AlertManager.getInstance().showAlert(ad);
                 return;
             }
@@ -537,8 +558,8 @@ export class SentenceMakingScene extends Component {
         if (isSuccess) {
             // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
             DebugLog.instance.log("游戏成功！");
-            ad.title = "恭喜";
-            ad.message = "挑战成功！";
+            this.showAnimHupai();
+            showAlert = false;
         } else {
             // 处理游戏失败逻辑，标记错误位置
             for (let wrongNode of wrongIndices) {
@@ -547,13 +568,17 @@ export class SentenceMakingScene extends Component {
                     cardCtrl.setWrong();
                 }
             }
-            ad.title = "可恶啊";
+            ad.title = "可惜";
             ad.message = "挑战失败了";
         }
 
-        AlertManager.getInstance().showAlert(ad);
+        if (showAlert) {
+            AlertManager.getInstance().showAlert(ad);
+        }
+
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
+        this.postGameData(1, this.timer.getElapsedTime());
         this.timer.resetTimer();
     }
 
@@ -581,5 +606,26 @@ export class SentenceMakingScene extends Component {
 
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
+
+        this.postGameData(0, this.gameTime);
+    }
+
+    private postGameData(complete: number, duration: number) {
+        if (Global.isSkewersGame) {
+            SkewersManager.getInstance().requestGameComplete(complete, duration);
+        } else {
+            const curGame = GameCenterManager.getInstance().currentGame;
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 1, this.model.getCurrentQuestionIndex() + 1, complete, duration, this.gameTime, this.model.getCurrentLevel() + 1, () => { });
+        }
+    }
+
+    private showAnimHupai() {
+        this.animShow.node.active = true;
+        this.animShow.play();
+        this.animRotate.play();
+    }
+
+    private hideAnimHupai() {
+        this.animShow.node.active = false;
     }
 }

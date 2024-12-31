@@ -43,10 +43,12 @@ export class CardCtrl extends Component {
 
     lock() {
         this.locked = true;
+        this.label.color = new Color(162, 2, 2);
     }
 
     unlock() {
         this.locked = false;
+        this.label.color = new Color(0, 0, 0);
     }
 
     isLocked(): boolean {
