@@ -1,4 +1,4 @@
-import {Prefab,Node,instantiate,tween,Vec3,Label} from "cc";
+import {Prefab,Node,instantiate,tween,Vec3,Label,UITransform,Size} from "cc";
 export class GuideHand {
 
     private _handPrefab:Prefab;
@@ -6,6 +6,12 @@ export class GuideHand {
     private _handNode :Node = null;
 
     private _label:Label;
+
+    private _bgTranform:UITransform = null;
+
+    private _labelTranform:UITransform = null;
+
+    private _timeID:number = -1;
 
     private _tween;
     constructor(prefab:Prefab) {
@@ -16,10 +22,15 @@ export class GuideHand {
         this._handNode = instantiate(this._handPrefab);
         this._handNode.setScale(0,0,0);
         this._label = this._handNode.getChildByName("node").getChildByName("Label").getComponent(Label);
+        this._labelTranform =  this._handNode.getChildByName("node").getChildByName("Label").getComponent(UITransform);
+        this._bgTranform = this._handNode.getChildByName("node").getChildByName("bg").getComponent(UITransform);
     }
 
     public set string(value:string){
         this._label.string = value;
+        this._timeID = setTimeout(()=>{
+            this._bgTranform.setContentSize(new Size(this._labelTranform.width+20,this._bgTranform.height));
+        },800)
     }
 
     /**
@@ -55,6 +66,9 @@ export class GuideHand {
         if(this._tween){
             this._tween.stop();
             this._tween = null;
+        }
+        if(this._timeID>-1){
+            clearTimeout(this._timeID);
         }
         this._handNode = null;
     }
