@@ -33,7 +33,7 @@ export class GuideHand {
      */
     public get node():Node{
         if(this._handNode == null){
-            this._handNode = instantiate(this._handPrefab);
+            this.init();
         }
         return this._handNode;
     };
