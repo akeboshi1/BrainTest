@@ -7,6 +7,9 @@ import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../scripts/Core/Util/DebugLog';
 import { AudioManager } from '../../scripts/Core/Manager/Audio/AudioManager';
 import { SentenceMakingTimerComponent } from './SentenceMakingTimerComponent';
+import { Global } from '../../scripts/Core/Manager/Config/Global';
+import { GameCenterManager } from '../../scripts/Game/GameCenter/GameCenterManager';
+import { SkewersManager } from '../../scripts/Game/Task/Skewers/SkewersManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -86,7 +89,7 @@ export class SentenceMakingScene extends Component {
             ad.message = "配置加载失败，请检查网络";
             ad.cancelButtonVisible = false;
             ad.confirmCb = () => {
-                SceneManager.getInstance().backToHall();
+                this.processBack();
             };
             AlertManager.getInstance().showAlert(ad);
         });
@@ -340,7 +343,7 @@ export class SentenceMakingScene extends Component {
     }
 
     private onDragEnd(event: EventTouch) {
-        if(!this.isDragging){
+        if (!this.isDragging) {
             return;
         }
 
@@ -488,7 +491,15 @@ export class SentenceMakingScene extends Component {
     }
 
     public onClickBack() {
-        SceneManager.getInstance().backToHall();
+        this.processBack();
+    }
+
+    private processBack(){
+        if (Global.isSkewersGame) {
+            SkewersManager.getInstance().exitCallBack();
+        } else {
+            GameCenterManager.getInstance().exitCallBack();
+        }
     }
 
     private updateCommitButtonState() {
@@ -561,12 +572,13 @@ export class SentenceMakingScene extends Component {
             ad.message = "挑战失败了";
         }
 
-        if(showAlert){
+        if (showAlert) {
             AlertManager.getInstance().showAlert(ad);
         }
 
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
+        this.postGameData(1, this.timer.getElapsedTime());
         this.timer.resetTimer();
     }
 
@@ -594,15 +606,26 @@ export class SentenceMakingScene extends Component {
 
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
+
+        this.postGameData(0, this.gameTime);
     }
 
-    private showAnimHupai(){
+    private postGameData(complete: number, duration: number) {
+        if (Global.isSkewersGame) {
+            SkewersManager.getInstance().requestGameComplete(complete, duration);
+        } else {
+            const curGame = GameCenterManager.getInstance().currentGame;
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 1, this.model.getCurrentQuestionIndex() + 1, complete, duration, this.gameTime, this.model.getCurrentLevel() + 1, () => { });
+        }
+    }
+
+    private showAnimHupai() {
         this.animShow.node.active = true;
         this.animShow.play();
         this.animRotate.play();
     }
 
-    private hideAnimHupai(){
+    private hideAnimHupai() {
         this.animShow.node.active = false;
     }
 }

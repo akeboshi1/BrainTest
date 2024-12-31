@@ -35,6 +35,14 @@ export class SentenceMakingModel {
         this.currentQuestionIndex = (this.currentQuestionIndex + 1) % this.config.getQuestionsByLevel(this.selectedLevel).length;
     }
 
+    getCurrentLevel():number{
+        return this.selectedLevel;
+    }
+
+    getCurrentQuestionIndex():number{
+        return this.currentQuestionIndex;
+    }
+
     dispose() {
 
     }
