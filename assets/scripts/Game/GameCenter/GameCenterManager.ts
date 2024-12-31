@@ -7,6 +7,7 @@ import {SceneManager} from "../../Core/Manager/Scene/SceneManager";
 import {LoaderManager} from "../../Core/Manager/Load/LoaderManager";
 import {instantiate,Node} from "cc";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 
 /**
  * 游戏大厅通信数据
@@ -243,6 +244,7 @@ export class GameCenterManager {
                 session_id: GameCenterManager.getInstance().currentGame.sessionid,
             }
         }));
+        GuideManager.getInstance().quitGame();
         SceneManager.getInstance().backToGameCenter();
     }
 
