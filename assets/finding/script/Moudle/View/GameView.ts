@@ -117,6 +117,7 @@ export default class GameView extends LayerPanel {
      */
     private _counts = [3,4,5];
 
+    private _checkPoint = 0;
      initUI():Promise<void> {
          return new Promise(async resolve => {
              this.framePostions = [];
@@ -138,14 +139,14 @@ export default class GameView extends LayerPanel {
              this.victory.active = false;
              this.plistNode = this.getNode("caidai");
              this.plistNode.active = false;
-             let checkPoint = CacheMgr.checkpoint;
+             this._checkPoint = CacheMgr.checkpoint;
              if (Global.isSkewersGame) {
                  this._curHard = Global.userData.curSkewerGameData.difficulty;
                  // test code
-                 checkPoint = Global.userData.curSkewerGameData.seq;
+                 this._checkPoint = Global.userData.curSkewerGameData.seq;
              } else {
                  let _level = CacheMgr.checkpoint;
-                 checkPoint = CacheMgr.checkpoint = _level;
+                 this._checkPoint = CacheMgr.checkpoint = _level;
                  if (_level % 3 == 0) {
                      if (_level == 0) {
                          this._curHard = 1;
@@ -158,7 +159,7 @@ export default class GameView extends LayerPanel {
              }
              this._curCount = 0;
              this._maxCount = this._counts[this._curHard - 1];
-             let loopLevel = checkPoint % GameConfig.allCheckPoint;
+             let loopLevel = this._checkPoint % GameConfig.allCheckPoint;
              if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
              let customCount;
              if (loopLevel == GameConfig.allCheckPoint) {
@@ -166,7 +167,7 @@ export default class GameView extends LayerPanel {
              } else {
                  customCount = loopLevel;
              }
-             this.customsNode.getComponent(Label).string = "第" + checkPoint + "关";
+             this.customsNode.getComponent(Label).string = "第" + this._checkPoint + "关";
              let _level = GameConfig.level_order[loopLevel - 1];
              let bundleName = "level"+_level;
              let imageName = GameConfig.image_name.get(_level);
@@ -206,7 +207,7 @@ export default class GameView extends LayerPanel {
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-             if (checkPoint == 1) {
+             if (this._checkPoint == 1) {
                  this.newHandHint();
              }
 
@@ -247,6 +248,7 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
          this.tempList = [];
         this.clockTime = GameConfig.clockTime;
+        if(this._checkPoint !=1)this.monitorEvent();
     }
 
     public newHandHint() {
