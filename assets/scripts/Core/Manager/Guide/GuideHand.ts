@@ -11,8 +11,6 @@ export class GuideHand {
 
     private _labelTranform:UITransform = null;
 
-    private _timeID:number = -1;
-
     private _tween;
     constructor(prefab:Prefab) {
          this._handPrefab = prefab;
@@ -28,9 +26,6 @@ export class GuideHand {
 
     public set string(value:string){
         this._label.string = value;
-        this._timeID = setTimeout(()=>{
-            this._bgTranform.setContentSize(new Size(this._labelTranform.width+20,this._bgTranform.height));
-        },800)
     }
 
     /**
@@ -66,9 +61,6 @@ export class GuideHand {
         if(this._tween){
             this._tween.stop();
             this._tween = null;
-        }
-        if(this._timeID>-1){
-            clearTimeout(this._timeID);
         }
         this._handNode = null;
     }
