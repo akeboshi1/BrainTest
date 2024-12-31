@@ -54,9 +54,21 @@ export class FindingGuide extends BaseGuide{
      * @private
      */
     private step2(event):void{
-        GuideManager.getInstance().handNode.once(Node.EventType.TOUCH_START,this.end.bind(this),this);
+        GuideManager.getInstance().handNode.once(Node.EventType.TOUCH_START,this.step3.bind(this),this);
         EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_EMIT,{pos:event.getUILocation(),i:1});
         this.dealPostiont(this._data.data,2);
+    }
+
+    private step3(event):void{
+        GuideManager.getInstance().handNode.once(Node.EventType.TOUCH_START,this.step4.bind(this),this);
+        EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_EMIT,{pos:event.getUILocation(),i:2});
+        this.dealPostiont(this._data.data,3);
+    }
+
+    private step4(event):void{
+        GuideManager.getInstance().handNode.once(Node.EventType.TOUCH_START,this.end.bind(this),this);
+        EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_EMIT,{pos:event.getUILocation(),i:3});
+        this.dealPostiont(this._data.data,4);
     }
 
     /**
@@ -64,7 +76,7 @@ export class FindingGuide extends BaseGuide{
      * @param event
      */
     public end(event):void{
-        EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_END,{pos:event.getUILocation(),i:2});
+        EventManager.getInstance().emit(FindingGuide.GUIDE_FIND_END,{pos:event.getUILocation(),i:4});
         GuideManager.getInstance().handNode.active = false;
         GuideManager.getInstance().end(FindingGuide.NAME);
         super.end(event);

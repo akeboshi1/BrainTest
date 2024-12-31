@@ -167,34 +167,48 @@ export default class GameView extends LayerPanel {
                  customCount = loopLevel;
              }
              this.customsNode.getComponent(Label).string = "第" + checkPoint + "关";
-             let bundleName = "level" + GameConfig.level_order[loopLevel - 1]
+             let _level = GameConfig.level_order[loopLevel - 1];
+             let bundleName = "level"+_level;
+             let imageName = GameConfig.image_name.get(_level);
              let pictureSprite1 = this.picture1.getComponent(Sprite);
              let pictureSprite2 = this.picture2.getComponent(Sprite);
-             LoadMgr.loadSprite(pictureSprite1, bundleName + "/image/bg").then();
-             LoadMgr.loadSprite(pictureSprite2, bundleName + "/image/bg").then();
-             let custData = GameConfig.level_data[loopLevel - 1];
-             let sizeData = GameConfig.level_data_size[loopLevel - 1];
-             for (let i = 0; i < custData.length; i++) {
+             LoadMgr.loadSprite(pictureSprite1, bundleName + `/image/${imageName}_1_32`).then();
+             LoadMgr.loadSprite(pictureSprite2, bundleName + `/image/${imageName}_2_32`).then();
+             let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
+             let tmpDataList = tmpDatas.split("|");
+             let len = tmpDataList.length;
+             // let custData = GameConfig.level_data[loopLevel - 1];
+             // let sizeData = GameConfig.level_data_size[loopLevel - 1];
+             let uitransform = this.picture1.getComponent(UITransform)
+             for (let i = 0; i < len; i++) {
                  let node: Node = new Node();
                  let nodeUITransform = node.addComponent(UITransform);
-                 nodeUITransform.width = sizeData[i].w;
-                 nodeUITransform.height = sizeData[i].h;
+                 let tempData = tmpDataList[i].split(",");
+                 // 左上角
+                 nodeUITransform.width = Number(tempData[2]);
+                 nodeUITransform.height = Number(tempData[3]);
+                 node.setPosition(Number(tempData[0])*1.5, uitransform.height - Number(tempData[1])*1.5);
+                 nodeUITransform.setAnchorPoint(0,1);
+
+                 // nodeUITransform.width = sizeData[i].w;
+                 // nodeUITransform.height = sizeData[i].h;
                  node.setScale(1.4,1.4);
-                 node.setPosition(custData[i].x * 1.5, custData[i].y * 1.5)
-                 nodeUITransform.setAnchorPoint(0.5, 0.5);
-                 let sprite = node.addComponent(Sprite);
-                 LoadMgr.loadSprite(sprite, bundleName + "/image/" + String(i)).then()
-                 sprite.sizeMode = Sprite.SizeMode.CUSTOM;
-                 sprite.color = ColorUtil.hexToColor("rgba(230,237,7,0.8)");
+                 // node.setPosition(custData[i].x * 1.5, custData[i].y * 1.5)
+
+
+                 // let sprite = node.addComponent(Sprite);
+                 // LoadMgr.loadSprite(sprite, bundleName + "/image/" + String(i)).then()
+                 // sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+                 // sprite.color = ColorUtil.hexToColor("rgba(230,237,7,0.8)");
                  nodeUITransform.convertToWorldSpaceAR(node.position);
                  this.framePostions.push(node.position);
                  this.picture1.addChild(node);
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-             //if (checkPoint == 1) {
+             if (checkPoint == 1) {
                  this.newHandHint();
-             //}
+             }
 
              for (let j = 0; j < this.resultNode.children.length; j++) {
                  let children = this.resultNode.children[j].getChildByName("right");
@@ -237,6 +251,7 @@ export default class GameView extends LayerPanel {
 
     public newHandHint() {
         console.log("进入新手提示");
+        // this.monitorEvent();
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_EMIT,this.guideClick.bind(this),this);
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_END,this.guideEND.bind(this),this);
         GuideManager.getInstance().start(FindingGuide.NAME,{root:this.picture1,data:this.frameList});

@@ -51,11 +51,12 @@ export default class HomeView extends LayerPanel {
         }
         let loopLevel = checkPoint % GameConfig.allCheckPoint;
         if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
-        let custom = GameConfig.level_order[loopLevel - 1]
+        let custom = GameConfig.level_order[loopLevel - 1];
+        let imageName = GameConfig.image_name.get(custom);
         let pictureSprite = this.pictureNode.getComponent(Sprite);
         pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
         let way = () => {
-            let url = "level" + custom+"/image/bg";
+            let url = "level" + custom+"/image/"+imageName+"_1_32";
             LoadMgr.loadSprite(pictureSprite, url).then();
         }
         way();
