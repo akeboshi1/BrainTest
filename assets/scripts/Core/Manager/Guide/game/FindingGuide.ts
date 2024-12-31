@@ -23,6 +23,8 @@ export class FindingGuide extends BaseGuide{
     public start(data:any = null,name:string = null):void{
         super.start(data,name);
         DebugLog.instance.log(`${name}引导开始`);
+
+
         this._data = data;
         this._root= data.root;
         this._root.addChild(GuideManager.getInstance().handNode);
