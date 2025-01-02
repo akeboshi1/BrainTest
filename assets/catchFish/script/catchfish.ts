@@ -91,7 +91,7 @@ export class catchfish extends Component {
         const scene = director.getScene();
         const canvas = scene.getComponentInChildren(Canvas);
         const uitransform = canvas.getComponent(UITransform);
-        this._leftSceneX = -uitransform.width/2;
+        this._leftSceneX = -uitransform.width/2-80;
     }
 
     private async loadAudio() {
@@ -250,7 +250,7 @@ export class catchfish extends Component {
 
         let self = this;
         const upDistance = 10; // 上下浮动的距离
-        const duration = 10; // 每次往返的时间
+        const duration = 16; // 每次往返的时间
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave
@@ -452,7 +452,7 @@ export class catchfish extends Component {
                     // 移除wangPrefab
                     wang.removeChild(wangPrefab);
                     self.wangCount++;
-                    self.catchLabel.getComponent(Label).string = `${self.wangCount}/4`;
+                    self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                     if (self.wangCount == self.wangMaxCount) {
                         self.endCurHardGame();
 
