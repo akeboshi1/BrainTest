@@ -1,4 +1,4 @@
-import { _decorator, Component, EventTouch, Label, Node } from 'cc';
+import { _decorator, Component, EventTouch, Label, Node,AudioClip,assetManager } from 'cc';
 import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
 import { GuessingGameTimerComponent } from './GuessingGameTimerComponent';
 import { FrameComponent } from '../../scripts/Core/Component/FrameComponent';
@@ -12,6 +12,8 @@ import { SkewersManager } from "db://assets/scripts/Game/Task/Skewers/SkewersMan
 import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('GuessingGameScene')
@@ -63,6 +65,50 @@ export class GuessingGameScene extends Component {
     private _startTime: number = 0;
 
     private _curHard: number = 0;
+
+    private audioUrls=["audio/music/click","audio/music/win"];
+    private audioMap:Map<string,AudioClip> = new Map();
+    private bundleName: string = 'guessingGame';
+
+
+    onLoad(){
+       this.loadAudio().then();
+    }
+
+    private async loadAudio() {
+        const bundle = assetManager.getBundle(this.bundleName);
+        if(!bundle){
+            DebugLog.instance.error("bundle is not exist! ---- bundle name:"+ this.bundleName);
+            return;
+        }
+        let self = this;
+        let len = this.audioUrls.length;
+        for(let i:number = 0;i<len;i++){
+            let audioUrl = this.audioUrls[i];
+            const audioRes:AudioClip = await new Promise<AudioClip>((resolve,reject)=>{
+                bundle.load(audioUrl,AudioClip,(err,data:AudioClip)=>{
+                    if(err){
+                        DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
+                        reject(err);
+                    }else{
+                        resolve(data);
+                    }
+                })
+            });
+            this.audioMap.set(audioUrl,audioRes);
+        }
+    }
+
+    private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
+        let audioRes = this.audioMap.get(url);
+        if(audioRes != null){
+            if(isShot){
+                AudioManager.getInstance().playOneShot(audioRes);
+            }else{
+                AudioManager.getInstance().play(audioRes,isLoop);
+            }
+        }
+    }
 
     start() {
         if (!this.bInit) {
@@ -170,6 +216,9 @@ export class GuessingGameScene extends Component {
         this.pauseTime();
 
         const result: boolean = ans && this.currentQuestion.answer == ans;
+        if(result){
+            this.playAudio("audio/music/win",true);
+        }
         this.resultPanel.active = true;
         if (Global.isSkewersGame) {
             this.successTextNode.active = false;
@@ -223,6 +272,7 @@ export class GuessingGameScene extends Component {
 
     private exitCallBack(context) {
         context.guessingGameModel.stopAudio();
+        AudioManager.getInstance().stop();
         context.pauseTime();
         if (Global.isSkewersGame) {
             SkewersManager.getInstance().exitCallBack();
@@ -262,6 +312,7 @@ export class GuessingGameScene extends Component {
     }
 
     onChooseOption(event: EventTouch, p: string) {
+        this.playAudio("audio/music/click",true);
         this.processAnswer(p);
     }
 

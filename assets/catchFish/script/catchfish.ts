@@ -87,7 +87,7 @@ export class catchfish extends Component {
             .call(() => {
             })
             .start();
-        this.loadAudio();
+        this.loadAudio().then();
         const scene = director.getScene();
         const canvas = scene.getComponentInChildren(Canvas);
         const uitransform = canvas.getComponent(UITransform);
