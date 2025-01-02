@@ -3355,7 +3355,7 @@
       "b": 0,
       "a": 48
     },
-    "_string": "1880年-12月-12日",
+    "_string": "1941年-01月-01日",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -12252,6 +12252,9 @@
     },
     "comEducatSelect": {
       "__id__": 543
+    },
+    "nameNode": {
+      "__id__": 71
     },
     "selectorSex": {
       "__id__": 366

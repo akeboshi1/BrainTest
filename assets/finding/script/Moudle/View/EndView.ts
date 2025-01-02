@@ -110,6 +110,7 @@ export default class EndView extends LayerPanel {
     }
 
     public onClickNext() {
+        CacheMgr.checkpoint ++;
         Global.isAgain = false;
         this.closeEnd();
     }

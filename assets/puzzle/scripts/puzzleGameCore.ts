@@ -73,6 +73,9 @@ export class puzzleGameCore extends Component {
     @property(Node)
     private bgNode: Node = null;
 
+    @property(Sprite)
+    private showSprite:Sprite;
+
     //显示对象
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
@@ -135,6 +138,7 @@ export class puzzleGameCore extends Component {
 
     start() {
         this.summaryAlert.node.active = false;
+        this.showSprite.node.active = false;
         this.cleanChipsCache();
         let playIndex = 0;
         if (Global.isSkewersGame) {
@@ -471,6 +475,7 @@ export class puzzleGameCore extends Component {
         let newSpriteFrame = new SpriteFrame();
         newSpriteFrame.texture = this.cachedTextures[this.textureIndex];
         this.previewSprite.spriteFrame = newSpriteFrame;
+        this.showSprite.spriteFrame = newSpriteFrame;
     }
 
     pauseTime() {
@@ -530,21 +535,42 @@ export class puzzleGameCore extends Component {
         DebugLog.instance.log("成功");
         this.playAudio("music/win",true);
         this.timerComponent.pauseTimer();
-        if (Global.isSkewersGame) {
-            this.requestGameResult(true)
-            if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, null, this.exitCallBack, this);
-                return;
+        this.showSprite.node.active = true;
+
+        const minScale = 1;
+        const maxScale = 1.1;
+        const duration = 2;
+        // this.chipParentNode.
+        let _tween = tween(this.showSprite.node)
+            .to(duration, { scale: new Vec3(maxScale, maxScale, maxScale) },{ easing: 'cubicOut' }) // 放大
+            .to(duration, { scale: new Vec3(minScale, minScale, minScale) },{ easing: 'cubicOut' }) // 缩小
+            .union()
+            .repeatForever()
+            .start();
+        let self = this;
+        setTimeout(()=>{
+            this.showSprite.node.setScale(new Vec3(1,1,1));
+            this.showSprite.node.active = false;
+            if(_tween){
+                _tween.stop();
+                _tween = null;
             }
-            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this);
-        } else {
-            // 通小关后发送消息
-            let curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, this.gameLength, curGame.difficulty, this.gamepasslevelCallback);
-            this.summaryAlert.node.active = true;
-            this.summaryAlert.initByResult(true);
-            this.summaryAlert.fadeIn();
-        }
+            if (Global.isSkewersGame) {
+               self.requestGameResult(true)
+               if (SkewersManager.getInstance().isRunOver()) {
+                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, null, self.exitCallBack, self);
+                   return;
+               }
+               EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
+            } else {
+               // 通小关后发送消息
+               let curGame = GameCenterManager.getInstance().currentGame;
+               GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, self.gameLength, curGame.difficulty, self.gamepasslevelCallback);
+               self.summaryAlert.node.active = true;
+               self.summaryAlert.initByResult(true);
+               self.summaryAlert.fadeIn();
+            }
+        }, 4000);
     }
 
     private requestSkewersGameComplete(data) {

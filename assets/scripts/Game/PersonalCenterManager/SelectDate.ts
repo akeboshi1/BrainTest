@@ -58,7 +58,7 @@ export class SelectDate extends Component {
     }
 
     private initMember(){
-        let date = new Date();
+        let date = new Date(1990,0,1);
         let curYear = date.getFullYear();
         yearArr = [];
         for(let i = 0; i < this.MaxYearCnt; i++){

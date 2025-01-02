@@ -30,7 +30,8 @@ export default class HomeView extends LayerPanel {
                 panel: GameInfoView,
                 layer: Layer.gameInfoLayer
             }).then(()=>{
-                this.pictureNode = this.getNode("bg/picture")
+                this.pictureNode = this.getNode("bg/picture");
+                this.pictureNode.active = false;
                 return resolve();
             });
         })
@@ -39,6 +40,9 @@ export default class HomeView extends LayerPanel {
 
 
     show(param: any): void {
+        let pictureSprite = this.pictureNode.getComponent(Sprite);
+        pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
+        this.pictureNode.active = false;
         let checkPoint=0;
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
@@ -53,11 +57,12 @@ export default class HomeView extends LayerPanel {
         if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
         let custom = GameConfig.level_order[loopLevel - 1];
         let imageName = GameConfig.image_name.get(custom);
-        let pictureSprite = this.pictureNode.getComponent(Sprite);
-        pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
+
         let way = () => {
             let url = "level" + custom+"/image/"+imageName+"_1_32";
-            LoadMgr.loadSprite(pictureSprite, url).then();
+            LoadMgr.loadSprite(pictureSprite, url).then(()=>{
+                this.pictureNode.active = true;
+            });
         }
         way();
 
@@ -100,6 +105,6 @@ export default class HomeView extends LayerPanel {
     }
 
     hide() {
-
+        this.pictureNode.active = false;
     }
 }

@@ -14,7 +14,7 @@ export class PersonalCenterManager {
         }
         return PersonalCenterManager._instance;
     }
-    public static getUserInfoCallBack: string = "TaskListRequestCallBack";
+    public static getUserInfoCallBack: string = "getUserInfoCallBack";
 
     // 获取个人中心数据
     private user_get_info: string = "user.get_user_info";
@@ -23,6 +23,7 @@ export class PersonalCenterManager {
     private user_update_info: string = "user.update_user_info";
 
     private _userInfoData: UserInfoData;
+
     constructor() {
     }
 
