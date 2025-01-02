@@ -207,9 +207,9 @@ export default class GameView extends LayerPanel {
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-             if (this._checkPoint == 1) {
+             //if (this._checkPoint == 1) {
                  this.newHandHint();
-             }
+             //}
 
              for (let j = 0; j < this.resultNode.children.length; j++) {
                  let children = this.resultNode.children[j].getChildByName("right");
@@ -248,7 +248,7 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
          this.tempList = [];
         this.clockTime = GameConfig.clockTime;
-        if(this._checkPoint !=1)this.monitorEvent();
+        //if(this._checkPoint !=1)this.monitorEvent();
     }
 
     public newHandHint() {
@@ -256,7 +256,7 @@ export default class GameView extends LayerPanel {
         // this.monitorEvent();
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_EMIT,this.guideClick.bind(this),this);
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_END,this.guideEND.bind(this),this);
-        GuideManager.getInstance().start(FindingGuide.NAME,{root:this.picture1,data:this.frameList});
+        GuideManager.getInstance().start(FindingGuide.NAME,{root:this.picture1,data:this.frameList,count:this._maxCount-1});
         // this.clickHint(false);
     }
 

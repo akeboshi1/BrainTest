@@ -52,8 +52,8 @@ export class GuideManager extends BaseManager{
         LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/hand/handPrefab").then((res)=>{
              self._hand = new GuideHand(res);
              self._hand.init();
+             self._initGuideData();
         });
-        self._initGuideData();
     }
 
     private _initGuideData():void{

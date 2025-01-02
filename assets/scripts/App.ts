@@ -130,7 +130,7 @@ export class App extends BaseObejct {
     }
 
 
-    private initManager() {
+    private async initManager() {
         EventManager.getInstance().init();
         LoaderManager.getInstance().init();
         if(!this.isPad){
@@ -139,7 +139,7 @@ export class App extends BaseObejct {
             BundlePreloadManager.getInstance().init();
             ChatFlowModel.getInstance().init();
         }
-        GuideManager.getInstance().init();
+        await GuideManager.getInstance().init();
         UIManager.getInstance().init();
         SceneManager.getInstance().init();
         PoolManager.getInstance().init();
