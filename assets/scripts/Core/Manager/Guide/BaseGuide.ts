@@ -11,7 +11,7 @@ export class BaseGuide {
     }
 
     public get name():string{
-        return BaseGuide.NAME;
+        return "";
     }
 
     public set name(value:string){
