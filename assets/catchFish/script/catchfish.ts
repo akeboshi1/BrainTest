@@ -128,7 +128,7 @@ export class catchfish extends Component {
         }
     }
 
-    startGame() {
+    startGame(win:number = 1) {
         this.customsSendDataState=false;
         this._clearBoo = false;
         this._startTime = TimeUtil.getNow();
@@ -139,12 +139,21 @@ export class catchfish extends Component {
             this.curHard = Global.userData.curSkewerGameData.difficulty;
             this.hardIndex = this.hards.indexOf(this.curHard);
         }else{
-            this.curHard = this.hards[this.hardIndex];
+            if(win){
+                this.curHard = this.hards[this.hardIndex];
+            }else{
+                this.hardIndex = this.hardIndex + 1 > this.hards.length ? 0 : this.hardIndex + 1;
+                this.curHard = this.hards[this.hardIndex];
+            }
         }
         this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
         this.timeStart();
         this.createFish();
+    }
+
+    onDisable(){
+        EventManager.getInstance().disableContext(this);
     }
 
     // startGameByAlert(context){
@@ -239,6 +248,7 @@ export class catchfish extends Component {
             fish.curTween = null;
         }
 
+        let self = this;
         const upDistance = 10; // 上下浮动的距离
         const duration = 10; // 每次往返的时间
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
@@ -248,12 +258,12 @@ export class catchfish extends Component {
         fish.curTween = tween(fish)
             // 对当前鱼对象进行 tween 动画
             .delay(delay)// 每个对象延迟4秒开始
-            .by(duration, { position: new Vec3(fish.position.x - 2200, fish.position.y, fish.position.z) },
+            .by(duration, { position: new Vec3(fish.position.x - 2400, fish.position.y, fish.position.z) },
                 {
                     onUpdate: () => {
-                        if(this._clearBoo)return;
+                        if(self._clearBoo)return;
                         if(!Global.isSkewersGame){
-                            if (this.gameSuccessView.active || this.gameFailView.active) {
+                            if (self.gameSuccessView.active || self.gameFailView.active) {
                                 return;
                             }
                         }
@@ -265,13 +275,17 @@ export class catchfish extends Component {
             )
             .call(() => {
                 if(!Global.isSkewersGame){
-                    if (this.gameSuccessView.active || this.gameFailView.active) {
+                    if (self.gameSuccessView.active || self.gameFailView.active) {
                         return;
                     }
                 }
-                if(this._clearBoo)return;
-                this.randomFish(fish);
-                this.moveFishes(fish, SHOOT_INTERVAL);
+                if(self._clearBoo)return;
+                if(fish == self._curFish){
+                   self.clearWangNubmer();
+                   self._curFish = null;
+                }
+                self.randomFish(fish);
+                self.moveFishes(fish, SHOOT_INTERVAL);
             })
             .start(); // 启动动画
     }
@@ -301,10 +315,10 @@ export class catchfish extends Component {
                         this.requestGameResult();
                     }else{
                         if(!this.customsSendDataState){ //未发送数据的状态
-                        const curGame = GameCenterManager.getInstance().currentGame;
-                        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, this.hards[this.hardIndex],
-                            this.wangCount/this.wangMaxCount, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
-                            this.customsSendDataState= true;
+                           const curGame = GameCenterManager.getInstance().currentGame;
+                           GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, this.hards[this.hardIndex],
+                               this.wangCount/this.wangMaxCount, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+                               this.customsSendDataState= true;
                         }
                         this.gameFailView.active = true;
                         this.updateSuccessPopupStar(this.curHard);
@@ -342,11 +356,13 @@ export class catchfish extends Component {
     }
 
     rePlayGame() {
+        this.customsSendDataState=true;
+        this.clearGameView();
         this._clearBoo = false;
+        this._startTime = TimeUtil.getNow();
         this.gameFailView.active = false;
         this.wangCount = 0;
-        this.catchLabel.getComponent(Label).string = `${this.wangCount}/4`;
-        this.clearGameView();
+        this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
         this.timeStart();
         this.createFish();
@@ -581,9 +597,14 @@ export class catchfish extends Component {
             this.fishs = [];
         }
     }
-    private nextGame() {
+    private nextGame(event,data) {
         this.gameSuccessView.active = false;
-        this.startGame(); // 开始下一关
+        this.gameFailView.active = false;
+        let state = Number(data);
+        if(!state){
+            this.clearGameView();
+        }
+        this.startGame(state); // 开始下一关
     }
 
     private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){

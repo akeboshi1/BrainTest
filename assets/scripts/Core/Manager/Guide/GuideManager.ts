@@ -6,6 +6,7 @@ import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {FindingGuide} from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 import {GuideHand} from "db://assets/scripts/Core/Manager/Guide/GuideHand";
+import {CatchFishGuide} from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
 
 export enum GuideState{
     Init,
@@ -58,6 +59,7 @@ export class GuideManager extends BaseManager{
 
     private _initGuideData():void{
         this._map.set(FindingGuide.NAME,new FindingGuide());
+        this._map.set(CatchFishGuide.NAME,new CatchFishGuide());
     }
 
 
