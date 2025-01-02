@@ -61,7 +61,7 @@ export class UIManager extends BaseManager {
     * @param parentNode - 面板要挂载的父节点，类型为`Node | null`，默认值是`null`。如果传入`null`，会使用`LayerUtil.getPanelLayer()`获取默认的面板挂载层作为父节点。指定父节点可以灵活控制面板在场景中的层级关系。
     * @returns - 返回一个`Promise<boolean>`，`true`表示面板成功显示，`false`表示在显示过程中出现错误，例如面板未注册、资源包未加载、预制体加载失败等情况。
     */
-    async showPanel(name: string, rdata: any = null, needPreload: boolean = false, parentNode: Node | null = null): Promise<boolean> {
+    async showPanel(name: string, rdata: any = null, needPreload: boolean = false, parentNode: Node | null = null, showTouchMask:boolean = true): Promise<boolean> {
         let panelInfo = this.panelRegisterConfig.get(name);
         if (!panelInfo) {
             DebugLog.instance.error('Panel did not register into UIManager === name : ' + name);
@@ -79,7 +79,9 @@ export class UIManager extends BaseManager {
             bundle = assetManager.getBundle(panelInfo.bundleName);
         }
 
-        await this.openScreenLocker();
+        if(showTouchMask){
+            await this.openScreenLocker();
+        }
 
         if (needPreload) {
             await new Promise((resolve, reject) => {

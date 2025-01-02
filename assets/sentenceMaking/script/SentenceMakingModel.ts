@@ -1,4 +1,10 @@
+import { Global } from "../../scripts/Core/Manager/Config/Global";
+import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { LayerUtil } from "../../scripts/Core/Util/LayerUtil";
+import { GameCenterManager } from "../../scripts/Game/GameCenter/GameCenterManager";
+import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
+import { AlertType } from "../../scripts/Game/UI/Alert/GameAlert";
 import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
 
 export class SentenceMakingModel {
@@ -12,11 +18,48 @@ export class SentenceMakingModel {
     private selectedLevel: number = 0;
     private currentQuestionIndex: number = 0;
 
+    private skewerGameQuestionIndexs: number[] = null;
+
+    private _gameTime: number = 180;
+
     async init() {
         if (this.binit) return;
         this.binit = true;
 
         await this.config.loadConfig();
+
+        if (Global.isSkewersGame) {
+            this.setQuestionLevel(Global.userData.curSkewerGameData.difficulty - 1);
+            let count = Global.userData.curSkewerGameData.trains.length;
+            this.currentQuestionIndex = Global.userData.curSkewerGameData.seq - 1;
+            let questionLen = this.config.getQuestionsByLevel(this.selectedLevel).length;
+            let indexList = [];
+            this.skewerGameQuestionIndexs = [];
+
+            for (let i = 0; i < questionLen; i++) {
+                indexList.push(i);
+            }
+
+            // 使用Fisher-Yates算法打乱indexList顺序
+            for (let i = indexList.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [indexList[i], indexList[j]] = [indexList[j], indexList[i]];
+            }
+
+            for (let i = 0; this.skewerGameQuestionIndexs.length < count; i++) {
+                this.skewerGameQuestionIndexs.push(indexList[i % indexList.length]);
+            }
+
+            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.onSkewersProgressUpdate, this);
+        } else {
+            let d = GameCenterManager.getInstance().currentGame;
+            this.setQuestionLevel(d.difficulty - 1);
+            this.currentQuestionIndex = d.level - 1;
+        }
+    }
+
+    dispose() {
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
     }
 
     setQuestionLevel(level: number) {
@@ -28,22 +71,85 @@ export class SentenceMakingModel {
     }
 
     getCurrentQuestion(): SentenceMakingQuestion {
-        return this.config.getQuestionByLevelAndIndex(this.selectedLevel, this.currentQuestionIndex);
+        let index = this.currentQuestionIndex;
+        if(Global.isSkewersGame){
+            index = this.skewerGameQuestionIndexs[this.currentQuestionIndex];
+        }
+        return this.config.getQuestionByLevelAndIndex(this.selectedLevel, index);
     }
 
     goNextQuestion() {
-        this.currentQuestionIndex = (this.currentQuestionIndex + 1) % this.config.getQuestionsByLevel(this.selectedLevel).length;
+        if(Global.isSkewersGame){
+            this.currentQuestionIndex++;
+        }else{
+            this.selectedLevel = (this.selectedLevel+1) % 3;//最多3个难度1,2,3
+            if(this.selectedLevel == 0){
+                this.currentQuestionIndex = (this.currentQuestionIndex + 1) % this.config.getQuestionsByLevel(this.selectedLevel).length;
+            }
+        }
     }
 
-    getCurrentLevel():number{
+    getCurrentLevel(): number {
         return this.selectedLevel;
     }
 
-    getCurrentQuestionIndex():number{
+    getCurrentQuestionIndex(): number {
         return this.currentQuestionIndex;
     }
 
-    dispose() {
+    hasNextLevel(): boolean {
+        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionIndexs.length - 1) {
+            return false;
+        }
 
+        return true;
+    }
+
+    get gameTime(): number {
+        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionIndexs.length - 1) {
+            return Global.userData.curSkewerGameData.timeLimit;
+        }
+
+        return 180;
+    }
+
+    postGameData(complete: number, duration: number) {
+        if (Global.isSkewersGame) {
+            SkewersManager.getInstance().requestGameComplete(complete, duration);
+        } else {
+            const curGame = GameCenterManager.getInstance().currentGame;
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete, this.getCurrentQuestionIndex() + 1, complete, duration, this.gameTime, this.getCurrentLevel() + 1);
+        }
+    }
+
+    private onSkewersProgressUpdate(data) {
+        let trainid = data;
+        let trainData = SkewersManager.getInstance().getTrainData(trainid);
+        let maxCount = trainData.parentSkewersGameData.trains.length;
+        let curCount = trainData.seq;
+
+        // 游戏内界面提示
+        if (maxCount != curCount) {
+            SkewersManager.getInstance().showGameTip("太棒了，请继续！", curCount, maxCount);
+        } else {
+            if (!SkewersManager.getInstance().isRunOver()) {
+                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, "太棒了，恭喜你通关组词造句游戏", "收获xxx点脑力值！", 0, 0, this.skewersGoNext, this.exit, this);
+            } else {
+                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, this.exit, this.exit, this);
+            }
+        }
+    }
+
+    private skewersGoNext() {
+        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
+        SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Next, `接下来将进入${gameData.gameName}游戏`, '', 0, 0, this.goNextGame, this.exit, this);
+    }
+
+    private goNextGame(){
+        SkewersManager.getInstance().runNextGame();
+    }
+
+    private exit() {
+        SkewersManager.getInstance().exitCallBack();
     }
 }

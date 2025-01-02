@@ -4,6 +4,8 @@ import { Global } from "../Config/Global";
 import { LoaderManager } from "../Load/LoaderManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
+import { EventManager } from "../Event/EventManager";
+import { SceneManager } from "../Scene/SceneManager";
 
 export default class AlertManager extends BaseManager {
     private static _instance: AlertManager;
@@ -20,6 +22,8 @@ export default class AlertManager extends BaseManager {
     private currentAlert: Node = null; // 当前正在显示的alert节点
 
     public async init() {
+        EventManager.getInstance().on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
+
         return new Promise<void>((resolve,reject)=>{
             LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/Common/CommonAlert").then((resource) => {
                 DebugLog.instance.log("Common Alert Prefab Load success!!!");
@@ -113,6 +117,11 @@ export default class AlertManager extends BaseManager {
                 this.showAlert(nextAlertData);
             }
         }
+    }
+
+    private onSceneChanged() {
+        this.alertQueue = [];
+        this.closeCurrentAlert();
     }
 }
 

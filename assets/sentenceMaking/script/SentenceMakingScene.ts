@@ -59,8 +59,6 @@ export class SentenceMakingScene extends Component {
     private itemWidth: number = 188;//对象宽度
     private itemheight: number = 235;//对象高度
 
-    private gameTime: number = 180;
-
     private sourceContainerRects: Rect[] = [];
     private resultContainerRects: Rect[] = [];
 
@@ -107,6 +105,8 @@ export class SentenceMakingScene extends Component {
         this.sourceContainerMap.clear();
         this.resultContainerMap.clear();
         this.resultContainerEmptyInstance.clear();
+
+        this.model.dispose();
     }
 
     private initRects() {
@@ -277,7 +277,7 @@ export class SentenceMakingScene extends Component {
 
         await this.processFlipAnim();
 
-        this.timer.startTimer(this.gameTime);
+        this.timer.startTimer(this.model.gameTime);
 
         for (let [key, inst] of this.sourceContainerMap) {
             inst.on(Node.EventType.TOUCH_START, this.onDragStart, this);
@@ -576,9 +576,9 @@ export class SentenceMakingScene extends Component {
             AlertManager.getInstance().showAlert(ad);
         }
 
-        this.btn_nextlevel.node.active = true;
+        this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
-        this.postGameData(1, this.timer.getElapsedTime());
+        this.model.postGameData(1, this.timer.getElapsedTime());
         this.timer.resetTimer();
     }
 
@@ -607,16 +607,7 @@ export class SentenceMakingScene extends Component {
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
 
-        this.postGameData(0, this.gameTime);
-    }
-
-    private postGameData(complete: number, duration: number) {
-        if (Global.isSkewersGame) {
-            SkewersManager.getInstance().requestGameComplete(complete, duration);
-        } else {
-            const curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 1, this.model.getCurrentQuestionIndex() + 1, complete, duration, this.gameTime, this.model.getCurrentLevel() + 1, () => { });
-        }
+        this.model.postGameData(0, this.model.gameTime);
     }
 
     private showAnimHupai() {
