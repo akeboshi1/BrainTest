@@ -11,7 +11,7 @@ export class BaseGuide {
     }
 
     public get name():string{
-        return BaseGuide.NAME;
+        return "";
     }
 
     public set name(value:string){
@@ -29,6 +29,7 @@ export class BaseGuide {
     public start(data:any = null,name:string = null){
        this._state = GuideState.processing;
        this.name = name;
+        DebugLog.instance.log(`${name}引导开始`);
     }
 
     public step(node:Node = null){

@@ -63,6 +63,22 @@ export class EventManager extends BaseManager{
         }
     }
 
+    /**
+     * 遍历移除对象中的监听
+     * @param context
+     */
+    disableContext(context){
+        this.events.forEach(((items,key)=>{
+            let len = items.length;
+            for(let i:number = 0;i<len;i++){
+                let item = items[i];
+                if(item.context == context){
+                    this.off(key,context);
+                }
+            }
+        }));
+    }
+
     update(){
 
     }

@@ -13,7 +13,9 @@ import {
     tween,
     UITransform,
     Vec2,
-    Vec3
+    Vec3,
+    assetManager,
+    AudioClip
 } from 'cc';
 import { timerComponent } from './timerComponent';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
@@ -24,6 +26,7 @@ import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCente
 import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
 import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
+import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 
 const { ccclass, property } = _decorator;
 
@@ -70,6 +73,9 @@ export class puzzleGameCore extends Component {
     @property(Node)
     private bgNode: Node = null;
 
+    @property(Sprite)
+    private showSprite:Sprite;
+
     //显示对象
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
@@ -87,12 +93,52 @@ export class puzzleGameCore extends Component {
 
     private _startTime: number = 0;
 
-    onLoad() {
+    private audioUrls=["music/drag","music/win"];
+    private audioMap:Map<string,AudioClip> = new Map();
+    private bundleName: string = 'puzzle';
 
+    private async loadAudio() {
+        const bundle = assetManager.getBundle(this.bundleName);
+        if(!bundle){
+            DebugLog.instance.error("bundle is not exist! ---- bundle name:"+ this.bundleName);
+            return;
+        }
+        let self = this;
+        let len = this.audioUrls.length;
+        for(let i:number = 0;i<len;i++){
+            let audioUrl = this.audioUrls[i];
+            const audioRes:AudioClip = await new Promise<AudioClip>((resolve,reject)=>{
+                bundle.load(audioUrl,AudioClip,(err,data:AudioClip)=>{
+                    if(err){
+                        DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
+                        reject(err);
+                    }else{
+                        resolve(data);
+                    }
+                })
+            });
+            this.audioMap.set(audioUrl,audioRes);
+        }
+    }
+
+    private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
+        let audioRes = this.audioMap.get(url);
+        if(audioRes != null){
+            if(isShot){
+                AudioManager.getInstance().playOneShot(audioRes);
+            }else{
+                AudioManager.getInstance().play(audioRes,isLoop);
+            }
+        }
+    }
+
+    onLoad(){
+        this.loadAudio().then();
     }
 
     start() {
         this.summaryAlert.node.active = false;
+        this.showSprite.node.active = false;
         this.cleanChipsCache();
         let playIndex = 0;
         if (Global.isSkewersGame) {
@@ -212,7 +258,7 @@ export class puzzleGameCore extends Component {
 
     onTouchEnd(event: EventTouch) {
         if (this.dragInstance == null || !this.dragStartFlag) return;
-
+        this.playAudio("music/drag",true);
         this.dragStartFlag = false;
         const currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
@@ -278,6 +324,7 @@ export class puzzleGameCore extends Component {
 
     private exitCallBack(context) {
         context.pauseTime();
+        AudioManager.getInstance().stop();
         if (Global.isSkewersGame) {
             SkewersManager.getInstance().exitCallBack();
         } else {
@@ -428,6 +475,7 @@ export class puzzleGameCore extends Component {
         let newSpriteFrame = new SpriteFrame();
         newSpriteFrame.texture = this.cachedTextures[this.textureIndex];
         this.previewSprite.spriteFrame = newSpriteFrame;
+        this.showSprite.spriteFrame = newSpriteFrame;
     }
 
     pauseTime() {
@@ -485,22 +533,44 @@ export class puzzleGameCore extends Component {
 
     processGameSuccess() {
         DebugLog.instance.log("成功");
+        this.playAudio("music/win",true);
         this.timerComponent.pauseTimer();
-        if (Global.isSkewersGame) {
-            this.requestGameResult(true)
-            if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, null, this.exitCallBack, this);
-                return;
+        this.showSprite.node.active = true;
+
+        const minScale = 1;
+        const maxScale = 1.1;
+        const duration = 2;
+        // this.chipParentNode.
+        let _tween = tween(this.showSprite.node)
+            .to(duration, { scale: new Vec3(maxScale, maxScale, maxScale) },{ easing: 'cubicOut' }) // 放大
+            .to(duration, { scale: new Vec3(minScale, minScale, minScale) },{ easing: 'cubicOut' }) // 缩小
+            .union()
+            .repeatForever()
+            .start();
+        let self = this;
+        setTimeout(()=>{
+            this.showSprite.node.setScale(new Vec3(1,1,1));
+            this.showSprite.node.active = false;
+            if(_tween){
+                _tween.stop();
+                _tween = null;
             }
-            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this);
-        } else {
-            // 通小关后发送消息
-            let curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, this.gameLength, curGame.difficulty, this.gamepasslevelCallback);
-            this.summaryAlert.node.active = true;
-            this.summaryAlert.initByResult(true);
-            this.summaryAlert.fadeIn();
-        }
+            if (Global.isSkewersGame) {
+               self.requestGameResult(true)
+               if (SkewersManager.getInstance().isRunOver()) {
+                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, null, self.exitCallBack, self);
+                   return;
+               }
+               EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
+            } else {
+               // 通小关后发送消息
+               let curGame = GameCenterManager.getInstance().currentGame;
+               GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, self.gameLength, curGame.difficulty, self.gamepasslevelCallback);
+               self.summaryAlert.node.active = true;
+               self.summaryAlert.initByResult(true);
+               self.summaryAlert.fadeIn();
+            }
+        }, 4000);
     }
 
     private requestSkewersGameComplete(data) {

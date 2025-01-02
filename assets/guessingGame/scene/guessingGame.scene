@@ -52,7 +52,7 @@
     },
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 132
+      "__id__": 133
     },
     "_id": "69d8c34d-01ab-4218-a396-816bb659c064"
   },
@@ -85,6 +85,9 @@
       },
       {
         "__id__": 131
+      },
+      {
+        "__id__": 132
       }
     ],
     "_prefab": null,
@@ -4932,30 +4935,49 @@
     "_id": "d0wXQSrktIJJJd0709L7Hh"
   },
   {
+    "__type__": "cc.AudioSource",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_clip": {
+      "__uuid__": "63f1618c-bad9-4c0e-aa4e-6e7882168d1d",
+      "__expectedType__": "cc.AudioClip"
+    },
+    "_loop": true,
+    "_playOnAwake": true,
+    "_volume": 1,
+    "_id": "eewWDJTpBJ1JeZBxv0wcdW"
+  },
+  {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 133
-    },
-    "shadows": {
       "__id__": 134
     },
-    "_skybox": {
+    "shadows": {
       "__id__": 135
     },
-    "fog": {
+    "_skybox": {
       "__id__": 136
     },
-    "octree": {
+    "fog": {
       "__id__": 137
     },
-    "skin": {
+    "octree": {
       "__id__": 138
     },
-    "lightProbeInfo": {
+    "skin": {
       "__id__": 139
     },
-    "postSettings": {
+    "lightProbeInfo": {
       "__id__": 140
+    },
+    "postSettings": {
+      "__id__": 141
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false

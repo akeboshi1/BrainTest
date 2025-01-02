@@ -207,9 +207,9 @@ export default class GameView extends LayerPanel {
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-             //if (this._checkPoint == 1) {
+             if (this._checkPoint == 1) {
                  this.newHandHint();
-             //}
+             }
 
              for (let j = 0; j < this.resultNode.children.length; j++) {
                  let children = this.resultNode.children[j].getChildByName("right");
@@ -248,7 +248,7 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
          this.tempList = [];
         this.clockTime = GameConfig.clockTime;
-        //if(this._checkPoint !=1)this.monitorEvent();
+        if(this._checkPoint !=1)this.monitorEvent();
     }
 
     public newHandHint() {
@@ -403,7 +403,7 @@ export default class GameView extends LayerPanel {
         if (this.gameOver) return;
         let clickPos;
         let url = "sub/image/view/gameView/public/rightRound";
-         if(!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().getGuide(FindingGuide.name) && GuideManager.getInstance().getGuide(FindingGuide.name).state == GuideState.processing){
+         if(!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().curGuide instanceof FindingGuide == true && GuideManager.getInstance().curGuide.state ==  GuideState.processing){
              if(Global.isSkewersGame){
              }else{
                   GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });

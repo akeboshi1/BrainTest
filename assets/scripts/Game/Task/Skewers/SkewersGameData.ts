@@ -5,7 +5,7 @@ export enum GameType{
     Comprehension="COMPREHENSION",
     // 执行力
     Executionability="EXECUTION",
-    // 语言
+    // 语言力
     Language="LANGUAGE",
     // 计算力
     Calculator="CALCULATION",
@@ -57,6 +57,7 @@ export class SkewersGameData {
                 this.gameName = "拼图";
                 break;
             case GameType.Language:
+                this.gameName = "组词造句";
                 break;
            case GameType.Comprehension:
                 this.gameName = "猜谜";

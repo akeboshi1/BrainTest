@@ -544,19 +544,19 @@ export class MainScene extends Component {
                 let type = _gameData.type;
                 switch (type) {
                     case GameType.Memory:
-                        label.string = "记忆";
+                        label.string = "记忆力";
                         break;
                     case GameType.Judgment:
-                        label.string = "判断";
+                        label.string = "判断力";
                         break;
                     case GameType.Calculator:
-                        label.string = "计算";
+                        label.string = "计算力";
                         break;
                     case GameType.Executionability:
                         label.string = "执行力";
                         break;
                     case GameType.Language:
-                        label.string = "语言";
+                        label.string = "语言力";
                         break;
                     case GameType.Comprehension:
                         label.string = "理解力";
