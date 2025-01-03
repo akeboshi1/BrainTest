@@ -55,6 +55,8 @@ export class GuessingGameScene extends Component {
     @property(Node)
     viewNode: Node = null;
 
+    private timeLimit = 30;
+
     private options: string[] = ['a', 'b', 'c', 'd'];
 
     private guessingGameModel: GuessingGameModel = new GuessingGameModel();
@@ -64,7 +66,7 @@ export class GuessingGameScene extends Component {
 
     private _startTime: number = 0;
 
-    private _curHard: number = 0;
+    private _curHard: number = 1;
 
     private audioUrls=["audio/music/click","audio/music/win"];
     private audioMap:Map<string,AudioClip> = new Map();
@@ -201,7 +203,7 @@ export class GuessingGameScene extends Component {
         this.optionsNode.active = true;
         this._startTime = TimeUtil.getNow();
         this.timerRT.node.active = true;
-        this.timerRT.startTimer(30);
+        this.timerRT.startTimer(this.timeLimit);
 
         this.replayNode.active = true;
 
@@ -237,6 +239,7 @@ export class GuessingGameScene extends Component {
             // }
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this, true);
         } else {
+            this.requestGameCenterGameResult(result);
             this.successTextNode.active = result;
             this.failedTextNode.active = !result;
         }
@@ -270,6 +273,20 @@ export class GuessingGameScene extends Component {
         SkewersManager.getInstance().requestGameComplete(complete, duration);
     }
 
+    private requestGameCenterGameResult(win: boolean = true){
+        // 上报数据
+        let endTime = TimeUtil.getNow();
+        let complete = Number(win);
+        if (this._startTime == 0) {
+            this._startTime = endTime;
+        }
+        let duration = (endTime - this._startTime) / 1000;
+        GameCenterManager.getInstance().gamePassLevel(GameCenterManager.getInstance().currentGame.sessionid,0,
+            this.guessingGameModel.currentQuestionIndex,complete,duration,this.timeLimit,this._curHard,(data)=>{
+                 DebugLog.instance.log(data)
+            });
+    }
+
     private exitCallBack(context) {
         context.guessingGameModel.stopAudio();
         AudioManager.getInstance().stop();
@@ -287,23 +304,15 @@ export class GuessingGameScene extends Component {
     }
 
     onClickGotoNextlevel() {
-        // if(Global.isSkewersGame){
-        //     SkewersManager.getInstance().runNextGame();
-        //     return;
-        // }
         // 下一关
         this.onClickContinueGame();
     }
 
     onClickGotoNextlevel1(context) {
-        if (Global.isSkewersGame) {
-            if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().exitCallBack();
-            } else {
-                context.onClickGotoNextlevel();
-            }
+        if (SkewersManager.getInstance().isRunOver()) {
+            SkewersManager.getInstance().exitCallBack();
         } else {
-            // GameCenterManager.getInstance().exitCallBack();
+            context.onClickGotoNextlevel();
         }
     }
 
@@ -333,7 +342,7 @@ export class GuessingGameScene extends Component {
             let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
             SkewersManager.getInstance().quitGame(this.viewNode, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
         } else {
-            GameCenterManager.getInstance().exitCallBack();
+            GameCenterManager.getInstance().quitGame(this.viewNode, this.goonCallBack, this.exitCallBack, this);
         }
     }
 
@@ -363,10 +372,10 @@ export class GuessingGameScene extends Component {
 
         if (Global.isSkewersGame) {
             // 临时处理
-            // Global.userData.curSkewerGameData.difficulty
             Global.userData.curSkewerGameData.difficulty = this.guessingGameModel.currentQuestionIndex;
         } else {
-            this.guessingGameModel.currentQuestionIndex;
+            let remoteLevel = GameCenterManager.getInstance().currentGame.level;
+            this.guessingGameModel.currentQuestionIndex = remoteLevel == 0?this.guessingGameModel.currentQuestionIndex:remoteLevel;
         }
 
         this.guessingGameModel.stopAudio();
