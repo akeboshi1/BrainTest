@@ -18,7 +18,7 @@ export class SentenceMakingModel {
     private selectedLevel: number = 0;
     private currentQuestionIndex: number = 0;
 
-    private skewerGameQuestionIndexs: number[] = null;
+    private skewerGameQuestionDatas: {level:number,index:number}[] = null;
 
     private _gameTime: number = 180;
 
@@ -29,26 +29,15 @@ export class SentenceMakingModel {
         await this.config.loadConfig();
 
         if (Global.isSkewersGame) {
-            this.setQuestionLevel(Global.userData.curSkewerGameData.difficulty - 1);
             let count = Global.userData.curSkewerGameData.trains.length;
+            this.skewerGameQuestionDatas = [];
+            for(let i=0;i<count;i++){
+                const trainData = Global.userData.curSkewerGameData.trains[i];
+                this.skewerGameQuestionDatas.push({level:trainData.difficulty - 1,index:trainData.level - 1});
+            }
+            
             this.currentQuestionIndex = Global.userData.curSkewerGameData.seq - 1;
-            let questionLen = this.config.getQuestionsByLevel(this.selectedLevel).length;
-            let indexList = [];
-            this.skewerGameQuestionIndexs = [];
-
-            for (let i = 0; i < questionLen; i++) {
-                indexList.push(i);
-            }
-
-            // 使用Fisher-Yates算法打乱indexList顺序
-            for (let i = indexList.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1));
-                [indexList[i], indexList[j]] = [indexList[j], indexList[i]];
-            }
-
-            for (let i = 0; this.skewerGameQuestionIndexs.length < count; i++) {
-                this.skewerGameQuestionIndexs.push(indexList[i % indexList.length]);
-            }
+            this.setQuestionLevel(this.skewerGameQuestionDatas[this.currentQuestionIndex].level);
 
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.onSkewersProgressUpdate, this);
         } else {
@@ -73,7 +62,7 @@ export class SentenceMakingModel {
     getCurrentQuestion(): SentenceMakingQuestion {
         let index = this.currentQuestionIndex;
         if(Global.isSkewersGame){
-            index = this.skewerGameQuestionIndexs[this.currentQuestionIndex];
+            index = this.skewerGameQuestionDatas[this.currentQuestionIndex].index % this.config.getQuestionsByLevel(this.selectedLevel).length;
         }
         return this.config.getQuestionByLevelAndIndex(this.selectedLevel, index);
     }
@@ -81,6 +70,7 @@ export class SentenceMakingModel {
     goNextQuestion() {
         if(Global.isSkewersGame){
             this.currentQuestionIndex++;
+            this.setQuestionLevel(this.skewerGameQuestionDatas[this.currentQuestionIndex].level);
         }else{
             this.selectedLevel = (this.selectedLevel+1) % 3;//最多3个难度1,2,3
             if(this.selectedLevel == 0){
@@ -98,7 +88,7 @@ export class SentenceMakingModel {
     }
 
     hasNextLevel(): boolean {
-        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionIndexs.length - 1) {
+        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionDatas.length - 1) {
             return false;
         }
 
@@ -106,11 +96,11 @@ export class SentenceMakingModel {
     }
 
     get gameTime(): number {
-        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionIndexs.length - 1) {
+        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionDatas.length - 1) {
             return Global.userData.curSkewerGameData.timeLimit;
         }
 
-        return 180;
+        return this._gameTime;
     }
 
     postGameData(complete: number, duration: number) {

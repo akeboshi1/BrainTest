@@ -1,10 +1,9 @@
 import { _decorator, Node, Label, EditBox, Color } from 'cc';
 import { SelectDate } from '../../PersonalCenterManager/SelectDate';
-import { SelectSex } from '../../PersonalCenterManager/SelectSex';
+import { Selector } from '../../PersonalCenterManager/Selector';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
-import { GameAlert, AlertType } from '../Alert/GameAlert';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
 
 
@@ -17,11 +16,11 @@ export class UserInfoPanel extends BasePanel {
     @property(SelectDate)
     comDateSelect: SelectDate = null;
 
-    @property(SelectSex)
-    comSexSelect: SelectSex = null;
+    @property(Selector)
+    comSexSelect: Selector = null;
 
-    @property(SelectSex)
-    comEducatSelect: SelectSex = null;
+    @property(Selector)
+    comEducatSelect: Selector = null;
 
     @property(Node)
     nameNode: Node = null;
@@ -57,6 +56,7 @@ export class UserInfoPanel extends BasePanel {
     }
     onInputFinished(event) {
         this.user_name = this.editBox.string;
+        this.nameNode.getComponent(Label).string = this.editBox.string;
     }
     start() {
         this.initUserInfoPanel();
@@ -100,7 +100,7 @@ export class UserInfoPanel extends BasePanel {
         } else if (data == "5") {
             education = "硕士及以上";
         }
-        this.judgeEducation(education);
+        this.setEducationId(education);
         this.educationContentNode.getComponent(Label).color = new Color(0, 0, 0);
         this.educationContentNode.getComponent(Label).string = education;
     }
@@ -140,11 +140,12 @@ export class UserInfoPanel extends BasePanel {
         this.selectorEducation.active = true;
         this.comEducatSelect.callback = (education) => {
             this.setEducation(education)
-            this.judgeEducation(education);
+            this.setEducationId(education);
 
         }
     }
-    judgeEducation(education) {
+    
+    setEducationId(education) {
         if (education == "初中及以下") {
             this.user_education = 1;
         } else if (education == "高中") {
@@ -156,7 +157,10 @@ export class UserInfoPanel extends BasePanel {
         } else if (education == "硕士及以上") {
             this.user_education = 5;
         }
+
+        console.log(education,this.user_education);
     }
+
     errorAlert() {
         const alertData: AlertData = new AlertData();
         alertData.title = "个人信息不完整，请完善个人信息";
@@ -166,7 +170,7 @@ export class UserInfoPanel extends BasePanel {
         AlertManager.getInstance().showAlert(alertData);
     }
     commitUserInfo() {
-        console.log('00000000000000000',this.user_name, this.user_sex, this.user_birthday, this.user_education)
+        console.log('发送个人信息',this.user_name, this.user_sex, this.user_birthday, this.user_education)
         if(this.user_name==""||this.user_sex==0||this.user_birthday==""||this.user_education==0){this.errorAlert();  return;}
         const alertData: AlertData = new AlertData();
         alertData.title = "确定要修改个人信息吗？";
