@@ -1,6 +1,6 @@
 import { _decorator, Node, Label, EditBox, Color } from 'cc';
 import { SelectDate } from '../../PersonalCenterManager/SelectDate';
-import { Selector } from '../../PersonalCenterManager/SelectSex';
+import { Selector } from '../../PersonalCenterManager/Selector';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
