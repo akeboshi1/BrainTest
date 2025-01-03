@@ -2,6 +2,7 @@ import { _decorator, Component, Node, Prefab, instantiate, Label, Button } from 
 import { EventManager } from '../../Core/Manager/Event/EventManager';
 import { TaskManager } from '../Task/TaskManager';
 import { SkewersManager } from '../Task/Skewers/SkewersManager';
+import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('InfoListPopCtrl')
@@ -27,7 +28,8 @@ export class InfoListPopCtrl extends Component {
 
     private gotaskListCallBack() {
         EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
-        TaskManager.getInstance().requestStartTask(this._taskID);
+        SceneManager.getInstance().backToSkewersGameCenter().then();
+        // TaskManager.getInstance().requestStartTask(this._taskID);
     }
 
     updateInfoList(InfoData) {
@@ -54,7 +56,7 @@ export class InfoListPopCtrl extends Component {
         event.target.off('click', this.gotaskList);
         this._taskID = Number(event.target["sub_id"]);
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.gotaskListCallBack, this);
-        SkewersManager.getInstance().requestBranisTraining_list(this._taskID)
+        SkewersManager.getInstance().requestBranisTraining_list(this._taskID);
     }
 
     hideInfoAlert(infoItem:Node) {
