@@ -445,7 +445,7 @@ export class Main extends Component {
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
-        const n = getRandomNumber(7, 18)
+        const n = getRandomNumber(7, 28)
         // 如果n大于9，则将n转换为字符串，否则将n转换为字符串并在前面加上0
         this.cardTheme = n > 9 ? `${n}` : `0${n}`
     }
