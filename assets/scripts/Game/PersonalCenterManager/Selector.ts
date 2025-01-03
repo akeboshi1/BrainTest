@@ -4,8 +4,8 @@ const { ccclass, property } = _decorator;
 
 const dataArr = ["男", "女"];
 
-@ccclass('Selector')
-export class Selector extends Component {
+@ccclass('SelectSex')
+export class SelectSex extends Component {
 
     @property(ScrollViewExt)
     svExt: ScrollViewExt = null;

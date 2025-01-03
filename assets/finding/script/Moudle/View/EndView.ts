@@ -135,8 +135,8 @@ export default class EndView extends LayerPanel {
         this.offTouch(this.btn1Node);
         this.offTouch(this.btn2Node);
         if (this.residueTime > 0) {
-            if (this.result && !Global.isAgain) {
-                CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
+            if (!this.result && !Global.isAgain) {
+                // CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
             }
         }
         PanelMgr.INS.openPanel({

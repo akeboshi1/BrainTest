@@ -99,7 +99,7 @@ export class GuessingGameModel{
     }
 
     goNextQuestion(){
-        this.currentQuestionIndex = this.config.getNextQuestionNumber(this.currentQuestionIndex);
+        this.currentQuestionIndex = this.config.getNextQuestionNumber(Number(this.currentQuestionIndex));
 
         this.startQuestionFlow();
     }
