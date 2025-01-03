@@ -4,7 +4,6 @@ import { SelectSex } from '../../PersonalCenterManager/SelectSex';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
-import { GameAlert, AlertType } from '../Alert/GameAlert';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
 
 
@@ -57,6 +56,7 @@ export class UserInfoPanel extends BasePanel {
     }
     onInputFinished(event) {
         this.user_name = this.editBox.string;
+        this.nameNode.getComponent(Label).string = this.editBox.string;
     }
     start() {
         this.initUserInfoPanel();

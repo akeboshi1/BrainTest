@@ -20,7 +20,6 @@ export class PersonalCenterPanel extends BasePanel {
     reportNode: Node = null;
 
     onEnable() {
-        DebugLog.instance.log("PersonalCenterPanel start");
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         PersonalCenterManager.getInstance().requestUserInfo();
     }
@@ -31,7 +30,11 @@ export class PersonalCenterPanel extends BasePanel {
 
     getUserInfoCallBack(data: any) {
         let userData = PersonalCenterManager.getInstance().userInfoData;
-        this.setPersonalCenterTitle(userData.full_name.toString());
+        if(userData.full_name) {
+            this.setPersonalCenterTitle(userData.full_name.toString());
+        }else {
+            this.setPersonalCenterTitle("未登录");
+        }
     }
 
     setPersonalCenterTitle(title: string) {
