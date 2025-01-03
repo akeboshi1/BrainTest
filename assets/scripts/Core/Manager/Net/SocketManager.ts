@@ -19,6 +19,7 @@ export class SocketManager extends BaseManager {
 
     private _reconnectInterval: number = 5;//重连尝试间隔，单位秒
     private _reconnectMaxCount: number = 5;//重连最大尝试次数
+    private _isReconnecting: boolean = false;
 
     private _socketDatas: Map<string, SocketData[]>;
     public static getInstance(): SocketManager {
@@ -158,16 +159,17 @@ export class SocketManager extends BaseManager {
 
     //重连成功返回true
     async processReconnectFlow(): Promise<boolean> {
+        if (this._isReconnecting) return;
+        this._isReconnecting = true;
+
         UIManager.getInstance().registerPanel(ReconnectPanel.NAME, BundleName.RESOURCES, "prefab/Common/ReconnectPanel", ReconnectPanel);
-        let eventTarget: EventTarget = new EventTarget();
-        let eventName: string = 'reconnectCountChange';
+        
+        let eventName: string = 'Socket.reconnectCountChange';
 
-        await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventTarget, eventName }, false, LayerUtil.getLoaderLayer());
-
-        let e: Event = new Event(eventName);
+        await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
 
         for (let attempt = 1; attempt <= this._reconnectMaxCount; attempt++) {
-            eventTarget.dispatchEvent(e);
+            EventManager.getInstance().emit(eventName);
             try {
                 await this.initSocket();
                 DebugLog.instance.log('Reconnected successfully.');
@@ -184,10 +186,16 @@ export class SocketManager extends BaseManager {
                     });
                 });
 
+                this._isReconnecting = false;
                 return true;
             } catch (error) {
                 DebugLog.instance.warn(`Reconnect attempt ${attempt} failed:`, error);
                 if (attempt < this._reconnectMaxCount) {
+                    let ispanelActive = UIManager.getInstance().isPanelActive(ReconnectPanel.NAME);
+                    if(!ispanelActive){
+                        await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
+                    }
+
                     await new Promise<void>((resolve) => {
                         const timer = setTimeout(() => {
                             clearTimeout(timer);
@@ -206,6 +214,7 @@ export class SocketManager extends BaseManager {
         alertData.message = '重连失败，请检查设备的网络链接。';
         AlertManager.getInstance().showAlert(alertData);
 
+        this._isReconnecting = false;
         return false;
     }
 

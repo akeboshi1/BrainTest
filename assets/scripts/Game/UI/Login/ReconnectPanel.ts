@@ -1,5 +1,6 @@
 import { _decorator, Label } from 'cc';
 import { BasePanel } from '../../../Core/UI/BasePanel';
+import { EventManager } from '../../../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('ReconnectPanel')
@@ -10,7 +11,6 @@ export class ReconnectPanel extends BasePanel {
     label: Label;
 
     private count: number = 0;
-    private et: EventTarget = null;
     private en: string = '';
 
     start() {
@@ -18,17 +18,14 @@ export class ReconnectPanel extends BasePanel {
     }
 
     restore(data: any): void {
-        if (data && data.eventTarget && data.eventName) {
-            this.et = data.eventTarget;
+        if (data && data.eventName) {
             this.en = data.eventName;
-            this.et.addEventListener(this.en, this.updateLabel.bind(this));
+            EventManager.getInstance().on(this.en, this.updateLabel,this);
         }
     }
 
-    onDisable(): void {
-        if (this.et) {
-            this.et.removeEventListener(this.en, this.updateLabel.bind(this));
-        }
+    onDestroy(): void {
+        EventManager.getInstance().off(this.en, this);
     }
 
     update(deltaTime: number) {

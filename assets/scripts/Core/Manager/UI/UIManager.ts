@@ -199,6 +199,10 @@ export class UIManager extends BaseManager {
         this.activePanelMap.clear();
     }
 
+    isPanelActive(name:string):boolean{
+        return this.activePanelMap.has(name);
+    }
+
     destroy() {
         this.maps = {};
     }

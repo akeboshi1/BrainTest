@@ -164,6 +164,7 @@ export class MainScene extends Component {
         EventManager.getInstance().off(ChatPanelCtrl.ChatPanelCloseEvent, this);
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
+        EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, this);
     }
 
 
