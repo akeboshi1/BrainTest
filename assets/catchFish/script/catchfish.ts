@@ -12,6 +12,8 @@ import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManag
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
+import {CatchFishGuide} from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
 
 
 const SHOOT_INTERVAL = 2;
@@ -80,6 +82,10 @@ export class catchfish extends Component {
     private audioMap:Map<string,AudioClip> = new Map();
     private bundleName: string = 'catchFish';
     private _leftSceneX:number = -1;
+
+    private isGuide:boolean = false;
+
+    private _wangPosList= [{x:127,y:154},{x:402,y:154},{x:677,y:154},{x:952,y:154}];
     onLoad(){
         this.mask.scale = v3(0,1,1);
         tween(this.mask)
@@ -168,6 +174,8 @@ export class catchfish extends Component {
     private createFish(count: number = 4) {
         if (this.fishParentNode && this.fishPrefab) {
             let len = count;
+            this._guideIndex = 1;
+            let datas = [];
             for (let i = 0; i < len; i++) {
                 let fish = new Fish(this.fishPrefab);
                 fish.positionYIndex = i;
@@ -175,6 +183,9 @@ export class catchfish extends Component {
                 this.randomFish(fish);
                 this.fishs.push(fish);
                 this.moveFishes(fish, i * SHOOT_INTERVAL);
+                if(i == 0||i == 2){
+                    datas.push({root:this.node,fish:fish,wang:this._wangPosList[fish.currentIndex]});
+                }
             }
         }
     }
@@ -192,6 +203,8 @@ export class catchfish extends Component {
 
         let index = Math.floor(Math.random() * (spriteFramelen - 1));
 
+        this._guideIndex = 1;
+
         let spriteFrame = this.spriteFrames[index];
 
         fish.setPosition(x, y);
@@ -199,6 +212,8 @@ export class catchfish extends Component {
         DebugLog.instance.log(`create ---- ${fish.position}`)
 
         fish.setSpriteFrame(spriteFrame);
+
+        fish.pause = false;
 
         const currentQuestions = questions[this.hardIndex];
 
@@ -254,6 +269,7 @@ export class catchfish extends Component {
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave
+        let pause = false;
         // 使用 tween 创建运动效果
         fish.curTween = tween(fish)
             // 对当前鱼对象进行 tween 动画
@@ -261,6 +277,10 @@ export class catchfish extends Component {
             .by(duration, { position: new Vec3(fish.position.x - 2400, fish.position.y, fish.position.z) },
                 {
                     onUpdate: () => {
+                        if(fish.pause){
+                            fish.curTween.stop();
+                            return;
+                        }
                         if(self._clearBoo)return;
                         if(!Global.isSkewersGame){
                             if (self.gameSuccessView.active || self.gameFailView.active) {
@@ -270,10 +290,21 @@ export class catchfish extends Component {
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
                         const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
                         fish.setPosition(newPosition.x,newPosition.y);
+                        if(GameCenterManager.getInstance().currentGame.level == 1){
+                            if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
+                                EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
+                                fish.pause = true;
+                                self.isGuide = true;
+                                self._curFish = fish;
+                                GuideManager.getInstance().start(CatchFishGuide.NAME,{root:this.node,fish:fish,wang:self.wangs});
+                                // 这里暂停tween
+                            }
+                        }
                     }
                 }
             )
             .call(() => {
+                fish.pause = false;
                 if(!Global.isSkewersGame){
                     if (self.gameSuccessView.active || self.gameFailView.active) {
                         return;
@@ -288,6 +319,21 @@ export class catchfish extends Component {
                 self.moveFishes(fish, SHOOT_INTERVAL);
             })
             .start(); // 启动动画
+    }
+
+    private guideClick(step:number) {
+
+        switch(step) {
+            case 1:
+                EventManager.getInstance().emit(Fish.FishClick,this._curFish);
+                break;
+            case 2:
+                this._wangClick(this._curFish.currentIndex);
+                this.isGuide = false;
+                EventManager.getInstance().off(CatchFishGuide.GUIDECLICK,this);
+                break;
+        }
+
     }
 
     update(deltaTime: number) {
@@ -316,7 +362,8 @@ export class catchfish extends Component {
                     }else{
                         if(!this.customsSendDataState){ //未发送数据的状态
                            const curGame = GameCenterManager.getInstance().currentGame;
-                           GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, this.hards[this.hardIndex],
+                           let level = curGame.level+1;
+                           GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, level,
                                this.wangCount/this.wangMaxCount, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
                                this.customsSendDataState= true;
                         }
@@ -370,10 +417,15 @@ export class catchfish extends Component {
 
     private _wangTween;
     wangClick(event, data) {
-        // 如果当前鱼不存在，则返回
-        if (!this._curFish||this.hasWangClick) {
+        // 如果当前鱼不存在|已经点击过了|处于引导状态 则返回
+        if (!this._curFish||this.hasWangClick||this.isGuide) {
             return;
         }
+        this._wangClick(data);
+    }
+
+    private _guideIndex = -1;
+    private _wangClick(data){
         this.hasWangClick = true;
         // 遍历wangs数组
         let index =Number(data) ;
@@ -416,7 +468,7 @@ export class catchfish extends Component {
 
         }else{
             if(!this.customsSendDataState){
-               GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
+                GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { });
             }
         }
 
@@ -431,46 +483,46 @@ export class catchfish extends Component {
         this._wangTween = tween(wangPrefab).parallel(
             tween().to(0.4 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
             tween().to(0.25 - offsetTime, { position: new Vec3(fishWorldPos.x - wangWorldPos.x,fishWorldPos.y - 100,fishWorldPos.z)}))
-    .call(() => {
-            self._curFish.curTween.stop();
-            const scaleUp = 1.3; // 放大到2倍
-            const scaleDown = 1.0; // 恢复到原始大小
-            const duration = 0.06; // 每次放大和缩小的时长
-            self.playAudio("music/fishCatch",true);
-            tween(self._curFish.getFishNode())
-                .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
-                .delay(0.1)
-                .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 缩小
-                .delay(0.1)
-                .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 再次放大
-                .delay(0.1)
-                .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 再次缩小
-                .call(() => {
-                    self._wangTween.stop();
-                    self._wangTween = null;
-                    self.hasWangClick = false;
-                    // 移除wangPrefab
-                    wang.removeChild(wangPrefab);
-                    self.wangCount++;
-                    self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
-                    if (self.wangCount == self.wangMaxCount) {
-                        self.endCurHardGame();
+            .call(() => {
+                self._curFish.curTween.stop();
+                const scaleUp = 1.3; // 放大到2倍
+                const scaleDown = 1.0; // 恢复到原始大小
+                const duration = 0.06; // 每次放大和缩小的时长
+                self.playAudio("music/fishCatch",true);
+                tween(self._curFish.getFishNode())
+                    .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
+                    .delay(0.1)
+                    .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 缩小
+                    .delay(0.1)
+                    .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 再次放大
+                    .delay(0.1)
+                    .to(duration, { scale: new Vec3(scaleDown, scaleDown, scaleDown) }, { easing: 'bounceOut' }) // 再次缩小
+                    .call(() => {
+                        self._wangTween.stop();
+                        self._wangTween = null;
+                        self.hasWangClick = false;
+                        // 移除wangPrefab
+                        wang.removeChild(wangPrefab);
+                        self.wangCount++;
+                        self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
+                        if (self.wangCount == self.wangMaxCount) {
+                            self.endCurHardGame();
 
-                    }
-                    // 设置当前鱼为选中状态
-                    self._curFish.setSelect(self.unSelectColor, 1)
-                    // 随机生成鱼
-                    self.randomFish(self._curFish);
-                    // 移动鱼
-                    self.moveFishes(self._curFish, SHOOT_INTERVAL);
+                        }
+                        // 设置当前鱼为选中状态
+                        self._curFish.setSelect(self.unSelectColor, 1)
+                        // 随机生成鱼
+                        self.randomFish(self._curFish);
+                        // 移动鱼
+                        self.moveFishes(self._curFish, SHOOT_INTERVAL);
 
-                    self._curFish=null;
-                })
-                .start();
-        })
+                        self._curFish=null;
+                    })
+                    .start();
+            })
             .start(); // 启动动画
 
-       
+
     }
     clearWangNubmer() {
         for (let i = 0; i < 4; i++) {
@@ -504,7 +556,8 @@ export class catchfish extends Component {
         } else {
             if(!this.customsSendDataState){
             const curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, this.hards[this.hardIndex],
+            let level = curGame.level+1;
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, level,
                 1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
             }
             this.gameSuccessView.active = true;

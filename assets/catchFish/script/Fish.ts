@@ -14,6 +14,7 @@ export class Fish {
     public currentIndex = -1;
     public curTween;
     public positionYIndex = -1;
+    public pause:boolean = false;
     constructor(prefab:Prefab){
         this._fishPrefab = prefab;
         this.create();
