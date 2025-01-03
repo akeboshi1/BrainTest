@@ -235,6 +235,9 @@ export class SkewersGameTrainData{
     // 当前串烧游戏游戏时间
     public timeLimit:number = 0;
 
+    //关卡计数器
+    public level:number = 0;
+
     // 游戏得分
     public score:number = 0;
 
@@ -251,5 +254,6 @@ export class SkewersGameTrainData{
         this.complete = data['completion']||0;
         this.score = data['score']||0;
         this.completedAt = data['completed_at']||null;
+        this.level = data['level'];
     }
 }
