@@ -80,6 +80,7 @@ export class LoginPanel extends BasePanel {
     private confirmHandler() {
         //todo
         DebugLog.instance.log("请点击确认协议");
+        this.toggle.isChecked = true;
     }
 
 

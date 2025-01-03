@@ -3,6 +3,7 @@ import { EventManager } from '../../Core/Manager/Event/EventManager';
 import { TaskManager } from '../Task/TaskManager';
 import { SkewersManager } from '../Task/Skewers/SkewersManager';
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 @ccclass('InfoListPopCtrl')
@@ -55,6 +56,8 @@ export class InfoListPopCtrl extends Component {
     gotaskList(event) {
         event.target.off('click', this.gotaskList);
         this._taskID = Number(event.target["sub_id"]);
+        let taskDic = TaskManager.getInstance().taskDic;
+        Global.userData.curTaskData = taskDic.get(this._taskID);
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.gotaskListCallBack, this);
         SkewersManager.getInstance().requestBranisTraining_list(this._taskID);
     }
