@@ -96,7 +96,7 @@ export class GameAlert extends Component{
                 this.completeIcon.active = true;
                 this.completeIcon.setScale(new Vec3(3,3,3));
                 tween(this.completeIcon)
-                    .to(0.3,{scale:new Vec3(1,1,1)}, { easing: 'cubicOut' })
+                    .to(0.9,{scale:new Vec3(1,1,1)}, { easing: 'cubicOut' })
                     .call(()=>{
                         this.exitBtn.node.active = true;
                         this.startBtn.node.active = true;
