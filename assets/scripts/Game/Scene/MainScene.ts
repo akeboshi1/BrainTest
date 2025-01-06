@@ -1,4 +1,4 @@
-import {_decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, ScrollView, Sprite} from 'cc';
+import {_decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, Sprite} from 'cc';
 import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
 import {TaskManager} from "../../Game/Task/TaskManager";
 import {EventManager} from "../../Core/Manager/Event/EventManager";
@@ -18,9 +18,10 @@ import {TaskAndNotificationPanelCtrl} from './TaskAndNotificationPanelCtrl';
 import {BundlePreloadEvent, BundlePreloadManager} from '../../Core/Manager/Load/BundlePreloadManager';
 import {InfoListPopCtrl} from './InfoListPopCtrl';
 import {FrameComponent} from '../../Core/Component/FrameComponent';
-import { BundleName } from '../../Core/Manager/Load/BundleName';
-import { UIManager } from '../../Core/Manager/UI/UIManager';
-import { PersonalCenterPanel } from '../UI/PersonalCenter/PersonalCenterPanel';
+import {BundleName} from '../../Core/Manager/Load/BundleName';
+import {UIManager} from '../../Core/Manager/UI/UIManager';
+import {PersonalCenterPanel} from '../UI/PersonalCenter/PersonalCenterPanel';
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 
 const { ccclass, property } = _decorator;
 
@@ -73,15 +74,15 @@ export class MainScene extends Component {
 
 
 
-        // ====================== 任务详情页
-        /**
-         * 任务详细界面
-         */
-        @property({ type: Node })
-        taskProgressNode: Node = null;
+    // ====================== 任务详情页
+    /**
+    * 任务详细界面
+    */
+    @property({ type: Node })
+    taskProgressNode: Node = null;
 
-        @property({ type: Node })
-        infoListPopNode: Node = null;
+    @property({ type: Node })
+    infoListPopNode: Node = null;
 
     @property(ProgressBar)
     progressBar: ProgressBar = null;
@@ -594,6 +595,15 @@ export class MainScene extends Component {
                 this._curTaskData = task;
             }
         });
+        SkewersManager.getInstance().showGameAlert(this.brainTrainNode,AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr,'', 0, 0, this._alertNext, this._alertExit, this);
+
+    }
+
+    private _alertExit(){
+
+    }
+
+    private _alertNext(){
         TaskManager.getInstance().requestStartTask(this._curTaskData.id);
     }
 
