@@ -15,7 +15,8 @@ import {
     Tween,
     UITransform,
     v3,
-    Vec3
+    Vec3,
+    Texture2D
 } from 'cc';
 import {ColorUtil} from '../../scripts/Core/Util/ColorUtil';
 import {Fish} from './Fish';
@@ -32,6 +33,7 @@ import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager"
 import {CatchFishGuide} from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
 import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 
 const { ccclass, property } = _decorator;
 
@@ -80,6 +82,9 @@ export class catchfish extends Component {
     mask: Node = null;
 
     @property(Node)
+    logoNode:Node = null;
+
+    @property(Node)
     private viewNode:Node = null;
 
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
@@ -114,6 +119,20 @@ export class catchfish extends Component {
             })
             .start();
         this.loadAudio().then();
+        let logoSprite = this.logoNode.getComponent(Sprite);
+        if(Global.isSkewersGame){
+            LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame)=>{
+                logoSprite.spriteFrame = spiteFrame;
+            });
+        }else{
+            LoaderManager.getInstance().loadABRes("texture/page1_start/logo",this.bundleName).then((res)=>{
+                const texture = new Texture2D();
+                texture.image = res;
+                const spriteFrame = new SpriteFrame();
+                spriteFrame.texture = texture;
+                logoSprite.spriteFrame = spriteFrame;
+            });
+        }
         const scene = director.getScene();
         const canvas = scene.getComponentInChildren(Canvas);
         const uitransform = canvas.getComponent(UITransform);
