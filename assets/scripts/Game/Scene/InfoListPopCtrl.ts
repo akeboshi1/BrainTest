@@ -4,10 +4,12 @@ import { TaskManager } from '../Task/TaskManager';
 import { SkewersManager } from '../Task/Skewers/SkewersManager';
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import { BasePanel } from '../../Core/UI/BasePanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('InfoListPopCtrl')
-export class InfoListPopCtrl extends Component {
+export class InfoListPopCtrl extends BasePanel {
+    public static NAME: string = "InfoListPopCtrl";
     @property(Prefab)
     taskAlertPrefab: Prefab = null;
 
@@ -21,6 +23,13 @@ export class InfoListPopCtrl extends Component {
     private _taskID: number = -1;
 
     start() {
+
+    }
+
+    restore(data: any): void {
+        if(data){
+            this.updateInfoList(data);
+        }
     }
 
     update(deltaTime: number) {

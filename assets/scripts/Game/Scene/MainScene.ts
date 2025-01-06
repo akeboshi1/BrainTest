@@ -14,7 +14,7 @@ import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManag
 import {GameType, SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 import AlertManager, {AlertData} from '../../Core/Manager/Alert/AlertManager';
 import {LocalStorageUtil} from '../../Core/Util/LocalStorageUtil';
-import {TaskAndNotificationPanelCtrl} from './TaskAndNotificationPanelCtrl';
+
 import {BundlePreloadEvent, BundlePreloadManager} from '../../Core/Manager/Load/BundlePreloadManager';
 import {InfoListPopCtrl} from './InfoListPopCtrl';
 import {FrameComponent} from '../../Core/Component/FrameComponent';
@@ -34,12 +34,6 @@ export enum MainSceneView {
 
 @ccclass('MainScene')
 export class MainScene extends Component {
-    @property(Prefab)
-    chatPanelPrefab: Prefab = null;
-
-    @property(Node)
-    parentNode: Node = null;
-
 
     // ===================== 主界面
     /**
@@ -81,8 +75,8 @@ export class MainScene extends Component {
     @property({ type: Node })
     taskProgressNode: Node = null;
 
-    @property({ type: Node })
-    infoListPopNode: Node = null;
+    // @property({ type: Node })
+    // infoListPopNode: Node = null;
 
     @property(ProgressBar)
     progressBar: ProgressBar = null;
@@ -110,8 +104,7 @@ export class MainScene extends Component {
     /**
      * 任务提示界面
      */
-    @property({ type: Node })
-    taskScrollView: Node = null;
+
 
     @property({ type: [Node] })
     taskList: Node[] = [];
@@ -152,17 +145,12 @@ export class MainScene extends Component {
     private chatPanel: Node = null;
     private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜' ,'麻将组句'];
  
-    private taskAndNotificationPanelCtrl = null;
+
     onLoad() {
 
     }
 
-    protected onEnable(): void {
-        EventManager.getInstance().on(ChatPanelCtrl.ChatPanelCloseEvent, this.onChatPanelClose, this);
-    }
-
     protected onDisable(): void {
-        EventManager.getInstance().off(ChatPanelCtrl.ChatPanelCloseEvent, this);
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, this);
@@ -204,22 +192,29 @@ export class MainScene extends Component {
             }
             EventManager.getInstance().on(TaskManager.PushEvetCallBack, this.pushEvetCallBack, this);
             TaskManager.getInstance().pushTask();
-            this.taskAndNotificationPanelCtrl=this.taskProgressNode.getComponent(TaskAndNotificationPanelCtrl);
+
             EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
             TaskManager.getInstance().start();
             this.startShowView();
         }
+
+        hideInfoPopup(){
+            UIManager.getInstance().hidePanel(InfoListPopCtrl.NAME);
+        }
         pushEvetCallBack(data) {
             if(!data.id){return}
-            this.taskScrollView.active = true;
+
+            UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup",InfoListPopCtrl,true,"infoList");
+            UIManager.getInstance().showPanel(InfoListPopCtrl.NAME,data);
+
             EventManager.getInstance().on("hideInfoListPop",this.hideInfoListPop, this);
-            TaskManager.getInstance().isReadNotification([data.id])
-            this.infoListPopNode.getComponent(InfoListPopCtrl).updateInfoList(data);
-          
+            TaskManager.getInstance().isReadNotification([data.id]);
+            //EventManager.getInstance().emit(InfoListPopCtrl.requestUpdateInfoList,data);
+            // this.infoListPopNode.getComponent(InfoListPopCtrl).updateInfoList(data);
         }
         hideInfoListPop() {
             EventManager.getInstance().off("hideInfoListPop",this);
-            this.taskScrollView.active = false;
+            this.hideInfoPopup();
         }
         updateTime() {
             const now = new Date();
@@ -237,7 +232,7 @@ export class MainScene extends Component {
     backToTaskView() {
         this.gameCenterNode.active = false;
         this.taskProgressNode.active = false;
-        this.taskScrollView.active = false;
+       
         this.brainTrainNode.active = false;
         this.switchTaskNode(true);
         this._curPanel = this.taskNode;
@@ -274,28 +269,10 @@ export class MainScene extends Component {
     }
 
     openChatPanel() {
-        if (this.chatPanel == null) {
-            this.createChatPanel();
-        }
-        this.chatPanel.getComponent(ChatPanelCtrl).fadeIn();
+        UIManager.getInstance().registerPanel(ChatPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatPanel",ChatPanelCtrl);
+        UIManager.getInstance().showPanel(ChatPanelCtrl.NAME);
         this.taskProgressNode.active = false;
-        this.taskScrollView.active = false;
-        this.switchTaskNode(false);
-        this._curPanel = this.chatPanel;
-    }
-
-    onChatPanelClose(data: any, context: MainScene) {
-        context.backToTaskView();
-    }
-
-    createChatPanel() {
-        if (this.chatPanelPrefab && this.parentNode) {
-            this.chatPanel = instantiate(this.chatPanelPrefab);
-            this.parentNode.addChild(this.chatPanel);
-            this.parentNode.active = true;
-        } else {
-            DebugLog.instance.error("预制体或者父节点未正确绑定，请检查！");
-        }
+   
     }
 
     showTaskProgress() {
@@ -303,7 +280,7 @@ export class MainScene extends Component {
         this.taskProgressNode.active = true;
         //EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
         TaskManager.getInstance().requestStartInform();
-        this.taskScrollView.active = false;
+   
         this.brainTrainNode.active = false;
         this.tabClick(null, 0);
         this.switchTaskNode(false);
@@ -350,7 +327,7 @@ export class MainScene extends Component {
             }
             this.gameCenterNode.active = true;
             this.taskProgressNode.active = false;
-            this.taskScrollView.active = false;
+           
             this.switchTaskNode(false);
             this._curPanel = this.gameCenterNode;
         }
@@ -441,8 +418,6 @@ export class MainScene extends Component {
                 break;
             case this.chatPanel:
                 break;
-            case this.taskScrollView:
-                break;
         }
     }
        
@@ -531,7 +506,6 @@ export class MainScene extends Component {
         this.taskNode.active = false;
         this.taskProgressNode.active = false;
         this.gameCenterNode.active = false;
-        this.taskScrollView.active = false;
 
         let gameDatas = data;
         let len = this.gameList.length;
