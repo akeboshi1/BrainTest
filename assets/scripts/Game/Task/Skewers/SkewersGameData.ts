@@ -60,7 +60,6 @@ export class SkewersGameData {
         }
     }
 
-
     public refreshData(data:any){
         this.gameID = data['game_id'];
         this.gameCode = data['game_code'];

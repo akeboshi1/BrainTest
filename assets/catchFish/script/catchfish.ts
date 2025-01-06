@@ -1,12 +1,28 @@
-import { Canvas,assetManager,AudioClip,_decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform,Tween,v3,director } from 'cc';
-import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
-import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
-import { Fish } from './Fish';
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
-import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-const { ccclass, property } = _decorator;
-import { questions0, questions1, questions2 } from './questionsDate'
+import {
+    _decorator,
+    assetManager,
+    AudioClip,
+    Canvas,
+    Component,
+    director,
+    instantiate,
+    Label,
+    Node,
+    Prefab,
+    Sprite,
+    SpriteFrame,
+    tween,
+    Tween,
+    UITransform,
+    v3,
+    Vec3
+} from 'cc';
+import {ColorUtil} from '../../scripts/Core/Util/ColorUtil';
+import {Fish} from './Fish';
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import {questions0, questions1, questions2} from './questionsDate'
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
@@ -14,6 +30,10 @@ import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import {CatchFishGuide} from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
+import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
+import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
+
+const { ccclass, property } = _decorator;
 
 
 const SHOOT_INTERVAL = 2;
@@ -290,8 +310,10 @@ export class catchfish extends Component {
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
                         const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
                         fish.setPosition(newPosition.x,newPosition.y);
-                        if(GameCenterManager.getInstance().currentGame.level == 1){
+                        if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
+                            ||(Global.isSkewersGame && Global.userData.curSkewerGameData && TaskManager.getInstance().curTask && TaskManager.getInstance().curTask.type == TaskType.Review && Global.userData.curTaskData.hasGuide == false)){
                             if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
+                                Global.userData.curTaskData.hasGuide = true;
                                 EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
                                 fish.pause = true;
                                 self.isGuide = true;

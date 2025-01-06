@@ -1,17 +1,21 @@
 import Tools from "../Common/Tools";
 import TestMgr from "../Common/Test";
 import LoadMgr from "../Common/manage/LoadMgr";
-import { _decorator,Component,Node,tween,director,Vec3,v3 } from "cc";
+import { _decorator,Component,Node,tween,director,Sprite,v3,Texture2D,SpriteFrame } from "cc";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 const {ccclass, property} = _decorator;
 
 @ccclass
 export default class Loading extends Component {
 
     @property(Node)
-    round: Node = null;
+    logoNode: Node = null;
 
     @property(Node)
     mask: Node = null;
+
+    private bundleName: string = 'finding';
 
     private tween = null;
 
@@ -19,6 +23,21 @@ export default class Loading extends Component {
         this._initSystemEvent();
 
         this.mask.scale = v3(0,1,1);
+
+        let logoSprite = this.logoNode.getComponent(Sprite);
+        if(Global.isSkewersGame){
+            LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame)=>{
+                logoSprite.spriteFrame = spiteFrame;
+            });
+        }else{
+            LoaderManager.getInstance().loadABRes("scene/loading/image/logo",this.bundleName).then((res)=>{
+                const texture = new Texture2D();
+                texture.image = res;
+                const spriteFrame = new SpriteFrame();
+                spriteFrame.texture = texture;
+                logoSprite.spriteFrame = spriteFrame;
+            });
+        }
 
         //假的进度条
         this.tween = tween(this.mask)

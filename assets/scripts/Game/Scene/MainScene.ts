@@ -485,6 +485,7 @@ export class MainScene extends Component {
         DebugLog.instance.log(data);
         let taskList = TaskManager.getInstance().taskList;
         this._curTaskData = taskList[Number(data)];
+        this.showTaskId = this._curTaskData.id
         if (this._curTaskData.status == TaskStatus.Completed) {
             DebugLog.instance.log("当前任务已经完成");
             const ad:AlertData= new AlertData();

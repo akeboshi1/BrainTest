@@ -32,8 +32,20 @@ export class TaskData {
      */
     public completedAt: string = null;
 
+
+    private _hasGuide:boolean = false;
+
     constructor() {
     }
+
+    public set hasGuide(value:boolean){
+        this._hasGuide = value;
+    }
+
+    public get hasGuide():boolean{
+        return this._hasGuide
+    }
+
 
     refrehData(data: any) {
         this.id = data["id"];

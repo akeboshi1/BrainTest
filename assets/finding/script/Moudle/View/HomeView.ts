@@ -6,10 +6,11 @@ import LoadMgr from "../../Common/manage/LoadMgr";
 import Tools from "../../Common/Tools";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
-import {_decorator,Node,instantiate,Prefab,Sprite} from "cc";
+import {_decorator,Node,SpriteFrame,Texture2D,Sprite} from "cc";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -25,7 +26,11 @@ export default class HomeView extends LayerPanel {
 
     private pictureNode: Node = null;
 
+    private logoNode:Node = null;
+
     private beClick: boolean = false;
+
+    private bundleName:string = "finding";
 
     initUI():Promise<void> {
         return new Promise(resolve => {
@@ -35,6 +40,21 @@ export default class HomeView extends LayerPanel {
             }).then(()=>{
                 this.pictureNode = this.getNode("bg/picture");
                 this.pictureBGNode = this.getNode("bg");
+                this.logoNode = this.getNode("logo");
+                let logoSprite = this.logoNode.getComponent(Sprite);
+                if(Global.isSkewersGame){
+                    LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame)=>{
+                        logoSprite.spriteFrame = spiteFrame;
+                    });
+                }else{
+                    LoaderManager.getInstance().loadABRes("scene/loading/image/logo",this.bundleName).then((res)=>{
+                        const texture = new Texture2D();
+                        texture.image = res;
+                        const spriteFrame = new SpriteFrame();
+                        spriteFrame.texture = texture;
+                        logoSprite.spriteFrame = spriteFrame;
+                    });
+                }
                 this.pictureNode.active = false;
                 return resolve();
             });
