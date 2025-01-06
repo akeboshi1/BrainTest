@@ -4,6 +4,8 @@ import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { DebugLog } from '../../../Core/Util/DebugLog';
 import { ChatBubbleCtrl } from './ChatBubbleCtrl';
 import { FrameComponent } from '../../../Core/Component/FrameComponent';
+import { BasePanel } from '../../../Core/UI/BasePanel';
+import { UIManager } from '../../../Core/Manager/UI/UIManager';
 const { ccclass, property } = _decorator;
 
 // 定义枚举类型ChatState来表示聊天状态
@@ -17,8 +19,9 @@ enum ChatState {
 }
 
 @ccclass('ChatPanelCtrl')
-export class ChatPanelCtrl extends Component {
-    public static ChatPanelCloseEvent: string = "ChatPanelCtrl.ChatPanelCloseEvent";
+export class ChatPanelCtrl extends BasePanel {
+    public static NAME: string = "ChatPanelCtrl";
+ 
     private chatState: ChatState;
     private lastChatState: ChatState = ChatState.Empty;
 
@@ -56,7 +59,9 @@ export class ChatPanelCtrl extends Component {
         this.lastEventTime = Date.now() / 1000;
     }
 
-    protected onEnable(): void {
+    onEnable(): void {
+        super.onEnable();
+
         this.chatFlowModel = ChatFlowModel.getInstance();
 
         EventManager.getInstance().on(ChatFlowModel.ChatMessageEvent, this.onGetChatMessage, this);
@@ -74,7 +79,9 @@ export class ChatPanelCtrl extends Component {
         this.clickGreeting();
     }
 
-    protected onDisable(): void {
+    onDisable(): void {
+        super.onDisable();
+
         EventManager.getInstance().off(ChatFlowModel.ChatMessageEvent, this);
         EventManager.getInstance().off(ChatFlowModel.TTSFlowCompleteEvent, this);
         EventManager.getInstance().off(ChatFlowModel.TTSFlowStartEvent, this);
@@ -131,7 +138,7 @@ export class ChatPanelCtrl extends Component {
         this.chatFlowModel.onCloseTTS();
 
         this.node.active = false;
-        EventManager.getInstance().emit(ChatPanelCtrl.ChatPanelCloseEvent, {});
+        UIManager.getInstance().hidePanel(ChatPanelCtrl.NAME);
     }
 
     public clickMuteButton() {

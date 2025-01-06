@@ -34,12 +34,6 @@ export enum MainSceneView {
 
 @ccclass('MainScene')
 export class MainScene extends Component {
-    @property(Prefab)
-    chatPanelPrefab: Prefab = null;
-
-    @property(Node)
-    parentNode: Node = null;
-
 
     // ===================== 主界面
     /**
@@ -157,12 +151,7 @@ export class MainScene extends Component {
 
     }
 
-    protected onEnable(): void {
-        EventManager.getInstance().on(ChatPanelCtrl.ChatPanelCloseEvent, this.onChatPanelClose, this);
-    }
-
     protected onDisable(): void {
-        EventManager.getInstance().off(ChatPanelCtrl.ChatPanelCloseEvent, this);
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, this);
@@ -274,28 +263,10 @@ export class MainScene extends Component {
     }
 
     openChatPanel() {
-        if (this.chatPanel == null) {
-            this.createChatPanel();
-        }
-        this.chatPanel.getComponent(ChatPanelCtrl).fadeIn();
+        UIManager.getInstance().registerPanel(ChatPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatPanel",ChatPanelCtrl);
+        UIManager.getInstance().showPanel(ChatPanelCtrl.NAME);
         this.taskProgressNode.active = false;
         this.taskScrollView.active = false;
-        this.switchTaskNode(false);
-        this._curPanel = this.chatPanel;
-    }
-
-    onChatPanelClose(data: any, context: MainScene) {
-        context.backToTaskView();
-    }
-
-    createChatPanel() {
-        if (this.chatPanelPrefab && this.parentNode) {
-            this.chatPanel = instantiate(this.chatPanelPrefab);
-            this.parentNode.addChild(this.chatPanel);
-            this.parentNode.active = true;
-        } else {
-            DebugLog.instance.error("预制体或者父节点未正确绑定，请检查！");
-        }
     }
 
     showTaskProgress() {
