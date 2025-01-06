@@ -4,6 +4,7 @@ import {Texture2D , AssetManager,assetManager,AudioClip,Sprite,SpriteFrame,Prefa
 import GameLogMgr from "./GameLogMgr";
 import Bundle = AssetManager.Bundle;
 import {BundleName} from "db://assets/scripts/Core/Manager/Load/BundleName";
+import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 
 
 export default class LoadMgr {
@@ -64,6 +65,7 @@ export default class LoadMgr {
         // this.loadBundle_Single("sliderBox").then()
     }
 
+
     /**
      * 加载图片
      * @param sprite
@@ -87,11 +89,14 @@ export default class LoadMgr {
                     reject(false);
                     return;
                 }
+
+
                 this._sprite[_url] = spf;
                 sprite.spriteFrame = spf;
                 if (needActive) {
                     sprite.node.active = true;
                 }
+
                 resolve(spf);
             });
         });

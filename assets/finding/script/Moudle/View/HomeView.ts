@@ -9,6 +9,7 @@ import GameConfig from "../Game/GameConfig";
 import {_decorator,Node,instantiate,Prefab,Sprite} from "cc";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -19,6 +20,8 @@ export default class HomeView extends LayerPanel {
             name: "View/homeView/prefab/homeView",
         }
     }
+
+    private pictureBGNode:Node = null;
 
     private pictureNode: Node = null;
 
@@ -31,6 +34,7 @@ export default class HomeView extends LayerPanel {
                 layer: Layer.gameInfoLayer
             }).then(()=>{
                 this.pictureNode = this.getNode("bg/picture");
+                this.pictureBGNode = this.getNode("bg");
                 this.pictureNode.active = false;
                 return resolve();
             });
@@ -42,7 +46,7 @@ export default class HomeView extends LayerPanel {
     show(param: any): void {
         let pictureSprite = this.pictureNode.getComponent(Sprite);
         pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
-        this.pictureNode.active = false;
+        this.pictureBGNode.active = false;
         let checkPoint=0;
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
@@ -61,7 +65,7 @@ export default class HomeView extends LayerPanel {
         let way = () => {
             let url = "level" + custom+"/image/"+imageName+"_1_32";
             LoadMgr.loadSprite(pictureSprite, url).then(()=>{
-                this.pictureNode.active = true;
+                this.pictureBGNode.active = true;
             });
         }
         way();
@@ -89,12 +93,14 @@ export default class HomeView extends LayerPanel {
     }
 
     private way2():Promise<void>{
-        return new Promise(resolve => {
+        return new Promise(async () => {
+            await TimeUtil.delay(500);
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: GameView
             }).then(()=>{
                 this.beClick = false;
+                this.pictureNode.getComponent(Sprite).spriteFrame = null;
                 PanelMgr.INS.closePanel(HomeView, false)
             })
         })

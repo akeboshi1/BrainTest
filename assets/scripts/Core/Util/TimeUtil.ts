@@ -131,4 +131,13 @@ export class TimeUtil {
         }
     }
 
+
+    /**
+     * 自定义延迟方法
+     * @param ms
+     */
+    static delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 }
