@@ -32,6 +32,25 @@ export class SkewersManager {
         return SkewersManager._instance;
     }
 
+    public totalCompleteStr:string = '太棒了，恭喜你完成全部训练';
+
+    public singleCompleteStr:string = '太棒了，请继续！'
+
+    public failCompleteStr :string ="真遗憾，请加油";
+
+    public singleBrainScore:string = "收获100点脑力值";
+
+    public totalBrainScore :string = "收获600点脑力值";
+
+
+    public get currentSkewersCompleteGameStr():string{
+        return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}训练`
+    }
+
+    public get nextSkewersGameStr():string{
+        return `接下来将进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}训练`;
+    }
+
     private _gameDatas: SkewersGameData[];
 
     /**
@@ -289,6 +308,7 @@ export class SkewersManager {
             SceneManager.getInstance().backToSkewersGameCenter();
         }
     }
+
 
 
     private _curRequestCompleteData: SocketData = null;

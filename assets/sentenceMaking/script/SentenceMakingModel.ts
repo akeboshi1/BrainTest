@@ -120,19 +120,19 @@ export class SentenceMakingModel {
 
         // 游戏内界面提示
         if (maxCount != curCount) {
-            SkewersManager.getInstance().showGameTip("太棒了，请继续！", curCount, maxCount);
+            SkewersManager.getInstance().showGameTip(SkewersManager.getInstance().singleCompleteStr, curCount, maxCount);
         } else {
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, "太棒了，恭喜你通关组词造句游戏", "收获xxx点脑力值！", 0, 0, this.skewersGoNext, this.exit, this);
+                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.skewersGoNext, this.exit, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, this.exit, this.exit, this);
+                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.exit, this.exit, this);
             }
         }
     }
 
     private skewersGoNext() {
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Next, `接下来将进入${gameData.gameName}游戏`, '', 0, 0, this.goNextGame, this.exit, this);
+        SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this.goNextGame, this.exit, this);
     }
 
     private goNextGame(){

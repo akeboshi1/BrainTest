@@ -289,6 +289,9 @@ export class puzzleGameCore extends Component {
 
     quitGame() {
         this.pauseTime();
+        if(this._timeID){
+            clearTimeout(this._timeID);
+        }
         if (Global.isSkewersGame) {
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = SkewersManager.getInstance().getGameCount();
@@ -523,7 +526,7 @@ export class puzzleGameCore extends Component {
         let trainData = SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
         let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-        SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, "真遗憾，请加油！", '', curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
+        SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, '', curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
     }
 
 
@@ -531,7 +534,11 @@ export class puzzleGameCore extends Component {
 
     }
 
+    private _timeID;
     processGameSuccess() {
+        if(this._timeID){
+            clearTimeout(this._timeID);
+        }
         DebugLog.instance.log("成功");
         this.playAudio("music/win",true);
         this.timerComponent.pauseTimer();
@@ -548,7 +555,7 @@ export class puzzleGameCore extends Component {
             .repeatForever()
             .start();
         let self = this;
-        setTimeout(()=>{
+        this._timeID = setTimeout(()=>{
             this.showSprite.node.setScale(new Vec3(1,1,1));
             this.showSprite.node.active = false;
             if(_tween){
@@ -558,7 +565,7 @@ export class puzzleGameCore extends Component {
             if (Global.isSkewersGame) {
                self.requestGameResult(true)
                if (SkewersManager.getInstance().isRunOver()) {
-                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, null, self.exitCallBack, self);
+                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, null, self.exitCallBack, self);
                    return;
                }
                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
@@ -581,12 +588,12 @@ export class puzzleGameCore extends Component {
         let curCount = trainData.seq;
         // 游戏内界面提示
         if (maxCount != curCount) {
-            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, "太棒了，请继续！", "", curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
+            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
         } else {
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, "太棒了，恭喜你通关拼图游戏", "收获xxx点脑力值！", 0, 0, this.nextAlertHandler, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, this.exitCallBack, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.exitCallBack, this);
             }
         }
     }
@@ -610,7 +617,7 @@ export class puzzleGameCore extends Component {
     private nextAlertHandler(context) {
         context.pauseTime();
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, `接下来将进入${gameData.gameName}游戏`, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next,  SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
     }
 
 

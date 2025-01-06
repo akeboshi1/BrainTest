@@ -43,6 +43,23 @@ export class SkewersGameData {
     // 难度
     private _difficulty:number;
 
+    public get TypeName():string{
+        switch(this.type){
+            case GameType.Calculator:
+                return "计算力";
+           case GameType.Executionability:
+                return "执行力";
+            case GameType.Language:
+                return "语言力";
+            case GameType.Comprehension:
+                return "理解力";
+            case GameType.Judgment:
+                return "判断力";
+            case GameType.Memory:
+                return "记忆力"
+        }
+    }
+
 
     public refreshData(data:any){
         this.gameID = data['game_id'];

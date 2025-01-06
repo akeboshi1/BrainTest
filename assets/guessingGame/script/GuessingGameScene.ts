@@ -227,7 +227,7 @@ export class GuessingGameScene extends Component {
             this.failedTextNode.active = false;
             this.requestGameResult(result);
             if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, null, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, null, this.exitCallBack, this);
                 return;
             }
             // if(!result){
@@ -252,12 +252,12 @@ export class GuessingGameScene extends Component {
         let curCount = trainData.seq;
         // 游戏内界面提示
         if (maxCount != curCount) {
-            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, "太棒了，请继续！", "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
+            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
         } else {
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, "太棒了，恭喜你通关猜谜游戏", "收获xxx点脑力值！", 0, 0, this.nextAlertHandler, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, "太棒了，恭喜你全部通关", "收获xxx点脑力值！", 0, 0, this.exitCallBack, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.exitCallBack, this);
             }
         }
     }
@@ -300,7 +300,7 @@ export class GuessingGameScene extends Component {
 
     nextAlertHandler(context) {
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, `接下来将进入${gameData.gameName}游戏`, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr,'', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
     }
 
     onClickGotoNextlevel() {

@@ -384,7 +384,7 @@ export class catchfish extends Component {
         let trainData = SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
         let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"真遗憾，请加油！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
     }
 
     calculateTime() {
@@ -547,7 +547,7 @@ export class catchfish extends Component {
             this.playAudio("music/win");
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,null,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,null,this.exitCallBack,this);
                 return;
             }
             this.hardIndex = this.hards.indexOf(this.curHard);
@@ -583,12 +583,12 @@ export class catchfish extends Component {
 
         // 游戏内界面提示
         if(maxCount != curCount){
-            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,"太棒了，请继续！","",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().singleCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
         }else{
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,"太棒了，恭喜你通关捕鱼游戏","收获xxx点脑力值！",0,0,this.nextAlertHandler,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore,0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,"太棒了，恭喜你全部通关","收获xxx点脑力值！",0,0,this.alertGoonHandler,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.exitCallBack,this);
             }
         }
     }
@@ -606,7 +606,7 @@ export class catchfish extends Component {
     private nextAlertHandler(context){
         clearInterval(context.timerId);
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,`接下来将进入${gameData.gameName}游戏`,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 
 
