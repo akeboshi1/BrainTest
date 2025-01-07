@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "a4957e30-4c75-4d98-92de-91522ecdf34f",
+  "uuid": "468ae18f-8b5b-435c-99b4-798ac9616097",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "report"
+    "syncNodeName": "GenerateReport"
   }
 }
