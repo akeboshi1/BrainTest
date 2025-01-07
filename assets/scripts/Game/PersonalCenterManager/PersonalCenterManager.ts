@@ -3,7 +3,7 @@ import { SocketData } from '../../Core/Manager/Net/SocketData';
 import { EventManager } from '../../Core/Manager/Event/EventManager';
 import { DebugLog } from '../../Core/Util/DebugLog';
 import { SocketManager } from '../../Core/Manager/Net/SocketManager';
-import { UserInfoData, UserReportData } from './UserInfoData';
+import { UserInfoData } from './UserInfoData';
 
 export class PersonalCenterManager {
     private static _instance: PersonalCenterManager;
@@ -28,13 +28,23 @@ export class PersonalCenterManager {
 
     private _userInfoData: UserInfoData;
 
-    private _userReportDataList: UserReportData[];
+    //报告最新数据（六个维度）
+    private _reportLasteDataList: [];
+
+    //所有报告图表数据
+    private _allReportDataList: [][];
 
     constructor() {
     }
 
     public get userInfoData(): UserInfoData {
         return this._userInfoData;
+    }
+    public get reportLasteDataList(): [] {
+        return this._reportLasteDataList;
+    }
+    public get allReportDataList(): [][] {
+        return this._allReportDataList;
     }
 
     init() {
@@ -97,16 +107,25 @@ export class PersonalCenterManager {
     }
 
     public requestPersonalReportCallback(data: SocketData, context: any) {
-        let results = data.data['result'];
-        DebugLog.instance.log("请求个人报告", data);
-        for (let i = 0; i < results.length; i++) {
-            let data = results[i];
-            let userReport = new UserReportData(data.data)
-            context._userReportDataList.push(userReport);
-        }
-      
+        let result = data.data['result'];
+        DebugLog.instance.log("请求个人报告", result);
+        let lateDataIndex = result.findIndex(element => element.is_latest);
+        this._reportLasteDataList = result[lateDataIndex].scores;
 
-     
+        let groupedByIndex = [];
+        const maxLength = Math.max(...result.map(item => item.scores.length));
+        for (let i = 0; i < maxLength; i++) {
+            groupedByIndex[i] = [];
+        }
+        result.forEach(item => {
+            item.scores.forEach((item, index) => {
+                if (groupedByIndex[index]) {
+                    groupedByIndex[index].push(item);
+                }
+            });
+        });
+        this._allReportDataList = groupedByIndex;
+  
+
     }
 }
-

@@ -11,7 +11,6 @@ export class GenerateReport extends BasePanel {
     public static NAME = 'GenerateReport';
     start() {
         PersonalCenterManager.getInstance().getPersonalReport();
-    
     }
 
     update(deltaTime: number) {
