@@ -270,6 +270,9 @@ export class SkewersGameTrainData{
         this.complete = data['completion']||0;
         this.score = data['score']||0;
         this.completedAt = data['completed_at']||null;
+        if(data['level'] == ""){
+            data['level'] = 1;
+        }
         this.level = data['level'];
     }
 }
