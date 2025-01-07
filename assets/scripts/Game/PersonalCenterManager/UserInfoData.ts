@@ -20,7 +20,7 @@ export class UserInfoData {
     }
 }
 
-export class UserReportData {
+export class ReportChartData {
     public cog_ability: String = "";
     public cog_ability_desc: String = "";
     public score: Number = 0;
@@ -32,6 +32,9 @@ export class UserReportData {
         this.age_group_percentile = data["age_group_percentile"];
     }
 }
+
+
+
 
 
 
