@@ -256,11 +256,21 @@ export class catchfish extends Component {
 
         const currentQuestions = questions[this.hardIndex];
 
-        const question = currentQuestions[Math.floor(Math.random() * currentQuestions.length)];
+        // 筛选出未选择的问题
+        const availableQuestions = currentQuestions.filter(question => !question.hasChose);
 
-        fish.setQuestion(question);
-        EventManager.getInstance().off(Fish.FishClick, this);
-        EventManager.getInstance().on(Fish.FishClick, this.selectFish, this);
+        if (availableQuestions.length > 0) {
+            // 从可用问题中随机选择一个
+            let question = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            question.hasChose = true;
+            fish.setQuestion(question);
+
+            EventManager.getInstance().off(Fish.FishClick, this);
+            EventManager.getInstance().on(Fish.FishClick, this.selectFish, this);
+        } else {
+            DebugLog.instance.log("No available questions found");
+            // 这里可以添加一些降级处理，例如设置默认问题或重置状态等
+        }
     }
 
     private selectFish(fish, context) {
@@ -519,6 +529,8 @@ export class catchfish extends Component {
         let offsetTime = this._curFish.positionYIndex * 0.01;
         let fishWorldPos = self._curFish.getFishNode().parent.getComponent(UITransform).convertToWorldSpaceAR(this._curFish.position);
         let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wangPrefab.position);
+        let question = this._curFish.getData();
+        question.hasChose = false;
         if(this._wangTween)this._wangTween.stop();
         // 启动动画
         this._wangTween = tween(wangPrefab).parallel(
@@ -548,7 +560,6 @@ export class catchfish extends Component {
                         self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
                             self.endCurHardGame();
-
                         }
                         // 设置当前鱼为选中状态
                         self._curFish.setSelect(self.unSelectColor, 1)
@@ -661,6 +672,20 @@ export class catchfish extends Component {
         SkewersManager.getInstance().requestGameComplete(complete,duration);
     }
 
+    private resetQuestions(){
+        let len = questions.length;
+        for(let i:number=0;i<len;i++){
+           let _questions = questions[i];
+           if(_questions){
+               let _len = _questions.length;
+               for(let j:number=0;j<_len;j++){
+                   let question = _questions[j];
+                   if(question)question.hasChose = false;
+               }
+           }
+        }
+    }
+
     private _clearBoo = false;
     private clearGameView() {
         this._clearBoo = true;
@@ -675,6 +700,7 @@ export class catchfish extends Component {
         Tween.stopAll();
         EventManager.getInstance().off(Fish.FishClick, this);
 
+        this.resetQuestions();
         if (this.fishs) {
             let len = this.fishs.length;
             for (let i: number = 0; i < len; i++) {
