@@ -3,7 +3,7 @@ import { SocketData } from '../../Core/Manager/Net/SocketData';
 import { EventManager } from '../../Core/Manager/Event/EventManager';
 import { DebugLog } from '../../Core/Util/DebugLog';
 import { SocketManager } from '../../Core/Manager/Net/SocketManager';
-import { UserInfoData } from './UserInfoData';
+import { UserInfoData, UserReportData } from './UserInfoData';
 
 export class PersonalCenterManager {
     private static _instance: PersonalCenterManager;
@@ -16,27 +16,32 @@ export class PersonalCenterManager {
     }
     public static getUserInfoCallBack: string = "getUserInfoCallBack";
 
+
     // 获取个人中心数据
     private user_get_info: string = "user.get_user_info";
 
     //更新用户信息
     private user_update_info: string = "user.update_user_info";
 
+    //获取用户报告
+    private user_get_report: string = "user.get_user_reports";
+
     private _userInfoData: UserInfoData;
+
+    private _userReportDataList: UserReportData[];
 
     constructor() {
     }
 
-     public get userInfoData():UserInfoData {
-            return this._userInfoData;
-        }
+    public get userInfoData(): UserInfoData {
+        return this._userInfoData;
+    }
 
     init() {
         //初始化个人中心
     }
-
+    //请求个人中心数据
     public requestUserInfo() {
-        //请求个人中心数据
         EventManager.getInstance().on(this.user_get_info, this.requestUserInfoCallback, this, true);
         let requestStartUserInfoSocket: SocketData = new SocketData({
             action: this.user_get_info
@@ -44,42 +49,64 @@ export class PersonalCenterManager {
         SocketManager.getInstance().send(requestStartUserInfoSocket);
     }
 
+
     public requestUserInfoCallback(data: SocketData, context: any) {
         DebugLog.instance.log("请求个人中心数据", data);
-        if(data.status == 0) {
+        if (data.status == 0) {
             DebugLog.instance.error(data.message);
-        }else {
+        } else {
             this._userInfoData = new UserInfoData(data.data);
             EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
         }
     }
-
+    //更新个人中心数据
     public updateUserInfo(full_name: string, gender: number, birthday: string, education: number) {
         EventManager.getInstance().on(this.user_update_info, this.requestUpdateInfoCallback, this, true);
         let requestUpdateUserInfoSocket: SocketData = new SocketData({
             "action": this.user_update_info,
-            "data":{
-                full_name:full_name,
-                gender:gender,
-                birthday:birthday,
-                education:education,
+            "data": {
+                full_name: full_name,
+                gender: gender,
+                birthday: birthday,
+                education: education,
             }
         });
         SocketManager.getInstance().send(requestUpdateUserInfoSocket);
     }
 
-    public requestUpdateInfoCallback(data: SocketData, context: any){
-     
-        if(data.status == 0) {
+    public requestUpdateInfoCallback(data: SocketData, context: any) {
+
+        if (data.status == 0) {
             DebugLog.instance.error(data.message);
-        }else {
+        } else {
             this._userInfoData.gender = data.data.gender;
             this._userInfoData.full_name = data.data.full_name;
             this._userInfoData.birthday = data.data.birthday;
             this._userInfoData.education = data.data.education;
-               DebugLog.instance.log("更新个人中心数据", this._userInfoData);
+            DebugLog.instance.log("更新个人中心数据", this._userInfoData);
             EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
         }
+    }
+    //获取个人报告
+    public getPersonalReport() {
+        EventManager.getInstance().on(this.user_get_report, this.requestPersonalReportCallback, this, true);
+        let requestPersonalReportSocket: SocketData = new SocketData({
+            action: this.user_get_report
+        });
+        SocketManager.getInstance().send(requestPersonalReportSocket);
+    }
+
+    public requestPersonalReportCallback(data: SocketData, context: any) {
+        let results = data.data['result'];
+        DebugLog.instance.log("请求个人报告", data);
+        for (let i = 0; i < results.length; i++) {
+            let data = results[i];
+            let userReport = new UserReportData(data.data)
+            context._userReportDataList.push(userReport);
+        }
+      
+
+     
     }
 }
 

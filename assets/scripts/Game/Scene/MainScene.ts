@@ -75,9 +75,6 @@ export class MainScene extends Component {
     @property({ type: Node })
     taskProgressNode: Node = null;
 
-    // @property({ type: Node })
-    // infoListPopNode: Node = null;
-
     @property(ProgressBar)
     progressBar: ProgressBar = null;
 
@@ -209,8 +206,6 @@ export class MainScene extends Component {
 
             EventManager.getInstance().on("hideInfoListPop",this.hideInfoListPop, this);
             TaskManager.getInstance().isReadNotification([data.id]);
-            //EventManager.getInstance().emit(InfoListPopCtrl.requestUpdateInfoList,data);
-            // this.infoListPopNode.getComponent(InfoListPopCtrl).updateInfoList(data);
         }
         hideInfoListPop() {
             EventManager.getInstance().off("hideInfoListPop",this);
@@ -280,7 +275,7 @@ export class MainScene extends Component {
         this.taskProgressNode.active = true;
         //EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
         TaskManager.getInstance().requestStartInform();
-   
+    
         this.brainTrainNode.active = false;
         this.tabClick(null, 0);
         this.switchTaskNode(false);
