@@ -247,6 +247,7 @@ export class GuessingGameScene extends Component {
         }
     }
 
+
     private requestSkewersGameComplete(data) {
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
@@ -254,7 +255,11 @@ export class GuessingGameScene extends Component {
         let curCount = trainData.seq;
         // 游戏内界面提示
         if (maxCount != curCount) {
-            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
+            if(!this._resuleBoo){
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
+            }else{
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
+            }
         } else {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
@@ -269,7 +274,10 @@ export class GuessingGameScene extends Component {
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
+    private _resuleBoo:boolean = false;
+
     private requestGameResult(win: boolean = true) {
+        this._resuleBoo = win;
         // 上报数据
         let endTime = TimeUtil.getNow();
         let complete = Number(win);
