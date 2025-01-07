@@ -13,6 +13,7 @@ export enum TaskStatus {
 
 }
 
+import {sys} from "cc"
 export class TaskData {
     public id: number = 0;
     public name: string = "";

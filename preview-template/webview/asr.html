@@ -63,9 +63,21 @@
       return 'wss://test.paipai.xinjiaxianglao.com/asr-tmp/';
     }
 
-    connectWebSocket = async function () {
+    connectWebSocket = async function (params) {
+      let id = params ? params.id : null;
+      let save_audio = 0;
+      if (params && params.save_audio === true) {
+        save_audio = 1;
+      }
 
-      const websocketUrl = await this.getWebSocketUrl();
+      let websocketUrl = await this.getWebSocketUrl();
+      if (id) {
+        websocketUrl += '?id=' + id
+      }
+      if (save_audio) {
+        websocketUrl += '&save_audio=' + save_audio
+      }
+
       // console.log("websocketUrl", websocketUrl);
 
       if ("WebSocket" in window) {
@@ -147,9 +159,9 @@
     }
   })
 
-  function connect() {
+  function connect(params) {
     flag = true
-    audioRecorder.connectWebSocket()
+    audioRecorder.connectWebSocket(params)
   }
 
   function close() {

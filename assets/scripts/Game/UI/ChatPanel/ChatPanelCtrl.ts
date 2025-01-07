@@ -137,7 +137,7 @@ export class ChatPanelCtrl extends BasePanel {
         this.chatFlowModel.onCloseASR();
         this.chatFlowModel.onCloseTTS();
 
-        this.node.active = false;
+        //this.node.active = false;
         UIManager.getInstance().hidePanel(ChatPanelCtrl.NAME);
     }
 

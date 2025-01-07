@@ -1,12 +1,29 @@
-import { Canvas,assetManager,AudioClip,_decorator, Component, Sprite, Node, Label, Prefab, SpriteFrame, tween, Vec3, instantiate,UITransform,Tween,v3,director } from 'cc';
-import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
-import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
-import { Fish } from './Fish';
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
-import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-const { ccclass, property } = _decorator;
-import { questions0, questions1, questions2 } from './questionsDate'
+import {
+    _decorator,
+    assetManager,
+    AudioClip,
+    Canvas,
+    Component,
+    director,
+    instantiate,
+    Label,
+    Node,
+    Prefab,
+    Sprite,
+    SpriteFrame,
+    tween,
+    Tween,
+    UITransform,
+    v3,
+    Vec3,
+    Texture2D
+} from 'cc';
+import {ColorUtil} from '../../scripts/Core/Util/ColorUtil';
+import {Fish} from './Fish';
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import {questions0, questions1, questions2} from './questionsDate'
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
@@ -14,6 +31,11 @@ import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import {CatchFishGuide} from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
+import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
+import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+
+const { ccclass, property } = _decorator;
 
 
 const SHOOT_INTERVAL = 2;
@@ -60,6 +82,9 @@ export class catchfish extends Component {
     mask: Node = null;
 
     @property(Node)
+    logoNode:Node = null;
+
+    @property(Node)
     private viewNode:Node = null;
 
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
@@ -94,6 +119,20 @@ export class catchfish extends Component {
             })
             .start();
         this.loadAudio().then();
+        let logoSprite = this.logoNode.getComponent(Sprite);
+        if(Global.isSkewersGame){
+            LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame)=>{
+                logoSprite.spriteFrame = spiteFrame;
+            });
+        }else{
+            LoaderManager.getInstance().loadABRes("texture/page1_start/logo",this.bundleName).then((res)=>{
+                const texture = new Texture2D();
+                texture.image = res;
+                const spriteFrame = new SpriteFrame();
+                spriteFrame.texture = texture;
+                logoSprite.spriteFrame = spriteFrame;
+            });
+        }
         const scene = director.getScene();
         const canvas = scene.getComponentInChildren(Canvas);
         const uitransform = canvas.getComponent(UITransform);
@@ -217,11 +256,21 @@ export class catchfish extends Component {
 
         const currentQuestions = questions[this.hardIndex];
 
-        const question = currentQuestions[Math.floor(Math.random() * currentQuestions.length)];
+        // 筛选出未选择的问题
+        const availableQuestions = currentQuestions.filter(question => !question.hasChose);
 
-        fish.setQuestion(question);
-        EventManager.getInstance().off(Fish.FishClick, this);
-        EventManager.getInstance().on(Fish.FishClick, this.selectFish, this);
+        if (availableQuestions.length > 0) {
+            // 从可用问题中随机选择一个
+            let question = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            question.hasChose = true;
+            fish.setQuestion(question);
+
+            EventManager.getInstance().off(Fish.FishClick, this);
+            EventManager.getInstance().on(Fish.FishClick, this.selectFish, this);
+        } else {
+            DebugLog.instance.log("No available questions found");
+            // 这里可以添加一些降级处理，例如设置默认问题或重置状态等
+        }
     }
 
     private selectFish(fish, context) {
@@ -290,7 +339,8 @@ export class catchfish extends Component {
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
                         const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
                         fish.setPosition(newPosition.x,newPosition.y);
-                        if(GameCenterManager.getInstance().currentGame.level == 1){
+                        if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
+                            ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
                             if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
                                 EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
                                 fish.pause = true;
@@ -478,6 +528,8 @@ export class catchfish extends Component {
         let offsetTime = this._curFish.positionYIndex * 0.01;
         let fishWorldPos = self._curFish.getFishNode().parent.getComponent(UITransform).convertToWorldSpaceAR(this._curFish.position);
         let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wangPrefab.position);
+        let question = this._curFish.getData();
+        question.hasChose = false;
         if(this._wangTween)this._wangTween.stop();
         // 启动动画
         this._wangTween = tween(wangPrefab).parallel(
@@ -507,7 +559,6 @@ export class catchfish extends Component {
                         self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
                             self.endCurHardGame();
-
                         }
                         // 设置当前鱼为选中状态
                         self._curFish.setSelect(self.unSelectColor, 1)
@@ -620,6 +671,20 @@ export class catchfish extends Component {
         SkewersManager.getInstance().requestGameComplete(complete,duration);
     }
 
+    private resetQuestions(){
+        let len = questions.length;
+        for(let i:number=0;i<len;i++){
+           let _questions = questions[i];
+           if(_questions){
+               let _len = _questions.length;
+               for(let j:number=0;j<_len;j++){
+                   let question = _questions[j];
+                   if(question)question.hasChose = false;
+               }
+           }
+        }
+    }
+
     private _clearBoo = false;
     private clearGameView() {
         this._clearBoo = true;
@@ -634,6 +699,7 @@ export class catchfish extends Component {
         Tween.stopAll();
         EventManager.getInstance().off(Fish.FishClick, this);
 
+        this.resetQuestions();
         if (this.fishs) {
             let len = this.fishs.length;
             for (let i: number = 0; i < len; i++) {

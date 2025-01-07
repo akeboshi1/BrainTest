@@ -300,7 +300,7 @@ export class GuessingGameScene extends Component {
 
     nextAlertHandler(context) {
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
-        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr,'', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr,'', 0, 0, context.onClickGotoNextlevel1, context.exitCallBack, context);
     }
 
     onClickGotoNextlevel() {
@@ -308,11 +308,12 @@ export class GuessingGameScene extends Component {
         this.onClickContinueGame();
     }
 
+
     onClickGotoNextlevel1(context) {
         if (SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().exitCallBack();
         } else {
-            context.onClickGotoNextlevel();
+            SkewersManager.getInstance().runNextGame();
         }
     }
 

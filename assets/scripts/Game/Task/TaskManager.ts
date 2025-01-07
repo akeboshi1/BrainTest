@@ -9,6 +9,7 @@ import {NotificationData, TaskData, TaskStatus, TaskType} from "../../Game/Task/
 import {DebugLog} from "../../Core/Util/DebugLog";
 import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 
 /**
  * 任务管理器
@@ -58,8 +59,11 @@ export class TaskManager {
     private pushEvet: string = "event";
     // private _pushEvetList:string [];
 
-  
 
+
+    public get curTask():TaskData{
+        return Global.userData.curTaskData;
+    }
 
     constructor() {
     }
@@ -134,6 +138,8 @@ export class TaskManager {
             }
 
 
+            // type = 0 评测
+            // type = 1 串烧
             context._taskList.sort((a, b) => {
                 return a.type - b.type;
             })
@@ -182,6 +188,7 @@ export class TaskManager {
         }
         let message = "";
         let ad:AlertData;
+        Global.userData.curTaskData = task;
         switch (task.status) {
             case TaskStatus.Expired:
                 message = `id：${id} 任务已经过期！`;

@@ -1,4 +1,6 @@
-import {GameState, SkewersGameStatus} from "../../../Core/Data/GameState";
+import {SkewersGameStatus} from "../../../Core/Data/GameState";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 
 export enum GameType{
     // 理解力
@@ -60,7 +62,6 @@ export class SkewersGameData {
         }
     }
 
-
     public refreshData(data:any){
         this.gameID = data['game_id'];
         this.gameCode = data['game_code'];
@@ -96,6 +97,9 @@ export class SkewersGameData {
             let train = new SkewersGameTrainData();
             train.parentSkewersGameData = this;
             train.refreshData(tmpData);
+            if(i == 0 && Global.userData.curTaskData && Global.userData.curTaskData.type == TaskType.Review){
+                train.hasGuide = true;
+            }
             this.trains.push(train);
         }
     }
@@ -261,6 +265,16 @@ export class SkewersGameTrainData{
     // 完成得时间格式 “2024-11-22 07:30:00”
     public completedAt:string = null;
 
+    private _hasGuide:boolean = false;
+
+    public set hasGuide(value:boolean){
+        this._hasGuide = value;
+    }
+
+    public get hasGuide():boolean{
+        return this._hasGuide
+    }
+
     public refreshData(data:any){
         this.brain_training_id = data['id'];
         this.seq = data['seq'];
@@ -271,6 +285,9 @@ export class SkewersGameTrainData{
         this.complete = data['completion']||0;
         this.score = data['score']||0;
         this.completedAt = data['completed_at']||null;
+        if(data['level'] == ""){
+            data['level'] = 1;
+        }
         this.level = data['level'];
     }
 }
