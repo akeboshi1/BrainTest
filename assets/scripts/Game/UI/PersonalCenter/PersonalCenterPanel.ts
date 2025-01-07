@@ -6,6 +6,7 @@ import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { UserInfoPanel } from './UserInfoPanel';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
+import { GenerateReport } from './GenerateReport';
 
 const { ccclass, property } = _decorator;
 
@@ -15,9 +16,6 @@ export class PersonalCenterPanel extends BasePanel {
 
     @property(Label)
     titleLabel: Label = null;
-
-    @property(Node)
-    reportNode: Node = null;
 
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
@@ -55,12 +53,12 @@ export class PersonalCenterPanel extends BasePanel {
     }
 
     showReport() {
-        this.reportNode.active = true;
+
+        UIManager.getInstance().registerPanel(GenerateReport.NAME, BundleName.RESOURCES, "prefab/personalCenter/GenerateReport", GenerateReport);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
-    hideReport() {
-        this.reportNode.active = false;
-    }
+
 }
 
 

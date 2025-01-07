@@ -20,5 +20,18 @@ export class UserInfoData {
     }
 }
 
+export class UserReportData {
+    public cog_ability: String = "";
+    public cog_ability_desc: String = "";
+    public score: Number = 0;
+    public age_group_percentile: Number = 0;
+    constructor(data) {
+        this.cog_ability = data["cog_ability"];
+        this.cog_ability_desc = data["cog_ability_desc"];
+        this.score = data["score"];
+        this.age_group_percentile = data["age_group_percentile"];
+    }
+}
+
 
 
