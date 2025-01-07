@@ -24,7 +24,7 @@ export class GuessingGameModel{
 
         this.config = new GuessingGameConfig();
         await this.config.loadConfig();
-
+        this.currentQuestionIndex = this.config.getUnAnswerQuestionIndex();
         AudioManager.getInstance().onAudioStart(this.onAudioStart,this);
         AudioManager.getInstance().onAudioEnd(this.onAudioFinished,this);
 
