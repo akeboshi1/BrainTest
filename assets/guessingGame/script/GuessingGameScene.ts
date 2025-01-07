@@ -14,6 +14,8 @@ import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 const { ccclass, property } = _decorator;
 
 @ccclass('GuessingGameScene')
@@ -227,7 +229,7 @@ export class GuessingGameScene extends Component {
             this.failedTextNode.active = false;
             this.requestGameResult(result);
             if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, null, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.remoteClick, this);
                 return;
             }
             // if(!result){
@@ -245,6 +247,7 @@ export class GuessingGameScene extends Component {
         }
     }
 
+
     private requestSkewersGameComplete(data) {
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
@@ -252,17 +255,29 @@ export class GuessingGameScene extends Component {
         let curCount = trainData.seq;
         // 游戏内界面提示
         if (maxCount != curCount) {
-            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
+            if(!this._resuleBoo){
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
+            }else{
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
+            }
         } else {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.remoteClick, this);
             }
         }
     }
 
+    private remoteClick(){
+        this.exitCallBack(this);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
+    }
+
+    private _resuleBoo:boolean = false;
+
     private requestGameResult(win: boolean = true) {
+        this._resuleBoo = win;
         // 上报数据
         let endTime = TimeUtil.getNow();
         let complete = Number(win);
@@ -313,7 +328,8 @@ export class GuessingGameScene extends Component {
         if (SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().exitCallBack();
         } else {
-            SkewersManager.getInstance().runNextGame();
+            SkewersManager.getInstance().runNextGame(false);
+            context.onClickRandomGame();
         }
     }
 
@@ -332,6 +348,12 @@ export class GuessingGameScene extends Component {
     onClickContinueGame() {
         this.resetPanel();
         this.guessingGameModel.goNextQuestion();
+        this.resultPanel.active = false;
+    }
+
+    onClickRandomGame(){
+        this.resetPanel();
+        this.guessingGameModel.getUnAnswerQuestion();
         this.resultPanel.active = false;
     }
 
@@ -375,7 +397,7 @@ export class GuessingGameScene extends Component {
             // 临时处理
             Global.userData.curSkewerGameData.difficulty = this.guessingGameModel.currentQuestionIndex;
         } else {
-            let remoteLevel = GameCenterManager.getInstance().currentGame.level;
+            let remoteLevel = Number(GameCenterManager.getInstance().currentGame.level);
             this.guessingGameModel.currentQuestionIndex = remoteLevel == 0?this.guessingGameModel.currentQuestionIndex:remoteLevel;
         }
 
