@@ -15,6 +15,7 @@ import AlertManager, { AlertData } from "../Alert/AlertManager";
 import { VerifyPanel } from "db://assets/scripts/Game/UI/Login/VerifyPanel";
 import { BundleName } from "../Load/BundleName";
 import { DebugLog } from "../../Util/DebugLog";
+import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -86,6 +87,8 @@ export class LoginManager {
             this._loginByTokenCb(true);
             this._loginByTokenCb = null;
         }
+
+        GlobalConfigManager.getInstance().init();
     }
 
     private setInviteCodeCallBack(data: any) {
@@ -156,6 +159,8 @@ export class LoginManager {
         } else {
             SceneManager.getInstance().backToHall();
         }
+
+        GlobalConfigManager.getInstance().init();
     }
 
     public requestTokenVerification(cb: (result: boolean) => void = null) {
