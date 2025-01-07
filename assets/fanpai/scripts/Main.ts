@@ -9,6 +9,8 @@ import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterM
 import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 const { ccclass, property } = _decorator;
 
 function getRandomNumber(min: number, max: number) {
@@ -337,13 +339,18 @@ export class Main extends Component {
             SkewersManager.getInstance().requestGameComplete(obj.complete,obj.duration);
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,null,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.exitCallBack,this.remoteClick,this);
                 return;
             }
             //上报数据
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
 
         }
+    }
+
+    private remoteClick(){
+        this.exitCallBack(this);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
     private requestSkewersGameComplete(data){
@@ -360,7 +367,7 @@ export class Main extends Component {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.remoteClick,this);
             }
         }
     }

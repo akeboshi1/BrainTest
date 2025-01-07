@@ -34,6 +34,8 @@ import {CatchFishGuide} from "db://assets/scripts/Core/Manager/Guide/game/CatchF
 import {TaskManager} from "db://assets/scripts/Game/Task/TaskManager";
 import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 
 const { ccclass, property } = _decorator;
 
@@ -598,7 +600,7 @@ export class catchfish extends Component {
             this.playAudio("music/win");
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,null,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.goonCallBack,this.remoteClick,this);
                 return;
             }
             this.hardIndex = this.hards.indexOf(this.curHard);
@@ -639,9 +641,14 @@ export class catchfish extends Component {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore,0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.remoteClick,this);
             }
         }
+    }
+
+    private remoteClick(){
+        this.exitCallBack(this);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
     private alertGoonHandler(context){

@@ -33,6 +33,9 @@ import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {ColorUtil} from "db://assets/scripts/Core/Util/ColorUtil";
 import {GuideManager, GuideState} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import {FindingGuide} from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 
 const {ccclass,property} = _decorator;
 
@@ -538,9 +541,14 @@ export default class GameView extends LayerPanel {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.exitCallBack,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.remoteClick,this);
             }
         }
+    }
+
+    private remoteClick(){
+        this.exitCallBack(this);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
     private failRequestSkewersGameComplete(){

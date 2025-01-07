@@ -279,7 +279,7 @@ export class TaskManager {
             DebugLog.instance.error(data.message);
             const ad: AlertData = new AlertData();
             ad.title = "提示";
-            ad.message = data.message;
+            ad.message = data['error'];
             AlertManager.getInstance().showAlert(ad);
             return;
         } else {
