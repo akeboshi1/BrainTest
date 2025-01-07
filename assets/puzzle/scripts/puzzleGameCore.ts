@@ -28,6 +28,9 @@ import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager"
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {VerifyPanel} from "db://assets/scripts/Game/UI/Login/VerifyPanel";
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 
 const { ccclass, property } = _decorator;
 
@@ -566,7 +569,7 @@ export class puzzleGameCore extends Component {
             if (Global.isSkewersGame) {
                self.requestGameResult(true)
                if (SkewersManager.getInstance().isRunOver()) {
-                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, null, self.exitCallBack, self);
+                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.exitCallBack, self.remoteClick, self);
                    return;
                }
                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
@@ -600,8 +603,8 @@ export class puzzleGameCore extends Component {
     }
 
     private remoteClick(){
-        // todo show reviewpanel
-        DebugLog.instance.log("click remoteClick");
+        this.exitCallBack(this);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
     onClickGotoNextlevel() {

@@ -14,6 +14,8 @@ import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 const { ccclass, property } = _decorator;
 
 @ccclass('GuessingGameScene')
@@ -227,7 +229,7 @@ export class GuessingGameScene extends Component {
             this.failedTextNode.active = false;
             this.requestGameResult(result);
             if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, null, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.remoteClick, this);
                 return;
             }
             // if(!result){
@@ -257,9 +259,14 @@ export class GuessingGameScene extends Component {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.remoteClick, this);
             }
         }
+    }
+
+    private remoteClick(){
+        this.exitCallBack(this);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
     private requestGameResult(win: boolean = true) {

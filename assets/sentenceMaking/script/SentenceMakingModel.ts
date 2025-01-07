@@ -6,6 +6,8 @@ import { GameCenterManager } from "../../scripts/Game/GameCenter/GameCenterManag
 import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
 import { AlertType } from "../../scripts/Game/UI/Alert/GameAlert";
 import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
+import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 
 export class SentenceMakingModel {
     constructor() {
@@ -125,7 +127,7 @@ export class SentenceMakingModel {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.skewersGoNext, this.exit, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.exit, this.exit, this);
+                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.exit, this.remoteClick, this);
             }
         }
     }
@@ -133,6 +135,11 @@ export class SentenceMakingModel {
     private skewersGoNext() {
         let gameData = SkewersManager.getInstance().getUnCompleteGameData();
         SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this.goNextGame, this.exit, this);
+    }
+
+    private remoteClick(){
+        this.exit();
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
     private goNextGame(){
