@@ -437,15 +437,17 @@ export class SkewersManager {
     /**
      * 运行下一个游戏
      */
-    public runNextGame() {
+    public runNextGame(changeScene:boolean = true) {
         // 可能换到了下一个类型游戏
         this._game = this.getUnCompleteGameData();
-        const sceneName = this._game.gameCode;
-        let url = Global.RES_Root + sceneName;
-
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
-        BundlePreloadManager.getInstance().preload(sceneName);
+        if(changeScene) {
+            const sceneName = this._game.gameCode;
+            let url = Global.RES_Root + sceneName;
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+            BundlePreloadManager.getInstance().preload(sceneName);
+        }
+
 
         // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
         //     DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);

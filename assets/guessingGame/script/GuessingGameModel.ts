@@ -1,6 +1,6 @@
 import { assetManager, AudioClip, debug } from "cc";
 import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
-import { GuessingGameConfig } from "./GuessingGameConfig";
+import {GuessingGameConfig, GuessingQuestion} from "./GuessingGameConfig";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 
@@ -10,12 +10,14 @@ export class GuessingGameModel{
     private bundleName:string = "guessingGame";
 
     private config:GuessingGameConfig = null;
+
     public currentQuestionIndex = 1;
 
     private binit:boolean = false;
 
     private cacheAudioClip:AudioClip = null;
 
+    private _curQuestion:GuessingQuestion = null;
     async init(){
         if(this.binit) return;
         this.binit = true;
@@ -39,11 +41,11 @@ export class GuessingGameModel{
         EventManager.getInstance().emit(GuessingGameEvent.AUDIO_FINISHED,{});
     }
 
-    async startQuestionFlow(){
-        const question = this.config.getQuestionByNumber(this.currentQuestionIndex);
-        EventManager.getInstance().emit(GuessingGameEvent.SHOW_QUESTION,{question});
+    async startQuestionFlow(isRandom:boolean = false){
+        this._curQuestion = this.config.getQuestionByNumber(this.currentQuestionIndex,isRandom);
+        EventManager.getInstance().emit(GuessingGameEvent.SHOW_QUESTION,{question:this._curQuestion});
 
-        const audioUrl = this.config.getAudioSourceByNumber(this.currentQuestionIndex);
+        const audioUrl = this.config.getAudioSourceByNumber(this.currentQuestionIndex,isRandom);
 
         if(!audioUrl){
             DebugLog.instance.error("GuessingGameConfig error! ---- currentQuestionIndex:"+ this.currentQuestionIndex);
@@ -102,6 +104,14 @@ export class GuessingGameModel{
         this.currentQuestionIndex = this.config.getNextQuestionNumber(Number(this.currentQuestionIndex));
 
         this.startQuestionFlow();
+    }
+
+    getUnAnswerQuestion(){
+        if(this._curQuestion){
+            this._curQuestion.hasAnswer = true;
+        }
+        this.currentQuestionIndex = this.config.getUnAnswerQuestionIndex();
+        this.startQuestionFlow(true);
     }
 }
 

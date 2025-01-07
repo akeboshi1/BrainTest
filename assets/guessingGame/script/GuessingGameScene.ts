@@ -313,7 +313,8 @@ export class GuessingGameScene extends Component {
         if (SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().exitCallBack();
         } else {
-            SkewersManager.getInstance().runNextGame();
+            SkewersManager.getInstance().runNextGame(false);
+            context.onClickRandomGame();
         }
     }
 
@@ -332,6 +333,12 @@ export class GuessingGameScene extends Component {
     onClickContinueGame() {
         this.resetPanel();
         this.guessingGameModel.goNextQuestion();
+        this.resultPanel.active = false;
+    }
+
+    onClickRandomGame(){
+        this.resetPanel();
+        this.guessingGameModel.getUnAnswerQuestion();
         this.resultPanel.active = false;
     }
 
@@ -375,7 +382,7 @@ export class GuessingGameScene extends Component {
             // 临时处理
             Global.userData.curSkewerGameData.difficulty = this.guessingGameModel.currentQuestionIndex;
         } else {
-            let remoteLevel = GameCenterManager.getInstance().currentGame.level;
+            let remoteLevel = Number(GameCenterManager.getInstance().currentGame.level);
             this.guessingGameModel.currentQuestionIndex = remoteLevel == 0?this.guessingGameModel.currentQuestionIndex:remoteLevel;
         }
 

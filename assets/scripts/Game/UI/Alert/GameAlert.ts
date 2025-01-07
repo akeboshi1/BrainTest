@@ -2,6 +2,8 @@ import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,tween,Spr
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -71,6 +73,7 @@ export class GameAlert extends Component{
     showView(type:AlertType) {
         this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
+        this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
         switch (type) {
             case AlertType.Normal:
                 this.exitBtn.node.active = true;
@@ -113,8 +116,9 @@ export class GameAlert extends Component{
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
-                this.exitBtn.node.active = false;
-                startBtnUITransform.width = 500;
+                this.exitBtn.node.active = Global.userData.curTaskData.type == TaskType.Review;
+                this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review?"查看评测":"退出";
+                startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review?250:500;
                 break;
             case AlertType.Failed:
                 // todo

@@ -1,5 +1,7 @@
 import {
     _decorator,
+    assetManager,
+    AudioClip,
     Component,
     EventTouch,
     instantiate,
@@ -13,20 +15,19 @@ import {
     tween,
     UITransform,
     Vec2,
-    Vec3,
-    assetManager,
-    AudioClip
+    Vec3
 } from 'cc';
-import { timerComponent } from './timerComponent';
-import { puzzleSummaryAlert } from './puzzleSummaryAlert';
-import { Global } from "../../scripts/Core/Manager/Config/Global";
-import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
+import {timerComponent} from './timerComponent';
+import {puzzleSummaryAlert} from './puzzleSummaryAlert';
+import {Global} from "../../scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
+import {DebugLog} from "../../scripts/Core/Util/DebugLog";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 
 const { ccclass, property } = _decorator;
 
@@ -593,9 +594,14 @@ export class puzzleGameCore extends Component {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.remoteClick, this);
             }
         }
+    }
+
+    private remoteClick(){
+        // todo show reviewpanel
+        DebugLog.instance.log("click remoteClick");
     }
 
     onClickGotoNextlevel() {
