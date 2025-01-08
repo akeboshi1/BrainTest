@@ -152,9 +152,9 @@ export class UIManager extends BaseManager {
     async hidePanel(name: string) {
         let panelCache = this.activePanelMap.get(name);
         if (panelCache) {
+            this.activePanelMap.delete(name);
             await panelCache.comp.hidePanel();
             panelCache.rootNode.removeFromParent();
-            this.activePanelMap.delete(name);
         }
     }
 

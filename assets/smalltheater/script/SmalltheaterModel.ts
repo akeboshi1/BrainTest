@@ -1,12 +1,12 @@
 
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { Plot, PlotsConfig } from "./PlotsConfig";
-
+import { Plot, PlotsConfig, StageLine } from "./PlotsConfig";
 
 export class SmalltheaterModel {
 	private plotsConfig: PlotsConfig = new PlotsConfig();
 
 	private _currentPlot:Plot = null;
+	private _currentStageIndex:number = 0;
 
 	init() {
 
@@ -26,5 +26,17 @@ export class SmalltheaterModel {
 
 	get currentPlot():Plot{
 		return this._currentPlot;
+	}
+
+	initDemo(){
+		this._currentStageIndex = 0;
+	}
+
+	hasNextStageLine():boolean{
+		return true;
+	}
+
+	getCurrentStageLine():StageLine{
+		return null;
 	}
 }

@@ -89,7 +89,7 @@ export class SmalltheaterScene extends Component {
     }
 
     private onEnterDemo(data: any) {
-
+        this.model.initDemo();
     }
 
     private onEnterInteraction(data: any) {
