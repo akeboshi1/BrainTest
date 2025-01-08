@@ -7,9 +7,13 @@ export class RadarChart extends Component {
     private _graphics:Graphics;
     private _baseRadius:number =200;
     private _angleOffset:number=0;
-    start(){
+    public rates=[1,1,1,1,1,1];
+    // start() {
+    //     this.draw();
+    // }
+    draw(){
         // 获取当前节点的 graphics 组件
-        this._graphics = this.getComponent(Graphics) || this.addComponent(Graphics);
+        this._graphics = this.node.getComponent(Graphics) || this.node.addComponent(Graphics);
 
         // 设置线条的宽度和颜色
         this._graphics.lineWidth = 10;
@@ -42,13 +46,13 @@ export class RadarChart extends Component {
             this._graphics.strokeColor = new Color(66, 97, 142, 255 * (1 - (1 + j) * 0.25));
         }
 
-        const rates = [0.975, 0.8, 0.975, 0.5, 0.7];
-        let rate = rates[0];
+        //this.rates = [1,1,1,1,1,1];
+        let rate = this.rates[0];
         let radius1 =  this._baseRadius * rate;
         this._graphics.moveTo(radius1 * Math.sin(0), radius1 * Math.cos(0));
-        for (let i = 0; i < rates.length; i++) {
+        for (let i = 0; i < this.rates.length; i++) {
             const angle = (i + 1) * this._angleOffset;
-            rate = rates[(i + 1) % rates.length];
+            rate = this.rates[(i + 1) % this.rates.length];
             radius1 =  this._baseRadius * rate;
             this._graphics.lineTo(radius1 * Math.sin(angle), radius1 * Math.cos(angle));
         }
@@ -71,6 +75,11 @@ export class RadarChart extends Component {
         // 绘制线条
         this._graphics.stroke();
 
+    }
+    
+    setRates(rates){
+        this.rates = rates;
+        this.draw();
     }
 
     onEnable(){

@@ -431,12 +431,16 @@ export class catchfish extends Component {
         }, 1000);
     }
 
-    private failRequestSkewersGameComplete(){
+    private failRequestSkewersGameComplete(data){
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this)
-        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+        let curCount = trainData.seq<0?0:trainData.seq;
+        if(curCount == maxCount){
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.nextAlertHandler,this.exitCallBack,this);
+        }else{
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+        }
     }
 
     calculateTime() {
@@ -490,6 +494,7 @@ export class catchfish extends Component {
                     // console.log("点击了第" + i + "个网");
                     // this._curFish.setSelect(this.unSelectColor, 1);
                     this.errorClick(i);
+                    return;
                 } else {
                     // 否则调用unSelectWang方法
                     this.unSelectWang(i);
@@ -652,7 +657,7 @@ export class catchfish extends Component {
     }
 
     private alertGoonHandler(context){
-        clearInterval(context.timerId);
+        context.clearGameView();
         if (!SkewersManager.getInstance().isRunOver()) {
             context.node.active = false;
             SkewersManager.getInstance().runNextGame();
@@ -663,7 +668,6 @@ export class catchfish extends Component {
 
     private nextAlertHandler(context){
         clearInterval(context.timerId);
-        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
         SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 
@@ -754,9 +758,34 @@ export class catchfish extends Component {
         wang.getComponent(Sprite).color = this.unSelectColor;
     }
 
-    private errorClick(i: number) {
+    private errorClick(i: number){
+        let self = this;
         let wang = this.wangs[i];
         wang.getComponent(Sprite).color = this.ErrorColor;
+        if(this._curFish.curTween){
+            this._curFish.curTween.stop();
+            this._curFish.curTween = null;
+        }
+        this._curFish.curTween = tween(this._curFish)
+            .to(0.8, { position: new Vec3( self._leftSceneX - 300, self._curFish.position.y, self._curFish.position.z) },{easing:"sineOut"})
+            .call(() => {
+                self.hasWangClick = false;
+                self.unSelectWang(i);
+                self._curFish.pause = false;
+                if(!Global.isSkewersGame){
+                    if (self.gameSuccessView.active || self.gameFailView.active) {
+                        return;
+                    }
+                }
+                if(self._clearBoo)return;
+                self.clearWangNubmer();
+                self._curFish.curTween.stop();
+                self._curFish.curTween = null;
+                self.randomFish(self._curFish);
+                self.moveFishes(self._curFish, SHOOT_INTERVAL);
+            })
+            .start(); // 启动动画
+
     }
 
     /**

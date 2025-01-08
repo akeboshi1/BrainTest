@@ -10,6 +10,7 @@ import { SentenceMakingTimerComponent } from './SentenceMakingTimerComponent';
 import { Global } from '../../scripts/Core/Manager/Config/Global';
 import { GameCenterManager } from '../../scripts/Game/GameCenter/GameCenterManager';
 import { SkewersManager } from '../../scripts/Game/Task/Skewers/SkewersManager';
+import {LayerUtil} from "db://assets/scripts/Core/Util/LayerUtil";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -79,7 +80,7 @@ export class SentenceMakingScene extends Component {
 
     start() {
         this.initRects();
-        this.model.init().then(() => {
+        this.model.init(this).then(() => {
             this.showGameTipAlert()
         }).catch(() => {
             let ad: AlertData = new AlertData();
@@ -491,7 +492,7 @@ export class SentenceMakingScene extends Component {
     }
 
     public onClickBack() {
-        this.processBack();
+        this.model.quitGame();
     }
 
     private processBack(){
@@ -578,13 +579,23 @@ export class SentenceMakingScene extends Component {
 
         this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
-        this.model.postGameData(1, this.timer.getElapsedTime());
+        this.model.postGameData(Number(isSuccess), this.timer.getElapsedTime());
         this.timer.resetTimer();
     }
 
     public clickNextLeve() {
         this.model.goNextQuestion();
         this.startGameFlow();
+    }
+
+    public pause(){
+        this.timer.pauseTimer();
+        this.onDisable();
+    }
+
+    public resume(){
+        this.timer.resumeTimer();
+        this.onEnable();
     }
 
     private onTimeout() {

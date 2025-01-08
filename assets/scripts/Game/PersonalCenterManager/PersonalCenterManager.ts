@@ -16,6 +16,7 @@ export class PersonalCenterManager {
     }
     public static getUserInfoCallBack: string = "getUserInfoCallBack";
 
+    public static personalReportCallback: string = "personalReportCallback";
 
     // 获取个人中心数据
     private user_get_info: string = "user.get_user_info";
@@ -107,25 +108,31 @@ export class PersonalCenterManager {
     }
 
     public requestPersonalReportCallback(data: SocketData, context: any) {
-        let result = data.data['result'];
-        DebugLog.instance.log("请求个人报告", result);
-        let lateDataIndex = result.findIndex(element => element.is_latest);
-        this._reportLasteDataList = result[lateDataIndex].scores;
-
-        let groupedByIndex = [];
-        const maxLength = Math.max(...result.map(item => item.scores.length));
-        for (let i = 0; i < maxLength; i++) {
-            groupedByIndex[i] = [];
-        }
-        result.forEach(item => {
-            item.scores.forEach((item, index) => {
-                if (groupedByIndex[index]) {
-                    groupedByIndex[index].push(item);
-                }
+        if(data.status == 0){
+            DebugLog.instance.error(data.message);
+        }else{
+            let result = data.data['result'];
+            DebugLog.instance.log("请求个人报告", result);
+            let lateDataIndex = result.findIndex(element => element.is_latest);
+            this._reportLasteDataList = result[lateDataIndex].scores;
+    
+            let groupedByIndex = [];
+            const maxLength = Math.max(...result.map(item => item.scores.length));
+            for (let i = 0; i < maxLength; i++) {
+                groupedByIndex[i] = [];
+            }
+            result.forEach(item => {
+                item.scores.forEach((item, index) => {
+                    if (groupedByIndex[index]) {
+                        groupedByIndex[index].push(item);
+                    }
+                });
             });
-        });
-        this._allReportDataList = groupedByIndex;
-  
+            this._allReportDataList = groupedByIndex;
+            EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
+      
+        }
+      
 
     }
 }
