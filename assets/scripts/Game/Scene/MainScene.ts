@@ -213,10 +213,20 @@ export class MainScene extends Component {
         }
         updateTime() {
             const now = new Date();
-            const hours = TimeUtil.padZero(now.getHours());
-            const minutes = TimeUtil.padZero(now.getMinutes());
-            const seconds = TimeUtil.padZero(now.getSeconds());
-            this.timeLabel.string = `${hours}:${minutes}:${seconds}`;
+            // const hours = TimeUtil.padZero(now.getHours());
+            // const minutes = TimeUtil.padZero(now.getMinutes());
+            // const seconds = TimeUtil.padZero(now.getSeconds());
+            const currentHour = now.getHours();
+            if (currentHour >= 0 && currentHour < 12) {
+                this.dayLabel.string = '开启美好的一天';
+            } else if (currentHour >= 12 && currentHour < 14) {
+                this.dayLabel.string = '午餐时光，给自己补充能量';
+            } else if (currentHour >= 14 && currentHour < 18) {
+                this.dayLabel.string = '午后的阳光透过窗帘，温暖而懒散';
+            } else {
+                this.dayLabel.string = '感恩今天的经历，明天再出发';
+            }
+            this.timeLabel.string = TimeUtil.getTimePeriodFromTimestamp(now.getHours())+"好";//`${hours}:${minutes}:${seconds}`;
         }
 
     update(deltaTime: number) {
@@ -245,7 +255,7 @@ export class MainScene extends Component {
             // 更新时间
             this.updateTime();
             this.schedule(this.updateTime, 1);
-            this.dayLabel.string = TimeUtil.getCurrentDate();
+            // this.dayLabel.string = TimeUtil.getCurrentDate();
             this.titleLabel.string = TimeUtil.getCurrentDate();
             let count = TaskManager.getInstance().getSkewersGameCount();
             this.taskDesLabel.string = `今日待完成事项:${count}`;

@@ -116,16 +116,15 @@ export class TimeUtil {
      * 通过时间戳来判断当前是什么时间段
      * @param timestamp 毫秒级别
      */
-    static getTimePeriodFromTimestamp(timestamp) {
-        const date = new Date(timestamp); // 将时间戳转换为毫秒
-        const currentHour = date.getHours();
+    static getTimePeriodFromTimestamp(timestamp) {// 将时间戳转换为毫秒
+        const currentHour = timestamp;
 
         if (currentHour >= 0 && currentHour < 12) {
             return "早上";
-        } else if (currentHour >= 12 && currentHour < 18) {
+        } else if (currentHour >= 12 && currentHour < 14) {
             return "中午";
-        } else if (currentHour >= 18 && currentHour < 24) {
-            return "晚上";
+        } else if (currentHour >= 14 && currentHour < 18) {
+            return "下午";
         } else {
             return "晚上"; // 超过24点按晚上处理
         }
