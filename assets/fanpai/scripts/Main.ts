@@ -604,12 +604,16 @@ export class Main extends Component {
         }, 1 * 1000);
     }
 
-    private failRequestSkewersGameComplete(){
+    private failRequestSkewersGameComplete(data){
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this)
-        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+        let curCount = trainData.seq<0?0:trainData.seq;
+        if(curCount == maxCount){
+            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.nextAlertHandler,this.exitCallBack,this);
+        }else{
+            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+        }
     }
 
     restoreTimer() {
@@ -682,6 +686,7 @@ export class Main extends Component {
     }
 
     private alertGoonHandler(context){
+        AudioManager.getInstance().stop();
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
         if (!SkewersManager.getInstance().isRunOver()) {
@@ -695,7 +700,6 @@ export class Main extends Component {
     private nextAlertHandler(context){
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
-        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
         SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 

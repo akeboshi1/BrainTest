@@ -525,12 +525,16 @@ export class puzzleGameCore extends Component {
         }
     }
 
-    private failRequestSkewersGameComplete() {
+    private failRequestSkewersGameComplete(data) {
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-        SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, '', curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
+        let curCount = trainData.seq  < 0 ? 0 : trainData.seq;
+        if(curCount == maxCount){
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.nextAlertHandler,this.exitCallBack,this);
+        }else{
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
+        }
     }
 
 
@@ -625,7 +629,6 @@ export class puzzleGameCore extends Component {
 
     private nextAlertHandler(context) {
         context.pauseTime();
-        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
         SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next,  SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
     }
 
