@@ -305,6 +305,6 @@ export class SkewersGameTrainData{
         if(data['level'] == ""){
             data['level'] = 1;
         }
-        this.level = data['level'];
+        this.level = Number(data['level']);
     }
 }
