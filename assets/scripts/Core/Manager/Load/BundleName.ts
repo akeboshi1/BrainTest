@@ -7,4 +7,5 @@ export enum BundleName{
     MAIN = 'main',
     RESOURCES = 'resources',
     SENTENCEMAKING = 'sentenceMaking',
+    SMALLTHEATER = 'smalltheater',
 }

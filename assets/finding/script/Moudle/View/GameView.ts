@@ -345,31 +345,32 @@ export default class GameView extends LayerPanel {
     }
 
     public clickHint(isCut) {
-        if (this.hintData != null) return;
-        this.pause = true;
-        let hint = CacheMgr.hint;
-        for (let i = 0; i < this.frameList.length; i++) {
-            if (!this.frameList[i].dot) {
-                if (isCut) {
-                    if (hint <= 0) {
-                        Tools.handleVideo(Constant.VIDEO_TYPE.GET_PROPS).then((res) => {
-                            if (res) {
-                                this.pause = false;
-                                this.handler_hint(i);
-                            }else{
-                                this.pause = false;
-                            }
-                        })
-                    } else {
-                        CacheMgr.hint = hint - 1;
-                        this.handler_hint(i)
-                    }
-                } else {
-                    this.handler_hint(i)
-                }
-                break;
-            }
-        }
+         return;
+        // if (this.hintData != null) return;
+        // this.pause = true;
+        // let hint = CacheMgr.hint;
+        // for (let i = 0; i < this.frameList.length; i++) {
+        //     if (!this.frameList[i].dot) {
+        //         if (isCut) {
+        //             if (hint <= 0) {
+        //                 Tools.handleVideo(Constant.VIDEO_TYPE.GET_PROPS).then((res) => {
+        //                     if (res) {
+        //                         this.pause = false;
+        //                         this.handler_hint(i);
+        //                     }else{
+        //                         this.pause = false;
+        //                     }
+        //                 })
+        //             } else {
+        //                 CacheMgr.hint = hint - 1;
+        //                 this.handler_hint(i)
+        //             }
+        //         } else {
+        //             this.handler_hint(i)
+        //         }
+        //         break;
+        //     }
+        // }
     }
 
     public handler_hint(i) {
@@ -551,12 +552,16 @@ export default class GameView extends LayerPanel {
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
-    private failRequestSkewersGameComplete(){
+    private failRequestSkewersGameComplete(data){
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this)
-        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-        SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+        let curCount = trainData.seq<0?0:trainData.seq;
+        if(curCount == maxCount){
+            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.nextAlertHandler,this.exitCallBack,this);
+        }else{
+            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exitCallBack,this);
+        }
     }
 
     private alertGoonHandler(context){
@@ -575,7 +580,6 @@ export default class GameView extends LayerPanel {
     private nextAlertHandler(context){
         context.pause = true;
         context._pauseStartTime = TimeUtil.getNow();
-        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
         SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 

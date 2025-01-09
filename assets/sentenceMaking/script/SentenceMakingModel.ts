@@ -8,6 +8,7 @@ import { AlertType } from "../../scripts/Game/UI/Alert/GameAlert";
 import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
+import {SentenceMakingScene} from "db://assets/sentenceMaking/script/SentenceMakingScene";
 
 export class SentenceMakingModel {
     constructor() {
@@ -24,12 +25,15 @@ export class SentenceMakingModel {
 
     private _gameTime: number = 180;
 
-    async init() {
+    private _view:SentenceMakingScene;
+
+    async init(view:SentenceMakingScene) {
         if (this.binit) return;
         this.binit = true;
 
         await this.config.loadConfig();
 
+        this._view = view;
         if (Global.isSkewersGame) {
             let count = Global.userData.curSkewerGameData.trains.length;
             this.skewerGameQuestionDatas = [];
@@ -114,6 +118,20 @@ export class SentenceMakingModel {
         }
     }
 
+    quitGame(){
+        this._view.pause();
+        if(Global.isSkewersGame) {
+            let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+            let maxCount = SkewersManager.getInstance().getGameCount();
+            let curCount = trainData.seq - 1<0?0:trainData.seq -1;
+            SkewersManager.getInstance().quitGame(LayerUtil.getPanelLayer(),curCount,maxCount,this.goonHandler,this.exit,this);
+        }else{
+            // 游戏大厅
+            console.log("返回大厅")
+            GameCenterManager.getInstance().quitGame(LayerUtil.getPanelLayer(),this.goonHandler,this.exit,this);
+        }
+    }
+
     private onSkewersProgressUpdate(data) {
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
@@ -143,10 +161,27 @@ export class SentenceMakingModel {
     }
 
     private goNextGame(){
-        SkewersManager.getInstance().runNextGame();
+        if(Global.isSkewersGame) {
+            SkewersManager.getInstance().runNextGame();
+        }
+    }
+
+    private goonHandler(context){
+        let self = context;
+        if(Global.isSkewersGame) {
+            if(!SkewersManager.getInstance().isRunOver()){
+                self._view.resume();
+            }
+        }else{
+            self._view.resume();
+        }
     }
 
     private exit() {
-        SkewersManager.getInstance().exitCallBack();
+        if (Global.isSkewersGame) {
+            SkewersManager.getInstance().exitCallBack();
+        } else {
+            GameCenterManager.getInstance().exitCallBack();
+        }
     }
 }

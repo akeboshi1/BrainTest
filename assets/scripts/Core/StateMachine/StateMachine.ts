@@ -56,6 +56,10 @@ export class StateMachine {
         }
     }
 
+    get currentState(): string {
+        return this._currentState;
+    }
+
     dispose() {
         if (this._curFlow) {
             this._curFlow.dispose();
