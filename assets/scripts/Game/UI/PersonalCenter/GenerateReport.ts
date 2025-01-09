@@ -58,10 +58,11 @@ export class GenerateReport extends BasePanel {
            
             this.allReportData[index].map((oneReportItem, idx) => {
                 inst.getChildByName('title').getComponent(Label).string = oneReportItem.cog_ability_desc;
-                let allChartNode = self.reportChartPrefabList[index];
-                let chartNode = allChartNode.getChildByName(`chartForm${idx}`);
-                if (chartNode) {
-                    chartNode.getComponent(UITransform).height = oneReportItem.score >100?100:(oneReportItem.score / 100 * 400);
+                let chartNode = self.reportChartPrefabList[index];
+                let chartForm = chartNode.getChildByName(`chartForm${idx}`);
+                if (chartForm) {
+                    chartForm.getChildByName('num').getComponent(Label).string = oneReportItem.score;
+                    chartForm.getChildByName(`pillar${idx}`).getComponent(UITransform).height = oneReportItem.score >100?400:(oneReportItem.score / 100 * 400);
                 } 
                 if( this.allReportData[index].length== 3){
                     inst.getChildByName('bottomRank').getComponent(Label).string = `在所在年龄段 前${oneReportItem.age_group_percentile}%`;
