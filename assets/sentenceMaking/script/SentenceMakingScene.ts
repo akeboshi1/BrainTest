@@ -573,6 +573,9 @@ export class SentenceMakingScene extends Component {
             }
             ad.title = "可惜";
             ad.message = "挑战失败了";
+            if(Global.isSkewersGame){
+                showAlert = false;
+            }
         }
 
         if (showAlert) {
