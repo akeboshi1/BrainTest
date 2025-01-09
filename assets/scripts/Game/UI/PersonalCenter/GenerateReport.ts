@@ -25,6 +25,12 @@ export class GenerateReport extends BasePanel {
     @property([Label])
     reportGraphicsList: Label[] = [];
 
+    @property(Node)
+    noReport: Node = null;
+
+    @property(Node)
+    scrollViewNode: Node = null;
+
     public static NAME = 'GenerateReport';
     private allReportData = [];
     private reportChartPrefabList:Node[] = [];
@@ -44,11 +50,19 @@ export class GenerateReport extends BasePanel {
         this.allReportData = PersonalCenterManager.getInstance().allReportDataList;
         DebugLog.instance.log('最新报告', lasteDataList);
         DebugLog.instance.log('所有报告', this.allReportData);
+        if(!lasteDataList&&!this.allReportData){
+            this.scrollViewNode.active = false;
+            this.noReport.active = true;
+            return;
+        }
+        this.noReport.active = false;
         let lasteDataScore = [];
-        lasteDataList.forEach((item, index) => {
-            lasteDataScore[index] = ((item as any).score)/100;
-            this.reportGraphicsList[index].string = (item as any).cog_ability_desc;
-        })
+        // if(lasteDataList.length>0){
+            lasteDataList.forEach((item, index) => {
+                lasteDataScore[index] = ((item as any).score)/100;
+                this.reportGraphicsList[index].string = (item as any).cog_ability_desc;
+            })
+        // }
         this.reportGraphics.getComponent(RadarChart).setRates(lasteDataScore);
         for (let index = 0; index < this.allReportData.length; index++) {
             let inst = instantiate(this.reportChartPrefab);
