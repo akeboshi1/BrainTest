@@ -2,6 +2,13 @@
  * 全局变量
  */
 export default class FindingGlobal {
+    public static skewersGameList = [];
+    public static curSkewersGameIndex: number = 0;
+
+    public static reset(){
+        FindingGlobal.curSkewersGameIndex = 0;
+        FindingGlobal.skewersGameList = [];
+    }
     public static config: any =
         {
             isReportAction: false, //是否上报用户行为   //一旦上线  ，设置为true

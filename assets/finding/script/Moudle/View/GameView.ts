@@ -36,6 +36,7 @@ import {FindingGuide} from "db://assets/scripts/Core/Manager/Guide/game/FindingG
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
+import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 
 const {ccclass,property} = _decorator;
 
@@ -143,10 +144,12 @@ export default class GameView extends LayerPanel {
              this.plistNode = this.getNode("caidai");
              this.plistNode.active = false;
              this._checkPoint = CacheMgr.checkpoint;
+             let loopLevel = 0;
              if (Global.isSkewersGame) {
                  this._curHard = Global.userData.curSkewerGameData.difficulty;
                  // test code
-                 this._checkPoint = Global.userData.curSkewerGameData.seq;
+                 loopLevel = FindingGlobal.curSkewersGameIndex;
+                 this._checkPoint = FindingGlobal.curSkewersGameIndex % GameConfig.allCheckPoint;
              } else {
                  let _level = CacheMgr.checkpoint;
                  this._checkPoint = CacheMgr.checkpoint = _level;
@@ -159,17 +162,18 @@ export default class GameView extends LayerPanel {
                  } else {
                      this._curHard = _level % 3;
                  }
+
+                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
+                 if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
+                 let customCount;
+                 if (loopLevel == GameConfig.allCheckPoint) {
+                     customCount = 1;
+                 } else {
+                     customCount = loopLevel;
+                 }
              }
              this._curCount = 0;
              this._maxCount = this._counts[this._curHard - 1];
-             let loopLevel = this._checkPoint % GameConfig.allCheckPoint;
-             if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
-             let customCount;
-             if (loopLevel == GameConfig.allCheckPoint) {
-                 customCount = 1;
-             } else {
-                 customCount = loopLevel;
-             }
              this.customsNode.getComponent(Label).string = "第" + this._checkPoint + "关";
              let _level = GameConfig.level_order[loopLevel - 1];
              let bundleName = "level"+_level;
@@ -227,6 +231,7 @@ export default class GameView extends LayerPanel {
 
     private backHandler() {
         this.pause = true;
+        FindingGlobal.reset();
         if(Global.isSkewersGame){
             SkewersManager.getInstance().quitGame(this.node,this.resultList.length,this._maxCount,this.goonCallBack,this.exitCallBack,this);
         }else{
@@ -530,6 +535,7 @@ export default class GameView extends LayerPanel {
 
     private WinRequestSkewerGameComplete(data){
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this);
+        this.updateSkewersGameList();
         let trainid = data;
         let trainData = SkewersManager.getInstance().getTrainData(trainid);
         let maxCount = trainData.parentSkewersGameData.trains.length;
@@ -547,12 +553,18 @@ export default class GameView extends LayerPanel {
         }
     }
 
+    private updateSkewersGameList(){
+        //筛选出未处理过的图片
+        FindingGlobal.skewersGameList = GameConfig.level_order.filter(num => num != FindingGlobal.curSkewersGameIndex);
+    }
+
     private remoteClick(){
         this.exitCallBack(this);
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
     private failRequestSkewersGameComplete(data){
+        this.updateSkewersGameList();
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this)
         let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
@@ -587,6 +599,7 @@ export default class GameView extends LayerPanel {
         context.pause = false;
         AudioMgr.audioSource.stop();
         PanelMgr.INS.closePanel(GameView);
+        FindingGlobal.reset();
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{
