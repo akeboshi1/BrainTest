@@ -1,13 +1,13 @@
 {
-    "poltName": "小燕子与五阿哥因御花园事件起争执",
+    "poltName": "御花园事件",
     "character": [
         {
-            "id":1,
+            "id": 0,
             "name": "小燕子",
             "prefab": "prefab/character_1"
         },
         {
-            "id":2,
+            "id": 1,
             "name": "五阿哥",
             "prefab": "prefab/character_2"
         }
@@ -16,52 +16,52 @@
     "description": "小燕子因莽撞行事，差点毁掉整个御花园，五阿哥对此十分生气，小燕子却没意识到事情的严重性，经过一番争论，小燕子最终认错，五阿哥又气又无奈",
     "stagelines": [
         {
+            "id": 0,
+            "character": 0,
+            "line": "五阿哥，你怎么又生气了？",
+            "audioClip": "audio/1/xiaoyanzi_1"
+        },
+        {
             "id": 1,
             "character": 1,
-            "line": "五阿哥，你怎么又生气了？",
-            "audioClip":"audio/1/xiaoyanzi_1"
+            "line": "我能不生气吗？你总是这么莽撞！",
+            "audioClip": "audio/1/wuage_1"
         },
         {
             "id": 2,
-            "character": 2,
-            "line": "我能不生气吗？你总是这么莽撞！",
-            "audioClip":"audio/1/wuage_1"
+            "character": 0,
+            "line": "我哪有莽撞？我只是想帮忙而已！",
+            "audioClip": "audio/1/xiaoyanzi_2"
         },
         {
             "id": 3,
             "character": 1,
-            "line": "我哪有莽撞？我只是想帮忙而已！",
-            "audioClip":"audio/1/xiaoyanzi_2"
+            "line": "帮忙？你差点把整个御花园都毁了！",
+            "audioClip": "audio/1/wuage_2"
         },
         {
             "id": 4,
-            "character": 2,
-            "line": "帮忙？你差点把整个御花园都毁了！",
-            "audioClip":"audio/1/wuage_2"
+            "character": 0,
+            "line": "那花花草草哪有那么重要嘛！",
+            "audioClip": "audio/1/xiaoyanzi_3"
         },
         {
             "id": 5,
             "character": 1,
-            "line": "那花花草草哪有那么重要嘛！",
-            "audioClip":"audio/1/xiaoyanzi_3"
+            "line": "那是皇阿玛最喜欢的花园！",
+            "audioClip": "audio/1/wuage_3"
         },
         {
             "id": 6,
-            "character": 2,
-            "line": "那是皇阿玛最喜欢的花园！",
-            "audioClip":"audio/1/wuage_3"
+            "character": 0,
+            "line": "好啦好啦，我知道错了，你别生气了！",
+            "audioClip": "audio/1/xiaoyanzi_4"
         },
         {
             "id": 7,
             "character": 1,
-            "line": "好啦好啦，我知道错了，你别生气了！",
-            "audioClip":"audio/1/xiaoyanzi_4"
-        },
-        {
-            "id": 8,
-            "character": 2,
             "line": "你呀，真是让人又气又笑！",
-            "audioClip":"audio/1/wuage_4"
+            "audioClip": "audio/1/wuage_4"
         }
     ]
 }

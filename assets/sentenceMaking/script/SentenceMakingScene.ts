@@ -103,6 +103,8 @@ export class SentenceMakingScene extends Component {
     }
 
     protected onDestroy(): void {
+        AudioManager.getInstance().stop();
+
         this.sourceContainerMap.clear();
         this.resultContainerMap.clear();
         this.resultContainerEmptyInstance.clear();

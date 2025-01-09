@@ -25,7 +25,7 @@ export class Plot {
         public background: string,
         public description: string,
         public stagelines: StageLine[]
-    ) {}
+    ) { }
 }
 
 export class PlotsConfig {

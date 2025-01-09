@@ -14,16 +14,13 @@ export class ParallelFlow implements IFlow {
 
     async start(): Promise<void> {
         const promises = this.flows.map((flow) => flow.start());
-        try {
-            const results = await Promise.all(promises);
-            for (const result of results) {
-                if (result.status === "rejected") {
-                    const error = result.reason;
-                    DebugLog.instance.error('An error occurred during parallel flow execution:', error);
-                }
+
+        const results = await Promise.all(promises);
+        for (const result of results) {
+            if (result.status === "rejected") {
+                const error = result.reason;
+                DebugLog.instance.error('An error occurred during parallel flow execution:', error);
             }
-        } catch (error) {
-            DebugLog.instance.error('An error occurred during parallel flow execution:', error);
         }
     }
 

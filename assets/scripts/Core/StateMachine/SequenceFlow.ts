@@ -13,12 +13,8 @@ export class SequenceFlow implements IFlow {
     }
 
     async start(): Promise<void> {
-        try {
-            for (const flow of this.flows) {
-                await flow.start();
-            }
-        } catch (error) {
-            DebugLog.instance.error('An error occurred during sequence flow execution:', error);
+        for (const flow of this.flows) {
+            await flow.start();
         }
     }
 
