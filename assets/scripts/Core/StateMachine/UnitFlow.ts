@@ -10,11 +10,7 @@ export class UnitFlow implements IFlow {
     }
 
     async start(): Promise<void> {
-        try {
-            await this.flow.start();
-        } catch (error) {
-            DebugLog.instance.error('An error occurred during unit flow execution:', error);
-        }
+        await this.flow.start();
     }
 
     dispose(): void {

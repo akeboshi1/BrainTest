@@ -39,15 +39,27 @@ export class StateMachine {
         DebugLog.instance.log("StateMachine start enter state：laststate = " + this._lastState + " , nextstate = " + this._currentState);
         if (flow) {
             this._curFlow = flow;
-            await flow.start();
+            let hasError = false;
+
+            try {
+                await flow.start();
+            } catch (error) {
+                hasError = true;
+            }
+            
             this._curFlow.dispose();
             this._curFlow = null;
+
+            if(hasError){
+                DebugLog.instance.warn("Occur error when enter state = " + this._lastState + " , nextstate = " + this._currentState);
+                return;
+            }
         }
+        DebugLog.instance.log("StateMachine entered state：laststate = " + this._lastState + " , nextstate = " + this._currentState);
 
         if (stateInfo.enterCallback) {
             stateInfo.enterCallback(data);
         }
-        DebugLog.instance.log("StateMachine entered state：laststate = " + this._lastState + " , nextstate = " + this._currentState);
     }
 
     async backToLastState(data: any = null, flow: IFlow = null) {

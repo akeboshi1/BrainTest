@@ -1,10 +1,13 @@
-import { _decorator, Component, easing, Label, Node, tween, UIOpacity, UITransform, Vec3 } from 'cc';
-import { SmalltheaterModel } from './SmalltheaterModel';
+import { _decorator, Component, easing, instantiate, Label, Node, tween, UIOpacity, UITransform, Vec3 } from 'cc';
+import { AutoPlayLineData, SmalltheaterModel } from './SmalltheaterModel';
 import { StateMachine } from '../../scripts/Core/StateMachine/StateMachine';
 import { AbortablePromise } from '../../scripts/Core/StateMachine/AbortablePromise';
 import { DebugLog } from '../../scripts/Core/Util/DebugLog';
 import { UnitFlow } from '../../scripts/Core/StateMachine/UnitFlow';
 import { SequenceFlow } from '../../scripts/Core/StateMachine/SequenceFlow';
+import { CharacterCtrl } from './CharacterCtrl';
+import { AudioManager } from '../../scripts/Core/Manager/Audio/AudioManager';
+import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('SmalltheaterScene')
@@ -30,9 +33,20 @@ export class SmalltheaterScene extends Component {
     @property(Node)
     btnStartGame: Node = null;
 
+    @property([Node])
+    characterRootNodes: Node[] = [];
+
+    @property(Label)
+    stagelineLabel: Label = null;
+
+    @property(Node)
+    btnConfirmCharacter:Node = null;
+
     private model: SmalltheaterModel = new SmalltheaterModel();
 
     private stateMachine: StateMachine = new StateMachine();
+
+    private _characterNodes: Node[] = [];
 
     private mubul_original_pos = new Vec3(20, 767, 0);
     private mubul_target_pos = new Vec3(-590, 767, 0);
@@ -57,9 +71,13 @@ export class SmalltheaterScene extends Component {
         this.stateMachine.addState(SmalltheaterState.Replay, this.onEnterReplay.bind(this));
 
         this.stateMachine.enterState(SmalltheaterState.LoadConfig, { id: 1 });
+
+        AudioManager.getInstance().onAudioEnd(this.onAudioEnd, this);
     }
 
     protected onDestroy(): void {
+        AudioManager.getInstance().offAudioEnd(this.onAudioEnd, this);
+
         this.model.dispose();
         this.stateMachine.dispose();
     }
@@ -80,24 +98,58 @@ export class SmalltheaterScene extends Component {
         this.descLabel.string = plot.description;
         this.btnStartGame.active = true;
 
+        this.model.initDemo();
+
         let flow = new UnitFlow(this.blackMaskHideFlow());
         await this.stateMachine.enterState(SmalltheaterState.DescribePlot, null, flow);
     }
 
-    private onEnterDescribePlot(data: any) {
+    private async onEnterDescribePlot(data: any) {
         this.blackMask.active = false;
+
+        for (let i = 0; i < this._characterNodes.length; i++) {
+            let inst = this._characterNodes[i];
+            inst.removeFromParent();
+        }
+        this._characterNodes = [];
+
+        let plot = this.model.currentPlot;
+        let characters = plot.character;
+        for (let i = 0; i < characters.length; i++) {
+            const cdata = characters[i];
+            const cprefab = await this.model.loadCharacterPrefab(cdata.prefab);
+            const inst = instantiate(cprefab);
+            this.characterRootNodes[i].addChild(inst);
+            inst.setPosition(0, 0);
+            this._characterNodes.push(inst);
+        }
     }
 
     private onEnterDemo(data: any) {
-        this.model.initDemo();
+        if (this.model.hasCurrentStageLine()) {
+            this.model.prepareAutoPlayData().then((data: AutoPlayLineData) => {
+                this.stateMachine.enterState(SmalltheaterState.AutoPlayLine, data);
+            });
+        } else {
+            this.stateMachine.enterState(SmalltheaterState.SelectCharacter);
+        }
     }
 
     private onEnterInteraction(data: any) {
 
     }
 
-    private onEnterAutoPlayLine(data: any) {
-
+    private onEnterAutoPlayLine(data: AutoPlayLineData) {
+        if (data) {
+            this.stagelineLabel.node.active = true;
+            this.stagelineLabel.string = data.characterName + ":\n" + data.line;
+            for (let i = 0; i < this._characterNodes.length; i++) {
+                let inst = this._characterNodes[i];
+                let ctrl = inst.getComponent(CharacterCtrl);
+                ctrl.setMaskOpacity(i == data.characterid ? 0 : 125);
+            }
+            AudioManager.getInstance().play(data.audioClip);
+        }
     }
 
     private onEnterPlayLine(data: any) {
@@ -122,7 +174,22 @@ export class SmalltheaterScene extends Component {
             let seqflow = new SequenceFlow();
             seqflow.addFlow(this.hideDescNodeFlow());
             seqflow.addFlow(this.openMubuFlow());
+            this.btnStartGame.active = false;
             this.stateMachine.enterState(SmalltheaterState.Demo, null, seqflow);
+        }
+    }
+
+    onClickBack(){
+        SceneManager.getInstance().backToHall();
+    }
+
+    //============= private ===========================
+    private onAudioEnd(): void {
+        if (this.stateMachine.currentState == SmalltheaterState.AutoPlayLine) {
+            this.model.goNextStageLine();
+            this.stagelineLabel.node.active = false;
+            let delayFlow = new UnitFlow(this.delayFlow(500));
+            this.stateMachine.backToLastState(null, delayFlow);
         }
     }
 
@@ -178,7 +245,18 @@ export class SmalltheaterScene extends Component {
         });
     }
 
-    //============= private ==========
+    private delayFlow(delay): AbortablePromise<any> {
+        let timeout: Number = null;
+        return new AbortablePromise((resolve, reject) => {
+            timeout = setTimeout(() => {
+                resolve(1);
+            }, delay);
+        }).onAbort(() => {
+            if (timeout) {
+                clearTimeout(timeout.valueOf());
+            }
+        });
+    }
 }
 
 enum SmalltheaterState {
