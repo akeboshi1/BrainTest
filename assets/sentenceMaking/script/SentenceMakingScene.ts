@@ -579,7 +579,7 @@ export class SentenceMakingScene extends Component {
 
         this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
-        this.model.postGameData(Number(isSuccess), this.timer.getElapsedTime());
+        this.model.postGameData(isSuccess, this.timer.getElapsedTime());
         this.timer.resetTimer();
     }
 
@@ -618,7 +618,7 @@ export class SentenceMakingScene extends Component {
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
 
-        this.model.postGameData(0, this.model.gameTime);
+        this.model.postGameData(false, this.model.gameTime);
     }
 
     private showAnimHupai() {

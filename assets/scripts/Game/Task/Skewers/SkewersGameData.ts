@@ -100,6 +100,7 @@ export class SkewersGameData {
             let tmpData = trains[i];
             let train = new SkewersGameTrainData();
             train.parentSkewersGameData = this;
+            train.length = len;
             train.refreshData(tmpData);
             // 评测第一个训练项目给予引导
             if(i == 0 && Global.userData.curTaskData && Global.userData.curTaskData.type == TaskType.Review){
@@ -155,6 +156,14 @@ export class SkewersGameData {
             return -1;
         }
         return curTrainData.timeLimit;
+    }
+
+    get length():number{
+        let curTrainData = this.getCurTrainData();
+        if(!curTrainData){
+            return -1;
+        }
+        return curTrainData.length;
     }
 
     get seq():number{
@@ -271,6 +280,9 @@ export class SkewersGameTrainData{
     public completedAt:string = null;
 
     private _hasGuide:boolean = false;
+
+    // 当前类型训练内容的长度
+    public length:number = 0;
 
     public set hasGuide(value:boolean){
         this._hasGuide = value;

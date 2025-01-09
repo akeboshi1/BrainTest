@@ -109,12 +109,16 @@ export class SentenceMakingModel {
         return this._gameTime;
     }
 
-    postGameData(complete: number, duration: number) {
+    private _resultBoo:boolean = false;
+
+    postGameData(complete: boolean, duration: number) {
+        this._resultBoo = complete;
+        let result = Number(complete);
         if (Global.isSkewersGame) {
-            SkewersManager.getInstance().requestGameComplete(complete, duration);
+            SkewersManager.getInstance().requestGameComplete(result, duration);
         } else {
             const curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete, this.getCurrentQuestionIndex() + 1, complete, duration, this.gameTime, this.getCurrentLevel() + 1);
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, result, this.getCurrentQuestionIndex() + 1, result, duration, this.gameTime, this.getCurrentLevel() + 1);
         }
     }
 
@@ -122,7 +126,7 @@ export class SentenceMakingModel {
         this._view.pause();
         if(Global.isSkewersGame) {
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-            let maxCount = SkewersManager.getInstance().getGameCount();
+            let maxCount = trainData.length;
             let curCount = trainData.seq - 1<0?0:trainData.seq -1;
             SkewersManager.getInstance().quitGame(LayerUtil.getPanelLayer(),curCount,maxCount,this.goonHandler,this.exit,this);
         }else{
@@ -139,20 +143,43 @@ export class SentenceMakingModel {
         let curCount = trainData.seq;
 
         // 游戏内界面提示
-        if (maxCount != curCount) {
-            SkewersManager.getInstance().showGameTip(SkewersManager.getInstance().singleCompleteStr, curCount, maxCount);
-        } else {
-            if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.skewersGoNext, this.exit, this);
+        if(this._resultBoo){
+            if (maxCount != curCount) {
+                SkewersManager.getInstance().showGameTip(SkewersManager.getInstance().singleCompleteStr, curCount, maxCount);
             } else {
-                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.exit, this.remoteClick, this);
+                if (!SkewersManager.getInstance().isRunOver()) {
+                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.alertGoonHandler, this.exit, this);
+                } else {
+                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.exit, this.remoteClick, this);
+                }
+            }
+        }else{
+            if(curCount == maxCount){
+                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.failCompleteHandler,this.exit,this);
+            }else{
+                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exit,this);
             }
         }
     }
 
+    private failCompleteHandler(context){
+        if (!SkewersManager.getInstance().isRunOver()) {
+            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.skewersGoNext,this.exit,this);
+        }else{
+            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.exit,this.remoteClick,this);
+        }
+    }
+
     private skewersGoNext() {
-        let gameData = SkewersManager.getInstance().getUnCompleteGameData();
         SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this.goNextGame, this.exit, this);
+    }
+
+    private alertGoonHandler(context){
+        if (!SkewersManager.getInstance().isRunOver()) {
+            SkewersManager.getInstance().runNextGame();
+        }else{
+            SkewersManager.getInstance().exitCallBack();
+        }
     }
 
     private remoteClick(){
