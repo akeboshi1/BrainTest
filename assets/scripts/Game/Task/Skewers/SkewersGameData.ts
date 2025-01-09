@@ -62,6 +62,10 @@ export class SkewersGameData {
         }
     }
 
+    public hasGuid():boolean{
+        return this.getCurTrainData().hasGuide;
+    }
+
     public refreshData(data:any){
         this.gameID = data['game_id'];
         this.gameCode = data['game_code'];
@@ -97,6 +101,7 @@ export class SkewersGameData {
             let train = new SkewersGameTrainData();
             train.parentSkewersGameData = this;
             train.refreshData(tmpData);
+            // 评测第一个训练项目给予引导
             if(i == 0 && Global.userData.curTaskData && Global.userData.curTaskData.type == TaskType.Review){
                 train.hasGuide = true;
             }

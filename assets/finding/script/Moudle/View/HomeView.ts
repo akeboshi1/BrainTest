@@ -3,14 +3,15 @@ import PanelMgr, {Layer} from "../../Common/manage/PanelMgr";
 import GameView from "./GameView";
 import GameInfoView from "./GameInfoView";
 import LoadMgr from "../../Common/manage/LoadMgr";
-import Tools from "../../Common/Tools";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
-import {_decorator,Node,SpriteFrame,Texture2D,Sprite} from "cc";
+import {_decorator, Node, Sprite, SpriteFrame, Texture2D} from "cc";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
+import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -55,11 +56,21 @@ export default class HomeView extends LayerPanel {
                         logoSprite.spriteFrame = spriteFrame;
                     });
                 }
+                FindingGlobal.skewersGameList = GameConfig.level_order;
                 this.pictureNode.active = false;
                 return resolve();
             });
         })
 
+    }
+
+    private randomSkewerGame():number{
+        // 评测第一关(带引导)
+        if(Global.userData.curSkewerGameData.hasGuid()) {
+            return 0;
+        }
+        FindingGlobal.curSkewersGameIndex = Math.floor(Math.random() * FindingGlobal.skewersGameList.length);
+        return FindingGlobal.skewersGameList[FindingGlobal.curSkewersGameIndex-1];
     }
 
 
@@ -71,7 +82,7 @@ export default class HomeView extends LayerPanel {
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
         }else{
-            checkPoint = Global.isSkewersGame?Global.userData.curSkewerGameData.seq:CacheMgr.checkpoint==0?CacheMgr.checkpoint = GameCenterManager.getInstance().currentGame.level:CacheMgr.checkpoint;
+            checkPoint = Global.isSkewersGame?this.randomSkewerGame():CacheMgr.checkpoint==0?CacheMgr.checkpoint = GameCenterManager.getInstance().currentGame.level:CacheMgr.checkpoint;
         }
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
