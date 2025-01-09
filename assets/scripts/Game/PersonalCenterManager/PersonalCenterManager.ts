@@ -108,20 +108,27 @@ export class PersonalCenterManager {
     }
 
     public requestPersonalReportCallback(data: SocketData, context: any) {
-        if(data.status == 0){
+        if (data.status == 0) {
             DebugLog.instance.error(data.message);
-        }else{
+        } else {
             let result = data.data['result'];
-            DebugLog.instance.log("请求个人报告", result);
-            let lateDataIndex = result.findIndex(element => element.is_latest);
-            this._reportLasteDataList = result[lateDataIndex].scores;
-    
+            if (result.length == 0) {
+                DebugLog.instance.log('暂无个人报告');
+                EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
+                return;
+            }
+         
+            const sortedResultAsc =  [...result].sort((a, b) => new Date(a.report_date).getTime() - new Date(b.report_date).getTime())
+            DebugLog.instance.log("请求个人报告", sortedResultAsc);
+            let lateDataIndex = sortedResultAsc.findIndex(element => element.is_latest);
+            this._reportLasteDataList = sortedResultAsc[lateDataIndex].scores;
+
             let groupedByIndex = [];
-            const maxLength = Math.max(...result.map(item => item.scores.length));
+            const maxLength = Math.max(...sortedResultAsc.map(item => item.scores.length));
             for (let i = 0; i < maxLength; i++) {
                 groupedByIndex[i] = [];
             }
-            result.forEach(item => {
+            sortedResultAsc.forEach(item => {
                 item.scores.forEach((item, index) => {
                     if (groupedByIndex[index]) {
                         groupedByIndex[index].push(item);
@@ -130,9 +137,11 @@ export class PersonalCenterManager {
             });
             this._allReportDataList = groupedByIndex;
             EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
-      
+
         }
-      
+
 
     }
 }
+
+
