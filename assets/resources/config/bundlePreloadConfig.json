@@ -36,5 +36,9 @@
                 "type": "AudioClip"
             }
         ]
+    },
+    "smalltheater": {
+        "preloadScene": "smalltheater",
+        "preloadAssets": []
     }
 }
