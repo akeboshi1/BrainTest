@@ -114,7 +114,8 @@ export class SentenceMakingModel {
             SkewersManager.getInstance().requestGameComplete(complete, duration);
         } else {
             const curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete, this.getCurrentQuestionIndex() + 1, complete, duration, this.gameTime, this.getCurrentLevel() + 1);
+            let level = complete==1?this.getCurrentQuestionIndex() + 1:this.getCurrentQuestionIndex();
+            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete, level, complete, duration, this.gameTime, this.getCurrentLevel() + 1);
         }
     }
 
