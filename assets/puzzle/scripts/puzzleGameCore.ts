@@ -540,9 +540,9 @@ export class puzzleGameCore extends Component {
     private failCompleteHandler(context){
         context.pauseTime();
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.nextAlertHandler,this.exitCallBack,this);
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.exitCallBack,this.remoteClick,this);
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exitCallBack,context.remoteClick,context);
         }
     }
 

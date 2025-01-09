@@ -275,11 +275,10 @@ export class GuessingGameScene extends Component {
     }
 
     private failCompleteHandler(context){
-        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr,'', 0, 0, context.onClickGotoNextlevel1, context.exitCallBack, context);
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.nextAlertHandler,this.exitCallBack,this);
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.exitCallBack,this.remoteClick,this);
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exitCallBack,context.remoteClick,context);
         }
     }
 

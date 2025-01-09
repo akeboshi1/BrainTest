@@ -164,9 +164,9 @@ export class SentenceMakingModel {
 
     private failCompleteHandler(context){
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.alertGoonHandler1,this.exit,this);
+            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.alertGoonHandler1,context.exit,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.exit,this.remoteClick,this);
+            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exit,context.remoteClick,context);
         }
     }
 
