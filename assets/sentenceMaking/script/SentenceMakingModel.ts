@@ -42,7 +42,7 @@ export class SentenceMakingModel {
                 this.skewerGameQuestionDatas.push({level:trainData.difficulty - 1,index:trainData.level - 1});
             }
             
-            this.currentQuestionIndex = Global.userData.curSkewerGameData.seq - 1;
+            this.currentQuestionIndex = this.skewerGameQuestionDatas[0].index;
             this.setQuestionLevel(this.skewerGameQuestionDatas[this.currentQuestionIndex].level);
 
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.onSkewersProgressUpdate, this);
@@ -148,7 +148,7 @@ export class SentenceMakingModel {
                 SkewersManager.getInstance().showGameTip(SkewersManager.getInstance().singleCompleteStr, curCount, maxCount);
             } else {
                 if (!SkewersManager.getInstance().isRunOver()) {
-                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.alertGoonHandler, this.exit, this);
+                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.alertGoonHandler1, this.exit, this);
                 } else {
                     SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.exit, this.remoteClick, this);
                 }
@@ -164,7 +164,7 @@ export class SentenceMakingModel {
 
     private failCompleteHandler(context){
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.skewersGoNext,this.exit,this);
+            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.alertGoonHandler1,this.exit,this);
         }else{
             SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.exit,this.remoteClick,this);
         }
@@ -174,9 +174,19 @@ export class SentenceMakingModel {
         SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this.goNextGame, this.exit, this);
     }
 
-    private alertGoonHandler(context){
+    private alertGoonHandler1(context){
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().runNextGame();
+        }else{
+            SkewersManager.getInstance().exitCallBack();
+        }
+    }
+
+
+    private alertGoonHandler(context){
+        if (!SkewersManager.getInstance().isRunOver()) {
+            SkewersManager.getInstance().runNextGame(false);
+            context._view.clickNextLeve();
         }else{
             SkewersManager.getInstance().exitCallBack();
         }
@@ -187,9 +197,10 @@ export class SentenceMakingModel {
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
-    private goNextGame(){
+    private goNextGame(context){
         if(Global.isSkewersGame) {
-            SkewersManager.getInstance().runNextGame();
+            SkewersManager.getInstance().runNextGame(false);
+            context._view.clickNextLeve();
         }
     }
 

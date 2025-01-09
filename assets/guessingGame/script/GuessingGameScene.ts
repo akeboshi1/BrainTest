@@ -223,8 +223,8 @@ export class GuessingGameScene extends Component {
         if(result){
             this.playAudio("audio/music/win",true);
         }
-        this.resultPanel.active = true;
         if (Global.isSkewersGame) {
+            this.resultPanel.active = false;
             this.successTextNode.active = false;
             this.failedTextNode.active = false;
             this.requestGameResult(result);
@@ -241,6 +241,7 @@ export class GuessingGameScene extends Component {
             // }
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this, true);
         } else {
+            this.resultPanel.active = true;
             this.requestGameCenterGameResult(result);
             this.successTextNode.active = result;
             this.failedTextNode.active = !result;
@@ -311,7 +312,7 @@ export class GuessingGameScene extends Component {
         let duration = (endTime - this._startTime) / 1000;
         GameCenterManager.getInstance().gamePassLevel(GameCenterManager.getInstance().currentGame.sessionid,0,
             this.guessingGameModel.currentQuestionIndex,complete,duration,this.timeLimit,this._curHard,(data)=>{
-                 DebugLog.instance.log(data)
+                 DebugLog.instance.log(data);
             });
     }
 
