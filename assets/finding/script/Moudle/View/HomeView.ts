@@ -10,7 +10,6 @@ import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 
 const {ccclass} = _decorator;
@@ -87,9 +86,12 @@ export default class HomeView extends LayerPanel {
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
             checkPoint = 1;
+            FindingGlobal.curSkewersGameIndex = 1;
         }
         let loopLevel = checkPoint % GameConfig.allCheckPoint;
-        if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
+        if (loopLevel == 0) {
+            loopLevel = GameConfig.allCheckPoint;
+        }
         let custom = GameConfig.level_order[loopLevel - 1];
         let imageName = GameConfig.image_name.get(custom);
 

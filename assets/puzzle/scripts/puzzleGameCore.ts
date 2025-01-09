@@ -298,7 +298,7 @@ export class puzzleGameCore extends Component {
         }
         if (Global.isSkewersGame) {
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-            let maxCount = SkewersManager.getInstance().getGameCount();
+            let maxCount = trainData.length;
             let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
             SkewersManager.getInstance().quitGame(this.viewNode, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
         } else {
@@ -528,14 +528,24 @@ export class puzzleGameCore extends Component {
     private failRequestSkewersGameComplete(data) {
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
         let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
-        let maxCount = SkewersManager.getInstance().getGameCount();
+        let maxCount = trainData.length;
         let curCount = trainData.seq  < 0 ? 0 : trainData.seq;
         if(curCount == maxCount){
-            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.nextAlertHandler,this.exitCallBack,this);
+            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.failCompleteHandler,this.exitCallBack,this);
         }else{
             SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
         }
     }
+
+    private failCompleteHandler(context){
+        context.pauseTime();
+        if (!SkewersManager.getInstance().isRunOver()) {
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
+        }else{
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exitCallBack,context.remoteClick,context);
+        }
+    }
+
 
 
     private gamepasslevelCallback() {

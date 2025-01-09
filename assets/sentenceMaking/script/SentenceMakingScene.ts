@@ -573,6 +573,9 @@ export class SentenceMakingScene extends Component {
             }
             ad.title = "可惜";
             ad.message = "挑战失败了";
+            if(Global.isSkewersGame){
+                showAlert = false;
+            }
         }
 
         if (showAlert) {
@@ -581,7 +584,7 @@ export class SentenceMakingScene extends Component {
 
         this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
-        this.model.postGameData(Number(isSuccess), this.timer.getElapsedTime());
+        this.model.postGameData(isSuccess, this.timer.getElapsedTime());
         this.timer.resetTimer();
     }
 
@@ -620,7 +623,7 @@ export class SentenceMakingScene extends Component {
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
 
-        this.model.postGameData(0, this.model.gameTime);
+        this.model.postGameData(false, this.model.gameTime);
     }
 
     private showAnimHupai() {
