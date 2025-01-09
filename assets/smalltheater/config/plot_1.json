@@ -26,42 +26,6 @@
             "character": 1,
             "line": "我能不生气吗？你总是这么莽撞！",
             "audioClip": "audio/1/wuage_1"
-        },
-        {
-            "id": 2,
-            "character": 0,
-            "line": "我哪有莽撞？我只是想帮忙而已！",
-            "audioClip": "audio/1/xiaoyanzi_2"
-        },
-        {
-            "id": 3,
-            "character": 1,
-            "line": "帮忙？你差点把整个御花园都毁了！",
-            "audioClip": "audio/1/wuage_2"
-        },
-        {
-            "id": 4,
-            "character": 0,
-            "line": "那花花草草哪有那么重要嘛！",
-            "audioClip": "audio/1/xiaoyanzi_3"
-        },
-        {
-            "id": 5,
-            "character": 1,
-            "line": "那是皇阿玛最喜欢的花园！",
-            "audioClip": "audio/1/wuage_3"
-        },
-        {
-            "id": 6,
-            "character": 0,
-            "line": "好啦好啦，我知道错了，你别生气了！",
-            "audioClip": "audio/1/xiaoyanzi_4"
-        },
-        {
-            "id": 7,
-            "character": 1,
-            "line": "你呀，真是让人又气又笑！",
-            "audioClip": "audio/1/wuage_4"
         }
     ]
 }
