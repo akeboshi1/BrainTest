@@ -98,7 +98,7 @@ export class PersonalCenterManager {
             this._userInfoData.full_name = data.data.full_name;
             this._userInfoData.birthday = data.data.birthday;
             this._userInfoData.education = data.data.education;
-            DebugLog.instance.log("更新个人中心数据", this._userInfoData);
+            // DebugLog.instance.log("更新个人中心数据", this._userInfoData);
             EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
         }
     }
@@ -118,11 +118,11 @@ export class PersonalCenterManager {
         } else {
             let result = data.data['result'];
             if (result.length == 0) {
-                DebugLog.instance.log('暂无个人报告');
+                // DebugLog.instance.log('暂无个人报告');
                 EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
                 return;
             }
-        DebugLog.instance.log("个人报告数据", result);
+        // DebugLog.instance.log("个人报告数据", result);
           this._reportDataList=  this.proccess(result);
           EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
         }
