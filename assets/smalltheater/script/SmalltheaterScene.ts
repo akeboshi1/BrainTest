@@ -1,4 +1,4 @@
-import { _decorator, Component, easing, instantiate, Label, Node, tween, UIOpacity, UITransform, Vec3 } from 'cc';
+import { _decorator, Color, Component, easing, instantiate, Label, Node, Sprite, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AutoPlayLineData, SmalltheaterModel } from './SmalltheaterModel';
 import { StateMachine } from '../../scripts/Core/StateMachine/StateMachine';
 import { AbortablePromise } from '../../scripts/Core/StateMachine/AbortablePromise';
@@ -40,7 +40,13 @@ export class SmalltheaterScene extends Component {
     stagelineLabel: Label = null;
 
     @property(Node)
-    btnConfirmCharacter:Node = null;
+    btnConfirmCharacter: Node = null;
+
+    @property(Label)
+    selectCharacterLabel: Label = null;
+
+    @property(Label)
+    timeCountLabel: Label = null;
 
     private model: SmalltheaterModel = new SmalltheaterModel();
 
@@ -78,6 +84,8 @@ export class SmalltheaterScene extends Component {
     protected onDestroy(): void {
         AudioManager.getInstance().offAudioEnd(this.onAudioEnd, this);
 
+        AudioManager.getInstance().stop();
+
         this.model.dispose();
         this.stateMachine.dispose();
     }
@@ -98,7 +106,7 @@ export class SmalltheaterScene extends Component {
         this.descLabel.string = plot.description;
         this.btnStartGame.active = true;
 
-        this.model.initDemo();
+        this.model.initDemoState();
 
         let flow = new UnitFlow(this.blackMaskHideFlow());
         await this.stateMachine.enterState(SmalltheaterState.DescribePlot, null, flow);
@@ -136,7 +144,7 @@ export class SmalltheaterScene extends Component {
     }
 
     private onEnterInteraction(data: any) {
-
+        this.model.initInteractionState();
     }
 
     private onEnterAutoPlayLine(data: AutoPlayLineData) {
@@ -157,7 +165,17 @@ export class SmalltheaterScene extends Component {
     }
 
     private onEnterSelectCharacter(data: any) {
-
+        for (let i = 0; i < this._characterNodes.length; i++) {
+            let inst = this._characterNodes[i];
+            let ctrl = inst.getComponent(CharacterCtrl);
+            ctrl.setInteractive(true);
+            ctrl.setMaskOpacity(125);
+            ctrl.setTouchedCallback(this.onTouchCharacter.bind(this, i))
+        }
+        this.btnConfirmCharacter.active = true;
+        this.btnConfirmCharacter.getComponent(Sprite).color = Color.GRAY;
+        this.selectCharacterLabel.node.active = true;
+        this.selectCharacterLabel.string = "请选择你想要扮演的角色";
     }
 
     private onEnterSocring(data: any) {
@@ -179,8 +197,42 @@ export class SmalltheaterScene extends Component {
         }
     }
 
-    onClickBack(){
+    onClickBack() {
         SceneManager.getInstance().backToHall();
+    }
+
+    onTouchCharacter(index: number) {
+        for (let i = 0; i < this._characterNodes.length; i++) {
+            let inst = this._characterNodes[i];
+            let ctrl = inst.getComponent(CharacterCtrl);
+            ctrl.setMaskOpacity(i == index ? 0 : 125);
+        }
+        this.model.selectedCharacterIndex = index;
+        this.btnConfirmCharacter.getComponent(Sprite).color = Color.WHITE;
+        let charaName = this.model.currentPlot.character[index].name;
+        this.selectCharacterLabel.string = "已选择：" + charaName;
+    }
+
+    onClickConfirmCharacter() {
+        if (this.model.selectedCharacterIndex < 0) {
+            return;
+        }
+        this.btnConfirmCharacter.active = false;
+        this.selectCharacterLabel.node.active = false;
+
+        for (let i = 0; i < this._characterNodes.length; i++) {
+            let inst = this._characterNodes[i];
+            let ctrl = inst.getComponent(CharacterCtrl);
+            ctrl.setInteractive(false);
+            ctrl.setMaskOpacity(0);
+        }
+
+        let seqflow = new SequenceFlow();
+        seqflow.addFlow(this.timeCountLabelAnim("3"));
+        seqflow.addFlow(this.timeCountLabelAnim("2"));
+        seqflow.addFlow(this.timeCountLabelAnim("1"));
+        seqflow.addFlow(this.timeCountLabelAnim("开始"));
+        this.stateMachine.enterState(SmalltheaterState.Interaction, null, seqflow);
     }
 
     //============= private ===========================
@@ -254,6 +306,29 @@ export class SmalltheaterScene extends Component {
         }).onAbort(() => {
             if (timeout) {
                 clearTimeout(timeout.valueOf());
+            }
+        });
+    }
+
+    private timeCountLabelAnim(str: string): AbortablePromise<any> {
+        let tws = tween(this.timeCountLabel.node);
+        let two = tween(this.timeCountLabel.node.getComponent(UIOpacity));
+        let dur = 1;
+        return new AbortablePromise((resolve, reject) => {
+            this.timeCountLabel.string = str;
+            this.timeCountLabel.node.active = true;
+            this.timeCountLabel.node.setScale(1, 1);
+            this.timeCountLabel.node.getComponent(UIOpacity).opacity = 255;
+            tws.to(dur, { scale: new Vec3(10, 10, 10) }, { easing: easing.circIn }).call(() => {
+                resolve(1);
+            }).start();
+            two.to(dur, { opacity: 0 }, { easing: easing.circIn }).start();
+        }).onAbort(() => {
+            if (tws) {
+                tws.stop();
+            }
+            if (two) {
+                two.stop();
             }
         });
     }

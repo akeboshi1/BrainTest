@@ -17,6 +17,7 @@ export class SmalltheaterModel {
 
 	private _currentPlot: Plot = null;
 	private _currentStageIndex: number = 0;
+	private _selectedCharacterIndex: number = -1;
 
 	init() {
 
@@ -38,7 +39,20 @@ export class SmalltheaterModel {
 		return this._currentPlot;
 	}
 
-	initDemo() {
+	get selectedCharacterIndex():number{
+		return this._selectedCharacterIndex;
+	}
+
+	set selectedCharacterIndex(v:number){
+		this._selectedCharacterIndex = v;
+	}
+
+	initDemoState() {
+		this._currentStageIndex = 0;
+		this._selectedCharacterIndex = -1;
+	}
+
+	initInteractionState(){
 		this._currentStageIndex = 0;
 	}
 
