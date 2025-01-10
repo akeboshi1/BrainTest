@@ -548,7 +548,7 @@ export class MainScene extends Component {
                 progressBar.progress = _gameData.progress;
                 let progressLabel = progressBar.node.getChildByName("Label").getComponent(Label);
                 let progressStr = _gameData.progressStr;
-                progressLabel.string = `当前进度: ${progressStr}`;
+                progressLabel.string = `${progressStr}`;
                 let completeIcon = gameItem.getChildByName("completeIcon");
                 if (_gameData.progress >= 1) {
                     completeIcon.active = true;
