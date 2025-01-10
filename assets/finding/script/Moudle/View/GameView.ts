@@ -150,6 +150,7 @@ export default class GameView extends LayerPanel {
                  // test code
                  loopLevel = FindingGlobal.curSkewersGameIndex;
                  this._checkPoint = FindingGlobal.curSkewersGameIndex % GameConfig.allCheckPoint;
+                 this.customsNode.getComponent(Label).string = "第" + Global.userData.curSkewerGameData.seq + "关";
              } else {
                  let _level = CacheMgr.checkpoint;
                  this._checkPoint = CacheMgr.checkpoint = _level;
@@ -171,10 +172,12 @@ export default class GameView extends LayerPanel {
                  } else {
                      customCount = loopLevel;
                  }
+                 this.customsNode.getComponent(Label).string = "第" + this._checkPoint + "关";
              }
              this._curCount = 0;
              this._maxCount = this._counts[this._curHard - 1];
-             this.customsNode.getComponent(Label).string = "第" + this._checkPoint + "关";
+
+
              let _level = GameConfig.level_order[loopLevel - 1];
              let bundleName = "level"+_level;
              let imageName = GameConfig.image_name.get(_level);
