@@ -55,7 +55,7 @@ export class UserInfoPanel extends BasePanel {
         this.editBox.node.on('editing-did-ended', this.onInputFinished, this);
     }
     onInputFinished(event) {
-        this.user_name = this.editBox.string;
+        this.user_name = this.user_name+ this.editBox.string;
         this.nameNode.getComponent(Label).string = this.editBox.string;
     }
     start() {
