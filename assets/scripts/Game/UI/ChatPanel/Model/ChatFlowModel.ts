@@ -26,6 +26,7 @@ export class ChatFlowModel extends BaseManager {
     public static TTSFlowClosedEvent: string = "ChatFlowMode.TTSFlowClosedEvent";
 
     public static ASRFlowStartEvent: string = "ChatFlowMode.ASRFlowStartEvent";
+    public static ASRResult: string = "ChatFlowMode.ASRResult";
     public static ASRFlowCompleteEvent: string = "ChatFlowMode.ASRFlowCompleteEvent";
 
     public static ReciveEmptyChunk: string = "ChatFlowMode.ReciveEmptyChunk";
@@ -138,12 +139,10 @@ export class ChatFlowModel extends BaseManager {
     private onASRResultHandle(data: any) {
         if (this.asrOpenState) {
             DebugLog.instance.log("ASR Result " + data.content);
+            EventManager.getInstance().emit(ChatFlowModel.ASRResult, { content: data.content });
 
             this.sendToView(data.content, 1);
             this.currentSpeechSeq++;
-
-            this.sendChatRequest(data.content);
-            this.onCloseASR();
         }
     }
 
@@ -198,7 +197,7 @@ export class ChatFlowModel extends BaseManager {
         this.textCache = "";
 
         EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.normal });
-        
+
         if (isGreeting) {
             this.currentSpeechSeq = 0;
             SocketManager.getInstance().send(new SocketData({ "action": this.chat_get_greeting, "data": {}, uid: this.currentChatRequestUid }));
@@ -298,7 +297,7 @@ export class ChatFlowModel extends BaseManager {
 
     private sendToView(text: string, speaker: 0 | 1): void {
         DebugLog.instance.log(`Send to view: ${text}`);
-        EventManager.getInstance().emit(ChatFlowModel.ChatMessageEvent, { speaker: speaker, message: text, seq: this.currentSpeechSeq, ttsUid: this.ttsPostUid});
+        EventManager.getInstance().emit(ChatFlowModel.ChatMessageEvent, { speaker: speaker, message: text, seq: this.currentSpeechSeq, ttsUid: this.ttsPostUid });
     }
 
     private callTts(text: string): void {
@@ -328,12 +327,17 @@ export class ChatFlowModel extends BaseManager {
         return this.chatMessageMap.get(id);
     }
 
-    onOpenASR() {
+    onOpenASR(data: { id: string, save_audio: string, max_sentence_silence: string } = null) {
         // 连接ASR
+        let datastr = "";
+        if (data != null) {
+            let { id, save_audio, max_sentence_silence } = data;
+            datastr = `{id: '${id}', save_audio: ${save_audio}, max_sentence_silence: ${max_sentence_silence}}`;
+        }
         if (sys.platform.toUpperCase().endsWith("BROWSER")) {
             var webViewNode = director.getScene().getChildByName("webview");
             let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
-            webviewasr.evaluateJS("connect()");
+            webviewasr.evaluateJS("connect(" + datastr + ")");
             EventManager.getInstance().emit(ChatFlowModel.WaittingEvent, { message: ChatFlowModel.WaittingEventStrings.asrConnect });
         }
 
@@ -346,10 +350,13 @@ export class ChatFlowModel extends BaseManager {
 
     onCloseASR() {
         if (sys.platform.toUpperCase().endsWith("BROWSER")) {
-            var webViewNode = director.getScene().getChildByName("webview");
-            let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
-            this.asrOpenState = false;
-            webviewasr.evaluateJS("close()");
+            let scene = director.getScene();
+            if (scene) {
+                var webViewNode = scene.getChildByName("webview");
+                let webviewasr = webViewNode.getChildByName("asr").getComponent(WebView);
+                this.asrOpenState = false;
+                webviewasr.evaluateJS("close()");
+            }
         }
 
         if (sys.platform === 'ANDROID') {
@@ -416,7 +423,7 @@ export class ChatFlowModel extends BaseManager {
         }
     }
 
-    interruptChatRequestFlow(){
+    interruptChatRequestFlow() {
         this.currentChatRequestUid = null;
     }
 

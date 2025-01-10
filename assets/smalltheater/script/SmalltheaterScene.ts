@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, easing, instantiate, Label, Node, Sprite, tween, UIOpacity, UITransform, Vec3 } from 'cc';
+import { _decorator, AnimationComponent, Color, Component, easing, instantiate, Label, Node, Sprite, Tween, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AutoPlayLineData, SmalltheaterModel } from './SmalltheaterModel';
 import { StateMachine } from '../../scripts/Core/StateMachine/StateMachine';
 import { AbortablePromise } from '../../scripts/Core/StateMachine/AbortablePromise';
@@ -8,6 +8,10 @@ import { SequenceFlow } from '../../scripts/Core/StateMachine/SequenceFlow';
 import { CharacterCtrl } from './CharacterCtrl';
 import { AudioManager } from '../../scripts/Core/Manager/Audio/AudioManager';
 import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
+import { EventManager } from '../../scripts/Core/Manager/Event/EventManager';
+import { ChatFlowModel } from '../../scripts/Game/UI/ChatPanel/Model/ChatFlowModel';
+import { ParallelFlow } from '../../scripts/Core/StateMachine/ParallelFlow';
+import { IFlow } from '../../scripts/Core/StateMachine/IFlow';
 const { ccclass, property } = _decorator;
 
 @ccclass('SmalltheaterScene')
@@ -48,11 +52,38 @@ export class SmalltheaterScene extends Component {
     @property(Label)
     timeCountLabel: Label = null;
 
+    @property(Node)
+    btnRecord: Node = null;
+
+    @property(Node)
+    btnStopRecord: Node = null;
+
+    @property(Node)
+    talkingAnimNode: Node = null;
+
+    @property(Node)
+    scoringNode: Node = null;
+
+    @property(Label)
+    scoreLabel: Label = null;
+
+    @property(Label)
+    scoringProcessLabel: Label = null;
+
+    @property(Node)
+    btnReplay: Node = null;
+
+    @property(Node)
+    btnStopReplay: Node = null;
+
     private model: SmalltheaterModel = new SmalltheaterModel();
 
     private stateMachine: StateMachine = new StateMachine();
 
     private _characterNodes: Node[] = [];
+
+    private _flowCache: IFlow[] = [];
+    private _scrollScoreTw: Tween<Node> = null;
 
     private mubul_original_pos = new Vec3(20, 767, 0);
     private mubul_target_pos = new Vec3(-590, 767, 0);
@@ -73,18 +104,31 @@ export class SmalltheaterScene extends Component {
         this.stateMachine.addState(SmalltheaterState.AutoPlayLine, this.onEnterAutoPlayLine.bind(this));
         this.stateMachine.addState(SmalltheaterState.PlayerLine, this.onEnterPlayLine.bind(this));
         this.stateMachine.addState(SmalltheaterState.SelectCharacter, this.onEnterSelectCharacter.bind(this));
-        this.stateMachine.addState(SmalltheaterState.Socring, this.onEnterSocring.bind(this));
+        this.stateMachine.addState(SmalltheaterState.Scoring, this.onEnterScoring.bind(this));
         this.stateMachine.addState(SmalltheaterState.Replay, this.onEnterReplay.bind(this));
 
         this.stateMachine.enterState(SmalltheaterState.LoadConfig, { id: 1 });
 
         AudioManager.getInstance().onAudioEnd(this.onAudioEnd, this);
+
+        EventManager.getInstance().on(ChatFlowModel.ASRResult, this.onAsrResult, this);
+        EventManager.getInstance().on(ChatFlowModel.ASRFlowStartEvent, this.onAsrContected, this);
+        EventManager.getInstance().on(ChatFlowModel.ASRFlowCompleteEvent, this.onAsrClosed, this);
+
     }
 
     protected onDestroy(): void {
+        EventManager.getInstance().off(ChatFlowModel.ASRResult, this);
+        EventManager.getInstance().off(ChatFlowModel.ASRFlowStartEvent, this);
+        EventManager.getInstance().off(ChatFlowModel.ASRFlowCompleteEvent, this);
+
+        ChatFlowModel.getInstance().onCloseASR();
+
         AudioManager.getInstance().offAudioEnd(this.onAudioEnd, this);
 
         AudioManager.getInstance().stop();
+
+        this.cleanFlowCache();
 
         this.model.dispose();
         this.stateMachine.dispose();
@@ -144,7 +188,20 @@ export class SmalltheaterScene extends Component {
     }
 
     private onEnterInteraction(data: any) {
-        this.model.initInteractionState();
+        if (this.model.hasCurrentStageLine()) {
+            if (this.model.getCurrentStageLine().character == this.model.selectedCharacterIndex) {
+                this.stateMachine.enterState(SmalltheaterState.PlayerLine);
+            } else {
+                this.model.prepareAutoPlayData().then((data: AutoPlayLineData) => {
+                    this.stateMachine.enterState(SmalltheaterState.AutoPlayLine, data);
+                });
+            }
+        } else {
+            let parallelFlow = new ParallelFlow();
+            parallelFlow.addFlow(this.timeCountLabelAnim("演出结束"));
+            parallelFlow.addFlow(this.closeMubuFlow());
+            this.stateMachine.enterState(SmalltheaterState.Scoring, null, parallelFlow);
+        }
     }
 
     private onEnterAutoPlayLine(data: AutoPlayLineData) {
@@ -161,7 +218,13 @@ export class SmalltheaterScene extends Component {
     }
 
     private onEnterPlayLine(data: any) {
-
+        this.btnRecord.active = true;
+        this.model.cleanAsrResult();
+        for (let i = 0; i < this._characterNodes.length; i++) {
+            let inst = this._characterNodes[i];
+            let ctrl = inst.getComponent(CharacterCtrl);
+            ctrl.setMaskOpacity(i == this.model.selectedCharacterIndex ? 0 : 125);
+        }
     }
 
     private onEnterSelectCharacter(data: any) {
@@ -178,12 +241,57 @@ export class SmalltheaterScene extends Component {
         this.selectCharacterLabel.string = "请选择你想要扮演的角色";
     }
 
-    private onEnterSocring(data: any) {
+    private async onEnterScoring(data: any) {
+        this.cleanFlowCache();
+        this.scoreLabel.string = "???";
 
+        let unitflow = new UnitFlow(this.showScoringNodeFlow());
+        this._flowCache.push(unitflow);
+        await unitflow.start();
+        this.startScoringAnim();
+
+        let score = this.model.score;
+        if (this.model.score == -1) {
+            let postflow = new UnitFlow(this.model.postPlayerResult())
+            this._flowCache.push(postflow);
+            score = await postflow.start();
+        }
+
+        let duration: number = 6;
+        this.stopScoringAnimAtNum(score, duration);
+
+        let delayflow = new UnitFlow(this.delayFlow(duration * 1000));
+        this._flowCache.push(delayflow);
+        await delayflow.start();
+        this.btnReplay.active = true;
     }
 
     private onEnterReplay(data: any) {
-
+        this.btnStopReplay.active = true;
+        if (this.model.hasCurrentStageLine()) {
+            let cursl = this.model.getCurrentStageLine();
+            if (cursl.character == this.model.selectedCharacterIndex) {
+                let timestamp = this.model.timeStampMap.get(cursl.id);
+                let id = this.model.plotID + "_" + cursl.id + "_" + timestamp;
+                this.model.prepareAutoPlayData(id).then((data: AutoPlayLineData) => {
+                    this.stateMachine.enterState(SmalltheaterState.AutoPlayLine, data);
+                }).catch(() => {
+                    DebugLog.instance.warn("下载不到玩家语音：" + id);
+                    this.model.goNextStageLine();
+                    this.stateMachine.enterState(SmalltheaterState.Replay);
+                });
+            } else {
+                this.model.prepareAutoPlayData().then((data: AutoPlayLineData) => {
+                    this.stateMachine.enterState(SmalltheaterState.AutoPlayLine, data);
+                });
+            }
+        } else {
+            this.btnStopReplay.active = false;
+            let parallelFlow = new ParallelFlow();
+            parallelFlow.addFlow(this.timeCountLabelAnim("演出结束"));
+            parallelFlow.addFlow(this.closeMubuFlow());
+            this.stateMachine.enterState(SmalltheaterState.Scoring, null, parallelFlow);
+        }
     }
 
     //============== clickHandler ======================
@@ -227,12 +335,69 @@ export class SmalltheaterScene extends Component {
             ctrl.setMaskOpacity(0);
         }
 
+        this.model.initInteractionState();
         let seqflow = new SequenceFlow();
         seqflow.addFlow(this.timeCountLabelAnim("3"));
         seqflow.addFlow(this.timeCountLabelAnim("2"));
         seqflow.addFlow(this.timeCountLabelAnim("1"));
         seqflow.addFlow(this.timeCountLabelAnim("开始"));
         this.stateMachine.enterState(SmalltheaterState.Interaction, null, seqflow);
+    }
+
+    onClickRecord() {
+        let timestamp = Date.now();
+        let id = this.model.plotID + "_" + this.model.getCurrentStageLine().id + "_" + timestamp;
+        this.model.timeStampMap.set(this.model.getCurrentStageLine().id, timestamp);
+
+        let data: { id: string, save_audio: string, max_sentence_silence: string } = {
+            id: id,
+            save_audio: "true",
+            max_sentence_silence: "500"
+        };
+
+        ChatFlowModel.getInstance().onOpenASR(data);
+
+        this.blackMask.active = true;
+        this.talkingAnimNode.active = true;
+        this.talkingAnimNode.getComponent(AnimationComponent).play("takingAnimIcon_reset");
+    }
+
+    onClickStopRecord() {
+        this.btnStopRecord.active = false;
+        this.talkingAnimNode.active = false;
+
+        setTimeout(() => {
+            ChatFlowModel.getInstance().onCloseASR();
+        }, 2000);
+    }
+
+    onClickBtnReplay() {
+        for (let i = 0; i < this._characterNodes.length; i++) {
+            let inst = this._characterNodes[i];
+            let ctrl = inst.getComponent(CharacterCtrl);
+            ctrl.setMaskOpacity(0);
+        }
+        this.btnReplay.active = false;
+
+        let seqflow = new SequenceFlow();
+        seqflow.addFlow(this.hideScoringNodeFlow());
+        seqflow.addFlow(this.openMubuFlow());
+        seqflow.addFlow(this.timeCountLabelAnim("3"));
+        seqflow.addFlow(this.timeCountLabelAnim("2"));
+        seqflow.addFlow(this.timeCountLabelAnim("1"));
+        seqflow.addFlow(this.timeCountLabelAnim("开始"));
+
+        this.model.initReplayState();
+
+        this.stateMachine.enterState(SmalltheaterState.Replay, null, seqflow);
+    }
+
+    onClickBtnStopReplay() {
+        this.btnStopRecord.active = false;
+        let parallelFlow = new ParallelFlow();
+        parallelFlow.addFlow(this.timeCountLabelAnim("演出结束"));
+        parallelFlow.addFlow(this.closeMubuFlow());
+        this.stateMachine.enterState(SmalltheaterState.Scoring, null, parallelFlow);
     }
 
     //============= private ===========================
@@ -245,6 +410,34 @@ export class SmalltheaterScene extends Component {
         }
     }
 
+    private onAsrContected(data: any) {
+        this.blackMask.active = false;
+        this.talkingAnimNode.getComponent(AnimationComponent).play("takingAnimIcon");
+        this.btnRecord.active = false;
+        this.btnStopRecord.active = true;
+    }
+
+    private onAsrClosed(data: any) {
+        this.btnStopRecord.active = false;
+        this.talkingAnimNode.active = false;
+
+        this.model.goNextStageLine();
+        this.stateMachine.backToLastState(null, new UnitFlow(this.delayFlow(500)));
+        this.model.confirmCurrentStageResult();
+    }
+
+    private onAsrResult(data: any) {
+        let content = data.content;
+        this.model.pushAsrResult(content);
+    }
+
+    private cleanFlowCache() {
+        for (let i = 0; i < this._flowCache.length; i++) {
+            let flow = this._flowCache[i];
+            flow.dispose();
+        }
+        this._flowCache = [];
+    }
     //============== animflow ==========================
     private blackMaskHideFlow(): AbortablePromise<any> {
         const uiOpacity = this.blackMask.getComponent(UIOpacity);
@@ -297,7 +490,27 @@ export class SmalltheaterScene extends Component {
         });
     }
 
-    private delayFlow(delay): AbortablePromise<any> {
+    private closeMubuFlow(): AbortablePromise<any> {
+        let twl = tween(this.mubu_l);
+        let endposl = this.mubul_original_pos.clone();
+        let twr = tween(this.mubu_r);
+        let endposr = this.mubur_original_pos.clone();
+        return new AbortablePromise((resolve, reject) => {
+            twl.to(1, { position: endposl }).call(() => {
+                resolve({});
+            }).start();
+            twr.to(1, { position: endposr }).start();
+        }).onAbort(() => {
+            if (twl) {
+                twl.stop();
+            }
+            if (twr) {
+                twr.stop();
+            }
+        });
+    }
+
+    private delayFlow(delay: number): AbortablePromise<any> {
         let timeout: Number = null;
         return new AbortablePromise((resolve, reject) => {
             timeout = setTimeout(() => {
@@ -332,6 +545,84 @@ export class SmalltheaterScene extends Component {
             }
         });
     }
+
+    private hideScoringNodeFlow(): AbortablePromise<any> {
+        let tw = tween(this.scoringNode);
+        let endpos = this.desc_target_pos.clone();
+        return new AbortablePromise((resolve, reject) => {
+            tw.to(1, { position: endpos }, {
+                easing: easing.backIn
+            }).call(() => {
+                resolve({});
+            }).start();
+        }).onAbort(() => {
+            if (tw) {
+                tw.stop();
+            }
+        });
+    }
+
+    private showScoringNodeFlow(): AbortablePromise<any> {
+        this.scoringNode.active = true;
+        let tw = tween(this.scoringNode);
+        return new AbortablePromise((resolve, reject) => {
+            tw.to(1, { position: new Vec3() }, {
+                easing: easing.backOut
+            }).call(() => {
+                resolve({});
+            }).start();
+        }).onAbort(() => {
+            if (tw) {
+                tw.stop();
+            }
+        });
+    }
+
+    private startScoringAnim() {
+        let twdelay = tween(this.node).delay(0.05);
+        let twUpdateNum = tween(this.node).call(() => {
+            const randomNumten = Math.floor(Math.random() * 10);
+            const randomNum = Math.floor(Math.random() * 10);
+            this.scoreLabel.string = randomNumten.toString() + randomNum.toString();
+        });
+        if (this._scrollScoreTw != null) {
+            this._scrollScoreTw.stop();
+            this._scrollScoreTw = null;
+        }
+
+        this._scrollScoreTw = tween(this.node).sequence(twdelay, twUpdateNum).repeatForever().start();
+    }
+
+    private stopScoringAnimAtNum(endNum: number, duration: number) {
+        if (this._scrollScoreTw != null) {
+            this._scrollScoreTw.stop();
+            this._scrollScoreTw = null;
+        }
+
+        let updated = 0.05;
+        let repeatcount = Math.floor((duration / 2) / updated);
+        let twdelay = tween(this.node).delay(updated);
+        let numcount = 0;
+        let twUpdateNum = tween(this.node).call(() => {
+            const randomNumten = numcount;
+            numcount = (numcount + 1) % 10;
+            const randomNum = Math.floor(Math.random() * 10);
+            this.scoreLabel.string = randomNumten.toString() + randomNum.toString();
+        });
+
+        let twUpdateNumTen = tween(this.node).call(() => {
+            const randomNumten = numcount;
+            numcount = (numcount + 1) % 10;
+            const randomNum = endNum % 10;
+            this.scoreLabel.string = randomNumten.toString() + randomNum.toString();
+        });
+
+        this._scrollScoreTw = tween(this.node).sequence(twdelay, twUpdateNum).repeat(repeatcount)
+            .sequence(twdelay, twUpdateNumTen).repeat(repeatcount).call(() => {
+                this.scoreLabel.string = endNum.toString();
+            })
+            .start();
+    }
 }
 
 enum SmalltheaterState {
@@ -342,7 +633,7 @@ enum SmalltheaterState {
     AutoPlayLine = "AutoPlayLine",
     PlayerLine = "PlayerLine",
     SelectCharacter = "SelectCharacter",
-    Socring = "Socring",
+    Scoring = "Scoring",
     Replay = "Replay"
 }
 

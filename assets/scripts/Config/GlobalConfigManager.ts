@@ -22,7 +22,7 @@ export class GlobalConfigManager extends BaseManager {
         return new Promise<void>((resolve,reject)=>{
             EventManager.getInstance().on(GlobalConfigManager.GETGLOBALCONFIG,(data)=>{
                 if(data.status == 1 && data.data){
-                    this.asr_audios_url = data.asr_audios_url;
+                    this.asr_audios_url = data.data.asr_audios_url;
                     resolve();
                 }else{
                     reject();

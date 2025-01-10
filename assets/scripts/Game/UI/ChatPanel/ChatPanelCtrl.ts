@@ -137,7 +137,6 @@ export class ChatPanelCtrl extends BasePanel {
         this.chatFlowModel.onCloseASR();
         this.chatFlowModel.onCloseTTS();
 
-        //this.node.active = false;
         UIManager.getInstance().hidePanel(ChatPanelCtrl.NAME);
     }
 
@@ -294,6 +293,8 @@ export class ChatPanelCtrl extends BasePanel {
         }
         else {
             this.showSubtitle(message, 0, 1);
+            this.chatFlowModel.onCloseASR();
+            this.chatFlowModel.sendChatRequest(message);
         }
     }
 

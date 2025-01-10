@@ -1,4 +1,3 @@
-import { DebugLog } from "../Util/DebugLog";
 import { AbortablePromise } from "./AbortablePromise";
 import { IFlow } from "./IFlow";
 
@@ -9,8 +8,8 @@ export class UnitFlow implements IFlow {
         this.flow = flow;
     }
 
-    async start(): Promise<void> {
-        await this.flow.start();
+    async start(): Promise<any> {
+        return await this.flow.start();
     }
 
     dispose(): void {
