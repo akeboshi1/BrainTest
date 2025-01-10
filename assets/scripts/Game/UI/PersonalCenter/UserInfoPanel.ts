@@ -5,6 +5,7 @@ import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCente
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
+import { DebugLog } from '../../../Core/Util/DebugLog';
 
 
 
@@ -51,17 +52,29 @@ export class UserInfoPanel extends BasePanel {
     private user_sex: number = 0;
     private user_education: number = 0;
 
-    onLoad(): void {
-        this.editBox.node.on('editing-did-ended', this.onInputFinished, this);
-    }
-    onInputFinished(event) {
-        this.user_name = this.user_name+ this.editBox.string;
-        this.nameNode.getComponent(Label).string = this.editBox.string;
+    onDisable(): void {
+        this.editBox.node.off('editing-did-begin');
+        this.editBox.node.off('editing-did-ended');
     }
     start() {
         this.initUserInfoPanel();
-       
+        this.editBox.node.on('editing-did-begin', this.onInputStarted, this);
+        this.editBox.node.on('editing-did-ended', this.onInputFinished, this);
     }
+  
+    onInputStarted(){
+        if( this.editBox.string){
+            DebugLog.instance.log(" this.user_name222222", this.user_name)
+            this.editBox.string=this.user_name;
+        }
+    }
+    onInputFinished(event) {
+        DebugLog.instance.log("33333333333333333", this.user_name)
+      
+        this.user_name=this.editBox.string;
+        this.nameNode.getComponent(Label).string = this.editBox.string;
+    }
+   
     initUserInfoPanel() {
         let userData = PersonalCenterManager.getInstance().userInfoData;
         if (!userData.full_name||!userData.birthday||!userData.education||!userData.gender) {return;}
@@ -73,6 +86,7 @@ export class UserInfoPanel extends BasePanel {
     }
     setName(data) {
         this.user_name = data;
+        DebugLog.instance.log(" this.user_name11111", this.user_name)
         this.nameNode.getComponent(Label).string = data;
         this.nameNode.getComponent(Label).color = new Color(0, 0, 0);
     }

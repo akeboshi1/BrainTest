@@ -65,6 +65,7 @@ export class PersonalCenterManager {
 
 
     public requestUserInfoCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.user_get_info,context);
         DebugLog.instance.log("请求个人中心数据", data);
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
@@ -89,7 +90,7 @@ export class PersonalCenterManager {
     }
 
     public requestUpdateInfoCallback(data: SocketData, context: any) {
-
+        EventManager.getInstance().off(this.user_update_info, context);
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
@@ -111,6 +112,7 @@ export class PersonalCenterManager {
     }
 
     public requestPersonalReportCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.user_get_report,context);
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
