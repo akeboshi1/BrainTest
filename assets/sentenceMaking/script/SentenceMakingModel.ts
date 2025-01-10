@@ -1,14 +1,15 @@
-import { Global } from "../../scripts/Core/Manager/Config/Global";
-import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { LayerUtil } from "../../scripts/Core/Util/LayerUtil";
-import { GameCenterManager } from "../../scripts/Game/GameCenter/GameCenterManager";
-import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
-import { AlertType } from "../../scripts/Game/UI/Alert/GameAlert";
-import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
+import {Global} from "../../scripts/Core/Manager/Config/Global";
+import {EventManager} from "../../scripts/Core/Manager/Event/EventManager";
+import {DebugLog} from "../../scripts/Core/Util/DebugLog";
+import {LayerUtil} from "../../scripts/Core/Util/LayerUtil";
+import {GameCenterManager} from "../../scripts/Game/GameCenter/GameCenterManager";
+import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
+import {AlertType} from "../../scripts/Game/UI/Alert/GameAlert";
+import {SentenceMakingConfig, SentenceMakingQuestion} from "./SentenceMakingConfig";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 import {SentenceMakingScene} from "db://assets/sentenceMaking/script/SentenceMakingScene";
+import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 
 export class SentenceMakingModel {
     constructor() {
@@ -76,8 +77,12 @@ export class SentenceMakingModel {
 
     goNextQuestion() {
         if(Global.isSkewersGame){
-            this.currentQuestionIndex++;
-            this.setQuestionLevel(this.skewerGameQuestionDatas[this.currentQuestionIndex].level);
+            if(Global.userData.curSkewerGameData.type != GameType.Language){
+                SkewersManager.getInstance().runNextGame();
+            }else{
+                this.currentQuestionIndex++;
+                this.setQuestionLevel(this.skewerGameQuestionDatas[this.currentQuestionIndex].level);
+            }
         }else{
             this.selectedLevel = (this.selectedLevel+1) % 3;//最多3个难度1,2,3
             if(this.selectedLevel == 0){
@@ -165,7 +170,7 @@ export class SentenceMakingModel {
 
     private failCompleteHandler(context){
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.alertGoonHandler1,context.exit,context);
+            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.skewersGoNext,context.exit,context);
         }else{
             SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exit,context.remoteClick,context);
         }

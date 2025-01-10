@@ -236,7 +236,9 @@ export default class GameView extends LayerPanel {
         this.pause = true;
         FindingGlobal.reset();
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().quitGame(this.node,this.resultList.length,this._maxCount,this.goonCallBack,this.exitCallBack,this);
+            let maxCount =  Global.userData.curSkewerGameData.length;
+            let curCount = Global.userData.curSkewerGameData.seq - 1;
+            SkewersManager.getInstance().quitGame(this.node,curCount,maxCount,this.goonCallBack,this.exitCallBack,this);
         }else{
             GameCenterManager.getInstance().quitGame(this.node,this.goonCallBack,this.exitCallBack,this);
         }
