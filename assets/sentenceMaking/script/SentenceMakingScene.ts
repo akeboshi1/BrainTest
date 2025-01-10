@@ -82,7 +82,7 @@ export class SentenceMakingScene extends Component {
         this.initRects();
         this.model.init(this).then(() => {
             this.showGameTipAlert()
-        }).catch(() => {
+        }).catch((error) => {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
             ad.message = "配置加载失败，请检查网络";

@@ -42,8 +42,9 @@ export class SentenceMakingModel {
                 this.skewerGameQuestionDatas.push({level:trainData.difficulty - 1,index:trainData.level - 1});
             }
             
-            this.currentQuestionIndex = this.skewerGameQuestionDatas[0].index;
-            this.setQuestionLevel(this.skewerGameQuestionDatas[this.currentQuestionIndex].level);
+            this.currentQuestionIndex = Global.userData.curSkewerGameData.seq-1;
+            let question = this.skewerGameQuestionDatas[this.currentQuestionIndex];
+            this.setQuestionLevel(question.level);
 
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.onSkewersProgressUpdate, this);
         } else {
