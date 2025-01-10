@@ -237,7 +237,7 @@ export class catchfish extends Component {
     }
 
     private fishYs:number[]=[-300,-100,100,300];
-
+    public hasGuide:boolean = false;
     private randomFish(fish: Fish) {
         if(this._clearBoo){
             return;
@@ -245,6 +245,12 @@ export class catchfish extends Component {
         let x = 800;
         let y = this.fishYs[fish.positionYIndex];
 
+        if((Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.hasGuid())||
+            (GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
+            if(!this.hasGuide){
+                x = (this._leftSceneX + 540)/2;
+            }
+        }
         let spriteFramelen = this.spriteFrames.length;
 
         let index = Math.floor(Math.random() * (spriteFramelen - 1));
@@ -346,9 +352,13 @@ export class catchfish extends Component {
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
                         const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
                         fish.setPosition(newPosition.x,newPosition.y);
+                        if(self.hasGuide){
+                            return;
+                        }
                         if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
                             ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
                             if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
+                                self.hasGuide = true;
                                 EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
                                 fish.pause = true;
                                 self.isGuide = true;
@@ -426,7 +436,6 @@ export class catchfish extends Component {
                         }
                         this.gameFailView.active = true;
                         this.updateSuccessPopupStar(this.curHard);
-                 
                     }
                 }
                 clearInterval(this.timerId);
