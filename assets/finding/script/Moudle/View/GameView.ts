@@ -421,7 +421,7 @@ export default class GameView extends LayerPanel {
     }
 
     public onTouchDown(event) {
-        if (this.gameOver) return;
+        if (this.gameOver||this.resultList.length == this._maxCount) return;
         let clickPos;
         let url = "sub/image/view/gameView/public/rightRound";
          if(!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().curGuide instanceof FindingGuide == true && GuideManager.getInstance().curGuide.state ==  GuideState.processing){
@@ -444,19 +444,19 @@ export default class GameView extends LayerPanel {
               let isDestroy = true;
               let i = event.i;
               if (this.tempList.length == 0) isDestroy = true;
-                     for (let j = 0; j < this.tempList.length; j++) {
-                         if (this.frameList[i].id == this.tempList[j]) {
-                             isDestroy = false;
-                             break;
-                         }
-                     }
-                     if (isDestroy) destroyHint();
-                     if (this.frameList[i].dot) return;
-                     this.frameList[i].dot = true;
-                     this.resultList.push(i);
-                     for (let j = 0; j < this.pictureList.length; j++) {
-                         this.createRound(i, j, url, 70);
-                     }
+              for (let j = 0; j < this.tempList.length; j++) {
+                  if (this.frameList[i].id == this.tempList[j]) {
+                      isDestroy = false;
+                      break;
+                  }
+              }
+              if (isDestroy) destroyHint();
+              if (this.frameList[i].dot) return;
+              this.frameList[i].dot = true;
+              this.resultList.push(i);
+              for (let j = 0; j < this.pictureList.length; j++) {
+                  this.createRound(i, j, url, 70);
+              }
               this.createHintPrefab();
               clickPos = event.pos;
               this.createParticle(clickPos);
@@ -632,12 +632,12 @@ export default class GameView extends LayerPanel {
 
     public closeGame(isWin) {
         if (this.gameOver) return;
+        this.removeMonitorEvent();
         if (isWin) {
             this.victory.active = true;
         }
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
-        this.removeMonitorEvent();
         if(Global.isSkewersGame){
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,isWin?this.WinRequestSkewerGameComplete:this.failRequestSkewersGameComplete,this);
             this.requestGameResult();
