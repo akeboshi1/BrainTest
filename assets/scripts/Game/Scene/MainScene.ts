@@ -203,7 +203,7 @@ export class MainScene extends Component {
         pushEvetCallBack(data) {
             if(!data.id){return}
             if(this._curID == data.id)return;
-            this._curID = data.id
+            this._curID = data.id;
             if(!UIManager.getInstance().getPanel(InfoListPopCtrl.NAME)) UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup",InfoListPopCtrl,true,"infoList");
             this.hideInfoPopup();
             UIManager.getInstance().showPanel(InfoListPopCtrl.NAME,data);
