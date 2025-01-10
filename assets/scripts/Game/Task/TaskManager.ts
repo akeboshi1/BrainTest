@@ -56,7 +56,7 @@ export class TaskManager {
     private notification_start_notifications: string = "notification.get_notifications";
     private _notificationList: NotificationData[];
     private notification_read: string = "notification.read";
-    private pushEvet: string = "event";
+    public pushEvet: string = "event";
     // private _pushEvetList:string [];
 
 
