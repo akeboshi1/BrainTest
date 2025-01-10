@@ -215,9 +215,11 @@ export class catchfish extends Component {
 
     private createFish(count: number = 4) {
         if (this.fishParentNode && this.fishPrefab) {
-            if((Global.userData.curSkewerGameData&&Global.userData.curSkewerGameData.hasGuid())
-                ||(GameCenterManager.getInstance().currentGame&&GameCenterManager.getInstance().currentGame.level == 1)){
-                count = 1;
+            if(!this.hasGuide){
+                if((Global.userData.curSkewerGameData&&Global.userData.curSkewerGameData.hasGuid())
+                    ||(GameCenterManager.getInstance().currentGame&&GameCenterManager.getInstance().currentGame.level == 1)){
+                    count = 1;
+                }
             }
             let len = count;
             this._guideIndex = 0;
@@ -389,14 +391,13 @@ export class catchfish extends Component {
     }
 
     private guideClick(step:number) {
-
         switch(step) {
             case 1:
                 EventManager.getInstance().emit(Fish.FishClick,this._curFish);
                 break;
             case 2:
-                this._wangClick(this._curFish.currentIndex);
                 this.isGuide = false;
+                this._wangClick(this._curFish.currentIndex);
                 EventManager.getInstance().off(CatchFishGuide.GUIDECLICK,this);
                 break;
         }
@@ -585,19 +586,49 @@ export class catchfish extends Component {
                         self.hasWangClick = false;
                         // 移除wangPrefab
                         wang.removeChild(wangPrefab);
+                        if(self._clearBoo)return;
                         self.wangCount++;
                         self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
                             self.endCurHardGame();
                         }
-                        // 设置当前鱼为选中状态
-                        self._curFish.setSelect(self.unSelectColor, 1)
-                        // 随机生成鱼
-                        self.randomFish(self._curFish);
-                        // 移动鱼
-                        self.moveFishes(self._curFish, SHOOT_INTERVAL);
+                        if(self.hasGuide&&self.fishs.length<=1){
+                            if(this._wangTween){
+                                this._wangTween.stop();
+                                this._wangTween = null;
+                            }
+                            Tween.stopAll();
+                            EventManager.getInstance().off(Fish.FishClick, this);
 
-                        self._curFish=null;
+                            if (this.fishs) {
+                                let len = this.fishs.length;
+                                for (let i: number = 0; i < len; i++) {
+                                    let fish = this.fishs[i];
+                                    if (fish) {
+                                        if (fish.curTween) {
+                                            fish.curTween.stop();
+                                            fish.curTween = null;
+                                        }
+                                        this.fishParentNode.removeChild(fish.getFishNode());
+                                        fish = null;
+                                    }
+                                }
+                                this.fishs = [];
+                            }
+                            self._curFish=null;
+                            if(!self._clearBoo)self.createFish();
+                        }else{
+                            // 设置当前鱼为选中状态
+                            self._curFish.setSelect(self.unSelectColor, 1)
+                            // 随机生成鱼
+                            self.randomFish(self._curFish);
+                            // 移动鱼
+                            self.moveFishes(self._curFish, SHOOT_INTERVAL);
+
+                            self._curFish=null;
+                        }
+
+
                     })
                     .start();
             })
