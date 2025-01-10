@@ -85,30 +85,37 @@ export class GenerateReport extends BasePanel {
     //     }
     // }
     personalReportCallback() {
+        EventManager.getInstance().off(PersonalCenterManager.personalReportCallback, this);
         let reportDataList = PersonalCenterManager.getInstance().reportDataList;
+        if (!reportDataList.length) {
+            this.scrollViewNode.active = false;
+            this.noReport.active = true;
+            return;
+        }
+        this.noReport.active = false;
         DebugLog.instance.log('处理后的个人报告', reportDataList);
         let lasteDataScore: number[] = [];
-       reportDataList.forEach((item, index) => {
+        reportDataList.forEach((item, index) => {
             let inst = instantiate(this.reportChartPrefab);
             this.reportChartParent.addChild(inst);
             inst.setPosition(v3(0, -index * 850, 0));
-            inst.getChildByName('title').getComponent(Label).string = item.ablityEnum;
+            inst.getChildByName('title').getComponent(Label).string = item.abilityEnum;
             let chartForm0 = inst.getChildByName(`chartForm0`);
             chartForm0.getChildByName('num').getComponent(Label).string = item.lastlastWeek;
-            chartForm0.getChildByName(`pillar0`).getComponent(UITransform).height =  item.lastlastWeek > 100 ? 360 : ( item.lastlastWeek / 100 * 360);
+            chartForm0.getChildByName(`pillar0`).getComponent(UITransform).height = item.lastlastWeek > 100 ? 360 : (item.lastlastWeek / 100 * 360);
             let chartForm1 = inst.getChildByName(`chartForm1`);
             chartForm1.getChildByName('num').getComponent(Label).string = item.lastWeek;
-            chartForm1.getChildByName(`pillar1`).getComponent(UITransform).height =  item.lastWeek > 100 ? 360 : (item.lastWeek / 100 * 360);
+            chartForm1.getChildByName(`pillar1`).getComponent(UITransform).height = item.lastWeek > 100 ? 360 : (item.lastWeek / 100 * 360);
             let chartForm2 = inst.getChildByName(`chartForm2`);
             chartForm2.getChildByName('num').getComponent(Label).string = item.currentWeek;
-            chartForm2.getChildByName(`pillar2`).getComponent(UITransform).height =  item.currentWeek > 100 ? 360 : ( item.currentWeek / 100 * 360);
-            inst.getChildByName('bottomRank').getComponent(Label).string = `在所在年龄段 前${Math.floor((item as any).age_group_percentile) }%`
-            this.reportGraphicsList[index].string = item.currentWeek;
-            lasteDataScore.push(item.latestScore/100);
-       })
-       this.reportGraphics.getComponent(RadarChart).setRates(lasteDataScore);
-          
-      
+            chartForm2.getChildByName(`pillar2`).getComponent(UITransform).height = item.currentWeek > 100 ? 360 : (item.currentWeek / 100 * 360);
+            inst.getChildByName('bottomRank').getComponent(Label).string = `在所在年龄段 前${Math.floor((item as any).age_group_percentile)}%`
+            this.reportGraphicsList[index].string = item.abilityEnum;
+            lasteDataScore.push(item.latestScore / 100);
+        })
+        this.reportGraphics.getComponent(RadarChart).setRates(lasteDataScore);
+
+
     }
 
     update(deltaTime: number) {
