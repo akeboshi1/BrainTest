@@ -58,20 +58,17 @@ export class UserInfoPanel extends BasePanel {
     }
     start() {
         this.initUserInfoPanel();
-        this.editBox.node.on('editing-did-begin', this.onInputStarted, this);
+        this.editBox.node.on('editing-did-began', this.onInputStarted, this);
         this.editBox.node.on('editing-did-ended', this.onInputFinished, this);
     }
   
     onInputStarted(){
-        if( this.editBox.string){
-            DebugLog.instance.log(" this.user_name222222", this.user_name)
             this.editBox.string=this.user_name;
-        }
+            DebugLog.instance.log("onInputStarted", this.editBox.string)
     }
     onInputFinished(event) {
-        DebugLog.instance.log("33333333333333333", this.user_name)
-      
         this.user_name=this.editBox.string;
+        DebugLog.instance.log("onInputFinished", this.user_name)
         this.nameNode.getComponent(Label).string = this.editBox.string;
     }
    
@@ -86,7 +83,7 @@ export class UserInfoPanel extends BasePanel {
     }
     setName(data) {
         this.user_name = data;
-        DebugLog.instance.log(" this.user_name11111", this.user_name)
+        DebugLog.instance.log("setName", this.user_name)
         this.nameNode.getComponent(Label).string = data;
         this.nameNode.getComponent(Label).color = new Color(0, 0, 0);
     }
