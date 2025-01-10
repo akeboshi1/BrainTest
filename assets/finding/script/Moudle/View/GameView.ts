@@ -217,9 +217,9 @@ export default class GameView extends LayerPanel {
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-             if (this._checkPoint == 1) {
+            if (this._checkPoint == 1) {
                  this.newHandHint();
-             }
+            }
 
              for (let j = 0; j < this.resultNode.children.length; j++) {
                  let children = this.resultNode.children[j].getChildByName("right");
@@ -401,6 +401,15 @@ export default class GameView extends LayerPanel {
         if(this.picture2){
             this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
             this.picture2.on(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        }
+    }
+
+    public removeMonitorEvent() {
+        if(this.picture1){
+            this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        }
+        if(this.picture2){
+            this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
         }
     }
 
@@ -628,6 +637,7 @@ export default class GameView extends LayerPanel {
         }
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
+        this.removeMonitorEvent();
         if(Global.isSkewersGame){
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,isWin?this.WinRequestSkewerGameComplete:this.failRequestSkewersGameComplete,this);
             this.requestGameResult();
