@@ -107,7 +107,6 @@ export class puzzleGameCore extends Component {
             DebugLog.instance.error("bundle is not exist! ---- bundle name:"+ this.bundleName);
             return;
         }
-        let self = this;
         let len = this.audioUrls.length;
         for(let i:number = 0;i<len;i++){
             let audioUrl = this.audioUrls[i];
