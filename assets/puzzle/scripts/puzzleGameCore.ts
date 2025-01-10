@@ -27,10 +27,9 @@ import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
-import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {VerifyPanel} from "db://assets/scripts/Game/UI/Login/VerifyPanel";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
+import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 
 const { ccclass, property } = _decorator;
 
@@ -623,11 +622,16 @@ export class puzzleGameCore extends Component {
     onClickGotoNextlevel() {
         if (Global.isSkewersGame) {
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().runNextGame();
+                if(SkewersManager.getInstance().getUnCompleteGameData()&&SkewersManager.getInstance().getUnCompleteGameData().type != GameType.Executionability){
+                    SkewersManager.getInstance().runNextGame();
+                    return;
+                }else{
+                    SkewersManager.getInstance().runNextGame(false);
+                }
             } else {
                 SkewersManager.getInstance().exitCallBack();
+                return;
             }
-            return;
         }
         // 下一关
         this.onClickChangeLevel();
@@ -645,8 +649,7 @@ export class puzzleGameCore extends Component {
     onClickRetryCurrentLevel() {
 
         if (Global.isSkewersGame) {
-            SkewersManager.getInstance().runNextGame();
-            return;
+            SkewersManager.getInstance().runNextGame(false);
         }
         // 重玩
         this.cleanChipsCache();
