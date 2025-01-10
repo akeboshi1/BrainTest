@@ -11,6 +11,7 @@ import { Global } from '../../scripts/Core/Manager/Config/Global';
 import { GameCenterManager } from '../../scripts/Game/GameCenter/GameCenterManager';
 import { SkewersManager } from '../../scripts/Game/Task/Skewers/SkewersManager';
 import {LayerUtil} from "db://assets/scripts/Core/Util/LayerUtil";
+import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -82,7 +83,7 @@ export class SentenceMakingScene extends Component {
         this.initRects();
         this.model.init(this).then(() => {
             this.showGameTipAlert()
-        }).catch(() => {
+        }).catch((error) => {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
             ad.message = "配置加载失败，请检查网络";
@@ -144,6 +145,9 @@ export class SentenceMakingScene extends Component {
     }
 
     private async startGameFlow() {
+        if(Global.userData.curSkewerGameData.type != GameType.Language){
+            return;
+        }
         this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
         this.hideAnimHupai();

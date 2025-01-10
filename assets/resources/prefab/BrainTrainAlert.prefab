@@ -860,7 +860,7 @@
       "b": 32,
       "a": 255
     },
-    "_string": "收获xxx点脑力值",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 70,
@@ -1068,9 +1068,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 182,
-      "g": 182,
-      "b": 182,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
@@ -1105,8 +1105,6 @@
       "__id__": 0
     },
     "fileId": "e7jKa21stAm69kb5ygrrji",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {

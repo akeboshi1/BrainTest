@@ -15,9 +15,9 @@ export class SentenceMakingConfig {
 
     async loadConfig() {
         let bundle = assetManager.getBundle(BundleName.SENTENCEMAKING);
-
+        let self = this;
         await new Promise<void>((resolve, reject) => {
-            bundle.load(this.jsonFilePath, JsonAsset, (err: Error | null, data: JsonAsset) => {
+            bundle.load(self.jsonFilePath, JsonAsset, (err: Error | null, data: JsonAsset) => {
                 if (err) {
                     DebugLog.instance.warn("加载配置文件失败:" + err);
                     reject(err);
@@ -25,14 +25,14 @@ export class SentenceMakingConfig {
                     const rawData = data.json;
                     for (let level in rawData) {
                         if (rawData.hasOwnProperty(level)) {
-                            this.levelQuestions[level] = [];
+                            self.levelQuestions[level] = [];
                             const levelData = rawData[level];
                             for (let question of levelData) {
                                 const newQuestion = new SentenceMakingQuestion(
                                     question.sentence,
                                     question.fixed
                                 );
-                                this.levelQuestions[level].push(newQuestion);
+                                self.levelQuestions[level].push(newQuestion);
                             }
                         }
                     }

@@ -106,13 +106,13 @@ export class GameAlert extends Component{
                     })
                     .start();
                 this.iconConNode.active = true;
-                this.decLabel.node.active = true;
+                this.decLabel.node.active = false;
                 this.progressBar.node.active = false;
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
                 this.startBtn.node.active = true;
-                this.decLabel.node.active = true;
+                this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;

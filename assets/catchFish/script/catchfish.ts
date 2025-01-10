@@ -36,11 +36,12 @@ import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
+import Game from "db://assets/finding/script/Scene/Game";
 
 const { ccclass, property } = _decorator;
 
 
-const SHOOT_INTERVAL = 2;
+const SHOOT_INTERVAL = 0.65;
 let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends Component {
@@ -214,12 +215,18 @@ export class catchfish extends Component {
 
     private createFish(count: number = 4) {
         if (this.fishParentNode && this.fishPrefab) {
+            if(!this.hasGuide){
+                if((Global.userData.curSkewerGameData&&Global.userData.curSkewerGameData.hasGuid())
+                    ||(GameCenterManager.getInstance().currentGame&&GameCenterManager.getInstance().currentGame.level == 1)){
+                    count = 1;
+                }
+            }
             let len = count;
-            this._guideIndex = 1;
+            this._guideIndex = 0;
             let datas = [];
             for (let i = 0; i < len; i++) {
                 let fish = new Fish(this.fishPrefab);
-                fish.positionYIndex = i;
+                fish.positionYIndex = len==1?1:i;
                 fish.setParent(this.fishParentNode);
                 this.randomFish(fish);
                 this.fishs.push(fish);
@@ -232,7 +239,7 @@ export class catchfish extends Component {
     }
 
     private fishYs:number[]=[-300,-100,100,300];
-
+    public hasGuide:boolean = false;
     private randomFish(fish: Fish) {
         if(this._clearBoo){
             return;
@@ -240,6 +247,12 @@ export class catchfish extends Component {
         let x = 800;
         let y = this.fishYs[fish.positionYIndex];
 
+        if((Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.hasGuid())||
+            (GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
+            if(!this.hasGuide){
+                x = (this._leftSceneX + 540)/2;
+            }
+        }
         let spriteFramelen = this.spriteFrames.length;
 
         let index = Math.floor(Math.random() * (spriteFramelen - 1));
@@ -316,7 +329,7 @@ export class catchfish extends Component {
 
         let self = this;
         const upDistance = 10; // 上下浮动的距离
-        const duration = 16; // 每次往返的时间
+        const duration = 30/(this.curHard+1); // 每次往返的时间
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave
@@ -341,9 +354,13 @@ export class catchfish extends Component {
                         const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
                         const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
                         fish.setPosition(newPosition.x,newPosition.y);
+                        if(self.hasGuide){
+                            return;
+                        }
                         if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
                             ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
                             if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
+                                self.hasGuide = true;
                                 EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
                                 fish.pause = true;
                                 self.isGuide = true;
@@ -374,14 +391,13 @@ export class catchfish extends Component {
     }
 
     private guideClick(step:number) {
-
         switch(step) {
             case 1:
                 EventManager.getInstance().emit(Fish.FishClick,this._curFish);
                 break;
             case 2:
-                this._wangClick(this._curFish.currentIndex);
                 this.isGuide = false;
+                this._wangClick(this._curFish.currentIndex);
                 EventManager.getInstance().off(CatchFishGuide.GUIDECLICK,this);
                 break;
         }
@@ -421,7 +437,6 @@ export class catchfish extends Component {
                         }
                         this.gameFailView.active = true;
                         this.updateSuccessPopupStar(this.curHard);
-                 
                     }
                 }
                 clearInterval(this.timerId);
@@ -571,19 +586,49 @@ export class catchfish extends Component {
                         self.hasWangClick = false;
                         // 移除wangPrefab
                         wang.removeChild(wangPrefab);
+                        if(self._clearBoo)return;
                         self.wangCount++;
                         self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
                             self.endCurHardGame();
                         }
-                        // 设置当前鱼为选中状态
-                        self._curFish.setSelect(self.unSelectColor, 1)
-                        // 随机生成鱼
-                        self.randomFish(self._curFish);
-                        // 移动鱼
-                        self.moveFishes(self._curFish, SHOOT_INTERVAL);
+                        if(self.hasGuide&&self.fishs.length<=1){
+                            if(this._wangTween){
+                                this._wangTween.stop();
+                                this._wangTween = null;
+                            }
+                            Tween.stopAll();
+                            EventManager.getInstance().off(Fish.FishClick, this);
 
-                        self._curFish=null;
+                            if (this.fishs) {
+                                let len = this.fishs.length;
+                                for (let i: number = 0; i < len; i++) {
+                                    let fish = this.fishs[i];
+                                    if (fish) {
+                                        if (fish.curTween) {
+                                            fish.curTween.stop();
+                                            fish.curTween = null;
+                                        }
+                                        this.fishParentNode.removeChild(fish.getFishNode());
+                                        fish = null;
+                                    }
+                                }
+                                this.fishs = [];
+                            }
+                            self._curFish=null;
+                            if(!self._clearBoo)self.createFish();
+                        }else{
+                            // 设置当前鱼为选中状态
+                            self._curFish.setSelect(self.unSelectColor, 1)
+                            // 随机生成鱼
+                            self.randomFish(self._curFish);
+                            // 移动鱼
+                            self.moveFishes(self._curFish, SHOOT_INTERVAL);
+
+                            self._curFish=null;
+                        }
+
+
                     })
                     .start();
             })
@@ -592,7 +637,7 @@ export class catchfish extends Component {
 
     }
     clearWangNubmer() {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < this.wangMaxCount; i++) {
 
             let wangNode = this.wangs[i];
 

@@ -53,6 +53,10 @@ export class UIManager extends BaseManager {
         this.panelRegisterConfig.set(name, panelInfo);
     }
 
+    getPanel(name: string): PanelInfo {
+        return this.panelRegisterConfig.get(name);
+    }
+
     /**
     * 异步显示指定名称的面板。
     * @param name - 要显示的面板的名称，此名称需与之前通过`registerPanel`方法注册的面板名称一致，用于从已注册的面板配置中查找对应的面板信息。

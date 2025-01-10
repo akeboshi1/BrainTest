@@ -148,6 +148,7 @@ export class MainScene extends Component {
     }
 
     protected onDisable(): void {
+        EventManager.getInstance().off(TaskManager.getInstance().pushEvet, this);
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, this);
@@ -198,10 +199,13 @@ export class MainScene extends Component {
         hideInfoPopup(){
             UIManager.getInstance().hidePanel(InfoListPopCtrl.NAME);
         }
+        private _curID;
         pushEvetCallBack(data) {
             if(!data.id){return}
-
-            UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup",InfoListPopCtrl,true,"infoList");
+            if(this._curID == data.id)return;
+            this._curID = data.id;
+            if(!UIManager.getInstance().getPanel(InfoListPopCtrl.NAME)) UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup",InfoListPopCtrl,true,"infoList");
+            this.hideInfoPopup();
             UIManager.getInstance().showPanel(InfoListPopCtrl.NAME,data);
 
             EventManager.getInstance().on("hideInfoListPop",this.hideInfoListPop, this);
@@ -548,7 +552,7 @@ export class MainScene extends Component {
                 progressBar.progress = _gameData.progress;
                 let progressLabel = progressBar.node.getChildByName("Label").getComponent(Label);
                 let progressStr = _gameData.progressStr;
-                progressLabel.string = `当前进度: ${progressStr}`;
+                progressLabel.string = `${progressStr}`;
                 let completeIcon = gameItem.getChildByName("completeIcon");
                 if (_gameData.progress >= 1) {
                     completeIcon.active = true;

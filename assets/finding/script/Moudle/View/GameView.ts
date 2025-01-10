@@ -150,6 +150,7 @@ export default class GameView extends LayerPanel {
                  // test code
                  loopLevel = FindingGlobal.curSkewersGameIndex;
                  this._checkPoint = FindingGlobal.curSkewersGameIndex % GameConfig.allCheckPoint;
+                 this.customsNode.getComponent(Label).string = "第" + Global.userData.curSkewerGameData.seq + "关";
              } else {
                  let _level = CacheMgr.checkpoint;
                  this._checkPoint = CacheMgr.checkpoint = _level;
@@ -171,10 +172,12 @@ export default class GameView extends LayerPanel {
                  } else {
                      customCount = loopLevel;
                  }
+                 this.customsNode.getComponent(Label).string = "第" + this._checkPoint + "关";
              }
              this._curCount = 0;
              this._maxCount = this._counts[this._curHard - 1];
-             this.customsNode.getComponent(Label).string = "第" + this._checkPoint + "关";
+
+
              let _level = GameConfig.level_order[loopLevel - 1];
              let bundleName = "level"+_level;
              let imageName = GameConfig.image_name.get(_level);
@@ -214,9 +217,9 @@ export default class GameView extends LayerPanel {
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-             if (this._checkPoint == 1) {
+            if (this._checkPoint == 1) {
                  this.newHandHint();
-             }
+            }
 
              for (let j = 0; j < this.resultNode.children.length; j++) {
                  let children = this.resultNode.children[j].getChildByName("right");
@@ -233,7 +236,9 @@ export default class GameView extends LayerPanel {
         this.pause = true;
         FindingGlobal.reset();
         if(Global.isSkewersGame){
-            SkewersManager.getInstance().quitGame(this.node,this.resultList.length,this._maxCount,this.goonCallBack,this.exitCallBack,this);
+            let maxCount =  Global.userData.curSkewerGameData.length;
+            let curCount = Global.userData.curSkewerGameData.seq - 1;
+            SkewersManager.getInstance().quitGame(this.node,curCount,maxCount,this.goonCallBack,this.exitCallBack,this);
         }else{
             GameCenterManager.getInstance().quitGame(this.node,this.goonCallBack,this.exitCallBack,this);
         }
@@ -401,6 +406,15 @@ export default class GameView extends LayerPanel {
         }
     }
 
+    public removeMonitorEvent() {
+        if(this.picture1){
+            this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        }
+        if(this.picture2){
+            this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
+        }
+    }
+
     public onDisable(){
         if(this.picture1)this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
         if(this.picture2)this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
@@ -409,7 +423,7 @@ export default class GameView extends LayerPanel {
     }
 
     public onTouchDown(event) {
-        if (this.gameOver) return;
+        if (this.gameOver||this.resultList.length == this._maxCount) return;
         let clickPos;
         let url = "sub/image/view/gameView/public/rightRound";
          if(!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().curGuide instanceof FindingGuide == true && GuideManager.getInstance().curGuide.state ==  GuideState.processing){
@@ -432,19 +446,19 @@ export default class GameView extends LayerPanel {
               let isDestroy = true;
               let i = event.i;
               if (this.tempList.length == 0) isDestroy = true;
-                     for (let j = 0; j < this.tempList.length; j++) {
-                         if (this.frameList[i].id == this.tempList[j]) {
-                             isDestroy = false;
-                             break;
-                         }
-                     }
-                     if (isDestroy) destroyHint();
-                     if (this.frameList[i].dot) return;
-                     this.frameList[i].dot = true;
-                     this.resultList.push(i);
-                     for (let j = 0; j < this.pictureList.length; j++) {
-                         this.createRound(i, j, url, 70);
-                     }
+              for (let j = 0; j < this.tempList.length; j++) {
+                  if (this.frameList[i].id == this.tempList[j]) {
+                      isDestroy = false;
+                      break;
+                  }
+              }
+              if (isDestroy) destroyHint();
+              if (this.frameList[i].dot) return;
+              this.frameList[i].dot = true;
+              this.resultList.push(i);
+              for (let j = 0; j < this.pictureList.length; j++) {
+                  this.createRound(i, j, url, 70);
+              }
               this.createHintPrefab();
               clickPos = event.pos;
               this.createParticle(clickPos);
@@ -620,6 +634,7 @@ export default class GameView extends LayerPanel {
 
     public closeGame(isWin) {
         if (this.gameOver) return;
+        this.removeMonitorEvent();
         if (isWin) {
             this.victory.active = true;
         }
