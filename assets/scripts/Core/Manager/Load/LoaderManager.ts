@@ -1,4 +1,4 @@
-import {ImageAsset,resources,assetManager,AssetManager,Prefab,Texture2D,SpriteFrame} from 'cc'
+import {ImageAsset,resources,assetManager,AssetManager,Prefab,Texture2D,SpriteFrame,AudioClip} from 'cc'
 import {BaseManager} from "../BaseManager";
 import { DebugLog } from '../../Util/DebugLog';
 
@@ -26,6 +26,25 @@ export class LoaderManager extends BaseManager {
     async resourcesLoad(url:string):Promise<any> {
         return new Promise((resolve, reject) => {
             resources.load(url, (err, data) => {
+                if(err){
+                    DebugLog.instance.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(data);
+            });
+        })
+    }
+
+
+    /**
+     * 加载resources(默认bundle)资源
+     * @param url
+     * @param callback
+     */
+    async resourcesLoadAudio(url:string):Promise<any> {
+        return new Promise((resolve, reject) => {
+            resources.load(url, AudioClip,(err, data) => {
                 if(err){
                     DebugLog.instance.error(err);
                     reject(err);

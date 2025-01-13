@@ -1,9 +1,11 @@
-import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,tween,Sprite,Vec3} from "cc";
+import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,tween,Sprite,Vec3,AudioClip} from "cc";
 import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
+import {GuideHand} from "db://assets/scripts/Core/Manager/Guide/GuideHand";
+import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -63,12 +65,38 @@ export class GameAlert extends Component{
 
     public exitCallBack:Function = null;
 
+    private audioUrls=["music/cheer"];
+    private audioMap:Map<string,AudioClip> = new Map();
+
     /**
      * 回调函数上下文
      */
     public context:any = null;
 
-    private _type = null
+    private _type = null;
+
+
+    private async loadAudio() {
+        // 创建一个数组，存放每个异步加载的 Promise
+        const loadPromises = this.audioUrls.map(audioUrl => {
+            return new Promise((resolve, reject) => {
+                LoaderManager.getInstance().resourcesLoadAudio(audioUrl).then((audioRes:AudioClip)=>{
+                    this.audioMap.set(audioUrl,audioRes);
+                    resolve(audioRes);
+                }).catch((err)=>{
+                    reject(err);
+                });
+            });
+        });
+
+        try {
+            // 使用 Promise.all 等待所有的 Promise 完成
+            const assets = await Promise.all(loadPromises);
+            console.log('All assets loaded:', assets);
+        } catch (error) {
+            console.error('Error loading assets:', error);
+        }
+    }
 
     showView(type:AlertType) {
         this._type = type;
@@ -108,6 +136,7 @@ export class GameAlert extends Component{
                 this.iconConNode.active = true;
                 this.decLabel.node.active = false;
                 this.progressBar.node.active = false;
+                this.playAudio("music/cheer",true);
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
@@ -145,6 +174,17 @@ export class GameAlert extends Component{
         }
     }
 
+    private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
+        let audioRes = this.audioMap.get(url);
+        if(audioRes != null){
+            if(isShot){
+                AudioManager.getInstance().playOneShot(audioRes);
+            }else{
+                AudioManager.getInstance().play(audioRes,isLoop);
+            }
+        }
+    }
+
     setProgress(curcount:number,maxcount:number) {
         let curProgress = "";
         if(maxcount == 0){
@@ -178,11 +218,12 @@ export class GameAlert extends Component{
     }
 
     start(){
-
+        this.loadAudio();
     }
 
     exitHandler(){
         // SceneManager.getInstance().backToHall();
+        AudioManager.getInstance().stop();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
        this.node.removeFromParent();
         if(this.exitCallBack){
@@ -194,6 +235,7 @@ export class GameAlert extends Component{
      * 继续
      */
     goHandler(){
+        AudioManager.getInstance().stop();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();
         if(this.goonCallBack){
