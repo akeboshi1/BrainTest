@@ -411,10 +411,12 @@ export class catchfish extends Component {
     timer: number;
     INIT_TIME = 120;
     timeInit() {
-        this.timer = this.INIT_TIME;
-        this.Timer.string = "2:00";
-
-
+        if(Global.isSkewersGame){
+            this.timer = Global.userData.curSkewerGameData.timeLimit;
+        }else{
+            this.timer = this.INIT_TIME;
+        }
+        this.Timer.string =  TimeUtil.formatTime(this.timer);
     }
     timeStart() {
         this.timerId = setInterval(() => {

@@ -205,6 +205,11 @@ export class GuessingGameScene extends Component {
         this.optionsNode.active = true;
         this._startTime = TimeUtil.getNow();
         this.timerRT.node.active = true;
+        if(Global.isSkewersGame){
+            this.timeLimit = Global.userData.curSkewerGameData.timeLimit;
+        }else{
+            this.timeLimit = 30;
+        }
         this.timerRT.startTimer(this.timeLimit);
 
         this.replayNode.active = true;

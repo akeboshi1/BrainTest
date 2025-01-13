@@ -108,7 +108,7 @@ export class SentenceMakingModel {
     }
 
     get gameTime(): number {
-        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionDatas.length - 1) {
+        if (Global.isSkewersGame && this.currentQuestionIndex <= this.skewerGameQuestionDatas.length - 1) {
             return Global.userData.curSkewerGameData.timeLimit;
         }
 

@@ -151,6 +151,8 @@ export default class GameView extends LayerPanel {
                  loopLevel = FindingGlobal.curSkewersGameIndex;
                  this._checkPoint = FindingGlobal.curSkewersGameIndex % GameConfig.allCheckPoint;
                  this.customsNode.getComponent(Label).string = "第" + Global.userData.curSkewerGameData.seq + "关";
+                 this.tempCountDown = Global.userData.curSkewerGameData.timeLimit;
+                 this.countDownTime = Global.userData.curSkewerGameData.timeLimit;
              } else {
                  let _level = CacheMgr.checkpoint;
                  this._checkPoint = CacheMgr.checkpoint = _level;

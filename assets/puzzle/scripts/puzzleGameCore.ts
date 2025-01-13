@@ -504,7 +504,11 @@ export class puzzleGameCore extends Component {
 
     onClickStartGame() {
         this._startTime = TimeUtil.getNow();
-        this.timerComponent.startTimer(this.gameLength.valueOf());
+        if(Global.isSkewersGame){
+            this.timerComponent.startTimer(Global.userData.curSkewerGameData.timeLimit);
+        }else{
+            this.timerComponent.startTimer(this.gameLength.valueOf());
+        }
         this.onClickDisturbPuzzleButton();
         this.bgNode.active = false;
         this.startGameMask.active = false;

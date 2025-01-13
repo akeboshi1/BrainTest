@@ -93,7 +93,6 @@ export class Main extends Component {
         // GameCenterManager.getInstance().startGame(1, this.startGame);
         if (Global.isSkewersGame) {
             this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
-            this.timer = Global.userData.curSkewerGameData.timeLimit;
         }
 
         AudioManager.getInstance().onAudioStart(this.onAudioStart,this);
@@ -573,7 +572,11 @@ export class Main extends Component {
     INIT_TIME = 90;
 
     timerInit() {
-        this.timer = this.INIT_TIME;
+        if(Global.isSkewersGame){
+            this.timer = Global.userData.curSkewerGameData.timeLimit;
+        }else{
+            this.timer = this.INIT_TIME;
+        }
         this.Timer.string = TimeUtil.formatTime(this.timer);
     }
     timerTick() {
