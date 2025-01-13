@@ -143,9 +143,10 @@ export class SentenceMakingScene extends Component {
     }
 
     private async startGameFlow() {
-        if(Global.userData.curSkewerGameData.type != GameType.Language){
+        if(Global.isSkewersGame && Global.userData.curSkewerGameData.type != GameType.Language){
             return;
         }
+
         this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
         this.hideAnimHupai();
