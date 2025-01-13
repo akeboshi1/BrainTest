@@ -626,8 +626,9 @@ export class MainScene extends Component {
                     break;
                 case 6:
                     sceneName = BundleName.SENTENCEMAKING;
+                    break;
                 case 7:
-                        sceneName = BundleName.SMALLTHEATER;
+                    sceneName = BundleName.SMALLTHEATER;
                     break;
             }
             let url = Global.RES_Root + sceneName;
