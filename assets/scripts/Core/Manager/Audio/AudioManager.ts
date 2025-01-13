@@ -1,5 +1,6 @@
 import { Node, AudioSource, AudioClip, resources, director, EventTarget } from 'cc';
 import { BaseManager } from '../BaseManager';
+import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 
 /**
  * @en
@@ -20,6 +21,9 @@ export class AudioManager extends BaseManager {
     // 创建一个事件目标对象，用于触发和监听自定义事件
     private eventTarget: EventTarget = new EventTarget();
 
+    private audioUrls=["music/win","music/fail"];
+    private audioMap:Map<string,AudioClip> = new Map();
+
     constructor() {
         super();
         let audioMgr = new Node();
@@ -30,6 +34,39 @@ export class AudioManager extends BaseManager {
         // 监听音频源的 'ended' 事件，当音频播放结束时触发自定义事件
         this._audioSource.node.on(AudioSource.EventType.STARTED, this.onAudioStarted.bind(this));
         this._audioSource.node.on(AudioSource.EventType.ENDED, this.onAudioEnded.bind(this));
+    }
+
+    public init(){
+        super.init();
+        this.loadAudio().then();
+    }
+
+    private async loadAudio(){
+        const loadPromises = this.audioUrls.map(audioUrl => {
+            return new Promise((resolve, reject) => {
+                LoaderManager.getInstance().resourcesLoadAudio(audioUrl).then((audioRes:AudioClip)=>{
+                    this.audioMap.set(audioUrl,audioRes);
+                    resolve(audioRes);
+                }).catch((err)=>{
+                    reject(err);
+                });
+            });
+        });
+        try {
+            const assets = await Promise.all(loadPromises);
+            console.log('All audio loaded:', assets);
+        } catch (error) {
+            console.error('Error loading audio:', error);
+        }
+
+    }
+
+    public playWin(){
+        this.play("music/win");
+    }
+
+    public playFail(){
+        this.play("music/fail");
     }
 
     public get audioSource() {

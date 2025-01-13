@@ -1,7 +1,6 @@
 import { _decorator, AnimationComponent, AudioClip, Button, Component, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
 import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
-import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
 import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../scripts/Core/Util/DebugLog';
@@ -10,7 +9,6 @@ import { SentenceMakingTimerComponent } from './SentenceMakingTimerComponent';
 import { Global } from '../../scripts/Core/Manager/Config/Global';
 import { GameCenterManager } from '../../scripts/Game/GameCenter/GameCenterManager';
 import { SkewersManager } from '../../scripts/Game/Task/Skewers/SkewersManager';
-import {LayerUtil} from "db://assets/scripts/Core/Util/LayerUtil";
 import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 const { ccclass, property } = _decorator;
 
@@ -566,6 +564,7 @@ export class SentenceMakingScene extends Component {
             // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
             DebugLog.instance.log("游戏成功！");
             this.showAnimHupai();
+            AudioManager.getInstance().playWin();
             showAlert = false;
         } else {
             // 处理游戏失败逻辑，标记错误位置
@@ -577,6 +576,7 @@ export class SentenceMakingScene extends Component {
             }
             ad.title = "可惜";
             ad.message = "挑战失败了";
+            AudioManager.getInstance().playFail();
             if(Global.isSkewersGame){
                 showAlert = false;
             }
