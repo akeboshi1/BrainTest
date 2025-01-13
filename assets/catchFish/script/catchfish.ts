@@ -340,7 +340,7 @@ export class catchfish extends Component {
                 fish.curTween = tween(fish)
                     // 对当前鱼对象进行 tween 动画
                     .delay(delay)// 每个对象延迟4秒开始
-                    .by(duration, { position: new Vec3(fish.position.x - 2400, fish.position.y, fish.position.z) },
+                    .by(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
                         {
                             onUpdate: () => {
                                 if(fish.pause){
@@ -396,7 +396,7 @@ export class catchfish extends Component {
                     .delay(delay)// 每个对象延迟n秒开始
                     .to(0.5,{position:new Vec3(self._leftSceneX+1080,fish.position.y,fish.position.z)},{easing:'cubicIn'})
                     .call(()=>{
-                        fish.curTween = tween(fish).by(duration, { position: new Vec3(fish.position.x - 2000, fish.position.y, fish.position.z) },
+                        fish.curTween = tween(fish).by(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
                                     if(fish.pause){
@@ -456,7 +456,7 @@ export class catchfish extends Component {
                 .delay(delay)// 每个对象延迟n秒开始
                 .to(0.5,{position:new Vec3(self._leftSceneX+1080,fish.position.y,fish.position.z)},{easing:'cubicIn'})
                 .call(()=>{
-                    fish.curTween = tween(fish).by(duration, { position: new Vec3(fish.position.x - 2000, fish.position.y, fish.position.z) },
+                    fish.curTween = tween(fish).by(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
                         {
                             onUpdate: () => {
                                 if(fish.pause){
