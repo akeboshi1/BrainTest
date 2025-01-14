@@ -14,6 +14,7 @@ export class AutoPlayLineData {
 	line: string;
 	characterid: number;
 	characterName: string;
+	playerResult: string = null;
 }
 
 export class SmalltheaterModel {
@@ -30,6 +31,7 @@ export class SmalltheaterModel {
 	private _plotID: number = -1;
 
 	private _timeStampMap: Map<number, number> = new Map();
+	private _asrResultMap: Map<number, string> = new Map();
 
 	private _postResultSocket: string = "language.evaluate";
 	private _postResultResolver: (v: number) => void = null;
@@ -40,6 +42,7 @@ export class SmalltheaterModel {
 
 	dispose() {
 		EventManager.getInstance().off(this._postResultSocket, this);
+		this._postResultResolver = null;
 	}
 
 	async loadConfigByID(id: number): Promise<void> {
@@ -53,6 +56,10 @@ export class SmalltheaterModel {
 
 	get currentPlot(): Plot {
 		return this._currentPlot;
+	}
+
+	get currentStageLine(): StageLine {
+		return this._currentPlot.stagelines[this._currentStageIndex];
 	}
 
 	get selectedCharacterIndex(): number {
@@ -85,6 +92,7 @@ export class SmalltheaterModel {
 		this._currentStageIndex = 0;
 		this._playerLineTextCache = [];
 		this._timeStampMap.clear();
+		this._asrResultMap.clear();
 	}
 
 	initReplayState() {
@@ -102,6 +110,7 @@ export class SmalltheaterModel {
 
 	confirmCurrentStageResult() {
 		this._playerLineTextCache.push(this._currentAsrResult);
+		this._asrResultMap.set(this._currentStageIndex, this._currentAsrResult);
 	}
 
 	hasCurrentStageLine(): boolean {
@@ -129,6 +138,7 @@ export class SmalltheaterModel {
 		data.characterName = this._currentPlot.character[sl.character].name;
 		data.line = sl.line;
 		if (remoteAudioID != null) {
+			data.playerResult = this._asrResultMap.get(sl.id);
 			data.audioClip = await this.loadRemoteAudioClip(remoteAudioID);
 		} else {
 			data.audioClip = await this.loadBundleAudioClip(sl.audioClip);
