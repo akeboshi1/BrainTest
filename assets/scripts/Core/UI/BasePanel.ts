@@ -50,6 +50,7 @@ export class BasePanel extends BaseObejct {
         DebugLog.instance.log(`${this.name} onDestroy`);
     }
 
+    // 恢复函数，接收一个任意类型的参数data
     restore(data: any) {
 
     }
