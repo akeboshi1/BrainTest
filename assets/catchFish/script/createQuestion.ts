@@ -43,24 +43,26 @@ export class CreateQuestion {
                 // 减法，确保结果不小于0
                 const a = getRandomInt(0, 20);
                 const b = getRandomInt(0, 9); // b 小于等于 a
-                if(b > a){
-                    return CreateQuestion.generateMathQuestion(difficulty);
+                if (b > a) {
+                    return this.generateMathQuestion(difficulty);
                 }
                 question = `${a} - ${b}`;
                 correctAnswer = a - b;
             } else if (operation === 3) {
-                // 除法（被除数和除数都小于10，确保能整除）
-                const b = getRandomInt(1, 9); // 除数
-                const a = b * getRandomInt(1, 9); // 被除数，确保能整除
-                if (a >= 10) {
-                    return this.generateMathQuestion(difficulty);
+                // 除法（被除数为一位数，除数从2到9）
+                const divisor = getRandomInt(2, 9); // 除数从2到9
+                const quotient = getRandomInt(2, 9); // 商从2到9
+                const a = divisor * quotient; // 被除数
+                if (a > 9) {
+                    return CreateQuestion.generateMathQuestion(difficulty); // 确保被除数为一位数
                 }
-                question = `${a} / ${b}`;
-                correctAnswer = a / b; // 此时必然为整数
+
+                question = `${a} / ${divisor}`;
+                correctAnswer = quotient; // 商
             } else if (operation === 4) {
-                // 乘法（两个数小于等于5）
-                const a = getRandomInt(1, 5);
-                const b = getRandomInt(1, 5);
+                // 乘法（两个数小于等于5，且不为1）
+                const a = getRandomInt(2, 5);
+                const b = getRandomInt(2, 5);
                 question = `${a} x ${b}`;
                 correctAnswer = a * b;
             }
@@ -77,72 +79,126 @@ export class CreateQuestion {
                 correctAnswer = a + b;
             } else if (operation === 2) {
                 // 2位数减1位数
-                const a = getRandomInt(10, 99);
+                const a = getRandomInt(20, 99);
                 const b = getRandomInt(1, 9);
                 question = `${a} - ${b}`;
                 correctAnswer = a - b; // 确保结果不小于0
             } else if (operation === 3) {
-                // 乘法（两个数字大于5且小于等于10）
+                // 乘法（两个数字大于5且小于等于10，且不为1）
                 if (getRandomInt(1, 2) === 1) {
-                    const a = getRandomInt(6, 10);
-                    const b = getRandomInt(6, 10);
+                    const a = getRandomInt(2, 10);
+                    const b = getRandomInt(2, 10);
                     question = `${a} x ${b}`;
                     correctAnswer = a * b;
                 } else {
                     // 被乘数大于10且小于12，乘数小于等于5
                     const a = getRandomInt(11, 12);
-                    const b = getRandomInt(1, 5);
+                    const b = getRandomInt(2, 5); // 确保乘数不为1
                     question = `${a} x ${b}`;
                     correctAnswer = a * b;
                 }
             } else if (operation === 4) {
-                // 除法（被除数是2位数，除数是1位数，能整除）
-                const divisor = getRandomInt(1, 9); // 除数
-                const product = divisor * getRandomInt(10, 99 / divisor); // 确保能整除且被除数为2位数
-                if (product > 99) {
-                    return this.generateMathQuestion(difficulty);
+                // 除法（被除数是99乘法表中的积数，除数不大于9）
+                const products = [];
+                for (let i = 1; i <= 9; i++) {
+                    for (let j = 1; j <= 9; j++) {
+                        const product = i * j;
+                        if (product >= 10 && product <= 81) {
+                            if(CreateQuestion.isInMultiplicationTable(product)){
+                                products.push({product,num0:i,num1:j});
+                            }
+                        }
+                    }
                 }
-                question = `${product} / ${divisor}`;
-                correctAnswer = product / divisor; // 此时必然为整数
+                const value = products[getRandomInt(0, products.length - 1)]; // 随机选择一个被除数
+                const a = value.product;
+                const divisor = getRandomInt(0, 1)==0?value.num0:value.num1;
+
+                question = `${a} / ${divisor}`;
+                correctAnswer = a / divisor; // 商
             }
 
         } else if (difficulty === 3) {
             // 难度三：复合计算
-            const operation = getRandomInt(1, 2); // 1: 加减法与除法, 2: 乘法与减法
+            let validQuestion = false;
 
-            if (operation === 1) {
-                // 生成加法与除法，确保能整除
-                const a = getRandomInt(1, 20);
-                const b = getRandomInt(1, 20);
-                const c = getRandomInt(2, 5); // 除数
+            while (!validQuestion) {
+                const operation = getRandomInt(1, 2); // 1: 乘法, 2: 除法
+                // 生成左侧括号内的加法或减法
+                const leftOperation = getRandomInt(1, 2); // 1: 加法, 2: 减法
 
-                // 加法计算
-                const addOrSubtract = getRandomInt(1, 2);
-                if (addOrSubtract === 1) {
-                    // 加法后除法
-                    question = `(${a} + ${b}) / ${c}`;
-                    correctAnswer = (a + b) / c; // 确保能整除
-                    if (correctAnswer % 1 !== 0) {
-                        return this.generateMathQuestion(difficulty);
+                if (operation === 1) {
+                    // 乘法
+                    let leftOperationValid = false;
+                    let a, b, c;
+
+                    if (leftOperation === 1) {
+                        // 加法
+                        a = getRandomInt(10, 99); // 两位数
+                        b = getRandomInt(10, 99); // 两位数
+                        const sum = a + b;
+
+                        // 确保和在5到10之间或10到12之间
+                        if ((sum > 5 && sum <= 10)) {
+                            c = getRandomInt(5, 10); // 右侧数字在5到10之间
+                            question = `(${a} + ${b}) x ${c}`;
+                            correctAnswer = sum * c;
+                            leftOperationValid = true;
+                        } else if ((sum > 10 && sum < 12)) {
+                            c = getRandomInt(1, 5); // 右侧数字小于等于5且大于0
+                            question = `(${a} + ${b}) x ${c}`;
+                            correctAnswer = sum * c;
+                            leftOperationValid = true;
+                        }
+                    } else {
+                        // 减法
+                        a = getRandomInt(20, 99); // 被减数大于20
+                        b = getRandomInt(1, 9); // 1位数
+                        const difference = a - b;
+
+                        // 确保差在5到10之间或10到12之间
+                        if ((difference > 5 && difference <= 10)) {
+                            c = getRandomInt(1, 5); // 右侧数字小于等于5
+                            question = `(${a} - ${b}) x ${c}`;
+                            correctAnswer = difference * c;
+                            leftOperationValid = true;
+                        } else if ((difference > 10 && difference < 12)) {
+                            c = getRandomInt(5, 10); // 右侧数字在5到10之间
+                            question = `(${a} - ${b}) x ${c}`;
+                            correctAnswer = difference * c;
+                            leftOperationValid = true;
+                        }
                     }
+
+                    if (leftOperationValid) {
+                        validQuestion = true;
+                    }
+
                 } else {
-                    // 减法后乘法
-                    question = `(${a} - ${b}) x ${c}`;
-                    correctAnswer = (a - b) * c; // 确保结果不小于0
-                    if (correctAnswer < 0) {
-                        return this.generateMathQuestion(difficulty);
+                    // 除法
+                    const products = [];
+                    for (let i = 1; i <= 9; i++) {
+                        for (let j = 1; j <= 9; j++) {
+                            const product = i * j;
+                            if (product >= 10 && product <= 81) {
+                                products.push({product,num0:i,num1:j}); // 99乘法表中的数字
+                            }
+                        }
                     }
-                }
-            } else {
-                // 生成乘法与减法
-                const a = getRandomInt(6, 10);
-                const b = getRandomInt(6, 10);
-                const c = getRandomInt(1, 9); // 小于10的数
 
-                question = `(${a} x ${b}) - ${c}`;
-                correctAnswer = (a * b) - c; // 确保结果不小于0
-                if (correctAnswer < 0) {
-                    return this.generateMathQuestion(difficulty);
+                    const value = products[getRandomInt(0, products.length - 1)]; // 随机选择一个被除数
+                    const a = value.product;
+                    const divisor = getRandomInt(0, 1)==0?value.num0:value.num1; // 1位数
+                    const b = getRandomInt(0, a - 1);
+
+                    // 加法
+                    if(leftOperation == 1){
+                        question = `(${a-b} + ${b}) / ${divisor}`;
+                    }else{
+                        question = `(${a+b} - ${b}) / ${divisor}`;
+                    }
+                    correctAnswer = a / divisor; // 商
+                    validQuestion = true;
                 }
             }
         }
@@ -169,6 +225,24 @@ export class CreateQuestion {
             options: shuffledOptions,
             correctAnswer: correctAnswer.toString(),
         });
+    }
+
+    static isInMultiplicationTable(n) {
+        // 检查范围
+        if (n < 1 || n > 81) {
+            return false;
+        }
+
+        // 检查因数
+        for (let a = 1; a <= 9; a++) {
+            for (let b = 1; b <= 9; b++) {
+                if (a * b === n) {
+                    return true; // 找到因数
+                }
+            }
+        }
+
+        return false; // 没有找到因数
     }
 
 }
