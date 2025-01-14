@@ -88,13 +88,11 @@ export class GameAlert extends Component{
                 });
             });
         });
-
         try {
-            // 使用 Promise.all 等待所有的 Promise 完成
             const assets = await Promise.all(loadPromises);
-            console.log('All assets loaded:', assets);
+            console.log('All gamealert audio loaded:', assets);
         } catch (error) {
-            console.error('Error loading assets:', error);
+            console.error('Error loading gamealert audio:', error);
         }
     }
 
