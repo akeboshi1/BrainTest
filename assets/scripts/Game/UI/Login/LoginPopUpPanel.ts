@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, Button, EditBox, Vec3 } from 'cc';
+import { _decorator, Node, Label, Button, EditBox, Vec3} from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
@@ -10,6 +10,8 @@ import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { TimeUtil } from '../../../Core/Util/TimeUtil';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
+import { TimerCommonComponent } from '../Common/TimerCommonComponent';
+
 
 const { ccclass, property } = _decorator;
 
@@ -67,6 +69,9 @@ export class LoginPopUpPanel extends BasePanel {
     @property(Node)
     labelNode: Node;
 
+    @property(TimerCommonComponent)
+    private timerCommonComponent: TimerCommonComponent;
+
     private numNodes: Node[];
 
     public static NAME: string = "LoginPopUpPanel";
@@ -98,19 +103,31 @@ export class LoginPopUpPanel extends BasePanel {
     start() {
         this.PhoneDescTxt.string = "发送>>";
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
+        this.startEditbox();
+        this.timerCommonComponent.startTimer(10);
+      
     }
+    onTimerEnd() {
+        this.PhoneDescTxt.node.active = true;
+        this.PhoneDescTxt.string = "重新发送>>";
+        this.timerCommonComponent.node.active = false;
+    }
+    reSendCode() {
+        this.timerCommonComponent.startTimer(10); 
+        this.PhoneDescTxt.node.active = false;
+        this.timerCommonComponent.node.active = true;
+        this.startEditbox();
 
+    }
     onEnable() {
-
+        if (this.timerCommonComponent) this.timerCommonComponent.on('timer-end', this.onTimerEnd, this);
     }
 
     onDisable() {
+
         EventManager.getInstance().off(this.login_send_mp_code, this);
         EventManager.getInstance().off(this.login_login_by_mp, this);
-    }
-
-    bgClick() {
-        this.startEditbox();
+        if (this.timerCommonComponent) this.timerCommonComponent.off('timer-end', this.onTimerEnd, this);
     }
 
     restore(data: any): void {
@@ -143,7 +160,9 @@ export class LoginPopUpPanel extends BasePanel {
         this.phoneNumber = data['data']['mp_no'];
         this.updateView(true);
     }
-
+    backToParent() {
+        UIManager.getInstance().hidePanel(LoginPopUpPanel.NAME);
+    }
     cancelClick() {
         UIManager.getInstance().showPanel(LoginPanel.NAME);
         this.hidePanel();
