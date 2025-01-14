@@ -30,70 +30,120 @@ export class CreateQuestion {
         let correctAnswer = 0;
 
         if (difficulty === 1) {
-            // 难度一：加减法
-            const a = getRandomInt(0, 20);
-            const b = getRandomInt(0, 20);
-
-            // 随机选择加法或减法
-            if (getRandomInt(1, 2) === 1) {
-                question = `${a} + ${b}`;
-                correctAnswer = a + b;
-            } else {
-                if (a < b) {
-                    // 确保减法结果不小于0
-                    question = `${b} - ${a}`; // 反转顺序
-                    correctAnswer = b - a;
-                } else {
-                    question = `${a} - ${b}`;
-                    correctAnswer = a - b;
-                }
-            }
-
-        } else if (difficulty === 2) {
-            // 难度二：加减法、乘法、除法
-            const operation = getRandomInt(1, 3); // 1: 加法, 2: 减法, 3: 乘法
+            // 难度一：加减法、除法和乘法
+            const operation = getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 除法, 4: 乘法
 
             if (operation === 1) {
-                const a = getRandomInt(10, 99);
-                const b = getRandomInt(1, 20);
+                // 加法
+                const a = getRandomInt(0, 20);
+                const b = getRandomInt(0, 9);
                 question = `${a} + ${b}`;
                 correctAnswer = a + b;
             } else if (operation === 2) {
-                const a = getRandomInt(10, 99);
-                const b = getRandomInt(1, a); // 确保不出现负数
+                // 减法，确保结果不小于0
+                const a = getRandomInt(0, 20);
+                const b = getRandomInt(0, 9); // b 小于等于 a
+                if(b > a){
+                    return CreateQuestion.generateMathQuestion(difficulty);
+                }
                 question = `${a} - ${b}`;
-                correctAnswer = a - b; // 确保结果不小于0
+                correctAnswer = a - b;
             } else if (operation === 3) {
-                const a = getRandomInt(2, 10); // 确保不为1
-                const b = getRandomInt(2, 10); // 确保不为1
+                // 除法（被除数和除数都小于10，确保能整除）
+                const b = getRandomInt(1, 9); // 除数
+                const a = b * getRandomInt(1, 9); // 被除数，确保能整除
+                if (a >= 10) {
+                    return this.generateMathQuestion(difficulty);
+                }
+                question = `${a} / ${b}`;
+                correctAnswer = a / b; // 此时必然为整数
+            } else if (operation === 4) {
+                // 乘法（两个数小于等于5）
+                const a = getRandomInt(1, 5);
+                const b = getRandomInt(1, 5);
                 question = `${a} x ${b}`;
                 correctAnswer = a * b;
             }
 
-        } else if (difficulty === 3) {
-            // 难度三：复合计算，包含能整除的除法
-            const a = getRandomInt(1, 20);
-            const b = getRandomInt(1, 20);
-            const c = getRandomInt(2, 5); // 确保不为1
-
-            // 随机选择操作
+        } else if (difficulty === 2) {
+            // 难度二：加减法、乘法、除法
             const operation = getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 乘法, 4: 除法
 
             if (operation === 1) {
-                question = `(${a} + ${b}) x ${c}`;
-                correctAnswer = (a + b) * c;
+                // 2位数加法
+                const a = getRandomInt(10, 99);
+                const b = getRandomInt(10, 99);
+                question = `${a} + ${b}`;
+                correctAnswer = a + b;
             } else if (operation === 2) {
-                question = `(${a} + ${b}) - ${c}`;
-                correctAnswer = (a + b) - c;
+                // 2位数减1位数
+                const a = getRandomInt(10, 99);
+                const b = getRandomInt(1, 9);
+                question = `${a} - ${b}`;
+                correctAnswer = a - b; // 确保结果不小于0
             } else if (operation === 3) {
-                question = `(${a} x ${b}) + ${c}`;
-                correctAnswer = (a * b) + c;
+                // 乘法（两个数字大于5且小于等于10）
+                if (getRandomInt(1, 2) === 1) {
+                    const a = getRandomInt(6, 10);
+                    const b = getRandomInt(6, 10);
+                    question = `${a} x ${b}`;
+                    correctAnswer = a * b;
+                } else {
+                    // 被乘数大于10且小于12，乘数小于等于5
+                    const a = getRandomInt(11, 12);
+                    const b = getRandomInt(1, 5);
+                    question = `${a} x ${b}`;
+                    correctAnswer = a * b;
+                }
             } else if (operation === 4) {
-                // 生成可整除的除法
-                const divisor = getRandomInt(2, 5); // 除数
-                const product = getRandomInt(2, 10) * divisor; // 确保结果能整除
+                // 除法（被除数是2位数，除数是1位数，能整除）
+                const divisor = getRandomInt(1, 9); // 除数
+                const product = divisor * getRandomInt(10, 99 / divisor); // 确保能整除且被除数为2位数
+                if (product > 99) {
+                    return this.generateMathQuestion(difficulty);
+                }
                 question = `${product} / ${divisor}`;
                 correctAnswer = product / divisor; // 此时必然为整数
+            }
+
+        } else if (difficulty === 3) {
+            // 难度三：复合计算
+            const operation = getRandomInt(1, 2); // 1: 加减法与除法, 2: 乘法与减法
+
+            if (operation === 1) {
+                // 生成加法与除法，确保能整除
+                const a = getRandomInt(1, 20);
+                const b = getRandomInt(1, 20);
+                const c = getRandomInt(2, 5); // 除数
+
+                // 加法计算
+                const addOrSubtract = getRandomInt(1, 2);
+                if (addOrSubtract === 1) {
+                    // 加法后除法
+                    question = `(${a} + ${b}) / ${c}`;
+                    correctAnswer = (a + b) / c; // 确保能整除
+                    if (correctAnswer % 1 !== 0) {
+                        return this.generateMathQuestion(difficulty);
+                    }
+                } else {
+                    // 减法后乘法
+                    question = `(${a} - ${b}) x ${c}`;
+                    correctAnswer = (a - b) * c; // 确保结果不小于0
+                    if (correctAnswer < 0) {
+                        return this.generateMathQuestion(difficulty);
+                    }
+                }
+            } else {
+                // 生成乘法与减法
+                const a = getRandomInt(6, 10);
+                const b = getRandomInt(6, 10);
+                const c = getRandomInt(1, 9); // 小于10的数
+
+                question = `(${a} x ${b}) - ${c}`;
+                correctAnswer = (a * b) - c; // 确保结果不小于0
+                if (correctAnswer < 0) {
+                    return this.generateMathQuestion(difficulty);
+                }
             }
         }
 
@@ -122,9 +172,3 @@ export class CreateQuestion {
     }
 
 }
-
-
-// 示例：生成不同难度的算式
-// console.log("Difficulty 1 Problem:", generateMathProblem(1));
-// console.log("Difficulty 2 Problem:", generateMathProblem(2));
-// console.log("Difficulty 3 Problem:", generateMathProblem(3));
