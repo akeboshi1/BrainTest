@@ -366,7 +366,7 @@ export class SmalltheaterScene extends Component {
         let data: { id: string, save_audio: string, max_sentence_silence: string } = {
             id: id,
             save_audio: "true",
-            max_sentence_silence: "500"
+            max_sentence_silence: "2000"
         };
 
         ChatFlowModel.getInstance().onOpenASR(data);
