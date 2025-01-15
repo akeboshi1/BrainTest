@@ -17,6 +17,7 @@ export class PersonalCenterPanel extends BasePanel {
     @property(Label)
     titleLabel: Label = null;
 
+
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         PersonalCenterManager.getInstance().requestUserInfo();
@@ -25,6 +26,12 @@ export class PersonalCenterPanel extends BasePanel {
     onDisable(): void {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
     }
+
+    // restore(data: any): void {
+    //     if(data.onhideCallback) {
+    //         this.onhideCallback = data.onhideCallback;
+    //     }
+    // }
 
     getUserInfoCallBack(data: any) {
         let userData = PersonalCenterManager.getInstance().userInfoData;
@@ -58,7 +65,12 @@ export class PersonalCenterPanel extends BasePanel {
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
-
+    // async hidePanel(): Promise<void> {
+    //     await super.hidePanel();
+    //     if(this.onhideCallback) {
+    //         this.onhideCallback();
+    //     }
+    // }
 }
 
 

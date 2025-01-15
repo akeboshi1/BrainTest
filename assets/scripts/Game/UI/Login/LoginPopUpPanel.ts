@@ -104,7 +104,7 @@ export class LoginPopUpPanel extends BasePanel {
         this.PhoneDescTxt.string = "发送>>";
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.startEditbox();
-        this.timerCommonComponent.startTimer(10);
+        this.timerCommonComponent.startTimer(60);
       
     }
     onTimerEnd() {
@@ -113,7 +113,7 @@ export class LoginPopUpPanel extends BasePanel {
         this.timerCommonComponent.node.active = false;
     }
     reSendCode() {
-        this.timerCommonComponent.startTimer(10); 
+        this.timerCommonComponent.startTimer(60); 
         this.PhoneDescTxt.node.active = false;
         this.timerCommonComponent.node.active = true;
         this.startEditbox();
@@ -121,6 +121,7 @@ export class LoginPopUpPanel extends BasePanel {
     }
     onEnable() {
         if (this.timerCommonComponent) this.timerCommonComponent.on('timer-end', this.onTimerEnd, this);
+        
     }
 
     onDisable() {
