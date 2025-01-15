@@ -148,10 +148,15 @@ export class MainScene extends Component {
     }
 
     protected onDisable(): void {
-        EventManager.getInstance().off(TaskManager.getInstance().pushEvet, this);
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
-        EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, this);
+        EventManager.getInstance().off(TaskManager.pushEvet, this);
+        EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
+    }
+
+    protected onEnable(): void {
+        EventManager.getInstance().on(TaskManager.PushEvetCallBack, this.pushEvetCallBack, this);
+        TaskManager.getInstance().pushTask();
     }
 
 
@@ -188,33 +193,28 @@ export class MainScene extends Component {
                     if (task) task.active = false;
                 });
             }
-            EventManager.getInstance().on(TaskManager.PushEvetCallBack, this.pushEvetCallBack, this);
-            TaskManager.getInstance().pushTask();
-
             EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
             TaskManager.getInstance().start();
             this.startShowView();
         }
 
-        hideInfoPopup(){
-            UIManager.getInstance().hidePanel(InfoListPopCtrl.NAME);
-        }
-        private _curID;
+        private _infoPanelOpenState:boolean = false;
         pushEvetCallBack(data) {
             if(!data.id){return}
-            if(this._curID == data.id)return;
-            this._curID = data.id;
-            if(!UIManager.getInstance().getPanel(InfoListPopCtrl.NAME)) UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup",InfoListPopCtrl,true,"infoList");
-            this.hideInfoPopup();
-            UIManager.getInstance().showPanel(InfoListPopCtrl.NAME,data);
 
-            EventManager.getInstance().on("hideInfoListPop",this.hideInfoListPop, this);
             TaskManager.getInstance().isReadNotification([data.id]);
+
+            if(this._infoPanelOpenState){
+                return;
+            }
+
+            this._infoPanelOpenState = true;
+            UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup",InfoListPopCtrl,true,"infoList");
+            UIManager.getInstance().showPanel(InfoListPopCtrl.NAME,{closeCb:()=>{
+                this._infoPanelOpenState = false;
+            }});
         }
-        hideInfoListPop() {
-            EventManager.getInstance().off("hideInfoListPop",this);
-            this.hideInfoPopup();
-        }
+
         updateTime() {
             const now = new Date();
             // const hours = TimeUtil.padZero(now.getHours());
@@ -345,12 +345,6 @@ export class MainScene extends Component {
         UIManager.getInstance().registerPanel(PersonalCenterPanel.NAME, BundleName.RESOURCES, "prefab/personalCenter/PersonalCenterPanel",PersonalCenterPanel);
         UIManager.getInstance().showPanel(PersonalCenterPanel.NAME);
     }
-    reportNode() {
-        // DebugLog.instance.log("reportNode");
-        // this.personalInfoNode.getChildByName('PersonalCenter').active = false;
-        // this.reportUINode.active = true;
-    }
-
     showMore() {
         const ad: AlertData = new AlertData();
         ad.title = "";
@@ -363,6 +357,7 @@ export class MainScene extends Component {
     // ======= 任务中心
     private taskListRequestCallBack(data, context) {
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
+       
         switch (this._curPanel) {
             case this.taskNode:
                 this.taskRemind();

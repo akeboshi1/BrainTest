@@ -51,10 +51,7 @@ export class TaskManager {
     private notification_start_notifications: string = "notification.get_notifications";
     private _notificationList: NotificationData[];
     private notification_read: string = "notification.read";
-    public pushEvet: string = "event";
-    // private _pushEvetList:string [];
-
-
+    public static pushEvet: string = "event";
 
     public get curTask():TaskData{
         return Global.userData.curTaskData;
@@ -74,6 +71,11 @@ export class TaskManager {
         return this._notificationList;
     }
 
+    private _infoDataCache:any[] = [];
+
+    get infoDataCache():any[]{
+        return this._infoDataCache;
+    }
 
     init() {
         // 脑力保健
@@ -311,14 +313,18 @@ export class TaskManager {
      */
 
     public pushTask() {
-        EventManager.getInstance().on(this.pushEvet, this.pushEventCallback, this);
+        EventManager.getInstance().on(TaskManager.pushEvet, this.pushEventCallback, this);
     }
     public pushEventCallback(data: SocketData, context: any) {
-        // EventManager.getInstance().off(context.pushEvet, context);
+        // 
         DebugLog.instance.log(`服务器推送任务`, data);
         if(data.status == 1){
+            this._infoDataCache.push(data.data);
             EventManager.getInstance().emit(TaskManager.PushEvetCallBack, data.data);
         }
-       
+    }
+
+    public cleanInfoDataCache(){
+        this._infoDataCache = [];
     }
 }

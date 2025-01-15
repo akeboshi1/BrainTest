@@ -6,6 +6,7 @@ import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManage
 import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
 import { BasePanel, PanelState } from '../../Core/UI/BasePanel';
 import { LayerUtil } from '../../Core/Util/LayerUtil';
+import { UIManager } from '../../Core/Manager/UI/UIManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('InfoListPopCtrl')
@@ -20,19 +21,30 @@ export class InfoListPopCtrl extends BasePanel {
     @property(Node)
     parentNode: Node = null;
 
-    @property(Node)
-    rootNode: Node = null;
-
     private _taskID: number = -1;
+    private _closeCb: () => void = null;
 
-    start() {
-
+    onEnable(): void {
+        EventManager.getInstance().on(TaskManager.PushEvetCallBack, this.onInfoDataUpdate, this);
     }
 
-    restore(data: any): void {
+    onDisable(): void {
+        EventManager.getInstance().off(TaskManager.PushEvetCallBack, this);
+    }
+
+    restore(data: { closeCb: () => {} }): void {
         if (data) {
-            this.updateInfoList(data);
+            this._closeCb = data.closeCb;
         }
+        this.onInfoDataUpdate();
+    }
+
+    onInfoDataUpdate() {
+        let infodataCache:any[] = TaskManager.getInstance().infoDataCache;
+        for(let i = 0; i < infodataCache.length; i++) {
+            this.updateInfoList(infodataCache[i]);
+        }
+        TaskManager.getInstance().cleanInfoDataCache();
     }
 
     update(deltaTime: number) {
@@ -74,41 +86,19 @@ export class InfoListPopCtrl extends BasePanel {
     }
 
     hideInfoAlert(infoItem: Node) {
-        let content: Node = this.node.getChildByName('ScrollView').getChildByName('view').getChildByName('content');
+        // let content: Node = this.node.getChildByName('ScrollView').getChildByName('view').getChildByName('content');
         infoItem.removeFromParent();
-        if (content.children.length == 0) {
-            EventManager.getInstance().emit('hideInfoListPop');
+        if (this.parentNode.children.length == 0) {
+            UIManager.getInstance().hidePanel(InfoListPopCtrl.NAME);
         }
     }
 
-    // 显示面板
-    async showPanel() {
-        await new Promise<void>((resolve, reject) => {
-            const screenWidth = LayerUtil.getPanelLayer().getComponent(UITransform).width;
-            const startPos = new Vec3(screenWidth, 0, 0);
-            this.rootNode.setPosition(startPos);
-            tween(this.rootNode)
-                .to(0.3, { position: new Vec3(0, 0, 0) }, { easing: 'quartOut' })
-                .call(() => {
-                    this.state = PanelState.SHOW;
-                    resolve();
-                })
-                .start();
-        });
-    }
 
-    // 隐藏面板
-    async hidePanel() {
-        await new Promise<void>((resolve, reject) => {
-            const screenWidth = LayerUtil.getPanelLayer().getComponent(UITransform).width;
-            tween(this.rootNode)
-                .to(0.3, { position: new Vec3(screenWidth, 0, 0) }, { easing: 'quartIn' })
-                .call(() => {
-                    this.state = PanelState.HIDE;
-                    resolve();
-                })
-                .start();
-        });
+    async hidePanel(): Promise<void> {
+        await super.hidePanel();
+        if (this._closeCb) {
+            this._closeCb();
+        }
     }
 }
 
