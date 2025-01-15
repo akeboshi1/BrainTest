@@ -722,7 +722,7 @@ export class catchfish extends Component {
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.alertGoonHandler,context.remoteClick,context);
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.totalCompete,context.remoteClick,context);
         }
     }
 
@@ -918,7 +918,7 @@ export class catchfish extends Component {
             this.playAudio("music/win");
             // 串烧游戏逻辑
             if(SkewersManager.getInstance().isRunOver()){
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.goonCallBack,this.remoteClick,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.totalCompete,this.remoteClick,this);
                 return;
             }
             this.hardIndex = this.hards.indexOf(this.curHard);
@@ -959,9 +959,14 @@ export class catchfish extends Component {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore,0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.remoteClick,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.totalCompete,this.remoteClick,this);
             }
         }
+    }
+
+    private totalCompete(context){
+        context.clearGameView();
+        SkewersManager.getInstance().exitCallBack();
     }
 
     private remoteClick(){

@@ -156,7 +156,7 @@ export class SentenceMakingModel {
                 if (!SkewersManager.getInstance().isRunOver()) {
                     SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.alertGoonHandler1, this.exit, this);
                 } else {
-                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.exit, this.remoteClick, this);
+                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
                 }
             }
         }else{
@@ -172,7 +172,7 @@ export class SentenceMakingModel {
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.skewersGoNext,context.exit,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exit,context.remoteClick,context);
+            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.totalComplete,context.remoteClick,context);
         }
     }
 
@@ -219,6 +219,10 @@ export class SentenceMakingModel {
         }else{
             self._view.resume();
         }
+    }
+
+    private totalComplete(){
+        SkewersManager.getInstance().exitCallBack();
     }
 
     private exit() {
