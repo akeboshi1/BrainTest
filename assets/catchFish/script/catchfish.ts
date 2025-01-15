@@ -337,7 +337,7 @@ export class catchfish extends Component {
 
         let self = this;
         const upDistance = 10; // 上下浮动的距离
-        const duration = 25//30/(this.curHard+1); // 每次往返的时间
+        const duration = 18//30/(this.curHard+1); // 每次往返的时间
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave

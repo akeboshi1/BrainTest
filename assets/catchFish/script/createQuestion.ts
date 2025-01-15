@@ -225,7 +225,7 @@ export class CreateQuestion {
                 question = `(${innerQuestion}) / ${outerNumber}`;
 
                 // 确保整个表达式不出现小数
-                if (result % outerNumber !== 0) {
+                if (result % outerNumber !== 0|| result < 10) {
                     // 如果除法结果为小数，重新生成外部运算
                     return this.generateMathQuestion(difficulty);
                 }
