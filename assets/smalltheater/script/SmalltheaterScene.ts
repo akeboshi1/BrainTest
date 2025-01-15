@@ -1,4 +1,4 @@
-import { _decorator, AnimationComponent, Color, Component, easing, instantiate, Label, Node, Sprite, Tween, tween, UIOpacity, UITransform, Vec3 } from 'cc';
+import { _decorator, AnimationComponent, Color, Component, easing, instantiate, Label, Node, RichText, Sprite, Tween, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AutoPlayLineData, SmalltheaterModel } from './SmalltheaterModel';
 import { StateMachine } from '../../scripts/Core/StateMachine/StateMachine';
 import { AbortablePromise } from '../../scripts/Core/StateMachine/AbortablePromise';
@@ -12,6 +12,9 @@ import { EventManager } from '../../scripts/Core/Manager/Event/EventManager';
 import { ChatFlowModel } from '../../scripts/Game/UI/ChatPanel/Model/ChatFlowModel';
 import { ParallelFlow } from '../../scripts/Core/StateMachine/ParallelFlow';
 import { IFlow } from '../../scripts/Core/StateMachine/IFlow';
+import { UIManager } from '../../scripts/Core/Manager/UI/UIManager';
+import { StageLinesPanel } from './StageLinesPanel';
+import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
 @ccclass('SmalltheaterScene')
@@ -40,8 +43,8 @@ export class SmalltheaterScene extends Component {
     @property([Node])
     characterRootNodes: Node[] = [];
 
-    @property(Label)
-    stagelineLabel: Label = null;
+    @property(RichText)
+    stagelineLabel: RichText = null;
 
     @property(Node)
     btnConfirmCharacter: Node = null;
@@ -115,6 +118,7 @@ export class SmalltheaterScene extends Component {
         EventManager.getInstance().on(ChatFlowModel.ASRFlowStartEvent, this.onAsrContected, this);
         EventManager.getInstance().on(ChatFlowModel.ASRFlowCompleteEvent, this.onAsrClosed, this);
 
+        UIManager.getInstance().registerPanel(StageLinesPanel.NAME, BundleName.SMALLTHEATER, "prefab/StageLinesPanel", StageLinesPanel);
     }
 
     protected onDestroy(): void {
@@ -207,7 +211,11 @@ export class SmalltheaterScene extends Component {
     private onEnterAutoPlayLine(data: AutoPlayLineData) {
         if (data) {
             this.stagelineLabel.node.active = true;
-            this.stagelineLabel.string = data.characterName + ":\n" + data.line;
+            let str = data.characterName + ":\n" + data.line;
+            if (data.playerResult) {
+                str += "\n<color=#000000>[你]：" + data.playerResult + "</color>";
+            }
+            this.stagelineLabel.string = str;
             for (let i = 0; i < this._characterNodes.length; i++) {
                 let inst = this._characterNodes[i];
                 let ctrl = inst.getComponent(CharacterCtrl);
@@ -225,6 +233,8 @@ export class SmalltheaterScene extends Component {
             let ctrl = inst.getComponent(CharacterCtrl);
             ctrl.setMaskOpacity(i == this.model.selectedCharacterIndex ? 0 : 125);
         }
+        this.stagelineLabel.node.active = true;
+        this.stagelineLabel.string = this.model.currentStageLine.tipline;
     }
 
     private onEnterSelectCharacter(data: any) {
@@ -335,13 +345,17 @@ export class SmalltheaterScene extends Component {
             ctrl.setMaskOpacity(0);
         }
 
-        this.model.initInteractionState();
-        let seqflow = new SequenceFlow();
-        seqflow.addFlow(this.timeCountLabelAnim("3"));
-        seqflow.addFlow(this.timeCountLabelAnim("2"));
-        seqflow.addFlow(this.timeCountLabelAnim("1"));
-        seqflow.addFlow(this.timeCountLabelAnim("开始"));
-        this.stateMachine.enterState(SmalltheaterState.Interaction, null, seqflow);
+        UIManager.getInstance().showPanel(StageLinesPanel.NAME, {
+            model: this.model, onhideCallback: () => {
+                this.model.initInteractionState();
+                let seqflow = new SequenceFlow();
+                seqflow.addFlow(this.timeCountLabelAnim("3"));
+                seqflow.addFlow(this.timeCountLabelAnim("2"));
+                seqflow.addFlow(this.timeCountLabelAnim("1"));
+                seqflow.addFlow(this.timeCountLabelAnim("开始"));
+                this.stateMachine.enterState(SmalltheaterState.Interaction, null, seqflow);
+            }
+        });
     }
 
     onClickRecord() {
@@ -352,7 +366,7 @@ export class SmalltheaterScene extends Component {
         let data: { id: string, save_audio: string, max_sentence_silence: string } = {
             id: id,
             save_audio: "true",
-            max_sentence_silence: "500"
+            max_sentence_silence: "2000"
         };
 
         ChatFlowModel.getInstance().onOpenASR(data);
@@ -420,10 +434,11 @@ export class SmalltheaterScene extends Component {
     private onAsrClosed(data: any) {
         this.btnStopRecord.active = false;
         this.talkingAnimNode.active = false;
+        this.stagelineLabel.node.active = false;
 
-        this.model.goNextStageLine();
-        this.stateMachine.backToLastState(null, new UnitFlow(this.delayFlow(500)));
         this.model.confirmCurrentStageResult();
+        this.model.goNextStageLine();
+        this.stateMachine.backToLastState();
     }
 
     private onAsrResult(data: any) {

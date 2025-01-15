@@ -69,6 +69,10 @@
       if (params && params.save_audio === true) {
         save_audio = 1;
       }
+      let max_sentence_silence = 2000;
+      if (params && params.max_sentence_silence) {
+          max_sentence_silence = params.max_sentence_silence;
+      }
 
       let websocketUrl = await this.getWebSocketUrl();
       if (id) {
@@ -77,9 +81,11 @@
       if (save_audio) {
         websocketUrl += '&save_audio=' + save_audio
       }
+      if (max_sentence_silence) {
+        websocketUrl += '&max_sentence_silence=' + max_sentence_silence
+      }
 
-      // console.log("websocketUrl", websocketUrl);
-
+      console.log("asr websocketUrl: ", websocketUrl);
       if ("WebSocket" in window) {
         this.iatWS = new WebSocket(websocketUrl);
       } else if ("MozWebSocket" in window) {

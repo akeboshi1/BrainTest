@@ -15,6 +15,8 @@ export interface StageLine {
     character: number;
     line: string;
     audioClip: string;
+    richTextLine: string;
+    tipline: string;
 }
 
 // 定义剧情类
