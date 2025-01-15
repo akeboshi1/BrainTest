@@ -336,19 +336,22 @@ export class catchfish extends Component {
         }
 
         let self = this;
-        const upDistance = 10; // 上下浮动的距离
-        const duration = 18//30/(this.curHard+1); // 每次往返的时间
+        const upDistance = 8; // 上下浮动的距离+
+        const duration = (20 * (1600- Math.abs(800-fish.position.x)))/1600; // 每次往返的时间(根据鱼的当前点x坐标动态计算时间)
+        DebugLog.instance.log("pause duration:"+duration);
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave
         let pause = false;
         // 使用 tween 创建运动效果
-        if((Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.hasGuid())||(GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
+        if((Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.hasGuid())||(GameCenterManager.getInstance().currentGame
+            && GameCenterManager.getInstance().currentGame.level == 1)){
             if(!this.hasGuide){
+                // 串烧引导流程
                 fish.curTween = tween(fish)
                     // 对当前鱼对象进行 tween 动画
                     .delay(delay)// 每个对象延迟4秒开始
-                    .by(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
+                    .to(duration, { position: new Vec3(-800, fish.position.y, fish.position.z) },
                         {
                             onUpdate: () => {
                                 if(fish.pause){
@@ -399,12 +402,196 @@ export class catchfish extends Component {
                     })
                     .start(); // 启动动画
             }else{
+                // 串烧正常流程
+                if(this._pause && fish.position.x<this._leftSceneX+1080) {
+                    fish.curTween = tween(fish).to(duration, {position: new Vec3(-800, this.fishYs[fish.positionYIndex], fish.position.z)},
+                        {
+                            onUpdate: () => {
+                                if (self._pause) {
+                                    DebugLog.instance.log("pause update")
+                                    return;
+                                }
+                                if (fish.pause) {
+                                    fish.curTween.stop();
+                                    return;
+                                }
+                                if (self._clearBoo) return;
+                                if (!Global.isSkewersGame) {
+                                    if (self.gameSuccessView.active || self.gameFailView.active) {
+                                        return;
+                                    }
+                                }
+                                const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
+                                const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
+                                fish.setPosition(newPosition.x, newPosition.y);
+                                if (self.hasGuide) {
+                                    return;
+                                }
+
+                                // 开启引导
+                                if ((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
+                                    || (Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData() && Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)) {
+                                    if (fish.position.x <= (self._leftSceneX + 540) / 2 && fish.positionYIndex == self._guideIndex) {
+                                        self.hasGuide = true;
+                                        EventManager.getInstance().on(CatchFishGuide.GUIDECLICK, self.guideClick.bind(self), self);
+                                        fish.pause = true;
+                                        self.isGuide = true;
+                                        self._curFish = fish;
+                                        GuideManager.getInstance().start(CatchFishGuide.NAME, {
+                                            root: this.node,
+                                            fish: fish,
+                                            wang: self.wangs
+                                        });
+                                        // 这里暂停tween
+                                    }
+                                }
+                            }
+                        }
+                    )
+                        .call(() => {
+                            self._pause = false;
+                            fish.pause = false;
+                            if (!Global.isSkewersGame) {
+                                if (self.gameSuccessView.active || self.gameFailView.active) {
+                                    return;
+                                }
+                            }
+                            if (self._clearBoo) return;
+                            if (fish == self._curFish) {
+                                self.clearWangNubmer();
+                                self._curFish = null;
+                            }
+                            self.randomFish(fish);
+                            self.moveFishes(fish, fish.positionYIndex * SHOOT_INTERVAL);
+                        })
+                        .start();
+                }else{
+                    fish.curTween = tween(fish)
+                        // 对当前鱼对象进行 tween 动画
+                        .delay(delay)// 每个对象延迟n秒开始
+                        .to(0.5,{position:new Vec3(self._leftSceneX+1080,fish.position.y,fish.position.z)},{easing:'cubicIn'})
+                        .call(()=>{
+                            fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
+                                {
+                                    onUpdate: () => {
+                                        if(fish.pause){
+                                            fish.curTween.stop();
+                                            return;
+                                        }
+                                        if(self._clearBoo)return;
+                                        if(!Global.isSkewersGame){
+                                            if (self.gameSuccessView.active || self.gameFailView.active) {
+                                                return;
+                                            }
+                                        }
+                                        const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
+                                        const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
+                                        fish.setPosition(newPosition.x,newPosition.y);
+                                        if(self.hasGuide){
+                                            return;
+                                        }
+                                        if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
+                                            ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
+                                            if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
+                                                self.hasGuide = true;
+                                                EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
+                                                fish.pause = true;
+                                                self.isGuide = true;
+                                                self._curFish = fish;
+                                                GuideManager.getInstance().start(CatchFishGuide.NAME,{root:this.node,fish:fish,wang:self.wangs});
+                                                // 这里暂停tween
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                                .call(() => {
+                                    fish.pause = false;
+                                    if(!Global.isSkewersGame){
+                                        if (self.gameSuccessView.active || self.gameFailView.active) {
+                                            return;
+                                        }
+                                    }
+                                    if(self._clearBoo)return;
+                                    if(fish == self._curFish){
+                                        self.clearWangNubmer();
+                                        self._curFish = null;
+                                    }
+                                    self.randomFish(fish);
+                                    self.moveFishes(fish, SHOOT_INTERVAL);
+                                })
+                                .start();
+                        })
+                        .start(); // 启动动画
+                }
+            }
+        }
+        else {
+            if(this._pause && fish.position.x<this._leftSceneX+1080){
+                fish.curTween = tween(fish).to(duration, { position: new Vec3(-800, this.fishYs[fish.positionYIndex], fish.position.z) },
+                    {
+                        onUpdate: () => {
+                            if(self._pause){
+                                DebugLog.instance.log("pause update")
+                                return;
+                            }
+                            if(fish.pause){
+                                fish.curTween.stop();
+                                return;
+                            }
+                            if(self._clearBoo)return;
+                            if(!Global.isSkewersGame){
+                                if (self.gameSuccessView.active || self.gameFailView.active) {
+                                    return;
+                                }
+                            }
+                            const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
+                            const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
+                            fish.setPosition(newPosition.x,newPosition.y);
+                            if(self.hasGuide){
+                                return;
+                            }
+
+                            // 开启引导
+                            if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
+                                ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
+                                if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
+                                    self.hasGuide = true;
+                                    EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
+                                    fish.pause = true;
+                                    self.isGuide = true;
+                                    self._curFish = fish;
+                                    GuideManager.getInstance().start(CatchFishGuide.NAME,{root:this.node,fish:fish,wang:self.wangs});
+                                    // 这里暂停tween
+                                }
+                            }
+                        }
+                    }
+                )
+                    .call(() => {
+                        self._pause =false;
+                        fish.pause = false;
+                        if(!Global.isSkewersGame){
+                            if (self.gameSuccessView.active || self.gameFailView.active) {
+                                return;
+                            }
+                        }
+                        if(self._clearBoo)return;
+                        if(fish == self._curFish){
+                            self.clearWangNubmer();
+                            self._curFish = null;
+                        }
+                        self.randomFish(fish);
+                        self.moveFishes(fish, fish.positionYIndex * SHOOT_INTERVAL);
+                    })
+                    .start();
+            }else{
                 fish.curTween = tween(fish)
                     // 对当前鱼对象进行 tween 动画
                     .delay(delay)// 每个对象延迟n秒开始
-                    .to(0.5,{position:new Vec3(self._leftSceneX+1080,fish.position.y,fish.position.z)},{easing:'cubicIn'})
+                    .to(0.2,{position:new Vec3(self._leftSceneX+1080,fish.position.y,fish.position.z)},{easing:'cubicIn'})
                     .call(()=>{
-                        fish.curTween = tween(fish).by(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
+                        fish.curTween = tween(fish).to(duration, { position: new Vec3(-800, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
                                     if(fish.pause){
@@ -458,65 +645,6 @@ export class catchfish extends Component {
                     .start(); // 启动动画
             }
         }
-        else {
-            fish.curTween = tween(fish)
-                // 对当前鱼对象进行 tween 动画
-                .delay(delay)// 每个对象延迟n秒开始
-                .to(0.5,{position:new Vec3(self._leftSceneX+1080,fish.position.y,fish.position.z)},{easing:'cubicIn'})
-                .call(()=>{
-                    fish.curTween = tween(fish).by(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
-                        {
-                            onUpdate: () => {
-                                if(fish.pause){
-                                    fish.curTween.stop();
-                                    return;
-                                }
-                                if(self._clearBoo)return;
-                                if(!Global.isSkewersGame){
-                                    if (self.gameSuccessView.active || self.gameFailView.active) {
-                                        return;
-                                    }
-                                }
-                                const y = upDistance * Math.sin(floatAmplitude * fish.position.x + phase);
-                                const newPosition = new Vec3(fish.position.x, fish.position.y + y, fish.position.z);
-                                fish.setPosition(newPosition.x,newPosition.y);
-                                if(self.hasGuide){
-                                    return;
-                                }
-                                if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
-                                    ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
-                                    if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
-                                        self.hasGuide = true;
-                                        EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
-                                        fish.pause = true;
-                                        self.isGuide = true;
-                                        self._curFish = fish;
-                                        GuideManager.getInstance().start(CatchFishGuide.NAME,{root:this.node,fish:fish,wang:self.wangs});
-                                        // 这里暂停tween
-                                    }
-                                }
-                            }
-                        }
-                    )
-                        .call(() => {
-                            fish.pause = false;
-                            if(!Global.isSkewersGame){
-                                if (self.gameSuccessView.active || self.gameFailView.active) {
-                                    return;
-                                }
-                            }
-                            if(self._clearBoo)return;
-                            if(fish == self._curFish){
-                                self.clearWangNubmer();
-                                self._curFish = null;
-                            }
-                            self.randomFish(fish);
-                            self.moveFishes(fish, SHOOT_INTERVAL);
-                        })
-                        .start();
-                })
-                .start(); // 启动动画
-        }
     }
 
     private guideClick(step:number) {
@@ -560,11 +688,11 @@ export class catchfish extends Component {
                         this.requestGameResult();
                     }else{
                         if(!this.customsSendDataState){ //未发送数据的状态
-                           const curGame = GameCenterManager.getInstance().currentGame;
-                           let level = curGame.level+1;
-                           GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, level,
-                               this.wangCount/this.wangMaxCount, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
-                               this.customsSendDataState= true;
+                            const curGame = GameCenterManager.getInstance().currentGame;
+                            let level = curGame.level+1;
+                            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, level,
+                                this.wangCount/this.wangMaxCount, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+                            this.customsSendDataState= true;
                         }
                         this.gameFailView.active = true;
                         this.updateSuccessPopupStar(this.curHard);
@@ -610,7 +738,7 @@ export class catchfish extends Component {
         this._clearBoo = false;
         this.calculateTime();
         this.timeStart();
-        this.createFish();
+        // this.createFish();
     }
 
     rePlayGame() {
@@ -750,11 +878,11 @@ export class catchfish extends Component {
                             if(!self._clearBoo)self.createFish();
                         }else{
                             // 设置当前鱼为选中状态
-                            self._curFish.setSelect(self.unSelectColor, 1)
+                            self._curFish.setSelect(self.unSelectColor, 1);
                             // 随机生成鱼
                             self.randomFish(self._curFish);
                             // 移动鱼
-                            self.moveFishes(self._curFish, SHOOT_INTERVAL);
+                            if(!self._pause)self.moveFishes(self._curFish, SHOOT_INTERVAL);
 
                             self._curFish=null;
                         }
@@ -798,10 +926,10 @@ export class catchfish extends Component {
             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE,this.requestSkewersGameComplete,this);
         } else {
             if(!this.customsSendDataState){
-            const curGame = GameCenterManager.getInstance().currentGame;
-            let level = curGame.level+1;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, level,
-                1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
+                const curGame = GameCenterManager.getInstance().currentGame;
+                let level = curGame.level+1;
+                GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.wangCount, level,
+                    1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex], () => { });
             }
             this.gameSuccessView.active = true;
             this.clearGameView();
@@ -973,12 +1101,20 @@ export class catchfish extends Component {
 
     }
 
+
+    private _pause = false;
     /**
      * 返回应用大厅
      */
     private quitGame() {
         // console.log("返回大厅")
-        this.clearGameView();
+        this._pause = true;
+        clearInterval(this.timerId);
+        this.fishs.forEach(fish =>{
+            fish.curTween.stop();
+            fish.curTween = null;
+        });
+        // this.clearGameView();
         if(Global.isSkewersGame){
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = SkewersManager.getInstance().getGameCount();
@@ -990,6 +1126,11 @@ export class catchfish extends Component {
     }
 
     private goonCallBack(context){
+        let self = this;
+        this.fishs.forEach(fish =>{
+            self.moveFishes(fish);
+        });
+        this._pause = false;
         if(Global.isSkewersGame) {
             if(!SkewersManager.getInstance().isRunOver()){
                 context.restoreTimer();
