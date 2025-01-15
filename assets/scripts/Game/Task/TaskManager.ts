@@ -44,11 +44,6 @@ export class TaskManager {
      */
     private task_start_task: string = "task.start_task";
 
-    private task_event: string = "event";
-
-
-
-
     private _taskDic: Map<number, TaskData>;
 
     private _taskList: TaskData[];

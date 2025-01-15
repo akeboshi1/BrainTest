@@ -215,6 +215,9 @@ export class CreateQuestion {
                     return this.generateMathQuestion(difficulty);
                 }
             } else if (outerOperation === 3) {
+                if(result > 15){
+                    return this.generateMathQuestion(difficulty);
+                }
                 question = `(${innerQuestion}) x ${outerNumber}`;
                 correctAnswer = result * outerNumber; // 乘法
             } else if (outerOperation === 4) {
