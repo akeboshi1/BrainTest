@@ -34,29 +34,13 @@
         {
             "id": 2,
             "character": 0,
-            "line": "我哪有莽撞？我只是想帮忙而已！",
-            "richTextLine": "我哪有莽撞？我只是<color=#0fffff>想帮忙</color>而已！",
-            "tipline":"我哪有_______？我只是_________！",
-            "audioClip": "audio/1/xiaoyanzi_2"
-        },
-        {
-            "id": 3,
-            "character": 1,
-            "line": "帮忙？你差点把整个御花园都毁了！",
-            "richTextLine": "帮忙？你差点把整个<color=#0fffff>御花园</color>都毁了！",
-            "tipline":"_____________都毁了！",
-            "audioClip": "audio/1/wuage_2"
-        },
-        {
-            "id": 4,
-            "character": 0,
             "line": "那花花草草哪有那么重要嘛！",
             "richTextLine": "那花花草草<color=#0fffff>哪有那么重要</color>嘛！",
             "tipline":"_花花草草___________",
             "audioClip": "audio/1/xiaoyanzi_3"
         },
         {
-            "id": 5,
+            "id": 3,
             "character": 1,
             "line": "那是皇阿玛最喜欢的花园！",
             "richTextLine": "那是<color=#0fffff>皇阿玛</color>最喜欢的<color=#0fffff>花园</color>！",
@@ -64,7 +48,7 @@
             "audioClip": "audio/1/wuage_3"
         },
         {
-            "id": 6,
+            "id": 4,
             "character": 0,
             "line": "好啦好啦，我知道错了，你别生气了！",
             "richTextLine": "好啦好啦，我<color=#0fffff>知道错了</color>，你别生气了！",
@@ -72,7 +56,7 @@
             "audioClip": "audio/1/xiaoyanzi_4"
         },
         {
-            "id": 7,
+            "id": 5,
             "character": 1,
             "line": "你呀，真是让人又气又笑！",
             "richTextLine": "你呀，真是让人<color=#0fffff>又气又笑</color>！",

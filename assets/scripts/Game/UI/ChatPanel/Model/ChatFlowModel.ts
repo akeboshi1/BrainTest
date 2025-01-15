@@ -343,7 +343,8 @@ export class ChatFlowModel extends BaseManager {
 
         if (sys.platform === 'ANDROID') {
             DebugLog.instance.log('android asr connect');
-            native.bridge.sendToNative('ASR', 'connect');
+            // native.bridge.sendToNative('ASR', 'connect');
+            native.bridge.sendToNative('ASR', "connect(" + datastr + ")");
         }
 
     }
