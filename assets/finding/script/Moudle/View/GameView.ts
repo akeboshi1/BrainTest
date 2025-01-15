@@ -38,6 +38,7 @@ import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
+import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 
 const {ccclass,property} = _decorator;
 
@@ -615,12 +616,22 @@ export default class GameView extends LayerPanel {
         context._pauseDurTime += context._pauseEndTime - TimeUtil.getNow();
         AudioMgr.audioSource.stop();
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().runNextGame(false);
-            PanelMgr.INS.closePanel(GameView);
-            PanelMgr.INS.openPanel({
-                layer: Layer.gameLayer,
-                panel: HomeView,
+            let boo = true;
+            Global.userData.curSkewerGameData.trains.forEach((train)=>{
+                if(train.status != 1){
+                    boo = false;
+                }
             })
+           if(boo){
+               SkewersManager.getInstance().runNextGame();
+           }else{
+               SkewersManager.getInstance().runNextGame(false);
+               PanelMgr.INS.closePanel(GameView);
+               PanelMgr.INS.openPanel({
+                   layer: Layer.gameLayer,
+                   panel: HomeView,
+               })
+           }
         }else{
             SkewersManager.getInstance().exitCallBack();
         }
