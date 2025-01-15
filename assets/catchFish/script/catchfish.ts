@@ -977,8 +977,9 @@ export class catchfish extends Component {
     private alertGoonHandler(context){
         context.clearGameView();
         if (!SkewersManager.getInstance().isRunOver()) {
-            context.node.active = false;
-            SkewersManager.getInstance().runNextGame();
+            // context.node.active = false;
+            SkewersManager.getInstance().runNextGame(false);
+            context.start();
         }else{
             SkewersManager.getInstance().exitCallBack();
         }
