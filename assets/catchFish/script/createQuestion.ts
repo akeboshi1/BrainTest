@@ -185,6 +185,9 @@ export class CreateQuestion {
                     const divisor = getRandomInt(1, 9); // 除数为1位数
                     const quotient = getRandomInt(2, 9); // 商为整数
                     const a = divisor * quotient; // 被除数
+                    if(a<10){
+                        return this.generateMathQuestion(difficulty);
+                    }
                     innerQuestion = `${a} / ${divisor}`;
                     result = quotient; // 商
                 }
