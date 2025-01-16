@@ -616,22 +616,7 @@ export default class GameView extends LayerPanel {
         context._pauseDurTime += context._pauseEndTime - TimeUtil.getNow();
         AudioMgr.audioSource.stop();
         if (!SkewersManager.getInstance().isRunOver()) {
-            let boo = true;
-            Global.userData.curSkewerGameData.trains.forEach((train)=>{
-                if(train.status != 1){
-                    boo = false;
-                }
-            })
-           if(boo){
-               SkewersManager.getInstance().runNextGame();
-           }else{
-               SkewersManager.getInstance().runNextGame(false);
-               PanelMgr.INS.closePanel(GameView);
-               PanelMgr.INS.openPanel({
-                   layer: Layer.gameLayer,
-                   panel: HomeView,
-               })
-           }
+            SkewersManager.getInstance().runNextGame();
         }else{
             SkewersManager.getInstance().exitCallBack();
         }
