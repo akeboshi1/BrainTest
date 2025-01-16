@@ -9,7 +9,7 @@ export class FishQuestion{
         this.question = value.question;
         this.options = value.options;
         this.correctAnswer = value.correctAnswer;
-        // this.hasChose = value.hasChose;
+        // CreateQuestion.hasChose = value.hasChose;
     }
 }
 
@@ -44,7 +44,7 @@ export class CreateQuestion {
                 const a = getRandomInt(1, 20);
                 const b = getRandomInt(1, 9); // b 小于等于 a
                 if (b > a) {
-                    return this.generateMathQuestion(difficulty);
+                    return CreateQuestion.generateMathQuestion(difficulty);
                 }
                 question = `${a} - ${b}`;
                 correctAnswer = a - b;
@@ -54,7 +54,7 @@ export class CreateQuestion {
                 const quotient = getRandomInt(2, 9); // 商从2到9
                 const a = divisor * quotient; // 被除数
                 if (a > 9) {
-                    return this.generateMathQuestion(difficulty); // 确保被除数为一位数
+                    return CreateQuestion.generateMathQuestion(difficulty); // 确保被除数为一位数
                 }
 
                 question = `${a} ÷ ${divisor}`;
@@ -190,7 +190,7 @@ export class CreateQuestion {
                         const quotient = getRandomInt(2, 9); // 商为整数
                         const a = divisor * quotient; // 被除数
                         if (a < 10) {
-                            return this.generateMathQuestion(difficulty);
+                            return CreateQuestion.generateMathQuestion(difficulty);
                         }
                         innerQuestion = `${a} ÷ ${divisor}`;
                         result = quotient; // 商
