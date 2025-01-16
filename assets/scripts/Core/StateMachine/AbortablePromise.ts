@@ -18,6 +18,8 @@ export class AbortablePromise<T> {
                     if (this.resolveCb) {
                         this.resolveCb(value);
                     }
+                    this.innerReject = null;
+                    
                     resolve(value);
                 }, (reason) => {
                     this.innerReject = null;
