@@ -88,6 +88,8 @@ export class SmalltheaterScene extends Component {
     private _flowCache: IFlow[] = [];
     private _scrollScoreTw: Tween<Node> = null;
 
+    private _isAsrClosed:boolean = false;
+
     private mubul_original_pos = new Vec3(20, 767, 0);
     private mubul_target_pos = new Vec3(-590, 767, 0);
     private mubur_original_pos = new Vec3(-20, 767, 0);
@@ -429,9 +431,15 @@ export class SmalltheaterScene extends Component {
         this.talkingAnimNode.getComponent(AnimationComponent).play("takingAnimIcon");
         this.btnRecord.active = false;
         this.btnStopRecord.active = true;
+        this._isAsrClosed = false;
     }
 
     private onAsrClosed(data: any) {
+        if(this._isAsrClosed){
+            return;
+        }
+        this._isAsrClosed = true;
+
         this.btnStopRecord.active = false;
         this.talkingAnimNode.active = false;
         this.stagelineLabel.node.active = false;
