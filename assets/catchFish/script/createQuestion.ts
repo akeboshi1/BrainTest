@@ -18,11 +18,9 @@ export class CreateQuestion {
         return question;
     }
 
-
     private static async generateRandomInt(min: number, max: number): Promise<number> {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-
 
     private static async generateMathQuestion(difficulty): Promise<FishQuestion> {
         const getRandomInt = async (min: number, max: number) => {
@@ -166,19 +164,21 @@ export class CreateQuestion {
 
                 if (operation === 1) {
                     // 加法
-                    const type = await getRandomInt(0, 1);
                     let a, b;
-                    if (type === 0) {
-                        // 2位数加法
-                        a = await getRandomInt(10, 99);
-                        b = await getRandomInt(10, 99);
-                    } else {
-                        // 2位数字（20以上） 加 1位数字
-                        a = await getRandomInt(21, 99);
-                        b = await getRandomInt(1, 9);
-                    }
+                    do {
+                        const type = await getRandomInt(0, 1);
+                        if (type === 0) {
+                            // 2位数加法
+                            a = await getRandomInt(10, 50);
+                            b = await getRandomInt(10, 50);
+                        } else {
+                            // 2位数字（20以上） 加 1位数字
+                            a = await getRandomInt(21, 90);
+                            b = await getRandomInt(1, 9);
+                        }
+                        result = a + b;
+                    } while (result > 100);
                     innerQuestion = `${a} + ${b}`;
-                    result = a + b;
                 } else if (operation === 2) {
                     // 减法
                     let a, b;
@@ -223,51 +223,60 @@ export class CreateQuestion {
 
                 return { innerQuestion, result };
             };
-            let { innerQuestion, result } = await generateInnerQuestion();
-            // 外部运算选择
-            const outerOperation = await getRandomOperation();
+
+            let innerResult;
+            let innerQuestion;
+            let outerOperation;
             let outerNumber;
-            if (outerOperation === 3 || outerOperation === 4) {
-                // 乘法或除法时，外部数字不能为1
-                outerNumber = await getRandomInt(2, 9);
-            } else {
-                // 加法或减法时，外部数字可以为1
-                outerNumber = await getRandomInt(1, 9);
-            }
+
+            do {
+                const inner = await generateInnerQuestion();
+                innerQuestion = inner.innerQuestion;
+                innerResult = inner.result;
+                outerOperation = await getRandomOperation();
+
+                if (outerOperation === 3 || outerOperation === 4) {
+                    // 乘法或除法时，外部数字不能为1
+                    outerNumber = await getRandomInt(2, 9);
+                } else {
+                    // 加法或减法时，外部数字可以为1
+                    outerNumber = await getRandomInt(1, 9);
+                }
+
+                if (outerOperation === 4) {
+                    // 除法，确保结果为整数
+                    while (innerResult % outerNumber!== 0 || innerResult < 10) {
+                        const res = await generateInnerQuestion();
+                        innerQuestion = res.innerQuestion;
+                        innerResult = res.result;
+                    }
+                }
+            } while (outerOperation === 4 && (innerResult % outerNumber!== 0 || innerResult < 10));
 
             // 形成最终问题
             if (outerOperation === 1) {
                 question = `(${innerQuestion}) + ${outerNumber}`;
-                correctAnswer = result + outerNumber;
+                correctAnswer = innerResult + outerNumber;
             } else if (outerOperation === 2) {
                 question = `(${innerQuestion}) - ${outerNumber}`;
-                correctAnswer = result - outerNumber; // 确保结果不小于0
+                correctAnswer = innerResult - outerNumber; // 确保结果不小于0
                 while (correctAnswer < 0) {
                     const res = await generateInnerQuestion();
                     innerQuestion = res.innerQuestion;
-                    result = res.result;
-                    correctAnswer = result - outerNumber;
+                    innerResult = res.result;
+                    correctAnswer = innerResult - outerNumber;
                 }
             } else if (outerOperation === 3) {
-                while (result > 15) {
+                while (innerResult > 15) {
                     const res = await generateInnerQuestion();
                     innerQuestion = res.innerQuestion;
-                    result = res.result;
+                    innerResult = res.result;
                 }
                 question = `(${innerQuestion}) x ${outerNumber}`;
-                correctAnswer = result * outerNumber; // 乘法
+                correctAnswer = innerResult * outerNumber; // 乘法
             } else if (outerOperation === 4) {
-                // 除法，确保结果为整数
                 question = `(${innerQuestion}) ÷ ${outerNumber}`;
-
-                // 确保整个表达式不出现小数
-                while (result % outerNumber!== 0 || result < 10) {
-                    // 如果除法结果为小数，重新生成外部运算
-                    const res = await generateInnerQuestion();
-                    innerQuestion = res.innerQuestion;
-                    result = res.result;
-                }
-                correctAnswer = result / outerNumber; // 商
+                correctAnswer = innerResult / outerNumber; // 商
             }
         }
 

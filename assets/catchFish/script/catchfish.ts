@@ -238,7 +238,7 @@ export class catchfish extends Component {
         }
     }
 
-    private fishYs:number[]=[-300,-100,100,300];
+    private fishYs:number[]=[-450,-150,150,450];
     public hasGuide:boolean = false;
     private randomFish(fish: Fish) {
         if(this._clearBoo){
