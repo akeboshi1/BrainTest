@@ -63,7 +63,7 @@ export class SkewersGameData {
     }
 
     public hasGuid():boolean{
-        return this.getCurTrainData().hasGuide;
+        return this.getCurTrainData()?this.getCurTrainData().hasGuide:false;
     }
 
     public refreshData(data:any){
