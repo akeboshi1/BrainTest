@@ -227,10 +227,18 @@ export class LoginPopUpPanel extends BasePanel {
     public startEditbox() {
         if (!this.editBox.isFocused()) {
             this.editBox.setFocus();
-            if (this.numNodes[3].getChildByName('label').getComponent(Label).string != "") {
-                this.numNodes[3].setScale(new Vec3(1.2, 1.2, 1.2));
-            } else {
-                this.numNodes[0].setScale(new Vec3(1.2, 1.2, 1.2));
+            let _index=-1;
+            for(let i:number=3;i>=0;i--){
+                const node = this.numNodes[i];
+                if(node.getChildByName('label').getComponent(Label).string !=''&& i>_index){
+                    node.setScale(new Vec3(1.2,1.2,1.2));
+                    _index = i;
+                }else{
+                    node.setScale(new Vec3(1,1,1));
+                }
+            }
+            if(_index == -1) {
+                this.numNodes[0].setScale(new Vec3(1.2,1.2,1.2));
             }
         }
     }
