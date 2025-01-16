@@ -239,6 +239,7 @@ export class MainScene extends Component {
 
 
     backToTaskView() {
+        this.taskRemind();
         this.gameCenterNode.active = false;
         this.taskProgressNode.active = false;
        
@@ -357,7 +358,6 @@ export class MainScene extends Component {
     // ======= 任务中心
     private taskListRequestCallBack(data, context) {
         EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
-       
         switch (this._curPanel) {
             case this.taskNode:
                 this.taskRemind();
