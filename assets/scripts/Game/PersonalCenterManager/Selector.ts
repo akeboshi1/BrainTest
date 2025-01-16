@@ -2,8 +2,6 @@ import { _decorator, Component, find, Node } from 'cc';
 import { ScrollViewExt } from './ScrollViewExt';
 const { ccclass, property } = _decorator;
 
-const dataArr = ["男", "女"];
-
 @ccclass('Selector')
 export class Selector extends Component {
 
@@ -11,7 +9,7 @@ export class Selector extends Component {
     svExt: ScrollViewExt = null;
 
     @property([String])
-    options: String[] = dataArr;
+    options: String[] = [];
 
     callback: (sex: string) => void;
 
@@ -33,7 +31,7 @@ export class Selector extends Component {
                 
                 this.svExt.dataList = strArr;
 
-                this.svExt.callback = (idx: number, data: Array<string>) => this.onSexChanged(idx, data);
+                this.svExt.callback = (idx: number, data: Array<string>) => this.onSelectionChanged(idx, data);
             }
             this.initMember();
 
@@ -55,7 +53,7 @@ export class Selector extends Component {
         this._index = 0;
     }
 
-    onSexChanged(idx: number, data: Array<string>) {
+    onSelectionChanged(idx: number, data: Array<string>) {
         this._selectedOptions = data[idx];
         this._index = idx;
         if (this.callback) {
@@ -66,6 +64,11 @@ export class Selector extends Component {
     private onClose() {
         this.callback(this._selectedOptions);
         this.node.active = false;
+    }
+
+    scrollToSelection(option:string){
+        let optIndex = this.options.indexOf(option);
+        this.svExt.scrollToSelection(optIndex);
     }
 }
 

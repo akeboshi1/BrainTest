@@ -5,11 +5,11 @@ const { ccclass, property } = _decorator;
 @ccclass('ScrollViewExt')
 export class ScrollViewExt extends Component {
     @property
-    spaceCnt:number = 3;
+    spaceCnt: number = 3;
     @property(Node)
-    nodeItem:Node = null;
+    nodeItem: Node = null;
 
-    callback: (idx:number, data:Array<string>) => void;
+    callback: (idx: number, data: Array<string>) => void;
 
     /** 是否增加子节点区间功能 */
     // @property
@@ -23,18 +23,18 @@ export class ScrollViewExt extends Component {
     private _dataList = [];
 
     private nowOffsetY = 0;
-    private selectChildren:Node[] = [];
+    private selectChildren: Node[] = [];
 
-    private _topCnt:number = 3;
-    private _botCnt:number = 3;
+    private _topCnt: number = 3;
+    private _botCnt: number = 3;
     private _itemHeight = 52;
 
-    set dataList(data:Array<string>){
+    set dataList(data: Array<string>) {
         this._dataList = data;
         this.refresh();
     }
 
-    get dataList(){
+    get dataList() {
         return this._dataList;
     }
 
@@ -51,11 +51,11 @@ export class ScrollViewExt extends Component {
 
         scroll.content.removeAllChildren();
         this.selectChildren = [];
-        for(let i = 0; i < this._dataList.length + this._topCnt + this._botCnt; i++){
+        for (let i = 0; i < this._dataList.length + this._topCnt + this._botCnt; i++) {
             let node = instantiate(this.nodeItem);
-            if(i < this._topCnt || i >= this._dataList.length + this._topCnt){
+            if (i < this._topCnt || i >= this._dataList.length + this._topCnt) {
                 node.children[0].active = false;
-            }else{
+            } else {
                 node.children[0].active = true;
                 let realIdx = i - this._topCnt;
                 node.children[0].getComponent(Label).string = `${this._dataList[realIdx]}`;
@@ -66,11 +66,11 @@ export class ScrollViewExt extends Component {
             node.parent = scroll.content;
         }
 
-        if(this.selectChildIndex >= this._dataList.length){
+        if (this.selectChildIndex >= this._dataList.length) {
             this.selectChildIndex = 0;
             this.setSelectChildIndex(0);
             scroll.scrollToTop();
-        }else{
+        } else {
             this.setSelectChildIndex(this.selectChildIndex);
         }
     }
@@ -79,7 +79,7 @@ export class ScrollViewExt extends Component {
     /** 改方法只增加了竖轴滑动事件，横轴事件同理 */
     addScrollBarExtra() {
         const scroll = this.node.getComponent(ScrollView);
-        const scrollnode:any = this.node;
+        const scrollnode: any = this.node;
 
         /** 手动禁用scroll节点捕获事件_capturingListeners */
         scrollnode._bubblingListeners = scrollnode._capturingListeners;
@@ -89,25 +89,25 @@ export class ScrollViewExt extends Component {
         let touching = false;
         const handlenode = scrollbar.handle.node;
 
-        function getMoveInterval(node:Node,parent:Node) {
-            
+        function getMoveInterval(node: Node, parent: Node) {
+
             const handlesize = size(node.getComponent(UITransform).width, node.getComponent(UITransform).height);
             const parentSize = size(parent.getComponent(UITransform).width, parent.getComponent(UITransform).height);
-            let maxY = 0,minY = 0;
+            let maxY = 0, minY = 0;
             if (parentSize.height > handlesize.height) {
                 maxY = parentSize.height / 2 - handlesize.height;
                 minY = - parentSize.height / 2;
-            } 
-            return {minY,maxY};
+            }
+            return { minY, maxY };
         }
 
-        handlenode.on(Node.EventType.TOUCH_START,(e:EventTouch)=>{
+        handlenode.on(Node.EventType.TOUCH_START, (e: EventTouch) => {
             touching = true;
             e.propagationStopped = true;
         })
-        handlenode.on(Node.EventType.TOUCH_MOVE,(e:EventTouch)=>{
+        handlenode.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => {
             const node = e.target;
-            const {minY,maxY} = getMoveInterval(node,node.parent)
+            const { minY, maxY } = getMoveInterval(node, node.parent)
             node.y += e.getDelta().y
             if (node.y > maxY) {
                 node.y = maxY;
@@ -121,15 +121,15 @@ export class ScrollViewExt extends Component {
                 this.scrolling(scroll)
             }
         })
-        handlenode.on(Node.EventType.TOUCH_END,(e:EventTouch)=>{
+        handlenode.on(Node.EventType.TOUCH_END, (e: EventTouch) => {
             touching = false;
             e.propagationStopped = true;
             if (this.extraScrollChildIndex) {
                 this.scrollToOffset(scroll)
             }
-            
+
         })
-        handlenode.on(Node.EventType.TOUCH_CANCEL,(e:EventTouch)=>{
+        handlenode.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => {
             touching = false;
             e.propagationStopped = true;
             if (this.extraScrollChildIndex) {
@@ -138,11 +138,11 @@ export class ScrollViewExt extends Component {
         })
     }
 
-    start () {
-        
+    start() {
+
     }
 
-    refresh(){
+    refresh() {
         this._itemHeight = this.nodeItem.getComponent(UITransform).height;
         this._topCnt = this.spaceCnt;
         this._botCnt = this.spaceCnt;
@@ -151,7 +151,7 @@ export class ScrollViewExt extends Component {
         this.extraScrollBar && this.addScrollBarExtra();
     }
 
-    getScrollChildOffset(scroll:ScrollView) {
+    getScrollChildOffset(scroll: ScrollView) {
         /** 每个子节点高度，用来计算区间 */
         const height = this._itemHeight;
         const maxoffset = scroll.getMaxScrollOffset().y;
@@ -167,20 +167,18 @@ export class ScrollViewExt extends Component {
         let o = 0;
         let o2 = height;
         let i = 0;
-        while(true) {
+        while (true) {
             if (Math.abs(o - offset) < Math.abs(o2 - offset)) {
                 this.selectChildIndex = i;
                 return o;
             }
             o += height;
             o2 += height;
-            i ++;
+            i++;
         }
     }
 
-    
-
-    setSelectChildIndex(idx:number) {
+    setSelectChildIndex(idx: number) {
         for (let i = 0; i < this.selectChildren.length; i++) {
             this.selectChildren[i].getComponent(UIOpacity).opacity = idx === i ? 255 : 255 * 0.3;
         }
@@ -188,48 +186,57 @@ export class ScrollViewExt extends Component {
         this.callback && this.callback(this.selectChildIndex, this._dataList);
     }
 
-    scrolling(scroll:ScrollView) {
+    scrolling(scroll: ScrollView) {
         /** 每个子节点高度，用来计算区间 */
         const height = this._itemHeight;
         const maxoffset = scroll.getMaxScrollOffset().y;
         const offset = scroll.getScrollOffset().y;
         if (offset <= 0) {
-           return this.setSelectChildIndex(0)
+            return this.setSelectChildIndex(0)
         } else if (offset >= maxoffset) {
-           return this.setSelectChildIndex(this.selectChildren.length - 1)
+            return this.setSelectChildIndex(this.selectChildren.length - 1)
         }
 
         let o = 0;
         let o2 = height;
         let i = 0;
-        while(true) {
+        while (true) {
             if (offset >= o && offset < o2) {
                 const op = (offset - o) / height;
-                this.selectChildren[i].getComponent(UIOpacity).opacity = Math.max(1-op,0.3) * 255;
+                this.selectChildren[i].getComponent(UIOpacity).opacity = Math.max(1 - op, 0.3) * 255;
                 this.selectChildren[i + 1].getComponent(UIOpacity).opacity = Math.max(op, 0.3) * 255;
-                return 
+                return
             }
             o += height;
             o2 += height;
-            i ++;
+            i++;
         }
     }
 
-    onScrollEnded(scroll:ScrollView){
+    onScrollEnded(scroll: ScrollView) {
         this.scrollToOffset(scroll);
     }
 
-    onScrolling(scroll:ScrollView){
+    onScrolling(scroll: ScrollView) {
         this.scrolling(scroll);
     }
 
-    scrollToOffset(scroll:ScrollView) {
+    scrollToOffset(scroll: ScrollView) {
         const offset = this.getScrollChildOffset(scroll)
-        const scrollOffset =  scroll.getScrollOffset();
-        if (Math.abs(this.nowOffsetY - scrollOffset.y) < 0.01) 
+        const scrollOffset = scroll.getScrollOffset();
+        console.log("scrollToOffset ---------- " + offset + "," + scrollOffset.y);
+        if (Math.abs(this.nowOffsetY - scrollOffset.y) < 0.01)
             return this.setSelectChildIndex(this.selectChildIndex);
         this.nowOffsetY = offset;
-        scroll.scrollToOffset(v2(scrollOffset.x,this.nowOffsetY),0.1);
+        scroll.scrollToOffset(v2(scrollOffset.x, this.nowOffsetY), 0.1);
+    }
+
+    scrollToSelection(index: number) {
+        const scrollview = this.node.getComponent(ScrollView);
+        const scrollOffset = scrollview.getScrollOffset();
+        const height = this._itemHeight;
+        let offsetY: number =  index * height;
+        scrollview.scrollToOffset(v2(scrollOffset.x, offsetY), 0.1);
     }
 }
 

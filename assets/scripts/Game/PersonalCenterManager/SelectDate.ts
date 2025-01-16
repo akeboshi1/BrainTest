@@ -146,6 +146,15 @@ export class SelectDate extends Component {
         this.callback && this.callback(this._year.substring(0, this._year.length - 1), this._month.substring(0, this._month.length - 1), this._day.substring(0, this._day.length - 1));
         this.node.active = false;
     }
+
+    scrollToSelection(option:string){
+        let yi = yearArr.indexOf(option.split("-")[0]+"年");
+        let mi = monthArr.indexOf(option.split("-")[1]+"月");
+        let di = dayArr.indexOf(option.split("-")[2]+"日");
+        this.yearSelect.scrollToSelection(yi);
+        this.monthSelect.scrollToSelection(mi);
+        this.daySelect.scrollToSelection(di);
+    }
 }
 
 class Nodes {

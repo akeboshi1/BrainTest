@@ -60,26 +60,30 @@ export class UserInfoPanel extends BasePanel {
         this.initUserInfoPanel();
         this.editBox.node.on('editing-did-began', this.onInputStarted, this);
         this.editBox.node.on('editing-did-ended', this.onInputFinished, this);
+
+        this.comDateSelect.callback = this.onBirthdayChanged.bind(this);
+        this.comSexSelect.callback = this.onSexChanged.bind(this);
+        this.comEducatSelect.callback = this.onEducationChanged.bind(this);
     }
-  
-    onInputStarted(){
-            this.editBox.string=this.user_name;
-            DebugLog.instance.log("onInputStarted", this.editBox.string)
+
+    onInputStarted() {
+        this.editBox.string = this.user_name;
+        DebugLog.instance.log("onInputStarted", this.editBox.string)
     }
     onInputFinished(event) {
-        this.user_name=this.editBox.string;
+        this.user_name = this.editBox.string;
         DebugLog.instance.log("onInputFinished", this.user_name)
         this.nameNode.getComponent(Label).string = this.editBox.string;
     }
-   
+
     initUserInfoPanel() {
         let userData = PersonalCenterManager.getInstance().userInfoData;
-        if (!userData.full_name||!userData.birthday||!userData.education||!userData.gender) {return;}
-            this.setName(userData.full_name);
-            this.setSex(userData.gender == 1 ? "男" : "女");
-            this.setBirthday(userData.birthday);
-            this.setEducationById(userData.education);
-        
+        if (!userData.full_name || !userData.birthday || !userData.education || !userData.gender) { return; }
+        this.setName(userData.full_name);
+        this.setSex(userData.gender == 1 ? "男" : "女");
+        this.setBirthday(userData.birthday);
+        this.setEducationById(userData.education);
+
     }
     setName(data) {
         this.user_name = data;
@@ -97,9 +101,10 @@ export class UserInfoPanel extends BasePanel {
         this.sexContentNode.getComponent(Label).color = new Color(0, 0, 0);
         this.sexContentNode.getComponent(Label).string = data;
     }
+
     setEducationById(data) {
         let education;
-       
+
         if (data == "1") {
             education = "初中及以下";
         } else if (data == " 2") {
@@ -115,6 +120,7 @@ export class UserInfoPanel extends BasePanel {
         this.educationContentNode.getComponent(Label).color = new Color(0, 0, 0);
         this.educationContentNode.getComponent(Label).string = education;
     }
+
     setBirthday(data) {
         this.user_birthday = data;
         this.birthdayContentNode.getComponent(Label).color = new Color(0, 0, 0);
@@ -128,34 +134,35 @@ export class UserInfoPanel extends BasePanel {
 
     clickSelectSex() {
         this.selectorSex.active = true;
-        this.comSexSelect.callback = (sex: string) => {
-            this.setSex(sex);
-            if (sex == "男") {
-                this.user_sex = 1;
-            } else {
-                this.user_sex = 2;
-            }
+        let sexStr = this.sexContentNode.getComponent(Label).string;
+        this.comSexSelect.scrollToSelection(sexStr);
+    }
 
-        }
+    onSexChanged(sex: string): void {
+        this.setSex(sex);
     }
 
     clickSelectBirthday() {
         this.selectorBirthday.active = true;
-        this.comDateSelect.callback = (year: string, month: string, day: string) => {
-            this.setBirthday(year + '-' + month + '-' + day)
-            this.user_birthday = year + "-" + month + "-" + day;
-        }
+        this.comDateSelect.scrollToSelection(this.user_birthday);
+    }
+
+    onBirthdayChanged(year: string, month: string, day: string): void {
+        this.setBirthday(year + '-' + month + '-' + day)
+        this.user_birthday = year + "-" + month + "-" + day;
     }
 
     clickSelectEducation() {
         this.selectorEducation.active = true;
-        this.comEducatSelect.callback = (education) => {
-            this.setEducation(education)
-            this.setEducationId(education);
-
-        }
+        let eduStr = this.educationContentNode.getComponent(Label).string;
+        this.comEducatSelect.scrollToSelection(eduStr);
     }
-    
+
+    onEducationChanged(education): void {
+        this.setEducation(education);
+        this.setEducationId(education);
+    }
+
     setEducationId(education) {
         if (education == "初中及以下") {
             this.user_education = 1;
@@ -169,7 +176,7 @@ export class UserInfoPanel extends BasePanel {
             this.user_education = 5;
         }
 
-        console.log(education,this.user_education);
+        console.log(education, this.user_education);
     }
 
     errorAlert() {
@@ -180,13 +187,14 @@ export class UserInfoPanel extends BasePanel {
         }.bind(this);
         AlertManager.getInstance().showAlert(alertData);
     }
+
     commitUserInfo() {
-        console.log('发送个人信息',this.user_name, this.user_sex, this.user_birthday, this.user_education)
-        if(this.user_name==""||this.user_sex==0||this.user_birthday==""||this.user_education==0){this.errorAlert();  return;}
+        console.log('发送个人信息', this.user_name, this.user_sex, this.user_birthday, this.user_education)
+        if (this.user_name == "" || this.user_sex == 0 || this.user_birthday == "" || this.user_education == 0) { this.errorAlert(); return; }
         const alertData: AlertData = new AlertData();
         alertData.title = "确定要修改个人信息吗？";
-        alertData.cancelButtonVisible=true;
-        alertData.cancelButtonText="取消"
+        alertData.cancelButtonVisible = true;
+        alertData.cancelButtonText = "取消"
         alertData.confirmCb = function () {
             this.cofirmUpdateUserInfo();
         }.bind(this);
@@ -195,9 +203,11 @@ export class UserInfoPanel extends BasePanel {
         }.bind(this);
         AlertManager.getInstance().showAlert(alertData);
     }
+
     cancleAlert() {
         AlertManager.getInstance().closeCurrentAlert();
     }
+
     cofirmUpdateUserInfo() {
         PersonalCenterManager.getInstance().updateUserInfo(this.user_name, this.user_sex, this.user_birthday, this.user_education);
         this.backToParent();
