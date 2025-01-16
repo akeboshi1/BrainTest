@@ -190,7 +190,11 @@ export class catchfish extends Component {
             if(win){
                 this.curHard = this.hards[this.hardIndex];
             }else{
-                this.hardIndex = this.hardIndex + 1 > this.hards.length ? 0 : this.hardIndex + 1;
+                if (this.hardIndex == this.hards.length - 1) {
+                    this.hardIndex = 0;
+                } else {
+                    this.hardIndex++;
+                }
                 this.curHard = this.hards[this.hardIndex];
             }
         }
@@ -238,7 +242,7 @@ export class catchfish extends Component {
         }
     }
 
-    private fishYs:number[]=[-300,-100,100,300];
+    private fishYs:number[]=[-450,-150,150,450];
     public hasGuide:boolean = false;
     private randomFish(fish: Fish) {
         if(this._clearBoo){
@@ -270,12 +274,15 @@ export class catchfish extends Component {
         fish.pause = false;
 
         // 从可用问题中随机选择一个
-        let question = CreateQuestion.create(this.curHard);//availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-        // question.hasChose = true;
-        fish.setQuestion(question);
+        let self = this;
+        CreateQuestion.create(this.curHard).then((question)=>{
+            fish.setQuestion(question);
 
-        EventManager.getInstance().off(Fish.FishClick, this);
-        EventManager.getInstance().on(Fish.FishClick, this.selectFish, this);
+            EventManager.getInstance().off(Fish.FishClick, self);
+            EventManager.getInstance().on(Fish.FishClick, self.selectFish, self);
+        });//availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        // question.hasChose = true;
+
 
         // const currentQuestions = questions[this.hardIndex];
         //
