@@ -64,6 +64,7 @@ export class ChatFlowModel extends BaseManager {
     private ttsPostUid: string = null;
     private ttsLastPostUid: string = null;
     private ttsPostCount: number = 0;
+    private ttsLastMassagePostFlag: boolean = false;
 
     private asrOpenState: boolean = false;
 
@@ -161,6 +162,7 @@ export class ChatFlowModel extends BaseManager {
         DebugLog.instance.log("TTSConnected");
         this.ttsOpenState = true;
         this.ttsInConnectFlow = false;
+        this.ttsLastMassagePostFlag = false;
         if (this.tts_open_resolveFn) {
             this.tts_open_resolveFn();
             this.tts_open_resolveFn = null;
@@ -175,10 +177,12 @@ export class ChatFlowModel extends BaseManager {
 
     private onTTSEndHandle(data: any) {
         DebugLog.instance.log("TTSEnd " + data);
-        if (data.uid == this.ttsLastPostUid) {
+        DebugLog.instance.log("TTSEnd: uid," + data.uid + " || lastTTSUid," + this.ttsLastPostUid);
+        if (data.uid == this.ttsLastPostUid && this.ttsLastMassagePostFlag) {
             DebugLog.instance.log("TTSEnd _last event");
             EventManager.getInstance().emit(ChatFlowModel.TTSFlowCompleteEvent, {});
             this.currentChatRequestUid = null;
+            this.ttsLastMassagePostFlag = false;
         }
     }
 
@@ -287,11 +291,12 @@ export class ChatFlowModel extends BaseManager {
         if (finish_reason === 'stop') {
             //清空缓存文本
             if (self.textCache.length > 0) {
-                self.ttsLastPostUid = self.ttsPostUid;
                 self.sendToView(self.textCache, 0);
                 self.callTts(self.textCache);
                 self.textCache = "";
             }
+            this.ttsLastMassagePostFlag = true;
+            DebugLog.instance.log("Last call tts: ttsLastPostUid," + self.ttsLastPostUid);
         }
     }
 
