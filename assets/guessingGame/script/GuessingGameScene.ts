@@ -234,7 +234,7 @@ export class GuessingGameScene extends Component {
             this.failedTextNode.active = false;
             this.requestGameResult(result);
             if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.remoteClick, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
                 return;
             }
             // if(!result){
@@ -267,7 +267,7 @@ export class GuessingGameScene extends Component {
                 if (!SkewersManager.getInstance().isRunOver()) {
                     SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore,0,0,this.nextAlertHandler,this.exitCallBack,this);
                 }else{
-                    SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.exitCallBack,this.remoteClick,this);
+                    SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.totalComplete,this.remoteClick,this);
                 }
             }
         }else{
@@ -283,7 +283,7 @@ export class GuessingGameScene extends Component {
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exitCallBack,context.remoteClick,context);
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.totalComplete,context.remoteClick,context);
         }
     }
 
@@ -318,6 +318,13 @@ export class GuessingGameScene extends Component {
             this.guessingGameModel.currentQuestionIndex,complete,duration,this.timeLimit,this._curHard,(data)=>{
                  DebugLog.instance.log(data);
             });
+    }
+
+    private totalComplete(context){
+        context.guessingGameModel.stopAudio();
+        AudioManager.getInstance().stop();
+        context.pauseTime();
+        SkewersManager.getInstance().exitCallBack();
     }
 
     private exitCallBack(context) {

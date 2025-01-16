@@ -57,7 +57,7 @@ export class CreateQuestion {
                     return CreateQuestion.generateMathQuestion(difficulty); // 确保被除数为一位数
                 }
 
-                question = `${a} / ${divisor}`;
+                question = `${a} ÷ ${divisor}`;
                 correctAnswer = quotient; // 商
             } else if (operation === 4) {
                 const type = getRandomInt(0, 1);
@@ -130,7 +130,7 @@ export class CreateQuestion {
                 const a = value.product;
                 const divisor = getRandomInt(0, 1)==0?value.num0:value.num1;
 
-                question = `${a} / ${divisor}`;
+                question = `${a} ÷ ${divisor}`;
                 correctAnswer = a / divisor; // 商
             }
 
@@ -188,7 +188,7 @@ export class CreateQuestion {
                     if(a<10){
                         return this.generateMathQuestion(difficulty);
                     }
-                    innerQuestion = `${a} / ${divisor}`;
+                    innerQuestion = `${a} ÷ ${divisor}`;
                     result = quotient; // 商
                 }
 
@@ -225,7 +225,7 @@ export class CreateQuestion {
                 correctAnswer = result * outerNumber; // 乘法
             } else if (outerOperation === 4) {
                 // 除法，确保结果为整数
-                question = `(${innerQuestion}) / ${outerNumber}`;
+                question = `(${innerQuestion}) ÷ ${outerNumber}`;
 
                 // 确保整个表达式不出现小数
                 if (result % outerNumber !== 0|| result < 10) {

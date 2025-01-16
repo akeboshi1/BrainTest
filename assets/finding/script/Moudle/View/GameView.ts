@@ -37,6 +37,8 @@ import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
+import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
+import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 
 const {ccclass,property} = _decorator;
 
@@ -564,7 +566,7 @@ export default class GameView extends LayerPanel {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,this.nextAlertHandler,this.exitCallBack,this);
             }else{
-                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.alertGoonHandler,this.remoteClick,this);
+                SkewersManager.getInstance().showGameAlert(this.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,this.totalCompete,this.remoteClick,this);
             }
         }
     }
@@ -598,8 +600,15 @@ export default class GameView extends LayerPanel {
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.alertGoonHandler,context.remoteClick,context);
+            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.totalCompete,context.remoteClick,context);
         }
+    }
+
+    private totalCompete(context){
+        context.pause = false;
+        context._pauseDurTime += context._pauseEndTime - TimeUtil.getNow();
+        AudioMgr.audioSource.stop();
+        SkewersManager.getInstance().exitCallBack();
     }
 
     private alertGoonHandler(context){
@@ -607,7 +616,22 @@ export default class GameView extends LayerPanel {
         context._pauseDurTime += context._pauseEndTime - TimeUtil.getNow();
         AudioMgr.audioSource.stop();
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().runNextGame();
+            let boo = true;
+            Global.userData.curSkewerGameData.trains.forEach((train)=>{
+                if(train.status != 1){
+                    boo = false;
+                }
+            })
+           if(boo){
+               SkewersManager.getInstance().runNextGame();
+           }else{
+               SkewersManager.getInstance().runNextGame(false);
+               PanelMgr.INS.closePanel(GameView);
+               PanelMgr.INS.openPanel({
+                   layer: Layer.gameLayer,
+                   panel: HomeView,
+               })
+           }
         }else{
             SkewersManager.getInstance().exitCallBack();
         }

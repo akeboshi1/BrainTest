@@ -542,10 +542,16 @@ export class puzzleGameCore extends Component {
     private failCompleteHandler(context){
         context.pauseTime();
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
+            SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
         }else{
-            SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.exitCallBack,context.remoteClick,context);
+            SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.totalComplete,context.remoteClick,context);
         }
+    }
+
+    private totalComplete(context){
+        context.pauseTime();
+        AudioManager.getInstance().stop();
+        SkewersManager.getInstance().exitCallBack();
     }
 
 
@@ -585,7 +591,7 @@ export class puzzleGameCore extends Component {
             if (Global.isSkewersGame) {
                self.requestGameResult(true)
                if (SkewersManager.getInstance().isRunOver()) {
-                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.exitCallBack, self.remoteClick, self);
+                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.totalComplete, self.remoteClick, self);
                    return;
                }
                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
@@ -613,7 +619,7 @@ export class puzzleGameCore extends Component {
             if (!SkewersManager.getInstance().isRunOver()) {
                 SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
             } else {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.exitCallBack, this.remoteClick, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
             }
         }
     }
