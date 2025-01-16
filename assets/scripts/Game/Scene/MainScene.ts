@@ -249,7 +249,10 @@ export class MainScene extends Component {
     }
 
     onClickVirtualLecturer(){
-        this.virturalLecturerPanel.active = true;
+        //this.virturalLecturerPanel.active = true;
+        let url = Global.RES_Root + BundleName.SMALLTHEATER;
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.SMALLTHEATER), this, true);
+        BundlePreloadManager.getInstance().preload(BundleName.SMALLTHEATER);
     }
 
     private switchTaskNode(open: boolean = false) {
@@ -628,7 +631,7 @@ export class MainScene extends Component {
             }
             let url = Global.RES_Root + sceneName;
 
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
             BundlePreloadManager.getInstance().preload(sceneName as BundleName);
         })
     }
