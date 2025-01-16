@@ -151,7 +151,7 @@ export class TaskManager {
         for(let i=0; i<len; i++){
             let taskData = this._taskList[i];
             if(taskData != null){
-                if(taskData.type == TaskType.Brains && (taskData.status != TaskStatus.Completed && taskData.status != TaskStatus.Expired)){
+                if((taskData.type == TaskType.Brains||taskData.type == TaskType.Review) && (taskData.status != TaskStatus.Completed && taskData.status != TaskStatus.Expired)){
                     count++;
                 }
             }
