@@ -977,19 +977,21 @@ export class catchfish extends Component {
     private alertGoonHandler(context){
         context.clearGameView();
         if (!SkewersManager.getInstance().isRunOver()) {
-            let boo = true;
-            Global.userData.curSkewerGameData.trains.forEach((train)=>{
-                if(train.status != 1){
-                    boo = false;
-                }
-            })
-            if(boo){
-                context.node.active = false;
-                SkewersManager.getInstance().runNextGame();
-            }else{
-                SkewersManager.getInstance().runNextGame(false);
-                context.start();
-            }
+            context.node.active = false;
+            SkewersManager.getInstance().runNextGame();
+            // let boo = true;
+            // Global.userData.curSkewerGameData.trains.forEach((train)=>{
+            //     if(train.status != 1){
+            //         boo = false;
+            //     }
+            // })
+            // if(boo){
+            //     context.node.active = false;
+            //     SkewersManager.getInstance().runNextGame();
+            // }else{
+            //     SkewersManager.getInstance().runNextGame(false);
+            //     context.start();
+            // }
         }else{
             SkewersManager.getInstance().exitCallBack();
         }
