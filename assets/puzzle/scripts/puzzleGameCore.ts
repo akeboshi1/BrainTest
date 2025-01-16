@@ -17,28 +17,25 @@ import {
     Vec2,
     Vec3
 } from 'cc';
-import {timerComponent} from './timerComponent';
-import {puzzleSummaryAlert} from './puzzleSummaryAlert';
-import {Global} from "../../scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
-import {DebugLog} from "../../scripts/Core/Util/DebugLog";
-import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
-import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
-import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import { timerComponent } from './timerComponent';
+import { puzzleSummaryAlert } from './puzzleSummaryAlert';
+import { Global } from "../../scripts/Core/Manager/Config/Global";
+import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
+import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
+import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
+import { AudioManager } from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import { UIManager } from "db://assets/scripts/Core/Manager/UI/UIManager";
+import { GenerateReport } from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
+import { GameType } from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleGameCore')
 export class puzzleGameCore extends Component {
-
-    @property([Texture2D])
-    private cachedTextures: Texture2D[] = [];
-
     @property(Prefab)
     private chipNodePrefab: Prefab;
 
@@ -77,7 +74,7 @@ export class puzzleGameCore extends Component {
     private bgNode: Node = null;
 
     @property(Sprite)
-    private showSprite:Sprite;
+    private showSprite: Sprite;
 
     //显示对象
     private chipsInstances: Node[] = [];
@@ -93,48 +90,75 @@ export class puzzleGameCore extends Component {
     private levelList: number[] = [2, 3, 4];
     private selectedLevel: number = this.levelList[this.selectedLevelIndex];
     private textureIndex: number = 0;
+    private randomPlayIndex: number[] = [];
+    private currentTexture2d: Texture2D = null;
 
     private _startTime: number = 0;
 
-    private audioUrls=["music/drag","music/win"];
-    private audioMap:Map<string,AudioClip> = new Map();
-    private bundleName: string = 'puzzle';
+    private audioUrls = ["music/drag", "music/win"];
+    private audioMap: Map<string, AudioClip> = new Map();
+    private bundleName: string = BundleName.PUZZLE;
+
+    private loadTextureResolver: (texture: Texture2D) => void = null;
+    private loadTextureRejector: (err) => void = null;
 
     private async loadAudio() {
         const bundle = assetManager.getBundle(this.bundleName);
-        if(!bundle){
-            DebugLog.instance.error("bundle is not exist! ---- bundle name:"+ this.bundleName);
+        if (!bundle) {
+            DebugLog.instance.error("bundle is not exist! ---- bundle name:" + this.bundleName);
             return;
         }
         let len = this.audioUrls.length;
-        for(let i:number = 0;i<len;i++){
+        for (let i: number = 0; i < len; i++) {
             let audioUrl = this.audioUrls[i];
-            const audioRes:AudioClip = await new Promise<AudioClip>((resolve,reject)=>{
-                bundle.load(audioUrl,AudioClip,(err,data:AudioClip)=>{
-                    if(err){
+            const audioRes: AudioClip = await new Promise<AudioClip>((resolve, reject) => {
+                bundle.load(audioUrl, AudioClip, (err, data: AudioClip) => {
+                    if (err) {
                         DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
                         reject(err);
-                    }else{
+                    } else {
                         resolve(data);
                     }
                 })
             });
-            this.audioMap.set(audioUrl,audioRes);
+            this.audioMap.set(audioUrl, audioRes);
         }
     }
 
-    private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
+    private playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
         let audioRes = this.audioMap.get(url);
-        if(audioRes != null){
-            if(isShot){
+        if (audioRes != null) {
+            if (isShot) {
                 AudioManager.getInstance().playOneShot(audioRes);
-            }else{
-                AudioManager.getInstance().play(audioRes,isLoop);
+            } else {
+                AudioManager.getInstance().play(audioRes, isLoop);
             }
         }
     }
 
-    onLoad(){
+    private async loadPuzzleTexture(id: number): Promise<Texture2D> {
+        const bundle = assetManager.getBundle(this.bundleName);
+        return new Promise<Texture2D>((resolve, reject) => {
+            this.loadTextureResolver = resolve;
+            this.loadTextureRejector = reject;
+
+            bundle.load("texture/pintu" + (id + 1).toString() + "/texture", Texture2D, (err, data) => {
+                if (err) {
+                    if (this.loadTextureRejector) {
+                        this.loadTextureRejector(err);
+                    }
+                } else {
+                    if (this.loadTextureResolver) {
+                        this.loadTextureResolver(data);
+                    }
+                }
+                this.loadTextureResolver = null;
+                this.loadTextureRejector = null;
+            })
+        });
+    }
+
+    onLoad() {
         this.loadAudio().then();
     }
 
@@ -148,11 +172,19 @@ export class puzzleGameCore extends Component {
             this.gameLength = Global.userData.curSkewerGameData.timeLimit;
             playIndex = Global.userData.curSkewerGameData.seq;
         }
-        this.cachedTextures.sort(() => Math.random() - 0.5);
 
-        this.textureIndex = this.selectedLevelIndex + playIndex > this.cachedTextures.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
-        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.textureIndex]);
-        this.updatePreviewSprite();
+        for (let i = 1; i < 21; i++) {
+            this.randomPlayIndex.push(i);
+        }
+        this.randomPlayIndex.sort(() => Math.random() - 0.5);
+
+        this.textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
+        let textureID = this.randomPlayIndex[this.textureIndex];
+        this.loadPuzzleTexture(textureID).then((texture) => {
+            this.currentTexture2d = texture;
+            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+            this.updatePreviewSprite(this.currentTexture2d);
+        });
     }
 
     onEnable() {
@@ -174,6 +206,11 @@ export class puzzleGameCore extends Component {
             this.draggableNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         }
         this.cleanChipsCache();
+    }
+
+    protected onDestroy(): void {
+        this.loadTextureRejector = null;
+        this.loadTextureResolver = null;
     }
 
     update(deltaTime: number) {
@@ -203,7 +240,6 @@ export class puzzleGameCore extends Component {
 
             const spriteFrame = new SpriteFrame();
             spriteFrame.texture = texture;
-
 
             spriteFrame.rect = rectList[i];
 
@@ -260,7 +296,7 @@ export class puzzleGameCore extends Component {
 
     onTouchEnd(event: EventTouch) {
         if (this.dragInstance == null || !this.dragStartFlag) return;
-        this.playAudio("music/drag",true);
+        this.playAudio("music/drag", true);
         this.dragStartFlag = false;
         const currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
@@ -291,7 +327,7 @@ export class puzzleGameCore extends Component {
 
     quitGame() {
         this.pauseTime();
-        if(this._timeID){
+        if (this._timeID) {
             clearTimeout(this._timeID);
         }
         if (Global.isSkewersGame) {
@@ -468,17 +504,21 @@ export class puzzleGameCore extends Component {
         }
 
         this.selectedLevel = this.levelList[this.selectedLevelIndex];
-        this.textureIndex = (this.textureIndex + 1) % this.cachedTextures.length;
+        this.textureIndex = (this.textureIndex + 1) % this.randomPlayIndex.length;
 
         this.cleanChipsCache();
-        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[this.textureIndex]);
 
-        this.updatePreviewSprite();
+        let textureID = this.randomPlayIndex[this.textureIndex];
+        this.loadPuzzleTexture(textureID).then((texture) => {
+            this.currentTexture2d = texture;
+            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+            this.updatePreviewSprite(this.currentTexture2d);
+        });
     }
 
-    private updatePreviewSprite() {
+    private updatePreviewSprite(texture: Texture2D) {
         let newSpriteFrame = new SpriteFrame();
-        newSpriteFrame.texture = this.cachedTextures[this.textureIndex];
+        newSpriteFrame.texture = texture;
         this.previewSprite.spriteFrame = newSpriteFrame;
         this.showSprite.spriteFrame = newSpriteFrame;
     }
@@ -504,9 +544,9 @@ export class puzzleGameCore extends Component {
 
     onClickStartGame() {
         this._startTime = TimeUtil.getNow();
-        if(Global.isSkewersGame){
+        if (Global.isSkewersGame) {
             this.timerComponent.startTimer(Global.userData.curSkewerGameData.timeLimit);
-        }else{
+        } else {
             this.timerComponent.startTimer(this.gameLength.valueOf());
         }
         this.onClickDisturbPuzzleButton();
@@ -531,24 +571,24 @@ export class puzzleGameCore extends Component {
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
         let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = trainData.length;
-        let curCount = trainData.seq  < 0 ? 0 : trainData.seq;
-        if(curCount == maxCount){
-            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.failCompleteHandler,this.exitCallBack,this);
-        }else{
-            SkewersManager.getInstance().showGameAlert(this.viewNode,AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.onClickGotoNextlevel,this.exitCallBack,this);
+        let curCount = trainData.seq < 0 ? 0 : trainData.seq;
+        if (curCount == maxCount) {
+            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.failCompleteHandler, this.exitCallBack, this);
+        } else {
+            SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
         }
     }
 
-    private failCompleteHandler(context){
+    private failCompleteHandler(context) {
         context.pauseTime();
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
-        }else{
-            SkewersManager.getInstance().showGameAlert(context.viewNode,AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.totalComplete,context.remoteClick,context);
+            SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, context.nextAlertHandler, context.exitCallBack, context);
+        } else {
+            SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, context.totalComplete, context.remoteClick, context);
         }
     }
 
-    private totalComplete(context){
+    private totalComplete(context) {
         context.pauseTime();
         AudioManager.getInstance().stop();
         SkewersManager.getInstance().exitCallBack();
@@ -562,11 +602,11 @@ export class puzzleGameCore extends Component {
 
     private _timeID;
     processGameSuccess() {
-        if(this._timeID){
+        if (this._timeID) {
             clearTimeout(this._timeID);
         }
         DebugLog.instance.log("成功");
-        this.playAudio("music/win",true);
+        this.playAudio("music/win", true);
         this.timerComponent.pauseTimer();
         this.showSprite.node.active = true;
 
@@ -575,33 +615,33 @@ export class puzzleGameCore extends Component {
         const duration = 2;
         // this.chipParentNode.
         let _tween = tween(this.showSprite.node)
-            .to(duration, { scale: new Vec3(maxScale, maxScale, maxScale) },{ easing: 'cubicOut' }) // 放大
-            .to(duration, { scale: new Vec3(minScale, minScale, minScale) },{ easing: 'cubicOut' }) // 缩小
+            .to(duration, { scale: new Vec3(maxScale, maxScale, maxScale) }, { easing: 'cubicOut' }) // 放大
+            .to(duration, { scale: new Vec3(minScale, minScale, minScale) }, { easing: 'cubicOut' }) // 缩小
             .union()
             .repeatForever()
             .start();
         let self = this;
-        this._timeID = setTimeout(()=>{
-            this.showSprite.node.setScale(new Vec3(1,1,1));
+        this._timeID = setTimeout(() => {
+            this.showSprite.node.setScale(new Vec3(1, 1, 1));
             this.showSprite.node.active = false;
-            if(_tween){
+            if (_tween) {
                 _tween.stop();
                 _tween = null;
             }
             if (Global.isSkewersGame) {
-               self.requestGameResult(true)
-               if (SkewersManager.getInstance().isRunOver()) {
-                   SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.totalComplete, self.remoteClick, self);
-                   return;
-               }
-               EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
+                self.requestGameResult(true)
+                if (SkewersManager.getInstance().isRunOver()) {
+                    SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.totalComplete, self.remoteClick, self);
+                    return;
+                }
+                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
             } else {
-               // 通小关后发送消息
-               let curGame = GameCenterManager.getInstance().currentGame;
-               GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, self.gameLength, curGame.difficulty, self.gamepasslevelCallback);
-               self.summaryAlert.node.active = true;
-               self.summaryAlert.initByResult(true);
-               self.summaryAlert.fadeIn();
+                // 通小关后发送消息
+                let curGame = GameCenterManager.getInstance().currentGame;
+                GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, self.gameLength, curGame.difficulty, self.gamepasslevelCallback);
+                self.summaryAlert.node.active = true;
+                self.summaryAlert.initByResult(true);
+                self.summaryAlert.fadeIn();
             }
         }, 4000);
     }
@@ -617,14 +657,14 @@ export class puzzleGameCore extends Component {
             SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
         } else {
             if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small,SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
+                SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
             } else {
                 SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
             }
         }
     }
 
-    private remoteClick(){
+    private remoteClick() {
         this.exitCallBack(this);
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
@@ -632,10 +672,10 @@ export class puzzleGameCore extends Component {
     onClickGotoNextlevel() {
         if (Global.isSkewersGame) {
             if (!SkewersManager.getInstance().isRunOver()) {
-                if(SkewersManager.getInstance().getUnCompleteGameData()&&SkewersManager.getInstance().getUnCompleteGameData().type != GameType.Executionability){
+                if (SkewersManager.getInstance().getUnCompleteGameData() && SkewersManager.getInstance().getUnCompleteGameData().type != GameType.Executionability) {
                     SkewersManager.getInstance().runNextGame();
                     return;
-                }else{
+                } else {
                     SkewersManager.getInstance().runNextGame(false);
                 }
             } else {
@@ -652,18 +692,15 @@ export class puzzleGameCore extends Component {
 
     private nextAlertHandler(context) {
         context.pauseTime();
-        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next,  SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
+        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
     }
 
-
     onClickRetryCurrentLevel() {
-
         if (Global.isSkewersGame) {
             SkewersManager.getInstance().runNextGame(false);
         }
         // 重玩
         this.cleanChipsCache();
-
 
         let playIndex = 0;
         if (Global.isSkewersGame) {
@@ -671,12 +708,18 @@ export class puzzleGameCore extends Component {
             playIndex = Global.userData.curSkewerGameData.seq;
         }
 
-        const textureIndex = this.selectedLevelIndex + playIndex > this.cachedTextures.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
-        this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.cachedTextures[textureIndex]);
+        const textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
 
         this.startGameMask.active = true;
         this.bgNode.active = true;
         this.timerComponent.resetTimer();
+
+        let textureID = this.randomPlayIndex[textureIndex];
+        this.loadPuzzleTexture(textureID).then((texture) => {
+            this.currentTexture2d = texture;
+            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+            this.updatePreviewSprite(this.currentTexture2d);
+        });
     }
 
     onClickTimeOut() {
