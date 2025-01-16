@@ -190,7 +190,11 @@ export class catchfish extends Component {
             if(win){
                 this.curHard = this.hards[this.hardIndex];
             }else{
-                this.hardIndex = this.hardIndex + 1 > this.hards.length ? 0 : this.hardIndex + 1;
+                if (this.hardIndex == this.hards.length - 1) {
+                    this.hardIndex = 0;
+                } else {
+                    this.hardIndex++;
+                }
                 this.curHard = this.hards[this.hardIndex];
             }
         }
