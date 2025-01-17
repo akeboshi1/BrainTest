@@ -88,7 +88,7 @@ export class SmalltheaterScene extends Component {
     private _flowCache: IFlow[] = [];
     private _scrollScoreTw: Tween<Node> = null;
 
-    private _isAsrClosed:boolean = false;
+    private _isAsrClosed: boolean = false;
 
     private mubul_original_pos = new Vec3(20, 767, 0);
     private mubul_target_pos = new Vec3(-590, 767, 0);
@@ -255,26 +255,31 @@ export class SmalltheaterScene extends Component {
 
     private async onEnterScoring(data: any) {
         this.cleanFlowCache();
-        this.scoreLabel.string = "???";
+        let skipAnim = data && data.skipAnim;
+        let score = this.model.score;
+        this.scoreLabel.string = skipAnim ? score.toString() : "???";
 
         let unitflow = new UnitFlow(this.showScoringNodeFlow());
         this._flowCache.push(unitflow);
         await unitflow.start();
-        this.startScoringAnim();
 
-        let score = this.model.score;
-        if (this.model.score == -1) {
-            let postflow = new UnitFlow(this.model.postPlayerResult())
-            this._flowCache.push(postflow);
-            score = await postflow.start();
+        if (!skipAnim) {
+            this.startScoringAnim();
+
+            if (this.model.score == -1) {
+                let postflow = new UnitFlow(this.model.postPlayerResult())
+                this._flowCache.push(postflow);
+                score = await postflow.start();
+            }
+
+            let duration: number = 6;
+            this.stopScoringAnimAtNum(score, duration);
+
+            let delayflow = new UnitFlow(this.delayFlow(duration * 1000));
+            this._flowCache.push(delayflow);
+            await delayflow.start();
         }
 
-        let duration: number = 6;
-        this.stopScoringAnimAtNum(score, duration);
-
-        let delayflow = new UnitFlow(this.delayFlow(duration * 1000));
-        this._flowCache.push(delayflow);
-        await delayflow.start();
         this.btnReplay.active = true;
     }
 
@@ -302,7 +307,7 @@ export class SmalltheaterScene extends Component {
             let parallelFlow = new ParallelFlow();
             parallelFlow.addFlow(this.timeCountLabelAnim("演出结束"));
             parallelFlow.addFlow(this.closeMubuFlow());
-            this.stateMachine.enterState(SmalltheaterState.Scoring, null, parallelFlow);
+            this.stateMachine.enterState(SmalltheaterState.Scoring, { skipAnim: true }, parallelFlow);
         }
     }
 
@@ -409,11 +414,13 @@ export class SmalltheaterScene extends Component {
     }
 
     onClickBtnStopReplay() {
-        this.btnStopRecord.active = false;
+        this.btnStopReplay.active = false;
+        this.stagelineLabel.node.active = false;
+        AudioManager.getInstance().stop();
         let parallelFlow = new ParallelFlow();
         parallelFlow.addFlow(this.timeCountLabelAnim("演出结束"));
         parallelFlow.addFlow(this.closeMubuFlow());
-        this.stateMachine.enterState(SmalltheaterState.Scoring, null, parallelFlow);
+        this.stateMachine.enterState(SmalltheaterState.Scoring, { skipAnim: true }, parallelFlow);
     }
 
     //============= private ===========================
@@ -435,7 +442,7 @@ export class SmalltheaterScene extends Component {
     }
 
     private onAsrClosed(data: any) {
-        if(this._isAsrClosed){
+        if (this._isAsrClosed) {
             return;
         }
         this._isAsrClosed = true;
