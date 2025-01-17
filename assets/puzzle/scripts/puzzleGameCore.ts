@@ -142,7 +142,7 @@ export class puzzleGameCore extends Component {
             this.loadTextureResolver = resolve;
             this.loadTextureRejector = reject;
 
-            bundle.load("texture/pintu" + (id + 1).toString() + "/texture", Texture2D, (err, data) => {
+            bundle.load("texture/pintu" + (id).toString() + "/texture", Texture2D, (err, data) => {
                 if (err) {
                     if (this.loadTextureRejector) {
                         this.loadTextureRejector(err);
