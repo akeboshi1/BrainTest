@@ -377,8 +377,9 @@ export class catchfish extends Component {
                                 if(self.hasGuide){
                                     return;
                                 }
-                                if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
-                                    ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
+                                // 脑力保健才有引导
+                                // ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)
+                                if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
                                     if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
                                         self.hasGuide = true;
                                         EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);

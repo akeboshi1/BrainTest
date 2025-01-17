@@ -157,7 +157,7 @@ export default class GameView extends LayerPanel {
                  this.countDownTime = Global.userData.curSkewerGameData.timeLimit;
              } else {
                  let _level = CacheMgr.checkpoint;
-                 this._checkPoint = CacheMgr.checkpoint = _level;
+                 this._checkPoint = _level;
                  if (_level % 3 == 0) {
                      if (_level == 0) {
                          this._curHard = 1;
@@ -221,7 +221,7 @@ export default class GameView extends LayerPanel {
                  this.frameList.push(nodeUITransform.getBoundingBox());
                  this.frameList[i].id = i + 1;
              }
-            if (this._checkPoint == 1) {
+            if (this._checkPoint == 1 && !Global.isSkewersGame) {
                  this.newHandHint();
             }
 

@@ -65,9 +65,9 @@ export default class HomeView extends LayerPanel {
 
     private randomSkewerGame():number{
         // 评测第一关(带引导)
-        if(Global.userData.curSkewerGameData.hasGuid()) {
-            return 0;
-        }
+        // if(Global.userData.curSkewerGameData.hasGuid()) {
+        //     return 0;
+        // }
         FindingGlobal.curSkewersGameIndex = Global.userData.curSkewerGameData.getCurTrainData().level;//Math.floor(Math.random() * FindingGlobal.skewersGameList.length);
         return FindingGlobal.skewersGameList[FindingGlobal.curSkewersGameIndex-1];
     }
