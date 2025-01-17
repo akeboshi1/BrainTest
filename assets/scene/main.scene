@@ -15156,7 +15156,7 @@
         "__id__": 520
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 523
@@ -21770,7 +21770,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 1032.3847695390782,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
