@@ -421,7 +421,7 @@ export class GuessingGameScene extends Component {
             // 临时处理
             // Global.userData.curSkewerGameData.difficulty = this.guessingGameModel.currentQuestionIndex;
             this._curHard = Global.userData.curSkewerGameData.difficulty;
-            this.guessingGameModel.currentQuestionIndex = Global.userData.curSkewerGameData.getCurTrainData().level;
+            this.guessingGameModel.currentQuestionIndex = Global.userData.curSkewerGameData.getCurTrainData().level-1;
         } else {
             let remoteLevel = Number(GameCenterManager.getInstance().currentGame.level);
             this.guessingGameModel.currentQuestionIndex = remoteLevel == 0?this.guessingGameModel.currentQuestionIndex:remoteLevel;
