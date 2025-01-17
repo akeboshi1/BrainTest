@@ -118,7 +118,7 @@ export class GuessingGameModel{
         if(this._curQuestion){
             this._curQuestion.hasAnswer = true;
         }
-        this.currentQuestionIndex = this.config.getUnAnswerQuestionIndex();
+        // this.currentQuestionIndex = this.config.getUnAnswerQuestionIndex();
         this.startQuestionFlow(true);
     }
 }
