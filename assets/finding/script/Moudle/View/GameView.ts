@@ -151,7 +151,7 @@ export default class GameView extends LayerPanel {
                  this._curHard = Global.userData.curSkewerGameData.difficulty;
                  // test code
                  loopLevel = FindingGlobal.curSkewersGameIndex;
-                 this._checkPoint = FindingGlobal.curSkewersGameIndex % GameConfig.allCheckPoint;
+                 this._checkPoint = loopLevel % GameConfig.allCheckPoint;
                  this.customsNode.getComponent(Label).string = "第" + Global.userData.curSkewerGameData.seq + "关";
                  this.tempCountDown = Global.userData.curSkewerGameData.timeLimit;
                  this.countDownTime = Global.userData.curSkewerGameData.timeLimit;

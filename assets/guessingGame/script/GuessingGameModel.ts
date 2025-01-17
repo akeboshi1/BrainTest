@@ -3,6 +3,8 @@ import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
 import {GuessingGameConfig, GuessingQuestion} from "./GuessingGameConfig";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
+import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
 
 export class GuessingGameModel{
     constructor(){
@@ -24,7 +26,13 @@ export class GuessingGameModel{
 
         this.config = new GuessingGameConfig();
         await this.config.loadConfig();
-        this.currentQuestionIndex = this.config.getUnAnswerQuestionIndex();
+        if(Global.isSkewersGame){
+            this.currentQuestionIndex= Global.userData.curSkewerGameData.getCurTrainData().level;
+        }else{
+            let remoteLevel = Number(GameCenterManager.getInstance().currentGame.level);
+            this.currentQuestionIndex = remoteLevel == 0?this.currentQuestionIndex:remoteLevel;
+        }
+
         AudioManager.getInstance().onAudioStart(this.onAudioStart,this);
         AudioManager.getInstance().onAudioEnd(this.onAudioFinished,this);
 
