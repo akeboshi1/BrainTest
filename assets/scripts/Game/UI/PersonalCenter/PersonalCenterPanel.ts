@@ -7,6 +7,8 @@ import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { UserInfoPanel } from './UserInfoPanel';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { GenerateReport } from './GenerateReport';
+import { LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
+import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 
 const { ccclass, property } = _decorator;
 
@@ -65,12 +67,13 @@ export class PersonalCenterPanel extends BasePanel {
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
-    // async hidePanel(): Promise<void> {
-    //     await super.hidePanel();
-    //     if(this.onhideCallback) {
-    //         this.onhideCallback();
-    //     }
-    // }
+    onClickLogOut(){
+        LocalStorageUtil.clean();
+
+        SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
+            DebugLog.instance.log(`start场景切换成功`);
+        });
+    }
 }
 
 
