@@ -220,8 +220,7 @@ export class catchfish extends Component {
     private createFish(count: number = 4) {
         if (this.fishParentNode && this.fishPrefab) {
             if(!this.hasGuide){
-                if((Global.userData.curSkewerGameData&&Global.userData.curSkewerGameData.hasGuid())
-                    ||(GameCenterManager.getInstance().currentGame&&GameCenterManager.getInstance().currentGame.level == 1)){
+                if((GameCenterManager.getInstance().currentGame&&GameCenterManager.getInstance().currentGame.level == 1)){
                     count = 1;
                 }
             }
@@ -251,8 +250,7 @@ export class catchfish extends Component {
         let x = 800;
         let y = this.fishYs[fish.positionYIndex];
 
-        if((Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.hasGuid())||
-            (GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
+        if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
             if(!this.hasGuide){
                 x = (this._leftSceneX + 540)/2;
             }
@@ -351,8 +349,7 @@ export class catchfish extends Component {
         const phase = 0; // The initial phase of the wave
         let pause = false;
         // 使用 tween 创建运动效果
-        if((Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.hasGuid())||(GameCenterManager.getInstance().currentGame
-            && GameCenterManager.getInstance().currentGame.level == 1)){
+        if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
             if(!this.hasGuide){
                 // 串烧引导流程
                 fish.curTween = tween(fish)
@@ -437,8 +434,7 @@ export class catchfish extends Component {
                                 }
 
                                 // 开启引导
-                                if ((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
-                                    || (Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData() && Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)) {
+                                if (GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1) {
                                     if (fish.position.x <= (self._leftSceneX + 540) / 2 && fish.positionYIndex == self._guideIndex) {
                                         self.hasGuide = true;
                                         EventManager.getInstance().on(CatchFishGuide.GUIDECLICK, self.guideClick.bind(self), self);
@@ -498,8 +494,7 @@ export class catchfish extends Component {
                                         if(self.hasGuide){
                                             return;
                                         }
-                                        if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
-                                            ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
+                                        if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
                                             if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
                                                 self.hasGuide = true;
                                                 EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
@@ -561,8 +556,7 @@ export class catchfish extends Component {
                             }
 
                             // 开启引导
-                            if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
-                                ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
+                            if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
                                 if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
                                     self.hasGuide = true;
                                     EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
@@ -618,8 +612,7 @@ export class catchfish extends Component {
                                     if(self.hasGuide){
                                         return;
                                     }
-                                    if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
-                                        ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)){
+                                    if((GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)){
                                         if(fish.position.x<=(self._leftSceneX + 540)/2 && fish.positionYIndex == self._guideIndex){
                                             self.hasGuide = true;
                                             EventManager.getInstance().on(CatchFishGuide.GUIDECLICK,self.guideClick.bind(self),self);
