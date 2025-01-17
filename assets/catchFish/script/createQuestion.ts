@@ -53,18 +53,19 @@ export class CreateQuestion {
                 question = `${a} - ${b}`;
                 correctAnswer = a - b;
             } else if (operation === 3) {
-                // 除法（被除数为一位数，除数从2到9）
+                // 除法（确保不产生余数）
                 let divisor, quotient, a;
                 while (true) {
                     divisor = await getRandomInt(2, 9); // 除数从2到9
-                    quotient = await getRandomInt(2, 9); // 商从2到9
+                    quotient = await getRandomInt(1, 4); // 商从1到4
                     a = divisor * quotient; // 被除数
                     if (a <= 9) {
-                        break;
+                        continue;
                     }
+                    question = `${a} ÷ ${divisor}`;
+                    correctAnswer = quotient; // 商
+                    break;
                 }
-                question = `${a} ÷ ${divisor}`;
-                correctAnswer = quotient; // 商
             } else if (operation === 4) {
                 let type = await getRandomInt(0, 1);
                 let a, b;
@@ -112,7 +113,7 @@ export class CreateQuestion {
                 question = `${a} - ${b}`;
                 correctAnswer = a - b; // 确保结果不小于0
             } else if (operation === 3) {
-                // 乘法（两个数字大于5且小于等于10，且不为1）
+                // 乘法
                 let a, b;
                 if (await getRandomInt(1, 2) === 1) {
                     a = await getRandomInt(6, 10);
@@ -125,7 +126,7 @@ export class CreateQuestion {
                 question = `${a} x ${b}`;
                 correctAnswer = a * b;
             } else if (operation === 4) {
-                // 除法（被除数是99乘法表中的积数，除数不大于9）
+                // 除法（确保不产生余数）
                 let products = [];
                 for (let i = 1; i <= 9; i++) {
                     for (let j = 1; j <= 9; j++) {
@@ -145,14 +146,13 @@ export class CreateQuestion {
                     }
                 }
                 const a = value.product;
-                const divisor = (await getRandomInt(0, 1) == 0)? value.num0 : value.num1;
+                const divisor = (await getRandomInt(0, 1) == 0) ? value.num0 : value.num1;
 
                 question = `${a} ÷ ${divisor}`;
                 correctAnswer = a / divisor; // 商
             }
 
         } else if (difficulty === 3) {
-
             const getRandomOperation = async () => {
                 return await getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 乘法, 4: 除法
             };
@@ -207,10 +207,10 @@ export class CreateQuestion {
                     innerQuestion = `${a} x ${b}`;
                     result = a * b;
                 } else if (operation === 4) {
-                    // 除法
+                    // 除法，确保不产生余数
                     let divisor, quotient, a;
                     while (true) {
-                        divisor = await getRandomInt(1, 9); // 除数为1位数
+                        divisor = await getRandomInt(2, 9); // 除数为1位数
                         quotient = await getRandomInt(2, 9); // 商为整数
                         a = divisor * quotient; // 被除数
                         if (a >= 10) {
@@ -245,13 +245,13 @@ export class CreateQuestion {
 
                 if (outerOperation === 4) {
                     // 除法，确保结果为整数
-                    while (innerResult % outerNumber!== 0 || innerResult < 10) {
+                    while (innerResult % outerNumber !== 0 || innerResult < 10) {
                         const res = await generateInnerQuestion();
                         innerQuestion = res.innerQuestion;
                         innerResult = res.result;
                     }
                 }
-            } while (outerOperation === 4 && (innerResult % outerNumber!== 0 || innerResult < 10));
+            } while (outerOperation === 4 && (innerResult % outerNumber !== 0 || innerResult < 10));
 
             // 形成最终问题
             if (outerOperation === 1) {
@@ -288,7 +288,7 @@ export class CreateQuestion {
         while (options.size < 4) {
             const wrongAnswer = await getRandomInt(correctAnswer - 10, correctAnswer + 10);
             // 确保错误选项不等于正确答案且为非负数
-            if (wrongAnswer!== correctAnswer && wrongAnswer >= 0) {
+            if (wrongAnswer !== correctAnswer && wrongAnswer >= 0) {
                 options.add(wrongAnswer.toString());
             }
         }
