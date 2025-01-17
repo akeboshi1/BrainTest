@@ -117,7 +117,8 @@ export class LoginPopUpPanel extends BasePanel {
         this.PhoneDescTxt.node.active = false;
         this.timerCommonComponent.node.active = true;
         this.startEditbox();
-
+        EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this, true);
+        LoginManager.getInstance().requestSendMpCode(this.phoneNumber);
     }
     onEnable() {
         if (this.timerCommonComponent) this.timerCommonComponent.on('timer-end', this.onTimerEnd, this);
