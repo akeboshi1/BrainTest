@@ -67,7 +67,7 @@ export class UserInfoPanel extends BasePanel {
     }
 
     onInputStarted() {
-        this.editBox.string = this.user_name;
+       
         DebugLog.instance.log("onInputStarted", this.editBox.string)
     }
     onInputFinished(event) {
@@ -89,6 +89,7 @@ export class UserInfoPanel extends BasePanel {
         this.user_name = data;
         DebugLog.instance.log("setName", this.user_name)
         this.nameNode.getComponent(Label).string = data;
+        this.editBox.string = this.user_name;
         this.nameNode.getComponent(Label).color = new Color(0, 0, 0);
     }
 

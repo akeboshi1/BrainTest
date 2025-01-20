@@ -236,7 +236,7 @@ export class ScrollViewExt extends Component {
         const scrollOffset = scrollview.getScrollOffset();
         const height = this._itemHeight;
         let offsetY: number =  index * height;
-        scrollview.scrollToOffset(v2(scrollOffset.x, offsetY), 0.1);
+        scrollview.scrollToOffset(v2(scrollOffset.x, offsetY), 0.01);
     }
 }
 
