@@ -168,11 +168,9 @@ export class CreateQuestion {
                     do {
                         const type = await getRandomInt(0, 1);
                         if (type === 0) {
-                            // 2位数加法
                             a = await getRandomInt(10, 50);
                             b = await getRandomInt(10, 50);
                         } else {
-                            // 2位数字（20以上） 加 1位数字
                             a = await getRandomInt(21, 90);
                             b = await getRandomInt(1, 9);
                         }
@@ -196,11 +194,9 @@ export class CreateQuestion {
                     const type = await getRandomInt(0, 1);
                     let a, b;
                     if (type === 0) {
-                        // 两个数字大于5且小于等于10
                         a = await getRandomInt(6, 10);
                         b = await getRandomInt(6, 10);
                     } else {
-                        // 被乘数大于10且小于等于12，乘数小于等于5
                         a = await getRandomInt(11, 12);
                         b = await getRandomInt(2, 5);
                     }
@@ -251,6 +247,15 @@ export class CreateQuestion {
                         innerResult = res.result;
                     }
                 }
+
+                if (outerOperation === 2) {
+                    // 确保减法结果不小于0
+                    while (innerResult < outerNumber) {
+                        const res = await generateInnerQuestion();
+                        innerQuestion = res.innerQuestion;
+                        innerResult = res.result;
+                    }
+                }
             } while (outerOperation === 4 && (innerResult % outerNumber !== 0 || innerResult < 10));
 
             // 形成最终问题
@@ -260,18 +265,7 @@ export class CreateQuestion {
             } else if (outerOperation === 2) {
                 question = `(${innerQuestion}) - ${outerNumber}`;
                 correctAnswer = innerResult - outerNumber; // 确保结果不小于0
-                while (correctAnswer < 0) {
-                    const res = await generateInnerQuestion();
-                    innerQuestion = res.innerQuestion;
-                    innerResult = res.result;
-                    correctAnswer = innerResult - outerNumber;
-                }
             } else if (outerOperation === 3) {
-                while (innerResult > 15) {
-                    const res = await generateInnerQuestion();
-                    innerQuestion = res.innerQuestion;
-                    innerResult = res.result;
-                }
                 question = `(${innerQuestion}) x ${outerNumber}`;
                 correctAnswer = innerResult * outerNumber; // 乘法
             } else if (outerOperation === 4) {
