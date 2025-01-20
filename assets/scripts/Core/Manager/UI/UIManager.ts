@@ -78,6 +78,13 @@ export class UIManager extends BaseManager {
             return false;
         }
 
+        if(this.activePanelMap.has(name)){
+            DebugLog.instance.warn('Panel is already actived : ' + name);
+            return false;
+        }
+        
+        this.activePanelMap.set(name, null);
+
         let bundle = resources;
         if (panelInfo.bundleName != BundleName.RESOURCES) {
             bundle = assetManager.getBundle(panelInfo.bundleName);
@@ -113,14 +120,16 @@ export class UIManager extends BaseManager {
 
         if (!prefab) {
             this.closeSceenLocker();
+            this.activePanelMap.delete(name);
             return false;
         }
         let panel = instantiate(prefab);
 
         let parent = parentNode ? parentNode : LayerUtil.getPanelLayer();
         if (!parent) {
-            DebugLog.instance.error('Panel Parent node empty :' + panelInfo.prefabUrl);
+            DebugLog.instance.warn('Panel Parent node empty :' + panelInfo.prefabUrl);
             this.closeSceenLocker();
+            this.activePanelMap.delete(name);
             return false;
         }
 
@@ -138,6 +147,7 @@ export class UIManager extends BaseManager {
             if (!compNode) {
                 DebugLog.instance.error('Can not find children : compPath ' + panelInfo.compPath);
                 this.closeSceenLocker();
+                this.activePanelMap.delete(name);
                 return false;
             }
         }
