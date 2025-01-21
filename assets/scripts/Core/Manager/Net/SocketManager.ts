@@ -248,8 +248,9 @@ export class SocketManager extends BaseManager {
         }
         for (let i = 0; i < _tmpDatas.length; i++) {
             let _tmpData: SocketData = _tmpDatas[i];
-            if (_tmpData.uid == data.uid) {
-                DebugLog.instance.log(`${data.action},已经发送过了，请等待回复`);
+            // 当前发送的消息如果跟之前相同消息的间隔小于200毫秒，则不做发送处理
+            if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= 200) {
+                DebugLog.instance.error(`${data.action},已经发送过了，请等待回复`);
                 return;
             }
         }
