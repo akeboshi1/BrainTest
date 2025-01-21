@@ -143,7 +143,7 @@ export class App extends BaseObejct {
             ChatFlowModel.getInstance().init();
         }
         await GuideManager.getInstance().init();
-        UIManager.getInstance().init();
+        await UIManager.getInstance().init();
         SceneManager.getInstance().init();
         PoolManager.getInstance().init();
         AudioManager.getInstance().init();
