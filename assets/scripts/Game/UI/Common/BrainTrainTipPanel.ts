@@ -17,13 +17,22 @@ export class BrainTrainTipPanel extends BasePanel {
     @property(ProgressBar)
     progressBar: ProgressBar = null;
 
+    private _timeID = null;
+
     restore(data: any): void {
         if (data) {
             this.setTitle(data.title);
             this.setProgress(data.curCount, data.maxCount);
         }
 
-        setTimeout(() => {
+        if(this._timeID){
+            clearInterval(this._timeID);
+        }
+        let self = this;
+        this._timeID = setTimeout(() => {
+            if(self._timeID){
+                clearInterval(self._timeID);
+            }
             UIManager.getInstance().hidePanel(BrainTrainTipPanel.NAME);
         }, 2000);
     }
@@ -61,6 +70,9 @@ export class BrainTrainTipPanel extends BasePanel {
     }
 
     async hidePanel(): Promise<void> {
+        if(this._timeID){
+            clearInterval(this._timeID);
+        }
         await new Promise<void>((resolve, reject) => {
             const sch = LayerUtil.getPanelLayer().getComponent(UITransform).height;
             tween(this.node)

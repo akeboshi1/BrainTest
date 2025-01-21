@@ -594,8 +594,14 @@ export class MainScene extends Component {
     }
 
 
+    private _clickBoo = false;
     // =========== 游戏中心
     gameItemClick(event, data) {
+        // 防止点击两次
+        if(this._clickBoo){
+            return;
+        }
+        this._clickBoo = true;
         let index = Number(data);
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
@@ -641,7 +647,9 @@ export class MainScene extends Component {
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
+        let self = this;
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+            self._clickBoo=false;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
     }
