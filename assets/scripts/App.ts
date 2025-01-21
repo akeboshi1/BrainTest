@@ -18,6 +18,7 @@ import { AudioManager } from './Core/Manager/Audio/AudioManager';
 import { BundleName } from './Core/Manager/Load/BundleName';
 import { LoginPanel } from './Game/UI/Login/LoginPanel';
 import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
+import { PublishSetting } from './PublishSetting';
 
 
 const { ccclass, property } = _decorator;
@@ -61,6 +62,8 @@ export class App extends BaseObejct {
     @property(WebView)
     asr: WebView;
 
+    @property(PublishSetting)
+    publishSetting: PublishSetting;
 
     // ai
     // game
@@ -154,7 +157,7 @@ export class App extends BaseObejct {
             await AlertManager.getInstance().init();
             
             // 初始化socket
-            SocketManager.getInstance().initSocket().then(()=>{
+            SocketManager.getInstance().initSocket(this.publishSetting.currentApiUrl).then(()=>{
                 this.socketOnHandler();
             }).catch(()=>{
                 const alertData: AlertData = new AlertData();

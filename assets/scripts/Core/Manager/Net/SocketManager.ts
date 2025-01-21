@@ -8,6 +8,8 @@ import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import { LayerUtil } from "../../Util/LayerUtil";
 import AlertManager, { AlertData } from "../Alert/AlertManager";
+import { LocalStorageUtil } from "../../Util/LocalStorageUtil";
+import { SceneManager } from "../Scene/SceneManager";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
@@ -20,6 +22,8 @@ export class SocketManager extends BaseManager {
     private _reconnectInterval: number = 5;//重连尝试间隔，单位秒
     private _reconnectMaxCount: number = 5;//重连最大尝试次数
     private _isReconnecting: boolean = false;
+
+    private api_url:string = "";
 
     private _socketDatas: Map<string, SocketData[]>;
     public static getInstance(): SocketManager {
@@ -113,7 +117,6 @@ export class SocketManager extends BaseManager {
 
     async connectSocket(url: string = null): Promise<WebSocket> {
         return new Promise<WebSocket>((resolve, reject) => {
-            if (url == null) url = "wss://test.paipai2.xinjiaxianglao.com/api/home";
             DebugLog.instance.log("socket init");
             let socket = new WebSocket(url);
 
@@ -132,7 +135,16 @@ export class SocketManager extends BaseManager {
             this._socket = null;
         }
 
-        let socket = await this.connectSocket(url);
+        if(url != null){
+            this.api_url = url;
+        }
+
+        if(this.api_url == null){
+            DebugLog.instance.error("set socket url first!");
+            return;
+        }
+
+        let socket = await this.connectSocket(this.api_url);
         return new Promise<void>((resolve, reject) => {
             if (socket) {
                 this._socket = socket;
@@ -177,7 +189,12 @@ export class SocketManager extends BaseManager {
                 await new Promise<void>((resolve) => {
                     LoginManager.getInstance().requestTokenVerification((result) => {
                         if (!result) {
-                            //back to login panel; todo
+                            //回退到主界面
+                            LocalStorageUtil.clean();
+
+                            SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
+                                DebugLog.instance.log(`start场景切换成功`);
+                            });
                         }
 
                         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
