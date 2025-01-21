@@ -233,6 +233,12 @@ export class UIManager extends BaseManager {
 
     closeSceenLocker() {
         this.screenLockerNum--;
+
+        //防止场景切换后调用导致计数器异常
+        if(this.screenLockerNum < 0){
+            this.screenLockerNum = 0;
+        }
+
         if (this.screenLockerNode && this.screenLockerNum <= 0) {
             this.screenLockerNode.removeFromParent();
             this.screenLockerNode = null;
@@ -250,6 +256,11 @@ export class UIManager extends BaseManager {
         if (this.screenLockerNode) {
             this.screenLockerNode.removeFromParent();
             this.screenLockerNode = null;
+        }
+
+        if(this.screenLockerTimer != null){
+            clearTimeout(this.screenLockerTimer);
+            this.screenLockerTimer = null;
         }
 
         this.activePanelMap.clear();
