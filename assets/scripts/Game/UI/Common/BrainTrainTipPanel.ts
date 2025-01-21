@@ -26,12 +26,12 @@ export class BrainTrainTipPanel extends BasePanel {
         }
 
         if(this._timeID){
-            clearInterval(this._timeID);
+            clearTimeout(this._timeID);
         }
         let self = this;
         this._timeID = setTimeout(() => {
             if(self._timeID){
-                clearInterval(self._timeID);
+                clearTimeout(self._timeID);
             }
             UIManager.getInstance().hidePanel(BrainTrainTipPanel.NAME);
         }, 2000);
@@ -71,7 +71,7 @@ export class BrainTrainTipPanel extends BasePanel {
 
     async hidePanel(): Promise<void> {
         if(this._timeID){
-            clearInterval(this._timeID);
+            clearTimeout(this._timeID);
         }
         await new Promise<void>((resolve, reject) => {
             const sch = LayerUtil.getPanelLayer().getComponent(UITransform).height;
