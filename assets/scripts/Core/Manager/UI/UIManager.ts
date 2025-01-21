@@ -2,7 +2,7 @@ import { BaseManager } from "../BaseManager";
 import { BasePanel } from "../../UI/BasePanel";
 import { DebugLog } from "../../Util/DebugLog";
 import { SceneManager } from "../Scene/SceneManager";
-import { Constructor, Node, Prefab, assetManager, instantiate, resources } from "cc";
+import { Constructor, Label, Node, Prefab, assetManager, debug, instantiate, resources } from "cc";
 import { BundleName } from "../Load/BundleName";
 import { BundlePreloadManager } from "../Load/BundlePreloadManager";
 import { LayerUtil } from "../../Util/LayerUtil";
@@ -33,10 +33,24 @@ export class UIManager extends BaseManager {
     private activePanelMap: Map<string, { rootNode: Node, comp: BasePanel }> = new Map();
     private panelHistory: [] = [];
     private screenLockerNode: Node = null;
+    private screenLockerNum: number = 0;
+    private screenLockerPrefab: Prefab = null;
+    private screenLockerTimer = null;
 
-    init() {
+    async init() {
         this.maps = {};
         EventManager.getInstance().on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
+
+        this.screenLockerPrefab = await new Promise<Prefab>((resolve, reject) => {
+            resources.load(UIManager.SCREEN_LOCKER_PREFAB_PATH, Prefab, null, (err: Error, data: Prefab) => {
+                if (err) {
+                    DebugLog.instance.error('Prefab load error , url:' + UIManager.SCREEN_LOCKER_PREFAB_PATH);
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
     }
 
     /**
@@ -65,7 +79,7 @@ export class UIManager extends BaseManager {
     * @param parentNode - 面板要挂载的父节点，类型为`Node | null`，默认值是`null`。如果传入`null`，会使用`LayerUtil.getPanelLayer()`获取默认的面板挂载层作为父节点。指定父节点可以灵活控制面板在场景中的层级关系。
     * @returns - 返回一个`Promise<boolean>`，`true`表示面板成功显示，`false`表示在显示过程中出现错误，例如面板未注册、资源包未加载、预制体加载失败等情况。
     */
-    async showPanel(name: string, rdata: any = null, needPreload: boolean = false, parentNode: Node | null = null, showTouchMask:boolean = true): Promise<boolean> {
+    async showPanel(name: string, rdata: any = null, needPreload: boolean = false, parentNode: Node | null = null, showTouchMask: boolean = true): Promise<boolean> {
         let panelInfo = this.panelRegisterConfig.get(name);
         if (!panelInfo) {
             DebugLog.instance.error('Panel did not register into UIManager === name : ' + name);
@@ -78,11 +92,11 @@ export class UIManager extends BaseManager {
             return false;
         }
 
-        if(this.activePanelMap.has(name)){
+        if (this.activePanelMap.has(name)) {
             DebugLog.instance.warn('Panel is already actived : ' + name);
             return false;
         }
-        
+
         this.activePanelMap.set(name, null);
 
         let bundle = resources;
@@ -90,8 +104,8 @@ export class UIManager extends BaseManager {
             bundle = assetManager.getBundle(panelInfo.bundleName);
         }
 
-        if(showTouchMask){
-            await this.openScreenLocker();
+        if (showTouchMask) {
+            this.openScreenLocker();
         }
 
         if (needPreload) {
@@ -172,23 +186,19 @@ export class UIManager extends BaseManager {
         }
     }
 
-    async openScreenLocker() {
-        let prefab = await new Promise<Prefab>((resolve, reject) => {
-            resources.load(UIManager.SCREEN_LOCKER_PREFAB_PATH, Prefab, null, (err: Error, data: Prefab) => {
-                if (err) {
-                    DebugLog.instance.error('Prefab load error , url:' + UIManager.SCREEN_LOCKER_PREFAB_PATH);
-                    reject(err);
-                } else {
-                    resolve(data);
-                }
-            });
-        });
-
-        if (!prefab) {
+    openScreenLocker() {
+        this.screenLockerNum++;
+        if (this.screenLockerNode != null) {
+            this.setScreenLockerNum(this.screenLockerNum);
             return;
         }
 
-        let sl = instantiate(prefab);
+        if (!this.screenLockerPrefab) {
+            DebugLog.instance.warn("screenLocker.prefab 没有正确加载");
+            return;
+        }
+
+        let sl = instantiate(this.screenLockerPrefab);
 
         let parent = LayerUtil.getLoaderLayer();
         if (!parent) {
@@ -199,21 +209,53 @@ export class UIManager extends BaseManager {
         }
 
         this.screenLockerNode = sl;
+
+        this.screenLockerTimer = setTimeout(() => {
+            this.screenLockerNum = 0;
+            if (this.screenLockerNode) {
+                this.screenLockerNode.removeFromParent();
+                this.screenLockerNode = null;
+            }
+        }, 60 * 1000);
+
+        this.setScreenLockerNum(this.screenLockerNum);
+    }
+
+    private setScreenLockerNum(num: number) {
+        if (this.screenLockerNode != null) {
+            let str = "";
+            for (let i = 0; i < num; i++) {
+                str += ".";
+            }
+            this.screenLockerNode.getChildByName("Label").getComponent(Label).string = str;
+        }
     }
 
     closeSceenLocker() {
-        if (this.screenLockerNode) {
+        this.screenLockerNum--;
+        if (this.screenLockerNode && this.screenLockerNum <= 0) {
             this.screenLockerNode.removeFromParent();
             this.screenLockerNode = null;
+
+            if(this.screenLockerTimer != null){
+                clearTimeout(this.screenLockerTimer);
+                this.screenLockerTimer = null;
+            }
         }
     }
 
     private onSceneChanged() {
-        this.closeSceenLocker();
+        this.screenLockerNum = 0;
+
+        if (this.screenLockerNode) {
+            this.screenLockerNode.removeFromParent();
+            this.screenLockerNode = null;
+        }
+
         this.activePanelMap.clear();
     }
 
-    isPanelActive(name:string):boolean{
+    isPanelActive(name: string): boolean {
         return this.activePanelMap.has(name);
     }
 
