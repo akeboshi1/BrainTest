@@ -162,7 +162,7 @@ export class ChatFlowModel extends BaseManager {
         DebugLog.instance.log("TTSConnected");
         this.ttsOpenState = true;
         this.ttsInConnectFlow = false;
-        this.ttsLastMassagePostFlag = false;
+
         if (this.tts_open_resolveFn) {
             this.tts_open_resolveFn();
             this.tts_open_resolveFn = null;
@@ -178,6 +178,7 @@ export class ChatFlowModel extends BaseManager {
     private onTTSEndHandle(data: any) {
         DebugLog.instance.log("TTSEnd " + data);
         DebugLog.instance.log("TTSEnd: uid," + data.uid + " || lastTTSUid," + this.ttsLastPostUid);
+        DebugLog.instance.log("TTSEnd: this.ttsLastMassagePostFlag," + this.ttsLastMassagePostFlag);
         if (data.uid == this.ttsLastPostUid && this.ttsLastMassagePostFlag) {
             DebugLog.instance.log("TTSEnd _last event");
             EventManager.getInstance().emit(ChatFlowModel.TTSFlowCompleteEvent, {});
@@ -264,10 +265,12 @@ export class ChatFlowModel extends BaseManager {
         let startIndex: number = 0;
         let currentIndex: number = 0;
 
+        // 定义标点符号集合，你可以根据实际需求增加更多标点符号
+        const mark2len:number = 11;
+        const punctuationMarks: string[] = ['!', '?', '。', '！', '？',];
+        const punctuationMarks2: string[] = [',', '，'];
         while (currentIndex < textCache.length) {
-            // 定义标点符号集合，你可以根据实际需求增加更多标点符号
-            const punctuationMarks: string[] = ['!', '?', '。', '！', '？',];
-            if (punctuationMarks.indexOf(textCache[currentIndex]) >= 0) {
+            if (punctuationMarks.indexOf(textCache[currentIndex]) >= 0 || (punctuationMarks2.indexOf(textCache[currentIndex]) >= 0 && currentIndex >= mark2len)) {
                 // 截取从开始位置到当前标点符号位置（包含标点符号）的字符串
                 let subString: string = textCache.substring(startIndex, currentIndex + 1);
                 subString = subString.replace(/[\r\n\s]+/g, "");
@@ -446,5 +449,6 @@ export class ChatFlowModel extends BaseManager {
         this.waitingForSeq = null;
         this.chatMessageMap.clear();
         this.currentChatRequestUid = null;
+        this.ttsLastMassagePostFlag = false;
     }
 }
