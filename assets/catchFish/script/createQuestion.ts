@@ -14,8 +14,7 @@ export class CreateQuestion {
     constructor() { }
 
     public static async create(hard: number): Promise<FishQuestion> {
-        let question = await CreateQuestion.generateMathQuestion(hard);
-        return question;
+        return await CreateQuestion.generateMathQuestion(hard);
     }
 
     private static async generateRandomInt(min: number, max: number): Promise<number> {
@@ -35,243 +34,130 @@ export class CreateQuestion {
             const operation = await getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 除法, 4: 乘法
 
             if (operation === 1) {
-                // 加法
-                const a = await getRandomInt(1, 20);
-                const b = await getRandomInt(1, 9);
+                // 加法（20以内数字，加减1位数，不能加减1和0）
+                let a, b;
+                do {
+                    a = await getRandomInt(2, 20);
+                    b = await getRandomInt(2, 9);
+                } while (a + b > 20); // 确保和不超过20
                 question = `${a} + ${b}`;
                 correctAnswer = a + b;
+
             } else if (operation === 2) {
-                // 减法，确保结果不小于0
+                // 减法（减法结果不能出现负数和0）
                 let a, b;
-                while (true) {
-                    a = await getRandomInt(1, 20);
-                    b = await getRandomInt(1, 9); // b 小于等于 a
-                    if (b <= a) {
-                        break;
-                    }
-                }
+                do {
+                    a = await getRandomInt(3, 20);
+                    b = await getRandomInt(2, 9); // b 小于等于 a
+                } while (b >= a); // 确保 b 小于 a
                 question = `${a} - ${b}`;
                 correctAnswer = a - b;
+
             } else if (operation === 3) {
-                // 除法（确保不产生余数）
-                let divisor, quotient, a;
-                while (true) {
-                    divisor = await getRandomInt(2, 9); // 除数从2到9
-                    quotient = await getRandomInt(1, 4); // 商从1到4
-                    a = divisor * quotient; // 被除数
-                    if (a <= 9) {
-                        continue;
-                    }
-                    question = `${a} ÷ ${divisor}`;
-                    correctAnswer = quotient; // 商
-                    break;
-                }
+                // 除法（被除数小于10，必须在99乘法表内，且不能产生余数）
+                let divisor, a;
+                do {
+                    divisor = await getRandomInt(2, 9); // 除数不能是1
+                    a = await getRandomInt(2, 9) * divisor; // 确保被除数在99乘法表内
+                } while (a >= 10 || a % divisor !== 0 || a === divisor);
+                question = `${a} ÷ ${divisor}`;
+                correctAnswer = a / divisor;
+
             } else if (operation === 4) {
-                let type = await getRandomInt(0, 1);
-                let a, b;
-                if (type == 1) {
-                    // 乘法（两个数小于等于5，且不为1）
-                    a = await getRandomInt(2, 5);
-                    b = await getRandomInt(2, 5);
-                } else {
-                    // 乘法（1个数小于等于5，另一个数大于5小于等于10,且不为1）
-                    a = await getRandomInt(2, 5);
-                    b = await getRandomInt(6, 10);
-                }
+                // 乘法（两个数都小于等于9）
+                let a = await getRandomInt(2, 9);
+                let b = await getRandomInt(2, 9);
                 question = `${a} x ${b}`;
                 correctAnswer = a * b;
-            }
 
+            }
         } else if (difficulty === 2) {
-            // 难度二：加减法、乘法、除法
+            // 难度二：加减法、乘法和除法
             const operation = await getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 乘法, 4: 除法
 
             if (operation === 1) {
-                let type = await getRandomInt(0, 1);
+                // 2位数字加法，且需要有一次进位
                 let a, b;
-                if (type == 1) {
-                    // 2位数加法
-                    a = await getRandomInt(10, 99);
+                do {
+                    a = await getRandomInt(30, 99);
                     b = await getRandomInt(10, 99);
-                } else {
-                    // 2位数字（20以上） 加 1位数字
-                    a = await getRandomInt(21, 99);
-                    b = await getRandomInt(1, 9);
-                }
+                } while ((a % 10) + (b % 10) < 10 || a + b >= 100); // 确保有进位且和小于100
                 question = `${a} + ${b}`;
                 correctAnswer = a + b;
+
             } else if (operation === 2) {
-                // 2位数减1位数
+                // 2位数字（大于20）减1位数字，减法需要有一次借位，答案不允许出现0和1
                 let a, b;
-                while (true) {
+                do {
                     a = await getRandomInt(21, 99);
-                    b = await getRandomInt(1, 9);
-                    if (a - b >= 0) {
-                        break;
-                    }
-                }
+                    b = await getRandomInt(1, 9); // b为1到9的数字
+                } while (a - b < 2 || (a % 10) >= b); // 确保结果不为0和1且需要借位
                 question = `${a} - ${b}`;
-                correctAnswer = a - b; // 确保结果不小于0
+                correctAnswer = a - b;
+
             } else if (operation === 3) {
-                // 乘法
-                let a, b;
-                if (await getRandomInt(1, 2) === 1) {
-                    a = await getRandomInt(6, 10);
-                    b = await getRandomInt(6, 10);
-                } else {
-                    // 被乘数大于10且小于12，乘数小于等于5
-                    a = await getRandomInt(11, 12);
-                    b = await getRandomInt(2, 5); // 确保乘数不为1
-                }
+                // 乘法（被乘数12、13、14、15，乘数小于等于5）
+                let a = await getRandomInt(12, 15);
+                let b = await getRandomInt(2, 5);
                 question = `${a} x ${b}`;
                 correctAnswer = a * b;
+
             } else if (operation === 4) {
-                // 除法（确保不产生余数）
-                let products = [];
-                for (let i = 1; i <= 9; i++) {
-                    for (let j = 1; j <= 9; j++) {
-                        const product = i * j;
-                        if (product >= 10 && product <= 81) {
-                            if (CreateQuestion.isInMultiplicationTable(product)) {
-                                products.push({ product, num0: i, num1: j });
-                            }
-                        }
-                    }
-                }
-                let value;
-                while (true) {
-                    value = products[await getRandomInt(0, products.length - 1)]; // 随机选择一个被除数
-                    if (value) {
-                        break;
-                    }
-                }
-                const a = value.product;
-                const divisor = (await getRandomInt(0, 1) == 0) ? value.num0 : value.num1;
-
+                // 除法（被除数在10到99之间，除数在2到9之间，且结果为整数）
+                let divisor, a;
+                do {
+                    divisor = await getRandomInt(2, 9);
+                    a = await getRandomInt(10, 99);
+                } while (a % divisor !== 0); // 确保除法结果为整数
                 question = `${a} ÷ ${divisor}`;
-                correctAnswer = a / divisor; // 商
+                correctAnswer = a / divisor;
             }
-
         } else if (difficulty === 3) {
-            const getRandomOperation = async () => {
-                return await getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 乘法, 4: 除法
-            };
+            // 难度三：复合计算
+            let innerQuestion = '';
+            let innerResult = 0;
 
-            const generateInnerQuestion = async () => {
-                const operation = await getRandomOperation();
-                let innerQuestion = '';
-                let result = 0;
+            const innerOperation = await getRandomInt(1, 2); // 1: 乘法, 2: 除法
+            let a, b;
 
-                if (operation === 1) {
-                    // 加法
-                    let a, b;
-                    do {
-                        const type = await getRandomInt(0, 1);
-                        if (type === 0) {
-                            a = await getRandomInt(10, 50);
-                            b = await getRandomInt(10, 50);
-                        } else {
-                            a = await getRandomInt(21, 90);
-                            b = await getRandomInt(1, 9);
-                        }
-                        result = a + b;
-                    } while (result > 100);
-                    innerQuestion = `${a} + ${b}`;
-                } else if (operation === 2) {
-                    // 减法
-                    let a, b;
-                    while (true) {
-                        a = await getRandomInt(21, 99);
-                        b = await getRandomInt(1, 9);
-                        if (a - b >= 0) {
-                            break;
-                        }
-                    }
-                    innerQuestion = `${a} - ${b}`;
-                    result = a - b; // 确保结果不小于0
-                } else if (operation === 3) {
-                    // 乘法
-                    const type = await getRandomInt(0, 1);
-                    let a, b;
-                    if (type === 0) {
-                        a = await getRandomInt(6, 10);
-                        b = await getRandomInt(6, 10);
-                    } else {
-                        a = await getRandomInt(11, 12);
-                        b = await getRandomInt(2, 5);
-                    }
-                    innerQuestion = `${a} x ${b}`;
-                    result = a * b;
-                } else if (operation === 4) {
-                    // 除法，确保不产生余数
-                    let divisor, quotient, a;
-                    while (true) {
-                        divisor = await getRandomInt(2, 9); // 除数为1位数
-                        quotient = await getRandomInt(2, 9); // 商为整数
-                        a = divisor * quotient; // 被除数
-                        if (a >= 10) {
-                            break;
-                        }
-                    }
-                    innerQuestion = `${a} ÷ ${divisor}`;
-                    result = quotient; // 商
-                }
+            if (innerOperation === 1) {
+                // 括号内乘法（被乘数为12、13、14、15，乘数小于等于5）
+                a = await getRandomInt(12, 15); // 被乘数
+                b = await getRandomInt(2, 5); // 乘数
+                innerQuestion = `${a} x ${b}`;
+                innerResult = a * b;
 
-                return { innerQuestion, result };
-            };
-
-            let innerResult;
-            let innerQuestion;
-            let outerOperation;
-            let outerNumber;
-
-            do {
-                const inner = await generateInnerQuestion();
-                innerQuestion = inner.innerQuestion;
-                innerResult = inner.result;
-                outerOperation = await getRandomOperation();
-
-                if (outerOperation === 3 || outerOperation === 4) {
-                    // 乘法或除法时，外部数字不能为1
-                    outerNumber = await getRandomInt(2, 9);
-                } else {
-                    // 加法或减法时，外部数字可以为1
-                    outerNumber = await getRandomInt(1, 9);
-                }
-
-                if (outerOperation === 4) {
-                    // 除法，确保结果为整数
-                    while (innerResult % outerNumber !== 0 || innerResult < 10) {
-                        const res = await generateInnerQuestion();
-                        innerQuestion = res.innerQuestion;
-                        innerResult = res.result;
-                    }
-                }
-
-                if (outerOperation === 2) {
-                    // 确保减法结果不小于0
-                    while (innerResult < outerNumber) {
-                        const res = await generateInnerQuestion();
-                        innerQuestion = res.innerQuestion;
-                        innerResult = res.result;
-                    }
-                }
-            } while (outerOperation === 4 && (innerResult % outerNumber !== 0 || innerResult < 10));
-
-            // 形成最终问题
-            if (outerOperation === 1) {
-                question = `(${innerQuestion}) + ${outerNumber}`;
-                correctAnswer = innerResult + outerNumber;
-            } else if (outerOperation === 2) {
-                question = `(${innerQuestion}) - ${outerNumber}`;
-                correctAnswer = innerResult - outerNumber; // 确保结果不小于0
-            } else if (outerOperation === 3) {
-                question = `(${innerQuestion}) x ${outerNumber}`;
-                correctAnswer = innerResult * outerNumber; // 乘法
-            } else if (outerOperation === 4) {
-                question = `(${innerQuestion}) ÷ ${outerNumber}`;
-                correctAnswer = innerResult / outerNumber; // 商
+            } else if (innerOperation === 2) {
+                // 括号内除法（被除数小于10，且不能产生余数）
+                let divisor;
+                do {
+                    divisor = await getRandomInt(2, 9); // 除数不能为1或0
+                    innerResult = await getRandomInt(10, 99); // 被除数
+                } while (innerResult % divisor !== 0 || innerResult < 10 || innerResult === divisor); // 确保能整除，且被除数不能等于除数
+                innerQuestion = `${innerResult} ÷ ${divisor}`;
+                innerResult = innerResult / divisor;
             }
+
+            // 括号外的数和操作
+            let outerNum;
+            let outerOperation;
+            do {
+                outerNum = await getRandomInt(1, 9); // 括号外的数小于等于10
+                outerOperation = await getRandomInt(1, 2); // 1: 加法, 2: 减法
+
+                if (outerOperation === 1) {
+                    // 加法
+                    question = `(${innerQuestion}) + ${outerNum}`;
+                    correctAnswer = innerResult + outerNum;
+
+                } else if (outerOperation === 2) {
+                    // 减法，确保结果不小于0
+                    if (innerResult >= outerNum) {
+                        question = `(${innerQuestion}) - ${outerNum}`;
+                        correctAnswer = innerResult - outerNum;
+                    }
+                }
+            } while (outerOperation === 2 && innerResult < outerNum); // 确保减法有效
         }
 
         // 生成选项
