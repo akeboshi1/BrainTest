@@ -6,7 +6,7 @@ export class SentenceMakingQuestion {
     constructor(
         public sentence: string[],
         public fixed: number[]
-    ) {}
+    ) { }
 }
 
 export class SentenceMakingConfig {
@@ -28,9 +28,17 @@ export class SentenceMakingConfig {
                             self.levelQuestions[level] = [];
                             const levelData = rawData[level];
                             for (let question of levelData) {
+                                let nfixed: number[] = [];
+                                for (let i = 0; i < question.fixed.length; i++) {
+                                    let fnum = question.fixed[i];
+                                    if (fnum < question.sentence.length && fnum >= 0) {
+                                        nfixed.push(fnum);
+                                    }
+                                }
+
                                 const newQuestion = new SentenceMakingQuestion(
                                     question.sentence,
-                                    question.fixed
+                                    nfixed
                                 );
                                 self.levelQuestions[level].push(newQuestion);
                             }
@@ -43,7 +51,7 @@ export class SentenceMakingConfig {
     }
 
     getQuestionByLevelAndIndex(level: number, index: number): SentenceMakingQuestion | null {
-        const questions = this.levelQuestions["level_"+level];
+        const questions = this.levelQuestions["level_" + level];
         if (questions && index >= 0 && index < questions.length) {
             return questions[index];
         }
@@ -51,6 +59,6 @@ export class SentenceMakingConfig {
     }
 
     getQuestionsByLevel(level: number): SentenceMakingQuestion[] {
-        return this.levelQuestions["level_"+level] || [];
+        return this.levelQuestions["level_" + level] || [];
     }
 }
