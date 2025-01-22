@@ -273,7 +273,7 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
          this.tempList = [];
         this.clockTime = GameConfig.clockTime;
-        if(this._checkPoint !=1)this.monitorEvent();
+        if(this._checkPoint !=1 || Global.isSkewersGame)this.monitorEvent();
     }
 
     public newHandHint() {
