@@ -10,7 +10,7 @@ const dayArr = ['01日','02日','03日','04日','05日','06日','07日','08日',
 @ccclass('SelectDate')
 export class SelectDate extends Component {
     @property
-    MaxYearCnt:number = 50;
+    MaxYearCnt:number = 70;
     @property(ScrollViewExt)
     yearSelect:ScrollViewExt = null;
     @property(ScrollViewExt)

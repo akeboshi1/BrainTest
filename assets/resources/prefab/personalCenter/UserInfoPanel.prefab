@@ -3355,7 +3355,7 @@
       "b": 0,
       "a": 48
     },
-    "_string": "1941年-01月-01日",
+    "_string": "1921年-01月-01日",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -8357,7 +8357,7 @@
     "__prefab": {
       "__id__": 364
     },
-    "MaxYearCnt": 50,
+    "MaxYearCnt": 70,
     "yearSelect": {
       "__id__": 253
     },
