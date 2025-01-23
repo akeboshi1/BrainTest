@@ -34,17 +34,17 @@
         "__id__": 28
       },
       {
-        "__id__": 43
+        "__id__": 42
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 58
+        "__id__": 56
       }
     ],
     "_prefab": {
-      "__id__": 60
+      "__id__": 58
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -708,11 +708,11 @@
         "__id__": 37
       },
       {
-        "__id__": 40
+        "__id__": 39
       }
     ],
     "_prefab": {
-      "__id__": 42
+      "__id__": 41
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -942,11 +942,7 @@
     "__prefab": {
       "__id__": 38
     },
-    "clickEvents": [
-      {
-        "__id__": 39
-      }
-    ],
+    "clickEvents": [],
     "_interactable": true,
     "_transition": 3,
     "_normalColor": {
@@ -991,14 +987,6 @@
     "fileId": "e5OXJW9d5Oj6o4umqipyND"
   },
   {
-    "__type__": "cc.ClickEvent",
-    "target": null,
-    "component": "",
-    "_componentId": "",
-    "handler": "",
-    "customEventData": ""
-  },
-  {
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
@@ -1008,7 +996,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 41
+      "__id__": 40
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -1066,23 +1054,23 @@
     },
     "_children": [
       {
-        "__id__": 44
+        "__id__": 43
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 50
+        "__id__": 49
       },
       {
-        "__id__": 52
+        "__id__": 51
       },
       {
-        "__id__": 55
+        "__id__": 53
       }
     ],
     "_prefab": {
-      "__id__": 57
+      "__id__": 55
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -1119,20 +1107,20 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
-      "__id__": 43
+      "__id__": 42
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 45
+        "__id__": 44
       },
       {
-        "__id__": 47
+        "__id__": 46
       }
     ],
     "_prefab": {
-      "__id__": 49
+      "__id__": 48
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -1169,11 +1157,11 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 44
+      "__id__": 43
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 46
+      "__id__": 45
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -1197,11 +1185,11 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 44
+      "__id__": 43
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 48
+      "__id__": 47
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -1278,11 +1266,11 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 43
+      "__id__": 42
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 51
+      "__id__": 50
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -1306,17 +1294,13 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 43
+      "__id__": 42
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 53
+      "__id__": 52
     },
-    "clickEvents": [
-      {
-        "__id__": 54
-      }
-    ],
+    "clickEvents": [],
     "_interactable": true,
     "_transition": 3,
     "_normalColor": {
@@ -1361,24 +1345,16 @@
     "fileId": "d08736CABCOpyLI/xnYDqA"
   },
   {
-    "__type__": "cc.ClickEvent",
-    "target": null,
-    "component": "",
-    "_componentId": "",
-    "handler": "",
-    "customEventData": ""
-  },
-  {
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 43
+      "__id__": 42
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 56
+      "__id__": 54
     },
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -1436,7 +1412,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 59
+      "__id__": 57
     },
     "_contentSize": {
       "__type__": "cc.Size",
