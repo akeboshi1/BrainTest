@@ -415,6 +415,10 @@ export class puzzleGameCore extends Component {
     private swapPuzzleChips(puzzlePos1: number, puzzlePos2: number) {
         const chipData1 = this.getChipDataByPuzzlePos(puzzlePos1);
         const chipData2 = this.getChipDataByPuzzlePos(puzzlePos2);
+        if(!chipData1||!chipData2){
+            DebugLog.instance.error(`1:${chipData1} 2:${chipData2} is null`)
+            return;
+        }
 
         const chipLastPos1 = chipData1["puzzlePos"];
         const chipLastPos2 = chipData2["puzzlePos"];
