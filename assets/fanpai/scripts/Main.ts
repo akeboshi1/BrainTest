@@ -168,6 +168,9 @@ export class Main extends Component {
     }
     clickCardHandler(event, data) {
         // if (!this.isAbleClick) { return; }
+        if(!this.cardList || this._setTimeOutId != null){
+            return;
+        }
         // 播放音效
         this.playAudio("music/fanpai",true);
         const index = Number(data);
@@ -523,6 +526,8 @@ export class Main extends Component {
     }
 
     closeAllCard() {
+        clearTimeout(this._setTimeOutId);
+        this._setTimeOutId = null;
         let self = this;
         this.cardList.forEach((card, index) => {
             card.isBacked = false;
@@ -622,6 +627,7 @@ export class Main extends Component {
     private failCompleteHandler(context){
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
+        context._setTimeOutId = null;
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().showGameAlert(context.node,AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.nextAlertHandler,context.exitCallBack,context);
         }else{
@@ -702,6 +708,7 @@ export class Main extends Component {
         AudioManager.getInstance().stop();
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
+        context._setTimeOutId = null;
         SkewersManager.getInstance().exitCallBack();
     }
 
@@ -709,6 +716,7 @@ export class Main extends Component {
         AudioManager.getInstance().stop();
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
+        context._setTimeOutId = null;
         if (!SkewersManager.getInstance().isRunOver()) {
             context.node.active = false;
             SkewersManager.getInstance().runNextGame();
@@ -720,6 +728,7 @@ export class Main extends Component {
     private nextAlertHandler(context){
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
+        context._setTimeOutId = null;
         SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 
@@ -729,6 +738,7 @@ export class Main extends Component {
         AudioManager.getInstance().stop();
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
+        context._setTimeOutId = null;
         if(Global.isSkewersGame){
             SkewersManager.getInstance().exitCallBack();
         }else{
@@ -740,6 +750,7 @@ export class Main extends Component {
         AudioManager.getInstance().stop();
         clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
+        context._setTimeOutId = null;
         //上报数据
         context.requestGameResult();
         if(Global.isSkewersGame){
