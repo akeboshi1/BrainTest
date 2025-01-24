@@ -438,7 +438,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "text",
+    "_name": "phoneNum",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -459,7 +459,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 116.545,
+      "x": 0,
       "y": -114.87,
       "z": 0
     },
@@ -500,8 +500,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 507.55859375,
-      "height": 50.4
+      "width": 0,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -536,13 +536,13 @@
       "b": 0,
       "a": 255
     },
-    "_string": "您已连续使用\"可乐派“XXX天",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -591,8 +591,6 @@
       "__id__": 0
     },
     "fileId": "d80v7el0FPIpiVCu15AK7t",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -4380,6 +4378,12 @@
     },
     "titleLabel": {
       "__id__": 12
+    },
+    "userName": {
+      "__id__": 12
+    },
+    "phoneNum": {
+      "__id__": 18
     },
     "_id": ""
   },
