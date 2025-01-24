@@ -79,6 +79,9 @@ export class LoginManager {
 
         Global.userData.token = data.data['token'];
         Global.userData.tokenExpires = data.data['expires'];
+        Global.userData.phoneNumber = data.data['mp_no'];
+
+        this.phoneNum = data.data['mp_no'];
 
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
         const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
