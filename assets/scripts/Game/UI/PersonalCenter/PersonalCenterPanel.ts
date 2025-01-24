@@ -9,6 +9,7 @@ import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { GenerateReport } from './GenerateReport';
 import { LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
+import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 
 const { ccclass, property } = _decorator;
 
@@ -17,7 +18,10 @@ export class PersonalCenterPanel extends BasePanel {
     public static NAME: string = "PersonalCenterPanel";
 
     @property(Label)
-    titleLabel: Label = null;
+    userName: Label = null;
+
+    @property(Label)
+    phoneNum: Label = null;
 
 
     onEnable() {
@@ -29,23 +33,21 @@ export class PersonalCenterPanel extends BasePanel {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
     }
 
-    // restore(data: any): void {
-    //     if(data.onhideCallback) {
-    //         this.onhideCallback = data.onhideCallback;
-    //     }
-    // }
-
     getUserInfoCallBack(data: any) {
         let userData = PersonalCenterManager.getInstance().userInfoData;
-        if(userData.full_name) {
+        let phoneNum = LoginManager.getInstance().phoneNum;
+        if (userData.full_name) {
+            this.setPhoneNum(phoneNum);
             this.setPersonalCenterTitle(userData.full_name.toString());
-        }else {
-            this.setPersonalCenterTitle("未登录");
+        } else {
+            this.setPersonalCenterTitle("未设置昵称");
         }
     }
-
+    setPhoneNum(title: string) {
+        this.phoneNum.string = title;
+    }
     setPersonalCenterTitle(title: string) {
-        this.titleLabel.string = title;
+        this.userName.string = title;
     }
 
     backToParent() {
@@ -67,7 +69,7 @@ export class PersonalCenterPanel extends BasePanel {
         UIManager.getInstance().showPanel(GenerateReport.NAME);
     }
 
-    onClickLogOut(){
+    onClickLogOut() {
         LocalStorageUtil.clean();
 
         SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
