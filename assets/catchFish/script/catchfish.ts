@@ -96,7 +96,7 @@ export class catchfish extends Component {
 
     private fishs: Fish[];
     private _curFish: Fish;
-    private wangMaxCount: number = 4;
+    private wangMaxCount: number = 8;
     private wangCount: number = 0;
 
     private curHard: number = 0;
@@ -186,6 +186,17 @@ export class catchfish extends Component {
         if(Global.isSkewersGame){
             this.curHard = Global.userData.curSkewerGameData.difficulty;
             this.hardIndex = this.hards.indexOf(this.curHard);
+            switch(this.curHard){
+                case 1:
+                    this.wangMaxCount = 8;
+                    break;
+                case 2:
+                    this.wangMaxCount = 6;
+                    break;
+                case 3:
+                    this.wangMaxCount = 4;
+                    break;
+            }
         }else{
             if(win){
                 this.curHard = this.hards[this.hardIndex];
@@ -208,14 +219,6 @@ export class catchfish extends Component {
         EventManager.getInstance().disableContext(this);
     }
 
-    // startGameByAlert(context){
-    //     context.curHard = Global.userData.curSkewerGameData.difficulty;
-    //     context.wangCount = 0;
-    //     context.catchLabel.getComponent(Label).string = `${context.wangCount}/${context.wangMaxCount}`;
-    //     context.timeInit();
-    //     context.timeStart();
-    //     context.createFish();
-    // }
 
     private createFish(count: number = 4) {
         if (this.fishParentNode && this.fishPrefab) {
@@ -278,27 +281,7 @@ export class catchfish extends Component {
 
             EventManager.getInstance().off(Fish.FishClick, self);
             EventManager.getInstance().on(Fish.FishClick, self.selectFish, self);
-        });//availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-        // question.hasChose = true;
-
-
-        // const currentQuestions = questions[this.hardIndex];
-        //
-        // // 筛选出未选择的问题
-        // const availableQuestions = currentQuestions.filter(question => !question.hasChose);
-        //
-        // if (availableQuestions.length > 0) {
-        //     // 从可用问题中随机选择一个
-        //     let question = CreateQuestion.create(this.curHard);//availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-        //     question.hasChose = true;
-        //     fish.setQuestion(question);
-        //
-        //     EventManager.getInstance().off(Fish.FishClick, this);
-        //     EventManager.getInstance().on(Fish.FishClick, this.selectFish, this);
-        // } else {
-        //     DebugLog.instance.log("No available questions found");
-        //     // 这里可以添加一些降级处理，例如设置默认问题或重置状态等
-        // }
+        });
     }
 
     private selectFish(fish, context) {
@@ -897,7 +880,7 @@ export class catchfish extends Component {
 
     }
     clearWangNubmer() {
-        for (let i = 0; i < this.wangMaxCount; i++) {
+        for (let i = 0; i < 4; i++) {
 
             let wangNode = this.wangs[i];
 
