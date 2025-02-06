@@ -13,19 +13,22 @@ export class BaseScene extends Component {
 
     protected audioMap: Map<string, AudioClip> = new Map();
 
-    start(){
-
-    }
-
+    // ========== component生命周期 ==========
+    // 1
     onLoad(){
         this.loadAudio().then();
         this.loadTexture().then();
     }
 
     
-
+    // 2
     onEnable(){
         EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this, true);
+    }
+
+    // 3
+    start(){
+
     }
 
     onDisable(){
