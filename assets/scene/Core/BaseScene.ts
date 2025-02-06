@@ -1,9 +1,9 @@
 import { AudioClip, Component, Texture2D } from "cc";
 import { Node } from "cc";
-import { EventManager } from "../../../scripts/Core/Manager/Event/EventManager";
-import { SkewersManager } from "../../../scripts/Game/Task/Skewers/SkewersManager";
-import { AudioManager } from "../../../scripts/Core/Manager/Audio/AudioManager";
-import { TimerCommonComponent } from "../../../scripts/Game/UI/Common/TimerCommonComponent";
+import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
+import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
+import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
+import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
 /**
  * 基础场景
  */
