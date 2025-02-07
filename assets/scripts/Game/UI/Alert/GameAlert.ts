@@ -102,13 +102,13 @@ export class GameAlert extends Component{
         this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
         switch (type) {
             case AlertType.Normal:
-                this.exitBtn.node.active = true;
+                this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-                startBtnUITransform.width = 250;
+                startBtnUITransform.width = 500;
                 break;
             case AlertType.Next:
                 this.titleLabel.node.active = true;
