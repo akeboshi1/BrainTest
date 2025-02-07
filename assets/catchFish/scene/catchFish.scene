@@ -5487,7 +5487,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "退出",
+    "_string": "暂停",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
