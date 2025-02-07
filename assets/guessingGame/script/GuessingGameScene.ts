@@ -196,17 +196,21 @@ export class GuessingGameScene extends Component {
         this.startAnswer();
     }
 
+    private _replay:boolean = false;
     private startAnswer() {
         this.questionNode.active = false;
         this.optionsNode.active = true;
-        this._startTime = TimeUtil.getNow();
-        this.timerRT.node.active = true;
-        if (Global.isSkewersGame) {
-            this.timeLimit = Global.userData.curSkewerGameData.timeLimit;
-        } else {
-            this.timeLimit = 30;
+        if(!this._replay){
+            this._startTime = TimeUtil.getNow();
+            this.timerRT.node.active = true;
+            if (Global.isSkewersGame) {
+                this.timeLimit = Global.userData.curSkewerGameData.timeLimit;
+            } else {
+                this.timeLimit = 30;
+            }
+            this.timerRT.startTimer(this.timeLimit);
         }
-        this.timerRT.startTimer(this.timeLimit);
+       
 
         this.replayNode.active = true;
 
@@ -219,7 +223,7 @@ export class GuessingGameScene extends Component {
 
     private processAnswer(ans: string = null) {
         this.pauseTime();
-
+        this._replay = false;
         const result: boolean = ans && this.currentQuestion.answer == ans;
         if (result) {
             this.playAudio("audio/music/win", true);
@@ -347,6 +351,7 @@ export class GuessingGameScene extends Component {
     }
 
     onClickReplay() {
+        this._replay = true;
         this.guessingGameModel.replayQuestionAudio();
     }
 
@@ -366,6 +371,7 @@ export class GuessingGameScene extends Component {
 
     onClickBack() {
         this.guessingGameModel.stopAudio();
+        this.pauseTime();
         if (Global.isSkewersGame) {
             let trainData = SkewersManager.getInstance().getUnCompleteGameData();
             let maxCount = trainData.length;
