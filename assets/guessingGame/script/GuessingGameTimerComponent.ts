@@ -63,6 +63,7 @@ export class GuessingGameTimerComponent extends Component {
     public resumeTimer() {
         if (!this.isRunning) {
             this.startTime = this.startTime + (Date.now() - this._pauseTime)%1000;
+            this._pauseTime = 0;
             this.isRunning = true;
         }
     }
