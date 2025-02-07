@@ -87,8 +87,12 @@ export class puzzleGameCore extends Component {
     private dragStartFlag: boolean = false;
     private selectedLevelIndex: number = 0;
 
-    private levelList: number[] = [2, 3, 4];
-    private selectedLevel: number = this.levelList[this.selectedLevelIndex];
+    private levelList: Vec2[] = [
+        new Vec2(2, 3),
+        new Vec2(3, 3), 
+        new Vec2(4, 4)
+    ];
+    private selectedLevel: Vec2 = this.levelList[this.selectedLevelIndex];
     private textureIndex: number = 0;
     private randomPlayIndex: number[] = [];
     private currentTexture2d: Texture2D = null;
@@ -217,15 +221,16 @@ export class puzzleGameCore extends Component {
 
     }
 
-    cropTextureToSprites(cropNum: number, texture: Texture2D) {
+    cropTextureToSprites(cropSize: Vec2, texture: Texture2D) {
         const textureRect = new Size(texture.width, texture.height);
-        const cropWidth = textureRect.width / cropNum;
-        const cropHeight = textureRect.height / cropNum;
+        const cropWidth = textureRect.width / cropSize.x;
+        const cropHeight = textureRect.height / cropSize.y;
 
         const rectList: Rect[] = [];
 
-        for (let i = 0; i < cropNum; i++) {
-            for (let j = 0; j < cropNum; j++) {
+        // 按照 cropSize.x 和 cropSize.y 进行切割
+        for (let i = 0; i < cropSize.y; i++) {
+            for (let j = 0; j < cropSize.x; j++) {
                 const rect = new Rect(j * cropWidth, i * cropHeight, cropWidth, cropHeight);
                 rectList.push(rect);
             }
@@ -240,18 +245,20 @@ export class puzzleGameCore extends Component {
 
             const spriteFrame = new SpriteFrame();
             spriteFrame.texture = texture;
-
             spriteFrame.rect = rectList[i];
-
             spriteComponent.spriteFrame = spriteFrame;
 
             instantiatedPrefab.setParent(this.chipParentNode);
 
-            const rect = new Rect(rectList[i].x * scaleRate, (0 - rectList[i].y - rectList[i].height) * scaleRate, rectList[i].width * scaleRate, rectList[i].height * scaleRate);
+            const rect = new Rect(
+                rectList[i].x * scaleRate, 
+                (0 - rectList[i].y - rectList[i].height) * scaleRate,
+                rectList[i].width * scaleRate,
+                rectList[i].height * scaleRate
+            );
 
             const gap = this.chipGap.valueOf();
             instantiatedPrefab.setPosition(rect.x + gap / 2, rect.y + gap / 2);
-
             instantiatedPrefab.getComponent(UITransform).contentSize = new Size(rect.width - gap, rect.height - gap);
             instantiatedPrefab.setSiblingIndex(0);
 
@@ -450,7 +457,7 @@ export class puzzleGameCore extends Component {
         let outputString = "";
         let lineCount = 0;
         for (let [key, value] of this.chipsDataMap.entries()) {
-            if (lineCount % this.selectedLevel == 0) {
+            if (lineCount % this.selectedLevel.x == 0) {
                 DebugLog.instance.log("outputMapData  ---- " + outputString);
                 outputString = "";
             }
@@ -474,7 +481,7 @@ export class puzzleGameCore extends Component {
 
     // 随机交换拼图位置n次的方法
     private randomSwapPuzzleChipsNTimes(n: number) {
-        const maxPos = this.selectedLevel * this.selectedLevel;
+        const maxPos = this.selectedLevel.x * this.selectedLevel.y;
         let positions: number[] = [];
         for (let i = 0; i < maxPos; i++) {
             positions.push(i);
@@ -497,7 +504,7 @@ export class puzzleGameCore extends Component {
             this.selectedLevelIndex = Global.userData.curSkewerGameData.difficulty - 1;
             this.selectedLevel = this.levelList[this.selectedLevelIndex];
         }
-        this.randomSwapPuzzleChipsNTimes(this.selectedLevel * this.selectedLevel);
+        this.randomSwapPuzzleChipsNTimes(this.selectedLevel.x * this.selectedLevel.y);
     }
 
     onClickChangeLevel() {
