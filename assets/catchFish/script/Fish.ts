@@ -54,7 +54,7 @@ export class Fish {
         this.currentIndex = answers.indexOf(question.correctAnswer);
     }
 
-    clickHandler(event: Event) {
+    clickHandler(event: Event = null) {
         // 在这里处理点击事件
         DebugLog.instance.log("点击了鱼，问题为：" + this._data);
         EventManager.getInstance().emit(Fish.FishClick,this);

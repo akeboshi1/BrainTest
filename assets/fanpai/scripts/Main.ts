@@ -89,8 +89,6 @@ export class Main extends Component {
     private audioUrls=["music/fanpai","music/win",'music/bgMusic'];
     private audioMap:Map<string,AudioClip> = new Map();
     start() {
-        // test
-        // GameCenterManager.getInstance().startGame(1, this.startGame);
         if (Global.isSkewersGame) {
             this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
         }
@@ -510,18 +508,6 @@ export class Main extends Component {
                     })
                 });
             }
-
-            // resources.load(card.imgUrl, (err, image: ImageAsset) => {
-            //     if (err) {
-            //         console.log(err);
-            //         return;
-            //     }
-            //     const spriteFrame = new SpriteFrame();
-            //     const texture = new Texture2D();
-            //     texture.image = image;
-            //     spriteFrame.texture = texture;
-            //     sprite.spriteFrame = spriteFrame;
-            // });
         })
     }
 
@@ -545,18 +531,6 @@ export class Main extends Component {
                     })
                 });
             }
-
-            // resources.load("texture/card/Card_back_d", (err, image: ImageAsset) => {
-            //     if (err) {
-            //         console.log(err);
-            //         return;
-            //     }
-            //     const spriteFrame = new SpriteFrame();
-            //     const texture = new Texture2D();
-            //     texture.image = image;
-            //     spriteFrame.texture = texture;
-            //     sprite.spriteFrame = spriteFrame;
-            // });
         })
     }
 
