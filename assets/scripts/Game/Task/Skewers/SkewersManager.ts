@@ -8,7 +8,7 @@ import { SocketData } from "../../../Core/Manager/Net/SocketData";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import { AlertType, GameAlert } from "db://assets/scripts/Game/UI/Alert/GameAlert";
-import { instantiate, Node } from "cc";
+import { Canvas, director, instantiate, Node, UITransform, Vec3 } from "cc";
 import { TaskStatus } from "db://assets/scripts/Game/Task/TaskData";
 import AlertManager, { AlertData } from "db://assets/scripts/Core/Manager/Alert/AlertManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "db://assets/scripts/Core/Manager/Load/BundlePreloadManager";
@@ -32,22 +32,22 @@ export class SkewersManager {
         return SkewersManager._instance;
     }
 
-    public totalCompleteStr:string = '太棒了，恭喜你完成全部训练';
+    public totalCompleteStr: string = '太棒了，恭喜你完成全部训练';
 
-    public singleCompleteStr:string = '太棒了，请继续！'
+    public singleCompleteStr: string = '太棒了，请继续！'
 
-    public failCompleteStr :string ="真遗憾，请加油";
+    public failCompleteStr: string = "真遗憾，请加油";
 
-    public singleBrainScore:string = "收获100点脑力值";
+    public singleBrainScore: string = "收获100点脑力值";
 
-    public totalBrainScore :string = "收获600点脑力值";
+    public totalBrainScore: string = "收获600点脑力值";
 
 
-    public get currentSkewersCompleteGameStr():string{
+    public get currentSkewersCompleteGameStr(): string {
         return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}训练`
     }
 
-    public get nextSkewersGameStr():string{
+    public get nextSkewersGameStr(): string {
         return `接下来将进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}训练`;
     }
 
@@ -265,12 +265,18 @@ export class SkewersManager {
         let alertNode = SkewersManager.getInstance()._alertInstance;
         let gameType = type == AlertType.Next ? SkewersManager.getInstance().getUnCompleteGameData().type : Global.userData.curSkewerGameData.type;
         let iconUrl = this._iconUrlMap.get(gameType);
+        let position = new Vec3(0, 0, 0);
+        if (parentNode == null) {
+            const scene = director.getScene(); // 直接获取场景根
+            const canvas = scene.getComponentInChildren(Canvas); //
+            parentNode = canvas.node;
+        }
         if (alertNode == null) {
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource) => {
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
                 let alert = alertNode.getComponent("GameAlert");
-                alertNode.setPosition(0, 0, 0);
+                alertNode.setPosition(position.x, position.y, position.z);
                 alert["showView"](type);
                 alert["setTitle"](title);
                 alert["setDec"](desc);
@@ -283,7 +289,7 @@ export class SkewersManager {
             alertNode.active = true;
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
-            alertNode.setPosition(0, 0, 0);
+            alertNode.setPosition(position.x, position.y, position.z);
             alert["showView"](type);
             alert["setTitle"](title);
             alert["setDec"](desc);
@@ -437,11 +443,11 @@ export class SkewersManager {
     /**
      * 运行下一个游戏
      */
-    public runNextGame(changeScene:boolean = true) {
+    public runNextGame(changeScene: boolean = true) {
         // 可能换到了下一个类型游戏
         this._game = this.getUnCompleteGameData();
         Global.userData.curSkewerGameData = this._game;
-        if(changeScene) {
+        if (changeScene) {
             const sceneName = this._game.gameCode;
             let url = Global.RES_Root + sceneName;
             EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
@@ -515,9 +521,4 @@ export class SkewersManager {
         }
         return nextGame;
     }
-
-
-
-
-
 }
