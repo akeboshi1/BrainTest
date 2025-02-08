@@ -58,8 +58,21 @@ export class PhoneLoginPanel extends BasePanel {
      * 登录操作
      */
     public enterClick() {
-        LoginManager.getInstance().phoneNum = this.phoneNumberEdit.string;
-        UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
+        const phoneNum = this.phoneNumberEdit.string;
+        LoginManager.getInstance().phoneNum = phoneNum;
+        
+        // 添加监听
+        EventManager.getInstance().on('login.send_mp_code', (data) => {
+            if (data['status'] == 0) {
+                // 请求失败，不进行操作
+                return;
+            }
+            // 请求成功，显示验证码面板
+            UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
+        }, this, true);
+        
+        // 发送验证码请求
+        LoginManager.getInstance().requestSendMpCode(phoneNum);
     }
 
     /**
