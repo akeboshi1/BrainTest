@@ -353,6 +353,16 @@ export class SentenceMakingScene extends Component {
             return;
         }
 
+        // 添加保护逻辑，判断起始点和松手点是否相同
+        let currentPos: Vec2 = event.getUILocation();
+        const vec3 = event.target.parent.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
+        const endPos = new Vec2(vec3.x, vec3.y);
+        if (Vec2.equals(this.startDragPos, endPos)) {
+            this.isDragging = false;
+            event.target.setSiblingIndex(0);
+            return;
+        }
+
         this.isDragging = false;
         event.target.setSiblingIndex(0);
 
