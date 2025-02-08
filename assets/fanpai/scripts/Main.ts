@@ -76,6 +76,9 @@ export class Main extends Component {
     @property(Label)
     failViewProgressLabel: Label;
 
+    @property(Label)
+    titleLabel: Label;
+
     private currentCard: Node;
     private buttonLableText: Label;
 
@@ -166,6 +169,7 @@ export class Main extends Component {
             SkewersManager.getInstance().showGameAlert(this.node,AlertType.Init, "开始游戏!","",0,0,this.startGameByAlert,null,this);
         }else{
             this.successView.active = true;
+            this.titleLabel.string=`看牌结束后开始挑战`
             this.updateSuccessPopupTitle(1);
             this.successStartButton.node.active = true;
             this.successNextButton.node.active = false;
@@ -579,6 +583,10 @@ export class Main extends Component {
             }
         })
     }
+    protected onDestroy(): void {
+        clearTimeout(this._setTimeOutId);
+        clearInterval(this.timerId);
+    }
 
     private _setTimeOutId = -1;
     // 预览卡片，time，秒数
@@ -587,6 +595,7 @@ export class Main extends Component {
         this.showAllCard();
         this._startTime = TimeUtil.getNow();
         this._setTimeOutId = setTimeout(() => {
+            clearTimeout(this._setTimeOutId);
             this.closeAllCard();
         }, this.seconds[this.hardIndex] * 1000);
     }
