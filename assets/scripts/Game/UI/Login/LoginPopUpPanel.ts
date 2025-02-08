@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, Button, EditBox, Vec3} from 'cc';
+import { _decorator, Node, Label, Button, EditBox, Vec3 } from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
@@ -105,24 +105,26 @@ export class LoginPopUpPanel extends BasePanel {
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.startEditbox();
         this.timerCommonComponent.startTimer(60);
-      
+
     }
     onTimerEnd() {
         this.PhoneDescTxt.node.active = true;
         this.PhoneDescTxt.string = "重新发送>>";
         this.timerCommonComponent.node.active = false;
     }
+
     reSendCode() {
-        this.timerCommonComponent.startTimer(60); 
+        this.timerCommonComponent.startTimer(60);
         this.PhoneDescTxt.node.active = false;
         this.timerCommonComponent.node.active = true;
         this.startEditbox();
         EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this, true);
         LoginManager.getInstance().requestSendMpCode(this.phoneNumber);
     }
+    
     onEnable() {
         if (this.timerCommonComponent) this.timerCommonComponent.on('timer-end', this.onTimerEnd, this);
-        
+
     }
 
     onDisable() {
@@ -142,12 +144,9 @@ export class LoginPopUpPanel extends BasePanel {
 
     agreeClick() {
         this.phoneNumber = LoginManager.getInstance().phoneNum;
-        this.PhoneDescTxt.node.active = true;
-        this.PhoneDescTxt.string = "登录中。。。";
-        this.enterTxt.node.active = false;
-
-        EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this, true);
-        LoginManager.getInstance().requestSendMpCode(this.phoneNumber);
+        this.PhoneDescTxt.node.active = false;
+        this.enterTxt.node.active = true;
+        this.updateView(true);
     }
 
     private requestCodeCallBack(data, context) {
@@ -228,18 +227,18 @@ export class LoginPopUpPanel extends BasePanel {
     public startEditbox() {
         if (!this.editBox.isFocused()) {
             this.editBox.setFocus();
-            let _index=-1;
-            for(let i:number=3;i>=0;i--){
+            let _index = -1;
+            for (let i: number = 3; i >= 0; i--) {
                 const node = this.numNodes[i];
-                if(node.getChildByName('label').getComponent(Label).string !=''&& i>_index){
-                    node.setScale(new Vec3(1.2,1.2,1.2));
+                if (node.getChildByName('label').getComponent(Label).string != '' && i > _index) {
+                    node.setScale(new Vec3(1.2, 1.2, 1.2));
                     _index = i;
-                }else{
-                    node.setScale(new Vec3(1,1,1));
+                } else {
+                    node.setScale(new Vec3(1, 1, 1));
                 }
             }
-            if(_index == -1) {
-                this.numNodes[0].setScale(new Vec3(1.2,1.2,1.2));
+            if (_index == -1) {
+                this.numNodes[0].setScale(new Vec3(1.2, 1.2, 1.2));
             }
         }
     }

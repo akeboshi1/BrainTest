@@ -13,10 +13,21 @@ import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 const { ccclass, property } = _decorator;
 
-function getRandomNumber(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+interface CardItem {
+    index: number;
+    imgUrl: string;
+    isBacked: boolean;
+    isDeleted: boolean;
+    cardType?: number;
 }
 
+function getRandomNumber(min:number, max:number, exclude:number[] = []) {
+    let num;
+    do {
+        num = Math.floor(Math.random() * (max - min + 1)) + min;
+    } while (exclude.indexOf(num) !== -1);
+    return num;
+}
 @ccclass('Main')
 export class Main extends Component {
 
@@ -65,12 +76,15 @@ export class Main extends Component {
     @property(Label)
     failViewProgressLabel: Label;
 
+    @property(Label)
+    titleLabel: Label;
+
     private currentCard: Node;
     private buttonLableText: Label;
 
 
     private cardTheme: string;
-    private cardList: { index: number, imgUrl: string, isBacked: boolean, isDeleted: boolean }[];
+    private cardList: CardItem[];
 
     private cardTotalCount: number = 0;
     private curHard: number = 0;
@@ -89,8 +103,6 @@ export class Main extends Component {
     private audioUrls=["music/fanpai","music/win",'music/bgMusic'];
     private audioMap:Map<string,AudioClip> = new Map();
     start() {
-        // test
-        // GameCenterManager.getInstance().startGame(1, this.startGame);
         if (Global.isSkewersGame) {
             this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
         }
@@ -157,6 +169,7 @@ export class Main extends Component {
             SkewersManager.getInstance().showGameAlert(this.node,AlertType.Init, "开始游戏!","",0,0,this.startGameByAlert,null,this);
         }else{
             this.successView.active = true;
+            this.titleLabel.string=`看牌结束后开始挑战`
             this.updateSuccessPopupTitle(1);
             this.successStartButton.node.active = true;
             this.successNextButton.node.active = false;
@@ -424,7 +437,7 @@ export class Main extends Component {
         this.timerInit();
         this.timerTick();
         this.closeFailView();
-        this.previewCard(2);
+        this.previewCard();
     }
 
     closeFailView() {
@@ -448,7 +461,7 @@ export class Main extends Component {
         this.initCardData();
 
 
-        this.previewCard(2);
+        this.previewCard();
 
         this.playAudio("music/bgMusic");
     }
@@ -461,35 +474,70 @@ export class Main extends Component {
 
     // 初始化卡片数据
     initCardData() {
-        this.cardList = [];
-        const cardTypeUsedMap = new Map<number, number>();
-        // 初始化16张卡片数据
-        while (this.cardList.length < this.cardTotalCount) {
-            const currentCardIndex = this.cardList.length;
-            const cardTypeNumber = getRandomNumber(1, this.cardTotalCount / 2);
-            // 如果cardTypeUsedMap中没有该卡片类型，则添加该卡片类型
-            if (!cardTypeUsedMap.has(cardTypeNumber)) {
-                this.cardList.push({
-                    index: currentCardIndex,
-                    imgUrl: `texture/svg/${cardTypeNumber}_${this.cardTheme}`,
+        // 初始化卡片列表和可用位置
+        this.cardList = new Array(this.cardTotalCount).fill(null);
+        let availablePositions = Array.from({length: this.cardTotalCount}, (_, i) => i);
+        
+        // 为每种卡片类型生成两张卡片
+        for (let cardType = 1; cardType <= this.cardTotalCount / 2; cardType++) {
+            // 放置该类型的两张卡片
+            for (let j = 0; j < 2; j++) {
+                // 从可用位置中找到合适的位置
+                let validPositions = availablePositions.filter(pos => {
+                    // 检查左右相邻
+                    let leftValid = pos % 4 === 0 || 
+                        !this.cardList[pos - 1] || 
+                        this.cardList[pos - 1].cardType !== cardType;
+                    let rightValid = pos % 4 === 3 || 
+                        !this.cardList[pos + 1] || 
+                        this.cardList[pos + 1].cardType !== cardType;
+                    // 检查上下相邻
+                    let upValid = pos < 4 || 
+                        !this.cardList[pos - 4] || 
+                        this.cardList[pos - 4].cardType !== cardType;
+                    let downValid = pos >= this.cardTotalCount - 4 || 
+                        !this.cardList[pos + 4] || 
+                        this.cardList[pos + 4].cardType !== cardType;
+                    
+                    return leftValid && rightValid && upValid && downValid;
+                });
+
+                // 如果没有完全符合条件的位置，就放宽限制只检查水平相邻
+                if (validPositions.length === 0) {
+                    validPositions = availablePositions.filter(pos => {
+                        let leftValid = pos % 4 === 0 || 
+                            !this.cardList[pos - 1] || 
+                            this.cardList[pos - 1].cardType !== cardType;
+                        let rightValid = pos % 4 === 3 || 
+                            !this.cardList[pos + 1] || 
+                            this.cardList[pos + 1].cardType !== cardType;
+                        return leftValid && rightValid;
+                    });
+                }
+
+                // 如果还是没有位置，就使用任意可用位置
+                if (validPositions.length === 0) {
+                    validPositions = availablePositions;
+                }
+
+                // 随机选择一个有效位置
+                let randomIndex = Math.floor(Math.random() * validPositions.length);
+                let selectedPosition = validPositions[randomIndex];
+
+                // 放置卡片
+                this.cardList[selectedPosition] = {
+                    index: selectedPosition,
+                    imgUrl: `texture/svg/${cardType}_${this.cardTheme}`,
                     isBacked: false,
                     isDeleted: false,
-                });
-                cardTypeUsedMap.set(cardTypeNumber, 1);
-            } else {
-                // 如果cardTypeUsedMap中该卡片类型为1，则添加该卡片类型
-                if (cardTypeUsedMap.get(cardTypeNumber) === 1) {
-                    this.cardList.push({
-                        index: currentCardIndex,
-                        imgUrl: `texture/svg/${cardTypeNumber}_${this.cardTheme}`,
-                        isBacked: false,
-                        isDeleted: false,
-                    });
-                    cardTypeUsedMap.set(cardTypeNumber, 2);
-                }
+                    cardType: cardType
+                };
+
+                // 从可用位置列表中移除已使用的位置
+                availablePositions = availablePositions.filter(pos => pos !== selectedPosition);
             }
         }
-        // DebugLog.instance.log('this.cardList', this.cardList);
+
         // 所有卡片设置为背板
         this.closeAllCard();
     }
@@ -510,18 +558,6 @@ export class Main extends Component {
                     })
                 });
             }
-
-            // resources.load(card.imgUrl, (err, image: ImageAsset) => {
-            //     if (err) {
-            //         console.log(err);
-            //         return;
-            //     }
-            //     const spriteFrame = new SpriteFrame();
-            //     const texture = new Texture2D();
-            //     texture.image = image;
-            //     spriteFrame.texture = texture;
-            //     sprite.spriteFrame = spriteFrame;
-            // });
         })
     }
 
@@ -545,29 +581,23 @@ export class Main extends Component {
                     })
                 });
             }
-
-            // resources.load("texture/card/Card_back_d", (err, image: ImageAsset) => {
-            //     if (err) {
-            //         console.log(err);
-            //         return;
-            //     }
-            //     const spriteFrame = new SpriteFrame();
-            //     const texture = new Texture2D();
-            //     texture.image = image;
-            //     spriteFrame.texture = texture;
-            //     sprite.spriteFrame = spriteFrame;
-            // });
         })
+    }
+    protected onDestroy(): void {
+        clearTimeout(this._setTimeOutId);
+        clearInterval(this.timerId);
     }
 
     private _setTimeOutId = -1;
     // 预览卡片，time，秒数
-    previewCard(time: number) {
+    seconds: number[]=[1.5,2,3.5];
+    previewCard() {
         this.showAllCard();
         this._startTime = TimeUtil.getNow();
         this._setTimeOutId = setTimeout(() => {
+            clearTimeout(this._setTimeOutId);
             this.closeAllCard();
-        }, time * 1000);
+        }, this.seconds[this.hardIndex] * 1000);
     }
 
     // 定时器
@@ -746,19 +776,19 @@ export class Main extends Component {
         }
     }
 
-    private autoExitCallBack(context){
-        AudioManager.getInstance().stop();
-        clearInterval(context.timerId);
-        clearTimeout(context._setTimeOutId);
-        context._setTimeOutId = null;
-        //上报数据
-        context.requestGameResult();
-        if(Global.isSkewersGame){
-            SkewersManager.getInstance().exitCallBack();
-        }else{
-            GameCenterManager.getInstance().exitCallBack();
-        }
-    }
+    // private autoExitCallBack(context){
+    //     AudioManager.getInstance().stop();
+    //     clearInterval(context.timerId);
+    //     clearTimeout(context._setTimeOutId);
+    //     context._setTimeOutId = null;
+    //     //上报数据
+    //     context.requestGameResult();
+    //     if(Global.isSkewersGame){
+    //         SkewersManager.getInstance().exitCallBack();
+    //     }else{
+    //         GameCenterManager.getInstance().exitCallBack();
+    //     }
+    // }
 
 }
 

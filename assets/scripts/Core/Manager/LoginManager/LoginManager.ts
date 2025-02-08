@@ -1,20 +1,19 @@
-
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {LoginPanel} from "db://assets/scripts/Game/UI/Login/LoginPanel";
-import {LoginPopUpPanel} from "db://assets/scripts/Game/UI/Login/LoginPopUpPanel";
-import {SocketData} from "db://assets/scripts/Core/Manager/Net/SocketData";
-import {SocketManager} from "db://assets/scripts/Core/Manager/Net/SocketManager";
-import {PhoneLoginPanel} from "db://assets/scripts/Game/UI/Login/PhoneLoginPanel";
-import {TimeUtil} from "../../Util/TimeUtil";
-import {LocalStorageKeyEnum, LocalStorageUtil} from "../../Util/LocalStorageUtil";
-import {EventManager} from "../Event/EventManager";
-import {SceneManager} from "../Scene/SceneManager";
-import AlertManager, {AlertData} from "../Alert/AlertManager";
-import {VerifyPanel} from "db://assets/scripts/Game/UI/Login/VerifyPanel";
-import {BundleName} from "../Load/BundleName";
-import {DebugLog} from "../../Util/DebugLog";
-import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
+import { UIManager } from "db://assets/scripts/Core/Manager/UI/UIManager";
+import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
+import { LoginPanel } from "db://assets/scripts/Game/UI/Login/LoginPanel";
+import { LoginPopUpPanel } from "db://assets/scripts/Game/UI/Login/LoginPopUpPanel";
+import { SocketData } from "db://assets/scripts/Core/Manager/Net/SocketData";
+import { SocketManager } from "db://assets/scripts/Core/Manager/Net/SocketManager";
+import { PhoneLoginPanel } from "db://assets/scripts/Game/UI/Login/PhoneLoginPanel";
+import { TimeUtil } from "../../Util/TimeUtil";
+import { LocalStorageKeyEnum, LocalStorageUtil } from "../../Util/LocalStorageUtil";
+import { EventManager } from "../Event/EventManager";
+import { SceneManager } from "../Scene/SceneManager";
+import AlertManager, { AlertData } from "../Alert/AlertManager";
+import { VerifyPanel } from "db://assets/scripts/Game/UI/Login/VerifyPanel";
+import { BundleName } from "../Load/BundleName";
+import { DebugLog } from "../../Util/DebugLog";
+import { GenerateReport } from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
 
 export class LoginManager {
@@ -48,7 +47,7 @@ export class LoginManager {
         UIManager.getInstance().registerPanel(PhoneLoginPanel.NAME, BundleName.RESOURCES, "prefab/PhoneLoginPanel", PhoneLoginPanel);
         UIManager.getInstance().registerPanel(LoginPopUpPanel.NAME, BundleName.RESOURCES, "prefab/LoginPopUpPanel", LoginPopUpPanel);
         UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
-        UIManager.getInstance().registerPanel(GenerateReport.NAME,BundleName.RESOURCES, "prefab/personalCenter/GenerateReport",GenerateReport);
+        UIManager.getInstance().registerPanel(GenerateReport.NAME, BundleName.RESOURCES, "prefab/personalCenter/GenerateReport", GenerateReport);
     }
 
     private tokenExpirationVerification(): boolean {
@@ -103,15 +102,10 @@ export class LoginManager {
                 this.showVerifryView();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
-
-            //const verifyPanel: VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
-            // if (verifyPanel) verifyPanel.start();
             return;
         }
 
         Global.userData.inviteCode = data.data['invite_code'];
-        //const verifyPanel: VerifyPanel = UIManager.getInstance().getView(VerifyPanel.NAME) as VerifyPanel;
-        //if (verifyPanel) verifyPanel.stopTween();
     }
 
     private requestSendMpCodeHandler(data: any) {
@@ -195,8 +189,8 @@ export class LoginManager {
         if (this.tokenExpirationVerification()) {
             UIManager.getInstance().showPanel(LoginPanel.NAME);
         } else {
-            this.requestTokenVerification((result)=>{
-                if(result){
+            this.requestTokenVerification((result) => {
+                if (result) {
                     SceneManager.getInstance().backToHall();
                 }
             });

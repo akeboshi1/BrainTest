@@ -1,27 +1,27 @@
-import {_decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, Sprite} from 'cc';
-import {DebugLog} from "../../../scripts/Core/Util/DebugLog";
-import {TaskManager} from "../../Game/Task/TaskManager";
-import {EventManager} from "../../Core/Manager/Event/EventManager";
-import {TaskData, TaskStatus, TaskType} from "../../Game/Task/TaskData";
-import {StringUtil} from "../../Core/Util/StringUtil";
-import {ColorUtil} from "../../Core/Util/ColorUtil";
-import {ChatPanelCtrl} from '../UI/ChatPanel/ChatPanelCtrl';
-import {TimeUtil} from "../../Core/Util/TimeUtil";
-import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {SceneManager} from "db://assets/scripts/Core/Manager/Scene/SceneManager";
-import {SkewersManager} from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
-import {GameType, SkewersGameData} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
-import AlertManager, {AlertData} from '../../Core/Manager/Alert/AlertManager';
-import {LocalStorageUtil} from '../../Core/Util/LocalStorageUtil';
+import { _decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, Sprite } from 'cc';
+import { DebugLog } from "../../../scripts/Core/Util/DebugLog";
+import { TaskManager } from "../../Game/Task/TaskManager";
+import { EventManager } from "../../Core/Manager/Event/EventManager";
+import { TaskData, TaskStatus, TaskType } from "../../Game/Task/TaskData";
+import { StringUtil } from "../../Core/Util/StringUtil";
+import { ColorUtil } from "../../Core/Util/ColorUtil";
+import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
+import { TimeUtil } from "../../Core/Util/TimeUtil";
+import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
+import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
+import { SkewersManager } from "db://assets/scripts/Game/Task/Skewers/SkewersManager";
+import { GameType, SkewersGameData } from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
+import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
 
-import {BundlePreloadEvent, BundlePreloadManager} from '../../Core/Manager/Load/BundlePreloadManager';
-import {InfoListPopCtrl} from './InfoListPopCtrl';
-import {FrameComponent} from '../../Core/Component/FrameComponent';
-import {BundleName} from '../../Core/Manager/Load/BundleName';
-import {UIManager} from '../../Core/Manager/UI/UIManager';
-import {PersonalCenterPanel} from '../UI/PersonalCenter/PersonalCenterPanel';
-import {AlertType} from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import { BundlePreloadEvent, BundlePreloadManager } from '../../Core/Manager/Load/BundlePreloadManager';
+import { InfoListPopCtrl } from './InfoListPopCtrl';
+import { FrameComponent } from '../../Core/Component/FrameComponent';
+import { BundleName } from '../../Core/Manager/Load/BundleName';
+import { UIManager } from '../../Core/Manager/UI/UIManager';
+import { PersonalCenterPanel } from '../UI/PersonalCenter/PersonalCenterPanel';
+import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
 
 const { ccclass, property } = _decorator;
 
@@ -61,7 +61,7 @@ export class MainScene extends Component {
     taskView: Node = null;
 
     @property(Node)
-    remindView: Node = null; 
+    remindView: Node = null;
 
     @property(FrameComponent)
     frame: FrameComponent = null;
@@ -107,7 +107,7 @@ export class MainScene extends Component {
     taskList: Node[] = [];
 
     @property(Node)
-    virturalLecturerPanel:Node = null;
+    virturalLecturerPanel: Node = null;
 
     // ====================== 游戏大厅
     @property(Node)
@@ -140,8 +140,8 @@ export class MainScene extends Component {
     private processingColor = "#FF2D55";
 
     private chatPanel: Node = null;
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜' ,'麻将组句'];
- 
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句'];
+
 
     onLoad() {
 
@@ -186,52 +186,54 @@ export class MainScene extends Component {
         this.startShowView();
     }
 
-        start() {
-            this.frame.playAnimation("idle", 24, true, true);
-            if (this.taskList.length != 0) {
-                this.taskList.forEach(task => {
-                    if (task) task.active = false;
-                });
-            }
-            EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
-            TaskManager.getInstance().start();
-            this.startShowView();
+    start() {
+        this.frame.playAnimation("idle", 24, true, true);
+        if (this.taskList.length != 0) {
+            this.taskList.forEach(task => {
+                if (task) task.active = false;
+            });
+        }
+        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
+        TaskManager.getInstance().start();
+        this.startShowView();
+    }
+
+    private _infoPanelOpenState: boolean = false;
+    pushEvetCallBack(data) {
+        if (!data.id) { return }
+
+        TaskManager.getInstance().isReadNotification([data.id]);
+
+        if (this._infoPanelOpenState) {
+            return;
         }
 
-        private _infoPanelOpenState:boolean = false;
-        pushEvetCallBack(data) {
-            if(!data.id){return}
-
-            TaskManager.getInstance().isReadNotification([data.id]);
-
-            if(this._infoPanelOpenState){
-                return;
-            }
-
-            this._infoPanelOpenState = true;
-            UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup",InfoListPopCtrl,true,"infoList");
-            UIManager.getInstance().showPanel(InfoListPopCtrl.NAME,{closeCb:()=>{
+        this._infoPanelOpenState = true;
+        UIManager.getInstance().registerPanel(InfoListPopCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/InfoPopup", InfoListPopCtrl, true, "infoList");
+        UIManager.getInstance().showPanel(InfoListPopCtrl.NAME, {
+            closeCb: () => {
                 this._infoPanelOpenState = false;
-            }});
-        }
-
-        updateTime() {
-            const now = new Date();
-            // const hours = TimeUtil.padZero(now.getHours());
-            // const minutes = TimeUtil.padZero(now.getMinutes());
-            // const seconds = TimeUtil.padZero(now.getSeconds());
-            const currentHour = now.getHours();
-            if (currentHour >= 0 && currentHour < 12) {
-                this.dayLabel.string = '开启美好的一天';
-            } else if (currentHour >= 12 && currentHour < 14) {
-                this.dayLabel.string = '午餐时光，给自己补充能量';
-            } else if (currentHour >= 14 && currentHour < 18) {
-                this.dayLabel.string = '午后的阳光透过窗帘，温暖而懒散';
-            } else {
-                this.dayLabel.string = '感恩今天的经历，明天再出发';
             }
-            this.timeLabel.string = TimeUtil.getTimePeriodFromTimestamp(now.getHours())+"好";//`${hours}:${minutes}:${seconds}`;
+        });
+    }
+
+    updateTime() {
+        const now = new Date();
+        // const hours = TimeUtil.padZero(now.getHours());
+        // const minutes = TimeUtil.padZero(now.getMinutes());
+        // const seconds = TimeUtil.padZero(now.getSeconds());
+        const currentHour = now.getHours();
+        if (currentHour >= 0 && currentHour < 12) {
+            this.dayLabel.string = '开启美好的一天';
+        } else if (currentHour >= 12 && currentHour < 14) {
+            this.dayLabel.string = '午餐时光，给自己补充能量';
+        } else if (currentHour >= 14 && currentHour < 18) {
+            this.dayLabel.string = '午后的阳光透过窗帘，温暖而懒散';
+        } else {
+            this.dayLabel.string = '感恩今天的经历，明天再出发';
         }
+        this.timeLabel.string = TimeUtil.getTimePeriodFromTimestamp(now.getHours()) + "好";//`${hours}:${minutes}:${seconds}`;
+    }
 
     update(deltaTime: number) {
 
@@ -242,13 +244,13 @@ export class MainScene extends Component {
         this.taskRemind();
         this.gameCenterNode.active = false;
         this.taskProgressNode.active = false;
-       
+
         this.brainTrainNode.active = false;
         this.switchTaskNode(true);
         this._curPanel = this.taskNode;
     }
 
-    onClickVirtualLecturer(){
+    onClickVirtualLecturer() {
         //this.virturalLecturerPanel.active = true;
         let url = Global.RES_Root + BundleName.SMALLTHEATER;
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.SMALLTHEATER), this, true);
@@ -282,10 +284,10 @@ export class MainScene extends Component {
     }
 
     openChatPanel() {
-        UIManager.getInstance().registerPanel(ChatPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatPanel",ChatPanelCtrl);
+        UIManager.getInstance().registerPanel(ChatPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatPanel", ChatPanelCtrl);
         UIManager.getInstance().showPanel(ChatPanelCtrl.NAME);
         this.taskProgressNode.active = false;
-   
+
     }
 
     showTaskProgress() {
@@ -293,7 +295,7 @@ export class MainScene extends Component {
         this.taskProgressNode.active = true;
         //EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
         TaskManager.getInstance().requestStartInform();
-    
+
         this.brainTrainNode.active = false;
         this.tabClick(null, 0);
         this.switchTaskNode(false);
@@ -315,38 +317,38 @@ export class MainScene extends Component {
                 break;
         }
 
-            this.progressTaskNode.active = !Number(index);
-            this.progressInfoNode.active = Boolean(Number(index));
-        }
+        this.progressTaskNode.active = !Number(index);
+        this.progressInfoNode.active = Boolean(Number(index));
+    }
 
 
-        public clickNotificationBtn() {
-            this.progressTaskNode.active = false;
-            this.progressInfoNode.active = true;
-        }
-        
+    public clickNotificationBtn() {
+        this.progressTaskNode.active = false;
+        this.progressInfoNode.active = true;
+    }
 
-        showGameCenter() {
-            let len = this.gameList.length;
-            for (let i = 0; i < len; i++) {
-                let gameItem = this.gameList[i];
-                if (this.tmpGameNames[i] == null) {
-                    gameItem.active = false;
-                    continue;
-                }
-                gameItem.active = true;
-                let label = gameItem.getChildByName("Label").getComponent(Label);
-                label.string = this.tmpGameNames[i];
+
+    showGameCenter() {
+        let len = this.gameList.length;
+        for (let i = 0; i < len; i++) {
+            let gameItem = this.gameList[i];
+            if (this.tmpGameNames[i] == null) {
+                gameItem.active = false;
+                continue;
             }
-            this.gameCenterNode.active = true;
-            this.taskProgressNode.active = false;
-           
-            this.switchTaskNode(false);
-            this._curPanel = this.gameCenterNode;
+            gameItem.active = true;
+            let label = gameItem.getChildByName("Label").getComponent(Label);
+            label.string = this.tmpGameNames[i];
         }
+        this.gameCenterNode.active = true;
+        this.taskProgressNode.active = false;
+
+        this.switchTaskNode(false);
+        this._curPanel = this.gameCenterNode;
+    }
 
     showUserCenter() {
-        UIManager.getInstance().registerPanel(PersonalCenterPanel.NAME, BundleName.RESOURCES, "prefab/personalCenter/PersonalCenterPanel",PersonalCenterPanel);
+        UIManager.getInstance().registerPanel(PersonalCenterPanel.NAME, BundleName.RESOURCES, "prefab/personalCenter/PersonalCenterPanel", PersonalCenterPanel);
         UIManager.getInstance().showPanel(PersonalCenterPanel.NAME);
     }
     showMore() {
@@ -386,9 +388,9 @@ export class MainScene extends Component {
                     let cornorNode = taskItem.getChildByName("cornorNode");
                     cornorNode.active = task.type == TaskType.Review || task.status == TaskStatus.Processing;
                     let cornorLabel = cornorNode.getChildByName("cornorLabel").getComponent(Label);
-                    if(task.type == TaskType.Review){
+                    if (task.type == TaskType.Review) {
                         cornorLabel.string = "评测";
-                    }else if(task.status == TaskStatus.Processing){
+                    } else if (task.status == TaskStatus.Processing) {
                         cornorLabel.string = "正在做";
                     }
                     (label as Label).string = task.name;
@@ -410,7 +412,7 @@ export class MainScene extends Component {
                         if (task.status == TaskStatus.Expired) {
                             (btnBG as Sprite).color = ColorUtil.hexToColor(context.expireColor);
                         }
-                        else if(task.status == TaskStatus.Processing){
+                        else if (task.status == TaskStatus.Processing) {
                             (btnBG as Sprite).color = ColorUtil.hexToColor(context.processingColor);
                         }
                         else {
@@ -427,40 +429,40 @@ export class MainScene extends Component {
                 break;
         }
     }
-       
-    remindClick(){
+
+    remindClick() {
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
         SkewersManager.getInstance().requestBranisTraining_list(this.showTaskId);
         // EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
         // TaskManager.getInstance().requestStartTask(this.showTaskId,true);
     }
     private showTaskId;
-    taskRemind(){
+    taskRemind() {
         let taskDatas = TaskManager.getInstance().taskList;
         let obj = this.findFirstAvailableName(taskDatas);
-        if(!obj){
+        if (!obj) {
             return;
         }
         this.showTaskId = obj.id;
-        this.remindView.active =true;
-        this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string =obj.name;
+        this.remindView.active = true;
+        this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = obj.name;
         this.titleLabel.node.active = false;
         let count = TaskManager.getInstance().getSkewersGameCount();
         this.taskDesLabel.string = `今日待完成事项:${count}`;
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS,()=>{
-        },this);
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, () => {
+        }, this);
         SkewersManager.getInstance().requestBranisTraining_list(obj.id);
     }
     findFirstAvailableName(taskDatas) {
         for (const item of taskDatas) {
-          if (item.isAvailable) {
-            return {name:item.name,id:item.id};
-          }
+            if (item.isAvailable) {
+                return { name: item.name, id: item.id };
+            }
         }
         return null; // 如果没有找到符合条件的对象，则返回null
-      }
+    }
     goBrainTraining() {
-      
+
     }
     private _curTaskData: TaskData;
     taskItemClick(event, data) {
@@ -470,15 +472,15 @@ export class MainScene extends Component {
         this.showTaskId = this._curTaskData.id
         if (this._curTaskData.status == TaskStatus.Completed) {
             DebugLog.instance.log("当前任务已经完成");
-            const ad:AlertData= new AlertData();
+            const ad: AlertData = new AlertData();
             ad.title = "提示";
             ad.message = "当前任务已经完成";
             AlertManager.getInstance().showAlert(ad);
             ad.cancelButtonVisible = false;
             return;
         }
-        if(this._curTaskData.status == TaskStatus.Expired) {
-            const ad:AlertData= new AlertData();
+        if (this._curTaskData.status == TaskStatus.Expired) {
+            const ad: AlertData = new AlertData();
             ad.title = "提示";
             ad.message = "当前任务已经过期";
             AlertManager.getInstance().showAlert(ad);
@@ -492,7 +494,7 @@ export class MainScene extends Component {
 
     tabItemClickByRemote() {
         this._curTaskData = Global.userData.curTaskData;
-        if (!this._curTaskData || this._curTaskData.status == TaskStatus.Completed|| this._curTaskData.status == TaskStatus.Expired) {
+        if (!this._curTaskData || this._curTaskData.status == TaskStatus.Completed || this._curTaskData.status == TaskStatus.Expired) {
             this.backToTaskView();
             // DebugLog.instance.log("当前任务已经完成或不存在");
             // const ad:AlertData= new AlertData();
@@ -573,19 +575,19 @@ export class MainScene extends Component {
     startTaskClick() {
         let taskList = TaskManager.getInstance().taskList;
         taskList.forEach(task => {
-            if(task&&task.id == this.showTaskId){
+            if (task && task.id == this.showTaskId) {
                 this._curTaskData = task;
             }
         });
-        SkewersManager.getInstance().showGameAlert(this.brainTrainNode,AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr,'', 0, 0, this._alertNext, this._alertExit, this);
+        SkewersManager.getInstance().showGameAlert(this.brainTrainNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this._alertNext, this._alertExit, this);
 
     }
 
-    private _alertExit(){
+    private _alertExit() {
 
     }
 
-    private _alertNext(){
+    private _alertNext() {
         TaskManager.getInstance().requestStartTask(this._curTaskData.id);
     }
 
@@ -598,7 +600,7 @@ export class MainScene extends Component {
     // =========== 游戏中心
     gameItemClick(event, data) {
         // 防止点击两次
-        if(this._clickBoo){
+        if (this._clickBoo) {
             return;
         }
         this._clickBoo = true;
@@ -649,7 +651,7 @@ export class MainScene extends Component {
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
-            self._clickBoo=false;
+            self._clickBoo = false;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
     }

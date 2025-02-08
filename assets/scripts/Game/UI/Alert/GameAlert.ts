@@ -1,11 +1,11 @@
-import {Component,_decorator,Node,Label,Button,ProgressBar,UITransform,tween,Sprite,Vec3,AudioClip} from "cc";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
-import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
-import {GuideHand} from "db://assets/scripts/Core/Manager/Guide/GuideHand";
-import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
+import { Component, _decorator, Node, Label, Button, ProgressBar, UITransform, tween, Sprite, Vec3, AudioClip } from "cc";
+import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
+import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
+import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
+import { TaskType } from "db://assets/scripts/Game/Task/TaskData";
+import { GuideHand } from "db://assets/scripts/Core/Manager/Guide/GuideHand";
+import { AudioManager } from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -13,6 +13,7 @@ interface CallBackFunction {
 
 export enum AlertType {
     Normal,
+    Normal1,
     Sucess_Small,
     Sucess_Big,
     Failed,
@@ -25,53 +26,53 @@ export enum AlertType {
  * 通用型alert
  */
 @ccclass('GameAlert')
-export class GameAlert extends Component{
+export class GameAlert extends Component {
 
     @property(Node)
-    alert:Node = null;
+    alert: Node = null;
 
     @property(Label)
-    titleLabel:Label = null;
+    titleLabel: Label = null;
 
     @property(Label)
-    decLabel:Label = null;
+    decLabel: Label = null;
 
     @property(Button)
-    exitBtn:Button = null;
+    exitBtn: Button = null;
 
     @property(Button)
-    startBtn:Button = null;
+    startBtn: Button = null;
 
     @property(Node)
-    icon:Node = null;
+    icon: Node = null;
 
     @property(ProgressBar)
-    progressBar:ProgressBar = null;
+    progressBar: ProgressBar = null;
 
     @property(Label)
-    progressLabel:Label = null;
+    progressLabel: Label = null;
 
     @property(Node)
-    completeIcon:Node = null;
+    completeIcon: Node = null;
 
     @property(Node)
-    iconConNode:Node = null;
+    iconConNode: Node = null;
 
-    public static ALERT_GOON:string ="ALERT_GOON";
+    public static ALERT_GOON: string = "ALERT_GOON";
 
-    public static ALERT_EXIT:string = "ALERT_EXIT";
+    public static ALERT_EXIT: string = "ALERT_EXIT";
 
-    public goonCallBack:Function = null;
+    public goonCallBack: Function = null;
 
-    public exitCallBack:Function = null;
+    public exitCallBack: Function = null;
 
-    private audioUrls=["music/cheer"];
-    private audioMap:Map<string,AudioClip> = new Map();
+    private audioUrls = ["music/cheer"];
+    private audioMap: Map<string, AudioClip> = new Map();
 
     /**
      * 回调函数上下文
      */
-    public context:any = null;
+    public context: any = null;
 
     private _type = null;
 
@@ -80,10 +81,10 @@ export class GameAlert extends Component{
         // 创建一个数组，存放每个异步加载的 Promise
         const loadPromises = this.audioUrls.map(audioUrl => {
             return new Promise((resolve, reject) => {
-                LoaderManager.getInstance().resourcesLoadAudio(audioUrl).then((audioRes:AudioClip)=>{
-                    this.audioMap.set(audioUrl,audioRes);
+                LoaderManager.getInstance().resourcesLoadAudio(audioUrl).then((audioRes: AudioClip) => {
+                    this.audioMap.set(audioUrl, audioRes);
                     resolve(audioRes);
-                }).catch((err)=>{
+                }).catch((err) => {
                     reject(err);
                 });
             });
@@ -96,12 +97,12 @@ export class GameAlert extends Component{
         }
     }
 
-    showView(type:AlertType) {
+    showView(type: AlertType) {
         this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
         switch (type) {
-            case AlertType.Normal:
+            case AlertType.Normal1:
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
                 this.progressBar.node.active = true;
@@ -109,6 +110,15 @@ export class GameAlert extends Component{
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
                 startBtnUITransform.width = 250;
+                break;
+            case AlertType.Normal:
+                this.exitBtn.node.active = false;
+                this.startBtn.node.active = true;
+                this.progressBar.node.active = true;
+                this.titleLabel.node.active = true;
+                this.iconConNode.active = false;
+                this.decLabel.node.active = false;
+                startBtnUITransform.width = 500;
                 break;
             case AlertType.Next:
                 this.titleLabel.node.active = true;
@@ -123,10 +133,10 @@ export class GameAlert extends Component{
             case AlertType.Sucess_Small:
                 this.titleLabel.node.active = true;
                 this.completeIcon.active = true;
-                this.completeIcon.setScale(new Vec3(3,3,3));
+                this.completeIcon.setScale(new Vec3(3, 3, 3));
                 tween(this.completeIcon)
-                    .to(0.9,{scale:new Vec3(1,1,1)}, { easing: 'cubicOut' })
-                    .call(()=>{
+                    .to(0.9, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
+                    .call(() => {
                         this.exitBtn.node.active = true;
                         this.startBtn.node.active = true;
                     })
@@ -134,7 +144,7 @@ export class GameAlert extends Component{
                 this.iconConNode.active = true;
                 this.decLabel.node.active = false;
                 this.progressBar.node.active = false;
-                this.playAudio("music/cheer",true);
+                this.playAudio("music/cheer", true);
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
@@ -144,8 +154,8 @@ export class GameAlert extends Component{
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = Global.userData.curTaskData.type == TaskType.Review;
-                this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review?"查看评测":"退出";
-                startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review?250:500;
+                this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
+                startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review ? 250 : 500;
                 break;
             case AlertType.Failed:
                 // todo
@@ -172,59 +182,59 @@ export class GameAlert extends Component{
         }
     }
 
-    private playAudio(url:string,isShot:boolean = false,isLoop:boolean = false){
+    private playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
         let audioRes = this.audioMap.get(url);
-        if(audioRes != null){
-            if(isShot){
+        if (audioRes != null) {
+            if (isShot) {
                 AudioManager.getInstance().playOneShot(audioRes);
-            }else{
-                AudioManager.getInstance().play(audioRes,isLoop);
+            } else {
+                AudioManager.getInstance().play(audioRes, isLoop);
             }
         }
     }
 
-    setProgress(curcount:number,maxcount:number) {
+    setProgress(curcount: number, maxcount: number) {
         let curProgress = "";
-        if(maxcount == 0){
+        if (maxcount == 0) {
             this.progressBar.progress = 1;
             curProgress = "1/1"
-        }else{
-            curcount = curcount<0 ? 0 : curcount;
-            this.progressBar.progress = curcount/maxcount;
-            curProgress= `${curcount} / ${maxcount}`;
+        } else {
+            curcount = curcount < 0 ? 0 : curcount;
+            this.progressBar.progress = curcount / maxcount;
+            curProgress = `${curcount} / ${maxcount}`;
         }
         this.progressLabel.string = `当前游戏进度:${curProgress}`;
     }
 
-    setTitle(str:string){
+    setTitle(str: string) {
         this.titleLabel.string = str;
     }
 
-    setDec(str:string){
+    setDec(str: string) {
         this.decLabel.string = str;
     }
 
-    setIcon(iconUrl:string){
-        LoaderManager.getInstance().resourcesLoadFrame(iconUrl).then((spriteframe)=>{
-            if(this.icon){
+    setIcon(iconUrl: string) {
+        LoaderManager.getInstance().resourcesLoadFrame(iconUrl).then((spriteframe) => {
+            if (this.icon) {
                 let sprite = this.icon.getComponent(Sprite);
                 sprite.spriteFrame = spriteframe;
             }
-        }).catch((error)=>{
+        }).catch((error) => {
             DebugLog.instance.error(error);
         })
     }
 
-    start(){
+    start() {
         this.loadAudio();
     }
 
-    exitHandler(){
+    exitHandler() {
         // SceneManager.getInstance().backToHall();
         AudioManager.getInstance().stop();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
-       this.node.removeFromParent();
-        if(this.exitCallBack){
+        this.node.removeFromParent();
+        if (this.exitCallBack) {
             this.exitCallBack(this.context);
         }
     }
@@ -232,11 +242,11 @@ export class GameAlert extends Component{
     /**
      * 继续
      */
-    goHandler(){
+    goHandler() {
         AudioManager.getInstance().stop();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();
-        if(this.goonCallBack){
+        if (this.goonCallBack) {
             this.goonCallBack(this.context);
         }
     }
@@ -247,14 +257,14 @@ export class GameAlert extends Component{
      * @param exitCallBack
      * @param context
      */
-    bindCallBack(goonCallBack:Function,exitCallBack:Function,context:any){
+    bindCallBack(goonCallBack: Function, exitCallBack: Function, context: any) {
         this.context = context;
-       if(goonCallBack){
-           this.goonCallBack = goonCallBack.bind(context);
-       }
-       if(exitCallBack){
-           this.exitCallBack = exitCallBack.bind(context);
-       }
+        if (goonCallBack) {
+            this.goonCallBack = goonCallBack.bind(context);
+        }
+        if (exitCallBack) {
+            this.exitCallBack = exitCallBack.bind(context);
+        }
     }
 
 

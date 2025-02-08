@@ -52,15 +52,18 @@ export class GuessingGameTimerComponent extends Component {
         this.isRunning = true;
     }
 
+    private _pauseTime = 0;
     // 暂停计时的方法
     public pauseTimer() {
+        this._pauseTime = Date.now();
         this.isRunning = false;
     }
 
     // 暂停计时的方法
     public resumeTimer() {
         if (!this.isRunning) {
-            this.startTime = Date.now() - ((Date.now() - this.startTime) % 1000);
+            this.startTime = this.startTime + (Date.now() - this._pauseTime)%1000;
+            this._pauseTime = 0;
             this.isRunning = true;
         }
     }
