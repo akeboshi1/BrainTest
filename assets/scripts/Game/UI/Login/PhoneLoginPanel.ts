@@ -50,7 +50,6 @@ export class PhoneLoginPanel extends BasePanel {
      * 返回上一级界面
      */
     public backClick() {
-        EventManager.getInstance().emit(UIManager.BACK_TO_PARENT);
         UIManager.getInstance().hidePanel(PhoneLoginPanel.NAME);
     }
 
