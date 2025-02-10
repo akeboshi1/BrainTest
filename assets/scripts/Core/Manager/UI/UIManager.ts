@@ -26,7 +26,6 @@ export class UIManager extends BaseManager {
     }
 
     public static LOAD_PANEL = "LoadPanel";
-    public static BACK_TO_PARENT: string = "BACK_TO_PARENT";
 
     public static SCREEN_LOCKER_PREFAB_PATH: string = "prefab/Common/ScreenLocker";
     private panelRegisterConfig: Map<string, PanelInfo> = new Map();
