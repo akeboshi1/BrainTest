@@ -22,6 +22,7 @@ import { BundleName } from '../../Core/Manager/Load/BundleName';
 import { UIManager } from '../../Core/Manager/UI/UIManager';
 import { PersonalCenterPanel } from '../UI/PersonalCenter/PersonalCenterPanel';
 import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
+import { GameCenter } from '../UI/GameCenter/GameCenter';
 
 const { ccclass, property } = _decorator;
 
@@ -66,8 +67,6 @@ export class MainScene extends Component {
     @property(FrameComponent)
     frame: FrameComponent = null;
 
-
-
     // ====================== 任务详情页
     /**
     * 任务详细界面
@@ -101,20 +100,8 @@ export class MainScene extends Component {
     /**
      * 任务提示界面
      */
-
-
     @property({ type: [Node] })
     taskList: Node[] = [];
-
-    @property(Node)
-    virturalLecturerPanel: Node = null;
-
-    // ====================== 游戏大厅
-    @property(Node)
-    gameCenterNode: Node = null;
-
-    @property({ type: [Node] })
-    gameList: Node[] = [];
 
 
     // ===================== 串烧游戏开始界面
@@ -123,10 +110,6 @@ export class MainScene extends Component {
 
     @property({ type: [Node] })
     skewersGameItems: Node[] = [];
-
-
-
-
 
     /**
      * 当前页面
@@ -140,12 +123,6 @@ export class MainScene extends Component {
     private processingColor = "#FF2D55";
 
     private chatPanel: Node = null;
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句'];
-
-
-    onLoad() {
-
-    }
 
     protected onDisable(): void {
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
@@ -158,7 +135,6 @@ export class MainScene extends Component {
         EventManager.getInstance().on(TaskManager.PushEvetCallBack, this.pushEvetCallBack, this);
         TaskManager.getInstance().pushTask();
     }
-
 
     /**
      * 切换主场景页面
@@ -185,7 +161,7 @@ export class MainScene extends Component {
         this._viewIndex = index;
         this.startShowView();
     }
-
+  
     start() {
         this.frame.playAnimation("idle", 24, true, true);
         if (this.taskList.length != 0) {
@@ -219,9 +195,6 @@ export class MainScene extends Component {
 
     updateTime() {
         const now = new Date();
-        // const hours = TimeUtil.padZero(now.getHours());
-        // const minutes = TimeUtil.padZero(now.getMinutes());
-        // const seconds = TimeUtil.padZero(now.getSeconds());
         const currentHour = now.getHours();
         if (currentHour >= 0 && currentHour < 12) {
             this.dayLabel.string = '开启美好的一天';
@@ -235,23 +208,20 @@ export class MainScene extends Component {
         this.timeLabel.string = TimeUtil.getTimePeriodFromTimestamp(now.getHours()) + "好";//`${hours}:${minutes}:${seconds}`;
     }
 
-    update(deltaTime: number) {
-
-    }
-
-
     backToTaskView() {
         this.taskRemind();
-        this.gameCenterNode.active = false;
         this.taskProgressNode.active = false;
 
         this.brainTrainNode.active = false;
         this.switchTaskNode(true);
         this._curPanel = this.taskNode;
     }
-
+    private _clickBoo = false;
     onClickVirtualLecturer() {
-        //this.virturalLecturerPanel.active = true;
+        if (this._clickBoo) {
+            return;
+        }
+        this._clickBoo=true;
         let url = Global.RES_Root + BundleName.SMALLTHEATER;
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.SMALLTHEATER), this, true);
         BundlePreloadManager.getInstance().preload(BundleName.SMALLTHEATER);
@@ -293,9 +263,7 @@ export class MainScene extends Component {
     showTaskProgress() {
         this.progressLabel.string = "";
         this.taskProgressNode.active = true;
-        //EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
         TaskManager.getInstance().requestStartInform();
-
         this.brainTrainNode.active = false;
         this.tabClick(null, 0);
         this.switchTaskNode(false);
@@ -329,22 +297,8 @@ export class MainScene extends Component {
 
 
     showGameCenter() {
-        let len = this.gameList.length;
-        for (let i = 0; i < len; i++) {
-            let gameItem = this.gameList[i];
-            if (this.tmpGameNames[i] == null) {
-                gameItem.active = false;
-                continue;
-            }
-            gameItem.active = true;
-            let label = gameItem.getChildByName("Label").getComponent(Label);
-            label.string = this.tmpGameNames[i];
-        }
-        this.gameCenterNode.active = true;
-        this.taskProgressNode.active = false;
-
-        this.switchTaskNode(false);
-        this._curPanel = this.gameCenterNode;
+        UIManager.getInstance().registerPanel(GameCenter.NAME, BundleName.RESOURCES, "/prefab/GameCenter/GameCenter", GameCenter);
+        UIManager.getInstance().showPanel(GameCenter.NAME);
     }
 
     showUserCenter() {
@@ -366,10 +320,6 @@ export class MainScene extends Component {
         switch (this._curPanel) {
             case this.taskNode:
                 this.taskRemind();
-                // let taskUnCompleteDic = TaskManager.getInstance().getTodayUnCompleteTask();
-                // taskUnCompleteDic.forEach((task:TaskData)=>{
-                //
-                // })
                 break;
             case this.taskProgressNode:
                 let taskDatas = TaskManager.getInstance().taskList;
@@ -433,8 +383,6 @@ export class MainScene extends Component {
     remindClick() {
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
         SkewersManager.getInstance().requestBranisTraining_list(this.showTaskId);
-        // EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS,this);
-        // TaskManager.getInstance().requestStartTask(this.showTaskId,true);
     }
     private showTaskId;
     taskRemind() {
@@ -460,9 +408,6 @@ export class MainScene extends Component {
             }
         }
         return null; // 如果没有找到符合条件的对象，则返回null
-    }
-    goBrainTraining() {
-
     }
     private _curTaskData: TaskData;
     taskItemClick(event, data) {
@@ -496,12 +441,6 @@ export class MainScene extends Component {
         this._curTaskData = Global.userData.curTaskData;
         if (!this._curTaskData || this._curTaskData.status == TaskStatus.Completed || this._curTaskData.status == TaskStatus.Expired) {
             this.backToTaskView();
-            // DebugLog.instance.log("当前任务已经完成或不存在");
-            // const ad:AlertData= new AlertData();
-            // ad.title = "提示";
-            // ad.message = "当前任务已经完成或不存在";
-            // AlertManager.getInstance().showAlert(ad);
-            // ad.cancelButtonVisible = false;
             return;
         }
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
@@ -514,14 +453,11 @@ export class MainScene extends Component {
         this.brainTrainNode.active = true;
         this.taskNode.active = false;
         this.taskProgressNode.active = false;
-        this.gameCenterNode.active = false;
-
+    
         let gameDatas = data;
-        let len = this.gameList.length;
+        let len = this.skewersGameItems.length;
         // let len = gameDatas.length;
         for (let i = 0; i < len; i++) {
-
-
             let gameItem = this.skewersGameItems[i];
             let _gameData: SkewersGameData = gameDatas[i];
             if (_gameData) {
@@ -569,7 +505,6 @@ export class MainScene extends Component {
 
         }
 
-
     }
 
     startTaskClick() {
@@ -583,10 +518,6 @@ export class MainScene extends Component {
 
     }
 
-    private _alertExit() {
-
-    }
-
     private _alertNext() {
         TaskManager.getInstance().requestStartTask(this._curTaskData.id);
     }
@@ -595,59 +526,10 @@ export class MainScene extends Component {
         this.showTaskProgress();
     }
 
-
-    private _clickBoo = false;
-    // =========== 游戏中心
-    gameItemClick(event, data) {
-        // 防止点击两次
-        if (this._clickBoo) {
-            return;
-        }
-        this._clickBoo = true;
-        let index = Number(data);
-        GameCenterManager.getInstance().startGame(index + 1, (data) => {
-            if (data.status == 0) {
-                DebugLog.instance.error(data.message);
-                return;
-            }
-            GameCenterManager.getInstance().enterGameCenter();
-            DebugLog.instance.log(data);
-            let gameid = data.data.game_id;
-            let sceneName = "";
-            switch (gameid) {
-                case 1:
-                    sceneName = BundleName.FINGING;
-                    break;
-                case 2:
-                    sceneName = BundleName.FANPAI;
-                    break;
-                case 3:
-                    sceneName = BundleName.PUZZLE;
-                    break;
-                case 4:
-                    sceneName = BundleName.CATCHFISH;
-                    break;
-                case 5:
-                    sceneName = BundleName.GUESSINGGAME;
-                    break;
-                case 6:
-                    sceneName = BundleName.SENTENCEMAKING;
-                    break;
-                case 7:
-                    sceneName = BundleName.SMALLTHEATER;
-                    break;
-            }
-            let url = Global.RES_Root + sceneName;
-
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
-            BundlePreloadManager.getInstance().preload(sceneName as BundleName);
-        })
-    }
-
     backToCenteter() {
         SceneManager.getInstance().backToHall();
     }
-
+  
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
