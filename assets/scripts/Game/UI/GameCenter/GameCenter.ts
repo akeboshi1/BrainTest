@@ -1,4 +1,4 @@
-import { _decorator, Component, Node,Label } from 'cc';
+import { _decorator, Component, Node, Label } from 'cc';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { GameCenterManager } from '../../GameCenter/GameCenterManager';
 import { DebugLog } from '../../../Core/Util/DebugLog';
@@ -12,20 +12,20 @@ const { ccclass, property } = _decorator;
 @ccclass('GameCenter')
 export class GameCenter extends BasePanel {
 
-     // ====================== 游戏大厅
-     public static NAME: string = "GameCenter";
- 
-     @property({ type: [Node] })
-     gameList: Node[] = [];
+    // ====================== 游戏大厅
+    public static NAME: string = "GameCenter";
 
-     private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句'];
+    @property({ type: [Node] })
+    gameList: Node[] = [];
 
- 
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句'];
+
+
     start() {
         this.gameCenterInit();
     }
 
-    gameCenterInit(){
+    gameCenterInit() {
         let len = this.gameList.length;
         for (let i = 0; i < len; i++) {
             let gameItem = this.gameList[i];
@@ -34,11 +34,9 @@ export class GameCenter extends BasePanel {
                 continue;
             }
             gameItem.active = true;
-            // let label = gameItem.getChildByName("Label").getComponent(Label);
-            // label.string = this.tmpGameNames[i];
         }
         this.node.active = true;
-      
+
     }
     private _clickBoo = false;
     gameItemClick(event, data) {
@@ -83,7 +81,7 @@ export class GameCenter extends BasePanel {
             let url = Global.RES_Root + sceneName;
             EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
             BundlePreloadManager.getInstance().preload(sceneName as BundleName);
-          
+
         })
     }
     backToCenteter() {
@@ -100,7 +98,7 @@ export class GameCenter extends BasePanel {
         });
     }
     update(deltaTime: number) {
-        
+
     }
 }
 

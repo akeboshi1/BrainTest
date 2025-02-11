@@ -221,6 +221,7 @@ export class MainScene extends Component {
         if (this._clickBoo) {
             return;
         }
+        this._clickBoo=true;
         let url = Global.RES_Root + BundleName.SMALLTHEATER;
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.SMALLTHEATER), this, true);
         BundlePreloadManager.getInstance().preload(BundleName.SMALLTHEATER);
