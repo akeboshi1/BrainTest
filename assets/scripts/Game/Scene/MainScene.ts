@@ -32,7 +32,7 @@ export enum MainSceneView {
     TaskNode,
     GameCenter,
     TaskProgressView,
-    BrainTrainView
+    
 }
 
 @ccclass('MainScene')
@@ -103,9 +103,6 @@ export class MainScene extends Component {
             case MainSceneView.TaskProgressView:
                 this.showTaskProgress()
                 break;
-            case MainSceneView.BrainTrainView:
-                // this.tabItemClickByRemote();
-                break;
         }
     }
 
@@ -117,11 +114,6 @@ export class MainScene extends Component {
   
     start() {
         this.frame.playAnimation("idle", 24, true, true);
-        // if (this.taskList.length != 0) {
-        //     this.taskList.forEach(task => {
-        //         if (task) task.active = false;
-        //     });
-        // }
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
         TaskManager.getInstance().start();
         this.startShowView();
@@ -206,20 +198,9 @@ export class MainScene extends Component {
     openChatPanel() {
         UIManager.getInstance().registerPanel(ChatPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatPanel", ChatPanelCtrl);
         UIManager.getInstance().showPanel(ChatPanelCtrl.NAME);
-        // this.taskProgressNode.active = false;
-
     }
 
     showTaskProgress() {
-        // this.progressLabel.string = "";
-        // this.taskProgressNode.active = true;
-        TaskManager.getInstance().requestStartInform();
-        // this.brainTrainNode.active = false;
-        // this.tabClick(null, 0);
-        // this.switchTaskNode(false);
-        // this._curPanel = this.taskProgressNode;
-        // EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
-        // TaskManager.getInstance().start();
         UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
         UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
     }
@@ -249,60 +230,6 @@ export class MainScene extends Component {
             case this.taskNode:
                 this.taskRemind();
                 break;
-            // case this.taskProgressNode:
-            //     let taskDatas = TaskManager.getInstance().taskList;
-            //     let index = 0;
-            //     let count = 0;
-            //     let self = context;
-            //     taskDatas.forEach((task: TaskData) => {
-            //         let taskItem = self.taskList[index];
-            //         index++;
-            //         if (taskItem == null) return;
-            //         let label = taskItem.getChildByName("Label").getComponent(Label);
-            //         let timeLabel = taskItem.getChildByName("time1").getComponent(Label);
-            //         let complete = taskItem.getChildByName("complete");
-            //         let arrow = taskItem.getChildByName("arror_right");
-            //         let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
-            //         let cornorNode = taskItem.getChildByName("cornorNode");
-            //         cornorNode.active = task.type == TaskType.Review || task.status == TaskStatus.Processing;
-            //         let cornorLabel = cornorNode.getChildByName("cornorLabel").getComponent(Label);
-            //         if (task.type == TaskType.Review) {
-            //             cornorLabel.string = "评测";
-            //         } else if (task.status == TaskStatus.Processing) {
-            //             cornorLabel.string = "正在做";
-            //         }
-            //         (label as Label).string = task.name;
-            //         let startTime = StringUtil.spliceStr(task.startTime + "", " ")[1];
-            //         let endTime = StringUtil.spliceStr(task.endTime + "", " ")[1];
-            //         let startTimes = StringUtil.spliceStr(startTime, ":");
-            //         let endTimes = StringUtil.spliceStr(endTime, ":");
-            //         startTime = startTimes[0] + ":" + startTimes[1];
-            //         endTime = endTimes[0] + ":" + endTimes[1];
-            //         (timeLabel as Label).string = startTime + "-" + endTime;
-            //         taskItem.active = true;
-            //         if (task.status == TaskStatus.Completed) {
-            //             complete.active = true;
-            //             arrow.active = false;
-            //             (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
-            //             count++;
-            //             DebugLog.instance.log("complete", complete)
-            //         } else {
-            //             if (task.status == TaskStatus.Expired) {
-            //                 (btnBG as Sprite).color = ColorUtil.hexToColor(context.expireColor);
-            //             }
-            //             else if (task.status == TaskStatus.Processing) {
-            //                 (btnBG as Sprite).color = ColorUtil.hexToColor(context.processingColor);
-            //             }
-            //             else {
-            //                 (btnBG as Sprite).color = ColorUtil.hexToColor(context.unCompleteColor);
-            //             }
-            //             complete.active = false;
-            //             arrow.active = true;
-            //         }
-            //     });
-            //     context.progressLabel.string = `${count} / ${taskDatas.length}`;
-            //     context.progressBar.progress = count / taskDatas.length;
-            //     break;
             case this.chatPanel:
                 break;
         }
@@ -320,7 +247,6 @@ export class MainScene extends Component {
             return;
         }
         TaskManager.getInstance().setCurTaskId(obj.id)  ;
-        // this.showTaskId = obj.id;
         this.remindView.active = true;
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = obj.name;
         this.titleLabel.node.active = false;

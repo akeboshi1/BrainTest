@@ -49,10 +49,6 @@ export class InfoListPopCtrl extends BasePanel {
         TaskManager.getInstance().cleanInfoDataCache();
     }
 
-    update(deltaTime: number) {
-
-    }
-
     private gotaskListCallBack() {
         EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
         SceneManager.getInstance().backToSkewersGameCenter().then();
@@ -88,7 +84,6 @@ export class InfoListPopCtrl extends BasePanel {
     }
 
     hideInfoAlert(infoItem: Node) {
-        // let content: Node = this.node.getChildByName('ScrollView').getChildByName('view').getChildByName('content');
         infoItem.removeFromParent();
         if (this.parentNode.children.length == 0) {
             UIManager.getInstance().hidePanel(InfoListPopCtrl.NAME);

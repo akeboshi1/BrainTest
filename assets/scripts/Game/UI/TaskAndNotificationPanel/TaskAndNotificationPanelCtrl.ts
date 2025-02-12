@@ -9,9 +9,6 @@ import { DebugLog } from '../../../Core/Util/DebugLog';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
-import { Global } from '../../../Core/Manager/Config/Global';
-import { SkewersManager } from '../../Task/Skewers/SkewersManager';
-import { AlertType } from '../Alert/GameAlert';
 import { BrainTrain } from '../BrainTrain/BrainTrain';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
@@ -81,6 +78,7 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
         TaskManager.getInstance().start();
 
         EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
+        TaskManager.getInstance().requestStartInform();
         this.scrollViewNode.node.on("scroll-to-bottom", this.scrollViewEvent, this);
     }
 
@@ -126,7 +124,6 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
                 arrow.active = false;
                 (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
                 count++;
-                DebugLog.instance.log("complete", complete)
             } else {
                 if (task.status == TaskStatus.Expired) {
                     (btnBG as Sprite).color = ColorUtil.hexToColor(context.expireColor);
@@ -148,10 +145,12 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
 
     private _curTaskData: TaskData;
     taskItemClick(event, data) {
-        DebugLog.instance.log(data);
         let taskList = TaskManager.getInstance().taskList;
         this._curTaskData = taskList[Number(data)];
-        TaskManager.getInstance().setCurTaskId(this._curTaskData.id)  ;
+        if (!this._curTaskData) {
+            return;
+        }
+        TaskManager.getInstance().setCurTaskId(this._curTaskData.id);
         if (this._curTaskData.status == TaskStatus.Completed) {
             DebugLog.instance.log("当前任务已经完成");
             const ad: AlertData = new AlertData();
@@ -241,7 +240,7 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
         }
     }
 
-    backToParent(){
+    backToParent() {
         UIManager.getInstance().hidePanel(TaskAndNotificationPanelCtrl.NAME);
     }
 }
