@@ -16,13 +16,15 @@ import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
 import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
 
 import { BundlePreloadEvent, BundlePreloadManager } from '../../Core/Manager/Load/BundlePreloadManager';
-import { InfoListPopCtrl } from './InfoListPopCtrl';
+import { InfoListPopCtrl } from '../UI/TaskAndNotificationPanel/InfoListPopCtrl';
 import { FrameComponent } from '../../Core/Component/FrameComponent';
 import { BundleName } from '../../Core/Manager/Load/BundleName';
 import { UIManager } from '../../Core/Manager/UI/UIManager';
 import { PersonalCenterPanel } from '../UI/PersonalCenter/PersonalCenterPanel';
-import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import { GameCenter } from '../UI/GameCenter/GameCenter';
+import { BrainTrain } from '../UI/BrainTrain/BrainTrain';
+import { TaskAndNotificationPanelCtrl } from '../UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+
 
 const { ccclass, property } = _decorator;
 
@@ -30,7 +32,7 @@ export enum MainSceneView {
     TaskNode,
     GameCenter,
     TaskProgressView,
-    BrainTrainView
+    
 }
 
 @ccclass('MainScene')
@@ -67,60 +69,11 @@ export class MainScene extends Component {
     @property(FrameComponent)
     frame: FrameComponent = null;
 
-    // ====================== 任务详情页
-    /**
-    * 任务详细界面
-    */
-    @property({ type: Node })
-    taskProgressNode: Node = null;
-
-    @property(ProgressBar)
-    progressBar: ProgressBar = null;
-
-    @property(Label)
-    progressLabel: Label = null;
-
-    @property(Button)
-    taskTab: Button = null;
-
-    @property(Button)
-    infoTab: Button = null;
-
-    @property(Node)
-    progressContent: Node = null;
-
-    @property(Node)
-    progressTaskNode: Node = null;
-
-    @property(Node)
-    progressInfoNode: Node = null;
-
-
-    // ====================== 任务提示界面
-    /**
-     * 任务提示界面
-     */
-    @property({ type: [Node] })
-    taskList: Node[] = [];
-
-
-    // ===================== 串烧游戏开始界面
-    @property(Node)
-    brainTrainNode: Node;
-
-    @property({ type: [Node] })
-    skewersGameItems: Node[] = [];
-
     /**
      * 当前页面
      * @private
      */
     private _curPanel: Node = null;
-
-    private completeColor = "#2DABFF";
-    private unCompleteColor = "#FF2D55";
-    private expireColor = "#686E72";
-    private processingColor = "#FF2D55";
 
     private chatPanel: Node = null;
 
@@ -150,9 +103,6 @@ export class MainScene extends Component {
             case MainSceneView.TaskProgressView:
                 this.showTaskProgress()
                 break;
-            case MainSceneView.BrainTrainView:
-                this.tabItemClickByRemote();
-                break;
         }
     }
 
@@ -164,11 +114,6 @@ export class MainScene extends Component {
   
     start() {
         this.frame.playAnimation("idle", 24, true, true);
-        if (this.taskList.length != 0) {
-            this.taskList.forEach(task => {
-                if (task) task.active = false;
-            });
-        }
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
         TaskManager.getInstance().start();
         this.startShowView();
@@ -210,9 +155,6 @@ export class MainScene extends Component {
 
     backToTaskView() {
         this.taskRemind();
-        this.taskProgressNode.active = false;
-
-        this.brainTrainNode.active = false;
         this.switchTaskNode(true);
         this._curPanel = this.taskNode;
     }
@@ -256,45 +198,12 @@ export class MainScene extends Component {
     openChatPanel() {
         UIManager.getInstance().registerPanel(ChatPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatPanel", ChatPanelCtrl);
         UIManager.getInstance().showPanel(ChatPanelCtrl.NAME);
-        this.taskProgressNode.active = false;
-
     }
 
     showTaskProgress() {
-        this.progressLabel.string = "";
-        this.taskProgressNode.active = true;
-        TaskManager.getInstance().requestStartInform();
-        this.brainTrainNode.active = false;
-        this.tabClick(null, 0);
-        this.switchTaskNode(false);
-        this._curPanel = this.taskProgressNode;
-        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
-        TaskManager.getInstance().start();
+        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
     }
-
-    tabClick(event, index: number) {
-        switch (Number(index)) {
-            case 0:
-                this.taskTab.normalColor = ColorUtil.getCCColor(18, 197, 241);
-                this.infoTab.normalColor = ColorUtil.getCCColor(255, 255, 255);
-                break;
-            case 1:
-                this.infoTab.normalColor = ColorUtil.getCCColor(18, 197, 241);
-                this.taskTab.normalColor = ColorUtil.getCCColor(255, 255, 255);
-                this.clickNotificationBtn();
-                break;
-        }
-
-        this.progressTaskNode.active = !Number(index);
-        this.progressInfoNode.active = Boolean(Number(index));
-    }
-
-
-    public clickNotificationBtn() {
-        this.progressTaskNode.active = false;
-        this.progressInfoNode.active = true;
-    }
-
 
     showGameCenter() {
         UIManager.getInstance().registerPanel(GameCenter.NAME, BundleName.RESOURCES, "/prefab/GameCenter/GameCenter", GameCenter);
@@ -321,77 +230,23 @@ export class MainScene extends Component {
             case this.taskNode:
                 this.taskRemind();
                 break;
-            case this.taskProgressNode:
-                let taskDatas = TaskManager.getInstance().taskList;
-                let index = 0;
-                let count = 0;
-                let self = context;
-                taskDatas.forEach((task: TaskData) => {
-                    let taskItem = self.taskList[index];
-                    index++;
-                    if (taskItem == null) return;
-                    let label = taskItem.getChildByName("Label").getComponent(Label);
-                    let timeLabel = taskItem.getChildByName("time1").getComponent(Label);
-                    let complete = taskItem.getChildByName("complete");
-                    let arrow = taskItem.getChildByName("arror_right");
-                    let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
-                    let cornorNode = taskItem.getChildByName("cornorNode");
-                    cornorNode.active = task.type == TaskType.Review || task.status == TaskStatus.Processing;
-                    let cornorLabel = cornorNode.getChildByName("cornorLabel").getComponent(Label);
-                    if (task.type == TaskType.Review) {
-                        cornorLabel.string = "评测";
-                    } else if (task.status == TaskStatus.Processing) {
-                        cornorLabel.string = "正在做";
-                    }
-                    (label as Label).string = task.name;
-                    let startTime = StringUtil.spliceStr(task.startTime + "", " ")[1];
-                    let endTime = StringUtil.spliceStr(task.endTime + "", " ")[1];
-                    let startTimes = StringUtil.spliceStr(startTime, ":");
-                    let endTimes = StringUtil.spliceStr(endTime, ":");
-                    startTime = startTimes[0] + ":" + startTimes[1];
-                    endTime = endTimes[0] + ":" + endTimes[1];
-                    (timeLabel as Label).string = startTime + "-" + endTime;
-                    taskItem.active = true;
-                    if (task.status == TaskStatus.Completed) {
-                        complete.active = true;
-                        arrow.active = false;
-                        (btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
-                        count++;
-                        DebugLog.instance.log("complete", complete)
-                    } else {
-                        if (task.status == TaskStatus.Expired) {
-                            (btnBG as Sprite).color = ColorUtil.hexToColor(context.expireColor);
-                        }
-                        else if (task.status == TaskStatus.Processing) {
-                            (btnBG as Sprite).color = ColorUtil.hexToColor(context.processingColor);
-                        }
-                        else {
-                            (btnBG as Sprite).color = ColorUtil.hexToColor(context.unCompleteColor);
-                        }
-                        complete.active = false;
-                        arrow.active = true;
-                    }
-                });
-                context.progressLabel.string = `${count} / ${taskDatas.length}`;
-                context.progressBar.progress = count / taskDatas.length;
-                break;
             case this.chatPanel:
                 break;
         }
     }
-
+   
     remindClick() {
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
-        SkewersManager.getInstance().requestBranisTraining_list(this.showTaskId);
+        UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
+        UIManager.getInstance().showPanel(BrainTrain.NAME);
     }
-    private showTaskId;
+    // private showTaskId;
     taskRemind() {
         let taskDatas = TaskManager.getInstance().taskList;
         let obj = this.findFirstAvailableName(taskDatas);
         if (!obj) {
             return;
         }
-        this.showTaskId = obj.id;
+        TaskManager.getInstance().setCurTaskId(obj.id)  ;
         this.remindView.active = true;
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = obj.name;
         this.titleLabel.node.active = false;
@@ -408,118 +263,6 @@ export class MainScene extends Component {
             }
         }
         return null; // 如果没有找到符合条件的对象，则返回null
-    }
-    private _curTaskData: TaskData;
-    taskItemClick(event, data) {
-        DebugLog.instance.log(data);
-        let taskList = TaskManager.getInstance().taskList;
-        this._curTaskData = taskList[Number(data)];
-        this.showTaskId = this._curTaskData.id
-        if (this._curTaskData.status == TaskStatus.Completed) {
-            DebugLog.instance.log("当前任务已经完成");
-            const ad: AlertData = new AlertData();
-            ad.title = "提示";
-            ad.message = "当前任务已经完成";
-            AlertManager.getInstance().showAlert(ad);
-            ad.cancelButtonVisible = false;
-            return;
-        }
-        if (this._curTaskData.status == TaskStatus.Expired) {
-            const ad: AlertData = new AlertData();
-            ad.title = "提示";
-            ad.message = "当前任务已经过期";
-            AlertManager.getInstance().showAlert(ad);
-            ad.cancelButtonVisible = false;
-            return;
-        }
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
-        Global.userData.curTaskData = this._curTaskData;
-        SkewersManager.getInstance().requestBranisTraining_list(this._curTaskData.id);
-    }
-
-    tabItemClickByRemote() {
-        this._curTaskData = Global.userData.curTaskData;
-        if (!this._curTaskData || this._curTaskData.status == TaskStatus.Completed || this._curTaskData.status == TaskStatus.Expired) {
-            this.backToTaskView();
-            return;
-        }
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
-        SkewersManager.getInstance().requestBranisTraining_list(this._curTaskData.id);
-
-    }
-
-    private requestBranisTraining_listCallBack(data, context) {
-        EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
-        this.brainTrainNode.active = true;
-        this.taskNode.active = false;
-        this.taskProgressNode.active = false;
-    
-        let gameDatas = data;
-        let len = this.skewersGameItems.length;
-        // let len = gameDatas.length;
-        for (let i = 0; i < len; i++) {
-            let gameItem = this.skewersGameItems[i];
-            let _gameData: SkewersGameData = gameDatas[i];
-            if (_gameData) {
-                gameItem.active = true;
-                let label = gameItem.getChildByName("label").getComponent(Label);
-                let type = _gameData.type;
-                switch (type) {
-                    case GameType.Memory:
-                        label.string = "记忆力";
-                        break;
-                    case GameType.Judgment:
-                        label.string = "判断力";
-                        break;
-                    case GameType.Calculator:
-                        label.string = "计算力";
-                        break;
-                    case GameType.Executionability:
-                        label.string = "执行力";
-                        break;
-                    case GameType.Language:
-                        label.string = "语言力";
-                        break;
-                    case GameType.Comprehension:
-                        label.string = "理解力";
-                        break;
-                }
-                let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
-                progressBar.progress = _gameData.progress;
-                let progressLabel = progressBar.node.getChildByName("Label").getComponent(Label);
-                let progressStr = _gameData.progressStr;
-                progressLabel.string = `${progressStr}`;
-                let completeIcon = gameItem.getChildByName("completeIcon");
-                if (_gameData.progress >= 1) {
-                    completeIcon.active = true;
-                } else {
-                    completeIcon.active = false;
-                }
-            } else {
-                gameItem.active = false;
-                let label = gameItem.getChildByName("label").getComponent(Label);
-                label.string = "未知";
-                let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);
-                progressBar.progress = 1;
-            }
-
-        }
-
-    }
-
-    startTaskClick() {
-        let taskList = TaskManager.getInstance().taskList;
-        taskList.forEach(task => {
-            if (task && task.id == this.showTaskId) {
-                this._curTaskData = task;
-            }
-        });
-        SkewersManager.getInstance().showGameAlert(this.brainTrainNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this._alertNext, this._alertExit, this);
-
-    }
-
-    private _alertNext() {
-        TaskManager.getInstance().requestStartTask(this._curTaskData.id);
     }
 
     backToTaskCenter() {
