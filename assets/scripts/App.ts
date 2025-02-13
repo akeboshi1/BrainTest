@@ -1,4 +1,4 @@
-import { _decorator, find, Camera, resources, Node, director, TextAsset, WebView, sys, assetManager } from 'cc';
+import { _decorator, Camera, Node, director, WebView, sys } from 'cc';
 import { EventManager } from "./Core/Manager/Event/EventManager";
 import { SocketManager } from "./Core/Manager/Net/SocketManager";
 import { UIManager } from "./Core/Manager/UI/UIManager";
@@ -15,11 +15,8 @@ import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
 import AlertManager, { AlertData } from './Core/Manager/Alert/AlertManager';
 import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
 import { AudioManager } from './Core/Manager/Audio/AudioManager';
-import { BundleName } from './Core/Manager/Load/BundleName';
-import { LoginPanel } from './Game/UI/Login/LoginPanel';
-import {GuideManager} from "db://assets/scripts/Core/Manager/Guide/GuideManager";
+import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import { PublishSetting } from './PublishSetting';
-
 
 const { ccclass, property } = _decorator;
 
@@ -136,10 +133,11 @@ export class App extends BaseObejct {
     private async initManager() {
         EventManager.getInstance().init();
         LoaderManager.getInstance().init();
-        if(!this.isPad){
+        if (!this.isPad) {
             LoginManager.getInstance().init();
             TaskManager.getInstance().init();
             BundlePreloadManager.getInstance().init();
+            BundlePreloadManager.getInstance().initBundleVersions(this.publishSetting.remote_url.valueOf() + 'bundle_versions.json');
             ChatFlowModel.getInstance().init();
         }
         await GuideManager.getInstance().init();
@@ -155,11 +153,11 @@ export class App extends BaseObejct {
             this.initGame();
         } else {
             await AlertManager.getInstance().init();
-            
+
             // 初始化socket
-            SocketManager.getInstance().initSocket(this.publishSetting.currentApiUrl).then(()=>{
+            SocketManager.getInstance().initSocket(this.publishSetting.currentApiUrl).then(() => {
                 this.socketOnHandler();
-            }).catch(()=>{
+            }).catch(() => {
                 const alertData: AlertData = new AlertData();
                 alertData.message = '网络链接失败，请检查网络环境';
                 AlertManager.getInstance().showAlert(alertData);
