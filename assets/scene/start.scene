@@ -355,7 +355,7 @@
     "api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
     "version": "0.0.4",
     "remote_url": "https://kele.paipai.xinjiaxianglao.com/remote/",
-    "remote_bundle": true,
+    "remote_bundle": false,
     "currentEnvironment": 0,
     "infoLabel": {
       "__id__": 9

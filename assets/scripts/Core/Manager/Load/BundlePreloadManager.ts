@@ -96,7 +96,8 @@ export class BundlePreloadManager extends BaseManager {
             if (!bundle) {
                 bundle = await new Promise<AssetManager.Bundle>((resolve, reject) => {
                     const bundleUrl = Global.remote_bundle ? Global.remote_url + bundleName : bundleName;
-                    assetManager.loadBundle(bundleUrl, { version }, (err, bundle) => {
+                    const options = Global.remote_bundle ? { version } : undefined;
+                    assetManager.loadBundle(bundleUrl, options, (err, bundle) => {
                         if (err) {
                             reject(err);
                         } else {
