@@ -1,4 +1,4 @@
-import { assetManager, AudioClip, Component, Texture2D } from "cc";
+import { assetManager, AudioClip, Component, director, Texture2D } from "cc";
 import { Node } from "cc";
 import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
 import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
@@ -20,6 +20,11 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     protected audioMap: Map<string, AudioClip> = new Map();
 
     // ========== component生命周期 ==========
+
+    start(){
+        this.sceneData = (director.getScene() as unknown as {sceneData}).sceneData;
+    }
+
 
     onEnable(){
         if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
@@ -105,7 +110,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
        }
     }
 
-    
+    /**
+     * 下一大关
+     * @param context 
+     */
     nextHandler(context?:any){
        context.pauseTime();
        if(context.sceneData){
@@ -113,6 +121,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
        }
     }
 
+    /**
+     * 游戏失败
+     * @param context 
+     */
     failCompleteHanlder(context){
       context.pauseTime();
       if(context.sceneData){
@@ -120,6 +132,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
       }
     }
 
+    /**
+     * 继续
+     * @param context 
+     */
     goonHandler(context){
        context.clearGameView();
        if(context.sceneData){
@@ -127,6 +143,9 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
        }
     }
 
+    /**
+     * 调用串烧游戏外部逻辑
+     */
     remoteHandler(){
       this.exitCallBack(this);
       UIManager.getInstance().showPanel(GenerateReport.NAME);

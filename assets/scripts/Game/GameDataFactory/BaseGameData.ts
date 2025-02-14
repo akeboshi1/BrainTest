@@ -44,8 +44,6 @@ export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGam
         this._hasGuide = value;
     }
     public gameType?: string = "BASE";
-    public nextConfig?: INextConfig = null;
-
 
     // 必须实现得方法
     abstract refreshData(data: T): void;

@@ -94,6 +94,8 @@ export class GameCenter extends BasePanel {
         let self = this;
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             self._clickBoo = false;
+            (scene as any).sceneData = GameCenterManager.getInstance().gameSpecData;
+            (scene as any).sceneData.scene = scene as any;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
     }

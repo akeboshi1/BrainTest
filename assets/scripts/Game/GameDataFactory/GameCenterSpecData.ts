@@ -55,7 +55,6 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
     runNextGame(): void {
         // 大厅游戏切换逻辑...
-        this.nextConfig.nextGame();
     }
 
     startGame(config?:IGameCenterStartConfig): void {

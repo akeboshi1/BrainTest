@@ -51,7 +51,6 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     runNextGame(): void {
         // 串烧游戏特有逻辑...
-        this.nextConfig.nextGame();
     }
 
     startGame(): void {

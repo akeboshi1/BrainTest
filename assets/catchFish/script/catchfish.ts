@@ -234,21 +234,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     start() {
+        super.start();
         this.fishs = [];
-        if (Global.isSkewersGame) {
+        if (this.sceneData.gameType == GameType.SKEWERS) {
             this.gameBeforeView.active = false;
-            this.sceneData = (director.getScene() as unknown as { sceneData: SkewersSpecGameData }).sceneData;
-            this.sceneData.nextConfig = {
-                nextGame: () => this.startGame()
-            }
-            this.startGame();
+            this.sceneData.runNextGame = this.startGame.bind(this);
+            this.sceneData.runNextGame();
         } else {
             this.gameBeforeView.active = true;
-            // 使用类型断言确保访问安全
-            this.sceneData = (director.getScene() as unknown as { _sceneData: GameCenterSpecData })._sceneData;
-            this.sceneData.nextConfig = {
-                nextGame: () => this._nextGame()
-            };
+            this.sceneData.runNextGame = this._nextGame.bind(this);
         }
     }
 
@@ -980,6 +974,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private _requestGameCenterComplete() {
         const curGame = (this.sceneData as any).game;
+        this._endTime = TimeUtil.getNow();
         let level = curGame.level + 1;
         let complete = this.wangCount / this.wangMaxCount;
         let duration = (this._endTime - this._startTime) / 1000;
