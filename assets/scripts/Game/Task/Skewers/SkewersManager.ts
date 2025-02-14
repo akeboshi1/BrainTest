@@ -379,6 +379,10 @@ export class SkewersManager {
 
     private _game;
 
+    public get curGame():SkewersGameData{
+        return this._game;
+    }
+
     public startGame() {
         if (!this._gameDatas || this._gameDatas.length <= 0) {
             this._curIndex = -1;

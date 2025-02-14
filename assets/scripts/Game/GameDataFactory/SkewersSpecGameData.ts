@@ -1,6 +1,6 @@
 import { Node } from "cc";
 import { EventManager } from "../../Core/Manager/Event/EventManager";
-import { SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
+import { SkewersGameData, SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
 import { SkewersManager } from "../Task/Skewers/SkewersManager";
 import { BaseGameData, GameType, IBaseGameChild, IQuitGameConfig } from "./BaseGameData";
 import { AlertType } from "../UI/Alert/GameAlert";
@@ -43,6 +43,15 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         super();
         this.gameType = GameType.SKEWERS;
     }
+
+    get game():SkewersGameData{
+        return SkewersManager.getInstance().curGame;
+    }
+
+    get difficulty():number{
+        return SkewersManager.getInstance().curGame.difficulty;
+    }
+
 
     refreshData(data: ISkewersSpecific): void {
         // this.currentChild = data;

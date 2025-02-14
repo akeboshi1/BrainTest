@@ -18,13 +18,8 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     protected audioMap: Map<string, AudioClip> = new Map();
 
     // ========== component生命周期 ==========
-
     start(){
         this.sceneData = (director.getScene() as unknown as {sceneData}).sceneData;
-    }
-    
-    onLoad(): void {
-        
     }
 
     onEnable(){
@@ -154,7 +149,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // ========= 清理场景 ===========
     public clearGameView(){
-
+        AudioManager.getInstance().stop();
     }
 
     // ========== 播放音频 ==========

@@ -19,9 +19,7 @@ import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
 import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
 import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
-import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
 import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { AudioManager } from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import { CatchFishGuide } from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
 import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
@@ -136,7 +134,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // ====================== 继承basescene ===================
     onLoad() {
-        super.onLoad();
         this.bundleName = "catchFish";
         this.mask.scale = v3(0, 1, 1);
         tween(this.mask)
@@ -145,8 +142,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             })
             .start();
         this.loadAudio().then();
+    }
+
+
+    start() {
+        super.start();
         let logoSprite = this.logoNode.getComponent(Sprite);
-        if (Global.isSkewersGame) {
+        if (this.sceneData.gameType == GameType.SKEWERS) {
             LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame) => {
                 logoSprite.spriteFrame = spiteFrame;
             });
@@ -163,11 +165,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         const canvas = scene.getComponentInChildren(Canvas);
         const uitransform = canvas.getComponent(UITransform);
         this._leftSceneX = -uitransform.width / 2 - 80;
-    }
-
-
-    start() {
-        super.start();
         this.fishs = [];
         if (this.sceneData.gameType == GameType.SKEWERS) {
             this.gameBeforeView.active = false;
@@ -265,7 +262,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._wangTween.stop();
             this._wangTween = null;
         }
-        AudioManager.getInstance().stop();
+
         Tween.stopAll();
         EventManager.getInstance().off(Fish.FishClick, this);
 
@@ -299,7 +296,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.gameStartView.active = true;
         this.wangCount = 0;
         if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.curHard = Global.userData.curSkewerGameData.difficulty;
+            this.curHard = (this.sceneData as any).difficulty;
             this.hardIndex = this.hards.indexOf(this.curHard);
             switch (this.curHard) {
                 case 1:
@@ -525,7 +522,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     return;
                                 }
                                 if (self._clearBoo) return;
-                                if (!Global.isSkewersGame) {
+                                if (this.sceneData.gameType != GameType.SKEWERS) {
                                     if (self.gameSuccessView.active || self.gameFailView.active) {
                                         return;
                                     }
@@ -538,7 +535,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                 }
                                 // 脑力保健才有引导
                                 // ||(Global.isSkewersGame && Global.userData.curSkewerGameData && Global.userData.curSkewerGameData.getCurTrainData()&&Global.userData.curSkewerGameData.getCurTrainData().hasGuide == true)
-                                if ((this.sceneData.hasGuide && !Global.isSkewersGame)) {
+                                if ((this.sceneData.hasGuide && this.sceneData.gameType != GameType.SKEWERS)) {
                                     if (fish.position.x <= (self._leftSceneX + 540) / 2 && fish.positionYIndex == self._guideIndex) {
                                         self.hasGuide = true;
                                         EventManager.getInstance().on(CatchFishGuide.GUIDECLICK, self.guideClick.bind(self), self);
@@ -554,7 +551,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     )
                     .call(() => {
                         fish.pause = false;
-                        if (!Global.isSkewersGame) {
+                        if (this.sceneData.gameType != GameType.SKEWERS) {
                             if (self.gameSuccessView.active || self.gameFailView.active) {
                                 return;
                             }
@@ -583,7 +580,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     return;
                                 }
                                 if (self._clearBoo) return;
-                                if (!Global.isSkewersGame) {
+                                if (this.sceneData.gameType != GameType.SKEWERS) {
                                     if (self.gameSuccessView.active || self.gameFailView.active) {
                                         return;
                                     }
@@ -596,7 +593,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                 }
 
                                 // 开启引导
-                                if (this.sceneData.hasGuide && !Global.isSkewersGame) {
+                                if (this.sceneData.hasGuide && this.sceneData.gameType != GameType.SKEWERS) {
                                     if (fish.position.x <= (self._leftSceneX + 540) / 2 && fish.positionYIndex == self._guideIndex) {
                                         self.hasGuide = true;
                                         EventManager.getInstance().on(CatchFishGuide.GUIDECLICK, self.guideClick.bind(self), self);
@@ -617,7 +614,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         .call(() => {
                             self._pause = false;
                             fish.pause = false;
-                            if (!Global.isSkewersGame) {
+                            if (this.sceneData.gameType != GameType.SKEWERS) {
                                 if (self.gameSuccessView.active || self.gameFailView.active) {
                                     return;
                                 }
@@ -645,7 +642,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                             return;
                                         }
                                         if (self._clearBoo) return;
-                                        if (!Global.isSkewersGame) {
+                                        if (this.sceneData.gameType != GameType.SKEWERS) {
                                             if (self.gameSuccessView.active || self.gameFailView.active) {
                                                 return;
                                             }
@@ -656,7 +653,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                         if (self.hasGuide) {
                                             return;
                                         }
-                                        if ((this.sceneData.hasGuide && !Global.isSkewersGame)) {
+                                        if ((this.sceneData.hasGuide && this.sceneData.gameType != GameType.SKEWERS)) {
                                             if (fish.position.x <= (self._leftSceneX + 540) / 2 && fish.positionYIndex == self._guideIndex) {
                                                 self.hasGuide = true;
                                                 EventManager.getInstance().on(CatchFishGuide.GUIDECLICK, self.guideClick.bind(self), self);
@@ -672,7 +669,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                             )
                                 .call(() => {
                                     fish.pause = false;
-                                    if (!Global.isSkewersGame) {
+                                    if (this.sceneData.gameType != GameType.SKEWERS) {
                                         if (self.gameSuccessView.active || self.gameFailView.active) {
                                             return;
                                         }
@@ -705,7 +702,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                 return;
                             }
                             if (self._clearBoo) return;
-                            if (!Global.isSkewersGame) {
+                            if (this.sceneData.gameType != GameType.SKEWERS) {
                                 if (self.gameSuccessView.active || self.gameFailView.active) {
                                     return;
                                 }
@@ -718,7 +715,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                             }
 
                             // 开启引导
-                            if ((this.sceneData.hasGuide && !Global.isSkewersGame)) {
+                            if ((this.sceneData.hasGuide && this.sceneData.gameType != GameType.SKEWERS)) {
                                 if (fish.position.x <= (self._leftSceneX + 540) / 2 && fish.positionYIndex == self._guideIndex) {
                                     self.hasGuide = true;
                                     EventManager.getInstance().on(CatchFishGuide.GUIDECLICK, self.guideClick.bind(self), self);
@@ -735,7 +732,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .call(() => {
                         self._pause = false;
                         fish.pause = false;
-                        if (!Global.isSkewersGame) {
+                        if (this.sceneData.gameType != GameType.SKEWERS) {
                             if (self.gameSuccessView.active || self.gameFailView.active) {
                                 return;
                             }
@@ -763,7 +760,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                         return;
                                     }
                                     if (self._clearBoo) return;
-                                    if (!Global.isSkewersGame) {
+                                    if (this.sceneData.gameType != GameType.SKEWERS) {
                                         if (self.gameSuccessView.active || self.gameFailView.active) {
                                             return;
                                         }
@@ -774,7 +771,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     if (self.hasGuide) {
                                         return;
                                     }
-                                    if ((this.sceneData.hasGuide && !Global.isSkewersGame)) {
+                                    if ((this.sceneData.hasGuide && this.sceneData.gameType != GameType.SKEWERS)) {
                                         if (fish.position.x <= (self._leftSceneX + 540) / 2 && fish.positionYIndex == self._guideIndex) {
                                             self.hasGuide = true;
                                             EventManager.getInstance().on(CatchFishGuide.GUIDECLICK, self.guideClick.bind(self), self);
@@ -790,7 +787,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         )
                             .call(() => {
                                 fish.pause = false;
-                                if (!Global.isSkewersGame) {
+                                if (this.sceneData.gameType != GameType.SKEWERS) {
                                     if (self.gameSuccessView.active || self.gameFailView.active) {
                                         return;
                                     }
@@ -831,8 +828,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     timer: number;
     INIT_TIME = 120;
     timeInit() {
-        if (Global.isSkewersGame) {
-            this.timer = Global.userData.curSkewerGameData.timeLimit;
+        if (this.sceneData.gameType == GameType.SKEWERS) {
+            this.timer = (this.sceneData as any).game.timeLimit;
         } else {
             this.timer = this.INIT_TIME;
         }
@@ -1092,7 +1089,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 self.hasWangClick = false;
                 self.unSelectWang(i);
                 self._curFish.pause = false;
-                if (!Global.isSkewersGame) {
+                if (this.sceneData.gameType != GameType.SKEWERS) {
                     if (self.gameSuccessView.active || self.gameFailView.active) {
                         return;
                     }
