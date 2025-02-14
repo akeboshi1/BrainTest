@@ -9,7 +9,7 @@ import { SentenceMakingTimerComponent } from './SentenceMakingTimerComponent';
 import { Global } from '../../scripts/Core/Manager/Config/Global';
 import { GameCenterManager } from '../../scripts/Game/GameCenter/GameCenterManager';
 import { SkewersManager } from '../../scripts/Game/Task/Skewers/SkewersManager';
-import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import {SkewersGameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -143,7 +143,7 @@ export class SentenceMakingScene extends Component {
     }
 
     private async startGameFlow() {
-        if(Global.isSkewersGame && Global.userData.curSkewerGameData.type != GameType.Language){
+        if(Global.isSkewersGame && Global.userData.curSkewerGameData.type != SkewersGameType.Language){
             return;
         }
 

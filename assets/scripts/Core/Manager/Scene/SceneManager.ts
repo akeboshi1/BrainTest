@@ -143,7 +143,7 @@ export class SceneManager extends BaseManager {
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");
                 let mainScene = scriptNode.getComponent("MainScene");
-                mainScene['setCurrentIndex'](MainSceneView.BrainTrainView);
+                // mainScene['setCurrentIndex'](MainSceneView.BrainTrainView);
                 resolve();
             }).catch(err => {
                 reject(err);

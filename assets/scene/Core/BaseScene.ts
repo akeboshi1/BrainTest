@@ -1,85 +1,141 @@
-import { AudioClip, Component, Texture2D } from "cc";
+import { assetManager, AudioClip, Component, Texture2D } from "cc";
 import { Node } from "cc";
 import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
 import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
+import {BaseGameData, IBaseGameChild, IQuitGameConfig} from "../../scripts/Game/GameDataFactory/BaseGameData";
+import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { UIManager } from "../../scripts/Core/Manager/UI/UIManager";
+import { GenerateReport } from "../../scripts/Game/UI/PersonalCenter/GenerateReport";
 /**
  * 基础场景
  */
-export class BaseScene extends Component {
+export class BaseScene<T extends IBaseGameChild> extends Component {
+    sceneData: BaseGameData<T>;
     viewNode: Node;
-    timeComponent:TimerCommonComponent;
+    timerComponent: TimerCommonComponent;
+    protected bundleName: string = '';
 
     protected audioMap: Map<string, AudioClip> = new Map();
 
     // ========== component生命周期 ==========
-    // 1
-    onLoad(){
-        this.loadAudio().then();
-        this.loadTexture().then();
-    }
 
-    
-    // 2
     onEnable(){
-        EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this, true);
-    }
-
-    // 3
-    start(){
-
+        if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
 
     onDisable(){
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-    }
-
-    onDestroy(){
-
+        if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
     }
 
     // ========== 资源加载 ==========
-    protected async loadAudio(){
-        await new Promise<AudioClip>((resolve,reject)=>{
-           resolve(null);
-        });
-     }
-
-    protected async loadTexture(){
-        await new Promise<Texture2D>((resolve,reject)=>{
-            resolve(null);
-        });
-    }
-    
-    // ========== 游戏结果请求回调 ==========
-    protected requestSkewersGameComplete(){
-        
+    protected async loadAudio() {
+        const bundle = assetManager.getBundle(this.bundleName);
+        if (!bundle) {
+            DebugLog.instance.error("bundle is not exist! ---- bundle name:" + this.bundleName);
+            return;
+        }
+        for (const audioUrl of this.audioMap.keys()) {
+            try {
+                const audioRes = await new Promise<AudioClip>((resolve, reject) => {
+                    bundle.load(audioUrl, AudioClip, (err, data: AudioClip) => {
+                        err ? reject(err) : resolve(data);
+                    });
+                });
+            } catch (err) {
+                DebugLog.instance.error(`AudioClip加载失败: ${audioUrl}`, err);
+            }
+        }
     }
 
     // ========== 游戏退出 ==========
-    protected quitGame(){
-
+    public quitGame(config:IQuitGameConfig) {
+        if (config.context.sceneData) config.context.sceneData.quitGame(config);
     }
 
     // ========== 开始倒计时 ==========
-    protected startTime(){
-        this.timeComponent.startTimer();
+    public startTime(time:number) {
+        this.timerComponent.startTimer(time);
     }
 
     // ========== 重置倒计时 ==========
-    protected resumeTime(){
-       this.timeComponent.resetTimer();
+    public resetTime() {
+        this.timerComponent.resetTimer();
     }
 
     // ========== 暂停倒计时 ==========
-    protected pauseTime(){
-      this.timeComponent.pauseTimer();
+    public pauseTime() {
+        this.timerComponent.pauseTimer();
     }
+
+    // ========== 恢复倒计时 ==========
+    public resumeTime() {
+        this.timerComponent.resumeTimer();
+    }
+
+    // ========== 倒计时结束 ==========
+    onTimerEnd() {
+        DebugLog.instance.log("计时器结束了，执行相应逻辑");
+    }
+
+    //  ========== 退出游戏回调 ==========
+    public exitCallBack(context: any) {
+        context.clearGameView();
+        if (this.sceneData) this.sceneData.exitCallBack();
+    }
+
+    // ========== 继续游戏回调 ==========
+    public resumeCallBack(context?: any) {
+        if (context.sceneData) {
+            if(!context.sceneData.resumeCallBack()){
+                return;
+            }
+        }
+        context.resumeTime();
+    }
+
+    // =========== 上报数据 ============
+    public requestGameComplete(config:any){
+       if(this.sceneData){
+        this.sceneData.requestGameComplete(config);
+       }
+    }
+
     
+    nextHandler(context?:any){
+       context.pauseTime();
+       if(context.sceneData){
+        context.sceneData.nextHandler(context);
+       }
+    }
+
+    failCompleteHanlder(context){
+      context.pauseTime();
+      if(context.sceneData){
+        context.sceneData.failCompleteHandler(context);
+      }
+    }
+
+    goonHandler(context){
+       context.clearGameView();
+       if(context.sceneData){
+        context.sceneData.goonHandler(context);
+       }
+    }
+
+    remoteHandler(){
+      this.exitCallBack(this);
+      UIManager.getInstance().showPanel(GenerateReport.NAME);
+    }
+
+    // ========= 清理场景 ===========
+    public clearGameView(){
+
+    }
 
     // ========== 播放音频 ==========
-    protected playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
+    public playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
         let audioRes = this.audioMap.get(url);
         if (audioRes != null) {
             if (isShot) {

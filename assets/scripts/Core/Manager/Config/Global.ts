@@ -6,6 +6,7 @@ import {UserData} from "../../../Core/Data/UserData";
 export class Global {
     static API_Root = "";
     static RES_Root = "";
+    
 
     static userData:UserData;
 

@@ -1,4 +1,4 @@
-import { GameType, SkewersGameData, SkewersGameTrainData } from "./SkewersGameData";
+import { SkewersGameType, SkewersGameData, SkewersGameTrainData } from "./SkewersGameData";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { Global } from "../../../Core/Manager/Config/Global";
@@ -17,7 +17,9 @@ import { UIManager } from "../../../Core/Manager/UI/UIManager";
 import { BrainTrainTipPanel } from "../../UI/Common/BrainTrainTipPanel";
 import { BundleName } from "../../../Core/Manager/Load/BundleName";
 import { LayerUtil } from "../../../Core/Util/LayerUtil";
-
+import { GameDataFactory } from "../../GameDataFactory/GameDataFactory";
+import { GameType } from "../../GameDataFactory/BaseGameData";
+import { SkewersSpecGameData } from "../../GameDataFactory/SkewersSpecGameData";
 /**
  * 脑力串烧管理器
  */
@@ -90,21 +92,31 @@ export class SkewersManager {
 
     private _alertInstance: Node = null;
 
-    private _iconUrlMap: Map<GameType, string>;
+    private _iconUrlMap: Map<SkewersGameType, string>;
 
+    private _curSkewersSpecData:SkewersSpecGameData;
 
     public init() {
+        GameDataFactory.registerGameType(GameType.SKEWERS, SkewersSpecGameData);
         this._gameDatas = [];
         this._iconUrlMap = new Map();
-        this._iconUrlMap.set(GameType.Comprehension, "texture/game/icon/caimiIcon");
-        this._iconUrlMap.set(GameType.Executionability, "texture/game/icon/puzzleicon");
-        this._iconUrlMap.set(GameType.Language, "texture/game/icon/majiangIcon");
-        this._iconUrlMap.set(GameType.Calculator, "texture/game/icon/fishicon");
-        this._iconUrlMap.set(GameType.Judgment, "texture/game/icon/findingIcon");
-        this._iconUrlMap.set(GameType.Memory, "texture/game/icon/memoryicon");
+        this._iconUrlMap.set(SkewersGameType.Comprehension, "texture/game/icon/caimiIcon");
+        this._iconUrlMap.set(SkewersGameType.Executionability, "texture/game/icon/puzzleicon");
+        this._iconUrlMap.set(SkewersGameType.Language, "texture/game/icon/majiangIcon");
+        this._iconUrlMap.set(SkewersGameType.Calculator, "texture/game/icon/fishicon");
+        this._iconUrlMap.set(SkewersGameType.Judgment, "texture/game/icon/findingIcon");
+        this._iconUrlMap.set(SkewersGameType.Memory, "texture/game/icon/memoryicon");
 
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
     }
+
+    public get skewersSpecData():SkewersSpecGameData{
+        if(!this._curSkewersSpecData){
+            this._curSkewersSpecData = GameDataFactory.create(GameType.SKEWERS);
+        }
+        return this._curSkewersSpecData;
+    }
+
 
     start() {
         Global.isSkewersGame = true;
@@ -261,7 +273,7 @@ export class SkewersManager {
      * @param exitCallBack
      * @param context
      */
-    public showGameAlert(parentNode: Node, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
+    public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
         let alertNode = SkewersManager.getInstance()._alertInstance;
         let gameType = type == AlertType.Next ? SkewersManager.getInstance().getUnCompleteGameData().type : Global.userData.curSkewerGameData.type;
         let iconUrl = this._iconUrlMap.get(gameType);
@@ -391,6 +403,8 @@ export class SkewersManager {
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
+            (scene as any).sceneData = SkewersManager.getInstance().skewersSpecData;
+            (scene as any).sceneData.scene = scene as any;
         });
     }
 

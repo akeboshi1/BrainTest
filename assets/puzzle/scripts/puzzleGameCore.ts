@@ -29,7 +29,7 @@ import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { AudioManager } from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 import { UIManager } from "db://assets/scripts/Core/Manager/UI/UIManager";
 import { GenerateReport } from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
-import { GameType } from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import { SkewersGameType } from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
 
 const { ccclass, property } = _decorator;
@@ -683,7 +683,7 @@ export class puzzleGameCore extends Component {
     onClickGotoNextlevel() {
         if (Global.isSkewersGame) {
             if (!SkewersManager.getInstance().isRunOver()) {
-                if (SkewersManager.getInstance().getUnCompleteGameData() && SkewersManager.getInstance().getUnCompleteGameData().type != GameType.Executionability) {
+                if (SkewersManager.getInstance().getUnCompleteGameData() && SkewersManager.getInstance().getUnCompleteGameData().type != SkewersGameType.Executionability) {
                     SkewersManager.getInstance().runNextGame();
                     return;
                 } else {

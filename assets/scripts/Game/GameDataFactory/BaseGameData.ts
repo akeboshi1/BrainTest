@@ -1,62 +1,81 @@
+import { Node, Scene } from "cc";
 import { SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
+import { BaseScene } from "db://assets/scene/Core/BaseScene";
 
 // 基础游戏数据类型
 interface IBaseGameData<T extends IBaseGameChild> {
-
-    refreshData(raw: any): void;
-    runNext(): void;
+    hasGuide:boolean;
+    refreshData(data: T): void;
+    runNextGame(): void;
     startGame(): void;
     quitGame(): void;
+    requestGameComplete():void;
+    requestGameCompleteCallBack():void;
+
+    nextHandler();
+    goonHandler();
+    failCompleteHandler();
+
+    exitCallBack():void;
+    resumeCallBack():boolean;
+}
+export interface INextConfig {
+    nextGame?: Function;
+}
+
+export interface IQuitGameConfig{
+    parentNode:Node;
+    context:any;
+}
+
+export enum GameType{
+    GAME_CENTER = "GAME_CENTER",
+    SKEWERS = "SKEWERS"
 }
 
 
-abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGameData<T> {
-    public sessionId?: string = "";
+export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGameData<T> {
+    public scene:BaseScene<T>;
+    private _hasGuide: boolean = false;
+    public get hasGuide(): boolean {
+        return this._hasGuide;
+    }
+    public set hasGuide(value: boolean) {
+        this._hasGuide = value;
+    }
     public gameType?: string = "BASE";
-    public progress?: number = 0;
-    public children?: SkewersGameTrainData[] = [];
-    public currentChild?: SkewersGameTrainData | null = null;
+    public nextConfig?: INextConfig = null;
+
 
     // 必须实现得方法
-    abstract refreshData(raw: any): void;
-    abstract runNext(): void;
+    abstract refreshData(data: T): void;
 
-    abstract startGame(): void;
-    abstract quitGame(): void;
+    abstract runNextGame(): void;
+    abstract startGame(config?: any): void;
+    abstract quitGame(config?: IQuitGameConfig): void;
+
+    abstract gameMatch():void;
+
+    abstract requestGameComplete(config?:any): void;
+    abstract requestGameCompleteCallBack(data?:any):void;
+
+    abstract nextHandler(context?:any):void;
+    abstract goonHandler(context?:any):void;
+    abstract failCompleteHandler(context?:any):void;
+
+    abstract exitCallBack():void;
+    abstract resumeCallBack(): boolean;
 }
 
 
 // 基础子任务类型
-interface IBaseGameChild {
+export interface IBaseGameChild {
     gameId: number;
     gameName: string;
     level: number;
     difficulty: number;
-}
+    time: number;
 
-// 串烧游戏特性
-interface ISkewersSpecific {
-    children: SkewersGameTrainData[];
-    currentChild: SkewersGameTrainData | null;
-
-    gameType: string;
-    progress: number;
-    hasGuide: boolean;
-
-    showGameAlert();
-    exitCallBack();
-    requestCompleteBrainsTrainings();
-    completeCurrent(score: number): void;
-}
-
-// 游戏大厅特性
-interface IGameCenterSpecific {
-    sessionid: string;
-
-    endGame();
-
-    gameMatch();
-    gamePassLevel();
 }
 
 

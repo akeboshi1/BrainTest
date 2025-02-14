@@ -2,7 +2,7 @@ import {SkewersGameStatus} from "../../../Core/Data/GameState";
 import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
 import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
 
-export enum GameType{
+export enum SkewersGameType{
     // 理解力
     Comprehension="COMPREHENSION",
     // 执行力
@@ -34,7 +34,7 @@ export class SkewersGameData {
     public gameCode:string;
 
     // 当前串烧游戏类型
-    public type:GameType;
+    public type:SkewersGameType;
 
     // 串烧游戏训练队列数据
     public trains:SkewersGameTrainData[];
@@ -47,17 +47,17 @@ export class SkewersGameData {
 
     public get TypeName():string{
         switch(this.type){
-            case GameType.Calculator:
+            case SkewersGameType.Calculator:
                 return "计算力";
-           case GameType.Executionability:
+           case SkewersGameType.Executionability:
                 return "执行力";
-            case GameType.Language:
+            case SkewersGameType.Language:
                 return "语言力";
-            case GameType.Comprehension:
+            case SkewersGameType.Comprehension:
                 return "理解力";
-            case GameType.Judgment:
+            case SkewersGameType.Judgment:
                 return "判断力";
-            case GameType.Memory:
+            case SkewersGameType.Memory:
                 return "记忆力"
         }
     }
@@ -72,22 +72,22 @@ export class SkewersGameData {
         this.type = data['cog_ability'];
         this._difficulty = data['difficulty'];
         switch(this.type){
-            case GameType.Memory:
+            case SkewersGameType.Memory:
                 this.gameName = "翻牌";
                 break;
-            case GameType.Executionability:
+            case SkewersGameType.Executionability:
                 this.gameName = "拼图";
                 break;
-            case GameType.Language:
+            case SkewersGameType.Language:
                 this.gameName = "组词造句";
                 break;
-           case GameType.Comprehension:
+           case SkewersGameType.Comprehension:
                 this.gameName = "猜谜";
                 break;
-            case GameType.Calculator:
+            case SkewersGameType.Calculator:
                 this.gameName = "数字捕鱼"
                 break;
-            case GameType.Judgment:
+            case SkewersGameType.Judgment:
                 this.gameName = "找茬";
                 break;
         }

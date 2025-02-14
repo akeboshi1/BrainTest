@@ -9,7 +9,7 @@ import {SentenceMakingConfig, SentenceMakingQuestion} from "./SentenceMakingConf
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 import {SentenceMakingScene} from "db://assets/sentenceMaking/script/SentenceMakingScene";
-import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import {SkewersGameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
 
 export class SentenceMakingModel {
     constructor() {
@@ -77,7 +77,7 @@ export class SentenceMakingModel {
 
     goNextQuestion() {
         if(Global.isSkewersGame){
-            if(Global.userData.curSkewerGameData.type != GameType.Language){
+            if(Global.userData.curSkewerGameData.type != SkewersGameType.Language){
                 SkewersManager.getInstance().runNextGame();
             }else{
                 this.currentQuestionIndex++;

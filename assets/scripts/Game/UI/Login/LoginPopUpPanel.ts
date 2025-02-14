@@ -138,15 +138,19 @@ export class LoginPopUpPanel extends BasePanel {
         if (data != null && data.switchView) {
             this.switchView();
         } else {
-            this.agreeClick();
+            this.showVerifyCodeAlert();
         }
     }
 
-    agreeClick() {
+    private showVerifyCodeAlert() {
         this.phoneNumber = LoginManager.getInstance().phoneNum;
         this.PhoneDescTxt.node.active = false;
         this.enterTxt.node.active = true;
         this.updateView(true);
+    }
+
+    agreeClick() {
+        UIManager.getInstance().hidePanel(LoginPopUpPanel.NAME);
     }
 
     private requestCodeCallBack(data, context) {

@@ -44,7 +44,6 @@ export class LoginPanel extends BasePanel {
     }
 
     onDisable(): void {
-        EventManager.getInstance().off(UIManager.BACK_TO_PARENT,this);
     }
 
     onDestroy() {
@@ -55,8 +54,13 @@ export class LoginPanel extends BasePanel {
      * 点击协议显示协议面板
      */
     public xieyiClick() {
-        EventManager.getInstance().on(UIManager.BACK_TO_PARENT,this.backClick,this);
-        UIManager.getInstance().showPanel(LoginPopUpPanel.NAME,{switchView:true});
+        let ad:AlertData = new AlertData();
+        ad.title = "请查看具体协议";
+        ad.message = "阅读并同意《电信服务协议》和\n《用户协议》和《隐私协议》";
+        ad.confirmButtonText = "同意并继续";
+        ad.cancelButtonVisible = true;
+        ad.confirmCb = this.confirmHandler.bind(this);
+        AlertManager.getInstance().showAlert(ad);
     }
 
     public loginClick(){
@@ -69,12 +73,7 @@ export class LoginPanel extends BasePanel {
             ad.confirmCb = this.confirmHandler.bind(this);
             return;
         }
-        EventManager.getInstance().on(UIManager.BACK_TO_PARENT,this.backClick,this);
         UIManager.getInstance().showPanel(PhoneLoginPanel.NAME);
-    }
-
-    private backClick(){
-        EventManager.getInstance().off(UIManager.BACK_TO_PARENT,this);
     }
 
     private confirmHandler() {
