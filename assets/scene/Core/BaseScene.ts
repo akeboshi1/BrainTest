@@ -43,6 +43,9 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
                         err ? reject(err) : resolve(data);
                     });
                 });
+                if(audioRes) {
+                    this.audioMap.set(audioUrl, audioRes);
+                }
             } catch (err) {
                 DebugLog.instance.error(`AudioClip加载失败: ${audioUrl}`, err);
             }

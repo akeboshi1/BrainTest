@@ -32,7 +32,7 @@ export enum MainSceneView {
     TaskNode,
     GameCenter,
     TaskProgressView,
-    
+    BrainTrainView
 }
 
 @ccclass('MainScene')
@@ -103,15 +103,19 @@ export class MainScene extends Component {
             case MainSceneView.TaskProgressView:
                 this.showTaskProgress()
                 break;
+            case MainSceneView.BrainTrainView:
+                this.remindClick();
+                break;
         }
     }
+
 
     private _viewIndex: number = 0;
     setCurrentIndex(index: number) {
         this._viewIndex = index;
         this.startShowView();
     }
-  
+
     start() {
         this.frame.playAnimation("idle", 24, true, true);
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
@@ -163,7 +167,7 @@ export class MainScene extends Component {
         if (this._clickBoo) {
             return;
         }
-        this._clickBoo=true;
+        this._clickBoo = true;
         let url = Global.RES_Root + BundleName.SMALLTHEATER;
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.SMALLTHEATER), this, true);
         BundlePreloadManager.getInstance().preload(BundleName.SMALLTHEATER);
@@ -234,7 +238,7 @@ export class MainScene extends Component {
                 break;
         }
     }
-   
+
     remindClick() {
         UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
         UIManager.getInstance().showPanel(BrainTrain.NAME);
@@ -246,7 +250,7 @@ export class MainScene extends Component {
         if (!obj) {
             return;
         }
-        TaskManager.getInstance().setCurTaskId(obj.id)  ;
+        TaskManager.getInstance().setCurTaskId(obj.id);
         this.remindView.active = true;
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = obj.name;
         this.titleLabel.node.active = false;
@@ -272,7 +276,7 @@ export class MainScene extends Component {
     backToCenteter() {
         SceneManager.getInstance().backToHall();
     }
-  
+
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {

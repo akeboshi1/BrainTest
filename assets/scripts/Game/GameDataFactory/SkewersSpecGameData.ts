@@ -84,96 +84,119 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-    
+
         const { parentNode, trainID, context } = config;
         const trainData = SkewersManager.getInstance().getTrainData(trainID);
+        trainData.length
         const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
         const manager = SkewersManager.getInstance();
-    
+
         // 策略配置表（补充desc字段）
         const alertStrategies = {
             success: {
+                [AlertType.Normal]: {
+                    title: manager.currentSkewersCompleteGameStr,
+                    desc: manager.singleBrainScore,
+                    handlers: [context.goonHandler, context.exitCallBack],
+                    curCount:0,
+                    maxCount:0
+                },
                 [AlertType.Sucess_Small]: {
                     title: manager.currentSkewersCompleteGameStr,
                     desc: manager.singleBrainScore,
-                    handlers: [context.nextHandler, context.exitCallBack]
+                    handlers: [context.nextHandler, context.exitCallBack],
+                    curCount:0,
+                    maxCount:0
                 },
                 [AlertType.Sucess_Big]: {
                     title: manager.totalCompleteStr,
                     desc: manager.totalBrainScore,
-                    handlers: [context.exitCallBack, context.remoteHandler]
+                    handlers: [context.exitCallBack, context.remoteHandler],
+                    curCount:0,
+                    maxCount:0
                 }
             },
             failure: {
                 normal: {
                     title: manager.failCompleteStr,
                     desc: '', // 新增空描述
-                    handlers: [context.goonHandler, context.exitCallBack]
+                    handlers: [context.goonHandler, context.exitCallBack],
+                    curCount:0,
+                    maxCount:0
                 },
                 complete: {
                     title: manager.failCompleteStr,
                     desc: '', // 新增空描述
-                    handlers: [context.failCompleteHandler, context.exitCallBack]
+                    handlers: [context.failCompleteHandler, context.exitCallBack],
+                    curCount:0,
+                    maxCount:0
                 }
             }
         };
-    
-        // 状态决策逻辑
-        const getAlertConfig = (): { 
-            type: AlertType; 
-            title: string; 
-            desc: string; 
-            handlers: Function[] 
+
+        // 修改状态决策逻辑
+        const getAlertConfig = (): {
+            type: AlertType;
+            title: string;
+            desc: string;
+            handlers: Function[]
         } => {
-            if (config.complete) {
-                const isFinalStage = maxCount === curCount;
-                const strategyKey = isFinalStage && !manager.isRunOver() ? 
-                    AlertType.Sucess_Small : AlertType.Sucess_Big;
-    
+            // 当complete为1时表示成功通关
+            if (config.complete === 1) {
+                const isFinalStage = curCount == maxCount;
+                let strategyKey = AlertType.Normal;
+                if(isFinalStage){
+                    strategyKey = manager.isRunOver() == true?
+                    AlertType.Sucess_Big : AlertType.Sucess_Small;
+                }
+               
                 return {
                     type: strategyKey,
+                    curCount,
+                    maxCount,
                     ...alertStrategies.success[strategyKey]
                 };
             }
-    
-            const isFailComplete = curCount === maxCount;
+
+            // 其他情况视为失败
+            const isFailComplete = manager.isRunOver();
             const failureType = isFailComplete ? 'complete' : 'normal';
             return {
                 type: AlertType.Normal,
                 ...alertStrategies.failure[failureType]
             };
         };
-    
+
         // 统一调用（修复参数传递）
         const { type, title, desc, handlers } = getAlertConfig();
         const [goonHandler, exitHandler] = handlers;
-        
+
         manager.showGameAlert(
             parentNode,
             type,
             title,
             desc,
-            0, 0,
+            curCount, maxCount,
             goonHandler,
             exitHandler,
             context
         );
     }
-    
+
     failCompleteHandler = (context: any) => {
         const manager = SkewersManager.getInstance();
         const alertType = manager.isRunOver() ? AlertType.Sucess_Big : AlertType.Sucess_Small;
         manager.showGameAlert(
             context.viewNode,
             alertType,
-            manager[alertType === AlertType.Sucess_Small ? 
+            manager[alertType === AlertType.Sucess_Small ?
                 'currentSkewersCompleteGameStr' : 'totalCompleteStr'],
-            manager[alertType === AlertType.Sucess_Small ? 
+            manager[alertType === AlertType.Sucess_Small ?
                 'singleCompleteStr' : 'totalBrainScore'],
             0, 0,
-            alertType === AlertType.Sucess_Small ? 
+            alertType === AlertType.Sucess_Small ?
                 context.nextHandler : context.exitCallBack,
-            alertType === AlertType.Sucess_Small ? 
+            alertType === AlertType.Sucess_Small ?
                 context.exitCallBack : context.remoteClick,
             context
         );
@@ -182,8 +205,8 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
 
     nextHandler(context) {
-        SkewersManager.getInstance().showGameAlert(this.scene.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, 
-        context.goonHandler, context.exitCallBack, context);
+        SkewersManager.getInstance().showGameAlert(this.scene.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0,
+            context.goonHandler, context.exitCallBack, context);
     }
 
     goonHandler(context?: any): void {
@@ -204,9 +227,9 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         }
         return true;
     }
-    
+
     remoteHandler() {
-      
+
     }
 
     gameMatch(): void {
@@ -214,7 +237,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
     }
 
 
-   exitHandler() {
-       
-   }
+    exitHandler() {
+
+    }
 }

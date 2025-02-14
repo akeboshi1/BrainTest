@@ -1,7 +1,7 @@
 import { _decorator, Component, Label, Node, ProgressBar } from 'cc';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { SkewersManager } from '../../Task/Skewers/SkewersManager';
-import { GameType } from '../../Task/Skewers/SkewersGameData';
+import { SkewersGameType } from '../../Task/Skewers/SkewersGameData';
 import { SkewersGameData } from '../../Task/Skewers/SkewersGameData';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
@@ -37,22 +37,22 @@ export class BrainTrain extends BasePanel {
                 let label = gameItem.getChildByName("label").getComponent(Label);
                 let type = _gameData.type;
                 switch (type) {
-                    case GameType.Memory:
+                    case SkewersGameType.Memory:
                         label.string = "记忆力";
                         break;
-                    case GameType.Judgment:
+                    case SkewersGameType.Judgment:
                         label.string = "判断力";
                         break;
-                    case GameType.Calculator:
+                    case SkewersGameType.Calculator:
                         label.string = "计算力";
                         break;
-                    case GameType.Executionability:
+                    case SkewersGameType.Executionability:
                         label.string = "执行力";
                         break;
-                    case GameType.Language:
+                    case SkewersGameType.Language:
                         label.string = "语言力";
                         break;
-                    case GameType.Comprehension:
+                    case SkewersGameType.Comprehension:
                         label.string = "理解力";
                         break;
                 }
