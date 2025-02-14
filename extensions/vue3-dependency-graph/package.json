@@ -12,8 +12,12 @@
     "description": "i18n:vue3-dependency-graph.description",
     "main": "./dist/main.js",
     "dependencies": {
-        "vue": "^3.1.4",
-        "fs-extra": "^10.0.0"
+        "@types/echarts": "^4.9.22",
+        "@types/opener": "^1.4.3",
+        "echarts": "^5.6.0",
+        "fs-extra": "^10.0.0",
+        "opener": "^1.5.2",
+        "vue": "^3.1.4"
     },
     "devDependencies": {
         "@cocos/creator-types": "^3.8.3",
