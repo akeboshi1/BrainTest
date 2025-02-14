@@ -57,11 +57,6 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
         // 大厅游戏切换逻辑...
     }
 
-    startGame(config?:IGameCenterStartConfig): void {
-        console.log("Entering game center...");
-        GameCenterManager.getInstance().startGame(config.gameID,config.callback);
-    }
-
     quitGame(config:IQuitGameConfig){
         GameCenterManager.getInstance().quitGame(config.parentNode, config.context.resumeCallBack,config.context.exitCallBack,config.context);
     }

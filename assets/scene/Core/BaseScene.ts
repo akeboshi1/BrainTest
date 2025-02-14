@@ -1,7 +1,5 @@
-import { assetManager, AudioClip, Component, director, Texture2D } from "cc";
+import { assetManager, AudioClip, Component, director } from "cc";
 import { Node } from "cc";
-import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
-import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
 import {BaseGameData, IBaseGameChild, IQuitGameConfig} from "../../scripts/Game/GameDataFactory/BaseGameData";
@@ -24,7 +22,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     start(){
         this.sceneData = (director.getScene() as unknown as {sceneData}).sceneData;
     }
-
+    
+    onLoad(): void {
+        
+    }
 
     onEnable(){
         if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);

@@ -49,15 +49,12 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         // 具体刷新逻辑...
     }
 
+    // 运行下一关游戏
     runNextGame(): void {
         // 串烧游戏特有逻辑...
     }
 
-    startGame(): void {
-        console.log(`Starting ${this.gameType} game...`);
-        SkewersManager.getInstance().start();
-    }
-
+    // ========= 中途退出游戏 =======
     quitGame(config?: IQuitGameConfig): void {
         let trainData = SkewersManager.getInstance().getUnCompleteGameData();
         let maxCount = SkewersManager.getInstance().getGameCount();
@@ -182,6 +179,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         );
     }
 
+    // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
     failCompleteHandler = (context: any) => {
         const manager = SkewersManager.getInstance();
         const alertType = manager.isRunOver() ? AlertType.Sucess_Big : AlertType.Sucess_Small;
@@ -202,12 +200,13 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     }
 
-
+    // ========= 下一类型游戏 =========
     nextHandler(context) {
         SkewersManager.getInstance().showGameAlert(this.scene.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0,
             context.goonHandler, context.exitCallBack, context);
     }
 
+    // ========= 继续下一局游戏 =========
     goonHandler(context?: any): void {
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().runNextGame();
@@ -216,10 +215,12 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         }
     }
 
+    // ======== 退出游戏 ========
     exitCallBack(): void {
         SkewersManager.getInstance().exitCallBack();
     }
 
+    // ======== 恢复游戏 ========
     resumeCallBack(): boolean {
         if (SkewersManager.getInstance().isRunOver) {
             return false;
@@ -227,6 +228,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         return true;
     }
 
+    // ======== 游戏中调用外部逻辑 ======
     remoteHandler() {
 
     }
@@ -235,8 +237,4 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     }
 
-
-    exitHandler() {
-
-    }
 }

@@ -7,7 +7,6 @@ interface IBaseGameData<T extends IBaseGameChild> {
     hasGuide:boolean;
     refreshData(data: T): void;
     runNextGame(): void;
-    startGame(): void;
     quitGame(): void;
     requestGameComplete():void;
     requestGameCompleteCallBack():void;
@@ -49,7 +48,6 @@ export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGam
     abstract refreshData(data: T): void;
 
     abstract runNextGame(): void;
-    abstract startGame(config?: any): void;
     abstract quitGame(config?: IQuitGameConfig): void;
 
     abstract gameMatch():void;

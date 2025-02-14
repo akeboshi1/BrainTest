@@ -26,9 +26,7 @@ import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManage
 import { CatchFishGuide } from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
 import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import { CreateQuestion } from "db://assets/catchFish/script/createQuestion";
-import { GameCenterSpecData } from '../../scripts/Game/GameDataFactory/GameCenterSpecData';
-import { BaseGameData, GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
-import { SkewersSpecGameData } from '../../scripts/Game/GameDataFactory/SkewersSpecGameData';
+import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
 import { BaseScene } from '../../scene/Core/BaseScene';
 import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
 
@@ -39,7 +37,6 @@ const SHOOT_INTERVAL = 0.65;
 // let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends BaseScene<IBaseGameChild> {
-    sceneData: BaseGameData<IBaseGameChild>;
 
     @property(Node)
     viewNode: Node = null;
@@ -122,9 +119,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private _fishTweens: Tween<Node>[] = [];
     private _isPaused = false;
+    private _clearBoo = false;
     // 在类中添加边界属性和初始化方法
     private _sceneWidth: number = 1080; // 根据实际场景宽度设置
     private _moveSpeed: number = 200; // 像素/秒
+
+    private _pause = false;
     private _waveConfig = {
         amplitude: 30,   // 波动幅度
         frequency: 0.002 // 波动频率
@@ -133,6 +133,203 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         leftToRight: 180, // fishes1速度
         rightToLeft: 220  // fishes2速度
     };
+
+    // ====================== 继承basescene ===================
+    onLoad() {
+        super.onLoad();
+        this.bundleName = "catchFish";
+        this.mask.scale = v3(0, 1, 1);
+        tween(this.mask)
+            .to(0.4, { scale: v3(1, 1, 1) }, { easing: 'quadOut' })
+            .call(() => {
+            })
+            .start();
+        this.loadAudio().then();
+        let logoSprite = this.logoNode.getComponent(Sprite);
+        if (Global.isSkewersGame) {
+            LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame) => {
+                logoSprite.spriteFrame = spiteFrame;
+            });
+        } else {
+            LoaderManager.getInstance().loadABRes("texture/page1_start/logo", this.bundleName).then((res) => {
+                const texture = new Texture2D();
+                texture.image = res;
+                const spriteFrame = new SpriteFrame();
+                spriteFrame.texture = texture;
+                logoSprite.spriteFrame = spriteFrame;
+            });
+        }
+        const scene = director.getScene();
+        const canvas = scene.getComponentInChildren(Canvas);
+        const uitransform = canvas.getComponent(UITransform);
+        this._leftSceneX = -uitransform.width / 2 - 80;
+    }
+
+
+    start() {
+        super.start();
+        this.fishs = [];
+        if (this.sceneData.gameType == GameType.SKEWERS) {
+            this.gameBeforeView.active = false;
+            this.sceneData.runNextGame = this.startGame.bind(this);
+            this.sceneData.runNextGame();
+        } else {
+            this.gameBeforeView.active = true;
+            this.sceneData.runNextGame = this._nextGame.bind(this);
+        }
+    }
+
+    onEnable(): void {
+        super.onEnable();
+    }
+
+    onDisable() {
+        super.onDisable();
+        EventManager.getInstance().disableContext(this);
+    }
+
+
+    // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
+    failCompleteHandler() {
+        super.failCompleteHanlder(this);
+    }  
+    
+    goonHandler() {
+        this.node.active = false;
+        super.goonHandler(this);
+    }
+
+    nextHandler() {
+        super.nextHandler(this);
+    }
+
+
+    exitCallBack(context: any): void {
+        super.exitCallBack(context);
+    }
+
+    /**
+     * 返回应用大厅
+     */
+    quitGame() {
+        // console.log("返回大厅")
+        this._pause = true;
+        this.pauseTime();
+        this.setGamePause(true);
+        this.fishs.forEach(fish => {
+            fish.curTween.stop();
+            fish.curTween = null;
+        });
+        super.quitGame({ parentNode: this.viewNode, context: this });
+    }
+
+    resumeCallBack(context) {
+        context.setGamePause(false);
+        context.fishs.forEach(fish => {
+            context.moveFishes(fish);
+        });
+        context._pause = false;
+        super.resumeCallBack(context);
+    }
+
+    onTimerEnd() {
+        super.onTimerEnd();
+        if (this.wangCount !== this.wangMaxCount) {
+            if (this.sceneData.gameType == GameType.SKEWERS) {
+                //上报数据
+                this._requestSkewersGameComplete();
+            } else {
+                this._requestGameCenterComplete();
+                this.gameFailView.active = true;
+                this.updateSuccessPopupStar(this.curHard);
+            }
+        }
+    }
+
+    public resumeTime() {
+        this._clearBoo = false;
+        super.resumeTime();
+    }
+
+
+
+    protected async loadAudio() {
+        this.audioUrls.forEach(url => this.audioMap.set(url, null));
+        super.loadAudio();
+    }
+
+    public clearGameView() {
+        super.clearGameView();
+        this._clearBoo = true;
+        if (this._wangTween) {
+            this._wangTween.stop();
+            this._wangTween = null;
+        }
+        AudioManager.getInstance().stop();
+        Tween.stopAll();
+        EventManager.getInstance().off(Fish.FishClick, this);
+
+        // this.resetQuestions();
+        if (this.fishs) {
+            let len = this.fishs.length;
+            for (let i: number = 0; i < len; i++) {
+                let fish = this.fishs[i];
+                if (fish) {
+                    if (fish.curTween) {
+                        fish.curTween.stop();
+                        fish.curTween = null;
+                    }
+                    this.fishParentNode.removeChild(fish.getFishNode());
+                    fish = null;
+                }
+            }
+            this.fishs = [];
+        }
+    }
+
+    // ================== 捕鱼游戏逻辑 ===================
+
+
+    startGame(win: number = 1) {
+        this.customsSendDataState = false;
+        this._clearBoo = false;
+        this.startFishMovement();
+        this._startTime = TimeUtil.getNow();
+        this.gameBeforeView.active = false;
+        this.gameStartView.active = true;
+        this.wangCount = 0;
+        if (this.sceneData.gameType == GameType.SKEWERS) {
+            this.curHard = Global.userData.curSkewerGameData.difficulty;
+            this.hardIndex = this.hards.indexOf(this.curHard);
+            switch (this.curHard) {
+                case 1:
+                    this.wangMaxCount = 4;
+                    break;
+                case 2:
+                    this.wangMaxCount = 4;
+                    break;
+                case 3:
+                    this.wangMaxCount = 4;
+                    break;
+            }
+        } else {
+            if (win) {
+                this.curHard = this.hards[this.hardIndex];
+            } else {
+                if (this.hardIndex == this.hards.length - 1) {
+                    this.hardIndex = 0;
+                } else {
+                    this.hardIndex++;
+                }
+                this.curHard = this.hards[this.hardIndex];
+            }
+        }
+        this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
+        this.timeInit();
+        this.createFish();
+    }
+
+
 
     // 初始化鱼群运动
     startFishMovement() {
@@ -198,100 +395,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._fishTweens.forEach(tween => tween.start());
         }
 
-    }
-    onLoad() {
-        this.bundleName = "catchFish";
-        this.mask.scale = v3(0, 1, 1);
-        tween(this.mask)
-            .to(0.4, { scale: v3(1, 1, 1) }, { easing: 'quadOut' })
-            .call(() => {
-            })
-            .start();
-        this.loadAudio().then();
-        let logoSprite = this.logoNode.getComponent(Sprite);
-        if (Global.isSkewersGame) {
-            LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame) => {
-                logoSprite.spriteFrame = spiteFrame;
-            });
-        } else {
-            LoaderManager.getInstance().loadABRes("texture/page1_start/logo", this.bundleName).then((res) => {
-                const texture = new Texture2D();
-                texture.image = res;
-                const spriteFrame = new SpriteFrame();
-                spriteFrame.texture = texture;
-                logoSprite.spriteFrame = spriteFrame;
-            });
-        }
-        const scene = director.getScene();
-        const canvas = scene.getComponentInChildren(Canvas);
-        const uitransform = canvas.getComponent(UITransform);
-        this._leftSceneX = -uitransform.width / 2 - 80;
-    }
-
-    protected async loadAudio() {
-        this.audioUrls.forEach(url => this.audioMap.set(url, null));
-        super.loadAudio();
-    }
-
-    start() {
-        super.start();
-        this.fishs = [];
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.gameBeforeView.active = false;
-            this.sceneData.runNextGame = this.startGame.bind(this);
-            this.sceneData.runNextGame();
-        } else {
-            this.gameBeforeView.active = true;
-            this.sceneData.runNextGame = this._nextGame.bind(this);
-        }
-    }
-
-    startGame(win: number = 1) {
-        this.customsSendDataState = false;
-        this._clearBoo = false;
-        this.startFishMovement();
-        this._startTime = TimeUtil.getNow();
-        this.gameBeforeView.active = false;
-        this.gameStartView.active = true;
-        this.wangCount = 0;
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.curHard = Global.userData.curSkewerGameData.difficulty;
-            this.hardIndex = this.hards.indexOf(this.curHard);
-            switch (this.curHard) {
-                case 1:
-                    this.wangMaxCount = 4;
-                    break;
-                case 2:
-                    this.wangMaxCount = 4;
-                    break;
-                case 3:
-                    this.wangMaxCount = 4;
-                    break;
-            }
-        } else {
-            if (win) {
-                this.curHard = this.hards[this.hardIndex];
-            } else {
-                if (this.hardIndex == this.hards.length - 1) {
-                    this.hardIndex = 0;
-                } else {
-                    this.hardIndex++;
-                }
-                this.curHard = this.hards[this.hardIndex];
-            }
-        }
-        this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
-        this.timeInit();
-        this.createFish();
-    }
-
-    onEnable(): void {
-        super.onEnable();
-    }
-
-    onDisable() {
-        super.onDisable();
-        EventManager.getInstance().disableContext(this);
     }
 
 
@@ -736,25 +839,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.startTime(this.timer);
     }
 
-    onTimerEnd() {
-        super.onTimerEnd();
-        if (this.wangCount !== this.wangMaxCount) {
-            if (this.sceneData.gameType == GameType.SKEWERS) {
-                //上报数据
-                this._requestSkewersGameComplete();
-            } else {
-                this._requestGameCenterComplete();
-                this.gameFailView.active = true;
-                this.updateSuccessPopupStar(this.curHard);
-            }
-        }
-    }
-
-    public resumeTime() {
-        this._clearBoo = false;
-        super.resumeTime();
-    }
-
     rePlayGame() {
         this.customsSendDataState = true;
         this.clearGameView();
@@ -940,28 +1024,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
-
-    failCompleteHandler() {
-        super.failCompleteHanlder(this);
-    }
-
-
-
-    goonHandler() {
-        this.node.active = false;
-        super.goonHandler(this);
-    }
-
-    nextHandler() {
-        super.nextHandler(this);
-    }
-
-
-    public exitCallBack(context: any): void {
-        super.exitCallBack(context);
-    }
-
-
     private _startTime: number = 0
     private _endTime: number = 0;
 
@@ -989,35 +1051,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         });
     }
 
-
-    private _clearBoo = false;
-    public clearGameView() {
-        this._clearBoo = true;
-        if (this._wangTween) {
-            this._wangTween.stop();
-            this._wangTween = null;
-        }
-        AudioManager.getInstance().stop();
-        Tween.stopAll();
-        EventManager.getInstance().off(Fish.FishClick, this);
-
-        // this.resetQuestions();
-        if (this.fishs) {
-            let len = this.fishs.length;
-            for (let i: number = 0; i < len; i++) {
-                let fish = this.fishs[i];
-                if (fish) {
-                    if (fish.curTween) {
-                        fish.curTween.stop();
-                        fish.curTween = null;
-                    }
-                    this.fishParentNode.removeChild(fish.getFishNode());
-                    fish = null;
-                }
-            }
-            this.fishs = [];
-        }
-    }
     private _state: number = 0;
     // ui挂载得点击事件
     private nextGame(event, data) {
@@ -1072,32 +1105,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 self.moveFishes(self._curFish, SHOOT_INTERVAL);
             })
             .start(); // 启动动画
-    }
-
-
-    private _pause = false;
-    /**
-     * 返回应用大厅
-     */
-    public quitGame() {
-        // console.log("返回大厅")
-        this._pause = true;
-        this.pauseTime();
-        this.setGamePause(true);
-        this.fishs.forEach(fish => {
-            fish.curTween.stop();
-            fish.curTween = null;
-        });
-        super.quitGame({ parentNode: this.viewNode, context: this });
-    }
-
-    public resumeCallBack(context) {
-        context.setGamePause(false);
-        context.fishs.forEach(fish => {
-            context.moveFishes(fish);
-        });
-        context._pause = false;
-        super.resumeCallBack(context);
     }
 
 }
