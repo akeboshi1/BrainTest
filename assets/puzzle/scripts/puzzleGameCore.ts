@@ -133,8 +133,11 @@ export default class PuzzleGameCore extends BaseScene<IBaseGameChild> {
             this.selectedLevelIndex = (this.sceneData as any).difficulty - 1;
             this.gameLength = game.timeLimit;
             playIndex = game.seq;
+            this.bgNode.active = false;
+        } else {
+            this.bgNode.active = true;
         }
-
+        this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
         for (let i = 1; i < 21; i++) {
             this.randomPlayIndex.push(i);
         }
@@ -558,9 +561,9 @@ export default class PuzzleGameCore extends BaseScene<IBaseGameChild> {
 
 
 
-    private gamepasslevelCallback() {
+    // private gamepasslevelCallback() {
 
-    }
+    // }
 
     private _timeID;
 

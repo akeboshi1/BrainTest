@@ -15,8 +15,16 @@ interface IBaseGameData<T extends IBaseGameChild> {
     goonHandler();
     failCompleteHandler();
 
+    showStartAlert():void;
+
     exitCallBack():void;
     resumeCallBack():boolean;
+}
+
+export interface IStartConfig{
+    parentNode:Node,
+    start:Function,
+    context:any
 }
 export interface INextConfig {
     nextGame?: Function;
@@ -53,6 +61,7 @@ export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGam
     // 必须实现得方法
     abstract refreshData(data: T): void;
 
+    abstract showStartAlert(config?:IStartConfig):void;
     abstract runNextGame(): void;
     abstract quitGame(config?: IQuitGameConfig): void;
 

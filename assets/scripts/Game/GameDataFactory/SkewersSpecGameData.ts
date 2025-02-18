@@ -2,7 +2,7 @@ import { director, Node } from "cc";
 import { EventManager } from "../../Core/Manager/Event/EventManager";
 import { SkewersGameData, SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
 import { SkewersManager } from "../Task/Skewers/SkewersManager";
-import { BaseGameData, GameType, IBaseGameChild, IQuitGameConfig } from "./BaseGameData";
+import { BaseGameData, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig } from "./BaseGameData";
 import { AlertType } from "../UI/Alert/GameAlert";
 
 // 添加类型定义确保desc存在
@@ -54,6 +54,10 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     get scene():any{
         return (director.getScene() as any);
+    }
+
+    showStartAlert(config:IStartConfig){
+        SkewersManager.getInstance().showGameAlert(config.parentNode, AlertType.Init, "开始游戏!", "", 0, 0, config.start, null, config.context);
     }
 
 

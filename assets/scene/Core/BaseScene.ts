@@ -2,7 +2,7 @@ import { assetManager, AudioClip, Component, director } from "cc";
 import { Node } from "cc";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
-import { BaseGameData, IBaseGameChild, IQuitGameConfig } from "../../scripts/Game/GameDataFactory/BaseGameData";
+import { BaseGameData, IBaseGameChild, IQuitGameConfig, IStartConfig } from "../../scripts/Game/GameDataFactory/BaseGameData";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { UIManager } from "../../scripts/Core/Manager/UI/UIManager";
 import { GenerateReport } from "../../scripts/Game/UI/PersonalCenter/GenerateReport";
@@ -56,6 +56,11 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         }
     }
 
+    // ========== 显示游戏开始提示 ==========
+    public showStartAlert(config:IStartConfig) {
+        if (this.sceneData) this.sceneData.showStartAlert(config);
+    }
+
     // ========== 游戏退出 ==========
     public quitGame(config: IQuitGameConfig) {
         this.pauseTime();
@@ -90,7 +95,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     //  ========== 退出游戏回调 ==========
     public exitCallBack(context: any) {
         if (context.clearGameView == null) {
-            if(context.curView)context.curView.clearGameView();
+            if (context.curView) context.curView.clearGameView();
         } else {
             context.clearGameView();
         }
@@ -131,7 +136,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
      */
     failCompleteHanlder(context) {
         if (context.pauseTime == null) {
-            if(context.curView)context.curView.pauseTime();
+            if (context.curView) context.curView.pauseTime();
         } else {
             context.pauseTime();
         }
@@ -146,7 +151,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
      */
     goonHandler(context) {
         if (context.clearGameView == null) {
-            if(context.curView)context.curView.clearGameView();
+            if (context.curView) context.curView.clearGameView();
         } else {
             context.clearGameView();
         }
@@ -167,7 +172,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
      * 请求游戏完成数据返回
      */
     requestGameCompleteCallBack() {
-       
+
     }
 
     // ========= 清理场景 ===========
