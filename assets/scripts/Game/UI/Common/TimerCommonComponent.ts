@@ -49,19 +49,27 @@ export class TimerCommonComponent extends Component {
     public startTimer(duration: number = this.duration) {
         this.duration = duration;
         this.startTime = Date.now();
+        this.elapsedTime = 0;
         this.isRunning = true;
     }
 
+
+    private _pauseTime:number;
+    private elapsedTime: number = 0;
     // 暂停计时的方法
     public pauseTimer() {
+        this._pauseTime = Date.now();
+        this.elapsedTime += (this._pauseTime - this.startTime); // 记录已过时间
         this.isRunning = false;
     }
 
     // 暂停计时的方法
     public resumeTimer() {
         if (!this.isRunning) {
-            this.startTime = Date.now() - ((Date.now() - this.startTime) % 1000);
+            this.startTime = Date.now()-this.elapsedTime;
             this.isRunning = true;
+            this._pauseTime = 0;
+            this.elapsedTime = 0;
         }
     }
 

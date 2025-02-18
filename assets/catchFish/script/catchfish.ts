@@ -27,6 +27,7 @@ import { CreateQuestion } from "db://assets/catchFish/script/createQuestion";
 import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
 import { BaseScene } from '../../scene/Core/BaseScene';
 import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
+import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
 
 const { ccclass, property } = _decorator;
 
@@ -107,8 +108,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private hasWangClick: boolean = false;
 
-    private audioUrls = ["music/fishCatch", "music/win"];
-
     private _leftSceneX: number = -1;
 
     private isGuide: boolean = false;
@@ -134,7 +133,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // ====================== 继承basescene ===================
     onLoad() {
-        this.bundleName = "catchFish";
+        this.audioUrls = ["music/fishCatch", "music/win"];
+        this.bundleName = BundleName.CATCHFISH;
         this.mask.scale = v3(0, 1, 1);
         tween(this.mask)
             .to(0.4, { scale: v3(1, 1, 1) }, { easing: 'quadOut' })
@@ -211,7 +211,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     quitGame() {
         // console.log("返回大厅")
         this._pause = true;
-        this.pauseTime();
+        // this.pauseTime();
         this.setGamePause(true);
         this.fishs.forEach(fish => {
             fish.curTween.stop();
@@ -248,12 +248,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         super.resumeTime();
     }
 
-
-
-    protected async loadAudio() {
-        this.audioUrls.forEach(url => this.audioMap.set(url, null));
-        super.loadAudio();
-    }
 
     public clearGameView() {
         super.clearGameView();

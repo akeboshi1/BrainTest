@@ -17,6 +17,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     protected curView: BaseScene<IBaseGameChild> = null;
 
     protected audioMap: Map<string, AudioClip> = new Map();
+    protected audioUrls = ["music/fishCatch", "music/win"];
 
     // ========== component生命周期 ==========
     start() {
@@ -38,6 +39,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
             DebugLog.instance.error("bundle is not exist! ---- bundle name:" + this.bundleName);
             return;
         }
+        this.audioUrls.forEach(url => this.audioMap.set(url, null));
         for (const audioUrl of this.audioMap.keys()) {
             try {
                 const audioRes = await new Promise<AudioClip>((resolve, reject) => {
@@ -56,6 +58,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // ========== 游戏退出 ==========
     public quitGame(config: IQuitGameConfig) {
+        this.pauseTime();
         if (config.context.sceneData) config.context.sceneData.quitGame(config);
     }
 

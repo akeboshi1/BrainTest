@@ -32,7 +32,6 @@ import { FindingGuide } from "db://assets/scripts/Core/Manager/Guide/game/Findin
 import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { GameType } from "db://assets/scripts/Game/GameDataFactory/BaseGameData";
-import { TimerCommonComponent } from "db://assets/scripts/Game/UI/Common/TimerCommonComponent";
 import { Game } from "../../Scene/Game";
 
 const { ccclass, property } = _decorator;

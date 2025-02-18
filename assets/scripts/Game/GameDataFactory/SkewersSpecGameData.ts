@@ -219,9 +219,9 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
     }
 
     // ========= 继续下一局游戏 =========
-    goonHandler(context?: any): void {
+    goonHandler(context?: any,changeScene:boolean = true): void {
         if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().runNextGame();
+            SkewersManager.getInstance().runNextGame(changeScene);
         } else {
             SkewersManager.getInstance().exitCallBack();
         }
