@@ -83,8 +83,6 @@ export class Main extends Component {
     private showSprite: Sprite;
 
     private currentCard: Node;
-    private buttonLableText: Label;
-
 
     private cardTheme: string;
     private cardList: CardItem[];
@@ -221,7 +219,7 @@ export class Main extends Component {
                 return;
             }
             this.showSpriteAnimation("texture/right",()=>{});
-            this.playAudio("music/success");
+            this.playAudio("music/success",true);
         }
 
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl !== isBackedCards[1].imgUrl) {
@@ -241,7 +239,7 @@ export class Main extends Component {
                     this.cardList[card.index].isBacked = false;
                 })
             });
-            this.playAudio("music/fail");
+            this.playAudio("music/fail",true);
         }
 
         DebugLog.instance.log(index, this.currentCard);
@@ -478,7 +476,7 @@ export class Main extends Component {
 
         this.previewCard();
 
-        this.playAudio("music/bgMusic");
+        this.playAudio("music/bgMusic",false,true);
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
