@@ -15,6 +15,9 @@ export class CardCtrl extends Component {
     @property(Node)
     cardBack: Node;
 
+    @property(Label)
+    punctuation: Label;
+
     @property(AnimationComponent)
     anim: AnimationComponent;
 
@@ -31,6 +34,8 @@ export class CardCtrl extends Component {
 
     setLabel(v: string) {
         this.label.string = v;
+        this.punctuation.node.active = false;
+        this.showNode.active = true;
     }
 
     setid(id: number) {
@@ -71,6 +76,12 @@ export class CardCtrl extends Component {
         this.cardBack.active = true;
         this.cardBack.setScale(1, 1);
         this.cardBack.setPosition(0, 0);
+    }
+
+    setPunctuation(v: string) {
+        this.punctuation.string = v;
+        this.punctuation.node.active = true;
+        this.showNode.active = false;
     }
 }
 
