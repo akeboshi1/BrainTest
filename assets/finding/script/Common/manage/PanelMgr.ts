@@ -32,7 +32,10 @@ export default class PanelMgr extends Component {
 
     onLoad() {
         PanelMgr.INS = this;
-        Emit.instance().emit(EventCode.PanelMgrInitOK)
+    }
+
+    start(){
+        Emit.instance().emit(EventCode.PanelMgrInitOK);
     }
 
 

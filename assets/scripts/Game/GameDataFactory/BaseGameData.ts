@@ -34,7 +34,13 @@ export enum GameType{
 
 
 export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGameData<T> {
-    public scene:BaseScene<T>;
+    private _scene: BaseScene<T>;
+    public get scene(): BaseScene<T> {
+        return this._scene;
+    }
+    public set scene(value: BaseScene<T>) {
+        this._scene = value;
+    }
     private _hasGuide: boolean = false;
     public get hasGuide(): boolean {
         return this._hasGuide;

@@ -1,4 +1,4 @@
-import { Node } from "cc";
+import { director, Node } from "cc";
 import { EventManager } from "../../Core/Manager/Event/EventManager";
 import { SkewersGameData, SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
 import { SkewersManager } from "../Task/Skewers/SkewersManager";
@@ -52,6 +52,10 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         return SkewersManager.getInstance().curGame.difficulty;
     }
 
+    get scene():any{
+        return (director.getScene() as any);
+    }
+
 
     refreshData(data: ISkewersSpecific): void {
         // this.currentChild = data;
@@ -89,7 +93,6 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-
         const { parentNode, trainID, context } = config;
         const trainData = SkewersManager.getInstance().getTrainData(trainID);
         trainData.length
@@ -203,7 +206,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
             alertType === AlertType.Sucess_Small ?
                 context.nextHandler : context.exitCallBack,
             alertType === AlertType.Sucess_Small ?
-                context.exitCallBack : context.remoteClick,
+                context.exitCallBack : context.remoteHandler,
             context
         );
 

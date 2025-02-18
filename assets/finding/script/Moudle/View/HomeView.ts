@@ -5,12 +5,12 @@ import GameInfoView from "./GameInfoView";
 import LoadMgr from "../../Common/manage/LoadMgr";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
-import {_decorator, Node, Sprite, SpriteFrame, Texture2D} from "cc";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {GameCenterManager} from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import {_decorator, director, Node, Sprite, SpriteFrame, Texture2D} from "cc";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
+import { GameType } from "db://assets/scripts/Game/GameDataFactory/BaseGameData";
+import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -30,9 +30,10 @@ export default class HomeView extends LayerPanel {
 
     private beClick: boolean = false;
 
-    private bundleName:string = "finding";
+    protected bundleName:string = "finding";
 
     initUI():Promise<void> {
+        this.sceneData = (director.getScene() as unknown as {sceneData}).sceneData;
         return new Promise(resolve => {
             PanelMgr.INS.openPanel({
                 panel: GameInfoView,
@@ -42,7 +43,7 @@ export default class HomeView extends LayerPanel {
                 this.pictureBGNode = this.getNode("bg");
                 this.logoNode = this.getNode("logo");
                 let logoSprite = this.logoNode.getComponent(Sprite);
-                if(Global.isSkewersGame){
+                if(this.sceneData.gameType == GameType.SKEWERS){
                     LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame)=>{
                         logoSprite.spriteFrame = spiteFrame;
                     });
@@ -81,7 +82,7 @@ export default class HomeView extends LayerPanel {
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
         }else{
-            checkPoint = Global.isSkewersGame?this.randomSkewerGame():CacheMgr.checkpoint==0?CacheMgr.checkpoint = GameCenterManager.getInstance().currentGame.level:CacheMgr.checkpoint;
+            checkPoint = this.sceneData.gameType == GameType.SKEWERS?this.randomSkewerGame():CacheMgr.checkpoint==0?CacheMgr.checkpoint = (this.sceneData as any).level:CacheMgr.checkpoint;
         }
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
@@ -119,7 +120,7 @@ export default class HomeView extends LayerPanel {
         // })
     }
 
-    private nextHandler(){
+    nextHandler(){
         if (this.beClick) return;
         this.beClick = true;
         this.way2();

@@ -408,7 +408,7 @@ export class SkewersManager {
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
             (scene as any).sceneData = SkewersManager.getInstance().skewersSpecData;
-            (scene as any).sceneData.scene = scene as any;
+            // (scene as any).sceneData.scene = scene as any;
         });
     }
 

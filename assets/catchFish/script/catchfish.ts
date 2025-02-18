@@ -724,6 +724,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     self._curFish = fish;
                                     GuideManager.getInstance().start(CatchFishGuide.NAME, { root: this.node, fish: fish, wang: self.wangs });
                                     // 这里暂停tween
+
+
+
+
                                 }
                             }
                         }
@@ -1028,7 +1032,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._endTime = TimeUtil.getNow();
         let complete = this.wangCount / this.wangMaxCount;
         let duration = (this._endTime - this._startTime) / 1000;
-        this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration, goonHandler: this.nextHandler, });
+        this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration});
     }
 
     private _requestGameCenterComplete() {

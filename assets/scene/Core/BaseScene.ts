@@ -2,7 +2,7 @@ import { assetManager, AudioClip, Component, director } from "cc";
 import { Node } from "cc";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
-import {BaseGameData, IBaseGameChild, IQuitGameConfig} from "../../scripts/Game/GameDataFactory/BaseGameData";
+import { BaseGameData, IBaseGameChild, IQuitGameConfig } from "../../scripts/Game/GameDataFactory/BaseGameData";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { UIManager } from "../../scripts/Core/Manager/UI/UIManager";
 import { GenerateReport } from "../../scripts/Game/UI/PersonalCenter/GenerateReport";
@@ -14,19 +14,20 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     viewNode: Node;
     timerComponent: TimerCommonComponent;
     protected bundleName: string = '';
+    protected curView: BaseScene<IBaseGameChild> = null;
 
     protected audioMap: Map<string, AudioClip> = new Map();
 
     // ========== component生命周期 ==========
-    start(){
-        this.sceneData = (director.getScene() as unknown as {sceneData}).sceneData;
+    start() {
+        this.sceneData = (director.getScene() as unknown as { sceneData }).sceneData;
     }
 
-    onEnable(){
+    onEnable() {
         if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
 
-    onDisable(){
+    onDisable() {
         if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
     }
 
@@ -44,7 +45,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
                         err ? reject(err) : resolve(data);
                     });
                 });
-                if(audioRes) {
+                if (audioRes) {
                     this.audioMap.set(audioUrl, audioRes);
                 }
             } catch (err) {
@@ -54,28 +55,28 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     // ========== 游戏退出 ==========
-    public quitGame(config:IQuitGameConfig) {
+    public quitGame(config: IQuitGameConfig) {
         if (config.context.sceneData) config.context.sceneData.quitGame(config);
     }
 
     // ========== 开始倒计时 ==========
-    public startTime(time:number) {
-        this.timerComponent.startTimer(time);
+    public startTime(time: number) {
+        if (this.timerComponent) this.timerComponent.startTimer(time);
     }
 
     // ========== 重置倒计时 ==========
     public resetTime() {
-        this.timerComponent.resetTimer();
+        if (this.timerComponent) this.timerComponent.resetTimer();
     }
 
     // ========== 暂停倒计时 ==========
     public pauseTime() {
-        this.timerComponent.pauseTimer();
+        if (this.timerComponent) this.timerComponent.pauseTimer();
     }
 
     // ========== 恢复倒计时 ==========
     public resumeTime() {
-        this.timerComponent.resumeTimer();
+        if (this.timerComponent) this.timerComponent.resumeTimer();
     }
 
     // ========== 倒计时结束 ==========
@@ -85,14 +86,18 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     //  ========== 退出游戏回调 ==========
     public exitCallBack(context: any) {
-        context.clearGameView();
+        if (context.clearGameView == null) {
+            if(context.curView)context.curView.clearGameView();
+        } else {
+            context.clearGameView();
+        }
         if (this.sceneData) this.sceneData.exitCallBack();
     }
 
     // ========== 继续游戏回调 ==========
     public resumeCallBack(context?: any) {
         if (context.sceneData) {
-            if(!context.sceneData.resumeCallBack()){
+            if (!context.sceneData.resumeCallBack()) {
                 return;
             }
         }
@@ -100,55 +105,70 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     // =========== 上报数据 ============
-    public requestGameComplete(config:any){
-       if(this.sceneData){
-        this.sceneData.requestGameComplete(config);
-       }
+    public requestGameComplete(config: any) {
+        if (this.sceneData) {
+            this.sceneData.requestGameComplete(config);
+        }
     }
 
     /**
      * 下一大关
      * @param context 
      */
-    nextHandler(context?:any){
-       context.pauseTime();
-       if(context.sceneData){
-        context.sceneData.nextHandler(context);
-       }
+    nextHandler(context?: any) {
+        context.pauseTime();
+        if (context.sceneData) {
+            context.sceneData.nextHandler(context);
+        }
     }
 
     /**
      * 游戏失败
      * @param context 
      */
-    failCompleteHanlder(context){
-      context.pauseTime();
-      if(context.sceneData){
-        context.sceneData.failCompleteHandler(context);
-      }
+    failCompleteHanlder(context) {
+        if (context.pauseTime == null) {
+            if(context.curView)context.curView.pauseTime();
+        } else {
+            context.pauseTime();
+        }
+        if (context.sceneData) {
+            context.sceneData.failCompleteHandler(context);
+        }
     }
 
     /**
      * 继续
      * @param context 
      */
-    goonHandler(context){
-       context.clearGameView();
-       if(context.sceneData){
-        context.sceneData.goonHandler(context);
-       }
+    goonHandler(context) {
+        if (context.clearGameView == null) {
+            if(context.curView)context.curView.clearGameView();
+        } else {
+            context.clearGameView();
+        }
+        if (context.sceneData) {
+            context.sceneData.goonHandler(context);
+        }
     }
 
     /**
      * 调用串烧游戏外部逻辑
      */
-    remoteHandler(){
-      this.exitCallBack(this);
-      UIManager.getInstance().showPanel(GenerateReport.NAME);
+    remoteHandler() {
+        this.exitCallBack(this);
+        UIManager.getInstance().showPanel(GenerateReport.NAME);
+    }
+
+    /**
+     * 请求游戏完成数据返回
+     */
+    requestGameCompleteCallBack() {
+       
     }
 
     // ========= 清理场景 ===========
-    public clearGameView(){
+    public clearGameView() {
         AudioManager.getInstance().stop();
     }
 
