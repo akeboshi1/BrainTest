@@ -9,6 +9,7 @@ export class Global {
     static remote_bundle:boolean = false;
     static remote_url:string = "";
 
+    
 
     static userData:UserData;
 

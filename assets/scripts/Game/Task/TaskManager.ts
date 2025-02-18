@@ -47,6 +47,8 @@ export class TaskManager {
     private _taskDic: Map<number, TaskData>;
 
     private _taskList: TaskData[];
+
+    private _curTaskId: number = 0;
     // 通知
     private notification_start_notifications: string = "notification.get_notifications";
     private _notificationList: NotificationData[];
@@ -58,6 +60,12 @@ export class TaskManager {
     }
 
     constructor() {
+    }
+    get getCurTaskId():number{
+        return this._curTaskId;
+    }
+    public setCurTaskId(id: number): void {
+        this._curTaskId = id;
     }
 
     get taskDic() {
@@ -222,9 +230,6 @@ export class TaskManager {
     private backToSkewersGameCenter(){
         SceneManager.getInstance().backToSkewersGameCenter();
     }
-
-
-
 
     private requestStartTaskCallback(data: SocketData, context: any) {
         let status = data.status;

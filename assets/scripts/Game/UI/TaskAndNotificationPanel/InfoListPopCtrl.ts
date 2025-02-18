@@ -1,16 +1,18 @@
 import { _decorator, Node, Prefab, instantiate, Label, Button, UITransform, tween, Vec3 } from 'cc';
-import { EventManager } from '../../Core/Manager/Event/EventManager';
-import { TaskManager } from '../Task/TaskManager';
-import { SkewersManager } from '../Task/Skewers/SkewersManager';
+
+
 import { SceneManager } from "db://assets/scripts/Core/Manager/Scene/SceneManager";
 import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
-import { BasePanel, PanelState } from '../../Core/UI/BasePanel';
-import { LayerUtil } from '../../Core/Util/LayerUtil';
-import { UIManager } from '../../Core/Manager/UI/UIManager';
-const { ccclass, property } = _decorator;
+import { EventManager } from '../../../Core/Manager/Event/EventManager';
+import { TaskManager } from '../../Task/TaskManager';
+import { SkewersManager } from '../../Task/Skewers/SkewersManager';
+import { UIManager } from '../../../Core/Manager/UI/UIManager';
+import { BasePanel } from '../../../Core/UI/BasePanel';
 
+const { ccclass, property } = _decorator;
 @ccclass('InfoListPopCtrl')
 export class InfoListPopCtrl extends BasePanel {
+   
     public static NAME: string = "InfoListPopCtrl";
     @property(Prefab)
     taskAlertPrefab: Prefab = null;
@@ -45,10 +47,6 @@ export class InfoListPopCtrl extends BasePanel {
             this.updateInfoList(infodataCache[i]);
         }
         TaskManager.getInstance().cleanInfoDataCache();
-    }
-
-    update(deltaTime: number) {
-
     }
 
     private gotaskListCallBack() {
@@ -86,7 +84,6 @@ export class InfoListPopCtrl extends BasePanel {
     }
 
     hideInfoAlert(infoItem: Node) {
-        // let content: Node = this.node.getChildByName('ScrollView').getChildByName('view').getChildByName('content');
         infoItem.removeFromParent();
         if (this.parentNode.children.length == 0) {
             UIManager.getInstance().hidePanel(InfoListPopCtrl.NAME);
