@@ -9,6 +9,10 @@
       ],
       "fixed": [
         1
+      ],
+      "punctuationOptions": [
+        { "index": 1, "text": "," },
+        { "index": 3, "text": "!" }
       ]
     },
     {
@@ -372,6 +376,16 @@
       "fixed": [
         0,
         3
+      ],
+      "punctuationOptions": [
+        {
+          "index": 2,
+          "text": ","
+        },
+        {
+          "index": 5,
+          "text": "!"
+        }
       ]
     },
     {
