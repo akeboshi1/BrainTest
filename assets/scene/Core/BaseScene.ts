@@ -17,7 +17,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     protected curView: BaseScene<IBaseGameChild> = null;
 
     protected audioMap: Map<string, AudioClip> = new Map();
-    protected audioUrls = ["music/fishCatch", "music/win"];
+    protected audioUrls = [];
 
     // ========== component生命周期 ==========
     start() {

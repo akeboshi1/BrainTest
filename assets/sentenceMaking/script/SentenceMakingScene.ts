@@ -15,6 +15,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     
     // @property(Node)
     // viewNode: Node = null; 
+
+    private audioUrl:string = 'card';
     
     @property(Prefab)
     cardModel: Prefab = null;
@@ -78,6 +80,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private touchResult: number = 0;
     private touchIndex: number = 0;
     private currentQuestion: SentenceMakingQuestion = null;
+
+
+    onLoad(): void {
+        this.loadAudio().then();
+        this.audioMap.set(this.audioUrl,this.cardAudioClip);
+    }
 
     start() {
         super.start();
@@ -146,8 +154,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             resultRect.width = this.itemWidth;
             this.resultContainerRects.push(resultRect);
         }
-        this.audioMap.set("card",this.cardAudioClip);
     }
+
 
     private showGameTipAlert() {
         let ad: AlertData = new AlertData();
@@ -319,7 +327,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             for (let [key, inst] of this.sourceContainerMap) {
                 tween(inst).delay(this.currentQuestion.sentence.length * moveDuration + key * flipDelay).call(() => {
                     inst.getComponent(CardCtrl).playFlip();
-                    this.playAudio("audio",true);
+                    this.playAudio(this.audioUrl,true);
                     // AudioManager.getInstance().playOneShot(this.cardAudioClip);
                     finishCount++;
                     if (finishCount == this.sourceContainerMap.size) {
@@ -334,7 +342,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         return new Promise<void>((resolve, reject) => {
             node.setPosition(new Vec3(targetPos.x + 1080, targetPos.y, 0));
             tween(node).delay(delay).call(() => {
-                this.playAudio("audio",true);
+                this.playAudio(this.audioUrl,true);
                 // AudioManager.getInstance().playOneShot(this.cardAudioClip);
             }).to(duration, { position: targetPos }).call(() => {
                 resolve();
@@ -444,7 +452,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         const targetPosition2 = this.getPositionByIndex(index1, mp1 == this.resultContainerMap);
 
         const duration = 0.3;
-        this.playAudio("audio",true);
+        this.playAudio(this.audioUrl,true);
         // AudioManager.getInstance().playOneShot(this.cardAudioClip);
         tween(t1).to(duration, { position: targetPosition1 }).call(() => {
         }).start();

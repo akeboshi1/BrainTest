@@ -942,7 +942,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                 this._wangTween.stop();
                                 this._wangTween = null;
                             }
-                            Tween.stopAll();
+                            // Tween.stopAll();
                             EventManager.getInstance().off(Fish.FishClick, this);
 
                             if (this.fishs) {

@@ -32,6 +32,7 @@ export class SentenceMakingModel {
         await this.config.loadConfig();
 
         this._view = view;
+
         if (this._view.sceneData.gameType == GameType.SKEWERS) {
             let count = (this._view.sceneData as any).game.trains.length;
             this.skewerGameQuestionDatas = [];
