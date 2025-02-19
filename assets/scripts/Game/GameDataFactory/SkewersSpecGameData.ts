@@ -238,7 +238,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     // ======== 恢复游戏 ========
     resumeCallBack(): boolean {
-        if (SkewersManager.getInstance().isRunOver) {
+        if (SkewersManager.getInstance().isRunOver()) {
             return false;
         }
         return true;

@@ -54,6 +54,10 @@ export class TimerCommonComponent extends Component {
     }
 
 
+    public getElapsedTime(): number {
+        return Math.ceil((Date.now() - this.startTime) / 1000);
+    }
+
     private _pauseTime:number;
     private elapsedTime: number = 0;
     // 暂停计时的方法

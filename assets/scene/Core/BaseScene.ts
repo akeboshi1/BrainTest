@@ -192,6 +192,15 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         }
     }
 
+    public playWin(){
+        AudioManager.getInstance().playWin();
+    }
+
+    public playFail(){
+        AudioManager.getInstance().playFail();
+    }
+
+
 
 
 
