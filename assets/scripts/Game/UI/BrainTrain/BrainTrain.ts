@@ -8,6 +8,8 @@ import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { TaskManager } from '../../Task/TaskManager';
 import { AlertType } from '../Alert/GameAlert';
+import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+import { BundleName } from '../../../Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
 @ccclass('BrainTrain')
@@ -91,6 +93,13 @@ export class BrainTrain extends BasePanel {
         TaskManager.getInstance().requestStartTask(this.curTaskId);
     }
     backToCenteter() {
+        let taskView = UIManager.getInstance().getActivePanel(TaskAndNotificationPanelCtrl.NAME);
+        if (!taskView) {
+            if (!UIManager.getInstance().getPanel(TaskAndNotificationPanelCtrl.NAME)) {
+                UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+            }
+            UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
+        }
         UIManager.getInstance().hidePanel(BrainTrain.NAME);
     }
 }

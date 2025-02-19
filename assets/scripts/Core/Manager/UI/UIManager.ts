@@ -185,6 +185,10 @@ export class UIManager extends BaseManager {
         }
     }
 
+    getActivePanel(name:string){
+        return this.activePanelMap.get(name);
+    }
+
     openScreenLocker() {
         this.screenLockerNum++;
         if (this.screenLockerNode != null) {
