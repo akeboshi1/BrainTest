@@ -68,9 +68,16 @@ export class SentenceMakingModel {
     getCurrentQuestion(): SentenceMakingQuestion {
         let index = this.currentQuestionIndex;
         if (this._view.sceneData.gameType == GameType.SKEWERS) {
+            if (this.skewerGameQuestionDatas[this.currentQuestionIndex] == null) {
+                return null;
+            }
             index = this.skewerGameQuestionDatas[this.currentQuestionIndex].index % this.config.getQuestionsByLevel(this.selectedLevel).length;
         }
         return this.config.getQuestionByLevelAndIndex(this.selectedLevel, index);
+    }
+
+    get isRunOver():boolean{
+        return this.skewerGameQuestionDatas[this.currentQuestionIndex] == null;
     }
 
     goNextQuestion() {

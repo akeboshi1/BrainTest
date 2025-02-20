@@ -324,7 +324,6 @@ export class PuzzleGameCore extends BaseScene<IBaseGameChild> {
 
     public exitCallBack(context) {
         context.pauseTime();
-        AudioManager.getInstance().stop();
         super.exitCallBack(this);
         // if (Global.isSkewersGame) {
         //     SkewersManager.getInstance().exitCallBack();

@@ -1,4 +1,4 @@
-import { _decorator, AnimationComponent, AudioClip, Button,  EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
 import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
@@ -12,12 +12,12 @@ const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
 export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
-    
+
     // @property(Node)
     // viewNode: Node = null; 
 
-    private audioUrl:string = 'card';
-    
+    private audioUrl: string = 'card';
+
     @property(Prefab)
     cardModel: Prefab = null;
 
@@ -84,7 +84,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     onLoad(): void {
         this.loadAudio().then();
-        this.audioMap.set(this.audioUrl,this.cardAudioClip);
+        this.audioMap.set(this.audioUrl, this.cardAudioClip);
     }
 
     start() {
@@ -119,11 +119,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         super.quitGame({ parentNode: this.viewNode, context: this });
     }
 
-    requestSkewersGameComplete(complete:number,duration:number){
-        this.sceneData.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration});
+    requestSkewersGameComplete(complete: number, duration: number) {
+        this.sceneData.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
     }
 
-    requestGameCenterComplete(count:number,level:number,complete:number,duration:number,timelimit:number,difficulty:number){
+    requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number) {
         const curGame = (this.sceneData as any).game;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
@@ -181,6 +181,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
         this.recyleCardModel();
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
+        if (!question) return;
         this.currentQuestion = question;
         await this.initCardsInstance(question);
     }
@@ -327,7 +328,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             for (let [key, inst] of this.sourceContainerMap) {
                 tween(inst).delay(this.currentQuestion.sentence.length * moveDuration + key * flipDelay).call(() => {
                     inst.getComponent(CardCtrl).playFlip();
-                    this.playAudio(this.audioUrl,true);
+                    this.playAudio(this.audioUrl, true);
                     // AudioManager.getInstance().playOneShot(this.cardAudioClip);
                     finishCount++;
                     if (finishCount == this.sourceContainerMap.size) {
@@ -342,7 +343,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         return new Promise<void>((resolve, reject) => {
             node.setPosition(new Vec3(targetPos.x + 1080, targetPos.y, 0));
             tween(node).delay(delay).call(() => {
-                this.playAudio(this.audioUrl,true);
+                this.playAudio(this.audioUrl, true);
                 // AudioManager.getInstance().playOneShot(this.cardAudioClip);
             }).to(duration, { position: targetPos }).call(() => {
                 resolve();
@@ -452,7 +453,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         const targetPosition2 = this.getPositionByIndex(index1, mp1 == this.resultContainerMap);
 
         const duration = 0.3;
-        this.playAudio(this.audioUrl,true);
+        this.playAudio(this.audioUrl, true);
         // AudioManager.getInstance().playOneShot(this.cardAudioClip);
         tween(t1).to(duration, { position: targetPosition1 }).call(() => {
         }).start();
@@ -617,7 +618,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             ad.title = "可惜";
             ad.message = "挑战失败了";
             this.playFail();
-            if (this.sceneData.gameType ==GameType.SKEWERS) {
+            if (this.sceneData.gameType == GameType.SKEWERS) {
                 showAlert = false;
             }
         }
@@ -653,23 +654,23 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
 
 
-    goonHandler(){
+    goonHandler() {
         this.clearGameView();
         if (this.sceneData) {
-            if(this.sceneData.gameType ==  GameType.SKEWERS){
-                (this.sceneData as any).goonHandler(this,false);
-                this.clickNextLeve();
-            }else{
+            if (this.sceneData.gameType == GameType.SKEWERS) {
+                (this.sceneData as any).goonHandler(this, this.model.isRunOver);
+                if(!this.model.isRunOver)this.clickNextLeve();
+            } else {
                 this.sceneData.goonHandler();
             }
         }
     }
 
-    gotoNextGame(){
+    gotoNextGame() {
         this.clearGameView();
         if (this.sceneData) {
-            if(this.sceneData.gameType ==  GameType.SKEWERS){
-                (this.sceneData as any).goonHandler(this,false);
+            if (this.sceneData.gameType == GameType.SKEWERS) {
+                (this.sceneData as any).goonHandler(this, this.model.isRunOver);
             }
         }
     }

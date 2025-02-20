@@ -132,7 +132,7 @@ export class GameAlert extends Component {
                 break;
             case AlertType.Next:
                 this.titleLabel.node.active = true;
-                this.exitBtn.node.active = true;
+                this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
                 this.iconConNode.active = true;
                 this.decLabel.node.active = true;
@@ -143,6 +143,8 @@ export class GameAlert extends Component {
             case AlertType.Sucess_Small:
                 this.titleLabel.node.active = true;
                 this.completeIcon.active = true;
+                this.exitBtn.node.active = false;
+                this.startBtn.node.active = false;
                 this.completeIcon.setScale(new Vec3(3, 3, 3));
                 tween(this.completeIcon)
                     .to(0.9, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
