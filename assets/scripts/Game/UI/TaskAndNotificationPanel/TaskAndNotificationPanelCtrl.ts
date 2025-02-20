@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, Label, ScrollView, ProgressBar, Button, Sprite } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, Label, ScrollView, ProgressBar, Button, Sprite, UI } from 'cc';
 
 import { TaskManager } from '../../Task/TaskManager';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
@@ -11,6 +11,7 @@ import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
 import { BrainTrain } from '../BrainTrain/BrainTrain';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
+import { Global } from '../../../Core/Manager/Config/Global';
 const { ccclass, property } = _decorator;
 
 @ccclass('TaskAndNotificationPanelCtrl')
@@ -172,7 +173,10 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
     }
     openBrainTrain() {
         UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
-        UIManager.getInstance().showPanel(BrainTrain.NAME);
+        UIManager.getInstance().showPanel(BrainTrain.NAME).then(() => {
+            const brainTrain = UIManager.getInstance().getActivePanel(BrainTrain.NAME);
+            Global.prePanel = BrainTrain.NAME;
+        });
     }
 
     tabClick(event, index: number) {

@@ -14,6 +14,7 @@ interface CallBackFunction {
 export enum AlertType {
     Normal,
     Normal1,
+    Sucess_Normal,
     Sucess_Small,
     Sucess_Big,
     Failed,
@@ -111,6 +112,15 @@ export class GameAlert extends Component {
                 this.decLabel.node.active = false;
                 startBtnUITransform.width = 250;
                 break;
+            case AlertType.Sucess_Normal:
+                this.exitBtn.node.active = false;
+                this.startBtn.node.active = true;
+                this.progressBar.node.active = true;
+                this.titleLabel.node.active = true;
+                this.iconConNode.active = false;
+                this.decLabel.node.active = false;
+                startBtnUITransform.width = 500;
+                break;
             case AlertType.Normal:
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
@@ -137,7 +147,7 @@ export class GameAlert extends Component {
                 tween(this.completeIcon)
                     .to(0.9, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
                     .call(() => {
-                        this.exitBtn.node.active = true;
+                        this.exitBtn.node.active = false;
                         this.startBtn.node.active = true;
                     })
                     .start();

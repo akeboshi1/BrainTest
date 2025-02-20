@@ -36,7 +36,9 @@ export class SkewersManager {
 
     public totalCompleteStr: string = '太棒了，恭喜你完成全部训练';
 
-    public singleCompleteStr: string = '太棒了，请继续！'
+    public singleCompleteStr: string = '太棒了，请继续！';
+
+    public normalCompleteStr:string = "太棒了";
 
     public failCompleteStr: string = "真遗憾，请加油";
 

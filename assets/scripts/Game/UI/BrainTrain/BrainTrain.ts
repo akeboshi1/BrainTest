@@ -10,6 +10,7 @@ import { TaskManager } from '../../Task/TaskManager';
 import { AlertType } from '../Alert/GameAlert';
 import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
+import { Global } from '../../../Core/Manager/Config/Global';
 const { ccclass, property } = _decorator;
 
 @ccclass('BrainTrain')
@@ -93,12 +94,12 @@ export class BrainTrain extends BasePanel {
         TaskManager.getInstance().requestStartTask(this.curTaskId);
     }
     backToCenteter() {
-        let taskView = UIManager.getInstance().getActivePanel(TaskAndNotificationPanelCtrl.NAME);
-        if (!taskView) {
-            if (!UIManager.getInstance().getPanel(TaskAndNotificationPanelCtrl.NAME)) {
-                UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+        if (Global.prePanel != "") {
+            let taskView = UIManager.getInstance().getActivePanel(Global.prePanel);
+            if (taskView) {
+                UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
             }
-            UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
+            Global.prePanel = "";
         }
         UIManager.getInstance().hidePanel(BrainTrain.NAME);
     }

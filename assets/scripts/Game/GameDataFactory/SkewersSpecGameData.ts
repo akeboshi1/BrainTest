@@ -107,9 +107,16 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         const alertStrategies = {
             success: {
                 [AlertType.Normal]: {
-                    title: manager.currentSkewersCompleteGameStr,
+                    title: manager.singleCompleteStr,
                     desc: manager.singleBrainScore,
                     handlers: [context.goonHandler, context.exitCallBack],
+                    curCount:0,
+                    maxCount:0
+                },
+                [AlertType.Sucess_Normal]: {
+                    title: manager.normalCompleteStr,
+                    desc: manager.singleBrainScore,
+                    handlers: [context.showNextSuccessHandler, context.exitCallBack],
                     curCount:0,
                     maxCount:0
                 },
@@ -158,8 +165,8 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
                 const isFinalStage = curCount == maxCount;
                 let strategyKey = AlertType.Normal;
                 if(isFinalStage){
-                    strategyKey = manager.isRunOver() == true?
-                    AlertType.Sucess_Big : AlertType.Sucess_Small;
+                    strategyKey = AlertType.Sucess_Normal;
+                    // AlertType.Sucess_Big : AlertType.Sucess_Normal;
                 }
                
                 return {
@@ -217,8 +224,16 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
     }
 
     // ========= 下一类型游戏 =========
+    showNextSuccessHandler(context){
+        const manager = SkewersManager.getInstance();
+        const alertType = manager.isRunOver() ? AlertType.Sucess_Big : AlertType.Sucess_Small;
+        SkewersManager.getInstance().showGameAlert(this.scene.viewNode, alertType, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0,
+        context.nextHandler, context.exitCallBack, context);
+    }
+
+    // ========= 下一类型游戏 =========
     nextHandler(context) {
-        SkewersManager.getInstance().showGameAlert(this.scene.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0,
+        SkewersManager.getInstance().showGameAlert(this.scene.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr,  SkewersManager.getInstance().singleBrainScore, 0, 0,
             context.goonHandler, context.exitCallBack, context);
     }
 
