@@ -136,20 +136,27 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
                 }
             },
             failure: {
-                normal: {
+                [AlertType.Normal]: {
                     title: manager.failCompleteStr,
                     desc: '', // 新增空描述
                     handlers: [context.goonHandler, context.exitCallBack],
                     curCount:0,
                     maxCount:0
                 },
-                complete: {
+                [AlertType.Sucess_Normal]:{
                     title: manager.failCompleteStr,
                     desc: '', // 新增空描述
-                    handlers: [context.failCompleteHandler, context.exitCallBack],
+                    handlers: [context.showNextFailHandler, context.exitCallBack],
                     curCount:0,
                     maxCount:0
                 }
+                // complete: {
+                //     title: manager.failCompleteStr,
+                //     desc: '', // 新增空描述
+                //     handlers: [context.failCompleteHandler, context.exitCallBack],
+                //     curCount:0,
+                //     maxCount:0
+                // }
             }
         };
 
@@ -178,10 +185,13 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
             }
 
             // 其他情况视为失败
-            const isFailComplete = manager.isRunOver();
-            const failureType = isFailComplete ? 'complete' : 'normal';
+            const isFinalStage = curCount == maxCount;
+            let failureType = AlertType.Normal;
+            if(isFinalStage){
+               failureType = AlertType.Sucess_Normal;
+            }
             return {
-                type: AlertType.Normal,
+                type: failureType,
                 ...alertStrategies.failure[failureType]
             };
         };
@@ -223,8 +233,16 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     }
 
-    // ========= 下一类型游戏 =========
+    // ========= 成功后进入下一类型游戏 =========
     showNextSuccessHandler(context){
+        const manager = SkewersManager.getInstance();
+        const alertType = manager.isRunOver() ? AlertType.Sucess_Big : AlertType.Sucess_Small;
+        SkewersManager.getInstance().showGameAlert(this.scene.viewNode, alertType, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0,
+        context.nextHandler, context.exitCallBack, context);
+    }
+
+    // ======== 失败后进入下一类型游戏 =========
+    showNextFailHandler(context){
         const manager = SkewersManager.getInstance();
         const alertType = manager.isRunOver() ? AlertType.Sucess_Big : AlertType.Sucess_Small;
         SkewersManager.getInstance().showGameAlert(this.scene.viewNode, alertType, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0,

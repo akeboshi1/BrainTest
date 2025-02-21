@@ -15,6 +15,7 @@ interface IBaseGameData<T extends IBaseGameChild> {
     goonHandler();
     failCompleteHandler();
     showNextSuccessHandler();
+    showNextFailHandler();
 
     showStartAlert():void;
 
@@ -75,6 +76,7 @@ export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGam
     abstract goonHandler(context?:any):void;
     abstract failCompleteHandler(context?:any):void;
     abstract showNextSuccessHandler(context?:any);
+    abstract showNextFailHandler(context?:any)
 
     abstract exitCallBack():void;
     abstract resumeCallBack(): boolean;

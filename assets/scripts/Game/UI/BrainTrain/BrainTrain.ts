@@ -100,6 +100,7 @@ export class BrainTrain extends BasePanel {
                 UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
             }
             Global.prePanel = "";
+            
         }
         UIManager.getInstance().hidePanel(BrainTrain.NAME);
     }

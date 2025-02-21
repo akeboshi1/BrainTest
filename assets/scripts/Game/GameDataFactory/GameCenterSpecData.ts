@@ -101,7 +101,11 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
     }
 
     showNextSuccessHandler(context?: any) {
-        
+
+    }
+
+    showNextFailHandler(context?: any) {
+
     }
 
 

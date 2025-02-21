@@ -166,6 +166,12 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         }
     }
 
+    showNextFailHandler(){
+        if(this.sceneData){
+            this.sceneData.showNextFailHandler(this);
+        }
+    }
+
     /**
      * 调用串烧游戏外部逻辑
      */
