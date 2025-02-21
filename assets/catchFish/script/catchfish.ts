@@ -23,7 +23,7 @@ import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
 import { CatchFishGuide } from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
 import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import { CreateQuestion } from "db://assets/catchFish/script/createQuestion";
+import {CreateQuestion, FishQuestion} from "db://assets/catchFish/script/createQuestion";
 import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
 import { BaseScene } from '../../scene/Core/BaseScene';
 import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
@@ -189,8 +189,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
     failCompleteHandler() {
         super.failCompleteHanlder(this);
-    }  
-    
+    }
+
     goonHandler() {
         this.node.active = false;
         super.goonHandler(this);
@@ -455,13 +455,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     private selectFish(fish, context) {
-        if (context.hasWangClick) {
-            // DebugLog.instance.log("已经有网飞出来")
-            return;
-        }
-        if (context._curFish) {
-            context._curFish.setSelect(context.unSelectColor, 1);
-        }
+        // if (context.hasWangClick) {
+        //     // DebugLog.instance.log("已经有网飞出来")
+        //     return;
+        // }
+        // if (context._curFish) {
+        //     context._curFish.setSelect(context.unSelectColor, 1);
+        // }
 
         context._curFish = fish;
         // DebugLog.instance.log("选中鱼currentIndex",fish.currentIndex);
@@ -628,6 +628,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         .delay(delay)// 每个对象延迟n秒开始
                         .to(0.5, { position: new Vec3(self._leftSceneX + 1080, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                         .call(() => {
+                            self.hasWangClick = false;
                             fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
                                 {
                                     onUpdate: () => {
@@ -750,6 +751,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .delay(delay)// 每个对象延迟n秒开始
                     .to(0.2, { position: new Vec3(self._leftSceneX + 1080, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                     .call(() => {
+                        self.hasWangClick = false;
                         fish.curTween = tween(fish).to(duration, { position: new Vec3(-800, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
@@ -849,10 +851,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _wangTween;
     wangClick(event, data) {
         // 如果当前鱼不存在|已经点击过了|处于引导状态 则返回
-        if (!this._curFish || this.hasWangClick || this.isGuide) {
-            return;
+        if (this._curFish && !this.hasWangClick && !this.isGuide) {
+            this._wangClick(data);
         }
-        this._wangClick(data);
     }
 
     private _guideIndex = -1;
@@ -875,7 +876,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     this.unSelectWang(i);
                 }
             }
-            this.hasWangClick = false;
+            // this.hasWangClick = false;
             return;
         }
         for (let i = 0; i < len; i++) {
@@ -884,7 +885,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         this.clearWangNubmer();
         if (this._curFish.position.x < this._leftSceneX) {
-            this.hasWangClick = false;
+            // this.hasWangClick = false;
             return;
         }
         this._curFish.curTween.stop();
@@ -928,7 +929,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .call(() => {
                         self._wangTween.stop();
                         self._wangTween = null;
-                        self.hasWangClick = false;
+                        // self.hasWangClick = false;
                         // 移除wangPrefab
                         wang.removeChild(wangPrefab);
                         if (self._clearBoo) return;
@@ -1051,6 +1052,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private nextGame(event, data) {
         let state = Number(data);
         this._state = state;
+        Tween.stopAll();
         if (!state) {
             this.clearGameView();
         }
@@ -1084,7 +1086,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._curFish.curTween = tween(this._curFish)
             .to(0.8, { position: new Vec3(self._leftSceneX - 300, self._curFish.position.y, self._curFish.position.z) }, { easing: "sineOut" })
             .call(() => {
-                self.hasWangClick = false;
+                // self.hasWangClick = false;
                 self.unSelectWang(i);
                 self._curFish.pause = false;
                 if (this.sceneData.gameType != GameType.SKEWERS) {
