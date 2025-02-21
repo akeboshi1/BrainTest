@@ -1,10 +1,10 @@
-import { assetManager, AudioClip, debug } from "cc";
+import { assetManager, AudioClip } from "cc";
 import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
 import { GuessingGameConfig, GuessingQuestion } from "./GuessingGameConfig";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
-import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
-import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
+import { GuessingGameScene } from "./GuessingGameScene";
+import { GameType } from "../../scripts/Game/GameDataFactory/BaseGameData";
 
 export class GuessingGameModel {
     constructor() {
@@ -20,16 +20,18 @@ export class GuessingGameModel {
     private cacheAudioClip: AudioClip = null;
 
     private _curQuestion: GuessingQuestion = null;
-    async init() {
+    private _view: GuessingGameScene;
+    async init(view: GuessingGameScene) {
+        this._view = view;
         if (this.binit) return;
         this.binit = true;
 
         this.config = new GuessingGameConfig();
         await this.config.loadConfig();
-        if (Global.isSkewersGame) {
-            this.currentQuestionIndex = Global.userData.curSkewerGameData.getCurTrainData().level;
+        if (this._view.sceneData.gameType == GameType.SKEWERS) {
+            this.currentQuestionIndex = (this._view.sceneData as any).game.getCurTrainData().level;
         } else {
-            let remoteLevel = Number(GameCenterManager.getInstance().currentGame.level);
+            let remoteLevel = Number((this._view.sceneData as any).game.level);
             this.currentQuestionIndex = remoteLevel == 0 ? this.currentQuestionIndex : remoteLevel;
         }
         this.currentQuestionIndex = this.config.formartQuestionID(this.currentQuestionIndex);
@@ -39,6 +41,10 @@ export class GuessingGameModel {
         AudioManager.getInstance().onAudioEnd(this.onAudioFinished, this);
 
         EventManager.getInstance().emit(GuessingGameEvent.INIT_COMPLETE, {});
+    }
+
+    get isRunOver(): boolean {
+        return this.config.getQuestionByNumber(this.currentQuestionIndex) == null;
     }
 
     private onAudioStart() {
@@ -111,10 +117,10 @@ export class GuessingGameModel {
     }
 
     goNextQuestion() {
-        if (Global.isSkewersGame) {
-            this.currentQuestionIndex = Global.userData.curSkewerGameData.getCurTrainData().level;
+        if (this._view.sceneData.gameType == GameType.SKEWERS) {
+            this.currentQuestionIndex = (this._view.sceneData as any).game.getCurTrainData().level;
         } else {
-            let remoteLevel = Number(GameCenterManager.getInstance().currentGame.level);
+            let remoteLevel = Number((this._view.sceneData as any).game.level);
             this.currentQuestionIndex = remoteLevel == 0 ? this.currentQuestionIndex : remoteLevel;
         }
         this.currentQuestionIndex = this.config.formartQuestionID(this.currentQuestionIndex);

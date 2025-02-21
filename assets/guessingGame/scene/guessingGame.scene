@@ -179,7 +179,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 959.9999999999999,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -1900,7 +1900,7 @@
     "_id": "d4gDTz6c5KWJ0/XrxWRtmk"
   },
   {
-    "__type__": "9d871I1ZXhDW6C3ogVRh1Ps",
+    "__type__": "784f6K086xOKoEdp3SqMGXc",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -1913,7 +1913,7 @@
       "__id__": 47
     },
     "displayType": 2,
-    "_id": "b5x0OIGHlKv400tfKchcvt"
+    "_id": "fdOdgeGrJJ5KiYh2M+InKP"
   },
   {
     "__type__": "cc.UITransform",
@@ -3619,7 +3619,7 @@
     "_id": "e4bU0ADU9BvqZG7tdfSFcY"
   },
   {
-    "__type__": "9d871I1ZXhDW6C3ogVRh1Ps",
+    "__type__": "784f6K086xOKoEdp3SqMGXc",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -3632,7 +3632,7 @@
       "__id__": 92
     },
     "displayType": 2,
-    "_id": "d5RT4TpNhC+5iSrwKupmPc"
+    "_id": "6ar2LE7U9K96y1zuVid5zY"
   },
   {
     "__type__": "cc.Node",
@@ -4015,7 +4015,7 @@
     },
     "component": "",
     "_componentId": "bdbaeq0i4ZBS45jxyzcUbFZ",
-    "handler": "onClickBack",
+    "handler": "quitGame",
     "customEventData": ""
   },
   {
@@ -4831,7 +4831,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1919.9999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
