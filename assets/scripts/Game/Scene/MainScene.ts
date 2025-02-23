@@ -69,6 +69,9 @@ export class MainScene extends Component {
     @property(FrameComponent)
     frame: FrameComponent = null;
 
+    @property(Node)
+    brainTrainView: Node = null;
+
     /**
      * 当前页面
      * @private

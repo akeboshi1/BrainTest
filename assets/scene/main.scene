@@ -229,6 +229,9 @@
     "frame": {
       "__id__": 99
     },
+    "brainTrainView": {
+      "__id__": 72
+    },
     "_id": "52sveUOE9FDqJa2ODEKka6"
   },
   {
@@ -2867,7 +2870,7 @@
         "__id__": 73
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 76
@@ -3461,7 +3464,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -119,
+      "y": -357,
       "z": 0
     },
     "_lrot": {
@@ -3734,7 +3737,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1000,
-      "height": 238
+      "height": 476
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4419,7 +4422,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1919.9999999999998
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4458,7 +4461,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 959.9999999999999,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
