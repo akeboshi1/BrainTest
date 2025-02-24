@@ -86,7 +86,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     private currentCard: Node;
     private buttonLableText: Label;
 
-
     private cardTheme: string;
     private cardList: CardItem[];
 
@@ -273,7 +272,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.timerId);
 
         this.playAudio("music/win");
-       
+
         // 非串烧游戏
         if (this.sceneData.gameType !== GameType.SKEWERS) {
             this.successView.active = true;
@@ -374,7 +373,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardView();
         this.gameStartInit();
         this.closeFailView();
-       
+
     }
     playNextCustoms() {
         // let curGame = GameCenterManager.getInstance().currentGame;
@@ -420,7 +419,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.previewCard();
 
-        this.playAudio("music/bgMusic");
+        this.playAudio("music/bgMusic", false, true);
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
@@ -551,7 +550,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     previewCard() {
         this.showAllCard();
         this._startTime = TimeUtil.getNow();
-        if(this._setTimeOutId != -1) {
+        if (this._setTimeOutId != -1) {
             clearTimeout(this._setTimeOutId);
         }
         this._setTimeOutId = setTimeout(() => {
@@ -611,11 +610,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             count: this.calculCardTotalCount(this.hardIndex) / 2,
             level: this.hards[this.hardIndex],
             complete: 1,
-            duration:(this._endTime - this._startTime) / 1000,
+            duration: (this._endTime - this._startTime) / 1000,
             timelimit: this.INIT_TIME,
             difficulty: this.hards[this.hardIndex],
             callback: () => { }
-        } 
+        }
         this.sceneData.requestGameComplete(config)
     }
     onTimerEnd() {

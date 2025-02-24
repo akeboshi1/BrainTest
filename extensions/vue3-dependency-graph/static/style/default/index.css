@@ -1,0 +1,12 @@
+#text {
+    color: var(--color-normal-contrast-weakest);
+    margin: auto;
+    width: 180px;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh !important;
+    margin: 0;
+}

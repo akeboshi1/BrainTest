@@ -7,8 +7,8 @@ import { Global } from "../../../Core/Manager/Config/Global";
 import { MainScene, MainSceneView } from "db://assets/scripts/Game/Scene/MainScene";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import { EventManager } from '../Event/EventManager';
-import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';
 import { BundleName } from '../Load/BundleName';
+import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';
 
 export class SceneManager extends BaseManager {
 
@@ -142,6 +142,10 @@ export class SceneManager extends BaseManager {
             let url = Global.RES_Root + GameSceneConst.Hall;
             SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
                 DebugLog.instance.log('返回串烧游戏大厅');
+                // let node = find("Canvas");
+                // let scriptNode = node.getChildByName("scriptNode");
+                // let mainScene = scriptNode.getComponent("MainScene");
+                // mainScene['setCurrentIndex'](MainSceneView.BrainTrainView);
                 UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
                 UIManager.getInstance().showPanel(BrainTrain.NAME);
                 resolve();

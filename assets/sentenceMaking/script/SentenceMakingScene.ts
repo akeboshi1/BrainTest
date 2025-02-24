@@ -90,7 +90,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         this.viewNode = LayerUtil.getPanelLayer();
-        this.initRects();
         this.model.init(this).then(() => {
             this.showGameTipAlert()
         }).catch((error) => {
@@ -136,7 +135,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         });
     }
 
-    private initRects() {
+    private initRects(question: SentenceMakingQuestion) {
         for (let i = 0; i < (this.lineMaxNum * this.rawMaxNum); i++) {
             let sourceRect = new Rect();
             let resultRect = new Rect();
@@ -154,6 +153,45 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             resultRect.width = this.itemWidth;
             this.resultContainerRects.push(resultRect);
         }
+
+        // 生成resultContainerRects
+        this.resultContainerRects = [];
+        const startY = this.resultOffsetNode.position.y - this.topOffset;
+        let currentX = this.leftOffset;
+        let currentY = startY;
+        let lineItemCount = 0; // 当前行元素计数（标点算0.5）
+        let lineHeight = 0;
+
+        question.sentence.forEach((text, index) => {
+            // 判断是否为标点符号
+            const isPunctuation = question.punctuationOptions.some(p => p.index === index);
+
+            // 计算元素宽度
+            const elementWidth = isPunctuation
+                ? (this.itemWidth * 0.5 - this.paddingX * 2)
+                : this.itemWidth;
+
+            // 检查是否需要换行
+            if (lineItemCount + (isPunctuation ? 0.5 : 1) > this.rawMaxNum) {
+                currentX = this.leftOffset;
+                currentY -= (lineHeight + this.paddingy);
+                lineItemCount = 0;
+                lineHeight = 0;
+            }
+
+            // 创建rect
+            const rect = new Rect();
+            rect.x = this.cardContainer.position.x + currentX;
+            rect.y = this.cardContainer.position.y + currentY - this.itemheight; // Y轴向下为负
+            rect.width = elementWidth;
+            rect.height = this.itemheight;
+            this.resultContainerRects.push(rect);
+
+            // 更新布局参数
+            currentX += elementWidth + this.paddingX;
+            lineItemCount += isPunctuation ? 0.5 : 1;
+            lineHeight = Math.max(lineHeight, this.itemheight);
+        });
     }
 
 
@@ -183,6 +221,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
         if (!question) return;
         this.currentQuestion = question;
+        this.initRects(question);
+
         await this.initCardsInstance(question);
     }
 
@@ -211,14 +251,25 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
 
     private getPositionByIndex(index: number, isResult: boolean = false): Vec3 {
-        const col = index % this.rawMaxNum;
-        const row = Math.floor(index / this.rawMaxNum);
-        const x = this.leftOffset + col * (this.itemWidth + this.paddingX);
-        let y = 0 - this.topOffset - row * (this.itemheight + this.paddingy);
-        if (isResult) {
-            y += this.resultOffsetNode.position.y;
+        if (!isResult) {
+            const col = index % this.rawMaxNum;
+            const row = Math.floor(index / this.rawMaxNum);
+            const x = this.leftOffset + col * (this.itemWidth + this.paddingX);
+            const y = 0 - this.topOffset - row * (this.itemheight + this.paddingy);
+            return new Vec3(x, y, 0);
+        } else {
+            if (index < 0 || index >= this.resultContainerRects.length) {
+                DebugLog.instance.warn(`无效的结果容器索引：${index}`);
+                return Vec3.ZERO;
+            }
+
+            const rect = this.resultContainerRects[index];
+            return new Vec3(
+                rect.x - this.cardContainer.position.x,
+                rect.y + this.itemheight - this.cardContainer.position.y,
+                0
+            );
         }
-        return new Vec3(x, y, 0);
     }
 
     private async initCardsInstance(question: SentenceMakingQuestion) {
@@ -236,8 +287,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             emptyIndexList.push(i);
         }
 
-        const flipDelay = 0.1;
         for (let i = 0; i < sentence.length; i++) {
+            const isPunctuation = question.punctuationOptions.some(p => p.index === i);
             let inst: Node;
             if (this.cardModelInstPool.length > 0) {
                 inst = this.cardModelInstPool.pop();
@@ -250,7 +301,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
             let cardCtrl = inst.getComponent(CardCtrl);
             cardCtrl.setid(i);
-            cardCtrl.setLabel(sentence[i]);
+            if (isPunctuation) {
+                cardCtrl.setPunctuation(sentence[i]);
+            } else {
+                cardCtrl.setLabel(sentence[i]);
+            }
             cardCtrl.setNormal();
 
             const rdduration = Math.floor(Math.random() * durationList.length);
@@ -275,12 +330,23 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
 
             // 去resultContainerEmptyInstance查看是否存在当前index的emptyModel实例，如果没有则创建（并且设置位置），有的话就不动；
-            if (!this.resultContainerEmptyInstance.has(i)) {
+            if (!this.resultContainerEmptyInstance.has(i) && !isPunctuation) {
                 let emptyInst = instantiate(this.emptyModel);
                 emptyInst.getComponent(UITransform).setContentSize(this.itemWidth, this.itemheight);
                 emptyInst.parent = this.emptyContainer;
-                emptyInst.setPosition(this.getPositionByIndex(i));
+
                 this.resultContainerEmptyInstance.set(i, emptyInst);
+            }
+            if (this.resultContainerEmptyInstance.has(i)) {
+                let node = this.resultContainerEmptyInstance.get(i);
+                if (node) {
+                    if (isPunctuation) {
+                        node.removeFromParent();
+                        this.resultContainerEmptyInstance.delete(i);
+                    } else {
+                        node.setPosition(this.getPositionByIndex(i, true));
+                    }
+                }
             }
         }
 
@@ -487,6 +553,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         rect.width = this.itemWidth;
         rect.height = this.itemheight;
 
+        // 打印被检测的矩形
+        DebugLog.instance.log(`开始检测碰撞区域：
+           目标矩形: X=${rect.x.toFixed(1)} Y=${rect.y.toFixed(1)}
+           尺寸: ${rect.width.toFixed(1)}x${rect.height.toFixed(1)}
+           所属卡片: ${target.getComponent(CardCtrl)?.getid()}`);
+
         let maxOverlapArea = 0;
         let overlapCount = 0;
         this.touchResult = 0;
@@ -519,15 +591,13 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 this.touchResult = 2;
                 this.touchIndex = i;
             }
-
-            if (overlapArea > 0) {
-                overlapCount++;
-                if (overlapCount >= 4) {
-                    //减少多余判断
-                    return;
-                }
-            }
         }
+
+        // 在检测结束时打印最终结果
+        DebugLog.instance.log(`碰撞检测结果：
+           最大重叠区域: ${maxOverlapArea.toFixed(1)}
+           目标容器: ${this.touchResult === 1 ? '源容器' : '结果容器'}
+           索引: ${this.touchIndex}`);
     }
 
     private calculateOverlapArea(rect1: Rect, rect2: Rect): number {
@@ -659,7 +729,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (this.sceneData) {
             if (this.sceneData.gameType == GameType.SKEWERS) {
                 (this.sceneData as any).goonHandler(this, this.model.isRunOver);
-                if(!this.model.isRunOver)this.clickNextLeve();
+                if (!this.model.isRunOver) this.clickNextLeve();
             } else {
                 this.sceneData.goonHandler();
             }
