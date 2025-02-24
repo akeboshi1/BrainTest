@@ -132,7 +132,7 @@ export class GameAlert extends Component {
                 break;
             case AlertType.Next:
                 this.titleLabel.node.active = true;
-                this.exitBtn.node.active = false;
+                this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
                 this.iconConNode.active = true;
                 this.decLabel.node.active = true;
@@ -149,7 +149,7 @@ export class GameAlert extends Component {
                 tween(this.completeIcon)
                     .to(0.9, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
                     .call(() => {
-                        this.exitBtn.node.active = false;
+                        //this.exitBtn.node.active = false;
                         this.startBtn.node.active = true;
                     })
                     .start();

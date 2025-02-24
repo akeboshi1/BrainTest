@@ -44,7 +44,8 @@ export class GuessingGameModel {
     }
 
     get isRunOver(): boolean {
-        return this.config.getQuestionByNumber(this.currentQuestionIndex) == null;
+        return (this._view.sceneData as any).game.getCurTrainData() != null;
+        // return this.config.getQuestionByNumber(this.currentQuestionIndex+1) == null;
     }
 
     private onAudioStart() {

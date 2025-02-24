@@ -321,7 +321,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneData) {
             if (this.sceneData.gameType == GameType.SKEWERS) {
-                (this.sceneData as any).goonHandler(this, this.guessingGameModel.isRunOver);
+                (this.sceneData as any).goonHandler(this, false);
                 if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
             } else {
                 this.sceneData.goonHandler();
