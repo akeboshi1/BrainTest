@@ -1,16 +1,7 @@
-import { _decorator, assetManager, Button, Component, Label, Node, Sprite, SpriteFrame, Texture2D, tween, Vec3, AudioClip } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D } from 'cc';
 import { LoaderManager } from "../../scripts/Core/Manager/Load/LoaderManager";
-import { Global } from "../../scripts/Core/Manager/Config/Global";
-import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { SceneManager } from "../../scripts/Core/Manager/Scene/SceneManager";
 import { TimeUtil } from "../../scripts/Core/Util/TimeUtil";
-import { GameCenterManager } from "db://assets/scripts/Game/GameCenter/GameCenterManager";
-import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { AudioManager } from "db://assets/scripts/Core/Manager/Audio/AudioManager";
-import { UIManager } from "db://assets/scripts/Core/Manager/UI/UIManager";
-import { GenerateReport } from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { BaseScene } from '../../scene/Core/BaseScene';
 import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
 import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
@@ -38,6 +29,10 @@ function getRandomNumber(min: number, max: number, exclude: number[] = []) {
 export class Main extends BaseScene<IBaseGameChild> {
 
     // MATCH_ITEM = "game.match_item"
+
+    @property(Node)
+    viewNode: Node;
+
 
     @property(Node)
     successView: Node;
@@ -110,13 +105,11 @@ export class Main extends BaseScene<IBaseGameChild> {
 
 
     protected audioUrls = ["music/fanpai", "music/win", 'music/bgMusic'];
-    // private audioMap: Map<string, AudioClip> = new Map();
-    onEnable(){
-        super.onEnable();
+
+    onLoad(): void {
+        this.loadAudio().then();
     }
-    onDisable(){
-        if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
-    }
+
     start() {
         super.start();
         if (this.sceneData.gameType == GameType.SKEWERS) {
@@ -124,20 +117,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             // this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
         }
 
-        AudioManager.getInstance().onAudioStart(this.onAudioStart, this);
-        AudioManager.getInstance().onAudioEnd(this.onAudioFinished, this);
 
-
-        this.loadAudio().then();
         this.sceneInit();
     }
-    private onAudioStart() {
-        DebugLog.instance.log("Audio Started!!!");
-    }
 
-    private onAudioFinished() {
-        DebugLog.instance.log("Audio Finished!!!");
-    }
 
     sceneInit() {
         this.initCardView();

@@ -8976,6 +8976,9 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "viewNode": {
+      "__id__": 5
+    },
     "successView": {
       "__id__": 104
     },
