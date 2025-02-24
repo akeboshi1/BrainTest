@@ -54,8 +54,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(Node)
     cardPool: Node;
 
-    @property(Label)
-    Timer: Label;
+    // @property(Label)
+    // Timer: Label;
 
     @property(Button)
     nextButton: Button;
@@ -114,6 +114,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     onEnable(){
         super.onEnable();
     }
+    onDisable(){
+        if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
+    }
     start() {
         super.start();
         if (this.sceneData.gameType == GameType.SKEWERS) {
@@ -128,31 +131,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.loadAudio().then();
         this.sceneInit();
     }
-
-    // private async loadAudio() {
-    //     const bundle = assetManager.getBundle(this.bundleName);
-    //     if (!bundle) {
-    //         DebugLog.instance.error("bundle is not exist! ---- bundle name:" + this.bundleName);
-    //         return;
-    //     }
-    //     let self = this;
-    //     let len = this.audioUrls.length;
-    //     for (let i: number = 0; i < len; i++) {
-    //         let audioUrl = this.audioUrls[i];
-    //         const audioRes: AudioClip = await new Promise<AudioClip>((resolve, reject) => {
-    //             bundle.load(audioUrl, AudioClip, (err, data: AudioClip) => {
-    //                 if (err) {
-    //                     DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
-    //                     reject(err);
-    //                 } else {
-    //                     resolve(data);
-    //                 }
-    //             })
-    //         });
-    //         this.audioMap.set(audioUrl, audioRes);
-    //     }
-    // }
-
     private onAudioStart() {
         DebugLog.instance.log("Audio Started!!!");
     }
@@ -160,17 +138,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     private onAudioFinished() {
         DebugLog.instance.log("Audio Finished!!!");
     }
-
-    // private playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
-    //     let audioRes = this.audioMap.get(url);
-    //     if (audioRes != null) {
-    //         if (isShot) {
-    //             AudioManager.getInstance().playOneShot(audioRes);
-    //         } else {
-    //             AudioManager.getInstance().play(audioRes, isLoop);
-    //         }
-    //     }
-    // }
 
     sceneInit() {
         this.initCardView();
@@ -187,9 +154,6 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.successNextButton.node.active = false;
             this.successViewProgressLabel.node.active = false;
         }
-    }
-    gamepasslevelCallback() {
-
     }
     clickCardHandler(event, data) {
         // if (!this.isAbleClick) { return; }
@@ -216,19 +180,6 @@ export class Main extends BaseScene<IBaseGameChild> {
                         sprite.spriteFrame = spriteFrame;
                     })
                 });
-
-
-                // resources.load("texture/card/Card_back_d", (err, image: ImageAsset) => {
-                //     if (err) {
-                //         console.log(err);
-                //         return;
-                //     }
-                //     const spriteFrame = new SpriteFrame();
-                //     const texture = new Texture2D();
-                //     texture.image = image;
-                //     spriteFrame.texture = texture;
-                //     sprite.spriteFrame = spriteFrame;
-                // });
                 this.cardList[card.index].isBacked = false;
 
             })
@@ -335,6 +286,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     currentCustomsSuccess() {
         this.isAbleClick = false;
         this._endTime = TimeUtil.getNow();
+        this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
 
         this.playAudio("music/win");
@@ -358,21 +310,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.bigWin.active = true;
             }
             if (!this.customsSendDataState) {
-                const curGame = (this.sceneData as GameCenterSpecData).game;
-                // const curGame = GameCenterManager.getInstance().currentGame;
-
-                // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
-                //     1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex]);
-                let config = {
-                    count: this.calculCardTotalCount(this.hardIndex) / 2,
-                    level: this.hards[this.hardIndex],
-                    complete: 1,
-                    duration: this.INIT_TIME - this.timer,
-                    timelimit: this.INIT_TIME,
-                    difficulty: this.hards[this.hardIndex],
-                    callback: () => { }
-                }
-                this.sceneData.requestGameComplete(config)
+                this._requestGameCenterComplete();
             }
         } else {
             let obj = this.requestGameResult();
@@ -390,10 +328,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    private remoteClick() {
-        this.exitCallBack(this);
-        UIManager.getInstance().showPanel(GenerateReport.NAME);
-    }
+    // private remoteClick() {
+    //     this.exitCallBack(this);
+    //     UIManager.getInstance().showPanel(GenerateReport.NAME);
+    // }
 
     // private requestSkewersGameComplete(data) {
     //     let trainid = data;
@@ -452,6 +390,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardView();
         this.gameStartInit();
         this.closeFailView();
+       
     }
     playNextCustoms() {
         // let curGame = GameCenterManager.getInstance().currentGame;
@@ -471,6 +410,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerTick();
         this.closeFailView();
         this.previewCard();
+        this.playAudio("music/bgMusic");
     }
 
     closeFailView() {
@@ -627,6 +567,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     previewCard() {
         this.showAllCard();
         this._startTime = TimeUtil.getNow();
+        if(this._setTimeOutId != -1) {
+            clearTimeout(this._setTimeOutId);
+        }
         this._setTimeOutId = setTimeout(() => {
             clearTimeout(this._setTimeOutId);
             this.closeAllCard();
@@ -635,7 +578,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     // 定时器
     timerId: any;
-    timer: number;
+    // timer: number;
 
     INIT_TIME = 90;
 
@@ -677,6 +620,20 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.timerComponent.startTimer(this.INIT_TIME);
     }
+    _requestGameCenterComplete() {
+        const curGame = (this.sceneData as GameCenterSpecData).game;
+        let config = {
+            sessionId: curGame.sessionid,
+            count: this.calculCardTotalCount(this.hardIndex) / 2,
+            level: this.hards[this.hardIndex],
+            complete: 1,
+            duration:(this._endTime - this._startTime) / 1000,
+            timelimit: this.INIT_TIME,
+            difficulty: this.hards[this.hardIndex],
+            callback: () => { }
+        } 
+        this.sceneData.requestGameComplete(config)
+    }
     onTimerEnd() {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
         // clearInterval(this.timerId);
@@ -690,21 +647,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             // SkewersManager.getInstance().requestGameComplete(complete, duration);
         } else {
             if (!this.customsSendDataState) {
-                // const curGame = GameCenterManager.getInstance().currentGame;
-                // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete * this.cardTotalCount / 2, this.hards[this.hardIndex],
-                //     complete, duration, this.INIT_TIME, this.hards[this.hardIndex]);
                 this.customsSendDataState = true;
-
-                let config = {
-                    count: this.calculCardTotalCount(this.hardIndex) / 2,
-                    level: this.hards[this.hardIndex],
-                    complete: 1,
-                    duration: this.INIT_TIME - this.timer,
-                    timelimit: this.INIT_TIME,
-                    difficulty: this.hards[this.hardIndex],
-                    callback: () => { }
-                }
-                this.sceneData.requestGameComplete(config)
+                this._requestGameCenterComplete();
             }
             this.failView.active = true;
             this.failViewProgressLabel.node.active = false;
@@ -735,17 +679,17 @@ export class Main extends BaseScene<IBaseGameChild> {
     //     }
     // }
 
-    restoreTimer() {
-        this.updateTimerLabel();
-        this.timerTick();
-    }
+    // restoreTimer() {
+    //     this.updateTimerLabel();
+    //     this.timerTick();
+    // }
 
-    updateTimerLabel() {
-        const fenzhong = Math.floor(this.timer / 60);
-        const miaozhong = this.timer % 60;
-        const second = miaozhong > 9 ? miaozhong : `0${miaozhong}`
-        this.Timer.string = `0${fenzhong}:${second}`
-    }
+    // updateTimerLabel() {
+    //     const fenzhong = Math.floor(this.timer / 60);
+    //     const miaozhong = this.timer % 60;
+    //     const second = miaozhong > 9 ? miaozhong : `0${miaozhong}`
+    //     this.Timer.string = `0${fenzhong}:${second}`
+    // }
 
 
     reCurrentCustoms() {
