@@ -1,11 +1,6 @@
-import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { LayerUtil } from "../../scripts/Core/Util/LayerUtil";
 import { GameType } from "../../scripts/Game/GameDataFactory/BaseGameData";
-import { AlertType } from "../../scripts/Game/UI/Alert/GameAlert";
 import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
-import { UIManager } from "db://assets/scripts/Core/Manager/UI/UIManager";
-import { GenerateReport } from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { SentenceMakingScene } from "db://assets/sentenceMaking/script/SentenceMakingScene";
 
 export class SentenceMakingModel {

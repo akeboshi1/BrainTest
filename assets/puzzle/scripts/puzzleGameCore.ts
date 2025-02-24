@@ -25,7 +25,7 @@ import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonCo
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGameCore')
-export class PuzzleGameCore extends BaseScene<IBaseGameChild> {
+export class puzzleGameCore extends BaseScene<IBaseGameChild> {
     @property(Node)
     public viewNode: Node = null;
 
