@@ -11,6 +11,11 @@ import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManage
 import { AudioManager } from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 import { UIManager } from "db://assets/scripts/Core/Manager/UI/UIManager";
 import { GenerateReport } from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
+import { BaseScene } from '../../scene/Core/BaseScene';
+import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
+import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
+import { GameCenterSpecData } from '../../scripts/Game/GameDataFactory/GameCenterSpecData';
+import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -28,8 +33,9 @@ function getRandomNumber(min: number, max: number, exclude: number[] = []) {
     } while (exclude.indexOf(num) !== -1);
     return num;
 }
+
 @ccclass('Main')
-export class Main extends Component {
+export class Main extends BaseScene<IBaseGameChild> {
 
     // MATCH_ITEM = "game.match_item"
 
@@ -48,8 +54,8 @@ export class Main extends Component {
     @property(Node)
     cardPool: Node;
 
-    @property(Label)
-    Timer: Label;
+    // @property(Label)
+    // Timer: Label;
 
     @property(Button)
     nextButton: Button;
@@ -79,6 +85,9 @@ export class Main extends Component {
     @property(Label)
     titleLabel: Label;
 
+    @property(TimerCommonComponent)
+    timerComponent: TimerCommonComponent;
+
     private currentCard: Node;
     private buttonLableText: Label;
 
@@ -97,48 +106,31 @@ export class Main extends Component {
 
     private isAbleClick: boolean = false;
 
-    private bundleName: string = 'fanpai';
+    protected bundleName: string = BundleName.FANPAI;
 
 
-    private audioUrls = ["music/fanpai", "music/win", 'music/bgMusic'];
-    private audioMap: Map<string, AudioClip> = new Map();
+    protected audioUrls = ["music/fanpai", "music/win", 'music/bgMusic'];
+    // private audioMap: Map<string, AudioClip> = new Map();
+    onEnable(){
+        super.onEnable();
+    }
+    onDisable(){
+        if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
+    }
     start() {
-        if (Global.isSkewersGame) {
-            this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
+        super.start();
+        if (this.sceneData.gameType == GameType.SKEWERS) {
+            this.hardIndex = (this.sceneData as any).difficulty - 1;
+            // this.hardIndex = Global.userData.curSkewerGameData.difficulty - 1;
         }
 
         AudioManager.getInstance().onAudioStart(this.onAudioStart, this);
         AudioManager.getInstance().onAudioEnd(this.onAudioFinished, this);
 
 
-        this.loadAudio();
+        this.loadAudio().then();
         this.sceneInit();
     }
-
-    private async loadAudio() {
-        const bundle = assetManager.getBundle(this.bundleName);
-        if (!bundle) {
-            DebugLog.instance.error("bundle is not exist! ---- bundle name:" + this.bundleName);
-            return;
-        }
-        let self = this;
-        let len = this.audioUrls.length;
-        for (let i: number = 0; i < len; i++) {
-            let audioUrl = this.audioUrls[i];
-            const audioRes: AudioClip = await new Promise<AudioClip>((resolve, reject) => {
-                bundle.load(audioUrl, AudioClip, (err, data: AudioClip) => {
-                    if (err) {
-                        DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                })
-            });
-            this.audioMap.set(audioUrl, audioRes);
-        }
-    }
-
     private onAudioStart() {
         DebugLog.instance.log("Audio Started!!!");
     }
@@ -147,26 +139,13 @@ export class Main extends Component {
         DebugLog.instance.log("Audio Finished!!!");
     }
 
-    private playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
-        let audioRes = this.audioMap.get(url);
-        if (audioRes != null) {
-            if (isShot) {
-                AudioManager.getInstance().playOneShot(audioRes);
-            } else {
-                AudioManager.getInstance().play(audioRes, isLoop);
-            }
-        }
-    }
-
     sceneInit() {
-
-
         this.initCardView();
         this.timerInit();
 
-        if (Global.isSkewersGame) {
+        if (this.sceneData.gameType == GameType.SKEWERS) {
             this.successView.active = false;
-            SkewersManager.getInstance().showGameAlert(this.node, AlertType.Init, "开始游戏!", "", 0, 0, this.startGameByAlert, null, this);
+            this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
         } else {
             this.successView.active = true;
             this.titleLabel.string = `看牌结束后开始挑战`
@@ -175,9 +154,6 @@ export class Main extends Component {
             this.successNextButton.node.active = false;
             this.successViewProgressLabel.node.active = false;
         }
-    }
-    gamepasslevelCallback() {
-
     }
     clickCardHandler(event, data) {
         // if (!this.isAbleClick) { return; }
@@ -204,19 +180,6 @@ export class Main extends Component {
                         sprite.spriteFrame = spriteFrame;
                     })
                 });
-
-
-                // resources.load("texture/card/Card_back_d", (err, image: ImageAsset) => {
-                //     if (err) {
-                //         console.log(err);
-                //         return;
-                //     }
-                //     const spriteFrame = new SpriteFrame();
-                //     const texture = new Texture2D();
-                //     texture.image = image;
-                //     spriteFrame.texture = texture;
-                //     sprite.spriteFrame = spriteFrame;
-                // });
                 this.cardList[card.index].isBacked = false;
 
             })
@@ -245,9 +208,10 @@ export class Main extends Component {
 
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
-            if (!Global.isSkewersGame) {
+            if (this.sceneData.gameType != GameType.SKEWERS) {
                 if (!this.customsSendDataState) {
-                    GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
+                    // GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
+                    this.sceneData.gameMatch(); // refactor
                 }
             }
 
@@ -260,25 +224,25 @@ export class Main extends Component {
         DebugLog.instance.log(index, this.currentCard);
     }
 
-    private flipCard(sprite: Sprite, texture: Texture2D) {
-        let flipDuration = 1;
-        // 定义翻牌动画
+    // private flipCard(sprite: Sprite, texture: Texture2D) {
+    //     let flipDuration = 1;
+    //     // 定义翻牌动画
 
-        let scaleAction1 = tween().to(flipDuration / 2, { scale: new Vec3(0, 1, 1) });
-        let scaleAction2 = tween().to(flipDuration / 2, { scale: new Vec3(1, 1, 1) });
+    //     let scaleAction1 = tween().to(flipDuration / 2, { scale: new Vec3(0, 1, 1) });
+    //     let scaleAction2 = tween().to(flipDuration / 2, { scale: new Vec3(1, 1, 1) });
 
-        sprite.node.scale = new Vec3(0, sprite.node.scale.y);
-        tween(sprite)
-            .then(scaleAction1)
-            .call(() => {
-                // 在翻转到一半时，更新卡片内容
-                const spriteFrame = new SpriteFrame();
-                spriteFrame.texture = texture;
-                sprite.spriteFrame = spriteFrame;
-            })
-            .then(scaleAction2)
-            .start();
-    }
+    //     sprite.node.scale = new Vec3(0, sprite.node.scale.y);
+    //     tween(sprite)
+    //         .then(scaleAction1)
+    //         .call(() => {
+    //             // 在翻转到一半时，更新卡片内容
+    //             const spriteFrame = new SpriteFrame();
+    //             spriteFrame.texture = texture;
+    //             sprite.spriteFrame = spriteFrame;
+    //         })
+    //         .then(scaleAction2)
+    //         .start();
+    // }
     updateSuccessPopupTitle(num) {
         if (num == 1) {
             this.successView.getChildByName('top_Title1').active = true;
@@ -322,12 +286,13 @@ export class Main extends Component {
     currentCustomsSuccess() {
         this.isAbleClick = false;
         this._endTime = TimeUtil.getNow();
+        this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
 
         this.playAudio("music/win");
 
         // 非串烧游戏
-        if (!Global.isSkewersGame) {
+        if (this.sceneData.gameType !== GameType.SKEWERS) {
             this.successView.active = true;
             this.successStartButton.node.active = false;
             this.successNextButton.node.active = true;
@@ -345,47 +310,47 @@ export class Main extends Component {
                 this.bigWin.active = true;
             }
             if (!this.customsSendDataState) {
-                const curGame = GameCenterManager.getInstance().currentGame;
-                GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.calculCardTotalCount(this.hardIndex) / 2, this.hards[this.hardIndex],
-                    1, this.INIT_TIME - this.timer, this.INIT_TIME, this.hards[this.hardIndex]);
+                this._requestGameCenterComplete();
             }
         } else {
             let obj = this.requestGameResult();
-            SkewersManager.getInstance().requestGameComplete(obj.complete, obj.duration);
+            this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
+            // SkewersManager.getInstance().requestGameComplete(obj.complete, obj.duration);
             // 串烧游戏逻辑
-            if (SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Big, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.exitCallBack, this.remoteClick, this);
-                return;
-            }
+            // if (SkewersManager.getInstance().isRunOver()) {
+            //     SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Big, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.exitCallBack, this.remoteClick, this);
+            //     return;
+            // }
+            this.sceneData.showNextSuccessHandler(this) // refactor
             //上报数据
-            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this);
+            // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this);
 
         }
     }
 
-    private remoteClick() {
-        this.exitCallBack(this);
-        UIManager.getInstance().showPanel(GenerateReport.NAME);
-    }
+    // private remoteClick() {
+    //     this.exitCallBack(this);
+    //     UIManager.getInstance().showPanel(GenerateReport.NAME);
+    // }
 
-    private requestSkewersGameComplete(data) {
-        let trainid = data;
-        let trainData = SkewersManager.getInstance().getTrainData(trainid);
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-        let maxCount = trainData.parentSkewersGameData.trains.length;
-        let curCount = trainData.seq;
+    // private requestSkewersGameComplete(data) {
+    //     let trainid = data;
+    //     let trainData = SkewersManager.getInstance().getTrainData(trainid);
+    //     EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
+    //     let maxCount = trainData.parentSkewersGameData.trains.length;
+    //     let curCount = trainData.seq;
 
-        // 游戏内界面提示
-        if (maxCount != curCount) {
-            SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.alertGoonHandler, this.exitCallBack, this);
-        } else {
-            if (!SkewersManager.getInstance().isRunOver()) {
-                SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
-            } else {
-                SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalCompete, this.remoteClick, this);
-            }
-        }
-    }
+    //     // 游戏内界面提示
+    //     if (maxCount != curCount) {
+    //         SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.alertGoonHandler, this.exitCallBack, this);
+    //     } else {
+    //         if (!SkewersManager.getInstance().isRunOver()) {
+    //             SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
+    //         } else {
+    //             SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalCompete, this.remoteClick, this);
+    //         }
+    //     }
+    // }
 
 
     startGame() {
@@ -401,14 +366,14 @@ export class Main extends Component {
         context.cardTotalCount = context.calculCardTotalCount(context.hardIndex);
         context.gameStartInit();
     }
-    private _skewersNextGame() {
-        if (SkewersManager.getInstance().isRunOver()) {
-            SceneManager.getInstance().backToHall();
-        }
-        else {
-            SkewersManager.getInstance().runNextGame();
-        }
-    }
+    // private _skewersNextGame() {
+    //     if (SkewersManager.getInstance().isRunOver()) {
+    //         SceneManager.getInstance().backToHall();
+    //     }
+    //     else {
+    //         SkewersManager.getInstance().runNextGame();
+    //     }
+    // }
     private _gamecenterNextGame() {
         if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
@@ -425,13 +390,15 @@ export class Main extends Component {
         this.initCardView();
         this.gameStartInit();
         this.closeFailView();
+       
     }
     playNextCustoms() {
         // let curGame = GameCenterManager.getInstance().currentGame;
         //     GameCenterManager.getInstance().gamePassLevel(curGame.sessionid,0,curGame.level,1,30,this.gameLength,curGame.difficulty,this.gamepasslevelCallback);
         // 串烧游戏状态下，运行下一个串烧游戏内容
-        if (Global.isSkewersGame) {
-            this._skewersNextGame();
+        if (this.sceneData.gameType == GameType.SKEWERS) {
+            // this._skewersNextGame();
+            this.sceneData.goonHandler(this)
         } else {
             this._gamecenterNextGame();
         }
@@ -443,6 +410,7 @@ export class Main extends Component {
         this.timerTick();
         this.closeFailView();
         this.previewCard();
+        this.playAudio("music/bgMusic");
     }
 
     closeFailView() {
@@ -599,6 +567,9 @@ export class Main extends Component {
     previewCard() {
         this.showAllCard();
         this._startTime = TimeUtil.getNow();
+        if(this._setTimeOutId != -1) {
+            clearTimeout(this._setTimeOutId);
+        }
         this._setTimeOutId = setTimeout(() => {
             clearTimeout(this._setTimeOutId);
             this.closeAllCard();
@@ -607,80 +578,118 @@ export class Main extends Component {
 
     // 定时器
     timerId: any;
-    timer: number;
+    // timer: number;
 
     INIT_TIME = 90;
 
     timerInit() {
-        if (Global.isSkewersGame) {
-            this.timer = Global.userData.curSkewerGameData.timeLimit;
-        } else {
-            this.timer = this.INIT_TIME;
-        }
-        this.Timer.string = TimeUtil.formatTime(this.timer);
+        // if (this.sceneData.gameType==GameType.SKEWERS) {
+        //     this.timer = Global.userData.curSkewerGameData.timeLimit;
+        // } else {
+        //     this.timer = this.INIT_TIME;
+        // }
+        // this.Timer.string = TimeUtil.formatTime(this.timer);
+        this.timerComponent.resetTimer();
     }
     timerTick() {
-        this.timerId = setInterval(() => {
-            this.timer -= 1;
-            if (this.timer <= 0) {
-                clearInterval(this.timerId);
-                this.isAbleClick = false
-                let { complete, duration } = this.requestGameResult();
-                // 倒计时结束，游戏结束
-                if (Global.isSkewersGame) {
-                    //上报数据
-                    EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
-                    SkewersManager.getInstance().requestGameComplete(complete, duration);
-                } else {
-                    if (!this.customsSendDataState) {
-                        const curGame = GameCenterManager.getInstance().currentGame;
-                        GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete * this.cardTotalCount / 2, this.hards[this.hardIndex],
-                            complete, duration, this.INIT_TIME, this.hards[this.hardIndex]);
-                        this.customsSendDataState = true;
-                    }
-                    this.failView.active = true;
-                    this.failViewProgressLabel.node.active = false;
-                    this.failRetryButton.node.active = true;
-                }
+        // this.timerId = setInterval(() => {
+        //     this.timer -= 1;
+        //     if (this.timer <= 0) {
+        //         clearInterval(this.timerId);
+        //         this.isAbleClick = false
+        //         let { complete, duration } = this.requestGameResult();
+        //         // 倒计时结束，游戏结束
+        //         if (Global.isSkewersGame) {
+        //             //上报数据
+        //             EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
+        //             SkewersManager.getInstance().requestGameComplete(complete, duration);
+        //         } else {
+        //             if (!this.customsSendDataState) {
+        //                 const curGame = GameCenterManager.getInstance().currentGame;
+        //                 GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, complete * this.cardTotalCount / 2, this.hards[this.hardIndex],
+        //                     complete, duration, this.INIT_TIME, this.hards[this.hardIndex]);
+        //                 this.customsSendDataState = true;
+        //             }
+        //             this.failView.active = true;
+        //             this.failViewProgressLabel.node.active = false;
+        //             this.failRetryButton.node.active = true;
+        //         }
+        //     }
+        //     this.updateTimerLabel()
+        // }, 1 * 1000);
+
+        this.timerComponent.startTimer(this.INIT_TIME);
+    }
+    _requestGameCenterComplete() {
+        const curGame = (this.sceneData as GameCenterSpecData).game;
+        let config = {
+            sessionId: curGame.sessionid,
+            count: this.calculCardTotalCount(this.hardIndex) / 2,
+            level: this.hards[this.hardIndex],
+            complete: 1,
+            duration:(this._endTime - this._startTime) / 1000,
+            timelimit: this.INIT_TIME,
+            difficulty: this.hards[this.hardIndex],
+            callback: () => { }
+        } 
+        this.sceneData.requestGameComplete(config)
+    }
+    onTimerEnd() {
+        DebugLog.instance.log("计时器结束了，执行相应逻辑");
+        // clearInterval(this.timerId);
+        this.isAbleClick = false
+        let { complete, duration } = this.requestGameResult();
+        // 倒计时结束，游戏结束
+        if (this.sceneData.gameType == GameType.SKEWERS) {
+            //上报数据
+            // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
+            this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+            // SkewersManager.getInstance().requestGameComplete(complete, duration);
+        } else {
+            if (!this.customsSendDataState) {
+                this.customsSendDataState = true;
+                this._requestGameCenterComplete();
             }
-            this.updateTimerLabel()
-        }, 1 * 1000);
-    }
-
-    private failRequestSkewersGameComplete(data) {
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this)
-        let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
-        let maxCount = trainData.length;
-        let curCount = trainData.seq < 0 ? 0 : trainData.seq;
-        if (curCount == maxCount) {
-            SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.failCompleteHandler, this.exitCallBack, this);
-        } else {
-            SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.alertGoonHandler, this.exitCallBack, this);
+            this.failView.active = true;
+            this.failViewProgressLabel.node.active = false;
+            this.failRetryButton.node.active = true;
         }
     }
 
-    private failCompleteHandler(context) {
-        clearInterval(context.timerId);
-        clearTimeout(context._setTimeOutId);
-        context._setTimeOutId = null;
-        if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, context.nextAlertHandler, context.exitCallBack, context);
-        } else {
-            SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, context.totalCompete, context.remoteClick, context);
-        }
-    }
+    // private failRequestSkewersGameComplete(data) {
+    //     EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this)
+    //     let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
+    //     let maxCount = trainData.length;
+    //     let curCount = trainData.seq < 0 ? 0 : trainData.seq;
+    //     if (curCount == maxCount) {
+    //         SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.failCompleteHandler, this.exitCallBack, this);
+    //     } else {
+    //         SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.alertGoonHandler, this.exitCallBack, this);
+    //     }
+    // }
 
-    restoreTimer() {
-        this.updateTimerLabel();
-        this.timerTick();
-    }
+    // private failCompleteHandler(context) {
+    //     // clearInterval(context.timerId);
+    //     clearTimeout(context._setTimeOutId);
+    //     context._setTimeOutId = null;
+    //     if (!SkewersManager.getInstance().isRunOver()) {
+    //         SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, context.nextAlertHandler, context.exitCallBack, context);
+    //     } else {
+    //         SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, context.totalCompete, context.remoteClick, context);
+    //     }
+    // }
 
-    updateTimerLabel() {
-        const fenzhong = Math.floor(this.timer / 60);
-        const miaozhong = this.timer % 60;
-        const second = miaozhong > 9 ? miaozhong : `0${miaozhong}`
-        this.Timer.string = `0${fenzhong}:${second}`
-    }
+    // restoreTimer() {
+    //     this.updateTimerLabel();
+    //     this.timerTick();
+    // }
+
+    // updateTimerLabel() {
+    //     const fenzhong = Math.floor(this.timer / 60);
+    //     const miaozhong = this.timer % 60;
+    //     const second = miaozhong > 9 ? miaozhong : `0${miaozhong}`
+    //     this.Timer.string = `0${fenzhong}:${second}`
+    // }
 
 
     reCurrentCustoms() {
@@ -714,76 +723,79 @@ export class Main extends Component {
         }
     }
 
-    private quitGame() {
+    quitGame() {
+        super.quitGame({ parentNode: this.viewNode, context: this });
         clearInterval(this.timerId);
-        DebugLog.instance.log('this.timer1', this.timer)
-        if (Global.isSkewersGame) {
-            let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-            let maxCount = trainData.length;
-            let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-            SkewersManager.getInstance().quitGame(this.node, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
-        } else {
-            // 游戏大厅
-            console.log("返回大厅")
-            GameCenterManager.getInstance().quitGame(this.node, this.goonCallBack, this.exitCallBack, this);
-        }
+        // DebugLog.instance.log('this.timer1', this.timer)
+        // if (Global.isSkewersGame) {
+        //     let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        //     let maxCount = trainData.length;
+        //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
+        //     SkewersManager.getInstance().quitGame(this.node, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
+        // } else {
+        //     // 游戏大厅
+        //     console.log("返回大厅")
+        //     GameCenterManager.getInstance().quitGame(this.node, this.goonCallBack, this.exitCallBack, this);
+        // }
     }
 
-    private goonCallBack(context) {
-        if (Global.isSkewersGame) {
-            if (!SkewersManager.getInstance().isRunOver()) {
-                context.restoreTimer();
-            }
-        } else {
-            context.restoreTimer();
-        }
-    }
+    // private goonCallBack(context) {
+    //     if (Global.isSkewersGame) {
+    //         if (!SkewersManager.getInstance().isRunOver()) {
+    //             context.restoreTimer();
+    //         }
+    //     } else {
+    //         context.restoreTimer();
+    //     }
+    // }
 
-    private totalCompete(context) {
-        AudioManager.getInstance().stop();
-        clearInterval(context.timerId);
+    // private totalCompete(context) {
+    //     AudioManager.getInstance().stop();
+    //     // clearInterval(context.timerId);
+    //     clearTimeout(context._setTimeOutId);
+    //     context._setTimeOutId = null;
+    //     SkewersManager.getInstance().exitCallBack();
+    // }
+
+    // private alertGoonHandler(context) {
+    //     AudioManager.getInstance().stop();
+    //     // clearInterval(context.timerId);
+    //     clearTimeout(context._setTimeOutId);
+    //     context._setTimeOutId = null;
+    //     if (!SkewersManager.getInstance().isRunOver()) {
+    //         context.node.active = false;
+    //         SkewersManager.getInstance().runNextGame();
+    //     } else {
+    //         SkewersManager.getInstance().exitCallBack();
+    //     }
+    // }
+
+    // private nextAlertHandler(context) {
+    //     // clearInterval(context.timerId);
+    //     clearTimeout(context._setTimeOutId);
+    //     context._setTimeOutId = null;
+    //     SkewersManager.getInstance().showGameAlert(context.node, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.alertGoonHandler, context.exitCallBack, context);
+    // }
+
+
+
+    exitCallBack(context) {
+        // AudioManager.getInstance().stop();
+        // // clearInterval(context.timerId);
         clearTimeout(context._setTimeOutId);
         context._setTimeOutId = null;
-        SkewersManager.getInstance().exitCallBack();
-    }
 
-    private alertGoonHandler(context) {
-        AudioManager.getInstance().stop();
-        clearInterval(context.timerId);
-        clearTimeout(context._setTimeOutId);
-        context._setTimeOutId = null;
-        if (!SkewersManager.getInstance().isRunOver()) {
-            context.node.active = false;
-            SkewersManager.getInstance().runNextGame();
-        } else {
-            SkewersManager.getInstance().exitCallBack();
-        }
-    }
-
-    private nextAlertHandler(context) {
-        clearInterval(context.timerId);
-        clearTimeout(context._setTimeOutId);
-        context._setTimeOutId = null;
-        SkewersManager.getInstance().showGameAlert(context.node, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.alertGoonHandler, context.exitCallBack, context);
-    }
-
-
-
-    private exitCallBack(context) {
-        AudioManager.getInstance().stop();
-        clearInterval(context.timerId);
-        clearTimeout(context._setTimeOutId);
-        context._setTimeOutId = null;
-        if (Global.isSkewersGame) {
-            SkewersManager.getInstance().exitCallBack();
-        } else {
-            GameCenterManager.getInstance().exitCallBack();
-        }
+        super.exitCallBack(this);
+        // if (Global.isSkewersGame) {
+        //     SkewersManager.getInstance().exitCallBack();
+        // } else {
+        //     GameCenterManager.getInstance().exitCallBack();
+        // }
     }
 
     // private autoExitCallBack(context){
     //     AudioManager.getInstance().stop();
-    //     clearInterval(context.timerId);
+    //     // clearInterval(context.timerId);
     //     clearTimeout(context._setTimeOutId);
     //     context._setTimeOutId = null;
     //     //上报数据
