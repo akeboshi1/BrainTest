@@ -273,7 +273,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.timerId);
 
         this.playAudio("music/win");
-
+       
         // 非串烧游戏
         if (this.sceneData.gameType !== GameType.SKEWERS) {
             this.successView.active = true;
@@ -296,6 +296,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this._requestGameCenterComplete();
             }
         } else {
+            this.successView.active = false;
             let obj = this.requestGameResult();
             this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
             // SkewersManager.getInstance().requestGameComplete(obj.complete, obj.duration);
@@ -304,7 +305,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             //     SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Big, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.exitCallBack, this.remoteClick, this);
             //     return;
             // }
-            this.sceneData.showNextSuccessHandler(this) // refactor
+            // this.sceneData.showNextSuccessHandler(this) // refactor
             //上报数据
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this);
 
