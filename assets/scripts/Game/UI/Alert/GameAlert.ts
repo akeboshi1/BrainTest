@@ -99,6 +99,7 @@ export class GameAlert extends Component {
     }
 
     showView(type: AlertType) {
+        AudioManager.getInstance().pause();
         this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
@@ -255,7 +256,7 @@ export class GameAlert extends Component {
      * 继续
      */
     goHandler() {
-        AudioManager.getInstance().stop();
+        AudioManager.getInstance().resume();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();
         if (this.goonCallBack) {
