@@ -1,15 +1,13 @@
-import { _decorator, Component, Label, Node, ProgressBar } from 'cc';
+import { _decorator, Label, Node, ProgressBar } from 'cc';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { SkewersManager } from '../../Task/Skewers/SkewersManager';
 import { SkewersGameType } from '../../Task/Skewers/SkewersGameData';
 import { SkewersGameData } from '../../Task/Skewers/SkewersGameData';
 import { BasePanel } from '../../../Core/UI/BasePanel';
-import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { TaskManager } from '../../Task/TaskManager';
 import { AlertType } from '../Alert/GameAlert';
 import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
-import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { Global } from '../../../Core/Manager/Config/Global';
 const { ccclass, property } = _decorator;
 

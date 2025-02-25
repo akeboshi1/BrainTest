@@ -1,7 +1,5 @@
 
-import { _decorator, Component, profiler,tween,Vec3 } from 'cc';
-import {SceneManager} from "../Manager/Scene/SceneManager";
-import {UIManager} from "../Manager/UI/UIManager";
+import { _decorator, Component, profiler } from 'cc';
 const { ccclass, property } = _decorator;
 
 export class BaseObejct extends Component{
