@@ -45,6 +45,7 @@ export class SceneManager extends BaseManager {
         return new Promise((resolve, reject) => {
             let sceneBundle = assetManager.getBundle(sceneName);
             if (!sceneBundle) {
+                DebugLog.instance.log(`${sceneName} 开始切换场景`);
                 // 获取LoaderManager实例
                 LoaderManager.getInstance().assetBundleLoad(url, sceneName).then((bundle: AssetManager.Bundle) => {
                     // 加载场景
@@ -53,6 +54,7 @@ export class SceneManager extends BaseManager {
                         director.loadScene(sceneName, (err, scene) => {
                             // 如果加载失败，打印错误信息
                             if (err) {
+                                DebugLog.instance.log(`${sceneName} 切换场景失败`);
                                 DebugLog.instance.error(err);
                                 return;
                             }
@@ -66,12 +68,14 @@ export class SceneManager extends BaseManager {
                         });
                     });
                 }).catch(err => {
+                    DebugLog.instance.log(`${sceneName} 加载子包失败`);
                     reject(err);
                 });
             } else {
                 // 已经加载过bundle的情况
                 director.loadScene(sceneName, (err, scene) => {
                     if (err) {
+                        DebugLog.instance.log(`${sceneName} 场景切换失败`);
                         DebugLog.instance.error(err);
                         return;
                     }
