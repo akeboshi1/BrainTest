@@ -11,6 +11,8 @@ import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManage
 import { GameDataFactory } from "../GameDataFactory/GameDataFactory";
 import { GameCenterSpecData } from "../GameDataFactory/GameCenterSpecData";
 import { GameType } from "../GameDataFactory/BaseGameData";
+import { BundlePreloadEvent, BundlePreloadManager } from "../../Core/Manager/Load/BundlePreloadManager";
+import { BundleName } from "../../Core/Manager/Load/BundleName";
 
 /**
  * 游戏大厅通信数据
@@ -58,7 +60,7 @@ export class GameCenterManager {
     public static GAMEPASSLEVEL = "game.pass_level";
 
 
-
+   
 
     private _callbackDic: Map<string, GameSocketData> = new Map();
 
@@ -71,6 +73,21 @@ export class GameCenterManager {
     constructor() {
         GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecData);
         
+    }
+
+    perload(url,sceneName){
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
+        BundlePreloadManager.getInstance().preload(sceneName as BundleName);
+    }
+
+    private onPreloadFinish(url: string, sceneName: string, data: any) {
+        DebugLog.instance.log(`${sceneName} 预加载完成`);
+        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+            EventManager.getInstance().emit(SceneManager.SCENE_ENTER);
+            (scene as any).sceneData = GameCenterManager.getInstance().gameSpecData;
+            (scene as any).sceneData.scene = scene as any;
+            DebugLog.instance.log(`${sceneName} 场景切换成功`);
+        });
     }
 
     public get gameSpecData():GameCenterSpecData{

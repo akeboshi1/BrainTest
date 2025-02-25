@@ -79,26 +79,27 @@ export class GameCenter extends BasePanel {
                     break;
             }
             let url = Global.RES_Root + sceneName;
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
-            BundlePreloadManager.getInstance().preload(sceneName as BundleName);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,sceneName);
+            // BundlePreloadManager.getInstance().preload(sceneName as BundleName);
 
         })
     }
+
+
+    private onSceneEnter() {
+        this._clickBoo = false;
+    }
+
+
+
     backToCenteter() {
         SceneManager.getInstance().backToHall();
     }
     onDisable(): void {
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
     }
-    private onPreloadFinish(url: string, sceneName: string, data: any) {
-        let self = this;
-        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
-            self._clickBoo = false;
-            (scene as any).sceneData = GameCenterManager.getInstance().gameSpecData;
-            (scene as any).sceneData.scene = scene as any;
-            DebugLog.instance.log(`${sceneName} 场景切换成功`);
-        });
-    }
+    
     update(deltaTime: number) {
 
     }

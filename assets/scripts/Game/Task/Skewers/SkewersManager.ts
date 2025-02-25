@@ -401,12 +401,11 @@ export class SkewersManager {
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this,true);
         BundlePreloadManager.getInstance().preload(sceneName);
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
-        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
             (scene as any).sceneData = SkewersManager.getInstance().skewersSpecData;
