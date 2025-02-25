@@ -33,20 +33,20 @@ export class LoadPanel extends BasePanel {
       }
 
       onEnable(): void {
-            EventManager.getInstance().on(BundlePreloadEvent.PROGRESS,this.processBundleProcess,this);
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onBundleLoadFinish,this);
+            EventManager.getInstance().on(BundlePreloadEvent.PROGRESS, this.processBundleProcess.bind(this), this);
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onBundleLoadFinish.bind(this), this);
       }
 
       onDisable(): void {
-            EventManager.getInstance().off(BundlePreloadEvent.PROGRESS,this);
-            EventManager.getInstance().off(BundlePreloadEvent.FINISH,this);
+            EventManager.getInstance().off(BundlePreloadEvent.PROGRESS, this);
+            EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
       }
 
-      processBundleProcess(data:any){
+      processBundleProcess(data: any) {
             this.setProgress(`加载资源中 ${data.progress}%`);
       }
 
-      onBundleLoadFinish(){
+      onBundleLoadFinish() {
             this.setProgress(`全部加载完成！`);
       }
 
@@ -59,7 +59,7 @@ export class LoadPanel extends BasePanel {
             this.progressLabel.string = str;
       }
 
-      async showPanel(): Promise<void> {}
+      async showPanel(): Promise<void> { }
 
-      async hidePanel(): Promise<void> {}
+      async hidePanel(): Promise<void> { }
 }

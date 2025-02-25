@@ -44,6 +44,7 @@ export class BasePanel extends BaseObejct {
     }
 
     onDestroy() {
+        if(!this.isValid)return;
         this.state = PanelState.DESTROY;
         DebugLog.instance.log(`${this.name} onDestroy`);
     }

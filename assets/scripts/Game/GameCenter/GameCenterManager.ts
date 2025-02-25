@@ -144,27 +144,27 @@ export class GameCenterManager {
      * 结束游戏
      * @param gameID
      */
-    public endGame(gameID: number, callback: Function = null) {
-        let socketData = new SocketData({ "action": GameCenterManager.GAMEEND, "data": { game_id: gameID } });
-        this._callbackDic.set(GameCenterManager.GAMEEND, new GameSocketData(socketData, callback));
-        EventManager.getInstance().on(GameCenterManager.GAMEEND, this.endGameCallBack, this);
-        SocketManager.getInstance().send(socketData);
-    }
+    // public endGame(gameID: number, callback: Function = null) {
+    //     let socketData = new SocketData({ "action": GameCenterManager.GAMEEND, "data": { game_id: gameID } });
+    //     this._callbackDic.set(GameCenterManager.GAMEEND, new GameSocketData(socketData, callback));
+    //     EventManager.getInstance().on(GameCenterManager.GAMEEND, this.endGameCallBack, this);
+    //     SocketManager.getInstance().send(socketData);
+    // }
 
-    private endGameCallBack(data, context) {
-        let status = data.status;
-        if (status == 0) {
-            DebugLog.instance.error(data.message);
-            return;
-        }
-        this._curGame = null;
-        EventManager.getInstance().off(GameCenterManager.GAMEEND, context);
-        let gsData = this._callbackDic.get(GameCenterManager.GAMEEND);
-        if (gsData && gsData.callback) {
-            gsData.socketData.data = data.data
-            gsData.callback(data);
-        }
-    }
+    // private endGameCallBack(data, context) {
+    //     let status = data.status;
+    //     if (status == 0) {
+    //         DebugLog.instance.error(data.message);
+    //         return;
+    //     }
+    //     this._curGame = null;
+    //     EventManager.getInstance().off(GameCenterManager.GAMEEND, context);
+    //     let gsData = this._callbackDic.get(GameCenterManager.GAMEEND);
+    //     if (gsData && gsData.callback) {
+    //         gsData.socketData.data = data.data
+    //         gsData.callback(data);
+    //     }
+    // }
 
 
     /**

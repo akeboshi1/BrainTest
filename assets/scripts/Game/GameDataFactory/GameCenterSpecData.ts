@@ -25,7 +25,6 @@ interface IGameCenterEndConfig {
 interface IGameCenterSpecific extends IBaseGameChild {
     sessionid: string;
 
-    endGame();
     gameMatch();
     gamePassLevel();
 }
@@ -110,7 +109,7 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
 
     // 实现所有抽象方法...
-    refreshData(data: any): void {
+    refreshData(data: IGameCenterSpecific): void {
         // 大厅数据刷新逻辑...
     }
 
