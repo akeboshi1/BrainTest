@@ -76,6 +76,7 @@ export class GameCenterManager {
     }
 
     perload(url,sceneName){
+        DebugLog.instance.log(`${sceneName} gamemanager sceneName`);
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
         BundlePreloadManager.getInstance().preload(sceneName as BundleName);
     }

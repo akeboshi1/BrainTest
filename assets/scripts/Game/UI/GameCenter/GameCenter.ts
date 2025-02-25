@@ -79,6 +79,7 @@ export class GameCenter extends BasePanel {
                     break;
             }
             let url = Global.RES_Root + sceneName;
+            DebugLog.instance.log(`${sceneName} click perload`);
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
             GameCenterManager.getInstance().perload(url,sceneName);
             // BundlePreloadManager.getInstance().preload(sceneName as BundleName);
@@ -88,6 +89,7 @@ export class GameCenter extends BasePanel {
 
 
     private onSceneEnter() {
+        DebugLog.instance.log(`onSceneEnter`);
         this._clickBoo = false;
     }
 
