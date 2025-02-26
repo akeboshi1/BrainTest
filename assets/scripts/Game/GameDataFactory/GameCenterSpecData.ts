@@ -107,6 +107,10 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
     }
 
+    totalCompleteHandler(context?: any){
+
+    }
+
 
     // 实现所有抽象方法...
     refreshData(data: IGameCenterSpecific): void {
