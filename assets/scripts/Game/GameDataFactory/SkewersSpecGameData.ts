@@ -258,7 +258,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
     // ======= 全部串烧游戏结束 =========
     totalCompleteHandler(context) {
         SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0,
-            context.exitHandler, context.remoteHandler, context);
+            context.exitCallBack, context.remoteHandler, context);
     }
 
     // ========= 下一类型游戏 =========
