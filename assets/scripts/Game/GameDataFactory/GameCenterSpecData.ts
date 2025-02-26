@@ -111,6 +111,10 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
     }
 
+    remoteExitCallBack(){
+
+    }
+
 
     // 实现所有抽象方法...
     refreshData(data: IGameCenterSpecific): void {

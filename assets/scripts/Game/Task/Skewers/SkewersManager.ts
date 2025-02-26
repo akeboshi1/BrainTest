@@ -329,6 +329,11 @@ export class SkewersManager {
         }
     }
 
+    public remoteExitCallBack() {
+        GuideManager.getInstance().quitGame();
+        SceneManager.getInstance().showPingcePanel();
+    }
+
 
 
     private _curRequestCompleteData: SocketData = null;

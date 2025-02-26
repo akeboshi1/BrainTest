@@ -17,6 +17,8 @@ interface IBaseGameData<T extends IBaseGameChild> {
     showNextSuccessHandler();
     showNextFailHandler();
 
+    remoteExitCallBack():void;
+
     showStartAlert():void;
 
     exitCallBack():void;
@@ -86,6 +88,8 @@ export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGam
     abstract resumeCallBack(): boolean;
 
     abstract totalCompleteHandler(context?:any):void;
+
+    abstract remoteExitCallBack(cotext?:any):void;
 
     abstract destory():void;
 }

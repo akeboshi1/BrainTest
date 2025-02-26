@@ -283,6 +283,11 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         this.destory();
     }
 
+    remoteExitCallBack(){
+        SkewersManager.getInstance().remoteExitCallBack();
+        this.destory();
+    }
+
     // ======== 恢复游戏 ========
     resumeCallBack(): boolean {
         if (SkewersManager.getInstance().isRunOver()) {

@@ -9,6 +9,7 @@ import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import { EventManager } from '../Event/EventManager';
 import { BundleName } from '../Load/BundleName';
 import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 
 export class SceneManager extends BaseManager {
 
@@ -172,6 +173,23 @@ export class SceneManager extends BaseManager {
                 let scriptNode = node.getChildByName("scriptNode");
                 let mainScene = scriptNode.getComponent("MainScene");
                 mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+    async showPingcePanel(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            let url = Global.RES_Root + GameSceneConst.Hall;
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
+                DebugLog.instance.log('返回串烧游戏界面');
+                let node = find("Canvas");
+                let scriptNode = node.getChildByName("scriptNode");
+                let mainScene = scriptNode.getComponent("MainScene");
+                mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                UIManager.getInstance().showPanel(GenerateReport.NAME);
                 resolve();
             }).catch(err => {
                 reject(err);

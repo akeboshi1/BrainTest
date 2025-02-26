@@ -102,6 +102,16 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         if (this.sceneData) this.sceneData.exitCallBack();
     }
 
+    //  ========== 退出游戏打开评测面板 ==========
+    public remoteExitCallBack(context  :any){
+        if (context.clearGameView == null) {
+            if (context.curView) context.curView.clearGameView();
+        } else {
+            context.clearGameView();
+        }
+        if (this.sceneData) this.sceneData.remoteExitCallBack();
+    }
+
     // ========== 继续游戏回调 ==========
     public resumeCallBack(context?: any) {
         if (context.sceneData) {
@@ -182,8 +192,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
      * 调用串烧游戏外部逻辑
      */
     remoteHandler() {
-        UIManager.getInstance().showPanel(GenerateReport.NAME);
-        this.exitCallBack(this);
+        this.remoteExitCallBack(this);
     }
 
     /**
