@@ -1,5 +1,8 @@
 // @ts-ignore
+import { join } from 'path';
 import packageJSON from '../package.json';
+import { generateBundleVersions } from './utils/generate-bundle-versions';
+
 /**
  * @en Registration method for the main process of Extension
  * @zh 为扩展的主进程的注册方法
@@ -12,6 +15,23 @@ export const methods: { [key: string]: (...any: any) => any } = {
     openPanel() {
         Editor.Panel.open(packageJSON.name);
     },
+
+    async processPublishFlow() {
+        console.log('开始执行发布流程');
+        
+        // 获取项目根目录路径
+        const projectRoot = Editor.Project.path;
+        // 构建完整目标路径
+        const targetPath = join(projectRoot, '/build/build-bundle/remote');
+        
+        console.log('目标路径:', targetPath);
+
+        if (await generateBundleVersions(targetPath)) {
+            console.log('✅ 版本文件生成成功');
+        } else {
+            console.warn('❌ 版本文件生成失败');
+        }
+    }
 };
 
 /**
