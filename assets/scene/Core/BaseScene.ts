@@ -182,8 +182,8 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
      * 调用串烧游戏外部逻辑
      */
     remoteHandler() {
-        this.exitCallBack(this);
         UIManager.getInstance().showPanel(GenerateReport.NAME);
+        this.exitCallBack(this);
     }
 
     /**
