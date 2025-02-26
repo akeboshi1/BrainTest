@@ -60,7 +60,7 @@ export class GameCenterManager {
     public static GAMEPASSLEVEL = "game.pass_level";
 
 
-   
+
 
     private _callbackDic: Map<string, GameSocketData> = new Map();
 
@@ -68,23 +68,21 @@ export class GameCenterManager {
 
     private _alertInstance: Node = null;
 
-    private _curGameSpecData:GameCenterSpecData;
+    private _curGameSpecData: GameCenterSpecData;
 
     constructor() {
         GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecData);
-        
+
     }
 
-    perload(url,sceneName){
+    perload(url, sceneName) {
         DebugLog.instance.log(`${sceneName} gamemanager sceneName`);
-        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
         BundlePreloadManager.getInstance().preload(sceneName as BundleName);
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         DebugLog.instance.log(`${sceneName} 预加载完成`);
-        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             EventManager.getInstance().emit(SceneManager.SCENE_ENTER);
             (scene as any).sceneData = GameCenterManager.getInstance().gameSpecData;
@@ -93,8 +91,8 @@ export class GameCenterManager {
         });
     }
 
-    public get gameSpecData():GameCenterSpecData{
-        if(!this._curGameSpecData){
+    public get gameSpecData(): GameCenterSpecData {
+        if (!this._curGameSpecData) {
             this._curGameSpecData = GameDataFactory.create(GameType.GAME_CENTER);
         }
         return this._curGameSpecData;

@@ -113,7 +113,7 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
         // 大厅数据刷新逻辑...
     }
 
-    dispose(): void {
+    destory(): void {
         
     }
 

@@ -91,13 +91,12 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
             this.requestGameCompleteCallBack(config);
         };
         // 完成当前游戏请求...
-        EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, callbackWrapper, this);
+        EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, callbackWrapper, this, true);
         SkewersManager.getInstance().requestGameComplete(config.complete, config.duration);
     }
 
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-        const {parentNode, trainID, context} = config;
+        const { parentNode, trainID, context } = config;
         const trainData = SkewersManager.getInstance().getTrainData(trainID);
         trainData.length
         const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
@@ -197,7 +196,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         };
 
         // 统一调用（修复参数传递）
-        const {type, title, desc, handlers} = getAlertConfig();
+        const { type, title, desc, handlers } = getAlertConfig();
         const [goonHandler, exitHandler] = handlers;
 
         manager.showGameAlert(
@@ -274,13 +273,13 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         } else {
             SkewersManager.getInstance().exitCallBack();
         }
-        this.dispose();
+        this.destory();
     }
 
     // ======== 退出游戏 ========
     exitCallBack(): void {
         SkewersManager.getInstance().exitCallBack();
-        this.dispose();
+        this.destory();
     }
 
     // ======== 恢复游戏 ========
@@ -300,7 +299,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     }
 
-    dispose(){
+    destory() {
         // 销毁所有监听
         EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
     }

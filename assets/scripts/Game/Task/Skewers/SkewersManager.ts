@@ -38,7 +38,7 @@ export class SkewersManager {
 
     public singleCompleteStr: string = '太棒了，请继续！';
 
-    public normalCompleteStr:string = "太棒了";
+    public normalCompleteStr: string = "太棒了";
 
     public failCompleteStr: string = "真遗憾，请加油";
 
@@ -96,7 +96,7 @@ export class SkewersManager {
 
     private _iconUrlMap: Map<SkewersGameType, string>;
 
-    private _curSkewersSpecData:SkewersSpecGameData;
+    private _curSkewersSpecData: SkewersSpecGameData;
 
     public init() {
         GameDataFactory.registerGameType(GameType.SKEWERS, SkewersSpecGameData);
@@ -112,8 +112,8 @@ export class SkewersManager {
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
     }
 
-    public get skewersSpecData():SkewersSpecGameData{
-        if(!this._curSkewersSpecData){
+    public get skewersSpecData(): SkewersSpecGameData {
+        if (!this._curSkewersSpecData) {
             this._curSkewersSpecData = GameDataFactory.create(GameType.SKEWERS);
         }
         return this._curSkewersSpecData;
@@ -381,7 +381,7 @@ export class SkewersManager {
 
     private _game;
 
-    public get curGame():SkewersGameData{
+    public get curGame(): SkewersGameData {
         return this._game;
     }
 
@@ -401,13 +401,11 @@ export class SkewersManager {
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
         BundlePreloadManager.getInstance().preload(sceneName);
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
-        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
             (scene as any).sceneData = SkewersManager.getInstance().skewersSpecData;
@@ -452,7 +450,7 @@ export class SkewersManager {
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
         BundlePreloadManager.getInstance().preload(sceneName);
 
         // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
@@ -471,7 +469,7 @@ export class SkewersManager {
         if (changeScene) {
             const sceneName = this._game.gameCode;
             let url = Global.RES_Root + sceneName;
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
             BundlePreloadManager.getInstance().preload(sceneName);
         }
 
