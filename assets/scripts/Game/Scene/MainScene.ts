@@ -208,6 +208,7 @@ export class MainScene extends Component {
     }
 
     showTaskProgress() {
+        this.updateTime();
         UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
         UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
     }
