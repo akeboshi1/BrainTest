@@ -77,12 +77,14 @@ export class GameCenterManager {
 
     perload(url,sceneName){
         DebugLog.instance.log(`${sceneName} gamemanager sceneName`);
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
         BundlePreloadManager.getInstance().preload(sceneName as BundleName);
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         DebugLog.instance.log(`${sceneName} 预加载完成`);
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             EventManager.getInstance().emit(SceneManager.SCENE_ENTER);
             (scene as any).sceneData = GameCenterManager.getInstance().gameSpecData;

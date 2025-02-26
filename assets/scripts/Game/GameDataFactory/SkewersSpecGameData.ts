@@ -274,11 +274,13 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         } else {
             SkewersManager.getInstance().exitCallBack();
         }
+        this.dispose();
     }
 
     // ======== 退出游戏 ========
     exitCallBack(): void {
         SkewersManager.getInstance().exitCallBack();
+        this.dispose();
     }
 
     // ======== 恢复游戏 ========
@@ -296,6 +298,11 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     gameMatch(): void {
 
+    }
+
+    dispose(){
+        // 销毁所有监听
+        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
     }
 
 }

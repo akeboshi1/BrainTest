@@ -21,6 +21,8 @@ interface IBaseGameData<T extends IBaseGameChild> {
 
     exitCallBack():void;
     resumeCallBack():boolean;
+
+    dispose():void;
 }
 
 export interface IStartConfig{
@@ -80,6 +82,8 @@ export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGam
 
     abstract exitCallBack():void;
     abstract resumeCallBack(): boolean;
+
+    abstract dispose():void;
 }
 
 
