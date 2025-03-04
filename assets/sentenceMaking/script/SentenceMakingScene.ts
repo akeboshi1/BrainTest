@@ -56,11 +56,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     private rawMaxNum: number = 5;//一行最多放几个对象
     private lineMaxNum: number = 3;//最大行数
-    private leftOffset: number = 50;//左侧的留白像素
+    private leftOffset: number = 25;//左侧的留白像素
     private topOffset: number = 10;//顶部的留白像素
     private paddingX: number = 10;//水平间距
     private paddingy: number = 10;//垂直间距
-    private itemWidth: number = 188;//对象宽度
+    private itemWidth: number = 180;//对象宽度
     private itemheight: number = 235;//对象高度
 
     private sourceContainerRects: Rect[] = [];
@@ -173,7 +173,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 : this.itemWidth;
 
             // 检查是否需要换行
-            if (lineItemCount + (isPunctuation ? 0.5 : 1) > this.rawMaxNum) {
+            if (!isPunctuation && lineItemCount + (isPunctuation ? 0.5 : 1) > this.rawMaxNum) {
                 currentX = this.leftOffset;
                 currentY -= (lineHeight + this.paddingy);
                 lineItemCount = 0;
@@ -255,7 +255,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (!isResult) {
             const col = index % this.rawMaxNum;
             const row = Math.floor(index / this.rawMaxNum);
-            const x = this.leftOffset + col * (this.itemWidth + this.paddingX);
+            const x = this.leftOffset + col * (this.itemWidth + this.paddingX) + this.itemWidth / 4;
             const y = 0 - this.topOffset - row * (this.itemheight + this.paddingy);
             return new Vec3(x, y, 0);
         } else {
@@ -296,8 +296,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 inst.active = true;
             } else {
                 inst = instantiate(this.cardModel);
-                inst.getComponent(UITransform).setContentSize(this.itemWidth, this.itemheight);
                 inst.parent = this.cardContainer;
+                inst.getComponent(UITransform).setContentSize(this.itemWidth, this.itemheight);
             }
 
             let cardCtrl = inst.getComponent(CardCtrl);
