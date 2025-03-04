@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tween } from 'cc';
 import { LoaderManager } from "../../scripts/Core/Manager/Load/LoaderManager";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../scripts/Core/Util/TimeUtil";
@@ -86,7 +86,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private customsSendDataState: boolean;
 
-    private isAbleClick: boolean = false;
+    @property(Sprite)
+    private showSprite: Sprite;
 
     protected bundleName: string = BundleName.FANPAI;
 
@@ -102,6 +103,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     start() {
         super.start();
+        this.showSprite.node.parent.active = false;
+        this.showSprite.node.active = false;
         this.dataInit();
         // ui初始化
         this.sceneInit();
@@ -140,35 +143,14 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (!this.cardList || this._setTimeOutId != null) {
             return;
         }
+
         // 播放音效
         this.playAudio("music/fanpai", true);
         const index = Number(data);
         let self = this;
-        let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
-        if (isBackedCards.length === 2) {
-            // 复原翻过来但未被消除的卡片
-            isBackedCards.forEach(card => {
-                const cardNode = this.cardPool.children[0].children[card.index];
-                const sprite = cardNode.getComponent(Sprite);
-
-                LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                    LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
-                        const spriteFrame = new SpriteFrame();
-                        const texture = new Texture2D();
-                        texture.image = res;
-                        spriteFrame.texture = texture;
-                        sprite.spriteFrame = spriteFrame;
-                    })
-                });
-                this.cardList[card.index].isBacked = false;
-
-            })
-        }
-
         // 获取当前卡片
         this.currentCard = this.cardPool.children[0].children[index];
         const sprite = this.currentCard.getComponent(Sprite);
-
         LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
             LoaderManager.getInstance().loadABRes(this.cardList[index].imgUrl, self.bundleName).then((res) => {
                 const texture = new Texture2D();
@@ -176,32 +158,78 @@ export class Main extends BaseScene<IBaseGameChild> {
                 const spriteFrame = new SpriteFrame();
                 spriteFrame.texture = texture;
                 sprite.spriteFrame = spriteFrame;
-
-
             })
         });
-
         this.cardList[index].isBacked = true;
 
-        isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
-
-
+        let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
             if (this.sceneData.gameType != GameType.SKEWERS) {
                 if (!this.customsSendDataState) {
-                    // GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
-                    this.sceneData.gameMatch(); // refactor
+                    this.sceneData.gameMatch();
+                    //GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
                 }
             }
-
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
             if (isDeletedCardCount == this.cardTotalCount) {
                 this.currentCustomsSuccess();
+                return;
             }
+            this.showSpriteAnimation("texture/right",()=>{});
+            this.playAudio("music/success",true);
+        }
+
+        if (isBackedCards.length === 2 && isBackedCards[0].imgUrl !== isBackedCards[1].imgUrl) {
+            this.showSpriteAnimation("texture/error",()=>{
+                isBackedCards.forEach(card => {
+                    const cardNode = this.cardPool.children[0].children[card.index];
+                    const sprite = cardNode.getComponent(Sprite);
+                    LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                        LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
+                            const spriteFrame = new SpriteFrame();
+                            const texture = new Texture2D();
+                            texture.image = res;
+                            spriteFrame.texture = texture;
+                            sprite.spriteFrame = spriteFrame;
+                        })
+                    });
+                    this.cardList[card.index].isBacked = false;
+                })
+            });
+            this.playAudio("music/fail",true);
         }
 
         DebugLog.instance.log(index, this.currentCard);
+    }
+    private showSpriteAnimation(textureUrl: string,callback: () => void) {
+        let self = this;
+        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+            LoaderManager.getInstance().loadABRes(textureUrl, self.bundleName).then((res) => {
+                const texture = new Texture2D();
+                texture.image = res;
+                const spriteFrame = new SpriteFrame();
+                spriteFrame.texture = texture;
+                if (self.showSprite) {
+                    self.showSprite.spriteFrame = spriteFrame;
+                    let rightTween= tween(self.showSprite.node)
+                        .to(0.5, { scale: new Vec3(2, 2, 1) })
+                        .call(() => {
+                            callback();
+                            rightTween.stop();
+                            rightTween=null;
+                            self.showSprite.node.active = false;
+                            self.showSprite.node.parent.active = false;
+                            self.showSprite.node.scale = new Vec3(1,1,1);
+                        })
+                        .start();
+                    self.showSprite.node.active = true;
+                    self.showSprite.node.parent.active = true;
+                } else {
+                    DebugLog.instance.error("showSprite is null!");
+                }
+            })
+        });
     }
     updateSuccessPopupTitle(num) {
         if (num == 1) {
@@ -244,7 +272,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private _startTime: number = 0
     private _endTime: number = 0;
     currentCustomsSuccess() {
-        this.isAbleClick = false;
+        // this.isAbleClick = false;
         this._endTime = TimeUtil.getNow();
         this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
@@ -281,7 +309,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     startGame() {
-        this.isAbleClick = true;
+        // this.isAbleClick = true;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
         this.gameStartInit();
@@ -521,7 +549,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     onTimerEnd() {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
         // clearInterval(this.timerId);
-        this.isAbleClick = false
+        // this.isAbleClick = false
         let { complete, duration } = this.requestGameResult();
         // 倒计时结束，游戏结束
         if (this.sceneData.gameType == GameType.SKEWERS) {
