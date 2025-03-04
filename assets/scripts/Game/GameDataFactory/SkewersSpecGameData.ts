@@ -98,10 +98,10 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
         const { parentNode, trainID, context } = config;
         const trainData = SkewersManager.getInstance().getTrainData(trainID);
-        trainData.length
+        // trainData.length
         const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
         const manager = SkewersManager.getInstance();
-
+        // this.scene.refreshSceneData(this)
         // 策略配置表（补充desc字段）
         const alertStrategies = {
             success: {
@@ -213,22 +213,7 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
 
     // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
     failCompleteHandler = (context: any) => {
-        //     const manager = SkewersManager.getInstance();
-        //     const alertType = manager.isRunOver() ? AlertType.Sucess_Big : AlertType.Sucess_Small;
-        //     manager.showGameAlert(
-        //         context.viewNode,
-        //         alertType,
-        //         manager[alertType === AlertType.Sucess_Small ?
-        //             'currentSkewersCompleteGameStr' : 'totalCompleteStr'],
-        //         manager[alertType === AlertType.Sucess_Small ?
-        //             'singleCompleteStr' : 'totalBrainScore'],
-        //         0, 0,
-        //         alertType === AlertType.Sucess_Small ?
-        //             context.nextHandler : context.exitCallBack,
-        //         alertType === AlertType.Sucess_Small ?
-        //             context.exitCallBack : context.remoteHandler,
-        //         context
-        //  );
+    
     }
 
     // ========= 成功后进入下一类型游戏 =========

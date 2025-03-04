@@ -3,31 +3,31 @@ import { SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
 import { BaseScene } from "db://assets/scene/Core/BaseScene";
 
 // 基础游戏数据类型
-interface IBaseGameData<T extends IBaseGameChild> {
-    hasGuide:boolean;
-    refreshData(data: T): void;
-    runNextGame(): void;
-    quitGame(): void;
-    requestGameComplete():void;
-    requestGameCompleteCallBack():void;
+// interface IBaseGameData<T extends IBaseGameChild> {
+//     hasGuide:boolean;
+//     refreshData(data: T): void;
+//     runNextGame(): void;
+//     quitGame(): void;
+//     requestGameComplete():void;
+//     requestGameCompleteCallBack():void;
 
-    nextHandler();
-    goonHandler();
-    failCompleteHandler();
-    showNextSuccessHandler();
-    showNextFailHandler();
+//     nextHandler();
+//     goonHandler();
+//     failCompleteHandler();
+//     showNextSuccessHandler();
+//     showNextFailHandler();
 
-    remoteExitCallBack():void;
+//     remoteExitCallBack():void;
 
-    showStartAlert():void;
+//     showStartAlert():void;
 
-    exitCallBack():void;
-    resumeCallBack():boolean;
+//     exitCallBack():void;
+//     resumeCallBack():boolean;
 
-    totalCompleteHandler():void;
+//     totalCompleteHandler():void;
 
-    destory():void;
-}
+//     destory():void;
+// }
 
 export interface IStartConfig{
     parentNode:Node,
@@ -49,7 +49,7 @@ export enum GameType{
 }
 
 
-export abstract class BaseGameData<T extends IBaseGameChild> implements IBaseGameData<T> {
+export abstract class BaseGameData<T extends IBaseGameChild> {
     private _scene: BaseScene<T>;
     public get scene(): BaseScene<T> {
         return this._scene;

@@ -2,7 +2,7 @@ import { assetManager, AudioClip, Component, director } from "cc";
 import { Node } from "cc";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
-import { BaseGameData, IBaseGameChild, IQuitGameConfig, IStartConfig } from "../../scripts/Game/GameDataFactory/BaseGameData";
+import { BaseGameData, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig } from "../../scripts/Game/GameDataFactory/BaseGameData";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { UIManager } from "../../scripts/Core/Manager/UI/UIManager";
 import { GenerateReport } from "../../scripts/Game/UI/PersonalCenter/GenerateReport";
@@ -23,6 +23,23 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     start() {
         this.sceneData = (director.getScene() as unknown as { sceneData }).sceneData;
     }
+
+    // 
+    sceneInit(){
+        this.resetTime();
+         
+    }
+
+    refreshSceneData(data:BaseGameData<T>){
+        data.gameType == GameType.SKEWERS
+        // logic
+    }
+
+
+    gameResult(){
+
+    }
+
 
     onEnable() {
         if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
