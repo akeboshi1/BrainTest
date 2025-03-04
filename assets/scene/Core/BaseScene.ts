@@ -1,11 +1,11 @@
-import { assetManager, AudioClip, Component, director } from "cc";
+import { assetManager, AudioClip, Component, director, Texture2D } from "cc";
 import { Node } from "cc";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
 import { BaseGameData, IBaseGameChild, IQuitGameConfig, IStartConfig } from "../../scripts/Game/GameDataFactory/BaseGameData";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { UIManager } from "../../scripts/Core/Manager/UI/UIManager";
-import { GenerateReport } from "../../scripts/Game/UI/PersonalCenter/GenerateReport";
+import {BaseModel} from "./BaseModel";
+
 /**
  * 基础场景
  */
@@ -13,14 +13,23 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     sceneData: BaseGameData<T>;
     viewNode: Node;
     timerComponent: TimerCommonComponent;
+
+    protected baseModel: BaseModel;
+
     protected bundleName: string = '';
     protected curView: BaseScene<IBaseGameChild> = null;
 
+    // 音效
     protected audioMap: Map<string, AudioClip> = new Map();
     protected audioUrls = [];
 
+    // 图片
+    protected textureMap: Map<string, Texture2D> = new Map();
+    protected textureUrls = [];
+
     // ========== component生命周期 ==========
     start() {
+        this.baseModel = new BaseModel(this);
         this.sceneData = (director.getScene() as unknown as { sceneData }).sceneData;
     }
 
@@ -57,7 +66,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     // ========== 显示游戏开始提示 ==========
-    public showStartAlert(config:IStartConfig) {
+    public showStartAlert(config: IStartConfig) {
         if (this.sceneData) this.sceneData.showStartAlert(config);
     }
 
@@ -103,7 +112,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     //  ========== 退出游戏打开评测面板 ==========
-    public remoteExitCallBack(context  :any){
+    public remoteExitCallBack(context: any) {
         if (context.clearGameView == null) {
             if (context.curView) context.curView.clearGameView();
         } else {
@@ -170,20 +179,20 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         }
     }
 
-    showNextSuccessHandler(){
+    showNextSuccessHandler() {
         if (this.sceneData) {
             this.sceneData.showNextSuccessHandler(this);
         }
     }
 
-    showNextFailHandler(){
-        if(this.sceneData){
+    showNextFailHandler() {
+        if (this.sceneData) {
             this.sceneData.showNextFailHandler(this);
         }
     }
 
-    totalCompleteHandler(){
-        if(this.sceneData){
+    totalCompleteHandler() {
+        if (this.sceneData) {
             this.sceneData.totalCompleteHandler(this);
         }
     }
@@ -219,11 +228,11 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         }
     }
 
-    public playWin(){
+    public playWin() {
         AudioManager.getInstance().playWin();
     }
 
-    public playFail(){
+    public playFail() {
         AudioManager.getInstance().playFail();
     }
 
