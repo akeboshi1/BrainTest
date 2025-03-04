@@ -465,6 +465,20 @@ export class SkewersManager {
     }
 
     /**
+     * 是否完成了当前游戏
+     */
+    public hasCompleteCurGame():boolean {
+        if(!this._game)return false;
+        let curType = this._game.type;
+        this._game = this.getUnCompleteGameData();
+        if(!this._game||curType!=this._game.type){
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * 运行下一个游戏
      */
     public runNextGame(changeScene: boolean = true) {

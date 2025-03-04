@@ -1,20 +1,20 @@
-import {SkewersGameStatus} from "../../../Core/Data/GameState";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
-import {TaskType} from "db://assets/scripts/Game/Task/TaskData";
+import { SkewersGameStatus } from "../../../Core/Data/GameState";
+import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
+import { TaskType } from "db://assets/scripts/Game/Task/TaskData";
 
-export enum SkewersGameType{
+export enum SkewersGameType {
     // 理解力
-    Comprehension="COMPREHENSION",
+    Comprehension = "COMPREHENSION",
     // 执行力
-    Executionability="EXECUTION",
+    Executionability = "EXECUTION",
     // 语言力
-    Language="LANGUAGE",
+    Language = "LANGUAGE",
     // 计算力
-    Calculator="CALCULATION",
+    Calculator = "CALCULATION",
     // 判断力
-    Judgment="JUDGMENT",
+    Judgment = "JUDGMENT",
     // 记忆力
-    Memory="MEMORY",
+    Memory = "MEMORY",
 }
 
 
@@ -25,31 +25,34 @@ export enum SkewersGameType{
 export class SkewersGameData {
     // ============== game
     // 游戏名字
-    public gameName:string='未知';
+    public gameName: string = '未知';
 
     // 游戏id
-    public gameID:number;
+    public gameID: number;
 
     // 当前串烧游戏code
-    public gameCode:string;
+    public gameCode: string;
+
+    // 关卡获取类型 1 顺序获取  2 根据难度（顺序）获取
+    public levelMode: number;
 
     // 当前串烧游戏类型
-    public type:SkewersGameType;
+    public type: SkewersGameType;
 
     // 串烧游戏训练队列数据
-    public trains:SkewersGameTrainData[];
+    public trains: SkewersGameTrainData[];
 
     // 一类串烧游戏状态
-    private _status:number;
+    private _status: number;
 
     // 难度
-    private _difficulty:number;
+    private _difficulty: number;
 
-    public get TypeName():string{
-        switch(this.type){
+    public get TypeName(): string {
+        switch (this.type) {
             case SkewersGameType.Calculator:
                 return "计算力";
-           case SkewersGameType.Executionability:
+            case SkewersGameType.Executionability:
                 return "执行力";
             case SkewersGameType.Language:
                 return "语言力";
@@ -62,16 +65,17 @@ export class SkewersGameData {
         }
     }
 
-    public hasGuid():boolean{
-        return this.getCurTrainData()?this.getCurTrainData().hasGuide:false;
+    public hasGuid(): boolean {
+        return this.getCurTrainData() ? this.getCurTrainData().hasGuide : false;
     }
 
-    public refreshData(data:any){
+    public refreshData(data: any) {
         this.gameID = data['game_id'];
         this.gameCode = data['game_code'];
         this.type = data['cog_ability'];
         this._difficulty = data['difficulty'];
-        switch(this.type){
+        this.levelMode = data["level_mode"];
+        switch (this.type) {
             case SkewersGameType.Memory:
                 this.gameName = "翻牌";
                 break;
@@ -81,7 +85,7 @@ export class SkewersGameData {
             case SkewersGameType.Language:
                 this.gameName = "组词造句";
                 break;
-           case SkewersGameType.Comprehension:
+            case SkewersGameType.Comprehension:
                 this.gameName = "猜谜";
                 break;
             case SkewersGameType.Calculator:
@@ -91,19 +95,19 @@ export class SkewersGameData {
                 this.gameName = "找茬";
                 break;
         }
-        if(this.trains == null){
+        if (this.trains == null) {
             this.trains = [];
         }
         let trains = data['games'];
         let len = trains.length;
-        for(let i:number = 0; i < len; ++i){
+        for (let i: number = 0; i < len; ++i) {
             let tmpData = trains[i];
             let train = new SkewersGameTrainData();
             train.parentSkewersGameData = this;
             train.length = len;
             train.refreshData(tmpData);
             // 评测第一个训练项目给予引导
-            if(i == 0 && Global.userData.curTaskData && Global.userData.curTaskData.type == TaskType.Review){
+            if (i == 0 && Global.userData.curTaskData && Global.userData.curTaskData.type == TaskType.Review) {
                 train.hasGuide = true;
             }
             this.trains.push(train);
@@ -113,11 +117,11 @@ export class SkewersGameData {
     /**
      * 获取当前类型脑力保健小关数据
      */
-    getCurTrainData():SkewersGameTrainData{
+    getCurTrainData(): SkewersGameTrainData {
         let len = this.trains.length;
-        for(let i:number = 0; i < len; ++i){
-            let tmpData:SkewersGameTrainData = this.trains[i];
-            if(tmpData.status == SkewersGameStatus.unCompleted){
+        for (let i: number = 0; i < len; ++i) {
+            let tmpData: SkewersGameTrainData = this.trains[i];
+            if (tmpData.status == SkewersGameStatus.unCompleted) {
                 return tmpData;
             }
         }
@@ -126,19 +130,19 @@ export class SkewersGameData {
 
 
 
-    getTrainDataByID(id){
+    getTrainDataByID(id) {
         let len = this.trains.length;
-        for(let i:number = 0; i < len; ++i){
-            let tmpData:SkewersGameTrainData = this.trains[i];
-            if(tmpData.brain_training_id == id)return tmpData;
+        for (let i: number = 0; i < len; ++i) {
+            let tmpData: SkewersGameTrainData = this.trains[i];
+            if (tmpData.brain_training_id == id) return tmpData;
         }
         return null;
     }
 
 
-    get difficulty():number{
+    get difficulty(): number {
         let curTrainData = this.getCurTrainData();
-        if(!curTrainData){
+        if (!curTrainData) {
             this._difficulty = -1;
             return this._difficulty;
         }
@@ -146,73 +150,87 @@ export class SkewersGameData {
         return this._difficulty;
     }
 
-    set difficulty(value:number){
+    set difficulty(value: number) {
         this._difficulty = value;
     }
 
-    get timeLimit():number{
+    get level():number{
+        let trainData = this.getCurTrainData();
+        if(this.levelMode == 1){
+            return trainData.level;
+        }else{
+            return trainData.getLevelByDifficult(trainData.difficulty);
+        }
+    }
+
+    set level(value:number) {
+        let trainData = this.getCurTrainData();
+        trainData.level = value;
+    }
+
+    get timeLimit(): number {
         let curTrainData = this.getCurTrainData();
-        if(!curTrainData){
+        if (!curTrainData) {
             return -1;
         }
         return curTrainData.timeLimit;
     }
 
-    get length():number{
+    get length(): number {
         let curTrainData = this.getCurTrainData();
-        if(!curTrainData){
+        if (!curTrainData) {
             return -1;
         }
         return curTrainData.length;
     }
 
-    get seq():number{
+    get seq(): number {
         let curTrainData = this.getCurTrainData();
-        if(!curTrainData){
+        if (!curTrainData) {
             return -1;
         }
         return curTrainData.seq;
     }
 
-    get id():number{
+    get id(): number {
         let curTrainData = this.getCurTrainData();
-        if(!curTrainData){
+        if (!curTrainData) {
             return -1;
         }
         return curTrainData.brain_training_id;
     }
 
-    get progress():number{
+    get progress(): number {
         let len = this.trains.length;
         let count = 0;
-        for(let i:number = 0; i < len; ++i){
-            let tmpData:SkewersGameTrainData = this.trains[i];
-            if(tmpData.status == SkewersGameStatus.Completed){
+        for (let i: number = 0; i < len; ++i) {
+            let tmpData: SkewersGameTrainData = this.trains[i];
+            if (tmpData.status == SkewersGameStatus.Completed) {
                 count++;
             }
         }
-        return count / len ;
+        return count / len;
     }
 
-    get progressStr():string{
+    get progressStr(): string {
         let len = this.trains.length;
         let count = 0;
-        for(let i:number = 0; i < len; ++i){
-            let tmpData:SkewersGameTrainData = this.trains[i];
-            if(tmpData.status == SkewersGameStatus.Completed){
+        for (let i: number = 0; i < len; ++i) {
+            let tmpData: SkewersGameTrainData = this.trains[i];
+            if (tmpData.status == SkewersGameStatus.Completed) {
                 count++;
             }
         }
-        return count +" / "+ len ;
+        return count + " / " + len;
     }
 
 
     /**
      * 获取整个队列得数据状态
      */
-    get status():number{
+    get status(): number {
         let curTrainData = this.getCurTrainData();
-        this._status = curTrainData?curTrainData.status:1;
+        this._status = curTrainData ? curTrainData.status : 1;
         return this._status;
     }
 
@@ -221,18 +239,18 @@ export class SkewersGameData {
      * @param id
      * @param data
      */
-    updateData(id:number,data:any){
+    updateData(id: number, data: any) {
         let len = this.trains.length;
-        for(let i:number = 0; i < len; ++i){
-            let tmpData:SkewersGameTrainData = this.trains[i];
-            if(tmpData.brain_training_id == id){
-                this.updateParam(tmpData,data.data);
+        for (let i: number = 0; i < len; ++i) {
+            let tmpData: SkewersGameTrainData = this.trains[i];
+            if (tmpData.brain_training_id == id) {
+                this.updateParam(tmpData, data.data);
                 return;
             }
         }
     }
 
-    private updateParam(trainData:SkewersGameTrainData,data:any){
+    private updateParam(trainData: SkewersGameTrainData, data: any) {
         // 遍历data对象的属性
         for (let key in data) {
             if (data.hasOwnProperty(key)) {
@@ -243,68 +261,95 @@ export class SkewersGameData {
 
 }
 
-export class SkewersGameTrainData{
+export class SkewersGameTrainData {
     // ============== trains
 
     // 串烧任务
-    public parentSkewersGameData:SkewersGameData;
+    private _parentSkewersGameData: SkewersGameData;
 
     // 任务id
-    public brain_training_id:number;
+    public brain_training_id: number;
 
     // 游戏索引
-    public seq:number;
+    public seq: number;
 
     // 游戏状态 未完成0 已完成1
-    public status:number=0;
+    public status: number = 0;
 
     // 游戏完成度 最低0 最高1
-    public complete:number=0;
+    public complete: number = 0;
 
     // 游戏用时
-    public duration:number = 0;
+    public duration: number = 0;
 
     // 当前串烧游戏难度
-    public difficulty:number = 0;
+    public difficulty: number = 0;
 
     // 当前串烧游戏游戏时间
-    public timeLimit:number = 0;
+    public timeLimit: number = 0;
 
     //关卡计数器
-    public level:number = 0;
+    public _level: number = 0;
 
     // 游戏得分
-    public score:number = 0;
+    public score: number = 0;
 
     // 完成得时间格式 “2024-11-22 07:30:00”
-    public completedAt:string = null;
+    public completedAt: string = null;
 
-    private _hasGuide:boolean = false;
+    private _hasGuide: boolean = false;
 
     // 当前类型训练内容的长度
-    public length:number = 0;
+    public length: number = 0;
 
-    public set hasGuide(value:boolean){
+
+    public get parentSkewersGameData() {
+        return this._parentSkewersGameData;
+    }
+
+    public set parentSkewersGameData(value: SkewersGameData) {
+        this._parentSkewersGameData = value;
+    }
+
+
+    private _difficultDic: Map<number, number> = new Map();
+
+    public set hasGuide(value: boolean) {
         this._hasGuide = value;
     }
 
-    public get hasGuide():boolean{
+    public get hasGuide(): boolean {
         return this._hasGuide
     }
 
-    public refreshData(data:any){
+    public refreshData(data: any) {
         this.brain_training_id = data['id'];
         this.seq = data['seq'];
         this.status = data['status'];
         this.difficulty = data['difficulty'];
         this.duration = data['duration'];
         this.timeLimit = data['time_limit'];
-        this.complete = data['completion']||0;
-        this.score = data['score']||0;
-        this.completedAt = data['completed_at']||null;
-        if(data['level'] == ""){
+        this.complete = data['completion'] || 0;
+        this.score = data['score'] || 0;
+        this.completedAt = data['completed_at'] || null;
+        if (data['level'] == "") {
             data['level'] = 1;
         }
         this.level = Number(data['level']);
+    }
+
+    public get level() {
+        return this._level;
+    }
+
+    public set level(value: number) {
+        this._level = value;
+        if (this._parentSkewersGameData.levelMode != 1) {
+            this._difficultDic.set(this.difficulty, this._level);
+        }       
+    }
+
+    public getLevelByDifficult(difficulty: number) {
+        return this._difficultDic.get(difficulty) || 0;
     }
 }

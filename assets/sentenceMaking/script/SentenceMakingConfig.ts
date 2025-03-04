@@ -37,7 +37,7 @@ export class SentenceMakingConfig {
                             for (let question of levelData) {
                                 // 核心处理逻辑
                                 const { modifiedSentence, newFixed, adjustedPunctuations } = this.processQuestion(question);
-                                
+
                                 // 创建问题实例时使用处理后的数据
                                 const newQuestion = new SentenceMakingQuestion(
                                     modifiedSentence,
@@ -54,27 +54,29 @@ export class SentenceMakingConfig {
         });
     }
 
-    getQuestionByLevelAndIndex(level: number, index: number): SentenceMakingQuestion | null {
-        const questions = this.levelQuestions["level_" + level];
-        if (questions && index >= 0 && index < questions.length) {
-            return questions[index];
+    getQuestionByDifficultAndLevel(difficult: number, level: number): SentenceMakingQuestion | null {
+        let _difficult = difficult <= 0 ? 0 : difficult - 1;
+        const questions = this.levelQuestions["level_" + _difficult];
+        if (questions && level >= 0 && level < questions.length) {
+            return questions[level];
         }
         return null;
     }
 
-    getQuestionsByLevel(level: number): SentenceMakingQuestion[] {
-        return this.levelQuestions["level_" + level] || [];
+    getQuestionsByDifficult(difficult: number): SentenceMakingQuestion[] {
+        let _difficult = difficult <= 0 ? 0 : difficult - 1;
+        return this.levelQuestions["level_" + _difficult] || [];
     }
 
-    private processQuestion(question: any): { 
-        modifiedSentence: string[], 
+    private processQuestion(question: any): {
+        modifiedSentence: string[],
         newFixed: number[],
         adjustedPunctuations: PunctuationOption[]
     } {
         let sentence = [...question.sentence];
         const originalFixed = new Set(question.fixed);
         const punctuationOptions = question.punctuationOptions || [];
-        
+
         // 步骤1：倒序插入标点（无需offset）
         const sortedPunctuations = [...punctuationOptions].sort((a, b) => b.index - a.index);
         const insertionMap = new Map<number, number>();
@@ -83,14 +85,14 @@ export class SentenceMakingConfig {
             // 直接使用原始index插入
             const insertPos = p.index + 1;
             sentence.splice(insertPos, 0, p.text);
-            
+
             // 记录每个原始index的插入次数
             insertionMap.set(p.index, (insertionMap.get(p.index) || 0) + 1);
         });
 
         // 步骤2：计算新的fixed索引
         const newFixed = [];
-        
+
         // 处理原始fixed
         question.fixed.forEach(originalIndex => {
             let adjustedIndex = originalIndex;
@@ -102,7 +104,7 @@ export class SentenceMakingConfig {
             });
             newFixed.push(adjustedIndex);
         });
-        
+
         // 处理标点本身的fixed
         punctuationOptions.forEach(p => {
             let adjustedPos = p.index + 1; // 原始插入位置

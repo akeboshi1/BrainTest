@@ -1044,6 +1044,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             duration,
             timelimit: this.INIT_TIME,
             difficulty: this.hards[this.hardIndex],
+            levelMode:curGame.levelMode
         });
     }
 

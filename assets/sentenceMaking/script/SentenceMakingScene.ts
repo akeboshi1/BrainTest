@@ -122,7 +122,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.sceneData.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
     }
 
-    requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number) {
+    requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number,levelMode:number) {
         const curGame = (this.sceneData as any).game;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
@@ -132,6 +132,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             duration,
             timelimit,
             difficulty,
+            levelMode
         });
     }
 

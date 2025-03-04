@@ -629,7 +629,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             complete,
             duration,
             timelimit: this.gameLength,
-            difficulty: curGame.difficulty
+            difficulty: curGame.difficulty,
+            levelMode:curGame.levelMode
         });
     }
 

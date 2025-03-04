@@ -52,8 +52,12 @@ export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
         return SkewersManager.getInstance().curGame.difficulty;
     }
 
+    get hasCompleteCurGame():boolean {
+        return SkewersManager.getInstance().hasCompleteCurGame();
+    }
+
     get scene(): any {
-        return (director.getScene() as any);
+        return (director.getScene() as any); 
     }
 
     showStartAlert(config: IStartConfig) {

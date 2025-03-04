@@ -665,7 +665,8 @@ export default class GameView extends LayerPanel {
             complete: this.resultList.length / this._maxCount,
             duration,
             timelimit: GameConfig.customTime,
-            difficulty: this._curHard
+            difficulty: this._curHard,
+            levelMode:curGame.levelMode
         });
         // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });

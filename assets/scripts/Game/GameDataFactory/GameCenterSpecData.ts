@@ -18,6 +18,7 @@ interface IGameCenterEndConfig {
     duration: number;
     timelimit: number;
     difficulty: number;
+    levelMode: number;
     callback?: Function;
 }
 
@@ -48,6 +49,10 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
         return GameCenterManager.getInstance().currentGame.sessionid;
     }
 
+    get levelMode(): number {
+        return GameCenterManager.getInstance().currentGame.levelMode;
+    }
+
     get hasGuide(): boolean {
         return (GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
     }
@@ -70,7 +75,7 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
     requestGameComplete(config?: IGameCenterEndConfig) {
         GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level,
-            config.complete, config.duration, config.timelimit, config.difficulty, config.callback);
+            config.complete, config.duration, config.timelimit, config.difficulty, config.levelMode, config.callback);
     }
 
     exitCallBack(): void {
@@ -107,11 +112,11 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
     }
 
-    totalCompleteHandler(context?: any){
+    totalCompleteHandler(context?: any) {
 
     }
 
-    remoteExitCallBack(){
+    remoteExitCallBack() {
 
     }
 
@@ -122,7 +127,7 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
     }
 
     destory(): void {
-        
+
     }
 
 }

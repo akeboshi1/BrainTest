@@ -270,6 +270,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             duration,
             timelimit: this.timeLimit,
             difficulty: 1,
+            levelMode:curGame.levelMode
         });
         // GameCenterManager.getInstance().gamePassLevel(GameCenterManager.getInstance().currentGame.sessionid, 0,
         //     this.guessingGameModel.currentQuestionIndex + 1, complete, duration, this.timeLimit, 1, (data) => {

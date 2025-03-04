@@ -613,6 +613,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             duration: (this._endTime - this._startTime) / 1000,
             timelimit: this.INIT_TIME,
             difficulty: this.hards[this.hardIndex],
+            levelMode:curGame.levelMode,
             callback: () => { }
         }
         this.sceneData.requestGameComplete(config)
