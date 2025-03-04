@@ -75,7 +75,7 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
     requestGameComplete(config?: IGameCenterEndConfig) {
         GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level,
-            config.complete, config.duration, config.timelimit, config.difficulty, config.levelMode, config.callback);
+            config.complete, config.duration, config.timelimit, config.difficulty, config.callback);
     }
 
     exitCallBack(): void {

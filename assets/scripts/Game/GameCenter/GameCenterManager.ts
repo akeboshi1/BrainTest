@@ -32,65 +32,14 @@ export class GameSocketData {
 export class GameCenterData {
     public gameid: number;
     public sessionid: string;
-    private result;
-    public levelMode: number = 1;
-    // 当前gameData的游戏难度，关卡
-    private _level: number = 0;
-    private _difficulty: number = 1;
-
-    private _difficultDic: Map<number, number> = new Map();
+    public level: number = 0;
+    public difficulty: number = 1;
+    public levelMode:number = 1;
     constructor(data) {
         this.gameid = data.game_id;
         this.sessionid = data.session_id;
-        this.levelMode = data.levelMode;
-        this.result = data.result;
-        let count = this.result.length;
-        for (let i: number = 0; i < count; i++) {
-            let obj = this.result[i];
-            let level = Number(obj['level']);
-            let difficult = Number(obj['difficult']);
-            this._difficultDic.set(difficult, level);
-            // 不管levelmode是否为1，默认所有游戏大厅游戏进度从难度1开始
-            if (i == 0) {
-                this._level = level;
-                this._difficulty = difficult;
-            }
-        }
+        this.level = data.level.length < 1 ? 1 : Number(data.level);
     }
-
-
-    public get difficulty(): number {
-        return this._difficulty;
-    }
-
-    public set difficulty(value: number) {
-        this._difficulty = value;
-    }
-
-    public get level() {
-        if(this.levelMode == 1){
-
-        }else{
-            return this.getLevelByDifficult(this.difficulty);
-        }
-    }
-
-    public set level(value: number) {
-        this._level = value;
-        if (this.levelMode != 1) {
-            this._difficultDic.set(this.difficulty, this._level);
-        }
-    }
-
-    public setLevelByDifficult(difficult: number, level: number) {
-        this._difficultDic.set(difficult, level);
-    }
-
-    public getLevelByDifficult(difficulty: number) {
-        return this._difficultDic.get(difficulty) || 0;
-    }
-
-
 }
 
 /**
@@ -254,7 +203,7 @@ export class GameCenterManager {
      * @param timelimit 游戏限时（秒）
      * @param difficulty 游戏难度1，2，3
      */
-    public gamePassLevel(sessionid: string, count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number,levelMode:number, callback: Function = null) {
+    public gamePassLevel(sessionid: string, count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number, callback: Function = null) {
         if (Global.isAgain) {
             return;
         }
@@ -268,7 +217,6 @@ export class GameCenterManager {
                 duration: duration,
                 time_limit: timelimit,
                 difficulty: difficulty,
-                levelMode
             }
         })
         this._callbackDic.set(GameCenterManager.GAMEPASSLEVEL, new GameSocketData(socketData, callback));

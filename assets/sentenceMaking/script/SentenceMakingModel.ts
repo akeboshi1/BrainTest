@@ -95,7 +95,7 @@ export class SentenceMakingModel {
     goNextQuestion() {
         if (this._view.sceneData.gameType == GameType.SKEWERS) {
             let sceneData = this._view.sceneData as any;
-            if(sceneData.hasCompleteCurGame){
+            if(sceneData.hasCompleteCurGame()){
                 this._view.gotoNextGame();
             }else{
                 let trainData = (this._view.sceneData as any).game.getCurTrainData();
@@ -135,7 +135,7 @@ export class SentenceMakingModel {
     }
 
     get gameTime(): number {
-        if (this._view.sceneData.gameType == GameType.SKEWERS && !(this._view.sceneData as any).hasCompleteCurGame()) {
+        if (this._view.sceneData.gameType == GameType.SKEWERS && !(this._view.sceneData as any).hasCompleteCurGame) {
             return (this._view.sceneData as any).game.timeLimit;
         }
 
