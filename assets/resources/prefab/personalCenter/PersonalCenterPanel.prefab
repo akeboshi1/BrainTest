@@ -296,7 +296,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 1230,
+      "y": 1366.6666666666667,
       "z": 0
     },
     "_lrot": {
@@ -655,7 +655,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 820
+      "height": 546.6666666666666
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -706,7 +706,7 @@
         "__id__": 56
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 68
@@ -876,6 +876,8 @@
       "__id__": 0
     },
     "fileId": "bbxreVP8JKFbJmPJUYq30Q",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1831,6 +1833,8 @@
       "__id__": 0
     },
     "fileId": "7aaI7eFUBMI61Szb46dxYc",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1870,7 +1874,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 820,
+      "y": 546.666666666667,
       "z": 0
     },
     "_lrot": {
@@ -2517,7 +2521,7 @@
         "__id__": 110
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 116
@@ -2846,6 +2850,8 @@
       "__id__": 0
     },
     "fileId": "2eg4E0ullK/Z3zWTmYbRji",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3021,6 +3027,8 @@
       "__id__": 0
     },
     "fileId": "896qtgzRpCyqOeKJV98krA",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3057,7 +3065,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -230,
+      "y": -410,
       "z": 0
     },
     "_lrot": {
@@ -3661,7 +3669,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -410,
+      "y": -590,
       "z": 0
     },
     "_lrot": {
@@ -4244,7 +4252,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 820
+      "height": 640
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4383,6 +4391,8 @@
       "__id__": 0
     },
     "fileId": "c8GwrKOhpJdqrH4GDbWP7Z",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -4633,9 +4643,6 @@
     "_enabled": true,
     "__prefab": {
       "__id__": 191
-    },
-    "titleLabel": {
-      "__id__": 13
     },
     "userName": {
       "__id__": 13
