@@ -42,13 +42,13 @@ export class GameCenterData {
     constructor(data) {
         this.gameid = data.game_id;
         this.sessionid = data.session_id;
-        this.levelMode = data.levelMode;
-        this.result = data.result;
+        this.levelMode = data.level_mode;
+        this.result = data.data;
         let count = this.result.length;
         for (let i: number = 0; i < count; i++) {
             let obj = this.result[i];
-            let level = Number(obj['level']);
-            let difficult = Number(obj['difficult']);
+            let level = Number(obj['level'])==0?1:Number(obj['level']);
+            let difficult = Number(obj['difficulty']);
             this._difficultDic.set(difficult, level);
             // 不管levelmode是否为1，默认所有游戏大厅游戏进度从难度1开始
             if (i == 0) {
@@ -69,7 +69,7 @@ export class GameCenterData {
 
     public get level() {
         if(this.levelMode == 1){
-
+           return this._level;
         }else{
             return this.getLevelByDifficult(this.difficulty);
         }
@@ -137,8 +137,8 @@ export class GameCenterManager {
         DebugLog.instance.log(`${sceneName} 预加载完成`);
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             EventManager.getInstance().emit(SceneManager.SCENE_ENTER);
-            (scene as any).sceneData = GameCenterManager.getInstance().gameSpecData;
-            (scene as any).sceneData.scene = scene as any;
+            (scene as any).sceneModel = GameCenterManager.getInstance().gameSpecData;
+            (scene as any).sceneModel.scene = scene as any;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
     }

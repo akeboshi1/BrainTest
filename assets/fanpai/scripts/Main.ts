@@ -113,6 +113,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.level = (this.sceneModel as any).level;
+        }else{
+
+            this.level = (this.sceneModel as any).level;
+            this.hardIndex = ((this.level % 3) == 0?3:(this.level % 3))-1;
         }
         // this.hardIndex = (this.sceneModel as any).difficulty - 1;
         // this.level = (this.sceneModel as any).level;

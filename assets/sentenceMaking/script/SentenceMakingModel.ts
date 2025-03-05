@@ -45,7 +45,7 @@ export class SentenceMakingModel {
         } else {
             let d = (this._view.sceneModel as any).game;
             this.setQuestionDifficult(d.difficulty);
-            this.currentQuestionLevel = d.level - 1;
+            this.currentQuestionLevel = d.level;
         }
     }
 
@@ -153,7 +153,7 @@ export class SentenceMakingModel {
         } else {
             let curGame = (this._view.sceneModel as any).game;
             // levelmode=1得时候，如何传递level和难度给服务器
-            this._view.requestGameCenterComplete(result, this.getcurrentQuestionLevel() + 1, result, duration, this.gameTime, this.getCurrentDifficult() + 1,curGame.levelMode);
+            this._view.requestGameCenterComplete(result, this.getcurrentQuestionLevel(), result, duration, this.gameTime, this.getCurrentDifficult(),curGame.levelMode);
             // const curGame = GameCenterManager.getInstance().currentGame;
             // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, result, this.getcurrentQuestionLevel() + 1, result, duration, this.gameTime, this.getCurrentLevel() + 1);
         }

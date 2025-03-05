@@ -43,6 +43,10 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
         return GameCenterManager.getInstance().currentGame.level;
     }
 
+    get difficulty(): number {
+        return GameCenterManager.getInstance().currentGame.difficulty;
+    }
+
     get sessionid(): string {
         return GameCenterManager.getInstance().currentGame.sessionid;
     }
@@ -72,8 +76,8 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     }
 
     requestGameComplete(config?: IGameCenterEndConfig) {
-        GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level,
-            config.complete, config.duration, config.timelimit, config.difficulty, config.levelMode, config.callback);
+        GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level+1,
+            config.complete, config.duration, config.timelimit, config.difficulty+1, config.levelMode, config.callback);
     }
 
     exitCallBack(): void {
