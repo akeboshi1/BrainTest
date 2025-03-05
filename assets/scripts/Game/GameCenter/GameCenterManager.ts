@@ -268,7 +268,7 @@ export class GameCenterManager {
                 duration: duration,
                 time_limit: timelimit,
                 difficulty: difficulty,
-                levelMode
+                level_mode:levelMode
             }
         })
         this._callbackDic.set(GameCenterManager.GAMEPASSLEVEL, new GameSocketData(socketData, callback));
