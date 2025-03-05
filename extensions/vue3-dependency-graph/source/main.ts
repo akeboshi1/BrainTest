@@ -2,6 +2,7 @@
 import { join } from 'path';
 import packageJSON from '../package.json';
 import { generateBundleVersions } from './utils/generate-bundle-versions';
+import { checkExternalReferences } from './utils/check-external-references';
 
 /**
  * @en Registration method for the main process of Extension
@@ -22,7 +23,7 @@ export const methods: { [key: string]: (...any: any) => any } = {
         // 获取项目根目录路径
         const projectRoot = Editor.Project.path;
         // 构建完整目标路径
-        const targetPath = join(projectRoot, '/build/build-bundle/remote');
+        const targetPath = join(projectRoot, '/build/android/remote');
         
         console.log('目标路径:', targetPath);
 
@@ -31,6 +32,13 @@ export const methods: { [key: string]: (...any: any) => any } = {
         } else {
             console.warn('❌ 版本文件生成失败');
         }
+    },
+
+    async processDepCheck() {
+        console.log('开始执行依赖检查');    
+
+        await checkExternalReferences("testBundle");
+        console.log('✅ 依赖检查完成');
     }
 };
 

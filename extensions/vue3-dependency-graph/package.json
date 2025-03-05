@@ -48,6 +48,11 @@
                 "path": "publish-tools",
                 "label": "process_PublishFlow",
                 "message": "process_PublishFlow"
+            },
+            {
+                "path": "dep-check",
+                "label": "dep-check",
+                "message": "process_depCheck"
             }
         ],
         "messages": {
@@ -59,6 +64,11 @@
             "process_PublishFlow": {
                 "methods": [
                     "processPublishFlow"
+                ]
+            },
+            "process_depCheck": {
+                "methods": [
+                    "processDepCheck"
                 ]
             }
         }

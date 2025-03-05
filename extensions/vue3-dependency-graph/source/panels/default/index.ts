@@ -3,7 +3,15 @@ import * as path from 'path';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { createApp, App } from 'vue';
+import { checkExternalReferences } from '../../utils/check-external-references';
 const panelDataMap = new WeakMap<any, App>();
+
+interface MyComponent {
+    bundleName: string;
+    handleCheck(): Promise<void>;
+    handleClick(): Promise<void>;
+    logResults(result: PackageDeps): void;
+}
 
 /**
  * @zh 如果希望兼容 3.3 之前的版本可以使用下方的代码
@@ -33,9 +41,30 @@ module.exports = Editor.Panel.define({
             
             app.component('MyPackageButton', {
                 template: `
-                    <button @click="handleClick"> 包依赖分析 </button>
+                    <div class="toolbar">
+                        <button @click="handleClick">包依赖分析</button>
+                        <div class="input-group">
+                            <input v-model="bundleName" placeholder="输入 Bundle 名称">
+                            <button @click="handleCheck">检查外部引用</button>
+                        </div>
+                    </div>
                 `,
+                data():{ bundleName: string } {
+                    return {
+                        bundleName: 'resources'
+                    };
+                },
                 methods: {
+                    async handleCheck(this: MyComponent) {
+                        try {
+                            console.log(this.bundleName); // 输出输入的 Bundle 名称
+                            console.log(`开始检查 Bundle: ${this.bundleName}`);
+                            const result = await checkExternalReferences(this.bundleName);
+                            console.log('外部引用检查结果:', result);
+                        } catch (error) {
+                            console.error('检查失败:', error);
+                        }
+                    },
                     async handleClick() {
                         try {
                             const projectPath = Editor.Project.path;

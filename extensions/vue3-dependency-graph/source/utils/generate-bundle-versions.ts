@@ -23,10 +23,11 @@ export async function generateBundleVersions(targetPath: string): Promise<boolea
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name);
 
+        const configPath = Editor.Project.path + "/publish-remote-bundle";
         // 读取旧版本文件
         let oldVersions = { bundles: {} } as any;
         try {
-            oldVersions = JSON.parse(readFileSync(join(targetPath, 'bundle_versions.json'), 'utf-8'));
+            oldVersions = JSON.parse(readFileSync(join(configPath, 'bundle_versions.json'), 'utf-8'));
         } catch { }
 
         let hasChanges = false;
@@ -50,13 +51,14 @@ export async function generateBundleVersions(targetPath: string): Promise<boolea
                 }
 
                 acc[name] = {
-                    version: `${today} ${bundleVersion}`,
+                    version: currentMD5 !== oldBundle.md5 
+                        ? `${today} ${bundleVersion}`  // MD5变化时生成新版本号
+                        : oldBundle.version,           // MD5未变化时保持原版本号
                     md5: currentMD5,
                     md5backup: currentMD5 === oldBundle.md5 ? oldBundle.md5backup : oldBundle.md5,
-                    // 新增版本备份字段
                     versionbackup: currentMD5 !== oldBundle.md5 
-                        ? oldBundle.version  // 版本变化时记录旧版本
-                        : (oldBundle.versionbackup || oldBundle.version) // 未变化时继承旧备份
+                        ? oldBundle.version  
+                        : (oldBundle.versionbackup || oldBundle.version)
                 };
                 return acc;
             }, {} as Record<string, any>),
@@ -85,7 +87,7 @@ export async function generateBundleVersions(targetPath: string): Promise<boolea
         );
 
         // 新增发布目录处理
-        const publishPath = join(targetPath, '../publish');
+        const publishPath = join(Editor.Project.path, 'publish-remote-bundle');
         if (existsSync(publishPath)) {
             rmSync(publishPath, { recursive: true, force: true });
         }
