@@ -134,6 +134,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             playIndex = game.seq;
             this.bgNode.active = false;
         } else {
+            this.selectedLevelIndex = ((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
             this.bgNode.active = true;
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
@@ -619,7 +620,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private _requestGameCenterComplete(win: number = 0) {
         const curGame = (this.sceneModel as any).game;
         this._endTime = TimeUtil.getNow();
-        let level = curGame.level + 1;
+        let level = curGame.level;
+        let difficulty = level % 3 == 0?3:level % 3;
         let complete = win;
         let duration = (this._endTime - this._startTime) / 1000;
         this.requestGameComplete({
@@ -629,7 +631,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             complete,
             duration,
             timelimit: this.gameLength,
-            difficulty: curGame.difficulty,
+            difficulty,
             levelMode:curGame.levelMode
         });
     }

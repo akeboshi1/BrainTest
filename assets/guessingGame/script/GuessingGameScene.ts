@@ -265,7 +265,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: 0,
-            level: this.guessingGameModel.currentQuestionIndex + 1,
+            level: this.guessingGameModel.currentQuestionIndex,
             complete,
             duration,
             timelimit: this.timeLimit,

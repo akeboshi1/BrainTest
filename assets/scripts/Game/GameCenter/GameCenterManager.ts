@@ -283,8 +283,15 @@ export class GameCenterManager {
             return;
         }
         this._curGame.sessionid = data.data.session_id;
-        this._curGame.level = Number(data.data.level);
-        this._curGame.difficulty = data.data.difficulty;
+        let levelMode = data.data.levelMode;
+        if(levelMode == 2){
+            this._curGame.setLevelByDifficult(data.data.difficulty, data.data.level);
+        }else {
+            this._curGame.level = Number(data.data.level);
+            this._curGame.difficulty = data.data.difficulty;
+        }
+
+
         EventManager.getInstance().off(GameCenterManager.GAMEPASSLEVEL, context);
         let gsData = this._callbackDic.get(GameCenterManager.GAMEPASSLEVEL);
         DebugLog.instance.log("gamePassLevelData", data);

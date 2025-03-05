@@ -77,7 +77,7 @@ export class SentenceMakingModel {
 
             }
         }
-        return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index);
+        return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index - 1);
     }
 
     get isRunOver():boolean{
@@ -111,11 +111,17 @@ export class SentenceMakingModel {
             //     this.setQuestionDifficult(this.skewerGameQuestionDatas[this.currentQuestionLevel].difficult);
             // }
         } else {
-            this.selectedDifficult = (this.selectedDifficult + 1) % 3;//最多3个难度1,2,3
+            //this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
+            this.selectedDifficult = (this.selectedDifficult + 1) % 3 == 0?3:(this.selectedDifficult+1) % 3;//最多3个难度1,2,3
+            this.currentQuestionLevel = (this._view.sceneModel as any).game.getLevelByDifficult(this.selectedDifficult);
             // if (this.selectedDifficult == 0) {
             //     this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
             // }
         }
+    }
+
+    requestGameCompleteCallBack(){
+       this.goNextQuestion();
     }
 
     getCurrentDifficult(): number {
@@ -153,7 +159,8 @@ export class SentenceMakingModel {
         } else {
             let curGame = (this._view.sceneModel as any).game;
             // levelmode=1得时候，如何传递level和难度给服务器
-            this._view.requestGameCenterComplete(result, this.getcurrentQuestionLevel(), result, duration, this.gameTime, this.getCurrentDifficult(),curGame.levelMode);
+            let difficulty = this.getCurrentDifficult() == 3 ? 3 : this.getCurrentDifficult();
+            this._view.requestGameCenterComplete(result, curGame.level, result, duration, this.gameTime, difficulty,curGame.levelMode);
             // const curGame = GameCenterManager.getInstance().currentGame;
             // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, result, this.getcurrentQuestionLevel() + 1, result, duration, this.gameTime, this.getCurrentLevel() + 1);
         }

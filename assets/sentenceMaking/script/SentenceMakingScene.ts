@@ -136,6 +136,10 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         });
     }
 
+    requestGameCompleteCallBack(){
+        this.model.requestGameCompleteCallBack();
+    }
+
     private initRects(question: SentenceMakingQuestion) {
         for (let i = 0; i < (this.lineMaxNum * this.rawMaxNum); i++) {
             let sourceRect = new Rect();

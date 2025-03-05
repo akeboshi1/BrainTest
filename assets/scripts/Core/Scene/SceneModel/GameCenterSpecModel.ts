@@ -1,5 +1,6 @@
 import {BaseGameModel, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig} from "./BaseGameModel";
 import { GameCenterData, GameCenterManager } from "../../../Game/GameCenter/GameCenterManager";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 
 // 游戏大厅进入上报参数
 interface IGameCenterStartConfig {
@@ -76,8 +77,11 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     }
 
     requestGameComplete(config?: IGameCenterEndConfig) {
-        GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level+1,
-            config.complete, config.duration, config.timelimit, config.difficulty+1, config.levelMode, config.callback);
+        EventManager.getInstance().on(GameCenterManager.GAMEPASSLEVEL, this.requestGameCompleteCallBack, this,true);
+        // 大厅游戏难度越界处理
+        config.difficulty = config.difficulty % 3 == 0?3:config.difficulty;
+        GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level + 1,
+            config.complete, config.duration, config.timelimit, config.difficulty, config.levelMode, config.callback);
     }
 
     exitCallBack(): void {

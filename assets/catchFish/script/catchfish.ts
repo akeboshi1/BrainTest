@@ -103,7 +103,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private curHard: number = 0;
     private hards: number[] = [1, 2, 3];
-    private hardIndex: number = 0;
+    private hardIndex: number = -1;
     private customsSendDataState: boolean;
 
     private hasWangClick: boolean = false;
@@ -304,6 +304,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     break;
             }
         } else {
+            if(this.hardIndex == -1){
+                this.hardIndex =((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
+            }
             if (win) {
                 this.curHard = this.hards[this.hardIndex];
             } else {
@@ -1033,7 +1036,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _requestGameCenterComplete() {
         const curGame = (this.sceneModel as any).game;
         this._endTime = TimeUtil.getNow();
-        let level = curGame.level + 1;
+        let level = curGame.level;
         let complete = this.wangCount / this.wangMaxCount;
         let duration = (this._endTime - this._startTime) / 1000;
         this.requestGameComplete({
