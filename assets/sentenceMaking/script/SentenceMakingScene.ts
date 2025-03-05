@@ -4,10 +4,10 @@ import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertM
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
 import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../scripts/Core/Util/DebugLog';
-import { BaseScene } from '../../scene/Core/BaseScene';
-import { GameType, IBaseGameChild, IQuitGameConfig } from '../../scripts/Game/GameDataFactory/BaseGameData';
 import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
 import { LayerUtil } from '../../scripts/Core/Util/LayerUtil';
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -119,11 +119,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     requestSkewersGameComplete(complete: number, duration: number) {
-        this.sceneData.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+        this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
     }
 
     requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number,levelMode:number) {
-        const curGame = (this.sceneData as any).game;
+        const curGame = (this.sceneModel as any).game;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count,
@@ -208,7 +208,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     private async startGameFlow() {
-        // if (this.sceneData.gameType == GameType.SKEWERS && (this.sceneData as any).game.type != SkewersGameType.Language) {
+        // if (this.sceneModel.gameType == GameType.SKEWERS && (this.sceneModel as any).game.type != SkewersGameType.Language) {
         //     return;
         // }
 
@@ -612,7 +612,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     // private processBack() {
-    //     if (this.sceneData.gameType == GameType.SKEWERS) {
+    //     if (this.sceneModel.gameType == GameType.SKEWERS) {
     //         SkewersManager.getInstance().exitCallBack();
     //     } else {
     //         GameCenterManager.getInstance().exitCallBack();
@@ -689,7 +689,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             ad.title = "可惜";
             ad.message = "挑战失败了";
             this.playFail();
-            if (this.sceneData.gameType == GameType.SKEWERS) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
                 showAlert = false;
             }
         }
@@ -727,21 +727,21 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     goonHandler() {
         this.clearGameView();
-        if (this.sceneData) {
-            if (this.sceneData.gameType == GameType.SKEWERS) {
-                (this.sceneData as any).goonHandler(this, this.model.isRunOver);
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
                 if (!this.model.isRunOver) this.clickNextLeve();
             } else {
-                this.sceneData.goonHandler();
+                this.sceneModel.goonHandler();
             }
         }
     }
 
     gotoNextGame() {
         this.clearGameView();
-        if (this.sceneData) {
-            if (this.sceneData.gameType == GameType.SKEWERS) {
-                (this.sceneData as any).goonHandler(this, this.model.isRunOver);
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
             }
         }
     }

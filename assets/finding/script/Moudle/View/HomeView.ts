@@ -9,8 +9,8 @@ import {_decorator, director, Node, Sprite, SpriteFrame, Texture2D} from "cc";
 import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
 import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
-import { GameType } from "db://assets/scripts/Game/GameDataFactory/BaseGameData";
 import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -33,7 +33,7 @@ export default class HomeView extends LayerPanel {
     protected bundleName:string = "finding";
 
     initUI():Promise<void> {
-        this.sceneData = (director.getScene() as unknown as {sceneData}).sceneData;
+        this.sceneModel = (director.getScene() as unknown as {sceneModel}).sceneModel;
         return new Promise(resolve => {
             PanelMgr.INS.openPanel({
                 panel: GameInfoView,
@@ -43,7 +43,7 @@ export default class HomeView extends LayerPanel {
                 this.pictureBGNode = this.getNode("bg");
                 this.logoNode = this.getNode("logo");
                 let logoSprite = this.logoNode.getComponent(Sprite);
-                if(this.sceneData.gameType == GameType.SKEWERS){
+                if(this.sceneModel.gameType == GameType.SKEWERS){
                     LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame)=>{
                         logoSprite.spriteFrame = spiteFrame;
                     });
@@ -82,7 +82,7 @@ export default class HomeView extends LayerPanel {
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
         }else{
-            checkPoint = this.sceneData.gameType == GameType.SKEWERS?this.randomSkewerGame():CacheMgr.checkpoint==0?CacheMgr.checkpoint = (this.sceneData as any).level:CacheMgr.checkpoint;
+            checkPoint = this.sceneModel.gameType == GameType.SKEWERS?this.randomSkewerGame():CacheMgr.checkpoint==0?CacheMgr.checkpoint = (this.sceneModel as any).level:CacheMgr.checkpoint;
         }
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;

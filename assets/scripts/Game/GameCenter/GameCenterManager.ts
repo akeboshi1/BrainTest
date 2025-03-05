@@ -8,11 +8,11 @@ import { LoaderManager } from "../../Core/Manager/Load/LoaderManager";
 import { instantiate, Node } from "cc";
 import { AlertType } from "db://assets/scripts/Game/UI/Alert/GameAlert";
 import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
-import { GameDataFactory } from "../GameDataFactory/GameDataFactory";
-import { GameCenterSpecData } from "../GameDataFactory/GameCenterSpecData";
-import { GameType } from "../GameDataFactory/BaseGameData";
 import { BundlePreloadEvent, BundlePreloadManager } from "../../Core/Manager/Load/BundlePreloadManager";
 import { BundleName } from "../../Core/Manager/Load/BundleName";
+import {GameCenterSpecModel} from "db://assets/scripts/Core/Scene/SceneModel/GameCenterSpecModel";
+import {GameDataFactory} from "db://assets/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 /**
  * 游戏大厅通信数据
@@ -120,10 +120,10 @@ export class GameCenterManager {
 
     private _alertInstance: Node = null;
 
-    private _curGameSpecData: GameCenterSpecData;
+    private _curGameSpecData: GameCenterSpecModel;
 
     constructor() {
-        GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecData);
+        GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecModel);
 
     }
 
@@ -143,7 +143,7 @@ export class GameCenterManager {
         });
     }
 
-    public get gameSpecData(): GameCenterSpecData {
+    public get gameSpecData(): GameCenterSpecModel {
         if (!this._curGameSpecData) {
             this._curGameSpecData = GameDataFactory.create(GameType.GAME_CENTER);
         }

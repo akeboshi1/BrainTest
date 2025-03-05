@@ -4,9 +4,9 @@ import { EventCode } from "../Common/manage/Emit/EmitData";
 import HomeView from "../Moudle/View/HomeView";
 import { _decorator, Component, JsonAsset, Node } from "cc";
 import AudioMgr from "../Common/manage/AudioMgr";
-import { BaseScene } from "db://assets/scene/Core/BaseScene";
-import { IBaseGameChild } from "db://assets/scripts/Game/GameDataFactory/BaseGameData";
 import GameView from "../Moudle/View/GameView";
+import {IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
 //
 // macro.CLEANUP_IMAGE_CACHE = false;
 // dynamicAtlasManager.enabled = true;

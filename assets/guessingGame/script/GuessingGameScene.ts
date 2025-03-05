@@ -7,8 +7,8 @@ import { RollingSubtitleComponent } from './RollingSubtitleComponent';
 import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
 import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
-import { BaseScene } from '../../scene/Core/BaseScene';
-import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 @ccclass('GuessingGameScene')
@@ -155,8 +155,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (!this._replay) {
             this._startTime = TimeUtil.getNow();
             this.timerRT.node.active = true;
-            if (this.sceneData.gameType == GameType.SKEWERS) {
-                this.timeLimit = (this.sceneData as any).game.timeLimit;
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                this.timeLimit = (this.sceneModel as any).game.timeLimit;
             } else {
                 this.timeLimit = 30;
             }
@@ -180,7 +180,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (result) {
             this.playAudio("audio/music/win", true);
         }
-        if (this.sceneData.gameType == GameType.SKEWERS) {
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.resultPanel.active = false;
             this.successTextNode.active = false;
             this.failedTextNode.active = false;
@@ -260,7 +260,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (this._startTime == 0) {
             this._startTime = endTime;
         }
-        const curGame = (this.sceneData as any).game;
+        const curGame = (this.sceneModel as any).game;
         let duration = (endTime - this._startTime) / 1000;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
@@ -320,12 +320,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     goonHandler() {
         this.clearGameView();
-        if (this.sceneData) {
-            if (this.sceneData.gameType == GameType.SKEWERS) {
-                (this.sceneData as any).goonHandler(this, false);
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                (this.sceneModel as any).goonHandler(this, false);
                 if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
             } else {
-                this.sceneData.goonHandler();
+                this.sceneModel.goonHandler();
             }
         }
     }

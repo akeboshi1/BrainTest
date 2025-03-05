@@ -31,8 +31,8 @@ import { GuideManager, GuideState } from "db://assets/scripts/Core/Manager/Guide
 import { FindingGuide } from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
 import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
-import { GameType } from "db://assets/scripts/Game/GameDataFactory/BaseGameData";
 import { Game } from "../../Scene/Game";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const { ccclass, property } = _decorator;
 
@@ -125,7 +125,7 @@ export default class GameView extends LayerPanel {
     private _checkPoint = 0;
 
     initUI(): Promise<void> {
-        this.sceneData = (director.getScene() as unknown as { sceneData }).sceneData;
+        this.sceneModel = (director.getScene() as unknown as { sceneModel }).sceneModel;
         return new Promise(async resolve => {
             this.framePostions = [];
             this._startTime = TimeUtil.getNow();
@@ -151,9 +151,9 @@ export default class GameView extends LayerPanel {
             this.plistNode.active = false;
             this._checkPoint = CacheMgr.checkpoint;
             let loopLevel = 0;
-            if (this.sceneData.gameType == GameType.SKEWERS) {
-                let skewersGameData = (this.sceneData as any).game;
-                this._curHard = (this.sceneData as any).difficulty;//Global.userData.curSkewerGameData.difficulty;
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                let skewersGameData = (this.sceneModel as any).game;
+                this._curHard = (this.sceneModel as any).difficulty;//Global.userData.curSkewerGameData.difficulty;
                 // test code
                 loopLevel = FindingGlobal.curSkewersGameIndex;
                 this._checkPoint = loopLevel % GameConfig.allCheckPoint;
@@ -227,7 +227,7 @@ export default class GameView extends LayerPanel {
                         self.frameList.push(nodeUITransform.getBoundingBox());
                         self.frameList[i].id = i + 1;
                     }
-                    if (self._checkPoint == 1 && self.sceneData.gameType != GameType.SKEWERS) {
+                    if (self._checkPoint == 1 && self.sceneModel.gameType != GameType.SKEWERS) {
                         self.newHandHint();
                     }
 
@@ -265,7 +265,7 @@ export default class GameView extends LayerPanel {
 
 
     resumeCallBack(context) {
-        // if(context.sceneData.gameType == GameType.SKEWERS) {
+        // if(context.sceneModel.gameType == GameType.SKEWERS) {
         //     if(!SkewersManager.getInstance().isRunOver()){
         //         context.pause = false;
         //     }else{
@@ -275,7 +275,7 @@ export default class GameView extends LayerPanel {
         //     context.pause = false;
         // }
         context.pause = super.resumeCallBack(context);
-        if (context.sceneData.gameType == GameType.SKEWERS && context.pause) {
+        if (context.sceneModel.gameType == GameType.SKEWERS && context.pause) {
             context.exitCallBack();
         }
     }
@@ -283,7 +283,7 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
         this.tempList = [];
         this.clockTime = GameConfig.clockTime;
-        if (this._checkPoint != 1 || this.sceneData.gameType == GameType.SKEWERS) this.monitorEvent();
+        if (this._checkPoint != 1 || this.sceneModel.gameType == GameType.SKEWERS) this.monitorEvent();
     }
 
     public newHandHint() {
@@ -450,7 +450,7 @@ export default class GameView extends LayerPanel {
         let clickPos;
         let url = "sub/image/view/gameView/public/rightRound";
         if (!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().curGuide instanceof FindingGuide == true && GuideManager.getInstance().curGuide.state == GuideState.processing) {
-            (this.sceneData as any).gameMatch();
+            (this.sceneModel as any).gameMatch();
             AudioMgr.play("sub/audio/view/game/right", 1, false).then()
             let destroyHint = () => {
                 this.hintData = null;
@@ -507,7 +507,7 @@ export default class GameView extends LayerPanel {
             let checkRect = this.frameList[i];
             let isClick = rect.intersects(checkRect);
             if (isClick) {
-                (this.sceneData as any).gameMatch();
+                (this.sceneModel as any).gameMatch();
 
                 // if(Global.isSkewersGame){
 
@@ -611,7 +611,7 @@ export default class GameView extends LayerPanel {
 
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
-        if (this.sceneData.gameType == GameType.SKEWERS) {
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
             this._requestSkewersGameComplete();
         } else {
             this._requestGameCenterComplete();
@@ -656,7 +656,7 @@ export default class GameView extends LayerPanel {
     }
 
     private _requestGameCenterComplete() {
-        const curGame = (this.sceneData as any).game;
+        const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
