@@ -6,10 +6,6 @@ import {UserData} from "../../../Core/Data/UserData";
 export class Global {
     static API_Root = "";
     static RES_Root = "";
-    static remote_bundle:boolean = false;
-    static remote_url:string = "";
-
-    
 
     static userData:UserData;
 

@@ -2,11 +2,11 @@ import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { BundlePreloadConfig } from "../../../Config/BundlePreloadConfig";
 import { EventManager } from "../Event/EventManager";
-import { assetManager, AssetManager, JsonAsset, sys } from "cc";
+import { assetManager, AssetManager, debug, JsonAsset, sys } from "cc";
 import { BundleName } from "./BundleName";
 import { UIManager } from "../UI/UIManager";
 import { LoadPanel } from "../../../Game/UI/Load/LoadPanel";
-import { Global } from "../Config/Global";
+import { BundleManager } from "../../../../app/BundleManager";
 // BundlePreloadManager类用于管理资源包的预加载和释放操作，通过配置文件获取预加载信息，并触发相应事件通知外部相关进度和状态 
 
 export class BundlePreloadManager extends BaseManager {
@@ -15,8 +15,6 @@ export class BundlePreloadManager extends BaseManager {
 
     // 配置对象，用于读取和解析资源包预加载相关的配置信息
     private config: BundlePreloadConfig = new BundlePreloadConfig();
-
-    private bundleVersions: Record<string, string> = {}; // 新增版本存储
 
     // 单例模式获取实例的静态方法，确保整个项目中只有一个BundlePreloadManager实例在运行
     public static getInstance(): BundlePreloadManager {
@@ -38,42 +36,11 @@ export class BundlePreloadManager extends BaseManager {
         }
     }
 
-    // 新增初始化方法
-    public async initBundleVersions(remoteUrl: string) {
-        try {
-            if(sys.isNative) {
-                assetManager.cacheManager.removeCache(remoteUrl);
-            }
-            const response = await new Promise<Record<string, string>>((resolve, reject) => {
-                assetManager.loadRemote(remoteUrl, (err, data: JsonAsset) => {
-                    if (err) return reject(err);
-                    try {
-                        const versions = data.json;
-                        resolve(versions);
-                    } catch (parseErr) {
-                        reject(parseErr);
-                    }
-                });
-            });
-            
-            this.bundleVersions = response;
-            DebugLog.instance.log('Bundle版本信息加载完成', this.bundleVersions);
-        } catch (error) {
-            DebugLog.instance.error('加载Bundle版本文件失败:', error);
-            throw error; // 抛出错误供上层处理
-        }
-    }
-
     // 预加载指定资源包的方法，根据配置文件中的信息，加载对应资源包下的场景和其他资源，并触发相应的事件通知外部加载进度等情况
     async preload(bundleName: BundleName) {
         if (!this.bInit) {
             DebugLog.instance.error("BundlePreloadManager尚未初始化，请先调用init方法");
             return;
-        }
-
-        const version = this.bundleVersions[bundleName];
-        if (!version) {
-            DebugLog.instance.warn(`未找到${bundleName}的版本号，使用默认加载方式`);
         }
 
         let isBundleConfigExist: boolean = this.config.getGameModuleNames().indexOf(bundleName) >= 0;
@@ -95,8 +62,11 @@ export class BundlePreloadManager extends BaseManager {
             bundle = assetManager.getBundle(bundleName);
             if (!bundle) {
                 bundle = await new Promise<AssetManager.Bundle>((resolve, reject) => {
-                    const bundleUrl = Global.remote_bundle ? Global.remote_url + bundleName : bundleName;
-                    const options = Global.remote_bundle ? { version } : undefined;
+                    const isRemoteConfigEnabled = BundleManager.getInstance().isRemoteConfigEnabled;
+                    const bundleUrl = isRemoteConfigEnabled ?  BundleManager.getInstance().getBundleRemoteUrl(bundleName) : bundleName;
+                    const options = isRemoteConfigEnabled ? { version : BundleManager.getInstance().getBundleMD5(bundleName) } : undefined;
+                    DebugLog.instance.log(`开始加载资源包 ${bundleUrl}, version: ${options?.version}`);
+
                     assetManager.loadBundle(bundleUrl, options, (err, bundle) => {
                         if (err) {
                             reject(err);

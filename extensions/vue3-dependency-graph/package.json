@@ -40,14 +40,19 @@
     "contributions": {
         "menu": [
             {
-                "path": "vue3-dependency-graph",
-                "label": "i18n:vue3-dependency-graph.open_panel",
+                "path": "publish-tools",
+                "label": "open_panel",
                 "message": "open-panel"
             },
             {
-                "path": "vue3-dependency-graph",
-                "label": "i18n:vue3-dependency-graph.send_to_panel",
-                "message": "send-to-panel"
+                "path": "publish-tools",
+                "label": "process_PublishFlow",
+                "message": "process_PublishFlow"
+            },
+            {
+                "path": "dep-check",
+                "label": "dep-check",
+                "message": "process_depCheck"
             }
         ],
         "messages": {
@@ -56,9 +61,14 @@
                     "openPanel"
                 ]
             },
-            "send-to-panel": {
+            "process_PublishFlow": {
                 "methods": [
-                    "default.hello"
+                    "processPublishFlow"
+                ]
+            },
+            "process_depCheck": {
+                "methods": [
+                    "processDepCheck"
                 ]
             }
         }

@@ -137,7 +137,6 @@ export class App extends BaseObejct {
             LoginManager.getInstance().init();
             TaskManager.getInstance().init();
             BundlePreloadManager.getInstance().init();
-            BundlePreloadManager.getInstance().initBundleVersions(this.publishSetting.remote_url.valueOf() + 'bundle_versions.json');
             ChatFlowModel.getInstance().init();
         }
         await GuideManager.getInstance().init();
