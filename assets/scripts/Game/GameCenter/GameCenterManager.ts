@@ -83,7 +83,7 @@ export class GameCenterData {
     }
 
     public setLevelByDifficult(difficult: number, level: number) {
-        this._difficultDic.set(difficult, level);
+        this._difficultDic.set(Number(difficult), Number(level));
     }
 
     public getLevelByDifficult(difficulty: number) {
@@ -283,7 +283,7 @@ export class GameCenterManager {
             return;
         }
         this._curGame.sessionid = data.data.session_id;
-        let levelMode = data.data.levelMode;
+        let levelMode = data.data.level_mode;
         if(levelMode == 2){
             this._curGame.setLevelByDifficult(data.data.difficulty, data.data.level);
         }else {
