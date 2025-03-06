@@ -161,16 +161,16 @@ export default class GameView extends LayerPanel {
                 this.tempCountDown = skewersGameData.timeLimit;
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
-                let _level = CacheMgr.checkpoint;
-                this._checkPoint = _level;
-                if (_level % 3 == 0) {
-                    if (_level == 0) {
+                let _hard = CacheMgr.hard;
+                this._checkPoint = CacheMgr.checkpoint;
+                if (_hard % 3 == 0) {
+                    if (_hard == 0) {
                         this._curHard = 1;
                     } else {
                         this._curHard = 3;
                     }
                 } else {
-                    this._curHard = _level % 3;
+                    this._curHard = _hard % 3;
                 }
 
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
@@ -656,6 +656,7 @@ export default class GameView extends LayerPanel {
     }
 
     private _requestGameCenterComplete() {
+        CacheMgr.hard++;
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         this.requestGameComplete({

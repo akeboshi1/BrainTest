@@ -82,11 +82,12 @@ export default class HomeView extends LayerPanel {
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
         }else{
-            checkPoint = this.sceneModel.gameType == GameType.SKEWERS
-                ? this.randomSkewerGame()
-                : CacheMgr.checkpoint==0
-                    ? CacheMgr.checkpoint = (this.sceneModel as any).level
-                    : CacheMgr.checkpoint;
+            checkPoint = this.sceneModel.gameType == GameType.SKEWERS?this.randomSkewerGame():CacheMgr.checkpoint==0?CacheMgr.checkpoint = (this.sceneModel as any).level:CacheMgr.checkpoint;
+            // checkPoint = this.sceneModel.gameType == GameType.SKEWERS
+            //     ? this.randomSkewerGame()
+            //     : CacheMgr.checkpoint==0
+            //         ? CacheMgr.checkpoint = (this.sceneModel as any).level
+            //         : CacheMgr.checkpoint;
         }
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;

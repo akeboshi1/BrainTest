@@ -49,6 +49,10 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         return SkewersManager.getInstance().curGame;
     }
 
+    get level():number{
+        return SkewersManager.getInstance().curGame.level;
+    }
+
     get difficulty(): number {
         return SkewersManager.getInstance().curGame.difficulty;
     }

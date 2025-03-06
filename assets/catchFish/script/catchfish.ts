@@ -103,7 +103,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private curHard: number = 0;
     private hards: number[] = [1, 2, 3];
-    private hardIndex: number = -1;
+    private hardIndex: number = 0;
     private customsSendDataState: boolean;
 
     private hasWangClick: boolean = false;
@@ -304,9 +304,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     break;
             }
         } else {
-            if(this.hardIndex == -1){
-                this.hardIndex =((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
-            }
+            // if(this.hardIndex == -1){
+            //     this.hardIndex =((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
+            // }
             if (win) {
                 this.curHard = this.hards[this.hardIndex];
             } else {

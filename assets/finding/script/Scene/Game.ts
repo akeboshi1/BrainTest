@@ -7,6 +7,7 @@ import AudioMgr from "../Common/manage/AudioMgr";
 import GameView from "../Moudle/View/GameView";
 import {IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import CacheMgr from "db://assets/finding/script/Common/manage/CacheMgr";
 //
 // macro.CLEANUP_IMAGE_CACHE = false;
 // dynamicAtlasManager.enabled = true;

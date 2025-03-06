@@ -133,17 +133,19 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.gameLength = game.timeLimit;
             playIndex = game.seq;
             this.bgNode.active = false;
+            this.textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
         } else {
-            this.selectedLevelIndex = ((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
+            // this.selectedLevelIndex = ((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
             this.bgNode.active = true;
+            this.textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
         for (let i = 1; i < 21; i++) {
             this.randomPlayIndex.push(i);
         }
-        this.randomPlayIndex.sort(() => Math.random() - 0.5);
+        // this.randomPlayIndex.sort(() => Math.random() - 0.5);
 
-        this.textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
+
         let textureID = this.randomPlayIndex[this.textureIndex];
         this.loadPuzzleTexture(textureID).then((texture) => {
             this.currentTexture2d = texture;
