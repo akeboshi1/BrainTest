@@ -168,6 +168,8 @@ class CachesMgr {
         return Number(this._checkpoint);
     }
 
+    public hard:number=1;
+
     set checkpoint(value: number) {
         this.saveData("_checkpoint", value);
         this._checkpoint = value;

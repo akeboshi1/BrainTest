@@ -559,10 +559,10 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         rect.height = this.itemheight;
 
         // 打印被检测的矩形
-        DebugLog.instance.log(`开始检测碰撞区域：
-           目标矩形: X=${rect.x.toFixed(1)} Y=${rect.y.toFixed(1)}
-           尺寸: ${rect.width.toFixed(1)}x${rect.height.toFixed(1)}
-           所属卡片: ${target.getComponent(CardCtrl)?.getid()}`);
+        // DebugLog.instance.log(`开始检测碰撞区域：
+        //    目标矩形: X=${rect.x.toFixed(1)} Y=${rect.y.toFixed(1)}
+        //    尺寸: ${rect.width.toFixed(1)}x${rect.height.toFixed(1)}
+        //    所属卡片: ${target.getComponent(CardCtrl)?.getid()}`);
 
         let maxOverlapArea = 0;
         let overlapCount = 0;
@@ -599,10 +599,10 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         }
 
         // 在检测结束时打印最终结果
-        DebugLog.instance.log(`碰撞检测结果：
-           最大重叠区域: ${maxOverlapArea.toFixed(1)}
-           目标容器: ${this.touchResult === 1 ? '源容器' : '结果容器'}
-           索引: ${this.touchIndex}`);
+        // DebugLog.instance.log(`碰撞检测结果：
+        //    最大重叠区域: ${maxOverlapArea.toFixed(1)}
+        //    目标容器: ${this.touchResult === 1 ? '源容器' : '结果容器'}
+        //    索引: ${this.touchIndex}`);
     }
 
     private calculateOverlapArea(rect1: Rect, rect2: Rect): number {
