@@ -16,8 +16,6 @@ export enum PanelState {
 }
 
 export class BasePanel extends BaseObejct {
-    @property(Node)
-    node: Node = null;
 
     public state: PanelState = PanelState.NONE;
 
@@ -46,6 +44,7 @@ export class BasePanel extends BaseObejct {
     }
 
     onDestroy() {
+        if(!this.isValid)return;
         this.state = PanelState.DESTROY;
         DebugLog.instance.log(`${this.name} onDestroy`);
     }
@@ -57,6 +56,10 @@ export class BasePanel extends BaseObejct {
 
     // 显示面板
     async showPanel() {
+        if (!this.isValidNode()) {
+            DebugLog.instance.warn('节点已销毁，终止显示动画');
+            return;
+        }
         await new Promise<void>((resolve, reject) => {
             const screenWidth = LayerUtil.getPanelLayer().getComponent(UITransform).width;
             const startPos = new Vec3(screenWidth, 0, 0);
@@ -73,6 +76,10 @@ export class BasePanel extends BaseObejct {
 
     // 隐藏面板
     async hidePanel() {
+        if (!this.isValidNode()) {
+            DebugLog.instance.warn('节点已销毁，终止隐藏动画');
+            return;
+        }
         await new Promise<void>((resolve, reject) => {
             const screenWidth = LayerUtil.getPanelLayer().getComponent(UITransform).width;
             tween(this.node)
@@ -83,6 +90,10 @@ export class BasePanel extends BaseObejct {
                 })
                 .start();
         });
+    }
+
+    private isValidNode(): boolean {
+        return this.node != null && this.node.isValid && this.node.parent != null;
     }
 
 }

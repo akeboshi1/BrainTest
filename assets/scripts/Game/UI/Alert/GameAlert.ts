@@ -14,6 +14,7 @@ interface CallBackFunction {
 export enum AlertType {
     Normal,
     Normal1,
+    Sucess_Normal,
     Sucess_Small,
     Sucess_Big,
     Failed,
@@ -98,6 +99,7 @@ export class GameAlert extends Component {
     }
 
     showView(type: AlertType) {
+        AudioManager.getInstance().pause();
         this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
@@ -110,6 +112,15 @@ export class GameAlert extends Component {
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
                 startBtnUITransform.width = 250;
+                break;
+            case AlertType.Sucess_Normal:
+                this.exitBtn.node.active = false;
+                this.startBtn.node.active = true;
+                this.progressBar.node.active = true;
+                this.titleLabel.node.active = true;
+                this.iconConNode.active = false;
+                this.decLabel.node.active = false;
+                startBtnUITransform.width = 500;
                 break;
             case AlertType.Normal:
                 this.exitBtn.node.active = false;
@@ -133,11 +144,13 @@ export class GameAlert extends Component {
             case AlertType.Sucess_Small:
                 this.titleLabel.node.active = true;
                 this.completeIcon.active = true;
+                this.exitBtn.node.active = false;
+                this.startBtn.node.active = false;
                 this.completeIcon.setScale(new Vec3(3, 3, 3));
                 tween(this.completeIcon)
                     .to(0.9, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
                     .call(() => {
-                        this.exitBtn.node.active = true;
+                        //this.exitBtn.node.active = false;
                         this.startBtn.node.active = true;
                     })
                     .start();
@@ -243,7 +256,7 @@ export class GameAlert extends Component {
      * 继续
      */
     goHandler() {
-        AudioManager.getInstance().stop();
+        AudioManager.getInstance().resume();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();
         if (this.goonCallBack) {

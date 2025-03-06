@@ -1,13 +1,14 @@
-import { _decorator, Component, Label, Node, ProgressBar } from 'cc';
+import { _decorator, Label, Node, ProgressBar } from 'cc';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { SkewersManager } from '../../Task/Skewers/SkewersManager';
-import { GameType } from '../../Task/Skewers/SkewersGameData';
+import { SkewersGameType } from '../../Task/Skewers/SkewersGameData';
 import { SkewersGameData } from '../../Task/Skewers/SkewersGameData';
 import { BasePanel } from '../../../Core/UI/BasePanel';
-import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { TaskManager } from '../../Task/TaskManager';
 import { AlertType } from '../Alert/GameAlert';
+import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+import { Global } from '../../../Core/Manager/Config/Global';
 const { ccclass, property } = _decorator;
 
 @ccclass('BrainTrain')
@@ -37,22 +38,22 @@ export class BrainTrain extends BasePanel {
                 let label = gameItem.getChildByName("label").getComponent(Label);
                 let type = _gameData.type;
                 switch (type) {
-                    case GameType.Memory:
+                    case SkewersGameType.Memory:
                         label.string = "记忆力";
                         break;
-                    case GameType.Judgment:
+                    case SkewersGameType.Judgment:
                         label.string = "判断力";
                         break;
-                    case GameType.Calculator:
+                    case SkewersGameType.Calculator:
                         label.string = "计算力";
                         break;
-                    case GameType.Executionability:
+                    case SkewersGameType.Executionability:
                         label.string = "执行力";
                         break;
-                    case GameType.Language:
+                    case SkewersGameType.Language:
                         label.string = "语言力";
                         break;
-                    case GameType.Comprehension:
+                    case SkewersGameType.Comprehension:
                         label.string = "理解力";
                         break;
                 }
@@ -91,6 +92,14 @@ export class BrainTrain extends BasePanel {
         TaskManager.getInstance().requestStartTask(this.curTaskId);
     }
     backToCenteter() {
+        if (Global.prePanel != "") {
+            let taskView = UIManager.getInstance().getActivePanel(Global.prePanel);
+            if (taskView) {
+                UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
+            }
+            Global.prePanel = "";
+            
+        }
         UIManager.getInstance().hidePanel(BrainTrain.NAME);
     }
 }

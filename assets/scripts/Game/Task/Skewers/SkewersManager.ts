@@ -1,4 +1,4 @@
-import { GameType, SkewersGameData, SkewersGameTrainData } from "./SkewersGameData";
+import { SkewersGameType, SkewersGameData, SkewersGameTrainData } from "./SkewersGameData";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { Global } from "../../../Core/Manager/Config/Global";
@@ -16,8 +16,9 @@ import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManage
 import { UIManager } from "../../../Core/Manager/UI/UIManager";
 import { BrainTrainTipPanel } from "../../UI/Common/BrainTrainTipPanel";
 import { BundleName } from "../../../Core/Manager/Load/BundleName";
-import { LayerUtil } from "../../../Core/Util/LayerUtil";
-
+import {SkewersSpecGameModel} from "db://assets/scripts/Core/Scene/SceneModel/SkewersSpecGameModel";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {GameDataFactory} from "db://assets/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
 /**
  * 脑力串烧管理器
  */
@@ -34,7 +35,9 @@ export class SkewersManager {
 
     public totalCompleteStr: string = '太棒了，恭喜你完成全部训练';
 
-    public singleCompleteStr: string = '太棒了，请继续！'
+    public singleCompleteStr: string = '太棒了，请继续！';
+
+    public normalCompleteStr: string = "太棒了";
 
     public failCompleteStr: string = "真遗憾，请加油";
 
@@ -90,21 +93,31 @@ export class SkewersManager {
 
     private _alertInstance: Node = null;
 
-    private _iconUrlMap: Map<GameType, string>;
+    private _iconUrlMap: Map<SkewersGameType, string>;
 
+    private _curSkewersSpecData: SkewersSpecGameModel;
 
     public init() {
+        GameDataFactory.registerGameType(GameType.SKEWERS, SkewersSpecGameModel);
         this._gameDatas = [];
         this._iconUrlMap = new Map();
-        this._iconUrlMap.set(GameType.Comprehension, "texture/game/icon/caimiIcon");
-        this._iconUrlMap.set(GameType.Executionability, "texture/game/icon/puzzleicon");
-        this._iconUrlMap.set(GameType.Language, "texture/game/icon/majiangIcon");
-        this._iconUrlMap.set(GameType.Calculator, "texture/game/icon/fishicon");
-        this._iconUrlMap.set(GameType.Judgment, "texture/game/icon/findingIcon");
-        this._iconUrlMap.set(GameType.Memory, "texture/game/icon/memoryicon");
+        this._iconUrlMap.set(SkewersGameType.Comprehension, "texture/game/icon/caimiIcon");
+        this._iconUrlMap.set(SkewersGameType.Executionability, "texture/game/icon/puzzleicon");
+        this._iconUrlMap.set(SkewersGameType.Language, "texture/game/icon/majiangIcon");
+        this._iconUrlMap.set(SkewersGameType.Calculator, "texture/game/icon/fishicon");
+        this._iconUrlMap.set(SkewersGameType.Judgment, "texture/game/icon/findingIcon");
+        this._iconUrlMap.set(SkewersGameType.Memory, "texture/game/icon/memoryicon");
 
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
     }
+
+    public get skewersSpecData(): SkewersSpecGameModel {
+        if (!this._curSkewersSpecData) {
+            this._curSkewersSpecData = GameDataFactory.create(GameType.SKEWERS);
+        }
+        return this._curSkewersSpecData;
+    }
+
 
     start() {
         Global.isSkewersGame = true;
@@ -261,7 +274,7 @@ export class SkewersManager {
      * @param exitCallBack
      * @param context
      */
-    public showGameAlert(parentNode: Node, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
+    public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
         let alertNode = SkewersManager.getInstance()._alertInstance;
         let gameType = type == AlertType.Next ? SkewersManager.getInstance().getUnCompleteGameData().type : Global.userData.curSkewerGameData.type;
         let iconUrl = this._iconUrlMap.get(gameType);
@@ -313,6 +326,11 @@ export class SkewersManager {
         } else {
             SceneManager.getInstance().backToSkewersGameCenter();
         }
+    }
+
+    public remoteExitCallBack() {
+        GuideManager.getInstance().quitGame();
+        SceneManager.getInstance().showPingcePanel();
     }
 
 
@@ -367,6 +385,10 @@ export class SkewersManager {
 
     private _game;
 
+    public get curGame(): SkewersGameData {
+        return this._game;
+    }
+
     public startGame() {
         if (!this._gameDatas || this._gameDatas.length <= 0) {
             this._curIndex = -1;
@@ -383,14 +405,15 @@ export class SkewersManager {
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
         BundlePreloadManager.getInstance().preload(sceneName);
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
-        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
+            (scene as any).sceneModel = SkewersManager.getInstance().skewersSpecData;
+            // (scene as any).sceneModel.scene = scene as any;
         });
     }
 
@@ -431,7 +454,7 @@ export class SkewersManager {
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
         BundlePreloadManager.getInstance().preload(sceneName);
 
         // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
@@ -439,6 +462,20 @@ export class SkewersManager {
         //     Global.userData.curSkewerGameData = game;
         // });
     }
+
+    /**
+     * 是否完成了当前游戏
+     */
+    public hasCompleteCurGame():boolean {
+        if(!this._game)return false;
+        let curType = this._game.type;
+        this._game = this.getUnCompleteGameData();
+        if(!this._game||curType!=this._game.type){
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * 运行下一个游戏
@@ -450,7 +487,7 @@ export class SkewersManager {
         if (changeScene) {
             const sceneName = this._game.gameCode;
             let url = Global.RES_Root + sceneName;
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this);
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
             BundlePreloadManager.getInstance().preload(sceneName);
         }
 

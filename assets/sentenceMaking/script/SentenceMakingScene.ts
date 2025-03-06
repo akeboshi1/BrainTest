@@ -1,19 +1,23 @@
-import { _decorator, AnimationComponent, AudioClip, Button, Component, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
 import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
 import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../scripts/Core/Util/DebugLog';
-import { AudioManager } from '../../scripts/Core/Manager/Audio/AudioManager';
-import { SentenceMakingTimerComponent } from './SentenceMakingTimerComponent';
-import { Global } from '../../scripts/Core/Manager/Config/Global';
-import { GameCenterManager } from '../../scripts/Game/GameCenter/GameCenterManager';
-import { SkewersManager } from '../../scripts/Game/Task/Skewers/SkewersManager';
-import { GameType } from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
+import { LayerUtil } from '../../scripts/Core/Util/LayerUtil';
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
-export class SentenceMakingScene extends Component {
+export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
+
+    // @property(Node)
+    // viewNode: Node = null; 
+
+    private audioUrl: string = 'card';
+
     @property(Prefab)
     cardModel: Prefab = null;
 
@@ -41,8 +45,8 @@ export class SentenceMakingScene extends Component {
     @property([SpriteFrame])
     btnSps: SpriteFrame[] = [];
 
-    @property(SentenceMakingTimerComponent)
-    timer: SentenceMakingTimerComponent;
+    @property(TimerCommonComponent)
+    timerComponent: TimerCommonComponent;
 
     @property(AnimationComponent)
     animShow: AnimationComponent;
@@ -77,7 +81,15 @@ export class SentenceMakingScene extends Component {
     private touchIndex: number = 0;
     private currentQuestion: SentenceMakingQuestion = null;
 
+
+    onLoad(): void {
+        this.loadAudio().then();
+        this.audioMap.set(this.audioUrl, this.cardAudioClip);
+    }
+
     start() {
+        super.start();
+        this.viewNode = LayerUtil.getPanelLayer();
         this.model.init(this).then(() => {
             this.showGameTipAlert()
         }).catch((error) => {
@@ -86,22 +98,14 @@ export class SentenceMakingScene extends Component {
             ad.message = "配置加载失败，请检查网络";
             ad.cancelButtonVisible = false;
             ad.confirmCb = () => {
-                this.processBack();
+                this.exitCallBack(this);
             };
             AlertManager.getInstance().showAlert(ad);
         });
     }
 
-    protected onEnable(): void {
-        this.timer.on("timer-end", this.onTimeout, this);
-    }
-
-    protected onDisable(): void {
-        this.timer.off("timer-end", this.onTimeout, this);
-    }
-
     protected onDestroy(): void {
-        AudioManager.getInstance().stop();
+        // AudioManager.getInstance().stop();
 
         this.sourceContainerMap.clear();
         this.resultContainerMap.clear();
@@ -110,17 +114,49 @@ export class SentenceMakingScene extends Component {
         this.model.dispose();
     }
 
+    quitGame(): void {
+        super.quitGame({ parentNode: this.viewNode, context: this });
+    }
+
+    requestSkewersGameComplete(complete: number, duration: number) {
+        this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+    }
+
+    requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number,levelMode:number) {
+        const curGame = (this.sceneModel as any).game;
+        this.requestGameComplete({
+            sessionId: curGame.sessionid,
+            count,
+            level,
+            complete,
+            duration,
+            timelimit,
+            difficulty,
+            levelMode
+        });
+    }
+
+    requestGameCompleteCallBack(){
+        this.model.requestGameCompleteCallBack();
+    }
+
     private initRects(question: SentenceMakingQuestion) {
-        if (this.sourceContainerRects.length <= 0) {
-            for (let i = 0; i < (this.lineMaxNum * this.rawMaxNum); i++) {
-                let sourceRect = new Rect();
-                let offsetPos = this.getPositionByIndex(i);
-                sourceRect.x = this.cardContainer.position.x + offsetPos.x;
-                sourceRect.y = this.cardContainer.position.y + offsetPos.y - this.itemheight;
-                sourceRect.height = this.itemheight;
-                sourceRect.width = this.itemWidth;
-                this.sourceContainerRects.push(sourceRect);
-            }
+        for (let i = 0; i < (this.lineMaxNum * this.rawMaxNum); i++) {
+            let sourceRect = new Rect();
+            let resultRect = new Rect();
+            let offsetPos = this.getPositionByIndex(i);
+            sourceRect.x = this.cardContainer.position.x + offsetPos.x;
+            sourceRect.y = this.cardContainer.position.y + offsetPos.y - this.itemheight;
+            sourceRect.height = this.itemheight;
+            sourceRect.width = this.itemWidth;
+            this.sourceContainerRects.push(sourceRect);
+
+            offsetPos = this.getPositionByIndex(i, true);
+            resultRect.x = this.cardContainer.position.x + offsetPos.x;
+            resultRect.y = this.cardContainer.position.y + offsetPos.y - this.itemheight;
+            resultRect.height = this.itemheight;
+            resultRect.width = this.itemWidth;
+            this.resultContainerRects.push(resultRect);
         }
 
         // 生成resultContainerRects
@@ -163,6 +199,7 @@ export class SentenceMakingScene extends Component {
         });
     }
 
+
     private showGameTipAlert() {
         let ad: AlertData = new AlertData();
         ad.title = "提示";
@@ -175,9 +212,9 @@ export class SentenceMakingScene extends Component {
     }
 
     private async startGameFlow() {
-        if (Global.isSkewersGame && Global.userData.curSkewerGameData.type != GameType.Language) {
-            return;
-        }
+        // if (this.sceneModel.gameType == GameType.SKEWERS && (this.sceneModel as any).game.type != SkewersGameType.Language) {
+        //     return;
+        // }
 
         this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
@@ -187,6 +224,7 @@ export class SentenceMakingScene extends Component {
 
         this.recyleCardModel();
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
+        if (!question) return;
         this.currentQuestion = question;
         this.initRects(question);
 
@@ -339,11 +377,11 @@ export class SentenceMakingScene extends Component {
             }
         }
 
-        this.timer.resetTimer();
+        this.timerComponent.resetTimer();
 
         await this.processFlipAnim();
 
-        this.timer.startTimer(this.model.gameTime);
+        this.timerComponent.startTimer(this.model.gameTime);
 
         for (let [key, inst] of this.sourceContainerMap) {
             inst.on(Node.EventType.TOUCH_START, this.onDragStart, this);
@@ -361,7 +399,8 @@ export class SentenceMakingScene extends Component {
             for (let [key, inst] of this.sourceContainerMap) {
                 tween(inst).delay(this.currentQuestion.sentence.length * moveDuration + key * flipDelay).call(() => {
                     inst.getComponent(CardCtrl).playFlip();
-                    AudioManager.getInstance().playOneShot(this.cardAudioClip);
+                    this.playAudio(this.audioUrl, true);
+                    // AudioManager.getInstance().playOneShot(this.cardAudioClip);
                     finishCount++;
                     if (finishCount == this.sourceContainerMap.size) {
                         resolve();
@@ -375,7 +414,8 @@ export class SentenceMakingScene extends Component {
         return new Promise<void>((resolve, reject) => {
             node.setPosition(new Vec3(targetPos.x + 1080, targetPos.y, 0));
             tween(node).delay(delay).call(() => {
-                AudioManager.getInstance().playOneShot(this.cardAudioClip);
+                this.playAudio(this.audioUrl, true);
+                // AudioManager.getInstance().playOneShot(this.cardAudioClip);
             }).to(duration, { position: targetPos }).call(() => {
                 resolve();
             }).start();
@@ -484,7 +524,8 @@ export class SentenceMakingScene extends Component {
         const targetPosition2 = this.getPositionByIndex(index1, mp1 == this.resultContainerMap);
 
         const duration = 0.3;
-        AudioManager.getInstance().playOneShot(this.cardAudioClip);
+        this.playAudio(this.audioUrl, true);
+        // AudioManager.getInstance().playOneShot(this.cardAudioClip);
         tween(t1).to(duration, { position: targetPosition1 }).call(() => {
         }).start();
         if (t2) {
@@ -574,13 +615,13 @@ export class SentenceMakingScene extends Component {
         this.model.quitGame();
     }
 
-    private processBack() {
-        if (Global.isSkewersGame) {
-            SkewersManager.getInstance().exitCallBack();
-        } else {
-            GameCenterManager.getInstance().exitCallBack();
-        }
-    }
+    // private processBack() {
+    //     if (this.sceneModel.gameType == GameType.SKEWERS) {
+    //         SkewersManager.getInstance().exitCallBack();
+    //     } else {
+    //         GameCenterManager.getInstance().exitCallBack();
+    //     }
+    // }
 
     private updateCommitButtonState() {
         let isActive = true;
@@ -639,7 +680,7 @@ export class SentenceMakingScene extends Component {
             // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
             DebugLog.instance.log("游戏成功！");
             this.showAnimHupai();
-            AudioManager.getInstance().playWin();
+            this.playWin();
             showAlert = false;
         } else {
             // 处理游戏失败逻辑，标记错误位置
@@ -651,8 +692,8 @@ export class SentenceMakingScene extends Component {
             }
             ad.title = "可惜";
             ad.message = "挑战失败了";
-            AudioManager.getInstance().playFail();
-            if (Global.isSkewersGame) {
+            this.playFail();
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
                 showAlert = false;
             }
         }
@@ -663,8 +704,8 @@ export class SentenceMakingScene extends Component {
 
         this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
-        this.model.postGameData(isSuccess, this.timer.getElapsedTime());
-        this.timer.resetTimer();
+        this.model.postGameData(isSuccess, this.timerComponent.getElapsedTime());
+        this.timerComponent.resetTimer();
     }
 
     public clickNextLeve() {
@@ -672,17 +713,44 @@ export class SentenceMakingScene extends Component {
         this.startGameFlow();
     }
 
-    public pause() {
-        this.timer.pauseTimer();
-        this.onDisable();
+    // public pauseTime() {
+    //     super.pauseTime();
+    //     this.onDisable();
+    // }
+
+    // public resumeTime() {
+    //     super.resumeTime();
+    //     this.onEnable();
+    // }
+
+    resumeCallBack(context?: any): void {
+        super.resumeCallBack(context);
     }
 
-    public resume() {
-        this.timer.resumeTimer();
-        this.onEnable();
+
+
+    goonHandler() {
+        this.clearGameView();
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
+                if (!this.model.isRunOver) this.clickNextLeve();
+            } else {
+                this.sceneModel.goonHandler();
+            }
+        }
     }
 
-    private onTimeout() {
+    gotoNextGame() {
+        this.clearGameView();
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
+            }
+        }
+    }
+
+    onTimerEnd() {
         let ad: AlertData = new AlertData();
         ad.cancelButtonVisible = false;
         ad.title = "没有时间啦";

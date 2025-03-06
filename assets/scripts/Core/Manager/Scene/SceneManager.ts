@@ -9,6 +9,7 @@ import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import { EventManager } from '../Event/EventManager';
 import { BundleName } from '../Load/BundleName';
 import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';
+import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
 
 export class SceneManager extends BaseManager {
 
@@ -23,6 +24,8 @@ export class SceneManager extends BaseManager {
     }
 
     public static SCENE_CHANGED:string = "SCENEMANAGER.SCENE.CHANGED";
+
+    public static SCENE_ENTER:string = "SCENE_ENTER";
 
     // 场景字典
     private scenes: {};
@@ -42,9 +45,11 @@ export class SceneManager extends BaseManager {
      * @param sceneName scene名字
      */
     async changeScene(url: string, sceneName: string): Promise<Scene> {
+        DebugLog.instance.log(`${sceneName} 开始切换场景0`);
         return new Promise((resolve, reject) => {
             let sceneBundle = assetManager.getBundle(sceneName);
             if (!sceneBundle) {
+                DebugLog.instance.log(`${sceneName} 开始切换场景1`);
                 // 获取LoaderManager实例
                 LoaderManager.getInstance().assetBundleLoad(url, sceneName).then((bundle: AssetManager.Bundle) => {
                     // 加载场景
@@ -53,6 +58,7 @@ export class SceneManager extends BaseManager {
                         director.loadScene(sceneName, (err, scene) => {
                             // 如果加载失败，打印错误信息
                             if (err) {
+                                DebugLog.instance.log(`${sceneName} 切换场景失败`);
                                 DebugLog.instance.error(err);
                                 return;
                             }
@@ -66,12 +72,15 @@ export class SceneManager extends BaseManager {
                         });
                     });
                 }).catch(err => {
+                    DebugLog.instance.log(`${sceneName} 加载子包失败`);
                     reject(err);
                 });
             } else {
+                DebugLog.instance.log(`${sceneName} 开始切换场景2`);
                 // 已经加载过bundle的情况
                 director.loadScene(sceneName, (err, scene) => {
                     if (err) {
+                        DebugLog.instance.log(`${sceneName} 场景切换失败`);
                         DebugLog.instance.error(err);
                         return;
                     }
@@ -164,6 +173,23 @@ export class SceneManager extends BaseManager {
                 let scriptNode = node.getChildByName("scriptNode");
                 let mainScene = scriptNode.getComponent("MainScene");
                 mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+    async showPingcePanel(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            let url = Global.RES_Root + GameSceneConst.Hall;
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
+                DebugLog.instance.log('返回串烧游戏界面');
+                let node = find("Canvas");
+                let scriptNode = node.getChildByName("scriptNode");
+                let mainScene = scriptNode.getComponent("MainScene");
+                mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                UIManager.getInstance().showPanel(GenerateReport.NAME);
                 resolve();
             }).catch(err => {
                 reject(err);

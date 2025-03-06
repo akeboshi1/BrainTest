@@ -1,23 +1,31 @@
 import AudioMgr from "../AudioMgr";
 import GameLog from "../GameLogMgr";
-import {_decorator,Component,Node,Button,find,Color,Sprite} from "cc";
+import {_decorator,Component,Node,Button,find,Color,Sprite, director} from "cc";
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
 
 /**
  * 这个是 封装了一些方法  ，例如 注册点击事件 销毁事件 等等
  */
 const {ccclass} = _decorator;
-
 @ccclass
-export default class LayerUI extends Component {
+export default class LayerUI extends BaseScene<any> {
 
-    private _touchList: { [key: string]: { target, handler, callObj } } = {};
-    private _touchEndList: { [key: string]: { target, handler, callObj } } = {}
+    private _touchList: { [key: string]: { target: any, handler: any, callObj: any } } = {};
+    private _touchEndList: { [key: string]: { target: any, handler: any, callObj: any } } = {}
 
     private _enableList: { [key: string]: { enabled: boolean, isGray: boolean } } = {};
 
 
     private grayColor: Color = new Color(153,145,145,255);
     private normalColor:Color = new Color(255,255,255,255);
+
+
+
+    start(){
+        this.sceneModel = (director.getScene() as unknown as {sceneModel}).sceneModel;
+    }
+
+
     /**
      * 是否交互 需在target注册onTouch之后
      * @param target

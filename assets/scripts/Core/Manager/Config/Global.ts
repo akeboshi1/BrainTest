@@ -10,6 +10,11 @@ export class Global {
     static userData:UserData;
 
     /**
+     * 上一个界面name，用于回退
+     */
+    static prePanel:string = '';
+
+    /**
      * 是否是串烧游戏状态
      * true  串烧游戏状态
      * false 游戏大厅游戏状态

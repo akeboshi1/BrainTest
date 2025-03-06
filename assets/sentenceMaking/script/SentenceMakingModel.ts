@@ -1,15 +1,7 @@
-import {Global} from "../../scripts/Core/Manager/Config/Global";
-import {EventManager} from "../../scripts/Core/Manager/Event/EventManager";
-import {DebugLog} from "../../scripts/Core/Util/DebugLog";
-import {LayerUtil} from "../../scripts/Core/Util/LayerUtil";
-import {GameCenterManager} from "../../scripts/Game/GameCenter/GameCenterManager";
-import {SkewersManager} from "../../scripts/Game/Task/Skewers/SkewersManager";
-import {AlertType} from "../../scripts/Game/UI/Alert/GameAlert";
-import {SentenceMakingConfig, SentenceMakingQuestion} from "./SentenceMakingConfig";
-import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
-import {GenerateReport} from "db://assets/scripts/Game/UI/PersonalCenter/GenerateReport";
-import {SentenceMakingScene} from "db://assets/sentenceMaking/script/SentenceMakingScene";
-import {GameType} from "db://assets/scripts/Game/Task/Skewers/SkewersGameData";
+import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
+import { SentenceMakingScene } from "db://assets/sentenceMaking/script/SentenceMakingScene";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 export class SentenceMakingModel {
     constructor() {
@@ -19,88 +11,123 @@ export class SentenceMakingModel {
 
     private config: SentenceMakingConfig = new SentenceMakingConfig();
 
-    private selectedLevel: number = 0;
-    private currentQuestionIndex: number = 0;
+    private selectedDifficult: number = 0;
+    private currentQuestionLevel: number = 0;
 
-    private skewerGameQuestionDatas: {level:number,index:number}[] = null;
+    private skewerGameQuestionDatas;
 
     private _gameTime: number = 180;
 
-    private _view:SentenceMakingScene;
+    private _view: SentenceMakingScene;
 
-    async init(view:SentenceMakingScene) {
+    async init(view: SentenceMakingScene) {
         if (this.binit) return;
         this.binit = true;
 
         await this.config.loadConfig();
 
         this._view = view;
-        if (Global.isSkewersGame) {
-            let count = Global.userData.curSkewerGameData.trains.length;
-            this.skewerGameQuestionDatas = [];
-            for(let i=0;i<count;i++){
-                const trainData = Global.userData.curSkewerGameData.trains[i];
-                this.skewerGameQuestionDatas.push({level:trainData.difficulty - 1,index:trainData.level - 1});
-            }
-            
-            this.currentQuestionIndex = Global.userData.curSkewerGameData.seq-1;
-            let question = this.skewerGameQuestionDatas[this.currentQuestionIndex];
-            this.setQuestionLevel(question.level);
 
-            EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.onSkewersProgressUpdate, this);
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            // let count = (this._view.sceneModel as any).game.trains.length;
+            this.skewerGameQuestionDatas = (this._view.sceneModel as any).game.trains;
+            // for (let i = 0; i < count; i++) {
+            //     const trainData = (this._view.sceneModel as any).game.trains[i];
+            //     this.skewerGameQuestionDatas.push(trainData);
+            // }
+
+            this.currentQuestionLevel = (this._view.sceneModel as any).game.level;
+            this.setQuestionDifficult((this._view.sceneModel as any).difficulty);
+            // this.selectedDifficult = (this._view.sceneModel as any).difficulty;
+            // let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,this.currentQuestionLevel);
+            // this.setQuestionDifficult(question.difficult);
+            // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.onSkewersProgressUpdate, this);
         } else {
-            let d = GameCenterManager.getInstance().currentGame;
-            this.setQuestionLevel(d.difficulty - 1);
-            this.currentQuestionIndex = d.level - 1;
+            let d = (this._view.sceneModel as any).game;
+            this.setQuestionDifficult(d.difficulty);
+            this.currentQuestionLevel = d.level;
         }
     }
 
     dispose() {
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
+        //     EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
     }
 
-    setQuestionLevel(level: number) {
-        if (this.config.getQuestionsByLevel(this.selectedLevel).length != 0) {
-            this.selectedLevel = level;
+    setQuestionDifficult(difficult: number) {
+        if (this.config.getQuestionsByDifficult(this.selectedDifficult).length != 0) {
+            this.selectedDifficult = difficult;
         } else {
-            DebugLog.instance.warn("this question level is not exist in config! level: " + level);
+            DebugLog.instance.warn("this question difficult is not exist in config! difficult: " + difficult);
         }
     }
 
     getCurrentQuestion(): SentenceMakingQuestion {
-        let index = this.currentQuestionIndex;
-        if(Global.isSkewersGame){
-            index = this.skewerGameQuestionDatas[this.currentQuestionIndex].index % this.config.getQuestionsByLevel(this.selectedLevel).length;
+        let index = this.currentQuestionLevel;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            index = this.currentQuestionLevel % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
+            let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index-1);
+            if(!question) {
+                return null;
+            }
+            return question;
         }
-        return this.config.getQuestionByLevelAndIndex(this.selectedLevel, index);
+        return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index - 1);
+    }
+
+    get isRunOver():boolean{
+        let count = this.skewerGameQuestionDatas.length;
+        for (let i = 0; i < count; i++) {
+            const data = this.skewerGameQuestionDatas[i];
+            if(data.level == this.currentQuestionLevel && data.difficulty == this.selectedDifficult){
+                return data.status == 1;
+            }
+        }
+        return false;
+        // return this.skewerGameQuestionDatas[this.currentQuestionLevel] == null;
     }
 
     goNextQuestion() {
-        if(Global.isSkewersGame){
-            if(Global.userData.curSkewerGameData.type != GameType.Language){
-                SkewersManager.getInstance().runNextGame();
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            let sceneModel = this._view.sceneModel as any;
+            if(sceneModel.hasCompleteCurGame){
+                this._view.gotoNextGame();
             }else{
-                this.currentQuestionIndex++;
-                this.setQuestionLevel(this.skewerGameQuestionDatas[this.currentQuestionIndex].level);
+                let trainData = (this._view.sceneModel as any).game.getCurTrainData();
+                this.setQuestionDifficult(trainData.difficulty);
+                this.currentQuestionLevel = trainData.level;
             }
-        }else{
-            this.selectedLevel = (this.selectedLevel+1) % 3;//最多3个难度1,2,3
-            if(this.selectedLevel == 0){
-                this.currentQuestionIndex = (this.currentQuestionIndex + 1) % this.config.getQuestionsByLevel(this.selectedLevel).length;
-            }
+
+            // this.currentQuestionLevel++;
+            // if (this.skewerGameQuestionDatas[this.currentQuestionLevel] == null) {
+            //     this._view.gotoNextGame();
+            //     // SkewersManager.getInstance().runNextGame();
+            // } else {
+            //     this.setQuestionDifficult(this.skewerGameQuestionDatas[this.currentQuestionLevel].difficult);
+            // }
+        } else {
+            //this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
+            this.setQuestionDifficult((this.selectedDifficult + 1) % 3 == 0?3:(this.selectedDifficult+1) % 3);//最多3个难度1,2,3
+            this.currentQuestionLevel = (this._view.sceneModel as any).game.getLevelByDifficult(this.selectedDifficult);
+            // if (this.selectedDifficult == 0) {
+            //     this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
+            // }
         }
     }
 
-    getCurrentLevel(): number {
-        return this.selectedLevel;
+    requestGameCompleteCallBack(){
+        this.goNextQuestion();
     }
 
-    getCurrentQuestionIndex(): number {
-        return this.currentQuestionIndex;
+    getCurrentDifficult(): number {
+        return this.selectedDifficult;
+    }
+
+    getcurrentQuestionLevel(): number {
+        return this.currentQuestionLevel;
     }
 
     hasNextLevel(): boolean {
-        if (Global.isSkewersGame && this.currentQuestionIndex == this.skewerGameQuestionDatas.length - 1) {
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
             return false;
         }
 
@@ -108,128 +135,32 @@ export class SentenceMakingModel {
     }
 
     get gameTime(): number {
-        if (Global.isSkewersGame && this.currentQuestionIndex <= this.skewerGameQuestionDatas.length - 1) {
-            return Global.userData.curSkewerGameData.timeLimit;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS && !(this._view.sceneModel as any).hasCompleteCurGame) {
+            return (this._view.sceneModel as any).game.timeLimit;
         }
 
         return this._gameTime;
     }
 
-    private _resultBoo:boolean = false;
+    private _resultBoo: boolean = false;
 
     postGameData(complete: boolean, duration: number) {
         this._resultBoo = complete;
         let result = Number(complete);
-        if (Global.isSkewersGame) {
-            SkewersManager.getInstance().requestGameComplete(result, duration);
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            this._view.requestSkewersGameComplete(result, duration);
+            // SkewersManager.getInstance().requestGameComplete(result, duration);
         } else {
-            const curGame = GameCenterManager.getInstance().currentGame;
-            GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, result, this.getCurrentQuestionIndex() + 1, result, duration, this.gameTime, this.getCurrentLevel() + 1);
+            let curGame = (this._view.sceneModel as any).game;
+            // levelmode=1得时候，如何传递level和难度给服务器
+            let difficulty = this.getCurrentDifficult() == 3 ? 3 : this.getCurrentDifficult();
+            this._view.requestGameCenterComplete(result, curGame.level, result, duration, this.gameTime, difficulty,curGame.levelMode);
+            // const curGame = GameCenterManager.getInstance().currentGame;
+            // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, result, this.getcurrentQuestionLevel() + 1, result, duration, this.gameTime, this.getCurrentLevel() + 1);
         }
     }
 
-    quitGame(){
-        this._view.pause();
-        if(Global.isSkewersGame) {
-            let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-            let maxCount = trainData.length;
-            let curCount = trainData.seq - 1<0?0:trainData.seq -1;
-            SkewersManager.getInstance().quitGame(LayerUtil.getPanelLayer(),curCount,maxCount,this.goonHandler,this.exit,this);
-        }else{
-            // 游戏大厅
-            console.log("返回大厅")
-            GameCenterManager.getInstance().quitGame(LayerUtil.getPanelLayer(),this.goonHandler,this.exit,this);
-        }
-    }
-
-    private onSkewersProgressUpdate(data) {
-        let trainid = data;
-        let trainData = SkewersManager.getInstance().getTrainData(trainid);
-        let maxCount = trainData.parentSkewersGameData.trains.length;
-        let curCount = trainData.seq;
-
-        // 游戏内界面提示
-        if(this._resultBoo){
-            if (maxCount != curCount) {
-                SkewersManager.getInstance().showGameTip(SkewersManager.getInstance().singleCompleteStr, curCount, maxCount);
-            } else {
-                if (!SkewersManager.getInstance().isRunOver()) {
-                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr,SkewersManager.getInstance().singleBrainScore, 0, 0, this.alertGoonHandler1, this.exit, this);
-                } else {
-                    SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
-                }
-            }
-        }else{
-            if(curCount == maxCount){
-                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.failCompleteHandler,this.exit,this);
-            }else{
-                SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Normal,SkewersManager.getInstance().failCompleteStr,"",curCount,maxCount,this.alertGoonHandler,this.exit,this);
-            }
-        }
-    }
-
-    private failCompleteHandler(context){
-        if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr,0,0,context.skewersGoNext,context.exit,context);
-        }else{
-            SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(),AlertType.Sucess_Big,SkewersManager.getInstance().totalCompleteStr,SkewersManager.getInstance().totalBrainScore,0,0,context.totalComplete,context.remoteClick,context);
-        }
-    }
-
-    private skewersGoNext() {
-        SkewersManager.getInstance().showGameAlert(LayerUtil.getPanelLayer(), AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this.goNextGame, this.exit, this);
-    }
-
-    private alertGoonHandler1(context){
-        if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().runNextGame();
-        }else{
-            SkewersManager.getInstance().exitCallBack();
-        }
-    }
-
-
-    private alertGoonHandler(context){
-        if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().runNextGame(false);
-            context._view.clickNextLeve();
-        }else{
-            SkewersManager.getInstance().exitCallBack();
-        }
-    }
-
-    private remoteClick(){
-        this.exit();
-        UIManager.getInstance().showPanel(GenerateReport.NAME);
-    }
-
-    private goNextGame(context){
-        if(Global.isSkewersGame) {
-            SkewersManager.getInstance().runNextGame(false);
-            context._view.clickNextLeve();
-        }
-    }
-
-    private goonHandler(context){
-        let self = context;
-        if(Global.isSkewersGame) {
-            if(!SkewersManager.getInstance().isRunOver()){
-                self._view.resume();
-            }
-        }else{
-            self._view.resume();
-        }
-    }
-
-    private totalComplete(){
-        SkewersManager.getInstance().exitCallBack();
-    }
-
-    private exit() {
-        if (Global.isSkewersGame) {
-            SkewersManager.getInstance().exitCallBack();
-        } else {
-            GameCenterManager.getInstance().exitCallBack();
-        }
+    quitGame() {
+        this._view.quitGame();
     }
 }

@@ -1,12 +1,9 @@
-import { _decorator, Toggle, Node,VideoPlayer,find } from 'cc';
+import { _decorator, Toggle, Node} from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
-import {EventManager} from "../../../Core/Manager/Event/EventManager";
-import {LoginManager} from "../../../Core/Manager/LoginManager/LoginManager";
 import {UIManager} from "db://assets/scripts/Core/Manager/UI/UIManager";
 import {FrameComponent} from "db://assets/scripts/Core/Component/FrameComponent";
 import AlertManager, {AlertData} from "db://assets/scripts/Core/Manager/Alert/AlertManager";
 import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import { LoginPopUpPanel } from './LoginPopUpPanel';
 import { PhoneLoginPanel } from './PhoneLoginPanel';
 const { ccclass, property } = _decorator;
 
@@ -47,7 +44,7 @@ export class LoginPanel extends BasePanel {
     }
 
     onDestroy() {
-
+      super.onDestroy();
     }
 
     /**
