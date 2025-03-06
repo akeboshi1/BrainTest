@@ -1,9 +1,8 @@
-import { Node, Scene } from "cc";
-import { SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
-import { BaseScene } from "db://assets/scene/Core/BaseScene";
+import { Node } from "cc";
+import { BaseScene } from "db://assets/scripts/Core/Scene/BaseScene";
 
-// 基础游戏数据类型
-// interface IBaseGameData<T extends IBaseGameChild> {
+// // 基础游戏数据类型
+// interface IBaseGameModel<T extends IBaseGameChild> {
 //     hasGuide:boolean;
 //     refreshData(data: T): void;
 //     runNextGame(): void;
@@ -49,7 +48,7 @@ export enum GameType{
 }
 
 
-export abstract class BaseGameData<T extends IBaseGameChild> {
+export abstract class BaseGameModel<T extends IBaseGameChild> {
     private _scene: BaseScene<T>;
     public get scene(): BaseScene<T> {
         return this._scene;
@@ -69,7 +68,7 @@ export abstract class BaseGameData<T extends IBaseGameChild> {
     // 必须实现得方法
     abstract refreshData(data: T): void;
 
-    abstract showStartAlert(config?:IStartConfig):void;
+    
     abstract runNextGame(): void;
     abstract quitGame(config?: IQuitGameConfig): void;
 
@@ -81,6 +80,7 @@ export abstract class BaseGameData<T extends IBaseGameChild> {
     abstract nextHandler(context?:any):void;
     abstract goonHandler(context?:any):void;
     abstract failCompleteHandler(context?:any):void;
+    abstract showStartAlert(config?:any):void;
     abstract showNextSuccessHandler(context?:any);
     abstract showNextFailHandler(context?:any)
 

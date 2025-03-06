@@ -1,20 +1,22 @@
 import { assetManager, AudioClip, Component, director, Texture2D } from "cc";
 import { Node } from "cc";
-import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
-import { TimerCommonComponent } from "../../scripts/Game/UI/Common/TimerCommonComponent";
-import { BaseGameData, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig } from "../../scripts/Game/GameDataFactory/BaseGameData";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import {BaseModel} from "./BaseModel";
+import {
+    BaseGameModel,
+    GameType,
+    IBaseGameChild, IQuitGameConfig,
+    IStartConfig
+} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {TimerCommonComponent} from "db://assets/scripts/Game/UI/Common/TimerCommonComponent";
+import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
+import {AudioManager} from "db://assets/scripts/Core/Manager/Audio/AudioManager";
 
 /**
  * 基础场景
  */
 export class BaseScene<T extends IBaseGameChild> extends Component {
-    sceneData: BaseGameData<T>;
+    sceneModel: BaseGameModel<T>;
     viewNode: Node;
     timerComponent: TimerCommonComponent;
-
-    protected baseModel: BaseModel;
 
     protected bundleName: string = '';
     protected curView: BaseScene<IBaseGameChild> = null;
@@ -29,17 +31,16 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // ========== component生命周期 ==========
     start() {
-        this.baseModel = new BaseModel(this);
-        this.sceneData = (director.getScene() as unknown as { sceneData }).sceneData;
+        this.sceneModel = (director.getScene() as unknown as { sceneModel }).sceneModel;
     }
 
-    // 
+    //
     sceneInit(){
         this.resetTime();
-         
+
     }
 
-    refreshSceneData(data:BaseGameData<T>){
+    refreshsceneModel(data:BaseGameModel<T>){
         data.gameType == GameType.SKEWERS
         // logic
     }
@@ -84,13 +85,13 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // ========== 显示游戏开始提示 ==========
     public showStartAlert(config: IStartConfig) {
-        if (this.sceneData) this.sceneData.showStartAlert(config);
+        if (this.sceneModel) this.sceneModel.showStartAlert(config);
     }
 
     // ========== 游戏退出 ==========
     public quitGame(config: IQuitGameConfig) {
         this.pauseTime();
-        if (config.context.sceneData) config.context.sceneData.quitGame(config);
+        if (config.context.sceneModel) config.context.sceneModel.quitGame(config);
     }
 
     // ========== 开始倒计时 ==========
@@ -125,7 +126,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         } else {
             context.clearGameView();
         }
-        if (this.sceneData) this.sceneData.exitCallBack();
+        if (this.sceneModel) this.sceneModel.exitCallBack();
     }
 
     //  ========== 退出游戏打开评测面板 ==========
@@ -135,13 +136,13 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         } else {
             context.clearGameView();
         }
-        if (this.sceneData) this.sceneData.remoteExitCallBack();
+        if (this.sceneModel) this.sceneModel.remoteExitCallBack();
     }
 
     // ========== 继续游戏回调 ==========
     public resumeCallBack(context?: any) {
-        if (context.sceneData) {
-            if (!context.sceneData.resumeCallBack()) {
+        if (context.sceneModel) {
+            if (!context.sceneModel.resumeCallBack()) {
                 return;
             }
         }
@@ -150,25 +151,25 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // =========== 上报数据 ============
     public requestGameComplete(config: any) {
-        if (this.sceneData) {
-            this.sceneData.requestGameComplete(config);
+        if (this.sceneModel) {
+            this.sceneModel.requestGameComplete(config);
         }
     }
 
     /**
      * 下一大关
-     * @param context 
+     * @param context
      */
     nextHandler(context?: any) {
         context.pauseTime();
-        if (context.sceneData) {
-            context.sceneData.nextHandler(context);
+        if (context.sceneModel) {
+            context.sceneModel.nextHandler(context);
         }
     }
 
     /**
      * 游戏失败
-     * @param context 
+     * @param context
      */
     failCompleteHanlder(context) {
         if (context.pauseTime == null) {
@@ -176,14 +177,14 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         } else {
             context.pauseTime();
         }
-        if (context.sceneData) {
-            context.sceneData.failCompleteHandler(context);
+        if (context.sceneModel) {
+            context.sceneModel.failCompleteHandler(context);
         }
     }
 
     /**
      * 继续
-     * @param context 
+     * @param context
      */
     goonHandler(context) {
         if (context.clearGameView == null) {
@@ -191,26 +192,26 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         } else {
             context.clearGameView();
         }
-        if (context.sceneData) {
-            context.sceneData.goonHandler(context);
+        if (context.sceneModel) {
+            context.sceneModel.goonHandler(context);
         }
     }
 
     showNextSuccessHandler() {
-        if (this.sceneData) {
-            this.sceneData.showNextSuccessHandler(this);
+        if (this.sceneModel) {
+            this.sceneModel.showNextSuccessHandler(this);
         }
     }
 
     showNextFailHandler() {
-        if (this.sceneData) {
-            this.sceneData.showNextFailHandler(this);
+        if (this.sceneModel) {
+            this.sceneModel.showNextFailHandler(this);
         }
     }
 
     totalCompleteHandler() {
-        if (this.sceneData) {
-            this.sceneData.totalCompleteHandler(this);
+        if (this.sceneModel) {
+            this.sceneModel.totalCompleteHandler(this);
         }
     }
 

@@ -4,7 +4,7 @@ import { GuessingGameConfig, GuessingQuestion } from "./GuessingGameConfig";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
 import { GuessingGameScene } from "./GuessingGameScene";
-import { GameType } from "../../scripts/Game/GameDataFactory/BaseGameData";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 export class GuessingGameModel {
     constructor() {
@@ -28,10 +28,10 @@ export class GuessingGameModel {
 
         this.config = new GuessingGameConfig();
         await this.config.loadConfig();
-        if (this._view.sceneData.gameType == GameType.SKEWERS) {
-            this.currentQuestionIndex = (this._view.sceneData as any).game.getCurTrainData().level;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            this.currentQuestionIndex = (this._view.sceneModel as any).game.getCurTrainData().level;
         } else {
-            let remoteLevel = Number((this._view.sceneData as any).game.level);
+            let remoteLevel = Number((this._view.sceneModel as any).game.level);
             this.currentQuestionIndex = remoteLevel == 0 ? this.currentQuestionIndex : remoteLevel;
         }
         this.currentQuestionIndex = this.config.formartQuestionID(this.currentQuestionIndex);
@@ -44,7 +44,7 @@ export class GuessingGameModel {
     }
 
     get isRunOver(): boolean {
-        return (this._view.sceneData as any).game.getCurTrainData() == null;
+        return (this._view.sceneModel as any).game.getCurTrainData() == null;
         // return this.config.getQuestionByNumber(this.currentQuestionIndex+1) == null;
     }
 
@@ -118,10 +118,10 @@ export class GuessingGameModel {
     }
 
     goNextQuestion() {
-        if (this._view.sceneData.gameType == GameType.SKEWERS) {
-            this.currentQuestionIndex = (this._view.sceneData as any).game.getCurTrainData().level;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            this.currentQuestionIndex = (this._view.sceneModel as any).game.getCurTrainData().level;
         } else {
-            let remoteLevel = Number((this._view.sceneData as any).game.level);
+            let remoteLevel = Number((this._view.sceneModel as any).game.level);
             this.currentQuestionIndex = remoteLevel == 0 ? this.currentQuestionIndex : remoteLevel;
         }
         this.currentQuestionIndex = this.config.formartQuestionID(this.currentQuestionIndex);

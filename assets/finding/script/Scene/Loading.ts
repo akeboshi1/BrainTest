@@ -3,8 +3,8 @@ import TestMgr from "../Common/Test";
 import LoadMgr from "../Common/manage/LoadMgr";
 import { _decorator, Node, tween, director, Sprite, v3, Texture2D, SpriteFrame } from "cc";
 import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import { BaseScene } from "db://assets/scene/Core/BaseScene";
-import { GameType, IBaseGameChild } from "db://assets/scripts/Game/GameDataFactory/BaseGameData";
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -23,7 +23,7 @@ export class Loading extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         let logoSprite = this.logoNode.getComponent(Sprite);
-        if (this.sceneData.gameType == GameType.SKEWERS) {
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
             LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame) => {
                 logoSprite.spriteFrame = spiteFrame;
             });
@@ -61,10 +61,10 @@ export class Loading extends BaseScene<IBaseGameChild> {
             tween(this.mask)
                 .to(0.2, { scale: v3(1, 1, 1) }, { easing: 'quadOut' })
                 .call(() => {
-                    let sceneData = self.sceneData;
+                    let sceneModel = self.sceneModel;
                     director.loadScene('Game',(err,scene)=>{
-                        (scene as any).sceneData = sceneData;
-                        // (scene as any).sceneData.scene = scene as any;
+                        (scene as any).sceneModel = sceneModel;
+                        // (scene as any).sceneModel.scene = scene as any;
                     });
                 })
                 .start();
@@ -99,8 +99,8 @@ export class Loading extends BaseScene<IBaseGameChild> {
     //             .to(0.2, { scale: v3(1, 1, 1) }, { easing: 'quadOut' })
     //             .call(() => {
     //                 director.loadScene('Game',(err,scene)=>{
-    //                     (scene as any).sceneData = self.sceneData;
-    //                     (scene as any).sceneData.scene = scene as any;
+    //                     (scene as any).sceneModel = self.sceneModel;
+    //                     (scene as any).sceneModel.scene = scene as any;
     //                 });
     //             })
     //             .start();

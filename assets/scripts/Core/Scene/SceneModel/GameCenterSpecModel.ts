@@ -1,7 +1,6 @@
-import { Node } from "cc";
-import { GameCenterData, GameCenterManager } from "../GameCenter/GameCenterManager";
-import { BaseGameData, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig } from "./BaseGameData";
-import { BaseScene } from "db://assets/scene/Core/BaseScene";
+import {BaseGameModel, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig} from "./BaseGameModel";
+import { GameCenterData, GameCenterManager } from "../../../Game/GameCenter/GameCenterManager";
+import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
 
 // 游戏大厅进入上报参数
 interface IGameCenterStartConfig {
@@ -31,7 +30,7 @@ interface IGameCenterSpecific extends IBaseGameChild {
 }
 
 
-export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
+export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     constructor() {
         super();
         this.gameType = GameType.GAME_CENTER;
@@ -43,6 +42,10 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
 
     get level(): number {
         return GameCenterManager.getInstance().currentGame.level;
+    }
+
+    get difficulty(): number {
+        return GameCenterManager.getInstance().currentGame.difficulty;
     }
 
     get sessionid(): string {
@@ -74,8 +77,11 @@ export class GameCenterSpecData extends BaseGameData<IGameCenterSpecific> {
     }
 
     requestGameComplete(config?: IGameCenterEndConfig) {
-        GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level,
-            config.complete, config.duration, config.timelimit, config.difficulty, config.callback);
+        EventManager.getInstance().on(GameCenterManager.GAMEPASSLEVEL, this.requestGameCompleteCallBack, this,true);
+        // 大厅游戏难度越界处理
+        config.difficulty = config.difficulty % 3 == 0?3:config.difficulty;
+        GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level + 1,
+            config.complete, config.duration, config.timelimit, config.difficulty, config.levelMode, config.callback);
     }
 
     exitCallBack(): void {

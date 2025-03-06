@@ -16,10 +16,9 @@ import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManage
 import { UIManager } from "../../../Core/Manager/UI/UIManager";
 import { BrainTrainTipPanel } from "../../UI/Common/BrainTrainTipPanel";
 import { BundleName } from "../../../Core/Manager/Load/BundleName";
-import { LayerUtil } from "../../../Core/Util/LayerUtil";
-import { GameDataFactory } from "../../GameDataFactory/GameDataFactory";
-import { GameType } from "../../GameDataFactory/BaseGameData";
-import { SkewersSpecGameData } from "../../GameDataFactory/SkewersSpecGameData";
+import {SkewersSpecGameModel} from "db://assets/scripts/Core/Scene/SceneModel/SkewersSpecGameModel";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {GameDataFactory} from "db://assets/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
 /**
  * 脑力串烧管理器
  */
@@ -96,10 +95,10 @@ export class SkewersManager {
 
     private _iconUrlMap: Map<SkewersGameType, string>;
 
-    private _curSkewersSpecData: SkewersSpecGameData;
+    private _curSkewersSpecData: SkewersSpecGameModel;
 
     public init() {
-        GameDataFactory.registerGameType(GameType.SKEWERS, SkewersSpecGameData);
+        GameDataFactory.registerGameType(GameType.SKEWERS, SkewersSpecGameModel);
         this._gameDatas = [];
         this._iconUrlMap = new Map();
         this._iconUrlMap.set(SkewersGameType.Comprehension, "texture/game/icon/caimiIcon");
@@ -112,7 +111,7 @@ export class SkewersManager {
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
     }
 
-    public get skewersSpecData(): SkewersSpecGameData {
+    public get skewersSpecData(): SkewersSpecGameModel {
         if (!this._curSkewersSpecData) {
             this._curSkewersSpecData = GameDataFactory.create(GameType.SKEWERS);
         }
@@ -413,8 +412,8 @@ export class SkewersManager {
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
-            (scene as any).sceneData = SkewersManager.getInstance().skewersSpecData;
-            // (scene as any).sceneData.scene = scene as any;
+            (scene as any).sceneModel = SkewersManager.getInstance().skewersSpecData;
+            // (scene as any).sceneModel.scene = scene as any;
         });
     }
 

@@ -74,7 +74,6 @@ export class SkewersGameData {
         this.gameCode = data['game_code'];
         this.type = data['cog_ability'];
         this._difficulty = data['difficulty'];
-        this.levelMode = data["level_mode"];
         switch (this.type) {
             case SkewersGameType.Memory:
                 this.gameName = "翻牌";
@@ -99,6 +98,7 @@ export class SkewersGameData {
             this.trains = [];
         }
         let trains = data['games'];
+        this.levelMode = data['level_mode'];
         let len = trains.length;
         for (let i: number = 0; i < len; ++i) {
             let tmpData = trains[i];
@@ -301,7 +301,6 @@ export class SkewersGameTrainData {
 
     // 当前类型训练内容的长度
     public length: number = 0;
-
 
     public get parentSkewersGameData() {
         return this._parentSkewersGameData;

@@ -1,9 +1,10 @@
 import { director, Node } from "cc";
-import { EventManager } from "../../Core/Manager/Event/EventManager";
-import { SkewersGameData, SkewersGameTrainData } from "../Task/Skewers/SkewersGameData";
-import { SkewersManager } from "../Task/Skewers/SkewersManager";
-import { BaseGameData, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig } from "./BaseGameData";
-import { AlertType } from "../UI/Alert/GameAlert";
+import { BaseGameModel, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig} from "./BaseGameModel";
+import { AlertType } from "../../../Game/UI/Alert/GameAlert";
+import { SkewersGameData, SkewersGameTrainData } from "../../../Game/Task/Skewers/SkewersGameData";
+import { SkewersManager } from "../../../Game/Task/Skewers/SkewersManager";
+import { EventManager } from "../../Manager/Event/EventManager";
+
 
 // 添加类型定义确保desc存在
 interface AlertConfig {
@@ -38,7 +39,7 @@ interface ISkewersGameEndConfig {
 }
 
 
-export class SkewersSpecGameData extends BaseGameData<ISkewersSpecific> {
+export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     constructor() {
         super();
         this.gameType = GameType.SKEWERS;

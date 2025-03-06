@@ -19,9 +19,9 @@ import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
-import { BaseScene } from '../../scene/Core/BaseScene';
-import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
 import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -127,13 +127,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.showSprite.node.active = false;
         this.cleanChipsCache();
         let playIndex = 0;
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            let game = (this.sceneData as any).game;
-            this.selectedLevelIndex = (this.sceneData as any).difficulty - 1;
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            let game = (this.sceneModel as any).game;
+            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.gameLength = game.timeLimit;
             playIndex = game.seq;
             this.bgNode.active = false;
         } else {
+            this.selectedLevelIndex = ((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
             this.bgNode.active = true;
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
@@ -299,7 +300,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         if (this._timeID) {
             clearTimeout(this._timeID);
         }
-        // if (this.sceneData.gameType == GameType.SKEWERS) {
+        // if (this.sceneModel.gameType == GameType.SKEWERS) {
         //     let trainData = SkewersManager.getInstance().getUnCompleteGameData();
         //     let maxCount = trainData.length;
         //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
@@ -452,16 +453,16 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     onClickDisturbPuzzleButton() {
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.selectedLevelIndex = (this.sceneData as any).difficulty - 1;
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.selectedLevel = this.levelList[this.selectedLevelIndex];
         }
         this.randomSwapPuzzleChipsNTimes(this.selectedLevel.x * this.selectedLevel.y);
     }
 
     onClickChangeLevel() {
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.selectedLevelIndex = (this.sceneData as any).difficulty - 1;
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
         } else {
             this.selectedLevelIndex = (this.selectedLevelIndex + 1) % this.levelList.length;
         }
@@ -507,8 +508,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onClickStartGame() {
         this._startTime = TimeUtil.getNow();
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.timerComponent.startTimer((this.sceneData as any).game.timeLimit);
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
         } else {
             this.timerComponent.startTimer(this.gameLength.valueOf());
         }
@@ -520,7 +521,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     processGameFail() {
         DebugLog.instance.log("失败");
 
-        if (this.sceneData.gameType == GameType.SKEWERS) {
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult(false);
         } else {
@@ -593,7 +594,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 _tween.stop();
                 _tween = null;
             }
-            if (this.sceneData.gameType == GameType.SKEWERS) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
                 this._requestSkewersGameComplete();
                 // if (SkewersManager.getInstance().isRunOver()) {
                 //     SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.totalComplete, self.remoteClick, self);
@@ -617,9 +618,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     private _requestGameCenterComplete(win: number = 0) {
-        const curGame = (this.sceneData as any).game;
+        const curGame = (this.sceneModel as any).game;
         this._endTime = TimeUtil.getNow();
-        let level = curGame.level + 1;
+        let level = curGame.level;
+        let difficulty = level % 3 == 0?3:level % 3;
         let complete = win;
         let duration = (this._endTime - this._startTime) / 1000;
         this.requestGameComplete({
@@ -629,7 +631,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             complete,
             duration,
             timelimit: this.gameLength,
-            difficulty: curGame.difficulty,
+            difficulty,
             levelMode:curGame.levelMode
         });
     }
@@ -662,8 +664,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // }
 
     goonHandler() {
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            (this.sceneData as any).goonHandler(this);
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            (this.sceneModel as any).goonHandler(this);
             return;
         }
 
@@ -693,16 +695,16 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // }
 
     onClickRetryCurrentLevel() {
-        // if (this.sceneData.gameType == GameType.SKEWERS) {
+        // if (this.sceneModel.gameType == GameType.SKEWERS) {
         //     SkewersManager.getInstance().runNextGame(false);
         // }
         // 重玩
         this.cleanChipsCache();
 
         let playIndex = 0;
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.selectedLevelIndex = (this.sceneData as any).difficulty - 1;
-            playIndex = (this.sceneData as any).game.seq;
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
+            playIndex = (this.sceneModel as any).game.seq;
         }
 
         const textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;

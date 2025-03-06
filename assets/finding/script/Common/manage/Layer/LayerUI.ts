@@ -1,7 +1,7 @@
-import { BaseScene } from "db://assets/scene/Core/BaseScene";
 import AudioMgr from "../AudioMgr";
 import GameLog from "../GameLogMgr";
 import {_decorator,Component,Node,Button,find,Color,Sprite, director} from "cc";
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
 
 /**
  * 这个是 封装了一些方法  ，例如 注册点击事件 销毁事件 等等
@@ -22,7 +22,7 @@ export default class LayerUI extends BaseScene<any> {
 
 
     start(){
-        this.sceneData = (director.getScene() as unknown as {sceneData}).sceneData;
+        this.sceneModel = (director.getScene() as unknown as {sceneModel}).sceneModel;
     }
 
 

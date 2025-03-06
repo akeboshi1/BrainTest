@@ -1,7 +1,7 @@
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { GameType } from "../../scripts/Game/GameDataFactory/BaseGameData";
 import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
 import { SentenceMakingScene } from "db://assets/sentenceMaking/script/SentenceMakingScene";
+import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 export class SentenceMakingModel {
     constructor() {
@@ -28,24 +28,24 @@ export class SentenceMakingModel {
 
         this._view = view;
 
-        if (this._view.sceneData.gameType == GameType.SKEWERS) {
-            // let count = (this._view.sceneData as any).game.trains.length;
-            this.skewerGameQuestionDatas = (this._view.sceneData as any).game.trains;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            // let count = (this._view.sceneModel as any).game.trains.length;
+            this.skewerGameQuestionDatas = (this._view.sceneModel as any).game.trains;
             // for (let i = 0; i < count; i++) {
-            //     const trainData = (this._view.sceneData as any).game.trains[i];
+            //     const trainData = (this._view.sceneModel as any).game.trains[i];
             //     this.skewerGameQuestionDatas.push(trainData);
             // }
 
-            this.currentQuestionLevel = (this._view.sceneData as any).game.level;
-            this.setQuestionDifficult((this._view.sceneData as any).difficulty);
-            // this.selectedDifficult = (this._view.sceneData as any).difficulty;
+            this.currentQuestionLevel = (this._view.sceneModel as any).game.level;
+            this.setQuestionDifficult((this._view.sceneModel as any).difficulty);
+            // this.selectedDifficult = (this._view.sceneModel as any).difficulty;
             // let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,this.currentQuestionLevel);
             // this.setQuestionDifficult(question.difficult);
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.onSkewersProgressUpdate, this);
         } else {
-            let d = (this._view.sceneData as any).game;
+            let d = (this._view.sceneModel as any).game;
             this.setQuestionDifficult(d.difficulty);
-            this.currentQuestionLevel = d.level - 1;
+            this.currentQuestionLevel = d.level;
         }
     }
 
@@ -63,21 +63,15 @@ export class SentenceMakingModel {
 
     getCurrentQuestion(): SentenceMakingQuestion {
         let index = this.currentQuestionLevel;
-        if (this._view.sceneData.gameType == GameType.SKEWERS) {
-            if((this._view.sceneData as any).game.levelMode == 2){
-                let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,this.currentQuestionLevel)
-                if(question == null){
-                    return null;
-                }
-                // if (this.skewerGameQuestionDatas[this.currentQuestionLevel] == null) {
-                //     return null;
-                // }
-                index = this.currentQuestionLevel % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
-            }else{
-
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            index = this.currentQuestionLevel % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
+            let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index-1);
+            if(!question) {
+                return null;
             }
+            return question;
         }
-        return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index);
+        return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index - 1);
     }
 
     get isRunOver():boolean{
@@ -93,12 +87,12 @@ export class SentenceMakingModel {
     }
 
     goNextQuestion() {
-        if (this._view.sceneData.gameType == GameType.SKEWERS) {
-            let sceneData = this._view.sceneData as any;
-            if(sceneData.hasCompleteCurGame()){
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            let sceneModel = this._view.sceneModel as any;
+            if(sceneModel.hasCompleteCurGame){
                 this._view.gotoNextGame();
             }else{
-                let trainData = (this._view.sceneData as any).game.getCurTrainData();
+                let trainData = (this._view.sceneModel as any).game.getCurTrainData();
                 this.setQuestionDifficult(trainData.difficulty);
                 this.currentQuestionLevel = trainData.level;
             }
@@ -111,11 +105,17 @@ export class SentenceMakingModel {
             //     this.setQuestionDifficult(this.skewerGameQuestionDatas[this.currentQuestionLevel].difficult);
             // }
         } else {
-            this.selectedDifficult = (this.selectedDifficult + 1) % 3;//最多3个难度1,2,3
+            //this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
+            this.setQuestionDifficult((this.selectedDifficult + 1) % 3 == 0?3:(this.selectedDifficult+1) % 3);//最多3个难度1,2,3
+            this.currentQuestionLevel = (this._view.sceneModel as any).game.getLevelByDifficult(this.selectedDifficult);
             // if (this.selectedDifficult == 0) {
             //     this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
             // }
         }
+    }
+
+    requestGameCompleteCallBack(){
+        this.goNextQuestion();
     }
 
     getCurrentDifficult(): number {
@@ -127,7 +127,7 @@ export class SentenceMakingModel {
     }
 
     hasNextLevel(): boolean {
-        if (this._view.sceneData.gameType == GameType.SKEWERS) {
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
             return false;
         }
 
@@ -135,8 +135,8 @@ export class SentenceMakingModel {
     }
 
     get gameTime(): number {
-        if (this._view.sceneData.gameType == GameType.SKEWERS && !(this._view.sceneData as any).hasCompleteCurGame) {
-            return (this._view.sceneData as any).game.timeLimit;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS && !(this._view.sceneModel as any).hasCompleteCurGame) {
+            return (this._view.sceneModel as any).game.timeLimit;
         }
 
         return this._gameTime;
@@ -147,13 +147,14 @@ export class SentenceMakingModel {
     postGameData(complete: boolean, duration: number) {
         this._resultBoo = complete;
         let result = Number(complete);
-        if (this._view.sceneData.gameType == GameType.SKEWERS) {
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
             this._view.requestSkewersGameComplete(result, duration);
             // SkewersManager.getInstance().requestGameComplete(result, duration);
         } else {
-            let curGame = (this._view.sceneData as any).game;
+            let curGame = (this._view.sceneModel as any).game;
             // levelmode=1得时候，如何传递level和难度给服务器
-            this._view.requestGameCenterComplete(result, this.getcurrentQuestionLevel() + 1, result, duration, this.gameTime, this.getCurrentDifficult() + 1,curGame.levelMode);
+            let difficulty = this.getCurrentDifficult() == 3 ? 3 : this.getCurrentDifficult();
+            this._view.requestGameCenterComplete(result, curGame.level, result, duration, this.gameTime, difficulty,curGame.levelMode);
             // const curGame = GameCenterManager.getInstance().currentGame;
             // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, result, this.getcurrentQuestionLevel() + 1, result, duration, this.gameTime, this.getCurrentLevel() + 1);
         }

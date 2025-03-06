@@ -2,11 +2,10 @@ import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tw
 import { LoaderManager } from "../../scripts/Core/Manager/Load/LoaderManager";
 import { DebugLog } from "../../scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../scripts/Core/Util/TimeUtil";
-import { BaseScene } from '../../scene/Core/BaseScene';
-import { GameType, IBaseGameChild } from '../../scripts/Game/GameDataFactory/BaseGameData';
 import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
-import { GameCenterSpecData } from '../../scripts/Game/GameDataFactory/GameCenterSpecData';
 import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
+import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -111,12 +110,16 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     dataInit() {
         //数据初始化
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.hardIndex = (this.sceneData as any).difficulty - 1;
-            this.level = (this.sceneData as any).level;
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.hardIndex = (this.sceneModel as any).difficulty - 1;
+            this.level = (this.sceneModel as any).level;
+        }else{
+
+            this.level = (this.sceneModel as any).level;
+            this.hardIndex = ((this.level % 3) == 0?3:(this.level % 3))-1;
         }
-        // this.hardIndex = (this.sceneData as any).difficulty - 1;
-        // this.level = (this.sceneData as any).level;
+        // this.hardIndex = (this.sceneModel as any).difficulty - 1;
+        // this.level = (this.sceneModel as any).level;
         // DebugLog.instance.log("1111111111111111111111111",  this.hardIndex, this.level);
     }
 
@@ -126,7 +129,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardView();
         // this.timerInit();
 
-        if (this.sceneData.gameType == GameType.SKEWERS) {
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.successView.active = false;
             this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
         } else {
@@ -165,9 +168,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
-            if (this.sceneData.gameType != GameType.SKEWERS) {
+            if (this.sceneModel.gameType != GameType.SKEWERS) {
                 if (!this.customsSendDataState) {
-                    this.sceneData.gameMatch();
+                    this.sceneModel.gameMatch();
                     //GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
                 }
             }
@@ -280,7 +283,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.playAudio("music/win");
 
         // 非串烧游戏
-        if (this.sceneData.gameType !== GameType.SKEWERS) {
+        if (this.sceneModel.gameType !== GameType.SKEWERS) {
             this.successView.active = true;
             this.successStartButton.node.active = false;
             this.successNextButton.node.active = true;
@@ -303,7 +306,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         } else {
             let obj = this.requestGameResult();
             this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
-            this.sceneData.showNextSuccessHandler(this)
+            this.sceneModel.showNextSuccessHandler(this)
 
         }
     }
@@ -342,8 +345,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     }
     playNextCustoms() {
-        if (this.sceneData.gameType == GameType.SKEWERS) {
-            this.sceneData.goonHandler(this)
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.sceneModel.goonHandler(this)
         } else {
             this._gamecenterNextGame();
         }
@@ -533,7 +536,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerComponent.startTimer(this.INIT_TIME);
     }
     _requestGameCenterComplete() {
-        const curGame = (this.sceneData as GameCenterSpecData).game;
+        const curGame = (this.sceneModel as any).game;
         let config = {
             sessionId: curGame.sessionid,
             count: this.calculCardTotalCount(this.hardIndex) / 2,
@@ -545,7 +548,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             levelMode:curGame.levelMode,
             callback: () => { }
         }
-        this.sceneData.requestGameComplete(config)
+        this.sceneModel.requestGameComplete(config)
     }
     onTimerEnd() {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
@@ -553,10 +556,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         // this.isAbleClick = false
         let { complete, duration } = this.requestGameResult();
         // 倒计时结束，游戏结束
-        if (this.sceneData.gameType == GameType.SKEWERS) {
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
             //上报数据
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
-            this.sceneData.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+            this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
         } else {
             if (!this.customsSendDataState) {
                 this.customsSendDataState = true;
