@@ -64,18 +64,12 @@ export class SentenceMakingModel {
     getCurrentQuestion(): SentenceMakingQuestion {
         let index = this.currentQuestionLevel;
         if (this._view.sceneModel.gameType == GameType.SKEWERS) {
-            if((this._view.sceneModel as any).game.levelMode == 2){
-                let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,this.currentQuestionLevel)
-                if(question == null){
-                    return null;
-                }
-                // if (this.skewerGameQuestionDatas[this.currentQuestionLevel] == null) {
-                //     return null;
-                // }
-                index = this.currentQuestionLevel % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
-            }else{
-
+            index = this.currentQuestionLevel % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
+            let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index-1);
+            if(!question) {
+                return null;
             }
+            return question;
         }
         return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult,index - 1);
     }
@@ -112,7 +106,7 @@ export class SentenceMakingModel {
             // }
         } else {
             //this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
-            this.selectedDifficult = (this.selectedDifficult + 1) % 3 == 0?3:(this.selectedDifficult+1) % 3;//最多3个难度1,2,3
+            this.setQuestionDifficult((this.selectedDifficult + 1) % 3 == 0?3:(this.selectedDifficult+1) % 3);//最多3个难度1,2,3
             this.currentQuestionLevel = (this._view.sceneModel as any).game.getLevelByDifficult(this.selectedDifficult);
             // if (this.selectedDifficult == 0) {
             //     this.currentQuestionLevel = (this.currentQuestionLevel + 1) % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
@@ -141,7 +135,7 @@ export class SentenceMakingModel {
     }
 
     get gameTime(): number {
-        if (this._view.sceneModel.gameType == GameType.SKEWERS && !(this._view.sceneModel as any).hasCompleteCurGame()) {
+        if (this._view.sceneModel.gameType == GameType.SKEWERS && !(this._view.sceneModel as any).hasCompleteCurGame) {
             return (this._view.sceneModel as any).game.timeLimit;
         }
 
