@@ -143,8 +143,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         for (let i = 1; i < 21; i++) {
             this.randomPlayIndex.push(i);
         }
-        // this.randomPlayIndex.sort(() => Math.random() - 0.5);
-
 
         let textureID = this.randomPlayIndex[this.textureIndex];
         this.loadPuzzleTexture(textureID).then((texture) => {
