@@ -81,7 +81,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private hardIndex: number = 0;
 
-    private level: number = 0;
+    private level: number = 1;
 
     private customsSendDataState: boolean;
 
@@ -115,7 +115,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.level = (this.sceneModel as any).level;
         }else{
 
-            // this.level = (this.sceneModel as any).level;
+            this.level = (this.sceneModel as any).level;
             this.hardIndex = 0;//((this.level % 3) == 0?3:(this.level % 3))-1;
         }
         // this.hardIndex = (this.sceneModel as any).difficulty - 1;
@@ -388,8 +388,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
-        let cardThemeCounter=this.level;
-        this.cardTheme  = (cardThemeCounter >= 21) ? 1: cardThemeCounter + 1;  // 达到27后重置为7
+        this.cardTheme  = (this.level >= 21) ? 1: this.level;  // 达到27后重置为7
     }
 
     // 初始化卡片数据
