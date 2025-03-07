@@ -1,6 +1,6 @@
 import { _decorator, Component, instantiate, Node, Prefab, RichText } from 'cc';
-import { BasePanel } from '../../scripts/Core/UI/BasePanel';
-import { UIManager } from '../../scripts/Core/Manager/UI/UIManager';
+import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
+import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SmalltheaterModel } from './SmalltheaterModel';
 import { StageLine } from './PlotsConfig';
 const { ccclass, property } = _decorator;

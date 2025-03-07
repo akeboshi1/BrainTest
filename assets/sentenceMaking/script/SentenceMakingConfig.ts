@@ -1,6 +1,6 @@
 import { assetManager, JsonAsset } from "cc";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { BundleName } from "../../scripts/Core/Manager/Load/BundleName";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
+import { BundleName } from "../../resources/scripts/Core/Manager/Load/BundleName";
 
 // 新增标点符号选项接口
 interface PunctuationOption {

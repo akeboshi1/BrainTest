@@ -1,11 +1,11 @@
 import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tween } from 'cc';
-import { LoaderManager } from "../../scripts/Core/Manager/Load/LoaderManager";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { TimeUtil } from "../../scripts/Core/Util/TimeUtil";
-import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
-import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { LoaderManager } from "../../resources/scripts/Core/Manager/Load/LoaderManager";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
+import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
+import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
+import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -116,7 +116,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }else{
 
             this.level = (this.sceneModel as any).level;
-            this.hardIndex = ((this.level % 3) == 0?3:(this.level % 3))-1;
+            this.hardIndex = 0;//((this.level % 3) == 0?3:(this.level % 3))-1;
         }
         // this.hardIndex = (this.sceneModel as any).difficulty - 1;
         // this.level = (this.sceneModel as any).level;

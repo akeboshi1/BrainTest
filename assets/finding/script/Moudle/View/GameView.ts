@@ -25,14 +25,14 @@ import {
     UITransform,
     Vec3
 } from "cc";
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { GuideManager, GuideState } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
-import { FindingGuide } from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
-import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import { GuideManager, GuideState } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
+import { FindingGuide } from "db://assets/resources/scripts/Core/Manager/Guide/game/FindingGuide";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Game } from "../../Scene/Game";
-import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const { ccclass, property } = _decorator;
 
@@ -161,16 +161,16 @@ export default class GameView extends LayerPanel {
                 this.tempCountDown = skewersGameData.timeLimit;
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
-                let _level = CacheMgr.checkpoint;
-                this._checkPoint = _level;
-                if (_level % 3 == 0) {
-                    if (_level == 0) {
+                let _hard = CacheMgr.hard;
+                this._checkPoint = CacheMgr.checkpoint;
+                if (_hard % 3 == 0) {
+                    if (_hard == 0) {
                         this._curHard = 1;
                     } else {
                         this._curHard = 3;
                     }
                 } else {
-                    this._curHard = _level % 3;
+                    this._curHard = _hard % 3;
                 }
 
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
@@ -656,6 +656,7 @@ export default class GameView extends LayerPanel {
     }
 
     private _requestGameCenterComplete() {
+        CacheMgr.hard++;
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         this.requestGameComplete({

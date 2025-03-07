@@ -1,7 +1,7 @@
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
 import { SentenceMakingScene } from "db://assets/sentenceMaking/script/SentenceMakingScene";
-import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 export class SentenceMakingModel {
     constructor() {
@@ -115,7 +115,7 @@ export class SentenceMakingModel {
     }
 
     requestGameCompleteCallBack(){
-       this.goNextQuestion();
+        this.goNextQuestion();
     }
 
     getCurrentDifficult(): number {
@@ -154,7 +154,8 @@ export class SentenceMakingModel {
             let curGame = (this._view.sceneModel as any).game;
             // levelmode=1得时候，如何传递level和难度给服务器
             let difficulty = this.getCurrentDifficult() == 3 ? 3 : this.getCurrentDifficult();
-            this._view.requestGameCenterComplete(result, curGame.level, result, duration, this.gameTime, difficulty,curGame.levelMode);
+            let level = curGame.getLevelByDifficult(difficulty);
+            this._view.requestGameCenterComplete(result, level, result, duration, this.gameTime, difficulty,curGame.levelMode);
             // const curGame = GameCenterManager.getInstance().currentGame;
             // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, result, this.getcurrentQuestionLevel() + 1, result, duration, this.gameTime, this.getCurrentLevel() + 1);
         }

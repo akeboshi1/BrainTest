@@ -15,19 +15,19 @@ import {
     Vec3,
     Texture2D
 } from 'cc';
-import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
+import { ColorUtil } from '../../resources/scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
-import { CatchFishGuide } from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
-import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
+import { CatchFishGuide } from "db://assets/resources/scripts/Core/Manager/Guide/game/CatchFishGuide";
+import { LoaderManager } from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import {CreateQuestion, FishQuestion} from "db://assets/catchFish/script/createQuestion";
-import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
-import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const { ccclass, property } = _decorator;
 
@@ -103,7 +103,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private curHard: number = 0;
     private hards: number[] = [1, 2, 3];
-    private hardIndex: number = -1;
+    private hardIndex: number = 0;
     private customsSendDataState: boolean;
 
     private hasWangClick: boolean = false;
@@ -304,9 +304,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     break;
             }
         } else {
-            if(this.hardIndex == -1){
-                this.hardIndex =((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
-            }
+            // if(this.hardIndex == -1){
+            //     this.hardIndex =((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
+            // }
             if (win) {
                 this.curHard = this.hards[this.hardIndex];
             } else {

@@ -1,5 +1,5 @@
 import { assetManager, JsonAsset } from "cc";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 
 export class GuessingQuestion {
     questionNumber: number;

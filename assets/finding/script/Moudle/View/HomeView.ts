@@ -6,11 +6,11 @@ import LoadMgr from "../../Common/manage/LoadMgr";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
 import {_decorator, director, Node, Sprite, SpriteFrame, Texture2D} from "cc";
-import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
-import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import {TimeUtil} from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
-import { Global } from "db://assets/scripts/Core/Manager/Config/Global";
-import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -82,11 +82,12 @@ export default class HomeView extends LayerPanel {
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
         }else{
-            checkPoint = this.sceneModel.gameType == GameType.SKEWERS
-                ? this.randomSkewerGame()
-                : CacheMgr.checkpoint==0
-                    ? CacheMgr.checkpoint = (this.sceneModel as any).level
-                    : CacheMgr.checkpoint;
+            checkPoint = this.sceneModel.gameType == GameType.SKEWERS?this.randomSkewerGame():CacheMgr.checkpoint==0?CacheMgr.checkpoint = (this.sceneModel as any).level:CacheMgr.checkpoint;
+            // checkPoint = this.sceneModel.gameType == GameType.SKEWERS
+            //     ? this.randomSkewerGame()
+            //     : CacheMgr.checkpoint==0
+            //         ? CacheMgr.checkpoint = (this.sceneModel as any).level
+            //         : CacheMgr.checkpoint;
         }
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
