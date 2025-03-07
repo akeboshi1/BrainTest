@@ -1,14 +1,14 @@
 import { _decorator, Component, EventTouch, Label, Node} from 'cc';
 import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
-import { FrameComponent } from '../../scripts/Core/Component/FrameComponent';
-import { EventManager } from '../../scripts/Core/Manager/Event/EventManager';
+import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
+import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 import { GuessingQuestion } from './GuessingGameConfig';
 import { RollingSubtitleComponent } from './RollingSubtitleComponent';
-import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 @ccclass('GuessingGameScene')

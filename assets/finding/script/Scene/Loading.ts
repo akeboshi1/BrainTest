@@ -2,9 +2,9 @@ import Tools from "../Common/Tools";
 import TestMgr from "../Common/Test";
 import LoadMgr from "../Common/manage/LoadMgr";
 import { _decorator, Node, tween, director, Sprite, v3, Texture2D, SpriteFrame } from "cc";
-import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { LoaderManager } from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import CacheMgr from "db://assets/finding/script/Common/manage/CacheMgr";
 const { ccclass, property } = _decorator;
 

@@ -1,13 +1,13 @@
 import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
-import AlertManager, { AlertData } from '../../scripts/Core/Manager/Alert/AlertManager';
+import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
 import { CardCtrl } from './CardCtrl';
-import { DebugLog } from '../../scripts/Core/Util/DebugLog';
-import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
-import { LayerUtil } from '../../scripts/Core/Util/LayerUtil';
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
+import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import { LayerUtil } from '../../resources/scripts/Core/Util/LayerUtil';
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')

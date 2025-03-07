@@ -16,12 +16,12 @@ import {
     Vec3
 } from 'cc';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
-import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
+import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')

@@ -8,8 +8,8 @@ import Tools from "../Tools";
 import CacheMgr from "./CacheMgr";
 import Constant from "../Constant";
 import {_decorator,Node,Component,instantiate,Prefab} from "cc"
-import {LoaderManager} from "db://assets/scripts/Core/Manager/Load/LoaderManager";
-import {BundleName} from "db://assets/scripts/Core/Manager/Load/BundleName";
+import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
+import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 
 const {ccclass, property} = _decorator;
 @ccclass

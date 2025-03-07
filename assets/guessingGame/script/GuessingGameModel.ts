@@ -1,10 +1,10 @@
 import { assetManager, AudioClip } from "cc";
-import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
+import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
 import { GuessingGameConfig, GuessingQuestion } from "./GuessingGameConfig";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
-import { AudioManager } from "../../scripts/Core/Manager/Audio/AudioManager";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
+import { AudioManager } from "../../resources/scripts/Core/Manager/Audio/AudioManager";
 import { GuessingGameScene } from "./GuessingGameScene";
-import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 export class GuessingGameModel {
     constructor() {

@@ -3,8 +3,8 @@ import GameLog from "./GameLogMgr";
 import {Texture2D , AssetManager,assetManager,AudioClip,Sprite,SpriteFrame,Prefab,SpriteAtlas,ParticleAsset} from "cc"
 import GameLogMgr from "./GameLogMgr";
 import Bundle = AssetManager.Bundle;
-import {BundleName} from "db://assets/scripts/Core/Manager/Load/BundleName";
-import {TimeUtil} from "db://assets/scripts/Core/Util/TimeUtil";
+import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import {TimeUtil} from "db://assets/resources/scripts/Core/Util/TimeUtil";
 
 
 export default class LoadMgr {

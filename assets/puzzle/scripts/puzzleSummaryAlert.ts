@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, Tween, Label, UITransform, Vec3 } from 'cc';
-import { Global } from "../../scripts/Core/Manager/Config/Global";
-import { SkewersManager } from "../../scripts/Game/Task/Skewers/SkewersManager";
+import { Global } from "../../resources/scripts/Core/Manager/Config/Global";
+import { SkewersManager } from "../../resources/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('puzzleSummaryAlert')
