@@ -8,7 +8,7 @@ import GameConfig from "../Game/GameConfig";
 import Constant from "../../Common/Constant";
 import AudioMgr from "../../Common/manage/AudioMgr";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
-import {Global} from "db://assets/scripts/Core/Manager/Config/Global";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 const {ccclass, property} = _decorator;
 

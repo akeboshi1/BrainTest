@@ -1,20 +1,20 @@
 import { _decorator, AnimationComponent, Color, Component, easing, instantiate, Label, Node, RichText, Sprite, Tween, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AutoPlayLineData, SmalltheaterModel } from './SmalltheaterModel';
-import { StateMachine } from '../../scripts/Core/StateMachine/StateMachine';
-import { AbortablePromise } from '../../scripts/Core/StateMachine/AbortablePromise';
-import { DebugLog } from '../../scripts/Core/Util/DebugLog';
-import { UnitFlow } from '../../scripts/Core/StateMachine/UnitFlow';
-import { SequenceFlow } from '../../scripts/Core/StateMachine/SequenceFlow';
+import { StateMachine } from '../../resources/scripts/Core/StateMachine/StateMachine';
+import { AbortablePromise } from '../../resources/scripts/Core/StateMachine/AbortablePromise';
+import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
+import { UnitFlow } from '../../resources/scripts/Core/StateMachine/UnitFlow';
+import { SequenceFlow } from '../../resources/scripts/Core/StateMachine/SequenceFlow';
 import { CharacterCtrl } from './CharacterCtrl';
-import { AudioManager } from '../../scripts/Core/Manager/Audio/AudioManager';
-import { SceneManager } from '../../scripts/Core/Manager/Scene/SceneManager';
-import { EventManager } from '../../scripts/Core/Manager/Event/EventManager';
-import { ChatFlowModel } from '../../scripts/Game/UI/ChatPanel/Model/ChatFlowModel';
-import { ParallelFlow } from '../../scripts/Core/StateMachine/ParallelFlow';
-import { IFlow } from '../../scripts/Core/StateMachine/IFlow';
-import { UIManager } from '../../scripts/Core/Manager/UI/UIManager';
+import { AudioManager } from '../../resources/scripts/Core/Manager/Audio/AudioManager';
+import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
+import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
+import { ChatFlowModel } from '../../resources/scripts/Game/UI/ChatPanel/Model/ChatFlowModel';
+import { ParallelFlow } from '../../resources/scripts/Core/StateMachine/ParallelFlow';
+import { IFlow } from '../../resources/scripts/Core/StateMachine/IFlow';
+import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { StageLinesPanel } from './StageLinesPanel';
-import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
+import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
 @ccclass('SmalltheaterScene')

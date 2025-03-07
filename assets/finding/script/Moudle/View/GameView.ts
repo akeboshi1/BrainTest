@@ -25,14 +25,14 @@ import {
     UITransform,
     Vec3
 } from "cc";
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { GuideManager, GuideState } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
-import { FindingGuide } from "db://assets/scripts/Core/Manager/Guide/game/FindingGuide";
-import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import { GuideManager, GuideState } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
+import { FindingGuide } from "db://assets/resources/scripts/Core/Manager/Guide/game/FindingGuide";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Game } from "../../Scene/Game";
-import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const { ccclass, property } = _decorator;
 

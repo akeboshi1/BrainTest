@@ -1,7 +1,7 @@
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { SentenceMakingConfig, SentenceMakingQuestion } from "./SentenceMakingConfig";
 import { SentenceMakingScene } from "db://assets/sentenceMaking/script/SentenceMakingScene";
-import {GameType} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 export class SentenceMakingModel {
     constructor() {

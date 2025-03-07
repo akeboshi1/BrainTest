@@ -1,13 +1,13 @@
 
 import { assetManager, AudioClip, Prefab } from "cc";
-import { DebugLog } from "../../scripts/Core/Util/DebugLog";
+import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { Plot, PlotsConfig, StageLine } from "./PlotsConfig";
-import { BundleName } from "../../scripts/Core/Manager/Load/BundleName";
-import { GlobalConfigManager } from "../../scripts/Config/GlobalConfigManager";
-import { SocketManager } from "../../scripts/Core/Manager/Net/SocketManager";
-import { SocketData } from "../../scripts/Core/Manager/Net/SocketData";
-import { EventManager } from "../../scripts/Core/Manager/Event/EventManager";
-import { AbortablePromise } from "../../scripts/Core/StateMachine/AbortablePromise";
+import { BundleName } from "../../resources/scripts/Core/Manager/Load/BundleName";
+import { GlobalConfigManager } from "../../resources/scripts/Config/GlobalConfigManager";
+import { SocketManager } from "../../resources/scripts/Core/Manager/Net/SocketManager";
+import { SocketData } from "../../resources/scripts/Core/Manager/Net/SocketData";
+import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
+import { AbortablePromise } from "../../resources/scripts/Core/StateMachine/AbortablePromise";
 
 export class AutoPlayLineData {
 	audioClip: AudioClip;

@@ -1,6 +1,6 @@
 import {Prefab,instantiate,Node,Sprite,Label,SpriteFrame,Vec3,Button,tween} from 'cc';
-import {DebugLog} from "db://assets/scripts/Core/Util/DebugLog";
-import {EventManager} from "db://assets/scripts/Core/Manager/Event/EventManager";
+import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 export class Fish {
     public static FishClick:string="FishClick";
     private _fishPrefab:Prefab;

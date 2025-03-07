@@ -15,19 +15,19 @@ import {
     Vec3,
     Texture2D
 } from 'cc';
-import { ColorUtil } from '../../scripts/Core/Util/ColorUtil';
+import { ColorUtil } from '../../resources/scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
-import { EventManager } from "db://assets/scripts/Core/Manager/Event/EventManager";
-import { DebugLog } from "db://assets/scripts/Core/Util/DebugLog";
-import { TimeUtil } from "db://assets/scripts/Core/Util/TimeUtil";
-import { GuideManager } from "db://assets/scripts/Core/Manager/Guide/GuideManager";
-import { CatchFishGuide } from "db://assets/scripts/Core/Manager/Guide/game/CatchFishGuide";
-import { LoaderManager } from "db://assets/scripts/Core/Manager/Load/LoaderManager";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
+import { CatchFishGuide } from "db://assets/resources/scripts/Core/Manager/Guide/game/CatchFishGuide";
+import { LoaderManager } from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import {CreateQuestion, FishQuestion} from "db://assets/catchFish/script/createQuestion";
-import { TimerCommonComponent } from '../../scripts/Game/UI/Common/TimerCommonComponent';
-import { BundleName } from '../../scripts/Core/Manager/Load/BundleName';
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 const { ccclass, property } = _decorator;
 

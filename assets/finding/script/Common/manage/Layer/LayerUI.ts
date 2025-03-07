@@ -1,7 +1,7 @@
 import AudioMgr from "../AudioMgr";
 import GameLog from "../GameLogMgr";
 import {_decorator,Component,Node,Button,find,Color,Sprite, director} from "cc";
-import {BaseScene} from "db://assets/scripts/Core/Scene/BaseScene";
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 
 /**
  * 这个是 封装了一些方法  ，例如 注册点击事件 销毁事件 等等
