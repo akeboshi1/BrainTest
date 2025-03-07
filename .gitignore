@@ -8,6 +8,8 @@ local/
 build/
 profiles/
 native
+/publish-remote-bundle/*
+!/publish-remote-bundle/bundle_versions.json
 #//////////////////////////
 # NPM
 #//////////////////////////
