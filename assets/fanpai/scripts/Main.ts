@@ -115,7 +115,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.level = (this.sceneModel as any).level;
         }else{
 
-            this.level = (this.sceneModel as any).level;
+            // this.level = (this.sceneModel as any).level;
             this.hardIndex = 0;//((this.level % 3) == 0?3:(this.level % 3))-1;
         }
         // this.hardIndex = (this.sceneModel as any).difficulty - 1;
