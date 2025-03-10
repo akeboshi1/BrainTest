@@ -525,6 +525,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult(false);
         } else {
+            this._requestGameCenterComplete(0);
             this.summaryAlert.node.active = true;
             this.summaryAlert.initByResult(false);
             this.summaryAlert.fadeIn();
@@ -595,7 +596,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 _tween = null;
             }
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                this._requestSkewersGameComplete();
+                this.requestGameResult(true);
                 // if (SkewersManager.getInstance().isRunOver()) {
                 //     SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.totalComplete, self.remoteClick, self);
                 //     return;
@@ -613,9 +614,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }, 4000);
     }
 
-    private _requestSkewersGameComplete() {
-        this.requestGameResult(true)
-    }
 
     private _requestGameCenterComplete(win: number = 0) {
         const curGame = (this.sceneModel as any).game;
