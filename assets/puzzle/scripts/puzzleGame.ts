@@ -143,6 +143,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
+        // this.randomPlayIndex.sort(() => Math.random() - 0.5);
+
 
         let textureID = this.randomPlayIndex[this.textureIndex];
         this.loadPuzzleTexture(textureID).then((texture) => {
