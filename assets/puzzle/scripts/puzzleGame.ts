@@ -622,13 +622,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this._endTime = TimeUtil.getNow();
         let level = curGame.level;
         let difficulty = level % 3 == 0?3:level % 3;
-        let complete = win;
         let duration = (this._endTime - this._startTime) / 1000;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
-            count: 1,
+            count: win,
             level,
-            complete,
+            complete:win,
             duration,
             timelimit: this.gameLength,
             difficulty,
