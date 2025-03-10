@@ -281,7 +281,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.timerId);
 
         this.playAudio("music/win");
-
+        let obj = this.requestGameResult();
         // 非串烧游戏
         if (this.sceneModel.gameType !== GameType.SKEWERS) {
             this.successView.active = true;
@@ -301,10 +301,9 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.bigWin.active = true;
             }
             if (!this.customsSendDataState) {
-                this._requestGameCenterComplete();
+                this._requestGameCenterComplete( obj.complete, obj.duration);
             }
         } else {
-            let obj = this.requestGameResult();
             this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
             this.sceneModel.showNextSuccessHandler(this)
 
@@ -534,14 +533,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     timerTick() {
         this.timerComponent.startTimer(this.INIT_TIME);
     }
-    _requestGameCenterComplete() {
+    _requestGameCenterComplete(complete, duration) {
         const curGame = (this.sceneModel as any).game;
         let config = {
             sessionId: curGame.sessionid,
-            count: this.calculCardTotalCount(this.hardIndex) / 2,
+            count: complete * this.cardTotalCount / 2,
             level:  this.level,
-            complete: 1,
-            duration: (this._endTime - this._startTime) / 1000,
+            complete: complete,
+            duration: duration,
             timelimit: this.INIT_TIME,
             difficulty: this.hards[this.hardIndex],
             levelMode:curGame.levelMode,
@@ -562,7 +561,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         } else {
             if (!this.customsSendDataState) {
                 this.customsSendDataState = true;
-                this._requestGameCenterComplete();
+                this._requestGameCenterComplete(complete, duration);
             }
             this.failView.active = true;
             this.failViewProgressLabel.node.active = false;
