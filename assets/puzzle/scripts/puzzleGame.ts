@@ -123,6 +123,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     start() {
         super.start();
+        for (let i = 1; i < 21; i++) {
+            this.randomPlayIndex.push(i);
+        }
         this.summaryAlert.node.active = false;
         this.showSprite.node.active = false;
         this.cleanChipsCache();
@@ -140,9 +143,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
-        for (let i = 1; i < 21; i++) {
-            this.randomPlayIndex.push(i);
-        }
         // this.randomPlayIndex.sort(() => Math.random() - 0.5);
 
 
