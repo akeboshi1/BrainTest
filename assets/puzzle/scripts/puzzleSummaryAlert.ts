@@ -9,6 +9,12 @@ export class puzzleSummaryAlert extends Component {
     // successLabel: Label;
 
     @property(Node)
+    succBGNode: Node;
+
+    @property(Node)
+    failBGNode: Node;
+
+    @property(Node)
     buttonRetry: Node;
     @property(Node)
     buttonJumpLevel: Node;
@@ -36,11 +42,13 @@ export class puzzleSummaryAlert extends Component {
     // 根据结果初始化界面
     initByResult(result: boolean) {
         // 如果结果为真，则激活成功标签，否则激活失败标签
-        // if(result){
-        //     this.successLabel.string ="挑战胜利";
-        // }else{
-        //     this.successLabel.string = "挑战失败";
-        // }
+        this.failBGNode.active = !result;
+        this.succBGNode.active = result;
+        //if(result){
+            //this.successLabel.string ="挑战胜利";
+       // }else{
+            //this.successLabel.string = "挑战失败";
+       // }
 
         // 如果不是串烧游戏，则根据结果激活重试、跳转关卡和下一关按钮
         if (!Global.isSkewersGame) {
