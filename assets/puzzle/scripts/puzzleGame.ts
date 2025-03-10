@@ -22,6 +22,7 @@ import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -449,7 +450,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         this.selectedLevel = this.levelList[this.selectedLevelIndex];
         this.textureIndex = (this.textureIndex + 1) % this.randomPlayIndex.length;
-
+        Global.isAgain = false;
         this.cleanChipsCache();
 
         let textureID = this.randomPlayIndex[this.textureIndex];
@@ -515,7 +516,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.playAudio("music/win", true);
         this.timerComponent.pauseTimer();
         this.showSprite.node.active = true;
-
+        Global.isAgain = false;
         const minScale = 1;
         const maxScale = 1.1;
         const duration = 2;
@@ -580,7 +581,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     onClickRetryCurrentLevel() {
         // 重玩
         this.cleanChipsCache();
-
+        Global.isAgain = true;
 
         // let textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
         // if(textureIndex == 0){
