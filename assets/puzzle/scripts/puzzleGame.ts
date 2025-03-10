@@ -135,9 +135,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             let game = (this.sceneModel as any).game;
             this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.gameLength = game.timeLimit;
-            playIndex = game.seq;
+            playIndex = game.level;
             this.bgNode.active = false;
-            this.textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
+            this.textureIndex = playIndex > this.randomPlayIndex.length - 1 ? 0 : playIndex - 1;
         } else {
             this.bgNode.active = true;
             this.textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
@@ -516,7 +516,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.playAudio("music/win", true);
         this.timerComponent.pauseTimer();
         this.showSprite.node.active = true;
-        Global.isAgain = false;
         const minScale = 1;
         const maxScale = 1.1;
         const duration = 2;
@@ -588,6 +587,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         //     this.selectedLevelIndex = 0;
         // }else{
         //     this.selectedLevelIndex = textureIndex % 3;
+
+
         // }
         this.startGameMask.active = true;
         this.bgNode.active = true;
