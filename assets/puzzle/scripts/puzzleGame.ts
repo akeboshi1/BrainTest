@@ -45,7 +45,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(Number)
     private chipGap: number = 1;
 
-    @property(Number)
     private gameLength: number = 180;
 
     @property(Sprite)
@@ -141,11 +140,11 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         } else {
             this.bgNode.active = true;
             this.textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
-            if(this.textureIndex == 0){
-                this.selectedLevelIndex = 0;
-            }else{
-                this.selectedLevelIndex = this.textureIndex % 3;
-            }
+            // if(this.textureIndex == 0){
+            //     this.selectedLevelIndex = 0;
+            // }else{
+            //     this.selectedLevelIndex = this.textureIndex % 3;
+            // }
 
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
@@ -587,7 +586,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         //     this.selectedLevelIndex = 0;
         // }else{
         //     this.selectedLevelIndex = textureIndex % 3;
-
 
         // }
         this.startGameMask.active = true;
