@@ -79,7 +79,7 @@ export default class HomeView extends LayerPanel {
         pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
         this.pictureBGNode.active = false;
         let checkPoint=0;
-        CacheMgr.checkpoint = (this.sceneModel as any).level
+        CacheMgr.checkpoint = (param !=null)?param:(this.sceneModel as any).level;
         if(Global.isAgain){
             checkPoint = CacheMgr.checkpoint;
         }else{

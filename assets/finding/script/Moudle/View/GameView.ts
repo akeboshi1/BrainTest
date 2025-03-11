@@ -657,12 +657,13 @@ export default class GameView extends LayerPanel {
 
     private _requestGameCenterComplete() {
         CacheMgr.hard++;
+        let isWin = Boolean(this.resultList.length / this._maxCount >= 1);
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: this.resultList.length,
-            level: CacheMgr.checkpoint,
+            level:CacheMgr.checkpoint,
             complete: this.resultList.length / this._maxCount,
             duration,
             timelimit: GameConfig.customTime,
@@ -671,7 +672,7 @@ export default class GameView extends LayerPanel {
         });
         // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
-        let isWin = Boolean(this.resultList.length / this._maxCount >= 1);
+
         setTimeout(() => {
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,

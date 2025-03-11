@@ -141,7 +141,8 @@ export default class EndView extends LayerPanel {
         }
         PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
-                panel: HomeView
+                panel: HomeView,
+                param: CacheMgr.checkpoint
         }).then(()=>{
 
                 PanelMgr.INS.closePanel(EndView);
