@@ -136,10 +136,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.gameLength = game.timeLimit;
             playIndex = game.level;
             this.bgNode.active = false;
-            this.textureIndex = playIndex > this.randomPlayIndex.length - 1 ? 0 : playIndex - 1;
+            this.textureIndex = playIndex % this.randomPlayIndex.length;
         } else {
             this.bgNode.active = true;
-            this.textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
+            this.textureIndex = (this.sceneModel as any).level % this.randomPlayIndex.length;
             // if(this.textureIndex == 0){
             //     this.selectedLevelIndex = 0;
             // }else{
@@ -549,7 +549,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         const curGame = (this.sceneModel as any).game;
         this._endTime = TimeUtil.getNow();
         let level = curGame.level;
-        let difficulty = level % 3 == 0?3:level % 3;
+        let difficulty = curGame.difficulty;//level % 3 == 0?3:level % 3;
         let duration = (this._endTime - this._startTime) / 1000;
         this.requestGameComplete({
             sessionId: curGame.sessionid,

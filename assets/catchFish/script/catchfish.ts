@@ -28,6 +28,7 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 const { ccclass, property } = _decorator;
 
@@ -841,6 +842,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     rePlayGame() {
         this.customsSendDataState = true;
+        Global.isAgain = true;
         this.clearGameView();
         this._clearBoo = false;
         this._startTime = TimeUtil.getNow();
@@ -1054,6 +1056,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _state: number = 0;
     // ui挂载得点击事件
     private nextGame(event, data) {
+        Global.isAgain = true;
         let state = Number(data);
         this._state = state;
         Tween.stopAll();
