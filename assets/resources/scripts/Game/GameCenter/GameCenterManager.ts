@@ -340,6 +340,7 @@ export class GameCenterManager {
                 session_id: GameCenterManager.getInstance().currentGame.sessionid,
             }
         }));
+        Global.isAgain = false;
         GuideManager.getInstance().quitGame();
         SceneManager.getInstance().backToGameCenter();
     }

@@ -320,6 +320,7 @@ export class SkewersManager {
      * 退出串烧游戏
      */
     public exitCallBack() {
+        Global.isAgain = false;
         GuideManager.getInstance().quitGame();
         if (SkewersManager.getInstance().isRunOver()) {
             SceneManager.getInstance().backToTaskProgress();
@@ -329,6 +330,7 @@ export class SkewersManager {
     }
 
     public remoteExitCallBack() {
+        Global.isAgain = false;
         GuideManager.getInstance().quitGame();
         SceneManager.getInstance().showPingcePanel();
     }
