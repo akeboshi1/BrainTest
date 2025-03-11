@@ -33,6 +33,7 @@ import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Game } from "../../Scene/Game";
 import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 const { ccclass, property } = _decorator;
 
@@ -162,6 +163,11 @@ export default class GameView extends LayerPanel {
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
                 let _hard = CacheMgr.hard;
+                if(Global.isAgain){
+                    CacheMgr.hard --;
+                    _hard = _hard<0?0:_hard-1;
+                }
+
                 this._checkPoint = CacheMgr.checkpoint;
                 if (_hard % 3 == 0) {
                     if (_hard == 0) {
