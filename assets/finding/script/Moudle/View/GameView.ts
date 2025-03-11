@@ -671,7 +671,7 @@ export default class GameView extends LayerPanel {
         });
         // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
-        let isWin = Boolean(this.resultList.length / this._maxCount);
+        let isWin = Boolean(this.resultList.length / this._maxCount >= 1);
         setTimeout(() => {
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
