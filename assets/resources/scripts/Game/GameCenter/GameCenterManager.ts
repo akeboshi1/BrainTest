@@ -288,7 +288,7 @@ export class GameCenterManager {
             this._curGame.setLevelByDifficult(data.data.difficulty, data.data.level);
         }else {
             this._curGame.level = Number(data.data.level);
-            this._curGame.difficulty = data.data.difficulty;
+            this._curGame.difficulty = data.data.difficulty == 3?3 : data.data.difficulty % 3 + 1;
         }
 
 
