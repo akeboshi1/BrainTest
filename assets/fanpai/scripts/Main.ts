@@ -6,6 +6,7 @@ import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -324,6 +325,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         context.gameStartInit();
     }
     private _gamecenterNextGame() {
+        Global.isAgain = false;
         if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
             this.bigWin.active = false;
@@ -352,6 +354,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     replayGame() {
+        Global.isAgain = true;
         this.closeAllCard();
         this.timerInit();
         this.timerTick();
