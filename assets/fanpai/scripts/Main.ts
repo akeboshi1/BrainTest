@@ -534,7 +534,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerComponent.resetTimer();
     }
     timerTick() {
-        this.timerComponent.startTimer(this.INIT_TIME);
+        if(this.sceneModel.gameType == GameType.SKEWERS){
+            this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
+        }else{
+            this.timerComponent.startTimer(this.INIT_TIME);
+        }
     }
     _requestGameCenterComplete(complete, duration) {
         const curGame = (this.sceneModel as any).game;
