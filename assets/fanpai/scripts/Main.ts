@@ -24,6 +24,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     viewNode: Node;
 
     @property(Node)
+
     successView: Node;
 
     @property(Node)

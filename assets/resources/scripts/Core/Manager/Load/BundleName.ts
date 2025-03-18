@@ -8,4 +8,5 @@ export enum BundleName{
     RESOURCES = 'resources',
     SENTENCEMAKING = 'sentenceMaking',
     SMALLTHEATER = 'smalltheater',
+    MATH24 = 'math24',
 }
