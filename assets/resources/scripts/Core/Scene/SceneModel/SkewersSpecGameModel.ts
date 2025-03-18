@@ -32,6 +32,7 @@ interface ISkewersSpecific extends IBaseGameChild {
 // 游戏大厅退出上报参数
 interface ISkewersGameEndConfig {
     trainID?: number;
+    success?: boolean;
     complete: number;
     duration: number;
     parentNode: Node;
@@ -95,8 +96,9 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
      * @param config
      */
     requestGameComplete(config?: ISkewersGameEndConfig): void {
-        const callbackWrapper = (data: number) => {
-            config.trainID = data;
+        const callbackWrapper = (data) => {
+            config.trainID = data["brain_training_id"];
+            config.success = data.success;
             this.requestGameCompleteCallBack(config);
         };
         // 完成当前游戏请求...
@@ -176,7 +178,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             handlers: Function[]
         } => {
             // 当complete为1时表示成功通关
-            if (config.complete === 1) {
+            if (config.success) {
                 const isFinalStage = curCount == maxCount;
                 let strategyKey = AlertType.Normal;
                 if (isFinalStage) {

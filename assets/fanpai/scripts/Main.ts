@@ -391,7 +391,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
-        this.cardTheme  = (this.level >= 21) ? this.level % 21: this.level;  // 达到27后重置为7
+        this.cardTheme  = (this.level >= 21) ? this.level % 21 + 1: this.level;  // 达到27后重置为7
     }
 
     // 初始化卡片数据
