@@ -136,7 +136,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.gameLength = game.timeLimit;
             playIndex = game.level;
             this.bgNode.active = false;
-            this.textureIndex = playIndex > this.randomPlayIndex.length - 1 ? 0 : playIndex - 1;
+            this.textureIndex = playIndex > this.randomPlayIndex.length - 1 ? playIndex % this.randomPlayIndex.length : playIndex - 1;
         } else {
             this.bgNode.active = true;
             this.textureIndex = (this.sceneModel as any).level % this.randomPlayIndex.length;
