@@ -28,6 +28,7 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 const { ccclass, property } = _decorator;
 
@@ -490,6 +491,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
+    private _offsetX :number = 1080;
+    private _offsetX1:number = 1200;
     moveFishes(fish: Fish, delay: number = 0) {
         if (fish.curTween) {
             fish.curTween.stop();
@@ -511,7 +514,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 fish.curTween = tween(fish)
                     // 对当前鱼对象进行 tween 动画
                     .delay(delay)// 每个对象延迟4秒开始
-                    .to(duration, { position: new Vec3(-800, fish.position.y, fish.position.z) },
+                    .to(duration, { position: new Vec3(-600, fish.position.y, fish.position.z) },
                         {
                             onUpdate: () => {
                                 if (fish.pause) {
@@ -564,8 +567,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .start(); // 启动动画
             } else {
                 // 串烧正常流程
-                if (this._pause && fish.position.x < this._leftSceneX + 1080) {
-                    fish.curTween = tween(fish).to(duration, { position: new Vec3(-800, this.fishYs[fish.positionYIndex], fish.position.z) },
+                if (this._pause && fish.position.x < this._leftSceneX + this._offsetX) {
+                    fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, this.fishYs[fish.positionYIndex], fish.position.z) },
                         {
                             onUpdate: () => {
                                 if (self._pause) {
@@ -629,10 +632,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     fish.curTween = tween(fish)
                         // 对当前鱼对象进行 tween 动画
                         .delay(delay)// 每个对象延迟n秒开始
-                        .to(0.5, { position: new Vec3(self._leftSceneX + 1080, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
+                        .to(0.5, { position: new Vec3(self._leftSceneX + this._offsetX, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                         .call(() => {
                             self.hasWangClick = false;
-                            fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - 1600, fish.position.y, fish.position.z) },
+                            fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - this._offsetX1, fish.position.y, fish.position.z) },
                                 {
                                     onUpdate: () => {
                                         if (fish.pause) {
@@ -687,8 +690,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             }
         }
         else {
-            if (this._pause && fish.position.x < this._leftSceneX + 1080) {
-                fish.curTween = tween(fish).to(duration, { position: new Vec3(-800, this.fishYs[fish.positionYIndex], fish.position.z) },
+            if (this._pause && fish.position.x < this._leftSceneX + this._offsetX) {
+                fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, this.fishYs[fish.positionYIndex], fish.position.z) },
                     {
                         onUpdate: () => {
                             if (self._pause) {
@@ -752,10 +755,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 fish.curTween = tween(fish)
                     // 对当前鱼对象进行 tween 动画
                     .delay(delay)// 每个对象延迟n秒开始
-                    .to(0.2, { position: new Vec3(self._leftSceneX + 1080, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
+                    .to(0.2, { position: new Vec3(self._leftSceneX + this._offsetX, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                     .call(() => {
                         self.hasWangClick = false;
-                        fish.curTween = tween(fish).to(duration, { position: new Vec3(-800, fish.position.y, fish.position.z) },
+                        fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
                                     if (fish.pause) {
@@ -841,6 +844,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     rePlayGame() {
         this.customsSendDataState = true;
+        Global.isAgain = true;
         this.clearGameView();
         this._clearBoo = false;
         this._startTime = TimeUtil.getNow();
@@ -1054,6 +1058,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _state: number = 0;
     // ui挂载得点击事件
     private nextGame(event, data) {
+        Global.isAgain = true;
         let state = Number(data);
         this._state = state;
         Tween.stopAll();
