@@ -5934,7 +5934,7 @@
         "__id__": 162
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 166
@@ -6092,7 +6092,7 @@
       "a": 255
     },
     "_outlineWidth": 2,
-    "_enableShadow": true,
+    "_enableShadow": false,
     "_shadowColor": {
       "__type__": "cc.Color",
       "r": 0,
