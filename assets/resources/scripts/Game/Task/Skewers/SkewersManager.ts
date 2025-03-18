@@ -379,7 +379,7 @@ export class SkewersManager {
                 this._curIndex = -1;
                 return;
             }
-            EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data["brain_training_id"]);
+            EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
         }
     }
 

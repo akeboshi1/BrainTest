@@ -7,4 +7,5 @@ export enum NativeEvent {
     TTSClosed = 'TTSClosed',
     TTSEnd = 'TTSEnd',
     TTSStart = 'TTSStart',
+    FSRResult = 'FSRResult',
 }

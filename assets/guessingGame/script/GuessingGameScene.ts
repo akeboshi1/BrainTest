@@ -1,4 +1,4 @@
-import { _decorator, Component, EventTouch, Label, Node} from 'cc';
+import { _decorator, AnimationComponent, Button, Component, EventTouch, Label, Node } from 'cc';
 import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
 import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
@@ -7,9 +7,19 @@ import { RollingSubtitleComponent } from './RollingSubtitleComponent';
 import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
+import { ChatFlowModel } from '../../resources/scripts/Game/UI/ChatPanel/Model/ChatFlowModel';
+import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
+
+enum OptionState {
+    INIT = "init",
+    RECORDING = "recording",
+    UNDERANALYSIS = "underanalysis",
+    FINISHED = "finished",
+}
 
 @ccclass('GuessingGameScene')
 export class GuessingGameScene extends BaseScene<IBaseGameChild> {
@@ -30,9 +40,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private rollingSubtitleCom: RollingSubtitleComponent = null;
 
     @property(Node)
-    private optionsNode: Node = null;
-
-    @property(Node)
     private replayNode: Node = null;
 
     @property(FrameComponent)
@@ -41,18 +48,46 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     @property(Node)
     private resultPanel: Node = null;
 
-    @property(Node)
-    private successTextNode: Node = null;
+    @property(Label)
+    private resultLabel: Label = null;
 
-    @property(Node)
-    private failedTextNode: Node = null;
+    @property(Label)
+    private scoreLabel: Label = null;
 
     @property(Node)
     viewNode: Node = null;
 
-    private timeLimit = 30;
+    @property(Node)
+    private optionsNode: Node = null;
 
-    private options: string[] = ['a', 'b', 'c', 'd'];
+    @property(Node)
+    private btnStartRecord: Node = null;
+
+    @property(Node)
+    private btnStopRecord: Node = null;
+
+    @property(Label)
+    private labelTips1: Label = null;
+
+    @property(Label)
+    private labelTips2: Label = null;
+
+    @property(Label)
+    private labelResult: Label = null;
+
+    @property(Button)
+    private btnClearResult: Button = null;
+
+    @property(Button)
+    private btnCommitResult: Button = null;
+
+    @property(AnimationComponent)
+    private loadingAnim: AnimationComponent = null;
+
+    @property(Label)
+    private labelMessage: Label = null;
+
+    private timeLimit = 30;
 
     private guessingGameModel: GuessingGameModel = new GuessingGameModel();
     private bInit: boolean = false;
@@ -61,8 +96,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private _startTime: number = 0;
 
-    protected bundleName: string = 'guessingGame';
+    protected bundleName: string = BundleName.GUESSINGGAME;
 
+    private recordingInterval: any = null;
 
     onLoad() {
         this.audioUrls = ["audio/music/click", "audio/music/win"];
@@ -72,7 +108,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         if (!this.bInit) {
-            this.guessingGameModel.init(this);
+            this.guessingGameModel.init(this.sceneModel);
             this.bInit = true;
         }
         this.resetPanel();
@@ -83,6 +119,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         EventManager.getInstance().on(GuessingGameEvent.SHOW_QUESTION, this.onShowQuestion, this);
         EventManager.getInstance().on(GuessingGameEvent.AUDIO_STARTED, this.onAudioStart, this);
         EventManager.getInstance().on(GuessingGameEvent.AUDIO_FINISHED, this.onAudioFinish, this);
+        EventManager.getInstance().on(GuessingGameEvent.ANSWER_EVALUATE_FINISHED, this.onAnalysisResultFinished, this);
 
         this.timerStartGame.on('timer-end', this.startAnswer, this);
         this.timerRT.on('timer-end', this.answerOutOfTime, this);
@@ -93,6 +130,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         EventManager.getInstance().off(GuessingGameEvent.SHOW_QUESTION, this);
         EventManager.getInstance().off(GuessingGameEvent.AUDIO_STARTED, this);
         EventManager.getInstance().off(GuessingGameEvent.AUDIO_FINISHED, this);
+        EventManager.getInstance().off(GuessingGameEvent.ANSWER_EVALUATE_FINISHED, this);
+
+        EventManager.getInstance().off(ChatFlowModel.FSRResultEvent, this);
 
         this.timerStartGame.off('timer-end', this.startAnswer, this);
         this.timerRT.off('timer-end', this.answerOutOfTime, this);
@@ -103,6 +143,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.guessingGameModel.dispose();
             this.guessingGameModel = null;
         }
+        this.stopRecordingAnimation();
     }
 
     private onModelInitComplete() {
@@ -126,14 +167,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         const question: GuessingQuestion = data.question;
         this.currentQuestion = question;
         this.questionLabel.string = question.questionText;
-
-        for (var i = 0; i < this.options.length; i++) {
-            let op: string = this.options[i];
-            let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
-            if (opnode) {
-                opnode.getChildByName("label").getComponent(Label).string = question.options[op];
-            }
-        }
+        this.labelTips1.string = question.tips;
+        this.labelTips2.string = question.tips;
 
         this.timerStartGame.node.active = false;
     }
@@ -151,8 +186,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private _replay: boolean = false;
     private startAnswer() {
         this.questionNode.active = false;
+
         this.optionsNode.active = true;
+
         if (!this._replay) {
+            this.enterOptionState(OptionState.INIT);
             this._startTime = TimeUtil.getNow();
             this.timerRT.node.active = true;
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -170,93 +208,43 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     private answerOutOfTime() {
-        this.processAnswer();
+        this.processAnswer(this.guessingGameModel.currentAnswer);
     }
 
     private processAnswer(ans: string = null) {
         this.pauseTime();
         this._replay = false;
-        const result: boolean = ans && this.currentQuestion.answer == ans;
+        let complete = this.guessingGameModel.currentAnswerScore;
+        const result: boolean = complete > 0.5;
         if (result) {
             this.playAudio("audio/music/win", true);
         }
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.resultPanel.active = false;
-            this.successTextNode.active = false;
-            this.failedTextNode.active = false;
-            this._requestGameResult(result);
-            // if (SkewersManager.getInstance().isRunOver()) {
-            //     SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
-            //     return;
-            // }
-
-            // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this, true);
+            this._requestGameResult();
         } else {
             this.resultPanel.active = true;
-            this.requestGameCenterGameResult(result);
-            this.successTextNode.active = result;
-            this.failedTextNode.active = !result;
+            this.resultLabel.string = complete == 1 ? "回答正确" : (complete == 0 ? "回答错误" : "回答不太准确");
+            this.scoreLabel.string = `得分：${Math.floor(complete * 100)}分`;
+            this.requestGameCenterGameResult();
         }
     }
 
-
-    // private requestSkewersGameComplete(data) {
-    //     let trainid = data;
-    //     let trainData = SkewersManager.getInstance().getTrainData(trainid);
-    //     let maxCount = trainData.parentSkewersGameData.trains.length;
-    //     let curCount = trainData.seq;
-
-    //     if (this._resuleBoo) {
-    //         if (maxCount != curCount) {
-    //             SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
-    //         } else {
-    //             if (!SkewersManager.getInstance().isRunOver()) {
-    //                 SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleBrainScore, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
-    //             } else {
-    //                 SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
-    //             }
-    //         }
-    //     } else {
-    //         if (curCount == maxCount) {
-    //             SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.failCompleteHandler, this.exitCallBack, this);
-    //         } else {
-    //             SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
-    //         }
-    //     }
-    // }
-
-    // private failCompleteHandler(context) {
-    //     if (!SkewersManager.getInstance().isRunOver()) {
-    //         SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, context.nextAlertHandler, context.exitCallBack, context);
-    //     } else {
-    //         SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, context.totalComplete, context.remoteClick, context);
-    //     }
-    // }
-
-    // private remoteClick() {
-    //     this.exitCallBack(this);
-    //     UIManager.getInstance().showPanel(GenerateReport.NAME);
-    // }
-
-    private _resuleBoo: boolean = false;
-
-    private _requestGameResult(win: boolean = true) {
-        this._resuleBoo = win;
+    private _requestGameResult() {
         // 上报数据
         let endTime = TimeUtil.getNow();
-        let complete = Number(win);
+        let complete = this.guessingGameModel.currentAnswerScore;
         if (this._startTime == 0) {
             this._startTime = endTime;
         }
         let duration = (endTime - this._startTime) / 1000;
         this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
-        // SkewersManager.getInstance().requestGameComplete(complete, duration);
     }
 
-    private requestGameCenterGameResult(win: boolean = true) {
+    private requestGameCenterGameResult() {
         // 上报数据
         let endTime = TimeUtil.getNow();
-        let complete = Number(win);
+        let complete = this.guessingGameModel.currentAnswerScore;
         if (this._startTime == 0) {
             this._startTime = endTime;
         }
@@ -270,53 +258,19 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             duration,
             timelimit: this.timeLimit,
             difficulty: 1,
-            levelMode:curGame.levelMode
+            levelMode: curGame.levelMode
         });
-        // GameCenterManager.getInstance().gamePassLevel(GameCenterManager.getInstance().currentGame.sessionid, 0,
-        //     this.guessingGameModel.currentQuestionIndex + 1, complete, duration, this.timeLimit, 1, (data) => {
-        //         DebugLog.instance.log(data);
-        //     });
     }
-
-    // private totalComplete(context) {
-    //     context.guessingGameModel.stopAudio();
-    //     AudioManager.getInstance().stop();
-    //     context.pauseTime();
-    //     SkewersManager.getInstance().exitCallBack();
-    // }
 
     exitCallBack(context) {
         context.guessingGameModel.stopAudio();
         super.exitCallBack(context);
-        // AudioManager.getInstance().stop();
-        // context.pauseTime();
-        // if (Global.isSkewersGame) {
-        //     SkewersManager.getInstance().exitCallBack();
-        // } else {
-        //     GameCenterManager.getInstance().exitCallBack();
-        // }
     }
-
-    // nextAlertHandler(context) {
-    //     SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.onClickGotoNextlevel1, context.exitCallBack, context);
-    // }
 
     onClickGotoNextlevel() {
         // 下一关
         this.onClickContinueGame();
     }
-
-    // nextHandler(context) {
-    //     if (SkewersManager.getInstance().isRunOver()) {
-    //         SkewersManager.getInstance().exitCallBack();
-    //     } else {
-    //         SkewersManager.getInstance().runNextGame(false);
-    //         context.onClickContinueGame();
-    //     }
-    //     super.nextHandler(context);
-    // }
-
-
 
     goonHandler() {
         this.clearGameView();
@@ -354,27 +308,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     quitGame() {
         this.guessingGameModel.stopAudio();
         super.quitGame({ parentNode: this.viewNode, context: this });
-        // this.pauseTime();
-        // if (Global.isSkewersGame) {
-        //     let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-        //     let maxCount = trainData.length;
-        //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-        //     SkewersManager.getInstance().quitGame(this.viewNode, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
-        // } else {
-        //     GameCenterManager.getInstance().quitGame(this.viewNode, this.goonCallBack, this.exitCallBack, this);
-        // }
     }
 
     resumeCallBack(context) {
         context.guessingGameModel.replayQuestionAudio();
         super.resumeCallBack(context);
-        // if (Global.isSkewersGame) {
-        //     if (!SkewersManager.getInstance().isRunOver()) {
-        //         context.resumeTime();
-        //     }
-        // } else {
-        //     context.resumeTime();
-        // }
     }
 
     resumeTime() {
@@ -389,18 +327,116 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
 
     resetPanel() {
-
         this.guessingGameModel.stopAudio();
-
         this.resumeTime();
         this.timerRT.node.active = false;
         this.timerStartGame.node.active = false;
-
         this.resultPanel.active = false;
-
         this.replayNode.active = false;
-        this.optionsNode.active = this.questionNode.active = false;
+        this.optionsNode.active = false;
+        this.questionNode.active = false;
 
         this.frameComponent.playAnimation("idle", 16, true, true);
+        this.labelResult.string = "";
+    }
+
+    enterOptionState(state: OptionState) {
+        this.btnStartRecord.active = state == OptionState.INIT || state == OptionState.FINISHED;
+        this.btnStopRecord.active = state == OptionState.RECORDING;
+        this.btnClearResult.interactable = state == OptionState.FINISHED;
+        this.btnCommitResult.interactable = state == OptionState.FINISHED;
+        this.loadingAnim.node.active = state == OptionState.UNDERANALYSIS;
+        if (state == OptionState.UNDERANALYSIS) {
+            this.loadingAnim.play();
+        }
+        if (state == OptionState.RECORDING) {
+            this.startRecordingAnimation();
+        } else {
+            this.stopRecordingAnimation();
+        }
+        switch (state) {
+            case OptionState.INIT:
+                this.labelMessage.string = "请点击开始录音";
+                this.timerRT.resumeTimer();
+                break;
+            case OptionState.RECORDING:
+                this.timerRT.pauseTimer();
+                break;
+            case OptionState.UNDERANALYSIS:
+                this.labelMessage.string = "正在分析中，请稍等";
+                break;
+            case OptionState.FINISHED:
+                this.labelMessage.string = "请点击提交答案";
+                this.timerRT.resumeTimer();
+                break;
+        }
+    }
+
+    private startRecordingAnimation() {
+        let dotCount = 0;
+        let timeCountSeconds = 15;
+        let space = 500;
+        this.recordingInterval = setInterval(() => {
+            dotCount = (dotCount % 3) + 1;
+            this.labelMessage.string = `录音中(${Math.ceil(timeCountSeconds)}s)${'.'.repeat(dotCount)}`;
+            timeCountSeconds = timeCountSeconds - space / 1000;
+            if (timeCountSeconds <= 0) {
+                this.onClickStopRecord();
+            }
+        }, space);
+    }
+
+    private stopRecordingAnimation() {
+        if (this.recordingInterval) {
+            clearInterval(this.recordingInterval);
+            this.recordingInterval = null;
+        }
+    }
+
+    private onAnalysisResultFinished(result: any) {
+        this.labelResult.string = result.answer;
+        DebugLog.instance.log("Fixed Answer 识别结果：" + result.answer);
+        this.enterOptionState(OptionState.FINISHED);
+    }
+
+    onClickStartRecord() {
+        this.guessingGameModel.stopAudio();
+        this.enterOptionState(OptionState.RECORDING);
+        ChatFlowModel.getInstance().StartFSR();
+    }
+
+    onClickStopRecord() {
+        this.enterOptionState(OptionState.UNDERANALYSIS);
+        ChatFlowModel.getInstance().StopFSR();
+        EventManager.getInstance().on(ChatFlowModel.FSRResultEvent, this.onFSRResult, this, true);
+    }
+
+    onFSRResult(result: any) {
+        if (result.code == 0 && result.content != "") {
+            this.guessingGameModel.analysisAnswer(result.content, this.guessingGameModel.currentQuestionIndex);
+        } else if (result.code == 0 && result.content == "") {
+            this.enterOptionState(OptionState.INIT);
+            this.labelMessage.string = "未能识别到语音，请重新录音";
+        } else {
+            this.enterOptionState(OptionState.INIT);
+            this.labelMessage.string = result.message;
+        }
+    }
+
+    onClickClearResult() {
+        this.enterOptionState(OptionState.INIT);
+        this.labelResult.string = "";
+        this.guessingGameModel.cleanCurrentAnswer();
+    }
+
+    onClickCommitResult() {
+        this.processAnswer(this.guessingGameModel.currentAnswer);
+        this.timerRT.pauseTimer();
+    }
+
+    onClickAnswerImmediately() {
+        this.guessingGameModel.stopAudio();
+        this.frameComponent.playAnimation("idle", 16, true, true);
+        this.startAnswer();
     }
 }
