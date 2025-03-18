@@ -69,7 +69,7 @@ export default class HomeView extends LayerPanel {
         // if(Global.userData.curSkewerGameData.hasGuid()) {
         //     return 0;
         // }
-        FindingGlobal.curSkewersGameIndex = Global.userData.curSkewerGameData.getCurTrainData().level % GameConfig.allCheckPoint;//Math.floor(Math.random() * FindingGlobal.skewersGameList.length);
+        FindingGlobal.curSkewersGameIndex = Global.userData.curSkewerGameData.getCurTrainData().level>=GameConfig.allCheckPoint? Global.userData.curSkewerGameData.getCurTrainData().level % GameConfig.allCheckPoint +1:Global.userData.curSkewerGameData.getCurTrainData().level;//Math.floor(Math.random() * FindingGlobal.skewersGameList.length);
         return FindingGlobal.skewersGameList[FindingGlobal.curSkewersGameIndex-1];
     }
 
