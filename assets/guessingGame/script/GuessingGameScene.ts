@@ -100,6 +100,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private recordingInterval: any = null;
 
+    private optionStatus: OptionState = OptionState.INIT;
+    private outOfTimeFlag: boolean = false;
+
     onLoad() {
         this.audioUrls = ["audio/music/click", "audio/music/win"];
         this.loadAudio().then();
@@ -179,14 +182,13 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private onAudioFinish() {
         this.frameComponent.playAnimation("idle", 16, true, true);
-
         this.startAnswer();
     }
 
     private _replay: boolean = false;
     private startAnswer() {
+        this.guessingGameModel.cleanCurrentAnswer();
         this.questionNode.active = false;
-
         this.optionsNode.active = true;
 
         if (!this._replay) {
@@ -208,6 +210,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     private answerOutOfTime() {
+        if(this.optionStatus == OptionState.RECORDING || this.optionStatus == OptionState.UNDERANALYSIS) {
+            this.pauseTime();
+            this.outOfTimeFlag = true;
+            return;
+        }
         this.processAnswer(this.guessingGameModel.currentAnswer);
     }
 
@@ -357,18 +364,21 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         switch (state) {
             case OptionState.INIT:
                 this.labelMessage.string = "请点击开始录音";
-                this.timerRT.resumeTimer();
                 break;
             case OptionState.RECORDING:
-                this.timerRT.pauseTimer();
                 break;
             case OptionState.UNDERANALYSIS:
                 this.labelMessage.string = "正在分析中，请稍等";
                 break;
             case OptionState.FINISHED:
                 this.labelMessage.string = "请点击提交答案";
-                this.timerRT.resumeTimer();
                 break;
+        }
+        this.optionStatus = state;
+
+        if(this.outOfTimeFlag && (state == OptionState.INIT || state == OptionState.FINISHED)) {
+            this.outOfTimeFlag = false;
+            this.processAnswer(this.guessingGameModel.currentAnswer);
         }
     }
 

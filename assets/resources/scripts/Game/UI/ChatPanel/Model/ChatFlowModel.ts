@@ -128,7 +128,7 @@ export class ChatFlowModel extends BaseManager {
                 }
 
                 if (event.data && event.data.type === "FSRResult") {
-                    this.onFSRResultHandle(event.data);
+                    this.onFSRResultHandle(event.data.data);
                 }
             });
         }
@@ -200,8 +200,8 @@ export class ChatFlowModel extends BaseManager {
     }
 
     private onFSRResultHandle(data: any) {
-        DebugLog.instance.log("FSRResult ,success? = " + data.data.code);
-        EventManager.getInstance().emit(ChatFlowModel.FSRResultEvent, data.data);
+        DebugLog.instance.log("FSRResult ,success? = " + data.code);
+        EventManager.getInstance().emit(ChatFlowModel.FSRResultEvent, data);
     }
 
     // 发起greeting请求的方法，这里简单示意，实际可能涉及具体的网络请求库调用等
