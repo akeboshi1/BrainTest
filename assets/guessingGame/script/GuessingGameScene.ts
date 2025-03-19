@@ -350,8 +350,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     enterOptionState(state: OptionState) {
         this.btnStartRecord.active = state == OptionState.INIT || state == OptionState.FINISHED;
         this.btnStopRecord.active = state == OptionState.RECORDING;
-        this.btnClearResult.interactable = state == OptionState.FINISHED;
         this.btnCommitResult.interactable = state == OptionState.FINISHED;
+        this.btnClearResult.node.active = false;
         this.loadingAnim.node.active = state == OptionState.UNDERANALYSIS;
         if (state == OptionState.UNDERANALYSIS) {
             this.loadingAnim.play();
@@ -371,7 +371,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 this.labelMessage.string = "正在分析中，请稍等";
                 break;
             case OptionState.FINISHED:
-                this.labelMessage.string = "请点击提交答案";
+                this.labelMessage.string = "请点击开始重录";
                 break;
         }
         this.optionStatus = state;
@@ -411,6 +411,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     onClickStartRecord() {
         this.guessingGameModel.stopAudio();
+        this.labelResult.string = "";
+        this.guessingGameModel.cleanCurrentAnswer();
         this.enterOptionState(OptionState.RECORDING);
         ChatFlowModel.getInstance().StartFSR();
     }
