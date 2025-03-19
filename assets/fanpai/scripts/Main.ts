@@ -307,7 +307,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
         } else {
             this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
-            this.sceneModel.showNextSuccessHandler(this)
+            // this.sceneModel.showNextSuccessHandler(this)
 
         }
     }
