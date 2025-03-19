@@ -3,307 +3,232 @@
     {
       "questionNumber": 1,
       "questionText": "我白天休息，晚上出来活动，还会“喵喵”叫，猜猜我是谁？",
-      "options": {
-        "a": "小狗",
-        "b": "小猫",
-        "c": "小鸟",
-        "d": "小兔子"
-      },
-      "answer": "b",
+      "answer": [
+        "小猫"
+      ],
       "solutionThoughts": "因为小猫具有白天休息，晚上活动且会“喵喵”叫的特性，所以答案是小猫。",
-      "audioSource": "audio/1"
+      "audioSource": "audio/1",
+      "tips": "该动物夜行且叫声为“喵喵”。"
     },
     {
       "questionNumber": 2,
       "questionText": "我是一个方方正正的东西，有屏幕，人们可以用我来打电话、玩游戏，猜猜我是什么呢？",
-      "options": {
-        "a": "电视",
-        "b": "书本",
-        "c": "手机",
-        "d": "电脑"
-      },
-      "answer": "c",
+      "answer": [
+        "手机"
+      ],
       "solutionThoughts": "手机通常是方方正正且带有屏幕，具备打电话和玩游戏等功能，所以答案是手机。",
-      "audioSource": "audio/2"
+      "audioSource": "audio/2",
+      "tips": "此物品呈方形有屏可通话游戏。"
     },
     {
       "questionNumber": 3,
       "questionText": "我是一种水果，外皮是绿色的，里面是红色的果肉，充满水分，籽是黑色的，吃起来甜甜的。猜猜我是谁？",
-      "options": {
-        "a": "西瓜",
-        "b": "柠檬",
-        "c": "猕猴桃",
-        "d": "橘子"
-      },
-      "answer": "a",
+      "answer": [
+        "西瓜"
+      ],
       "solutionThoughts": "西瓜的外皮是绿色，果肉红色、水分足且籽为黑色，味道甜美，符合描述，所以答案是西瓜。",
-      "audioSource": "audio/3"
+      "audioSource": "audio/3",
+      "tips": "水果特征：绿皮红瓤黑籽甜。"
     },
     {
       "questionNumber": 4,
       "questionText": "我是一只小动物，白天睡觉，晚上出来活动，还会“吱吱”叫，猜猜我是谁？",
-      "options": {
-        "a": "小狗",
-        "b": "小猫",
-        "c": "老鼠",
-        "d": "小鸟"
-      },
-      "answer": "c",
+      "answer": [
+        "老鼠"
+      ],
       "solutionThoughts": "老鼠的习性是白天睡觉，晚上活动并发出“吱吱”叫声，所以答案是老鼠。",
-      "audioSource": "audio/4"
+      "audioSource": "audio/4",
+      "tips": "该动物夜间活跃且“吱吱”叫。"
     },
     {
       "questionNumber": 5,
       "questionText": "五个兄弟住一起，样子相似高矮不同。猜身体的一个部位。",
-      "options": {
-        "a": "手指",
-        "b": "牙齿",
-        "c": "鼻子",
-        "d": "眉毛"
-      },
-      "answer": "a",
+      "answer": [
+        "手指"
+      ],
       "solutionThoughts": "老鼠的习性是白天睡觉，晚上活动并发出“吱吱”叫声，所以答案是老鼠。",
-      "audioSource": "audio/5"
+      "audioSource": "audio/5",
+      "tips": "身体部位形似兄弟高矮不一。"
     },
     {
       "questionNumber": 6,
       "questionText": "一年四季住家里，天热忙，天冷忙，不冷不热它放假。",
-      "options": {
-        "a": "电脑",
-        "b": "电热毯",
-        "c": "洗衣机",
-        "d": "空调"
-      },
-      "answer": "d",
-      "audioSource": "audio/6"
+      "answer": [
+        "空调"
+      ],
+      "audioSource": "audio/6",
+      "tips": "电器天热天冷工作，不冷不热休息。"
     },
     {
       "questionNumber": 7,
       "questionText": "兄弟五个人，各走各的门，谁要走错了，出来笑死人。",
-      "options": {
-        "a": "手套",
-        "b": "鞋子",
-        "c": "帽子",
-        "d": "围巾"
-      },
-      "answer": "a",
-      "audioSource": "audio/7"
+      "answer": [
+        "手套"
+      ],
+      "audioSource": "audio/7",
+      "tips": "穿戴品分五指，错戴会闹笑话。"
     },
     {
       "questionNumber": 8,
       "questionText": "有风不动无风动，不动无风动有风。",
-      "options": {
-        "a": "龙卷风",
-        "b": "风筝",
-        "c": "飞机",
-        "d": "扇子"
-      },
-      "answer": "d",
-      "audioSource": "audio/8"
+      "answer": [
+        "扇子"
+      ],
+      "audioSource": "audio/8",
+      "tips": "物品与风有关，有风不动无风动。"
     },
     {
       "questionNumber": 9,
       "questionText": "稀奇稀奇真稀奇，把人鼻子当马骑。",
-      "options": {
-        "a": "帽子",
-        "b": "眼镜",
-        "c": "耳环",
-        "d": "口罩"
-      },
-      "answer": "b",
-      "audioSource": "audio/9"
+      "answer": [
+        "眼镜"
+      ],
+      "audioSource": "audio/9",
+      "tips": "物品佩戴在鼻子上。"
     },
     {
       "questionNumber": 10,
       "questionText": "白胖娃娃泥里卧，腰身扭来心眼多。",
-      "options": {
-        "a": "萝卜",
-        "b": "土豆",
-        "c": "黄瓜",
-        "d": "莲藕"
-      },
-      "answer": "d",
-      "audioSource": "audio/10"
+      "answer": [
+        "莲藕"
+      ],
+      "audioSource": "audio/10",
+      "tips": "泥里生长的白胖且多心眼的植物。"
     },
     {
       "questionNumber": 11,
       "questionText": "姐妹一样长，出入都成双，酸甜苦辣咸，她们总先尝。",
-      "options": {
-        "a": "叉子",
-        "b": "筷子",
-        "c": "勺子",
-        "d": "刀子"
-      },
-      "answer": "b",
-      "audioSource": "audio/11"
+      "answer": [
+        "筷子"
+      ],
+      "audioSource": "audio/11",
+      "tips": "餐具成双使用，尝味先接触食物。"
     },
     {
       "questionNumber": 12,
       "questionText": "有面没有口，有脚没有手，虽有四只脚，自己不会走。",
-      "options": {
-        "a": "大象",
-        "b": "竹席",
-        "c": "口罩",
-        "d": "桌子"
-      },
-      "answer": "d",
-      "audioSource": "audio/12"
+      "answer": [
+        "桌子"
+      ],
+      "audioSource": "audio/12",
+      "tips": "物品有面有脚但不会自行走动。"
     },
     {
       "questionNumber": 13,
       "questionText": "面孔像只猫，行动像只鸟，白天躲家里，天黑上夜班。",
-      "options": {
-        "a": "小猫",
-        "b": "小鸟",
-        "c": "乌鸦",
-        "d": "猫头鹰"
-      },
-      "answer": "d",
-      "audioSource": "audio/13"
+      "answer": [
+        "猫头鹰"
+      ],
+      "audioSource": "audio/13",
+      "tips": "动物形似猫，夜间活动。"
     },
     {
       "questionNumber": 14,
       "questionText": "一座七色桥，顶着蓝天造，抬头看得见，只是上不去。",
-      "options": {
-        "a": "云朵",
-        "b": "桥梁",
-        "c": "天空",
-        "d": "彩虹"
-      },
-      "answer": "d",
-      "audioSource": "audio/14"
+      "answer": [
+        "彩虹"
+      ],
+      "audioSource": "audio/14",
+      "tips": "天空中可见的七色景观，无法攀登。"
     },
     {
       "questionNumber": 15,
       "questionText": "有个大肚皮，脾气真古怪，张着大嘴街上站，专吃各种脏东西。",
-      "options": {
-        "a": "扫帚",
-        "b": "垃圾桶",
-        "c": "胖子",
-        "d": "大嘴巴"
-      },
-      "answer": "b",
-      "audioSource": "audio/15"
+      "answer": [
+        "垃圾桶"
+      ],
+      "audioSource": "audio/15",
+      "tips": "街上用于装脏东西的容器。"
     },
     {
       "questionNumber": 16,
       "questionText": "白天草里住，晚上天上飞，带着灯笼把路照，飞来飞去不怕黑。",
-      "options": {
-        "a": "路灯",
-        "b": "蚊子",
-        "c": "萤火虫",
-        "d": "灯笼"
-      },
-      "answer": "c",
-      "audioSource": "audio/16"
+      "answer": [
+        "萤火虫"
+      ],
+      "audioSource": "audio/16",
+      "tips": "夜间飞行且自带照明的昆虫。"
     },
     {
       "questionNumber": 17,
       "questionText": "一物不得了，地位比人高，放上挡风雨，拿下有礼貌。",
-      "options": {
-        "a": "窗户",
-        "b": "帽子",
-        "c": "雨伞",
-        "d": "雨衣"
-      },
-      "answer": "b",
-      "audioSource": "audio/17"
+      "answer": [
+        "帽子"
+      ],
+      "audioSource": "audio/17",
+      "tips": "物品戴在头上，拿下显礼貌。"
     },
     {
       "questionNumber": 18,
       "questionText": "名字叫做牛，但是不干活，天生大力士，背着房子走。",
-      "options": {
-        "a": "牛仔",
-        "b": "黄牛",
-        "c": "公牛",
-        "d": "蜗牛"
-      },
-      "answer": "d",
-      "audioSource": "audio/18"
+      "answer": [
+        "蜗牛"
+      ],
+      "audioSource": "audio/18",
+      "tips": "名字带牛但不劳作，背壳移动。"
     },
     {
       "questionNumber": 19,
       "questionText": "有个朋友真奇怪，有时长来有时短，你走他也走，你停他也停。",
-      "options": {
-        "a": "影子",
-        "b": "手表",
-        "c": "树木",
-        "d": "好朋友"
-      },
-      "answer": "a",
-      "audioSource": "audio/19"
+      "answer": [
+        "影子"
+      ],
+      "audioSource": "audio/19",
+      "tips": "与你形影不离，长短随光变化。"
     },
     {
       "questionNumber": 20,
       "questionText": "屋子方正，有门没窗，屋外热烘，屋里起霜。",
-      "options": {
-        "a": "微波炉",
-        "b": "冰箱",
-        "c": "烤箱",
-        "d": "酒店"
-      },
-      "answer": "b",
-      "audioSource": "audio/20"
+      "answer": [
+        "冰箱"
+      ],
+      "audioSource": "audio/20",
+      "tips": "屋内会结霜的电器，外形方正有门无窗。"
     },
     {
       "questionNumber": 21,
       "questionText": "像鸡不是鸡，尾巴拖到地，张开像花伞，别提有多美。",
-      "options": {
-        "a": "雨伞",
-        "b": "母鸡",
-        "c": "鸭子",
-        "d": "孔雀"
-      },
-      "answer": "d",
-      "audioSource": "audio/21"
+      "answer": [
+        "孔雀"
+      ],
+      "audioSource": "audio/21",
+      "tips": "非鸡动物，尾巴长可开屏。"
     },
     {
       "questionNumber": 22,
       "questionText": "头小四肢短，身在硬壳里，胆小又怕事，寿命大无边。",
-      "options": {
-        "a": "蜥蜴",
-        "b": "乌龟",
-        "c": "蛇",
-        "d": "青蛙"
-      },
-      "answer": "b",
-      "audioSource": "audio/22"
+      "answer": [
+        "乌龟"
+      ],
+      "audioSource": "audio/22",
+      "tips": "头小肢短，有硬壳且寿命长。"
     },
     {
       "questionNumber": 23,
       "questionText": "全家住在格子间，天天花园里上班，工作时候嗡嗡叫，劳动成果比糖甜。",
-      "options": {
-        "a": "蚂蚁",
-        "b": "园丁",
-        "c": "蜜蜂",
-        "d": "农民"
-      },
-      "answer": "c",
-      "audioSource": "audio/23"
+      "answer": [
+        "蜜蜂"
+      ],
+      "audioSource": "audio/23",
+      "tips": "群居昆虫，在花园工作产甜物。"
     },
     {
       "questionNumber": 24,
       "questionText": "千条线，万条线，落在水里看不见。",
-      "options": {
-        "a": "雾",
-        "b": "雪",
-        "c": "雨",
-        "d": "露水"
-      },
-      "answer": "c",
-      "audioSource": "audio/24"
+      "answer": [
+        "雨"
+      ],
+      "audioSource": "audio/24",
+      "tips": "像线般落下，入水即消失。"
     },
     {
       "questionNumber": 25,
       "questionText": "上边草，下边草，中间一颗黑葡萄。",
-      "options": {
-        "a": "葡萄",
-        "b": "眼睛",
-        "c": "草莓",
-        "d": "黑莓"
-      },
-      "answer": "b",
-      "audioSource": "audio/25"
+      "answer": [
+        "眼睛"
+      ],
+      "audioSource": "audio/25",
+      "tips": "描述的是脸部的一个器官。"
     }
   ]
 }

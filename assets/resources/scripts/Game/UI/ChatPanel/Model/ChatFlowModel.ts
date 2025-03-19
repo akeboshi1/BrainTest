@@ -29,6 +29,8 @@ export class ChatFlowModel extends BaseManager {
     public static ASRResult: string = "ChatFlowMode.ASRResult";
     public static ASRFlowCompleteEvent: string = "ChatFlowMode.ASRFlowCompleteEvent";
 
+    public static FSRResultEvent: string = "ChatFlowMode.FSRResultEvent";
+
     public static ReciveEmptyChunk: string = "ChatFlowMode.ReciveEmptyChunk";
 
     public static WaittingEvent: string = "ChatFlowMode.WaittingEvent";
@@ -93,6 +95,7 @@ export class ChatFlowModel extends BaseManager {
             NativeEventManager.getInstance().on(NativeEvent.TTSClosed, this.onTTSClosedHandle, this);
             NativeEventManager.getInstance().on(NativeEvent.TTSEnd, this.onTTSEndHandle, this);
             NativeEventManager.getInstance().on(NativeEvent.TTSStart, this.onTTSStartHandle, this);
+            NativeEventManager.getInstance().on(NativeEvent.FSRResult, this.onFSRResultHandle, this);
         } else {
             window.addEventListener("message", (event) => {
                 if (event.data && event.data.type === "ASRResult") {
@@ -122,6 +125,10 @@ export class ChatFlowModel extends BaseManager {
 
                 if (event.data && event.data.type === "TTSStart") {
                     this.onTTSStartHandle(event.data);
+                }
+
+                if (event.data && event.data.type === "FSRResult") {
+                    this.onFSRResultHandle(event.data.data);
                 }
             });
         }
@@ -190,6 +197,11 @@ export class ChatFlowModel extends BaseManager {
     private onTTSStartHandle(data: any) {
         DebugLog.instance.log("TTSStart " + data);
         EventManager.getInstance().emit(ChatFlowModel.TTSFlowStartEvent, { ttsUid: data.uid });
+    }
+
+    private onFSRResultHandle(data: any) {
+        DebugLog.instance.log("FSRResult ,success? = " + data.code);
+        EventManager.getInstance().emit(ChatFlowModel.FSRResultEvent, data);
     }
 
     // 发起greeting请求的方法，这里简单示意，实际可能涉及具体的网络请求库调用等
@@ -436,6 +448,32 @@ export class ChatFlowModel extends BaseManager {
         this.currentChatRequestUid = null;
     }
 
+    StartFSR(){
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('android fsr start');
+            native.bridge.sendToNative('FSR', 'start');
+        }
+
+        if (sys.platform.toUpperCase().endsWith("BROWSER")) {
+            var webViewNode = director.getScene().getChildByName("webview");
+            let webviewTTS = webViewNode.getChildByName("fsr").getComponent(WebView);
+            webviewTTS.evaluateJS("start()");
+        }
+    }
+
+    StopFSR(){
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('android fsr stop');
+            native.bridge.sendToNative('FSR', 'stop');
+        }
+
+        if (sys.platform.toUpperCase().endsWith("BROWSER")) {
+            var webViewNode = director.getScene().getChildByName("webview");
+            let webviewTTS = webViewNode.getChildByName("fsr").getComponent(WebView);
+            webviewTTS.evaluateJS("stop()");
+        }
+    }
+   
     reset() {
         this.onCloseTTS();
         this.onCloseASR();

@@ -59,6 +59,9 @@ export class App extends BaseObejct {
     @property(WebView)
     asr: WebView;
 
+    @property(WebView)
+    fsr: WebView;
+
     @property(PublishSetting)
     publishSetting: PublishSetting;
 
@@ -180,6 +183,7 @@ export class App extends BaseObejct {
         if (this.isWebView) {
             this.tts.url = "./webview/tts.html";
             this.asr.url = "./webview/asr.html";
+            this.fsr.url = "./webview/fsr.html";
         }
 
         LoginManager.getInstance().start();
