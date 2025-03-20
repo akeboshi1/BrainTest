@@ -10,6 +10,7 @@ import { GenerateReport } from './GenerateReport';
 import { LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
+import FeatureTogglesSetting, { FeatureToggle } from '../../../FeatureTogglesSetting';
 
 const { ccclass, property } = _decorator;
 
@@ -23,10 +24,26 @@ export class PersonalCenterPanel extends BasePanel {
     @property(Label)
     phoneNum: Label = null;
 
+    @property(Node)
+    vipNode: Node = null;
+
+    @property(Node)
+    kefuNode: Node = null;
+
+    @property(Node)
+    reportNode: Node = null;
+
 
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         PersonalCenterManager.getInstance().requestUserInfo();
+        this.initFeature();
+    }
+
+    initFeature(){
+        this.vipNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.PersonalCenterVip);
+        this.kefuNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.PersonalCenterKefu);
+        this.reportNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.PersonalCenterReporter);
     }
 
     onDisable(): void {

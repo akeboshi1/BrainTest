@@ -24,6 +24,7 @@ import { PersonalCenterPanel } from '../UI/PersonalCenter/PersonalCenterPanel';
 import { GameCenter } from '../UI/GameCenter/GameCenter';
 import { BrainTrain } from '../UI/BrainTrain/BrainTrain';
 import { TaskAndNotificationPanelCtrl } from '../UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+import FeatureTogglesSetting, { FeatureToggle } from '../../FeatureTogglesSetting';
 
 
 const { ccclass, property } = _decorator;
@@ -71,6 +72,18 @@ export class MainScene extends Component {
 
     @property(Node)
     brainTrainView: Node = null;
+
+    @property(Node)
+    gameCenterNode: Node = null;
+
+    @property(Node)
+    langureTrainNode: Node = null;
+
+    @property(Node)
+    personalCenterNode: Node = null;
+
+    @property(Button)
+    chatButton: Button = null;
 
     /**
      * 当前页面
@@ -124,6 +137,14 @@ export class MainScene extends Component {
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
         TaskManager.getInstance().start();
         this.startShowView();
+        this.initFeature();
+    }
+
+    initFeature() {
+        this.gameCenterNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.GameCenter);
+        this.langureTrainNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.LanguageTraining);
+        this.personalCenterNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.PersonalCenter);
+        this.chatButton.interactable = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.Chat);
     }
 
     private _infoPanelOpenState: boolean = false;

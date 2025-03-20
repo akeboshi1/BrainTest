@@ -96,7 +96,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960.0000000000002,
+      "y": 960,
       "z": 0
     },
     "_lrot": {
@@ -231,6 +231,18 @@
     },
     "brainTrainView": {
       "__id__": 73
+    },
+    "gameCenterNode": {
+      "__id__": 73
+    },
+    "langureTrainNode": {
+      "__id__": 81
+    },
+    "personalCenterNode": {
+      "__id__": 89
+    },
+    "chatButton": {
+      "__id__": 20
     },
     "_id": "52sveUOE9FDqJa2ODEKka6"
   },
@@ -4450,7 +4462,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4489,7 +4501,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960.0000000000001,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -4540,7 +4552,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960.0000000000002,
+      "y": 960,
       "z": 1000
     },
     "_lrot": {
