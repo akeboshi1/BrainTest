@@ -22,6 +22,7 @@ import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -44,7 +45,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(Number)
     private chipGap: number = 1;
 
-    @property(Number)
     private gameLength: number = 180;
 
     @property(Sprite)
@@ -134,18 +134,20 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             let game = (this.sceneModel as any).game;
             this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.gameLength = game.timeLimit;
-            playIndex = game.seq;
+            playIndex = game.level;
             this.bgNode.active = false;
-            this.textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
+            this.textureIndex = playIndex > this.randomPlayIndex.length - 1 ? playIndex % this.randomPlayIndex.length : playIndex - 1;
         } else {
-            // this.selectedLevelIndex = ((this.sceneModel as any).level % 3 == 0?3:(this.sceneModel as any).level % 3)-1;
             this.bgNode.active = true;
-            this.textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
+            this.textureIndex = (this.sceneModel as any).level % this.randomPlayIndex.length;
+            // if(this.textureIndex == 0){
+            //     this.selectedLevelIndex = 0;
+            // }else{
+            //     this.selectedLevelIndex = this.textureIndex % 3;
+            // }
+
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
-        // this.randomPlayIndex.sort(() => Math.random() - 0.5);
-
-
         let textureID = this.randomPlayIndex[this.textureIndex];
         this.loadPuzzleTexture(textureID).then((texture) => {
             this.currentTexture2d = texture;
@@ -179,10 +181,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     protected onDestroy(): void {
         this.loadTextureRejector = null;
         this.loadTextureResolver = null;
-    }
-
-    update(deltaTime: number) {
-
     }
 
     cropTextureToSprites(cropSize: Vec2, texture: Texture2D) {
@@ -298,18 +296,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     quitGame() {
         super.quitGame({ parentNode: this.viewNode, context: this });
-        // this.pauseTime();
         if (this._timeID) {
             clearTimeout(this._timeID);
         }
-        // if (this.sceneModel.gameType == GameType.SKEWERS) {
-        //     let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-        //     let maxCount = trainData.length;
-        //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-        //     SkewersManager.getInstance().quitGame(this.viewNode, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
-        // } else {
-        //     GameCenterManager.getInstance().quitGame(this.viewNode, this.goonCallBack, this.exitCallBack, this);
-        // }
     }
 
     private requestGameResult(win: boolean = true) {
@@ -321,17 +310,11 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
         let duration = (endTime - this._startTime) / 1000;
         this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
-        // SkewersManager.getInstance().requestGameComplete(complete, duration);
     }
 
     public exitCallBack(context) {
         context.pauseTime();
         super.exitCallBack(this);
-        // if (Global.isSkewersGame) {
-        //     SkewersManager.getInstance().exitCallBack();
-        // } else {
-        //     GameCenterManager.getInstance().exitCallBack();
-        // }
     }
 
     private autoExitCallBack(context) {
@@ -340,11 +323,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         //上报数据
         context.requestGameResult(false);
         super.exitCallBack(this);
-        // if (Global.isSkewersGame) {
-        //     SkewersManager.getInstance().exitCallBack();
-        // } else {
-        //     GameCenterManager.getInstance().exitCallBack();
-        // }
     }
 
     private checkTouchedObjectIndex(currentPos: Vec2): number {
@@ -471,7 +449,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         this.selectedLevel = this.levelList[this.selectedLevelIndex];
         this.textureIndex = (this.textureIndex + 1) % this.randomPlayIndex.length;
-
+        Global.isAgain = false;
         this.cleanChipsCache();
 
         let textureID = this.randomPlayIndex[this.textureIndex];
@@ -488,14 +466,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.previewSprite.spriteFrame = newSpriteFrame;
         this.showSprite.spriteFrame = newSpriteFrame;
     }
-
-    // pauseTime() {
-    //     this.timerComponent.pauseTimer();
-    // }
-
-    // resumeTime() {
-    //     this.timerComponent.resumeTimer();
-    // }
 
     onClickStartTimer() {
         this.timerComponent.resetTimer();
@@ -527,44 +497,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult(false);
         } else {
+            this._requestGameCenterComplete(0);
             this.summaryAlert.node.active = true;
             this.summaryAlert.initByResult(false);
             this.summaryAlert.fadeIn();
         }
     }
-
-    // private failRequestSkewersGameComplete(data) {
-    //     EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-    //     let trainData = SkewersManager.getInstance().getTrainData(data);//SkewersManager.getInstance().getUnCompleteGameData();
-    //     let maxCount = trainData.length;
-    //     let curCount = trainData.seq < 0 ? 0 : trainData.seq;
-    //     if (curCount == maxCount) {
-    //         SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.failCompleteHandler, this.exitCallBack, this);
-    //     } else {
-    //         SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
-    //     }
-    // }
-
-    // failCompleteHandler(context) {
-    //     context.pauseTime();
-    //     if (!SkewersManager.getInstance().isRunOver()) {
-    //         SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, context.nextAlertHandler, context.exitCallBack, context);
-    //     } else {
-    //         SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, context.totalComplete, context.remoteClick, context);
-    //     }
-    // }
-
-    // private totalComplete(context) {
-    //     context.pauseTime();
-    //     AudioManager.getInstance().stop();
-    //     SkewersManager.getInstance().exitCallBack();
-    // }
-
-
-
-    // private gamepasslevelCallback() {
-
-    // }
 
     private _timeID;
 
@@ -577,7 +515,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.playAudio("music/win", true);
         this.timerComponent.pauseTimer();
         this.showSprite.node.active = true;
-
         const minScale = 1;
         const maxScale = 1.1;
         const duration = 2;
@@ -597,16 +534,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 _tween = null;
             }
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                this._requestSkewersGameComplete();
-                // if (SkewersManager.getInstance().isRunOver()) {
-                //     SkewersManager.getInstance().showGameAlert(self.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, self.totalComplete, self.remoteClick, self);
-                //     return;
-                // }
-                // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, self.requestSkewersGameComplete, self);
+                this.requestGameResult(true);
             } else {
-                // 通小关后发送消息
-                // let curGame = GameCenterManager.getInstance().currentGame;
-                // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, 0, curGame.level, 1, 30, self.gameLength, curGame.difficulty, self.gamepasslevelCallback);
                 this._requestGameCenterComplete(1);
                 self.summaryAlert.node.active = true;
                 self.summaryAlert.initByResult(true);
@@ -615,22 +544,18 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }, 4000);
     }
 
-    private _requestSkewersGameComplete() {
-        this.requestGameResult(true)
-    }
 
     private _requestGameCenterComplete(win: number = 0) {
         const curGame = (this.sceneModel as any).game;
         this._endTime = TimeUtil.getNow();
         let level = curGame.level;
-        let difficulty = level % 3 == 0?3:level % 3;
-        let complete = win;
+        let difficulty = curGame.difficulty;//level % 3 == 0?3:level % 3;
         let duration = (this._endTime - this._startTime) / 1000;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
-            count: 1,
+            count: win,
             level,
-            complete,
+            complete:win,
             duration,
             timelimit: this.gameLength,
             difficulty,
@@ -638,52 +563,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         });
     }
 
-
-
-
-
-    // private requestSkewersGameComplete(data) {
-    //     let trainid = data;
-    //     let trainData = SkewersManager.getInstance().getTrainData(trainid);
-    //     EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
-    //     let maxCount = trainData.parentSkewersGameData.trains.length;
-    //     let curCount = trainData.seq;
-    //     // 游戏内界面提示
-    //     if (maxCount != curCount) {
-    //         SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel, this.exitCallBack, this);
-    //     } else {
-    //         if (!SkewersManager.getInstance().isRunOver()) {
-    //             SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
-    //         } else {
-    //             SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
-    //         }
-    //     }
-    // }
-
-    // private remoteClick() {
-    //     this.exitCallBack(this);
-    //     UIManager.getInstance().showPanel(GenerateReport.NAME);
-    // }
-
     goonHandler() {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             (this.sceneModel as any).goonHandler(this);
             return;
         }
 
-        // if (Global.isSkewersGame) {
-        //     if (!SkewersManager.getInstance().isRunOver()) {
-        //         if (SkewersManager.getInstance().getUnCompleteGameData() && SkewersManager.getInstance().getUnCompleteGameData().type != SkewersGameType.Executionability) {
-        //             SkewersManager.getInstance().runNextGame();
-        //             return;
-        //         } else {
-        //             SkewersManager.getInstance().runNextGame(false);
-        //         }
-        //     } else {
-        //         SkewersManager.getInstance().exitCallBack();
-        //         return;
-        //     }
-        // }
         // 下一关
         this.onClickChangeLevel();
         this.startGameMask.active = true;
@@ -691,31 +576,23 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.timerComponent.resetTimer();
     }
 
-    // private nextAlertHandler(context) {
-    //     context.pauseTime();
-    //     SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.onClickGotoNextlevel, context.exitCallBack, context);
-    // }
-
     onClickRetryCurrentLevel() {
-        // if (this.sceneModel.gameType == GameType.SKEWERS) {
-        //     SkewersManager.getInstance().runNextGame(false);
-        // }
         // 重玩
         this.cleanChipsCache();
+        Global.isAgain = true;
 
-        let playIndex = 0;
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
-            playIndex = (this.sceneModel as any).game.seq;
-        }
+        // let textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
+        // if(textureIndex == 0){
+        //     this.selectedLevelIndex = 0;
+        // }else{
+        //     this.selectedLevelIndex = textureIndex % 3;
 
-        const textureIndex = this.selectedLevelIndex + playIndex > this.randomPlayIndex.length - 1 ? 0 : this.selectedLevelIndex + playIndex;
-
+        // }
         this.startGameMask.active = true;
         this.bgNode.active = true;
         this.timerComponent.resetTimer();
 
-        let textureID = this.randomPlayIndex[textureIndex];
+        let textureID = this.randomPlayIndex[this.textureIndex];
         this.loadPuzzleTexture(textureID).then((texture) => {
             this.currentTexture2d = texture;
             this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);

@@ -33,6 +33,7 @@ import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Game } from "../../Scene/Game";
 import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 const { ccclass, property } = _decorator;
 
@@ -162,6 +163,11 @@ export default class GameView extends LayerPanel {
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
                 let _hard = CacheMgr.hard;
+                if(Global.isAgain){
+                    CacheMgr.hard --;
+                    _hard = _hard<0?0:_hard-1;
+                }
+
                 this._checkPoint = CacheMgr.checkpoint;
                 if (_hard % 3 == 0) {
                     if (_hard == 0) {
@@ -657,12 +663,13 @@ export default class GameView extends LayerPanel {
 
     private _requestGameCenterComplete() {
         CacheMgr.hard++;
+        let isWin = Boolean(this.resultList.length / this._maxCount >= 1);
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: this.resultList.length,
-            level: CacheMgr.checkpoint,
+            level:CacheMgr.checkpoint,
             complete: this.resultList.length / this._maxCount,
             duration,
             timelimit: GameConfig.customTime,
@@ -671,7 +678,7 @@ export default class GameView extends LayerPanel {
         });
         // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
-        let isWin = Boolean(this.resultList.length / this._maxCount);
+
         setTimeout(() => {
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,

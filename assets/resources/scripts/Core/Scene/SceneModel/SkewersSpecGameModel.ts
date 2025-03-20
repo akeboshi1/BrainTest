@@ -235,7 +235,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             context.viewNode,
             AlertType.Sucess_Small,
             manager['currentSkewersCompleteGameStr'],
-            manager['singleCompleteStr'],
+            manager['singleBrainScore'],
             0, 0,
             isRunOver,
             context.exitCallBack,
@@ -247,7 +247,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     showNextFailHandler(context) {
         const manager = SkewersManager.getInstance();
         const isRunOver = manager.isRunOver() ? context.totalCompleteHandler : context.nextHandler;
-        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Small, manager['currentSkewersCompleteGameStr'], manager['singleCompleteStr'], 0, 0,
+        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Small, manager['currentSkewersCompleteGameStr'], manager['singleBrainScore'], 0, 0,
             isRunOver, context.exitCallBack, context);
     }
 

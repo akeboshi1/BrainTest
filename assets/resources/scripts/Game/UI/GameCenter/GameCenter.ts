@@ -46,6 +46,13 @@ export class GameCenter extends BasePanel {
         }
         this._clickBoo = true;
         let index = Number(data);
+        if(index== 6){
+            let url = Global.RES_Root + BundleName.MATH24;
+            DebugLog.instance.log(`${BundleName.MATH24} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.MATH24);
+            return;
+        }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
                 DebugLog.instance.error(data.message);
@@ -76,6 +83,9 @@ export class GameCenter extends BasePanel {
                     break;
                 case 7:
                     sceneName = BundleName.SMALLTHEATER;
+                    break;
+                case 8:
+                    sceneName = BundleName.MATH24;
                     break;
             }
             let url = Global.RES_Root + sceneName;

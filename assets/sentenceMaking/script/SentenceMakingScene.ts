@@ -751,11 +751,14 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     onTimerEnd() {
-        let ad: AlertData = new AlertData();
-        ad.cancelButtonVisible = false;
-        ad.title = "没有时间啦";
-        ad.message = "挑战失败";
-        AlertManager.getInstance().showAlert(ad);
+        if(this.sceneModel.gameType != GameType.SKEWERS){
+            let ad: AlertData = new AlertData();
+            ad.cancelButtonVisible = false;
+            ad.title = "没有时间啦";
+            ad.message = "挑战失败";
+            AlertManager.getInstance().showAlert(ad);
+        }
+
 
         for (let [key, node] of this.sourceContainerMap) {
             node.off(Node.EventType.TOUCH_START, this.onDragStart, this);

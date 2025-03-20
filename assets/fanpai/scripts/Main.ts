@@ -6,6 +6,7 @@ import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -23,6 +24,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     viewNode: Node;
 
     @property(Node)
+
     successView: Node;
 
     @property(Node)
@@ -81,7 +83,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private hardIndex: number = 0;
 
-    private level: number = 0;
+    private level: number = 1;
 
     private customsSendDataState: boolean;
 
@@ -281,7 +283,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.timerId);
 
         this.playAudio("music/win");
-
+        let obj = this.requestGameResult();
         // 非串烧游戏
         if (this.sceneModel.gameType !== GameType.SKEWERS) {
             this.successView.active = true;
@@ -301,12 +303,11 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.bigWin.active = true;
             }
             if (!this.customsSendDataState) {
-                this._requestGameCenterComplete();
+                this._requestGameCenterComplete( obj.complete, obj.duration);
             }
         } else {
-            let obj = this.requestGameResult();
             this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
-            this.sceneModel.showNextSuccessHandler(this)
+            // this.sceneModel.showNextSuccessHandler(this)
 
         }
     }
@@ -325,6 +326,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         context.gameStartInit();
     }
     private _gamecenterNextGame() {
+        Global.isAgain = false;
         if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
             this.bigWin.active = false;
@@ -353,6 +355,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     replayGame() {
+        Global.isAgain = true;
         this.closeAllCard();
         this.timerInit();
         this.timerTick();
@@ -388,8 +391,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
-        let cardThemeCounter=this.level;
-        this.cardTheme  = (cardThemeCounter >= 21) ? 1: cardThemeCounter + 1;  // 达到27后重置为7
+        this.cardTheme  = (this.level >= 21) ? this.level % 21 + 1: this.level;  // 达到27后重置为7
     }
 
     // 初始化卡片数据
@@ -533,16 +535,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerComponent.resetTimer();
     }
     timerTick() {
-        this.timerComponent.startTimer(this.INIT_TIME);
+        if(this.sceneModel.gameType == GameType.SKEWERS){
+            this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
+        }else{
+            this.timerComponent.startTimer(this.INIT_TIME);
+        }
     }
-    _requestGameCenterComplete() {
+    _requestGameCenterComplete(complete, duration) {
         const curGame = (this.sceneModel as any).game;
         let config = {
             sessionId: curGame.sessionid,
-            count: this.calculCardTotalCount(this.hardIndex) / 2,
+            count: complete * this.cardTotalCount / 2,
             level:  this.level,
-            complete: 1,
-            duration: (this._endTime - this._startTime) / 1000,
+            complete: complete,
+            duration: duration,
             timelimit: this.INIT_TIME,
             difficulty: this.hards[this.hardIndex],
             levelMode:curGame.levelMode,
@@ -563,7 +569,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         } else {
             if (!this.customsSendDataState) {
                 this.customsSendDataState = true;
-                this._requestGameCenterComplete();
+                this._requestGameCenterComplete(complete, duration);
             }
             this.failView.active = true;
             this.failViewProgressLabel.node.active = false;

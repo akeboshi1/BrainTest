@@ -18,6 +18,10 @@ export class TimerCommonComponent extends Component {
     start() {
     }
 
+    public isRun():boolean{
+        return this.isRunning;
+    }
+
     update(deltaTime: number) {
         if (this.isRunning) {
             const elapsedTime = (Date.now() - this.startTime) / 1000;
