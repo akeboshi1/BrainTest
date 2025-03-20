@@ -170,8 +170,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         const question: GuessingQuestion = data.question;
         this.currentQuestion = question;
         this.questionLabel.string = question.questionText;
-        this.labelTips1.string = question.tips;
-        this.labelTips2.string = question.tips;
+        this.labelTips1.string = "提示：" + question.tips;
+        this.labelTips2.string = "提示：" + question.tips;
 
         this.timerStartGame.node.active = false;
     }
