@@ -355,6 +355,7 @@
     "api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
     "version": "0.0.5",
     "currentEnvironment": 0,
+    "isMCI": false,
     "infoLabel": {
       "__id__": 9
     },

@@ -17,6 +17,7 @@ import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
 import { AudioManager } from './Core/Manager/Audio/AudioManager';
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { PublishSetting } from './PublishSetting';
+import FeatureTogglesSetting from './FeatureTogglesSetting';
 
 const { ccclass, property } = _decorator;
 
@@ -147,6 +148,7 @@ export class App extends BaseObejct {
         SceneManager.getInstance().init();
         PoolManager.getInstance().init();
         AudioManager.getInstance().init();
+        await FeatureTogglesSetting.getInstance().init(this.publishSetting.isMCI.valueOf());
     }
 
     private async preLoadRes() {

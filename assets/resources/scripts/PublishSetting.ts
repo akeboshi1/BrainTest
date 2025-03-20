@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, Label, Node } from 'cc';
+import { _decorator, Component, Enum, Label, Node,} from 'cc';
 const { ccclass, property } = _decorator;
 
 export enum Environment {
@@ -22,6 +22,12 @@ export class PublishSetting extends Component {
         tooltip: '请选择环境'
     })
     currentEnvironment: Environment = Environment.DEVELOPMENT;
+
+    @property({
+        type: Boolean,
+        tooltip: '是否为MCI项目'
+    })
+    isMCI: Boolean = false;
 
     @property(Label)
     infoLabel: Label = null;
