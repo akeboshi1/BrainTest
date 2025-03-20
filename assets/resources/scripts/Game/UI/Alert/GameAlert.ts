@@ -136,7 +136,7 @@ export class GameAlert extends Component {
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
                 this.iconConNode.active = true;
-                this.decLabel.node.active = true;
+                this.decLabel.node.active = false;
                 this.completeIcon.active = false;
                 this.progressBar.node.active = false;
                 startBtnUITransform.width = 250;
@@ -155,14 +155,14 @@ export class GameAlert extends Component {
                     })
                     .start();
                 this.iconConNode.active = true;
-                this.decLabel.node.active = false;
+                this.decLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.playAudio("music/cheer", true);
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
                 this.startBtn.node.active = true;
-                this.decLabel.node.active = false;
+                this.decLabel.node.active = true;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;

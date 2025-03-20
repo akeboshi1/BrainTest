@@ -4,15 +4,10 @@ import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 export class GuessingQuestion {
     questionNumber: number;
     questionText: string;
-    options: {
-        a: string;
-        b: string;
-        c: string;
-        d: string;
-    };
-    answer: string;
+    answer: string[];
     solutionThoughts: string;
     audioSource: string;
+    tips: string;
     hasAnswer: boolean;
 }
 
@@ -55,7 +50,7 @@ export class GuessingGameConfig {
     }
 
     // 根据题目编号获取题目答案
-    getAnswerByNumber(questionNumber: number): string {
+    getAnswerByNumber(questionNumber: number): string[] {
         const question = this.getQuestionByNumber(questionNumber);
         return question.answer;
     }
