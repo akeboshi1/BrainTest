@@ -212,10 +212,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     private async startGameFlow() {
-        // if (this.sceneModel.gameType == GameType.SKEWERS && (this.sceneModel as any).game.type != SkewersGameType.Language) {
-        //     return;
-        // }
-
         this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
         this.hideAnimHupai();
@@ -615,14 +611,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.model.quitGame();
     }
 
-    // private processBack() {
-    //     if (this.sceneModel.gameType == GameType.SKEWERS) {
-    //         SkewersManager.getInstance().exitCallBack();
-    //     } else {
-    //         GameCenterManager.getInstance().exitCallBack();
-    //     }
-    // }
-
     private updateCommitButtonState() {
         let isActive = true;
         if (this.sourceContainerMap.size > 0) {
@@ -654,6 +642,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             return;
         }
 
+        let user_answer: string[] = [];
         for (let i = 0; i < this.resultContainerMap.size; i++) {
             let node = this.resultContainerMap.get(i);
             if (!node) {
@@ -673,6 +662,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                     isSuccess = false;
                     wrongIndices.push(node);
                 }
+                
+                user_answer.push(this.model.getCurrentQuestion().sentence[currentIndex]);
             }
         }
 
@@ -704,7 +695,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
         this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
-        this.model.postGameData(isSuccess, this.timerComponent.getElapsedTime());
+        this.model.postGameData(isSuccess, this.timerComponent.getElapsedTime(), user_answer);
         this.timerComponent.resetTimer();
     }
 
@@ -713,21 +704,9 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.startGameFlow();
     }
 
-    // public pauseTime() {
-    //     super.pauseTime();
-    //     this.onDisable();
-    // }
-
-    // public resumeTime() {
-    //     super.resumeTime();
-    //     this.onEnable();
-    // }
-
     resumeCallBack(context?: any): void {
         super.resumeCallBack(context);
     }
-
-
 
     goonHandler() {
         this.clearGameView();
@@ -758,7 +737,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             ad.message = "挑战失败";
             AlertManager.getInstance().showAlert(ad);
         }
-
 
         for (let [key, node] of this.sourceContainerMap) {
             node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
