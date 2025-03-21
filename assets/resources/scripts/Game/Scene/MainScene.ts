@@ -236,7 +236,9 @@ export class MainScene extends Component {
         this.updateTime();
         UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "/prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
         UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
+        EventManager.getInstance().on(TaskAndNotificationPanelCtrl.TaskAndNotificationHide,this.backToCenteter.bind(this),this,true);
     }
+
 
     showGameCenter() {
         UIManager.getInstance().registerPanel(GameCenter.NAME, BundleName.RESOURCES, "/prefab/GameCenter/GameCenter", GameCenter);
@@ -258,7 +260,7 @@ export class MainScene extends Component {
 
     // ======= 任务中心
     private taskListRequestCallBack(data, context) {
-        EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
+        // EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
         switch (this._curPanel) {
             case this.taskNode:
                 this.taskRemind();
@@ -269,6 +271,12 @@ export class MainScene extends Component {
     }
 
     remindClick() {
+        let taskDatas = TaskManager.getInstance().taskList;
+        let obj = this.findFirstAvailableName(taskDatas);
+        if (!obj) {
+            return;
+        }
+        TaskManager.getInstance().setCurTaskId(obj.id);
         UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
         UIManager.getInstance().showPanel(BrainTrain.NAME);
     }
@@ -279,14 +287,13 @@ export class MainScene extends Component {
         if (!obj) {
             return;
         }
-        TaskManager.getInstance().setCurTaskId(obj.id);
         this.remindView.active = true;
         this.remindView.getChildByName('back').getChildByName('txt').getComponent(Label).string = obj.name;
         this.titleLabel.node.active = false;
         let count = TaskManager.getInstance().getSkewersGameCount();
         this.taskDesLabel.string = `今日待完成事项:${count}`;
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, () => {
-        }, this);
+        // EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, () => {
+        // }, this);
         SkewersManager.getInstance().requestBranisTraining_list(obj.id);
     }
     findFirstAvailableName(taskDatas) {
