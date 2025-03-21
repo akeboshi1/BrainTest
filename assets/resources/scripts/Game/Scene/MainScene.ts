@@ -85,6 +85,9 @@ export class MainScene extends Component {
     @property(Button)
     chatButton: Button = null;
 
+    @property(Button)
+    roleChatButton: Button = null;
+
     /**
      * 当前页面
      * @private
@@ -145,6 +148,7 @@ export class MainScene extends Component {
         this.langureTrainNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.LanguageTraining);
         this.personalCenterNode.active = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.PersonalCenter);
         this.chatButton.interactable = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.Chat);
+        this.roleChatButton.interactable = FeatureTogglesSetting.getInstance().getToggleValue(FeatureToggle.Chat);
     }
 
     private _infoPanelOpenState: boolean = false;
