@@ -8,7 +8,7 @@
       ],
       "solutionThoughts": "因为小猫具有白天休息，晚上活动且会“喵喵”叫的特性，所以答案是小猫。",
       "audioSource": "audio/1",
-      "tips": "该动物夜行且叫声为“喵喵”。"
+      "tips": "一种动物"
     },
     {
       "questionNumber": 2,
@@ -18,7 +18,7 @@
       ],
       "solutionThoughts": "手机通常是方方正正且带有屏幕，具备打电话和玩游戏等功能，所以答案是手机。",
       "audioSource": "audio/2",
-      "tips": "此物品呈方形有屏可通话游戏。"
+      "tips": "一种电器"
     },
     {
       "questionNumber": 3,
@@ -28,7 +28,7 @@
       ],
       "solutionThoughts": "西瓜的外皮是绿色，果肉红色、水分足且籽为黑色，味道甜美，符合描述，所以答案是西瓜。",
       "audioSource": "audio/3",
-      "tips": "水果特征：绿皮红瓤黑籽甜。"
+      "tips": "一种水果"
     },
     {
       "questionNumber": 4,
@@ -38,17 +38,17 @@
       ],
       "solutionThoughts": "老鼠的习性是白天睡觉，晚上活动并发出“吱吱”叫声，所以答案是老鼠。",
       "audioSource": "audio/4",
-      "tips": "该动物夜间活跃且“吱吱”叫。"
+      "tips": "一种小动物"
     },
     {
       "questionNumber": 5,
-      "questionText": "五个兄弟住一起，样子相似高矮不同。猜身体的一个部位。",
+      "questionText": "五个兄弟住一起，样子相似高矮不同。",
       "answer": [
         "手指"
       ],
-      "solutionThoughts": "老鼠的习性是白天睡觉，晚上活动并发出“吱吱”叫声，所以答案是老鼠。",
+      "solutionThoughts": "",
       "audioSource": "audio/5",
-      "tips": "身体部位形似兄弟高矮不一。"
+      "tips": "身体的一个部位"
     },
     {
       "questionNumber": 6,
@@ -57,7 +57,7 @@
         "空调"
       ],
       "audioSource": "audio/6",
-      "tips": "电器天热天冷工作，不冷不热休息。"
+      "tips": "一种电器"
     },
     {
       "questionNumber": 7,
@@ -66,7 +66,7 @@
         "手套"
       ],
       "audioSource": "audio/7",
-      "tips": "穿戴品分五指，错戴会闹笑话。"
+      "tips": "穿戴物"
     },
     {
       "questionNumber": 8,
@@ -75,7 +75,7 @@
         "扇子"
       ],
       "audioSource": "audio/8",
-      "tips": "物品与风有关，有风不动无风动。"
+      "tips": "一种日用品"
     },
     {
       "questionNumber": 9,
@@ -84,7 +84,7 @@
         "眼镜"
       ],
       "audioSource": "audio/9",
-      "tips": "物品佩戴在鼻子上。"
+      "tips": "一种穿戴物"
     },
     {
       "questionNumber": 10,
@@ -93,7 +93,7 @@
         "莲藕"
       ],
       "audioSource": "audio/10",
-      "tips": "泥里生长的白胖且多心眼的植物。"
+      "tips": "一种植物"
     },
     {
       "questionNumber": 11,
@@ -102,7 +102,7 @@
         "筷子"
       ],
       "audioSource": "audio/11",
-      "tips": "餐具成双使用，尝味先接触食物。"
+      "tips": "一种日用品"
     },
     {
       "questionNumber": 12,
@@ -111,7 +111,7 @@
         "桌子"
       ],
       "audioSource": "audio/12",
-      "tips": "物品有面有脚但不会自行走动。"
+      "tips": "一种家用物品"
     },
     {
       "questionNumber": 13,
@@ -120,7 +120,7 @@
         "猫头鹰"
       ],
       "audioSource": "audio/13",
-      "tips": "动物形似猫，夜间活动。"
+      "tips": "一种动物"
     },
     {
       "questionNumber": 14,
@@ -129,7 +129,7 @@
         "彩虹"
       ],
       "audioSource": "audio/14",
-      "tips": "天空中可见的七色景观，无法攀登。"
+      "tips": "一种自然现象"
     },
     {
       "questionNumber": 15,
@@ -138,7 +138,7 @@
         "垃圾桶"
       ],
       "audioSource": "audio/15",
-      "tips": "街上用于装脏东西的容器。"
+      "tips": "一种公共用品"
     },
     {
       "questionNumber": 16,
@@ -147,7 +147,7 @@
         "萤火虫"
       ],
       "audioSource": "audio/16",
-      "tips": "夜间飞行且自带照明的昆虫。"
+      "tips": "一种昆虫"
     },
     {
       "questionNumber": 17,
@@ -156,7 +156,7 @@
         "帽子"
       ],
       "audioSource": "audio/17",
-      "tips": "物品戴在头上，拿下显礼貌。"
+      "tips": "一种穿戴物"
     },
     {
       "questionNumber": 18,
@@ -165,7 +165,7 @@
         "蜗牛"
       ],
       "audioSource": "audio/18",
-      "tips": "名字带牛但不劳作，背壳移动。"
+      "tips": "一种昆虫"
     },
     {
       "questionNumber": 19,
@@ -174,7 +174,7 @@
         "影子"
       ],
       "audioSource": "audio/19",
-      "tips": "与你形影不离，长短随光变化。"
+      "tips": "一种自然现象"
     },
     {
       "questionNumber": 20,
@@ -183,7 +183,7 @@
         "冰箱"
       ],
       "audioSource": "audio/20",
-      "tips": "屋内会结霜的电器，外形方正有门无窗。"
+      "tips": "一种电器"
     },
     {
       "questionNumber": 21,
@@ -192,7 +192,7 @@
         "孔雀"
       ],
       "audioSource": "audio/21",
-      "tips": "非鸡动物，尾巴长可开屏。"
+      "tips": "一种动物"
     },
     {
       "questionNumber": 22,
@@ -201,7 +201,7 @@
         "乌龟"
       ],
       "audioSource": "audio/22",
-      "tips": "头小肢短，有硬壳且寿命长。"
+      "tips": "一种动物"
     },
     {
       "questionNumber": 23,
@@ -210,8 +210,7 @@
         "蜜蜂"
       ],
       "audioSource": "audio/23",
-      "tips": "群居昆虫，在花园工作产甜物。"
-    },
+      "tips": "一种昆虫" },
     {
       "questionNumber": 24,
       "questionText": "千条线，万条线，落在水里看不见。",
@@ -219,7 +218,7 @@
         "雨"
       ],
       "audioSource": "audio/24",
-      "tips": "像线般落下，入水即消失。"
+      "tips": "一种自然现象"
     },
     {
       "questionNumber": 25,
@@ -228,7 +227,2718 @@
         "眼睛"
       ],
       "audioSource": "audio/25",
-      "tips": "描述的是脸部的一个器官。"
+      "tips": "身体器官。"
+    },
+    {
+      "questionNumber": 26,
+      "questionText": "忠诚伴主旁，夜半守门忙，闻声即警觉，摇尾迎客常。",
+      "answer": [
+        "狗"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/26"
+    },
+    {
+      "questionNumber": 27,
+      "questionText": "夜行无声影，眼如夜明珠，爪利能攀树，家中有它无鼠。",
+      "answer": [
+        "猫"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/27"
+    },
+    {
+      "questionNumber": 28,
+      "questionText": "身躯如山岳，长鼻似巨蟒，耳大如蒲扇，行走稳如钟。",
+      "answer": [
+        "大象"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/28"
+    },
+    {
+      "questionNumber": 29,
+      "questionText": "山中称大王，额上写王字，吼声震山林，百兽皆避之。",
+      "answer": [
+        "老虎"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/29"
+    },
+    {
+      "questionNumber": 30,
+      "questionText": "高耸入云非楼阁，颈长如柱望天涯，斑纹点缀身如画，草原漫步显优雅。",
+      "answer": [
+        "长颈鹿"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/30"
+    },
+    {
+      "questionNumber": 31,
+      "questionText": "黑白条纹身上披，草原奔跑如风驰，不是马儿却似马，群居生活乐无比。",
+      "answer": [
+        "斑马"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/31"
+    },
+    {
+      "questionNumber": 32,
+      "questionText": "四蹄踏风尘，鬃毛随风扬，日行千里路，忠诚伴主旁。",
+      "answer": [
+        "马"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/32"
+    },
+    {
+      "questionNumber": 33,
+      "questionText": "身披厚毛衣，力大能拔树，冬眠春又醒，林中称霸王。",
+      "answer": [
+        "熊"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/33"
+    },
+    {
+      "questionNumber": 34,
+      "questionText": "黑白两色衣，竹林深处栖，憨态可掬样，国宝人人知。",
+      "answer": [
+        "熊猫"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/34"
+    },
+    {
+      "questionNumber": 35,
+      "questionText": "夜行山林间，目光如电闪，群居有纪律，嚎月声震天。",
+      "answer": [
+        "狼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/35"
+    },
+    {
+      "questionNumber": 36,
+      "questionText": "圆滚滚的身子，鼻子长又翘，爱吃又爱睡，泥里打滚笑。",
+      "answer": [
+        "猪"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/36"
+    },
+    {
+      "questionNumber": 37,
+      "questionText": "力大无穷耕田地，角弯如月挂天边，草料为食不言苦，默默奉献在人间。",
+      "answer": [
+        "牛"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/37"
+    },
+    {
+      "questionNumber": 38,
+      "questionText": "角弯如月挂山巅，胡须飘飘似老仙，攀岩走壁如平地，叫声悠扬入云端。",
+      "answer": [
+        "山羊"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/38"
+    },
+    {
+      "questionNumber": 39,
+      "questionText": "背上有两座山，行走沙漠间，耐渴又耐劳，商队的好伙伴。",
+      "answer": [
+        "骆驼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/39"
+    },
+    {
+      "questionNumber": 40,
+      "questionText": "身披铠甲似将军，鼻上独角显威风，草原漫步显雄姿，力大无穷护家园。",
+      "answer": [
+        "犀牛"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/40"
+    },
+    {
+      "questionNumber": 41,
+      "questionText": "身披铠甲水中游，牙齿锋利似刀钩，静如枯木动如雷，捕食迅猛不回头。",
+      "answer": [
+        "鳄鱼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/41"
+    },
+    {
+      "questionNumber": 42,
+      "questionText": "尾巴蓬松如扫帚，树上跳跃似飞鸟，储存果实为冬粮，小巧机灵林中跑。",
+      "answer": [
+        "松鼠"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/42"
+    },
+    {
+      "questionNumber": 43,
+      "questionText": "长耳红眼蹦蹦跳，爱吃萝卜爱钻草，月下捣药传佳话，生肖排行第四号。",
+      "answer": [
+        "兔子"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/43"
+    },
+    {
+      "questionNumber": 44,
+      "questionText": "林间精灵步轻盈，角如树枝映月明，草间觅食悄无声，山间跳跃影随行。",
+      "answer": [
+        "鹿"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/44"
+    },
+    {
+      "questionNumber": 45,
+      "questionText": "海中精灵跃浪尖，聪明伶俐善表演，声波导航本领高，与人为友善解忧。",
+      "answer": [
+        "海豚"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/45"
+    },
+    {
+      "questionNumber": 46,
+      "questionText": "海中巨无霸，喷水如喷泉，歌声传千里，身披蓝灰衫。",
+      "answer": [
+        "鲸鱼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/46"
+    },
+    {
+      "questionNumber": 47,
+      "questionText": "海中霸主威名扬，尖牙利齿水中藏，游动如风无影踪，捕猎迅猛谁能挡。",
+      "answer": [
+        "鲨鱼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/47"
+    },
+    {
+      "questionNumber": 48,
+      "questionText": "身披铠甲行路慢，水中陆地皆能安，长寿象征人人赞，胆小藏头又藏尾。",
+      "answer": [
+        "乌龟"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/48"
+    },
+    {
+      "questionNumber": 49,
+      "questionText": "无足能行千里，无声能惊四座，身披鳞甲衣，常在草丛游。",
+      "answer": [
+        "蛇"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/49"
+    },
+    {
+      "questionNumber": 50,
+      "questionText": "绿衣小将水中游，夜晚歌声满田畴，跳跃如飞捕虫忙，雨后池塘它最牛。",
+      "answer": [
+        "青蛙"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/50"
+    },
+    {
+      "questionNumber": 51,
+      "questionText": "八足巧织网，静待猎物忙，夜半无声息，晨露挂丝光。",
+      "answer": [
+        "蜘蛛"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/51"
+    },
+    {
+      "questionNumber": 52,
+      "questionText": "身小力不微，团结能移山，行路成一线，勤劳不知倦。",
+      "answer": [
+        "蚂蚁"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/52"
+    },
+    {
+      "questionNumber": 53,
+      "questionText": "黄衣小精灵，花间舞不停，采得百花蜜，甜香满园庭。",
+      "answer": [
+        "蜜蜂"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/53"
+    },
+    {
+      "questionNumber": 54,
+      "questionText": "身披彩衣舞花间，两翅轻摇似画扇，春日里来寻芳去，秋日无踪影自闲。",
+      "answer": [
+        "蝴蝶"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/54"
+    },
+    {
+      "questionNumber": 55,
+      "questionText": "身披黑衣裳，嗡嗡四处忙，最爱脏乱处，人人见它慌。",
+      "answer": [
+        "苍蝇"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/55"
+    },
+    {
+      "questionNumber": 56,
+      "questionText": "展翅高飞云中客，锐眼如电觅食忙，山巅之上筑巢穴，王者风范傲苍穹。",
+      "answer": [
+        "老鹰"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/56"
+    },
+    {
+      "questionNumber": 57,
+      "questionText": "夜行无声影，双眼如灯明，头似猫非猫，林中守安宁。",
+      "answer": [
+        "猫头鹰"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/57"
+    },
+    {
+      "questionNumber": 58,
+      "questionText": "小小身躯穿褐衣，枝头跳跃不停息，晨起歌声唤日出，秋来群飞向南移。",
+      "answer": [
+        "麻雀"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/58"
+    },
+    {
+      "questionNumber": 59,
+      "questionText": "白羽翩翩飞，信使传佳音，常在屋檐下，和平象征深。",
+      "answer": [
+        "鸽子"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/59"
+    },
+    {
+      "questionNumber": 60,
+      "questionText": "黑衣披身不染尘，叫声凄凉夜半闻，常伴枯枝与冷月，智者门前报吉凶。",
+      "answer": [
+        "乌鸦"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/60"
+    },
+    {
+      "questionNumber": 61,
+      "questionText": "白羽浮绿水，曲颈向天歌，湖中优雅舞，不染尘世浊。",
+      "answer": [
+        "天鹅"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/61"
+    },
+    {
+      "questionNumber": 62,
+      "questionText": "身穿黑白礼服，行走摇摆如舞，冰天雪地是家，水中游弋自如。",
+      "answer": [
+        "企鹅"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/62"
+    },
+    {
+      "questionNumber": 63,
+      "questionText": "身披灰褐衣，水中舞翩翩，陆地笨拙行，吼声震海边。",
+      "answer": [
+        "海狮"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/63"
+    },
+    {
+      "questionNumber": 64,
+      "questionText": "海中飘摇似轻纱，无骨无脑却优雅，触手如丝捕食忙，夜晚发光如星华。",
+      "answer": [
+        "水母"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/64"
+    },
+    {
+      "questionNumber": 65,
+      "questionText": "八臂舞动水中游，无骨身躯软如绸，墨汁一喷藏身影，海底世界任它游。",
+      "answer": [
+        "章鱼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/65"
+    },
+    {
+      "questionNumber": 66,
+      "questionText": "身披红铠甲，双钳似剪刀，水中称霸王，上岸难逍遥。",
+      "answer": [
+        "龙虾"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/66"
+    },
+    {
+      "questionNumber": 67,
+      "questionText": "八足横行水陆间，双钳挥舞似刀剑，身披铠甲难攻破，秋来肥美宴席前。",
+      "answer": [
+        "螃蟹"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/67"
+    },
+    {
+      "questionNumber": 68,
+      "questionText": "身披红甲水中游，须长眼小尾如钩，煮熟弯弯似新月，鲜美滋味口中留。",
+      "answer": [
+        "虾"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/68"
+    },
+    {
+      "questionNumber": 69,
+      "questionText": "海边拾得宝，纹路似年轮，内藏珍珠梦，外披五彩衣。",
+      "answer": [
+        "贝壳"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/69"
+    },
+    {
+      "questionNumber": 70,
+      "questionText": "海中藏墨宝，八足舞波涛，遇敌喷黑雾，隐身逃之夭。",
+      "answer": [
+        "乌贼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/70"
+    },
+    {
+      "questionNumber": 71,
+      "questionText": "身披铠甲游四海，长寿千年不言败，沙滩产卵留后代，深海潜行无阻碍。",
+      "answer": [
+        "海龟"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/71"
+    },
+    {
+      "questionNumber": 72,
+      "questionText": "身软无骨藏海底，触手如花舞水间，遇敌自断求生路，滋补佳品美名传。",
+      "answer": [
+        "海参"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/72"
+    },
+    {
+      "questionNumber": 73,
+      "questionText": "身背小房走天涯，触角探路慢悠悠，雨后常见它身影，留下银痕在草间。",
+      "answer": [
+        "蜗牛"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/73"
+    },
+    {
+      "questionNumber": 74,
+      "questionText": "无骨无壳身柔软，土中穿行不留痕，雨后常见它现身，松土能手不虚传。",
+      "answer": [
+        "蚯蚓"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/74"
+    },
+    {
+      "questionNumber": 75,
+      "questionText": "绿衣小将跳得高，田间地头常出没，两腿一蹬飞上天，落地无声静悄悄。",
+      "answer": [
+        "蚂蚱"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/75"
+    },
+    {
+      "questionNumber": 76,
+      "questionText": "夜行小精灵，身披黑铠甲，遇光速逃遁，厨房常作客。",
+      "answer": [
+        "蟑螂"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/76"
+    },
+    {
+      "questionNumber": 77,
+      "questionText": "身穿绿铠甲，手持双刀舞，静待猎物来，捕食快如风。",
+      "answer": [
+        "螳螂"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/77"
+    },
+    {
+      "questionNumber": 78,
+      "questionText": "夜半歌声扰人梦，细腰长腿舞轻盈，嗜血成性难捉摸，夏日炎炎最猖狂。",
+      "answer": [
+        "蚊子"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/78"
+    },
+    {
+      "questionNumber": 79,
+      "questionText": "身披灰褐衣，长颈步如飞，沙地是家园，蛋大如石堆。",
+      "answer": [
+        "鸵鸟"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/79"
+    },
+    {
+      "questionNumber": 80,
+      "questionText": "头戴红冠不用裁，身披彩衣不用裁，清晨一叫千门开，夜晚归巢月下来。",
+      "answer": [
+        "鸡"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/80"
+    },
+    {
+      "questionNumber": 81,
+      "questionText": "扁嘴水中游，两脚划波走，白毛浮绿水，红掌拨清波。",
+      "answer": [
+        "鸭"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/81"
+    },
+    {
+      "questionNumber": 82,
+      "questionText": "白羽浮绿水，红掌拨清波，曲颈向天歌，声震四野阔。",
+      "answer": [
+        "鹅"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/82"
+    },
+    {
+      "questionNumber": 83,
+      "questionText": "夜空中闪烁的小灯笼，草丛间飞舞的星光，不似星辰却似火，照亮夏夜的小精灵。",
+      "answer": [
+        "萤火虫"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/83"
+    },
+    {
+      "questionNumber": 84,
+      "questionText": "身披白衣非雪色，木中穿行不见影，群居无声却有迹，毁屋无声胜有声。",
+      "answer": [
+        "白蚁"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/84"
+    },
+    {
+      "questionNumber": 85,
+      "questionText": "身披彩衣随境变，眼珠转动似探针，舌长如箭捕飞虫，林中隐士善藏身。",
+      "answer": [
+        "变色龙"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/85"
+    },
+    {
+      "questionNumber": 86,
+      "questionText": "头戴红帽穿花衣，敲敲打打不停息，森林医生忙不停，树木健康它欢喜。",
+      "answer": [
+        "啄木鸟"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/86"
+    },
+    {
+      "questionNumber": 87,
+      "questionText": "春秋两季忙迁徙，人字队形天上飞，南北往返不辞远，叫声嘹亮传千里。",
+      "answer": [
+        "大雁"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/87"
+    },
+    {
+      "questionNumber": 88,
+      "questionText": "面朝太阳笑，金黄大脸庞，随日转方向，秋来籽满仓。",
+      "answer": [
+        "向日葵"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/88"
+    },
+    {
+      "questionNumber": 89,
+      "questionText": "红颜多刺藏，香气满园扬，情人间常赠，爱意不言长。",
+      "answer": [
+        "玫瑰"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/89"
+    },
+    {
+      "questionNumber": 90,
+      "questionText": "身披绿衣四季青，节节高升向天行，空心有节不畏风，文人墨客常题名。",
+      "answer": [
+        "竹子"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/90"
+    },
+    {
+      "questionNumber": 91,
+      "questionText": "身披绿甲刺如针，沙漠之中独自行，不需雨水常青翠，花开时节更动人。",
+      "answer": [
+        "仙人掌"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/91"
+    },
+    {
+      "questionNumber": 92,
+      "questionText": "细腰随风舞，长发垂水边，春来绿丝绦，秋去叶飘零。",
+      "answer": [
+        "柳树"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/92"
+    },
+    {
+      "questionNumber": 93,
+      "questionText": "四季常青不落叶，针叶如剑刺青天，山间石缝皆可立，岁寒三友它为先。",
+      "answer": [
+        "松树"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/93"
+    },
+    {
+      "questionNumber": 94,
+      "questionText": "叶如扇，果似杏，秋来金黄满树梢，千年古树人称宝。",
+      "answer": [
+        "银杏"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/94"
+    },
+    {
+      "questionNumber": 95,
+      "questionText": "绿叶浮水面，花开映日红，淤泥不染身，清香远飘送。",
+      "answer": [
+        "荷花"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/95"
+    },
+    {
+      "questionNumber": 96,
+      "questionText": "身披绿衣节节高，甜汁藏心不露豪。田间常见它身影，嚼出甘甜乐陶陶。",
+      "answer": [
+        "甘蔗"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/96"
+    },
+    {
+      "questionNumber": 97,
+      "questionText": "红脸圆润挂枝头，甜中带酸滋味稠，秋来丰收满园香，摘下送君解忧愁。",
+      "answer": [
+        "苹果"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/97"
+    },
+    {
+      "questionNumber": 98,
+      "questionText": "黄衣裹身弯如月，剥开外皮白肉现，香甜软滑人人爱，热带果中它最俏。",
+      "answer": [
+        "香蕉"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/98"
+    },
+    {
+      "questionNumber": 99,
+      "questionText": "红颜绿衣藏，点点繁星妆，酸甜滋味好，春来满园香。",
+      "answer": [
+        "草莓"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/99"
+    },
+    {
+      "questionNumber": 100,
+      "questionText": "紫衣裹身小圆球，酸甜滋味藏里头，夏日枝头挂满串，营养丰富人人求。",
+      "answer": [
+        "蓝莓"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/100"
+    },
+    {
+      "questionNumber": 101,
+      "questionText": "红珠挂绿枝，小巧似珍珠，入口甜如蜜，夏日最相宜。",
+      "answer": [
+        "樱桃"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/101"
+    },
+    {
+      "questionNumber": 102,
+      "questionText": "绿衣裹红心，夏日最清凉，刀切见黑籽，甜汁满口香。",
+      "answer": [
+        "西瓜"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/102"
+    },
+    {
+      "questionNumber": 103,
+      "questionText": "外皮绿纹绕，内里甜如蜜，夏日解暑宝，西域来客稀。",
+      "answer": [
+        "哈密瓜"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/103"
+    },
+    {
+      "questionNumber": 104,
+      "questionText": "身披黄金甲，头顶绿冠华，酸甜藏心间，热带是老家。",
+      "answer": [
+        "菠萝"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/104"
+    },
+    {
+      "questionNumber": 105,
+      "questionText": "外皮金黄似太阳，内藏甜蜜如蜜糖，夏日炎炎最解渴，热带风情满口香。",
+      "answer": [
+        "芒果"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/105"
+    },
+    {
+      "questionNumber": 106,
+      "questionText": "外披褐毛衣，内藏翡翠心，酸甜滋味好，营养赛黄金。",
+      "answer": [
+        "猕猴桃"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/106"
+    },
+    {
+      "questionNumber": 107,
+      "questionText": "外皮红似火，内藏千颗珠，秋来挂满枝，酸甜两相宜。",
+      "answer": [
+        "石榴"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/107"
+    },
+    {
+      "questionNumber": 108,
+      "questionText": "外衣金黄似晚霞，内藏甜蜜如蜜糖，剥开层层见真心，秋来满园飘果香。",
+      "answer": [
+        "橙子"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/108"
+    },
+    {
+      "questionNumber": 109,
+      "questionText": "紫衣绿裙挂满枝，酸甜滋味藏心里，秋来串串垂庭院，摘下酿酒香满室。",
+      "answer": [
+        "葡萄"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/109"
+    },
+    {
+      "questionNumber": 110,
+      "questionText": "外皮金黄似月圆，内藏珍珠粒粒鲜，秋来满树挂灯笼，酸甜滋味沁心田。",
+      "answer": [
+        "柚子"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/110"
+    },
+    {
+      "questionNumber": 111,
+      "questionText": "红袍裹玉珠，夏日挂枝头，剥开见晶莹，甜中带微酸。",
+      "answer": [
+        "荔枝"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/111"
+    },
+    {
+      "questionNumber": 112,
+      "questionText": "圆如珍珠挂枝头，皮薄肉厚藏甘甜，夏日炎炎解暑热，果中佳品美名传。",
+      "answer": [
+        "龙眼"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/112"
+    },
+    {
+      "questionNumber": 113,
+      "questionText": "外披鳞甲红如火，内藏珍珠白似雪，热带风情藏其中，夏日清凉好滋味。",
+      "answer": [
+        "火龙果"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/113"
+    },
+    {
+      "questionNumber": 114,
+      "questionText": "外披硬壳衣，内藏甘甜汁，高高挂树梢，热带风情里。",
+      "answer": [
+        "椰子"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/114"
+    },
+    {
+      "questionNumber": 115,
+      "questionText": "皮黄肉白心儿甜，秋来挂满枝头间，风吹叶落声清脆，解渴生津人皆爱。",
+      "answer": [
+        "梨"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/115"
+    },
+    {
+      "questionNumber": 116,
+      "questionText": "红颊绿衣藏，夏日枝头笑，甜香诱人近，核中藏秘密。",
+      "answer": [
+        "桃子"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/116"
+    },
+    {
+      "questionNumber": 117,
+      "questionText": "秋来挂满枝，红黄似灯笼，皮薄肉甜软，摘下需待霜。",
+      "answer": [
+        "柿子"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/117"
+    },
+    {
+      "questionNumber": 118,
+      "questionText": "身披绿衣节节高，甜汁藏内不轻抛，虽非树木却直立，嚼出甘甜乐陶陶。",
+      "answer": [
+        "甘蔗"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/118"
+    },
+    {
+      "questionNumber": 119,
+      "questionText": "红颜薄皮藏甜心，秋来满树挂灯笼，滋补佳品人人爱，煮粥泡茶皆相宜。",
+      "answer": [
+        "红枣"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/119"
+    },
+    {
+      "questionNumber": 120,
+      "questionText": "外皮金黄似龙眼，内藏晶莹如玉珠，夏日炎炎最解渴，滋补养生又美味。",
+      "answer": [
+        "桂圆"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/120"
+    },
+    {
+      "questionNumber": 121,
+      "questionText": "不见花开只见果，绿叶丛中藏秘密，甜而不露真面目，果实累累挂枝头。",
+      "answer": [
+        "无花果"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/121"
+    },
+    {
+      "questionNumber": 122,
+      "questionText": "红脸绿衣挂枝头，酸甜滋味口中留，不是水果也非菜，烹饪佳肴它为首。",
+      "answer": [
+        "番茄"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/122"
+    },
+    {
+      "questionNumber": 123,
+      "questionText": "身披绿衣裳，头顶小黄花，夏日清凉伴，脆嫩人人夸。",
+      "answer": [
+        "黄瓜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/123"
+    },
+    {
+      "questionNumber": 124,
+      "questionText": "紫衣裹身长又弯，头顶绿帽笑开颜，夏日园中常见它，炒菜炖汤味更鲜。",
+      "answer": [
+        "茄子"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/124"
+    },
+    {
+      "questionNumber": 125,
+      "questionText": "土里生，土里长，皮黄肉白心儿黄，煮熟香喷喷，生吃脆生生。",
+      "answer": [
+        "土豆"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/125"
+    },
+    {
+      "questionNumber": 126,
+      "questionText": "红袍裹身不露肉，头顶绿冠似小帽，土里生长不露头，兔子最爱它味道。",
+      "answer": [
+        "胡萝卜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/126"
+    },
+    {
+      "questionNumber": 127,
+      "questionText": "身披白衣裳，头戴绿帽子，地下藏身久，拔起满园香。",
+      "answer": [
+        "白萝卜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/127"
+    },
+    {
+      "questionNumber": 128,
+      "questionText": "绿衣裹身不张扬，辛辣滋味藏心房，厨房常客添风味，夏日凉拌最清爽。",
+      "answer": [
+        "青椒"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/128"
+    },
+    {
+      "questionNumber": 129,
+      "questionText": "红颜绿衣披，辛辣藏心里，夏日添风味，冬日暖脾胃。",
+      "answer": [
+        "辣椒"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/129"
+    },
+    {
+      "questionNumber": 130,
+      "questionText": "层层包裹心，剥开泪满襟，辛辣藏深处，厨房常现身。",
+      "answer": [
+        "洋葱"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/130"
+    },
+    {
+      "questionNumber": 131,
+      "questionText": "外衣层层裹，内里白如玉，辛辣味十足，厨房常备物。",
+      "answer": [
+        "大蒜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/131"
+    },
+    {
+      "questionNumber": 132,
+      "questionText": "地下藏身不露头，黄皮白肉味道辣，厨房常客调味好，驱寒暖胃它最行。",
+      "answer": [
+        "生姜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/132"
+    },
+    {
+      "questionNumber": 133,
+      "questionText": "绿冠层层叠，形似小树丛，餐桌常作伴，营养在其中。",
+      "answer": [
+        "西兰花"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/133"
+    },
+    {
+      "questionNumber": 134,
+      "questionText": "绿叶红根藏土中，春来秋去总相逢。营养丰富人称道，炒菜煮汤味无穷。",
+      "answer": [
+        "菠菜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/134"
+    },
+    {
+      "questionNumber": 135,
+      "questionText": "绿叶层层叠，脆嫩似春芽，生食最可口，沙拉常伴它。",
+      "answer": [
+        "生菜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/135"
+    },
+    {
+      "questionNumber": 136,
+      "questionText": "身在水底泥中藏，节节相连似玉长，切开可见千丝缕，清甜可口入厨房。",
+      "answer": [
+        "莲藕"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/136"
+    },
+    {
+      "questionNumber": 137,
+      "questionText": "伞盖小又圆，生在木头上，雨后冒出头，香味满山飘。",
+      "answer": [
+        "香菇"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/137"
+    },
+    {
+      "questionNumber": 138,
+      "questionText": "生于深海绿如绸，随波逐流舞不休，餐桌常见味鲜美，营养丰富人人求。",
+      "answer": [
+        "海带"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/138"
+    },
+    {
+      "questionNumber": 139,
+      "questionText": "藤上挂绿袍，身长似蛇绕，切开白如玉，煮汤味道好。",
+      "answer": [
+        "丝瓜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/139"
+    },
+    {
+      "questionNumber": 140,
+      "questionText": "外皮绿如翡翠，内藏苦涩滋味，夏日清凉解暑，餐桌常见身影。",
+      "answer": [
+        "苦瓜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/140"
+    },
+    {
+      "questionNumber": 141,
+      "questionText": "圆滚滚身披黄，藤蔓缠绕地上躺，秋来丰收笑开颜，万圣夜里扮鬼脸。",
+      "answer": [
+        "南瓜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/141"
+    },
+    {
+      "questionNumber": 142,
+      "questionText": "身披黄金甲，头顶绿缨帽，粒粒皆饱满，秋来满田笑。",
+      "answer": [
+        "玉米"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/142"
+    },
+    {
+      "questionNumber": 143,
+      "questionText": "春来破土出，身披层层衣，尖尖似笔头，节节向天齐。",
+      "answer": [
+        "竹笋"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/143"
+    },
+    {
+      "questionNumber": 144,
+      "questionText": "绿衣裹身圆又小，兄弟成串挂枝梢，剥开外衣见珍珠，煮汤炒菜皆美味。",
+      "answer": [
+        "豌豆"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/144"
+    },
+    {
+      "questionNumber": 145,
+      "questionText": "绿衣细长身，弯弯似月牙，藤上挂满串，餐桌常见它。",
+      "answer": [
+        "豆角"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/145"
+    },
+    {
+      "questionNumber": 146,
+      "questionText": "身披黄衣嫩又娇，头顶绿帽轻轻摇，水中生长不沾泥，餐桌常见味道好。",
+      "answer": [
+        "黄豆芽"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/146"
+    },
+    {
+      "questionNumber": 147,
+      "questionText": "身披木衣心藏墨，尖尖头儿写春秋，轻轻一削露新颜，纸上行走不留痕。",
+      "answer": [
+        "铅笔"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/147"
+    },
+    {
+      "questionNumber": 148,
+      "questionText": "身披金属衣，腹藏墨水心，轻轻一挥舞，纸上留痕迹。",
+      "answer": [
+        "钢笔"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/148"
+    },
+    {
+      "questionNumber": 149,
+      "questionText": "身细如针尖，腹中藏墨宝，轻轻一转舞，纸上留痕迹。",
+      "answer": [
+        "圆珠笔"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/149"
+    },
+    {
+      "questionNumber": 150,
+      "questionText": "身轻如纸片，常在纸上行，错误它来消，不留半点痕。",
+      "answer": [
+        "橡皮擦"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/150"
+    },
+    {
+      "questionNumber": 151,
+      "questionText": "身直如线不弯曲，量长量短皆由它，常在书桌伴学子，画线作图不离它。",
+      "answer": [
+        "直尺"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/151"
+    },
+    {
+      "questionNumber": 152,
+      "questionText": "两片铁嘴咬得紧，开合之间断线痕，裁衣剪布皆能手，家中常备不离身。",
+      "answer": [
+        "剪刀"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/152"
+    },
+    {
+      "questionNumber": 153,
+      "questionText": "无色透明似清水，粘合万物不言累，轻轻一抹两相随，分离再难心相违。",
+      "answer": [
+        "胶水"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/153"
+    },
+    {
+      "questionNumber": 154,
+      "questionText": "铁嘴钢牙咬纸张，轻轻一按便成章，办公桌上常相伴，整理文件它最忙。",
+      "answer": [
+        "订书机"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/154"
+    },
+    {
+      "questionNumber": 155,
+      "questionText": "弯弯绕绕似银蛇，轻轻一夹纸不飞，虽无生命却有心，办公桌上常见它。",
+      "answer": [
+        "回形针"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/155"
+    },
+    {
+      "questionNumber": 156,
+      "questionText": "方方正正一小盒，内藏千言与万语，轻轻翻开见世界，静默无声却传情。",
+      "answer": [
+        "笔记本"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/156"
+    },
+    {
+      "questionNumber": 157,
+      "questionText": "方方正正一片心，层层叠叠藏秘密，翻开可见千般事，合上便是静无声。",
+      "answer": [
+        "文件夹"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/157"
+    },
+    {
+      "questionNumber": 158,
+      "questionText": "方方正正一小盒，数字按键排整齐，加减乘除它都行，算账理财好帮手。",
+      "answer": [
+        "计算器"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/158"
+    },
+    {
+      "questionNumber": 159,
+      "questionText": "每日更新不重样，黑白分明字成行，传递消息快如风，家家户户桌上放。",
+      "answer": [
+        "报纸"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/159"
+    },
+    {
+      "questionNumber": 160,
+      "questionText": "方方正正一扇门，字字句句藏乾坤，日日相伴学子身，知识海洋任遨游。",
+      "answer": [
+        "课本"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/160"
+    },
+    {
+      "questionNumber": 161,
+      "questionText": "小小铁嘴钢牙齿，咬住木头不松口，转一转，削一削，铅笔尖尖又尖尖。",
+      "answer": [
+        "卷笔刀"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/161"
+    },
+    {
+      "questionNumber": 162,
+      "questionText": "小小一支握手中，轻轻一抹唇上红，妆点容颜添魅力，随身携带常相伴。",
+      "answer": [
+        "口红"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/162"
+    },
+    {
+      "questionNumber": 163,
+      "questionText": "细长身姿轻如燕，画龙点睛在眉间，轻轻一描添神韵，美人妆成笑开颜。",
+      "answer": [
+        "眉笔"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/163"
+    },
+    {
+      "questionNumber": 164,
+      "questionText": "瓶中藏花魂，轻洒满室春，无形却有味，闻之心自醉。",
+      "answer": [
+        "香水"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/164"
+    },
+    {
+      "questionNumber": 165,
+      "questionText": "细长身，硬骨头，早晚见，清口腔。",
+      "answer": [
+        "牙刷"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/165"
+    },
+    {
+      "questionNumber": 166,
+      "questionText": "长条白身藏软心，早晚相伴不离身，挤出一线清香味，洁齿护龈笑颜新。",
+      "answer": [
+        "牙膏"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/166"
+    },
+    {
+      "questionNumber": 167,
+      "questionText": "柔软如云朵，吸水又吸汗，晨起伴身旁，夜来挂墙边。",
+      "answer": [
+        "毛巾"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/167"
+    },
+    {
+      "questionNumber": 168,
+      "questionText": "方方正正一块宝，遇水化开香气飘，洗去污垢留清香，家家户户少不了。",
+      "answer": [
+        "香皂"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/168"
+    },
+    {
+      "questionNumber": 169,
+      "questionText": "白如玉，滑如脂，遇水化泡去污渍，洗手洗脸都靠它，清洁小能手。",
+      "answer": [
+        "肥皂"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/169"
+    },
+    {
+      "questionNumber": 170,
+      "questionText": "无色透明似清水，泡沫丰富去污强，衣物洁净香四溢，家中常备不可少。",
+      "answer": [
+        "洗衣液"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/170"
+    },
+    {
+      "questionNumber": 171,
+      "questionText": "小小圆盘身，衣上常作伴，两孔穿一线，紧系不分离。",
+      "answer": [
+        "纽扣"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/171"
+    },
+    {
+      "questionNumber": 172,
+      "questionText": "薄薄一片布，遮住口鼻处，防尘又防菌，出门不离身。",
+      "answer": [
+        "口罩"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/172"
+    },
+    {
+      "questionNumber": 173,
+      "questionText": "薄如蝉翼白如雪，轻轻一抽便分离，遇水即化不留痕，日常清洁好帮手。",
+      "answer": [
+        "纸巾"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/173"
+    },
+    {
+      "questionNumber": 174,
+      "questionText": "身轻如燕，齿密如梳，一入锁孔，门户洞开。",
+      "answer": [
+        "钥匙"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/174"
+    },
+    {
+      "questionNumber": 175,
+      "questionText": "圆盘藏玄机，指针转不停，日夜伴身旁，时刻记心中。",
+      "answer": [
+        "手表"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/175"
+    },
+    {
+      "questionNumber": 176,
+      "questionText": "两片黑幕遮双眼，烈日炎炎也不怕，时尚潮人随身带，夏日出行好伙伴。",
+      "answer": [
+        "太阳镜"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/176"
+    },
+    {
+      "questionNumber": 177,
+      "questionText": "两片透明窗，架在鼻梁上，看远又看近，世界更明亮。",
+      "answer": [
+        "眼镜"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/177"
+    },
+    {
+      "questionNumber": 178,
+      "questionText": "细长如蛇身，穿梭鞋孔间，一拉紧如弦，行走更安全。",
+      "answer": [
+        "鞋带"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/178"
+    },
+    {
+      "questionNumber": 179,
+      "questionText": "齿密如林排成行，轻轻一抚发丝亮，晨起晚睡常相伴，不见其影心慌慌。",
+      "answer": [
+        "梳子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/179"
+    },
+    {
+      "questionNumber": 180,
+      "questionText": "无口却能言，无眼却能看，无耳却能听，无手却能触。",
+      "answer": [
+        "镜子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/180"
+    },
+    {
+      "questionNumber": 181,
+      "questionText": "弯弯如月牙，轻轻夹发间，装饰又实用，美丽不张扬。",
+      "answer": [
+        "发夹"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/181"
+    },
+    {
+      "questionNumber": 182,
+      "questionText": "透明如水晶，粘稠似蜜糖，轻轻一抹间，发型立时亮。",
+      "answer": [
+        "发胶"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/182"
+    },
+    {
+      "questionNumber": 183,
+      "questionText": "两只小船无帆桨，日夜随脚走四方，脱下它来露脚丫，穿上它来暖洋洋。",
+      "answer": [
+        "袜子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/183"
+    },
+    {
+      "questionNumber": 184,
+      "questionText": "长条柔软绕颈间，冬日保暖伴身边，花色多样添风采，随风轻舞似云烟。",
+      "answer": [
+        "围巾"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/184"
+    },
+    {
+      "questionNumber": 185,
+      "questionText": "头顶一片天，遮阳又挡雨，四季常相伴，时尚添风采。",
+      "answer": [
+        "帽子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/185"
+    },
+    {
+      "questionNumber": 186,
+      "questionText": "腰间绕一圈，紧束不松脱，皮革或织物，日常不可缺。",
+      "answer": [
+        "皮带"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/186"
+    },
+    {
+      "questionNumber": 187,
+      "questionText": "细长如蛇绕颈间，色彩斑斓显尊贵，正式场合常见它，系紧松紧随人意。",
+      "answer": [
+        "领带"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/187"
+    },
+    {
+      "questionNumber": 188,
+      "questionText": "骨架撑开一片天，遮阳挡雨两相宜，收放自如随身带，风雨无阻伴你行。",
+      "answer": [
+        "雨伞"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/188"
+    },
+    {
+      "questionNumber": 189,
+      "questionText": "透明如水晶，常伴清水旁，手握它不重，口渴它帮忙。",
+      "answer": [
+        "水杯"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/189"
+    },
+    {
+      "questionNumber": 190,
+      "questionText": "肚大能容水，嘴小出细流，身披彩衣裳，常伴茶香游。",
+      "answer": [
+        "茶壶"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/190"
+    },
+    {
+      "questionNumber": 191,
+      "questionText": "圆口浅底身，常伴饭香临，盛满人间味，静待手中亲。",
+      "answer": [
+        "碗"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/191"
+    },
+    {
+      "questionNumber": 192,
+      "questionText": "兄弟俩，一般高，吃饭时候少不了，一个动来一个静，配合默契真奇妙。",
+      "answer": [
+        "筷子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/192"
+    },
+    {
+      "questionNumber": 193,
+      "questionText": "身披银甲闪寒光，一划天地两分张，厨房战场皆常见，锋利无比谁敢当。",
+      "answer": [
+        "刀"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/193"
+    },
+    {
+      "questionNumber": 194,
+      "questionText": "方方正正一块木，厨房里头它最苦，刀光剑影常相伴，切菜剁肉不喊苦。",
+      "answer": [
+        "砧板"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/194"
+    },
+    {
+      "questionNumber": 195,
+      "questionText": "薄如蝉翼透如纱，轻轻一裹护食华，厨房常备无声息，保鲜锁鲜全靠它。",
+      "answer": [
+        "保鲜膜"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/195"
+    },
+    {
+      "questionNumber": 196,
+      "questionText": "日夜不停走，声音震天响，清晨催人醒，夜晚伴人眠。",
+      "answer": [
+        "闹钟"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/196"
+    },
+    {
+      "questionNumber": 197,
+      "questionText": "日日更新不重样，页页翻过记时光，方寸之间藏岁月，无声无息伴身旁。",
+      "answer": [
+        "日历"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/197"
+    },
+    {
+      "questionNumber": 198,
+      "questionText": "小巧玲珑掌中握，尾巴细长连电脑，轻轻一点世界动，静卧桌面无声息。",
+      "answer": [
+        "鼠标"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/198"
+    },
+    {
+      "questionNumber": 199,
+      "questionText": "方寸之间藏世界，指尖轻点舞翩跹，黑白分明如琴键，无声胜似有声言。",
+      "answer": [
+        "键盘"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/199"
+    },
+    {
+      "questionNumber": 200,
+      "questionText": "方方正正坐桌边，不吃不喝不言传，白纸进去字出来，默默工作不偷闲。",
+      "answer": [
+        "打印机"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/200"
+    },
+    {
+      "questionNumber": 201,
+      "questionText": "身细长，头圆亮，声音从此出，舞台常亮相。",
+      "answer": [
+        "话筒"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/201"
+    },
+    {
+      "questionNumber": 202,
+      "questionText": "夏日炎炎送清凉，冬日寒冷送温暖，静立墙角无声息，调节四季如春般。",
+      "answer": [
+        "空调"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/202"
+    },
+    {
+      "questionNumber": 203,
+      "questionText": "身披铁甲不战斗，口吞灰尘不咳嗽，家中清洁它最忙，无声无息把活干。",
+      "answer": [
+        "吸尘器"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/203"
+    },
+    {
+      "questionNumber": 204,
+      "questionText": "身披银甲不惧风，口吐热浪驱湿寒，静立无声待君用，动时呼啸似龙吟。",
+      "answer": [
+        "吹风机"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/204"
+    },
+    {
+      "questionNumber": 205,
+      "questionText": "冬日里的小太阳，不发光却暖洋洋，铺在床上伴你眠，一夜温暖到天亮。",
+      "answer": [
+        "电热毯"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/205"
+    },
+    {
+      "questionNumber": 206,
+      "questionText": "铁面无私心，热力藏其中，行走衣上过，皱褶尽消融。",
+      "answer": [
+        "电熨斗"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/206"
+    },
+    {
+      "questionNumber": 207,
+      "questionText": "方方正正一箱子，肚里装水又装衣，转来转去忙不停，洗净污渍不留痕。",
+      "answer": [
+        "洗衣机"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/207"
+    },
+    {
+      "questionNumber": 208,
+      "questionText": "身细长，头明亮，夜行伴身旁，黑暗无处藏。",
+      "answer": [
+        "手电筒"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/208"
+    },
+    {
+      "questionNumber": 209,
+      "questionText": "小小身躯藏能量，正负两极分阴阳，无声无息供动力，耗尽之后需换装。",
+      "answer": [
+        "电池"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/209"
+    },
+    {
+      "questionNumber": 210,
+      "questionText": "身披白衣立案头，泪珠点点为谁流？夜来点亮光明路，燃尽自身不言愁。",
+      "answer": [
+        "蜡烛"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/210"
+    },
+    {
+      "questionNumber": 211,
+      "questionText": "小小身材藏火种，一按即亮照四方，随身携带方便用，点燃希望不费工。",
+      "answer": [
+        "打火机"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/211"
+    },
+    {
+      "questionNumber": 212,
+      "questionText": "细长身，头戴红帽，一触即发，点亮黑夜。",
+      "answer": [
+        "火柴"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/212"
+    },
+    {
+      "questionNumber": 213,
+      "questionText": "身圆口小肚里空，文房四宝它居中，笔杆插满如林立，静待主人挥毫功。",
+      "answer": [
+        "笔筒"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/213"
+    },
+    {
+      "questionNumber": 214,
+      "questionText": "手持粉笔写春秋，讲台三尺育英才，桃李满园皆因他，默默耕耘不言苦。",
+      "answer": [
+        "老师"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/214"
+    },
+    {
+      "questionNumber": 215,
+      "questionText": "白衣常伴身，手中握生死，日夜守病床，仁心解人忧。",
+      "answer": [
+        "医生"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/215"
+    },
+    {
+      "questionNumber": 216,
+      "questionText": "白衣天使守护忙，温柔手抚病痛伤，日夜轮转无怨言，生命线上显光芒。",
+      "answer": [
+        "护士"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/216"
+    },
+    {
+      "questionNumber": 217,
+      "questionText": "身穿制服显威严，日夜巡逻保平安，手握正义之剑，守护万家灯火。",
+      "answer": [
+        "警察"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/217"
+    },
+    {
+      "questionNumber": 218,
+      "questionText": "身穿红衣戴头盔，火场逆行显神威，水龙一吐千钧力，救人水火不言累。",
+      "answer": [
+        "消防员"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/218"
+    },
+    {
+      "questionNumber": 219,
+      "questionText": "身披绿装守边疆，步伐整齐志如钢，日夜守护家国梦，风雨无阻显担当。",
+      "answer": [
+        "军人"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/219"
+    },
+    {
+      "questionNumber": 220,
+      "questionText": "白衣裹身站灶前，手中刀铲舞翩跹，五味调和成佳肴，香气四溢满堂欢。",
+      "answer": [
+        "厨师"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/220"
+    },
+    {
+      "questionNumber": 221,
+      "questionText": "站在柜台后，笑脸迎客来，手中常持物，买卖两相宜。",
+      "answer": [
+        "售货员"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/221"
+    },
+    {
+      "questionNumber": 222,
+      "questionText": "手持小旗走在前，指引方向不迷路，山川河流皆知晓，游客跟随心不慌。",
+      "answer": [
+        "导游"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/222"
+    },
+    {
+      "questionNumber": 223,
+      "questionText": "手握笔杆心系纸，字里行间藏乾坤，日夜耕耘不言苦，只为故事传人间。",
+      "answer": [
+        "作家"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/223"
+    },
+    {
+      "questionNumber": 224,
+      "questionText": "手持话筒走四方，记录人间事无常，笔下生花传真相，日夜奔波为新闻忙。",
+      "answer": [
+        "记者"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/224"
+    },
+    {
+      "questionNumber": 225,
+      "questionText": "手握圆盘转不停，脚下踏着风火轮，穿梭城市与乡村，安全送达是使命。",
+      "answer": [
+        "司机"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/225"
+    },
+    {
+      "questionNumber": 226,
+      "questionText": "手握彩笔舞，纸上生花鸟，无声胜有声，世界任他描。",
+      "answer": [
+        "画家"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/226"
+    },
+    {
+      "questionNumber": 227,
+      "questionText": "台上千面人，台下独一身，喜怒哀乐变，真假难辨分。",
+      "answer": [
+        "演员"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/227"
+    },
+    {
+      "questionNumber": 228,
+      "questionText": "手中持斧锯，木屑飞满天，巧手造家具，技艺代代传。",
+      "answer": [
+        "木匠"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/228"
+    },
+    {
+      "questionNumber": 229,
+      "questionText": "手中持利器，头顶舞春风，千丝万缕间，旧貌换新容。",
+      "answer": [
+        "理发师"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/229"
+    },
+    {
+      "questionNumber": 230,
+      "questionText": "手中画笔轻描淡写，脸上色彩变幻莫测，不是画家却让容颜焕发，不是魔术师却让美丽重生。",
+      "answer": [
+        "化妆师"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/230"
+    },
+    {
+      "questionNumber": 231,
+      "questionText": "日出而作日落息，手握锄头背朝天，汗水浇灌五谷田，丰收时节笑开颜。",
+      "answer": [
+        "农民"
+      ],
+      "tips": "一种职业",
+      "audioSource": "audio/231"
+    },
+    {
+      "questionNumber": 232,
+      "questionText": "白如玉，圆如月，蒸笼里出，香气四溢。",
+      "answer": [
+        "馒头"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/232"
+    },
+    {
+      "questionNumber": 233,
+      "questionText": "白皮裹着馅，弯弯似月牙，水煮浮水面，香气满屋飘。",
+      "answer": [
+        "饺子"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/233"
+    },
+    {
+      "questionNumber": 234,
+      "questionText": "粒粒分明金黄亮，锅中翻腾香气扬，虽是家常小菜样，却能填饱肚中肠。",
+      "answer": [
+        "炒饭"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/234"
+    },
+    {
+      "questionNumber": 235,
+      "questionText": "圆盘如月挂天边，五彩缤纷铺满盘，香气四溢诱人尝，一口咬下满嘴鲜。",
+      "answer": [
+        "披萨"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/235"
+    },
+    {
+      "questionNumber": 236,
+      "questionText": "圆桌中央坐，热气腾腾冒，众人围一圈，食材任你挑。",
+      "answer": [
+        "火锅"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/236"
+    },
+    {
+      "questionNumber": 237,
+      "questionText": "绿叶裹身藏，棱角分明样，端午时节见，香飘满厨房。",
+      "answer": [
+        "粽子"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/237"
+    },
+    {
+      "questionNumber": 238,
+      "questionText": "圆如明月照人间，甜咸滋味藏心间，每逢佳节倍思亲，团圆桌上总相见。",
+      "answer": [
+        "月饼"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/238"
+    },
+    {
+      "questionNumber": 239,
+      "questionText": "金黄身段长又细，热油锅里翻跟头，早餐桌上常见它，香脆可口人人爱。",
+      "answer": [
+        "油条"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/239"
+    },
+    {
+      "questionNumber": 240,
+      "questionText": "无色无味最平凡，解渴消暑人人赞，煮沸之后更纯净，日常饮用最频繁。",
+      "answer": [
+        "白开水"
+      ],
+      "tips": "一种饮品",
+      "audioSource": "audio/240"
+    },
+    {
+      "questionNumber": 241,
+      "questionText": "黑水冒泡声，清凉解渴情，夏日最受欢迎，瓶中藏欢欣。",
+      "answer": [
+        "可乐"
+      ],
+      "tips": "一种饮品",
+      "audioSource": "audio/241"
+    },
+    {
+      "questionNumber": 242,
+      "questionText": "晶莹剔透似水晶，酸甜滋味藏其中，夏日解渴最相宜，非水非茶却清凉。",
+      "answer": [
+        "果汁"
+      ],
+      "tips": "一种饮品",
+      "audioSource": "audio/242"
+    },
+    {
+      "questionNumber": 243,
+      "questionText": "黑如夜，香如花，苦中带甜，醒神又提神。",
+      "answer": [
+        "咖啡"
+      ],
+      "tips": "一种饮品",
+      "audioSource": "audio/243"
+    },
+    {
+      "questionNumber": 244,
+      "questionText": "绿叶轻摇水中舞，清香四溢满室飘，晨起一杯精神爽，夜来一盏梦更甜。",
+      "answer": [
+        "茶"
+      ],
+      "tips": "一种饮品",
+      "audioSource": "audio/244"
+    },
+    {
+      "questionNumber": 245,
+      "questionText": "身披螺纹衣，头戴小帽顶，旋转入深处，固定不动摇。",
+      "answer": [
+        "螺丝"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/245"
+    },
+    {
+      "questionNumber": 246,
+      "questionText": "一头重来一头轻，敲敲打打显威名，木柄握在手，铁头定乾坤。",
+      "answer": [
+        "锤子"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/246"
+    },
+    {
+      "questionNumber": 247,
+      "questionText": "身细头尖硬如铁，穿墙入木不费力，虽无手足能固定，千锤百炼显真功。",
+      "answer": [
+        "钉子"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/247"
+    },
+    {
+      "questionNumber": 248,
+      "questionText": "铁齿铜牙两片开，夹紧东西不松开，工匠手中常作伴，力大无穷显神威。",
+      "answer": [
+        "老虎钳"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/248"
+    },
+    {
+      "questionNumber": 249,
+      "questionText": "薄如蝉翼，利如锋芒，轻轻一划，万物两分。",
+      "answer": [
+        "刀片"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/249"
+    },
+    {
+      "questionNumber": 250,
+      "questionText": "铁头木柄身，劈山又开林，挥动风声起，砍伐力千钧。",
+      "answer": [
+        "斧头"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/250"
+    },
+    {
+      "questionNumber": 251,
+      "questionText": "黑白分明键如梯，指尖轻触声如溪，静立厅堂伴乐起，无声胜似万言诗。",
+      "answer": [
+        "钢琴"
+      ],
+      "tips": "一种乐器",
+      "audioSource": "audio/251"
+    },
+    {
+      "questionNumber": 252,
+      "questionText": "身长七孔通，吹气响如风，竹节藏音韵，曲调动人心。",
+      "answer": [
+        "笛子"
+      ],
+      "tips": "一种乐器",
+      "audioSource": "audio/252"
+    },
+    {
+      "questionNumber": 253,
+      "questionText": "耳朵长又尖，尾巴短如线。夜半静悄悄，田野跃轻盈。",
+      "answer": [
+        "兔子"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/253"
+    },
+    {
+      "questionNumber": 254,
+      "questionText": "林间轻盈步，角似树杈生。夜半常惊梦，身披斑点衣。",
+      "answer": [
+        "鹿"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/254"
+    },
+    {
+      "questionNumber": 255,
+      "questionText": "背着房子走四方，遇到危险缩一团。慢吞吞来不着急，长寿之名传天下。",
+      "answer": [
+        "乌龟"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/255"
+    },
+    {
+      "questionNumber": 256,
+      "questionText": "无脚走千里，无声胜有声，草丛藏身影，冷血是其名。",
+      "answer": [
+        "蛇"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/256"
+    },
+    {
+      "questionNumber": 257,
+      "questionText": "身披黄黑衣，勤劳采花忙。酿出甜如蜜，嗡嗡唱春光。",
+      "answer": [
+        "蜜蜂"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/257"
+    },
+    {
+      "questionNumber": 258,
+      "questionText": "轻盈舞者空中飞，彩衣斑斓映日辉。花间穿梭不闻声，春来秋去无踪迹。",
+      "answer": [
+        "蝴蝶"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/258"
+    },
+    {
+      "questionNumber": 259,
+      "questionText": "夜幕降临它才醒，圆眼如灯照幽径。无声翅膀掠过林，捕鼠能手显神威。",
+      "answer": [
+        "猫头鹰"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/259"
+    },
+    {
+      "questionNumber": 260,
+      "questionText": "白羽翩翩舞，红喙点点情。和平使者誉，信使传佳音。",
+      "answer": [
+        "鸽子"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/260"
+    },
+    {
+      "questionNumber": 261,
+      "questionText": "海中飘浮一伞花，无骨无血也无家。触手轻摆随波流，透明身躯映彩霞。",
+      "answer": [
+        "水母"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/261"
+    },
+    {
+      "questionNumber": 262,
+      "questionText": "八臂舞水间，触手能变色。海底藏身影，智谋胜鱼虾。",
+      "answer": [
+        "章鱼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/262"
+    },
+    {
+      "questionNumber": 263,
+      "questionText": "身披红铠甲水中游，双钳挥舞显威风。海底世界它称王，却非龙族真英雄。",
+      "answer": [
+        "龙虾"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/263"
+    },
+    {
+      "questionNumber": 264,
+      "questionText": "横行霸道走四方，两把大钳胸前挡。壳硬如铁护全身，海底沙中是故乡。",
+      "answer": [
+        "螃蟹"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/264"
+    },
+    {
+      "questionNumber": 265,
+      "questionText": "海边拾得一珍藏，五彩斑斓似扇张。风雨过后沙滩上，静卧倾听海浪长。",
+      "answer": [
+        "贝壳"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/265"
+    },
+    {
+      "questionNumber": 266,
+      "questionText": "身体柔软水中游，八臂挥舞似飞绸。墨汁一喷敌难觅，海底世界任我走。",
+      "answer": [
+        "乌贼"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/266"
+    },
+    {
+      "questionNumber": 267,
+      "questionText": "身背盾牌游四方，海底漫步不慌张。寿命长来性情慢，千年传说它最棒。",
+      "answer": [
+        "海龟"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/267"
+    },
+    {
+      "questionNumber": 268,
+      "questionText": "背着小屋慢慢走，不怕风雨与日头。软体藏在硬壳中，留下银线记行踪。",
+      "answer": [
+        "蜗牛"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/268"
+    },
+    {
+      "questionNumber": 269,
+      "questionText": "身无骨却能屈伸，土中穿梭悄无声。春雨滋润它欢腾，翻土松地是功臣。",
+      "answer": [
+        "蚯蚓"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/269"
+    },
+    {
+      "questionNumber": 270,
+      "questionText": "夜半歌声细又长，一到晚上更猖狂。针尖轻吻人惊醒，留下红点痒难当。",
+      "answer": [
+        "蚊子"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/270"
+    },
+    {
+      "questionNumber": 271,
+      "questionText": "沙漠中的奔跑者，虽有翅膀不飞翔，长腿一迈千里行，头小颈长望远方。",
+      "answer": [
+        "鸵鸟"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/271"
+    },
+    {
+      "questionNumber": 272,
+      "questionText": "扁嘴黄衣裳，水中游得欢，嘎嘎叫声响，爱吃小鱼虾。",
+      "answer": [
+        "鸭"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/272"
+    },
+    {
+      "questionNumber": 273,
+      "questionText": "白袍将军水上行，红掌拨清波，曲项向天歌。",
+      "answer": [
+        "鹅"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/273"
+    },
+    {
+      "questionNumber": 274,
+      "questionText": "夜幕降临它登场，微光闪烁似星光。不需灯火自明亮，夏夜田野常见它。",
+      "answer": [
+        "萤火虫"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/274"
+    },
+    {
+      "questionNumber": 275,
+      "questionText": "身披彩衣随心换，周围环境同色藏。目光如炬善捕猎，舌长一伸虫无踪。",
+      "answer": [
+        "变色龙"
+      ],
+      "tips": "一种动物",
+      "audioSource": "audio/275"
+    },
+    {
+      "questionNumber": 276,
+      "questionText": "金盘托玉珠，日出而向阳。夏日田间立，秋来籽满囊。",
+      "answer": [
+        "向日葵"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/276"
+    },
+    {
+      "questionNumber": 277,
+      "questionText": "青衣绿袍裹身躯，节节高升入云霄。风吹雨打不弯腰，腹中空空有志气。",
+      "answer": [
+        "竹子"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/277"
+    },
+    {
+      "questionNumber": 278,
+      "questionText": "身姿柔如丝，绿发垂湖畔。春风一吹拂，轻舞似仙子。",
+      "answer": [
+        "柳树"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/278"
+    },
+    {
+      "questionNumber": 279,
+      "questionText": "冬日寒风中，独自傲霜雪。花瓣如玉洁，暗香浮月夜。",
+      "answer": [
+        "梅花"
+      ],
+      "tips": "一种植物",
+      "audioSource": "audio/279"
+    },
+    {
+      "questionNumber": 280,
+      "questionText": "黄袍加身弯如月，皮薄肉嫩甜如蜜。夏日解渴好伴侣，剥开即食乐无边。",
+      "answer": [
+        "香蕉"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/280"
+    },
+    {
+      "questionNumber": 281,
+      "questionText": "绿衣裹红心，夏日解渴灵。圆中藏甜蜜，一刀两半分。",
+      "answer": [
+        "西瓜"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/281"
+    },
+    {
+      "questionNumber": 282,
+      "questionText": "红衣裹珍珠，秋风笑开颜。内藏千子抱，酸甜皆可尝。",
+      "answer": [
+        "石榴"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/282"
+    },
+    {
+      "questionNumber": 283,
+      "questionText": "身披绿袍藏海岛，腹中甘露白如雪。夏日炎炎解渴佳，壳硬心软味清甜。",
+      "answer": [
+        "椰子"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/283"
+    },
+    {
+      "questionNumber": 284,
+      "questionText": "紫衣裹身直又长，节节相连可榨糖。夏日解渴人人爱，咬下一口汁满腔。",
+      "answer": [
+        "甘蔗"
+      ],
+      "tips": "一种水果",
+      "audioSource": "audio/284"
+    },
+    {
+      "questionNumber": 285,
+      "questionText": "绿色外表细又长，夏日凉拌最爽口，藤蔓攀爬架上挂，清脆多汁解暑热。",
+      "answer": [
+        "黄瓜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/285"
+    },
+    {
+      "questionNumber": 286,
+      "questionText": "身穿紫袍挂枝头，夏日炎炎它最熟。身长体胖无人识，切开却是白如玉。",
+      "answer": [
+        "茄子"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/286"
+    },
+    {
+      "questionNumber": 287,
+      "questionText": "红袍小尖头，肚里藏热浪。味道很刺激，多吃汗满头。",
+      "answer": [
+        "辣椒"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/287"
+    },
+    {
+      "questionNumber": 288,
+      "questionText": "层层包裹似剥皮，切开却让人泪下。外表黄衣内白心，厨房之中常有它。",
+      "answer": [
+        "洋葱"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/288"
+    },
+    {
+      "questionNumber": 289,
+      "questionText": "兄弟七八个，围着柱子坐。衣服一脱掉，气味冲天破。",
+      "answer": [
+        "大蒜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/289"
+    },
+    {
+      "questionNumber": 290,
+      "questionText": "黄袍加身藏土中，辛辣味浓驱寒风。冬日佳肴常相伴，药食同源暖人心。",
+      "answer": [
+        "生姜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/290"
+    },
+    {
+      "questionNumber": 291,
+      "questionText": "绿叶如扇面，根却是红色。常伴豆腐旁，补铁又养心。",
+      "answer": [
+        "菠菜"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/291"
+    },
+    {
+      "questionNumber": 292,
+      "questionText": "节节皆相连，掰断丝相连。夏日花开时，清香满人间。",
+      "answer": [
+        "莲藕"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/292"
+    },
+    {
+      "questionNumber": 293,
+      "questionText": "海底森林长，随波舞翩跹。身姿薄又长，餐桌常见它。",
+      "answer": [
+        "海带"
+      ],
+      "tips": "一种蔬菜",
+      "audioSource": "audio/293"
+    },
+    {
+      "questionNumber": 294,
+      "questionText": "小小一片红，胸前常飘扬，少年志气高，祖国未来强。",
+      "answer": [
+        "红领巾"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/294"
+    },
+    {
+      "questionNumber": 295,
+      "questionText": "晶莹剔透体，坚硬世间稀。光芒胜星辰，永恒不凋零。",
+      "answer": [
+        "钻石"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/295"
+    },
+    {
+      "questionNumber": 296,
+      "questionText": "海底藏明珠，圆润又晶莹。夜深人静时，光彩更夺目。",
+      "answer": [
+        "珍珠"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/296"
+    },
+    {
+      "questionNumber": 297,
+      "questionText": "圆环绕腕间，金银或玉质。不言也不语，却能传心意。",
+      "answer": [
+        "手镯"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/297"
+    },
+    {
+      "questionNumber": 298,
+      "questionText": "身长条细直，用时削削尖尖，腹中藏黑心，书写留痕迹。",
+      "answer": [
+        "铅笔"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/298"
+    },
+    {
+      "questionNumber": 299,
+      "questionText": "小小一支笔，红艳如春花。晨起轻轻点，笑颜映朝霞。",
+      "answer": [
+        "口红"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/299"
+    },
+    {
+      "questionNumber": 300,
+      "questionText": "晨起必相见，细毛头上戴。洁齿好帮手，清水常相伴。",
+      "answer": [
+        "牙刷"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/300"
+    },
+    {
+      "questionNumber": 301,
+      "questionText": "软绵绵，长又方，浴后常伴身旁。吸水力强身手好，轻轻一拧干如霜。",
+      "answer": [
+        "毛巾（浴巾？）"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/301"
+    },
+    {
+      "questionNumber": 302,
+      "questionText": "方中藏圆润，洁身自好清。遇水生泡沫，清香留手心。",
+      "answer": [
+        "肥皂"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/302"
+    },
+    {
+      "questionNumber": 303,
+      "questionText": "薄纱遮面庞，呼吸亦通畅。防尘又避疫，出门常相伴。",
+      "answer": [
+        "口罩"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/303"
+    },
+    {
+      "questionNumber": 304,
+      "questionText": "薄如蝉翼轻似梦，方寸之间藏温柔。遇水则软更贴心，拭去尘埃不留痕。",
+      "answer": [
+        "纸巾"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/304"
+    },
+    {
+      "questionNumber": 305,
+      "questionText": "小小身材黄铜铸，千门万户任我开。不言不语藏秘密，一转一拧显神通。",
+      "answer": [
+        "钥匙"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/305"
+    },
+    {
+      "questionNumber": 306,
+      "questionText": "圆中藏四季，指针绕不停。日夜皆相伴，却非真伴侣。",
+      "answer": [
+        "手表"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/306"
+    },
+    {
+      "questionNumber": 307,
+      "questionText": "齿密排成行，轻抚发丝长。晨起对镜妆，梳理好时光。",
+      "answer": [
+        "梳子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/307"
+    },
+    {
+      "questionNumber": 308,
+      "questionText": "静默无言，映照万物。",
+      "answer": [
+        "镜子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/308"
+    },
+    {
+      "questionNumber": 309,
+      "questionText": "一对兄弟紧相随，脚上风光它来陪。冬日保暖夏日凉，千变万化总相宜。",
+      "answer": [
+        "袜子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/309"
+    },
+    {
+      "questionNumber": 310,
+      "questionText": "细长如带绕颈间，冬日暖阳手中牵。色彩斑斓随风舞，不言不语也缠绵。",
+      "answer": [
+        "围巾"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/310"
+    },
+    {
+      "questionNumber": 311,
+      "questionText": "晴天收起藏袖中，雨来张开护行人。不言不语却有情，遮阳挡雨两相宜。",
+      "answer": [
+        "伞"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/311"
+    },
+    {
+      "questionNumber": 312,
+      "questionText": "兄弟二人一般长，出入总是一对双。餐桌上见真章，夹起美味不商量。",
+      "answer": [
+        "筷子"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/312"
+    },
+    {
+      "questionNumber": 313,
+      "questionText": "弯弯一柄钩，常在锅边游。舀汤又盛饭，家家户户有。",
+      "answer": [
+        "勺子",
+        "汤勺"
+      ],
+      "tips": "一种日用品",
+      "audioSource": "audio/313"
+    },
+    {
+      "questionNumber": 314,
+      "questionText": "白胖小子圆又圆，蒸笼一出热气腾。不需油盐自香甜，一日三餐皆可餐。",
+      "answer": [
+        "馒头"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/314"
+    },
+    {
+      "questionNumber": 315,
+      "questionText": "白玉盘中藏翡翠，热气腾腾水中来。团圆桌上常见客，冬至时节最相宜。",
+      "answer": [
+        "饺子"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/315"
+    },
+    {
+      "questionNumber": 316,
+      "questionText": "小小一粒糖，嚼嚼满口香。不甜也不腻，越嚼越清凉。",
+      "answer": [
+        "口香糖"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/316"
+    },
+    {
+      "questionNumber": 317,
+      "questionText": "透明身躯藏清凉，气泡翻腾似海洋。夏日炎炎一口饮，瞬间舒爽透心凉。",
+      "answer": [
+        "雪碧",
+        "汽水"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/317"
+    },
+    {
+      "questionNumber": 318,
+      "questionText": "草原放牧肉质鲜，铁板炙烤香四溢。刀叉轻舞盘中餐，西餐桌上常见客。",
+      "answer": [
+        "牛排"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/318"
+    },
+    {
+      "questionNumber": 319,
+      "questionText": "锅中藏热浪，食材舞翩跹。红油翻滚沸，冬日暖人心。",
+      "answer": [
+        "火锅"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/319"
+    },
+    {
+      "questionNumber": 320,
+      "questionText": "绿衣在外面，清明时节亲。软糯香甜口，江南风味真。",
+      "answer": [
+        "青团"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/320"
+    },
+    {
+      "questionNumber": 321,
+      "questionText": "红衣裹身甜如蜜，竹签串起一串珠。街头巷尾常见它，冬日里暖人心。",
+      "answer": [
+        "糖葫芦"
+      ],
+      "tips": "一种食物",
+      "audioSource": "audio/321"
+    },
+    {
+      "questionNumber": 322,
+      "questionText": "清晨一杯香，提神又醒脑。色如黑玉液，苦中带香甜。",
+      "answer": [
+        "咖啡"
+      ],
+      "tips": "一种饮品",
+      "audioSource": "audio/322"
+    },
+    {
+      "questionNumber": 323,
+      "questionText": "牙齿锋利却无声，木头见它分两边。不是刀剑却能割，工匠手中常相伴。",
+      "answer": [
+        "锯子"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/323"
+    },
+    {
+      "questionNumber": 324,
+      "questionText": "细长身躯穿布间，巧手牵引走如飞。缝补旧衣添新彩，无声无息显神威。",
+      "answer": [
+        "针线"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/324"
+    },
+    {
+      "questionNumber": 325,
+      "questionText": "身材细长却有力，家门紧闭它来开。金光闪闪藏口袋，小小身躯大作用。",
+      "answer": [
+        "钥匙"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/325"
+    },
+    {
+      "questionNumber": 326,
+      "questionText": "层层叠叠向上攀，步步高升非等闲。白天黑夜皆忙碌，无声无息助人前。",
+      "answer": [
+        "楼梯"
+      ],
+      "tips": "一种工具",
+      "audioSource": "audio/326"
     }
   ]
 }
