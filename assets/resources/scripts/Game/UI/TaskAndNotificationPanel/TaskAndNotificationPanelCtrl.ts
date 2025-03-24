@@ -19,8 +19,8 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
 
     public static NAME: string = "TaskAndNotificationPanelCtrl";
     /**
-    * 任务详细界面
-    */
+     * 任务详细界面
+     */
     @property({ type: Node })
     taskProgressNode: Node = null;
 
@@ -68,6 +68,8 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
     private processingColor = "#FF2D55";
 
     private notificationList: any[] = [];
+
+    public static TaskAndNotificationHide:string = "TaskAndNotificationHide";
 
     start() {
 
@@ -246,6 +248,7 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
 
     backToParent() {
         UIManager.getInstance().hidePanel(TaskAndNotificationPanelCtrl.NAME);
+        EventManager.getInstance().emit(TaskAndNotificationPanelCtrl.TaskAndNotificationHide,this);
     }
 }
 
