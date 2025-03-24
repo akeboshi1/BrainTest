@@ -7,7 +7,7 @@ import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/Loa
  * this is a sington class for audio play, can be easily called from anywhere in you project.
  * @zh
  * 这是一个用于播放音频的单件类，可以很方便地在项目的任何地方调用。
- */ 
+ */
 export class AudioManager extends BaseManager {
     private static _inst: AudioManager;
     public static getInstance(): AudioManager {
@@ -62,11 +62,11 @@ export class AudioManager extends BaseManager {
     }
 
     public playWin(){
-        this.play("music/win");
+        this.playOneShot("music/win");
     }
 
     public playFail(){
-        this.play("music/fail");
+        this.playOneShot("music/fail");
     }
 
     public get audioSource() {
@@ -94,7 +94,7 @@ export class AudioManager extends BaseManager {
      * @zh
      * 播放短音频,比如 打击音效，爆炸音效等
      * @param sound clip or url for the audio
-     * @param volume 
+     * @param volume
      */
     playOneShot(sound: AudioClip | string, volume: number = 1.0) {
         if (sound instanceof AudioClip) {
@@ -118,7 +118,7 @@ export class AudioManager extends BaseManager {
      * @zh
      * 播放长音频，比如 背景音乐
      * @param sound clip or url for the sound
-     * @param volume 
+     * @param volume
      */
     play(sound: AudioClip | string,loop:boolean = false, volume: number = 1.0) {
         if (sound instanceof AudioClip) {
@@ -173,7 +173,7 @@ export class AudioManager extends BaseManager {
     offAudioEnd(callback: () => void, context) {
         this.eventTarget.off('audio-ended', callback, context);
     }
-    
+
     onAudioStart(callback: () => void, context) {
         this.eventTarget.on('audio-started', callback, context);
     }
