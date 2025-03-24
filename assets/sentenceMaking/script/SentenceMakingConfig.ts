@@ -54,13 +54,11 @@ export class SentenceMakingConfig {
         });
     }
 
-    getQuestionByDifficultAndLevel(difficult: number, level: number): SentenceMakingQuestion | null {
-        let _difficult = difficult <= 0 ? 0 : difficult - 1;
-        const questions = this.levelQuestions["level_" + _difficult];
-        if (questions && level >= 0 && level < questions.length) {
-            return questions[level];
-        }
-        return null;
+    getQuestionByDifficultAndLevel(difficult: number, level: number): SentenceMakingQuestion {
+        let fixedDifficult = difficult <= 0 ? 0 : difficult - 1;
+        const questions = this.levelQuestions["level_" + fixedDifficult];
+        let fixedLevel = level % questions.length;
+        return questions[fixedLevel];
     }
 
     getQuestionsByDifficult(difficult: number): SentenceMakingQuestion[] {

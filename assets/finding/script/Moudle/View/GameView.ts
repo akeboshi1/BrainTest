@@ -187,7 +187,7 @@ export default class GameView extends LayerPanel {
                 } else {
                     customCount = loopLevel;
                 }
-                this.customsNode.getComponent(Label).string = "第" + this._checkPoint + "关";
+                this.customsNode.getComponent(Label).string = "第" + loopLevel + "关";
             }
             this._curCount = 0;
             this._maxCount = this._counts[this._curHard - 1];
