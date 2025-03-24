@@ -59,14 +59,6 @@ export class SentenceMakingModel {
 
     getCurrentQuestion(): SentenceMakingQuestion {
         let index = this.currentQuestionLevel;
-        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
-            index = this.currentQuestionLevel % this.config.getQuestionsByDifficult(this.selectedDifficult).length;
-            let question = this.config.getQuestionByDifficultAndLevel(this.selectedDifficult, index - 1);
-            if (!question) {
-                return null;
-            }
-            return question;
-        }
         return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult, index - 1);
     }
 

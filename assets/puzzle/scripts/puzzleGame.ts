@@ -129,22 +129,16 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.summaryAlert.node.active = false;
         this.showSprite.node.active = false;
         this.cleanChipsCache();
-        let playIndex = 0;
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             let game = (this.sceneModel as any).game;
             this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.gameLength = game.timeLimit;
-            playIndex = game.level;
             this.bgNode.active = false;
-            this.textureIndex = playIndex > this.randomPlayIndex.length - 1 ? playIndex % this.randomPlayIndex.length : playIndex - 1;
+            this.textureIndex =  (game.level - 1) % this.randomPlayIndex.length;
         } else {
             this.bgNode.active = true;
-            this.textureIndex = (this.sceneModel as any).level % this.randomPlayIndex.length;
-            // if(this.textureIndex == 0){
-            //     this.selectedLevelIndex = 0;
-            // }else{
-            //     this.selectedLevelIndex = this.textureIndex % 3;
-            // }
+            this.textureIndex = ((this.sceneModel as any).level - 1) % this.randomPlayIndex.length;
+        
 
         }
         this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
