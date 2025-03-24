@@ -70,8 +70,8 @@ export class GuessingGameConfig {
     formartQuestionID(v:number):number{
         if(this.questionNums.indexOf(v)>=0){
             return v;
-        }else{
-            v = v % this.questionNums.length + 1;
+        } else {
+            v = ((v - 1) % this.questionNums.length) + 1;
             return v;
         }
     }
