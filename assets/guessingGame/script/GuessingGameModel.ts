@@ -142,7 +142,16 @@ export class GuessingGameModel {
     }
 
     analysisAnswer(answer: string, questionNumber: number) {
+        let entry_id = "";
+        if (this._sceneModel.gameType == GameType.SKEWERS) {
+            entry_id = (this._sceneModel as any).game.getCurTrainData().brain_training_id;
+        } else {
+            entry_id = (this._sceneModel as any).game.sessionid;
+        }
+
         let data = {
+            entry_type : this._sceneModel.gameType == GameType.SKEWERS ? 1:2,
+            entry_id : entry_id,
             seq: questionNumber,
             answers: this.config.getQuestionByNumber(questionNumber).answer,
             question: this.config.getQuestionByNumber(questionNumber).questionText,
