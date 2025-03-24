@@ -123,7 +123,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     start() {
         super.start();
-        for (let i = 1; i < 21; i++) {
+        for (let i = 1; i < 236; i++) {
             this.randomPlayIndex.push(i);
         }
         this.summaryAlert.node.active = false;
