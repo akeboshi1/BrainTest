@@ -8,11 +8,12 @@
         "y": 1,
         "z": 1,
         "w": 1
-      }
+      },
+      "image": "project://settings/kelepai.png"
     },
     "logo": {
       "type": "custom",
-      "image": "project://settings/logo.png"
+      "image": "project://settings/kelepai.png"
     }
   },
   "bundleConfig": {
