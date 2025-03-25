@@ -272,12 +272,18 @@ export class GameAlert extends Component {
      */
     bindCallBack(goonCallBack: Function, exitCallBack: Function, context: any) {
         this.context = context;
+        this.reset();
         if (goonCallBack) {
             this.goonCallBack = goonCallBack.bind(context);
         }
         if (exitCallBack) {
             this.exitCallBack = exitCallBack.bind(context);
         }
+    }
+
+    reset(){
+        this.goonCallBack = null;
+        this.exitCallBack = null;
     }
 
 
