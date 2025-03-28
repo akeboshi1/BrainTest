@@ -1,46 +1,37 @@
-import { assetManager, AudioClip, Socket } from "cc";
+import { assetManager, AudioClip } from "cc";
 import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
 import { GuessingGameConfig, GuessingQuestion } from "./GuessingGameConfig";
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { AudioManager } from "../../resources/scripts/Core/Manager/Audio/AudioManager";
 import { GuessingGameScene } from "./GuessingGameScene";
-import { BaseGameModel, GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import { BundleName } from "../../resources/scripts/Core/Manager/Load/BundleName";
-import { SocketManager } from "../../resources/scripts/Core/Manager/Net/SocketManager";
-import { SocketData } from "../../resources/scripts/Core/Manager/Net/SocketData";
+import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 
 export class GuessingGameModel {
     constructor() {
     }
-    private static GUESSINGGAME_EVALUATE: string = "guessing.evaluate";
+    private bundleName: string = "guessingGame";
 
-    private bundleName: string = BundleName.GUESSINGGAME;
     private config: GuessingGameConfig = null;
 
     public currentQuestionIndex = 1;
-
-    private _currentAnswer: string = "";
-    private _currentAnswerScore: number = 0;
 
     private binit: boolean = false;
 
     private cacheAudioClip: AudioClip = null;
 
     private _curQuestion: GuessingQuestion = null;
-
-    private _sceneModel: BaseGameModel<IBaseGameChild>;
-
-    async init(sceneModel: BaseGameModel<IBaseGameChild>) {
-        this._sceneModel = sceneModel;
+    private _view: GuessingGameScene;
+    async init(view: GuessingGameScene) {
+        this._view = view;
         if (this.binit) return;
         this.binit = true;
 
         this.config = new GuessingGameConfig();
         await this.config.loadConfig();
-        if (this._sceneModel.gameType == GameType.SKEWERS) {
-            this.currentQuestionIndex = (this._sceneModel as any).game.getCurTrainData().level;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            this.currentQuestionIndex = (this._view.sceneModel as any).game.getCurTrainData().level;
         } else {
-            let remoteLevel = Number((this._sceneModel as any).game.level);
+            let remoteLevel = Number((this._view.sceneModel as any).game.level);
             this.currentQuestionIndex = remoteLevel == 0 ? this.currentQuestionIndex : remoteLevel;
         }
         this.currentQuestionIndex = this.config.formartQuestionID(this.currentQuestionIndex);
@@ -53,7 +44,8 @@ export class GuessingGameModel {
     }
 
     get isRunOver(): boolean {
-        return (this._sceneModel as any).game.getCurTrainData() == null;
+        return (this._view.sceneModel as any).game.getCurTrainData() == null;
+        // return this.config.getQuestionByNumber(this.currentQuestionIndex+1) == null;
     }
 
     private onAudioStart() {
@@ -68,7 +60,6 @@ export class GuessingGameModel {
 
     async startQuestionFlow() {
         this._curQuestion = this.config.getQuestionByNumber(this.currentQuestionIndex);
-        this.cleanCurrentAnswer();
         EventManager.getInstance().emit(GuessingGameEvent.SHOW_QUESTION, { question: this._curQuestion });
 
         const audioUrl = this.config.getAudioSourceByNumber(this.currentQuestionIndex);
@@ -109,8 +100,6 @@ export class GuessingGameModel {
         AudioManager.getInstance().offAudioStart(this.onAudioStart, this);
         AudioManager.getInstance().offAudioEnd(this.onAudioFinished, this);
 
-        EventManager.getInstance().off(GuessingGameModel.GUESSINGGAME_EVALUATE, this);
-
         this.cacheAudioClip = null;
     }
 
@@ -129,60 +118,16 @@ export class GuessingGameModel {
     }
 
     goNextQuestion() {
-        if (this._sceneModel.gameType == GameType.SKEWERS) {
-            this.currentQuestionIndex = (this._sceneModel as any).game.getCurTrainData().level;
+        if (this._view.sceneModel.gameType == GameType.SKEWERS) {
+            this.currentQuestionIndex = (this._view.sceneModel as any).game.getCurTrainData().level;
         } else {
-            let remoteLevel = Number((this._sceneModel as any).game.level);
+            let remoteLevel = Number((this._view.sceneModel as any).game.level);
             this.currentQuestionIndex = remoteLevel == 0 ? this.currentQuestionIndex : remoteLevel;
         }
         this.currentQuestionIndex = this.config.formartQuestionID(this.currentQuestionIndex);
         DebugLog.instance.log("current question index : " + this.currentQuestionIndex);
 
         this.startQuestionFlow();
-    }
-
-    analysisAnswer(answer: string, questionNumber: number) {
-        let entry_id = "";
-        if (this._sceneModel.gameType == GameType.SKEWERS) {
-            entry_id = (this._sceneModel as any).game.getCurTrainData().brain_training_id;
-        } else {
-            entry_id = (this._sceneModel as any).game.sessionid;
-        }
-
-        let data = {
-            entry_type : this._sceneModel.gameType == GameType.SKEWERS ? 1:2,
-            entry_id : entry_id,
-            seq: questionNumber,
-            answers: this.config.getQuestionByNumber(questionNumber).answer,
-            question: this.config.getQuestionByNumber(questionNumber).questionText,
-            user_answer: answer,
-        };
-        let socketdata = new SocketData({ action: GuessingGameModel.GUESSINGGAME_EVALUATE, data });
-
-        EventManager.getInstance().on(GuessingGameModel.GUESSINGGAME_EVALUATE, this.analysisAnswerCallback, this, true);
-
-        SocketManager.getInstance().send(socketdata);
-    }
-
-    private analysisAnswerCallback(data) {
-        if (data.status == 1) {
-            this._currentAnswerScore = data.data.result.score / 100;
-            this._currentAnswer = data.data.result.fixed_answer;
-            EventManager.getInstance().emit(GuessingGameEvent.ANSWER_EVALUATE_FINISHED, { score: this._currentAnswerScore, answer: this._currentAnswer });
-        }
-    }
-
-    public get currentAnswerScore(): number {
-        return this._currentAnswerScore;
-    }
-
-    public get currentAnswer(): string {
-        return this._currentAnswer;
-    }
-
-    public cleanCurrentAnswer() {
-        this._currentAnswer = "";
-        this._currentAnswerScore = 0;
     }
 }
 
@@ -191,5 +136,4 @@ export enum GuessingGameEvent {
     SHOW_QUESTION = "guessingGame.showQuestion",
     AUDIO_STARTED = "guessingGame.audioStarted",
     AUDIO_FINISHED = "guessingGame.audioFinished",
-    ANSWER_EVALUATE_FINISHED = "guessingGame.answerEvaluate.finished",
 }
