@@ -17,34 +17,67 @@ export class SocketManager extends BaseManager {
     public static SOCKET_OFF: string = "socket_off";
     public static SOCKET_ONMESSAGE: string = "socket_onmessage";
     public static SOCKET_ONERROR: string = "socket_onerror";
+
     private _socket: WebSocket;
-
-    private _reconnectInterval: number = 5;//重连尝试间隔，单位秒
-    private _reconnectMaxCount: number = 5;//重连最大尝试次数
+    private _reconnectInterval: number = 5; // 重连尝试间隔，单位秒
+    private _reconnectMaxCount: number = 5; // 重连最大尝试次数
     private _isReconnecting: boolean = false;
-
-    private api_url:string = "";
-
+    private api_url: string = "";
     private _socketDatas: Map<string, SocketData[]>;
+    private _retryTimer = null;
+
     public static getInstance(): SocketManager {
         if (!SocketManager._instance) {
             SocketManager._instance = new SocketManager();
             SocketManager._instance.init();
         }
-
         return SocketManager._instance;
     }
 
     init() {
         this._socketDatas = new Map();
+        this.startRetryCheck();
     }
 
     update() {
-
+        // 检查重试
+        this.checkRetry();
     }
 
     destroy() {
+        if (this._retryTimer) {
+            clearInterval(this._retryTimer);
+        }
         this._socket.close();
+    }
+
+    private startRetryCheck() {
+        // 每秒检查一次需要重试的请求
+        this._retryTimer = setInterval(() => {
+            this.checkRetry();
+        }, 1000);
+    }
+
+    private checkRetry() {
+        if (!this._socket || this._socket.readyState !== WebSocket.OPEN) {
+            return;
+        }
+
+        this._socketDatas.forEach((datas, action) => {
+            datas.forEach((socketData: SocketData) => {
+                if (socketData.netStatus === SocketDataStatus.request && socketData.needRetry()) {
+                    this.resendSocketData(socketData);
+                    DebugLog.instance.error(`重试请求: ${action}, 当前重试次数: ${socketData.getCurrentRetryCount()}, 剩余超时时间: ${socketData.getRemainingTimeout()}ms`);
+                }
+            });
+        });
+    }
+
+    private resendSocketData(socketData: SocketData) {
+        socketData.incrementRetryCount(); // 增加重试次数
+        const jsonStr = JSON.stringify(socketData);
+        this._socket.send(jsonStr);
+        DebugLog.instance.error(`重试发送：${jsonStr}`);
     }
 
     private onSocketMessage(data) {
@@ -52,41 +85,33 @@ export class SocketManager extends BaseManager {
         const action = jsonObj.action;
         let updatedDatas = [];
         let tmpSocketData: SocketData = null;
+
         // 服务的主动推送数据 action = event
         if (action == "event") {
-            let streamstatus = -1; // 非流式-1  流式未结束0 流式结束1
+            let streamstatus = -1;
             if (jsonObj.hasOwnProperty('finish_reason')) {
-                // 存在 finish_reason 属性 流式数据
                 streamstatus = jsonObj['finish_reason'] || 0;
             }
             tmpSocketData = new SocketData({ action: action, uid: jsonObj.uid, data: jsonObj.data });
             tmpSocketData.netStatus = SocketDataStatus.complete;
-            //流式数据
             if (streamstatus != null) {
                 tmpSocketData.isStream = true;
-                // 流式非最后一条数据，保存
                 if (streamstatus != 1) {
                     updatedDatas.push(tmpSocketData);
                 }
             } else {
-                // 非流式数据
                 updatedDatas.push(tmpSocketData);
             }
         } else {
             const _tmpDatas = this._socketDatas.get(action);
-            DebugLog.instance.log(`this._socketDatas`, this._socketDatas);
-            DebugLog.instance.log(`jsonObj`, jsonObj);
             if (!_tmpDatas) {
                 DebugLog.instance.error(`${action} is not in data`);
                 return;
             }
-            // check uid
-            const uid = jsonObj['uid'];
-            // 创建一个新的数组，用于存储需要保留的元素
 
-            let streamstatus = -1; // 非流式-1  流式未结束0 流式结束1
+            const uid = jsonObj['uid'];
+            let streamstatus = -1;
             if (jsonObj.hasOwnProperty('finish_reason')) {
-                // 存在 finish_reason 属性 流式数据
                 streamstatus = jsonObj['finish_reason'] || 0;
             }
 
@@ -95,10 +120,9 @@ export class SocketManager extends BaseManager {
                 if (socketData.uid == uid) {
                     tmpSocketData = socketData;
                     tmpSocketData.netStatus = SocketDataStatus.complete;
-                    //流式数据
+                    tmpSocketData.resetRetry(); // 重置重试状态
                     if (streamstatus != null) {
                         tmpSocketData.isStream = true;
-                        // 流式非最后一条数据，保存
                         if (streamstatus != 1) {
                             updatedDatas.push(tmpSocketData);
                         }
@@ -108,6 +132,7 @@ export class SocketManager extends BaseManager {
                 }
             }
         }
+
         this._socketDatas.set(action, updatedDatas);
         if (tmpSocketData) {
             DebugLog.instance.log(`接收：${data.data}`);
@@ -119,11 +144,9 @@ export class SocketManager extends BaseManager {
         return new Promise<WebSocket>((resolve, reject) => {
             DebugLog.instance.log("socket init");
             let socket = new WebSocket(url);
-
             socket.onopen = () => {
                 resolve(socket);
             };
-
             socket.onclose = () => {
                 reject();
             };
@@ -159,7 +182,6 @@ export class SocketManager extends BaseManager {
         });
     }
 
-
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
         this.processReconnectFlow();
@@ -175,7 +197,7 @@ export class SocketManager extends BaseManager {
         this._isReconnecting = true;
 
         UIManager.getInstance().registerPanel(ReconnectPanel.NAME, BundleName.RESOURCES, "prefab/Common/ReconnectPanel", ReconnectPanel);
-        
+
         let eventName: string = 'Socket.reconnectCountChange';
 
         await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
@@ -192,7 +214,7 @@ export class SocketManager extends BaseManager {
                             //回退到主界面
                             LocalStorageUtil.clean();
 
-                            SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
+                            SceneManager.getInstance().changeScene(BundleName.MAIN, "start").then(() => {
                                 DebugLog.instance.log(`start场景切换成功`);
                             });
                         }
@@ -246,20 +268,39 @@ export class SocketManager extends BaseManager {
         if (!_tmpDatas) {
             _tmpDatas = [];
         }
+
         for (let i = 0; i < _tmpDatas.length; i++) {
             let _tmpData: SocketData = _tmpDatas[i];
-            // 当前发送的消息如果跟之前相同消息的间隔小于200毫秒，则不做发送处理
             if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= 200) {
                 DebugLog.instance.error(`${data.action},已经发送过了，请等待回复`);
                 return;
             }
         }
+
         _tmpDatas.push(data);
         const jsonStr = JSON.stringify(data);
         DebugLog.instance.log(data);
         this._socket.send(jsonStr);
         data.netStatus = SocketDataStatus.request;
+        data.recordSendTime(); // 记录发送时间
         DebugLog.instance.log(`发送：${jsonStr}`);
         this._socketDatas.set(data.action, _tmpDatas);
+    }
+
+    /**
+     * 移除指定的SocketData
+     * @param socketData 要移除的SocketData
+     */
+    public removeSocketData(socketData: SocketData): void {
+        const datas = this._socketDatas.get(socketData.action);
+        if (datas) {
+            const index = datas.findIndex(data => data.uid === socketData.uid);
+            if (index !== -1) {
+                datas.splice(index, 1);
+                if (datas.length === 0) {
+                    this._socketDatas.delete(socketData.action);
+                }
+            }
+        }
     }
 }
