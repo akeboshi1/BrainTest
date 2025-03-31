@@ -24,7 +24,7 @@ export class SocketManager extends BaseManager {
     private _isReconnecting: boolean = false;
     private api_url: string = "";
     private _socketDatas: Map<string, SocketData[]>;
-    private _retryTimer: NodeJS.Timeout | null = null;
+    private _retryTimer = null;
 
     public static getInstance(): SocketManager {
         if (!SocketManager._instance) {
