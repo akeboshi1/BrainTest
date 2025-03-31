@@ -84,7 +84,7 @@ export class EventManager extends BaseManager{
     }
 
     destory(){
-        this.events.clear();
+        this.events = new Map();
     }
 
 }
