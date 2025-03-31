@@ -5,6 +5,7 @@ import AlertManager, { AlertData } from "../../../Core/Manager/Alert/AlertManage
 import { LocalStorageUtil } from "../../../Core/Util/LocalStorageUtil";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { BundleName } from "../../../Core/Manager/Load/BundleName";
+import { EventManager } from "../Event/EventManager";
 
 export enum SocketDataStatus{
     None,
@@ -123,6 +124,8 @@ export class SocketData {
             this.cleanup();
             // 清理本地存储
             LocalStorageUtil.clean();
+
+            EventManager.getInstance().destory();
             // 切换到登录场景
             SceneManager.getInstance().changeScene(BundleName.MAIN, "start").then(() => {
                 console.log('已切换到登录场景');

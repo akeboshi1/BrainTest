@@ -6,7 +6,6 @@ import { UIManager } from "../UI/UIManager";
 import { LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
-import { LayerUtil } from "../../Util/LayerUtil";
 import AlertManager, { AlertData } from "../Alert/AlertManager";
 import { LocalStorageUtil } from "../../Util/LocalStorageUtil";
 import { SceneManager } from "../Scene/SceneManager";
@@ -213,6 +212,8 @@ export class SocketManager extends BaseManager {
                         if (!result) {
                             //回退到主界面
                             LocalStorageUtil.clean();
+
+                            EventManager.getInstance().destory();
 
                             SceneManager.getInstance().changeScene(BundleName.MAIN, "start").then(() => {
                                 DebugLog.instance.log(`start场景切换成功`);

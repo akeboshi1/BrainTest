@@ -89,6 +89,8 @@ export class PersonalCenterPanel extends BasePanel {
     onClickLogOut() {
         LocalStorageUtil.clean();
 
+        EventManager.getInstance().destory();
+
         SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
             DebugLog.instance.log(`start场景切换成功`);
         });
