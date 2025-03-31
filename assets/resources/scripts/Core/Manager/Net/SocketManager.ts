@@ -74,14 +74,6 @@ export class SocketManager extends BaseManager {
     }
 
     private resendSocketData(socketData: SocketData) {
-        if (socketData.getCurrentRetryCount() >= 3) {
-            DebugLog.instance.error(`请求 ${socketData.action} 重试次数已达上限`);
-            const alertData: AlertData = new AlertData();
-            alertData.message = '服务器响应超时，请稍后重试';
-            AlertManager.getInstance().showAlert(alertData);
-            return;
-        }
-
         socketData.incrementRetryCount(); // 增加重试次数
         const jsonStr = JSON.stringify(socketData);
         this._socket.send(jsonStr);
