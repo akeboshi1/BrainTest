@@ -1,14 +1,11 @@
 import { _decorator, Label, Node } from 'cc';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
-import { DebugLog } from '../../../Core/Util/DebugLog';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { UserInfoPanel } from './UserInfoPanel';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { GenerateReport } from './GenerateReport';
-import { LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
-import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 import FeatureTogglesSetting, { FeatureToggle } from '../../../FeatureTogglesSetting';
 
@@ -87,13 +84,7 @@ export class PersonalCenterPanel extends BasePanel {
     }
 
     onClickLogOut() {
-        LocalStorageUtil.clean();
-
-        EventManager.getInstance().destory();
-
-        SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
-            DebugLog.instance.log(`start场景切换成功`);
-        });
+       LoginManager.getInstance().loginout();
     }
 }
 

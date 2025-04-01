@@ -2,10 +2,7 @@ import {TimeUtil} from "../../../Core/Util/TimeUtil";
 import {Global} from "../../../Core/Manager/Config/Global";
 import {SocketManager} from "db://assets/resources/scripts/Core/Manager/Net/SocketManager";
 import AlertManager, { AlertData } from "../../../Core/Manager/Alert/AlertManager";
-import { LocalStorageUtil } from "../../../Core/Util/LocalStorageUtil";
-import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
-import { BundleName } from "../../../Core/Manager/Load/BundleName";
-import { EventManager } from "../Event/EventManager";
+import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 
 export enum SocketDataStatus{
     None,
@@ -121,15 +118,7 @@ export class SocketData {
         const alertData: AlertData = new AlertData();
         alertData.message = '网络遇到问题，请重新登录';
         alertData.confirmCb = () => {
-            this.cleanup();
-            // 清理本地存储
-            LocalStorageUtil.clean();
-
-            EventManager.getInstance().destory();
-            // 切换到登录场景
-            SceneManager.getInstance().changeScene(BundleName.MAIN, "start").then(() => {
-                console.log('已切换到登录场景');
-            });
+            LoginManager.getInstance().loginout();
         };
         AlertManager.getInstance().showAlert(alertData);
     }

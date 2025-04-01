@@ -15,6 +15,7 @@ import { BundleName } from "../Load/BundleName";
 import { DebugLog } from "../../Util/DebugLog";
 import { GenerateReport } from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -200,6 +201,15 @@ export class LoginManager {
     request(action: string, data: any) {
         const socketData = new SocketData({ "action": action, "data": data })
         SocketManager.getInstance().send(socketData);
+    }
+
+    loginout(){
+        LocalStorageUtil.clean();
+        EventManager.getInstance().destory();
+        AudioManager.getInstance().destory();
+        SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
+            DebugLog.instance.log(`start场景切换成功`);
+        });
     }
 }
 
