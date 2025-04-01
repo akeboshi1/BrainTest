@@ -3,9 +3,6 @@ import { BaseManager } from '../BaseManager';
 import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 
 /**
- * @en
- * this is a sington class for audio play, can be easily called from anywhere in you project.
- * @zh
  * 这是一个用于播放音频的单件类，可以很方便地在项目的任何地方调用。
  */
 export class AudioManager extends BaseManager {
@@ -23,22 +20,32 @@ export class AudioManager extends BaseManager {
 
     private audioUrls=["music/win","music/fail"];
     private audioMap:Map<string,AudioClip> = new Map();
+    
+    // 保存绑定后的函数引用
+    private boundOnAudioStarted: Function;
+    private boundOnAudioEnded: Function;
 
     constructor() {
         super();
+       
+        
         let audioMgr = new Node();
         audioMgr.name = '__audioMgr__';
         director.getScene().addChild(audioMgr);
         director.addPersistRootNode(audioMgr);
         this._audioSource = audioMgr.addComponent(AudioSource);
-        // 监听音频源的 'ended' 事件，当音频播放结束时触发自定义事件
-        this._audioSource.node.on(AudioSource.EventType.STARTED, this.onAudioStarted.bind(this));
-        this._audioSource.node.on(AudioSource.EventType.ENDED, this.onAudioEnded.bind(this));
+       
     }
 
     public init(){
         super.init();
         this.loadAudio().then();
+        // 创建绑定函数并保存引用
+        this.boundOnAudioStarted = this.onAudioStarted.bind(this);
+        this.boundOnAudioEnded = this.onAudioEnded.bind(this);
+        // 监听音频源的事件，使用保存的绑定函数
+        this._audioSource.node.on(AudioSource.EventType.STARTED, this.boundOnAudioStarted);
+        this._audioSource.node.on(AudioSource.EventType.ENDED, this.boundOnAudioEnded);
     }
 
     private async loadAudio(){
@@ -180,5 +187,17 @@ export class AudioManager extends BaseManager {
 
     offAudioStart(callback: () => void, context) {
         this.eventTarget.off('audio-started', callback, context);
+    }
+
+    destory() {
+        if (this._audioSource) {
+            this._audioSource.stop();
+            this._audioSource.clip = null;
+            // 使用保存的绑定函数移除监听器
+            this._audioSource.node.off(AudioSource.EventType.STARTED, this.boundOnAudioStarted);
+            this._audioSource.node.off(AudioSource.EventType.ENDED, this.boundOnAudioEnded);
+            this.eventTarget = new EventTarget();
+            this.audioMap = new Map();
+        }
     }
 }

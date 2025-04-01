@@ -7,8 +7,6 @@ import { LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import AlertManager, { AlertData } from "../Alert/AlertManager";
-import { LocalStorageUtil } from "../../Util/LocalStorageUtil";
-import { SceneManager } from "../Scene/SceneManager";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
@@ -210,14 +208,16 @@ export class SocketManager extends BaseManager {
                 await new Promise<void>((resolve) => {
                     LoginManager.getInstance().requestTokenVerification((result) => {
                         if (!result) {
-                            //回退到主界面
-                            LocalStorageUtil.clean();
-
-                            EventManager.getInstance().destory();
-
-                            SceneManager.getInstance().changeScene(BundleName.MAIN, "start").then(() => {
-                                DebugLog.instance.log(`start场景切换成功`);
-                            });
+                            LoginManager.getInstance().loginout();
+                            // //回退到主界面
+                            // LocalStorageUtil.clean();
+                            //
+                            // EventManager.getInstance().destory();
+                            // AudioManager.getInstance().destory();
+                            //
+                            // SceneManager.getInstance().changeScene(BundleName.MAIN, "start").then(() => {
+                            //     DebugLog.instance.log(`start场景切换成功`);
+                            // });
                         }
 
                         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
