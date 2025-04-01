@@ -1,4 +1,4 @@
-import { assetManager, AudioClip } from "cc";
+import { AssetManager, assetManager, AudioClip } from "cc";
 import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
 import { GuessingGameConfig, GuessingQuestion } from "./GuessingGameConfig";
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
@@ -75,20 +75,59 @@ export class GuessingGameModel {
             return;
         }
 
-        const audioRes: AudioClip = await new Promise<AudioClip>((resolve, reject) => {
-            bundle.load(audioUrl, AudioClip, (err, data: AudioClip) => {
-                if (err) {
-                    DebugLog.instance.error("AudioClip Load Failed ! url : " + audioUrl);
-                    reject(err);
-                } else {
-                    resolve(data);
-                }
-            })
-        });
+        // 尝试加载音频资源，最多重试3次
+        await this.loadAudioResource(bundle, audioUrl, 3);
+    }
 
-        if (audioRes) {
-            this.cacheAudioClip = audioRes;
-            AudioManager.getInstance().play(audioRes);
+    // 加载音频资源的方法，支持重试
+    private async loadAudioResource(bundle:AssetManager.Bundle, audioUrl: string, maxRetries: number = 3): Promise<void> {
+        let retryCount = 0;
+        let succeeded = false;
+
+        while (retryCount < maxRetries && !succeeded) {
+            // 确保先释放可能存在的资源
+            bundle.release(audioUrl);
+            if (retryCount > 0) {
+                DebugLog.instance.log(`尝试第 ${retryCount} 次重新加载音频: ${audioUrl}`);
+                // 加入一点延迟，避免释放和重新加载之间的潜在冲突
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            try {
+                // 尝试加载资源
+                const audioRes: AudioClip = await new Promise<AudioClip>((resolve, reject) => {
+                    bundle.load(audioUrl, AudioClip, (err, data: AudioClip) => {
+                        if (err) {
+                            DebugLog.instance.error(`AudioClip Load Failed ! url : ${audioUrl}, error: ${err}`);
+                            reject(err);
+                        } else {
+                            resolve(data);
+                        }
+                    });
+                });
+
+                // 验证资源有效性
+                if (audioRes && audioRes.isValid && audioRes._nativeAsset) {
+                    this.cacheAudioClip = audioRes;
+                    DebugLog.instance.log(`音频资源有效，准备播放`);
+                    AudioManager.getInstance().play(audioRes);
+                    succeeded = true;
+                } else {
+                    DebugLog.instance.error(`加载的音频资源无效，重试次数: ${retryCount + 1}/${maxRetries}`);
+                    // 资源无效，会进入下一次重试
+                }
+            } catch (error) {
+                DebugLog.instance.error(`加载音频出错: ${error}, 重试次数: ${retryCount + 1}/${maxRetries}`);
+                // 异常情况，会进入下一次重试
+            }
+
+            retryCount++;
+        }
+
+        if (!succeeded) {
+            DebugLog.instance.error(`音频资源 ${audioUrl} 加载失败，已达到最大重试次数: ${maxRetries}`);
+            // 可以在这里触发一个事件，通知界面显示加载失败的提示
+            EventManager.getInstance().emit(GuessingGameEvent.AUDIO_LOAD_FAILED, { url: audioUrl });
         }
     }
 
@@ -136,4 +175,5 @@ export enum GuessingGameEvent {
     SHOW_QUESTION = "guessingGame.showQuestion",
     AUDIO_STARTED = "guessingGame.audioStarted",
     AUDIO_FINISHED = "guessingGame.audioFinished",
+    AUDIO_LOAD_FAILED = "guessingGame.audioLoadFailed",
 }
