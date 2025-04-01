@@ -144,7 +144,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private onAudioFinish() {
         this.frameComponent.playAnimation("idle", 16, true, true);
-
         this.startAnswer();
     }
 
@@ -185,12 +184,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.successTextNode.active = false;
             this.failedTextNode.active = false;
             this._requestGameResult(result);
-            // if (SkewersManager.getInstance().isRunOver()) {
-            //     SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
-            //     return;
-            // }
-
-            // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.requestSkewersGameComplete, this, true);
         } else {
             this.resultPanel.active = true;
             this.requestGameCenterGameResult(result);
@@ -198,45 +191,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.failedTextNode.active = !result;
         }
     }
-
-
-    // private requestSkewersGameComplete(data) {
-    //     let trainid = data;
-    //     let trainData = SkewersManager.getInstance().getTrainData(trainid);
-    //     let maxCount = trainData.parentSkewersGameData.trains.length;
-    //     let curCount = trainData.seq;
-
-    //     if (this._resuleBoo) {
-    //         if (maxCount != curCount) {
-    //             SkewersManager.getInstance().showGameAlert(this.node, AlertType.Normal, SkewersManager.getInstance().singleCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
-    //         } else {
-    //             if (!SkewersManager.getInstance().isRunOver()) {
-    //                 SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleBrainScore, 0, 0, this.nextAlertHandler, this.exitCallBack, this);
-    //             } else {
-    //                 SkewersManager.getInstance().showGameAlert(this.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, this.totalComplete, this.remoteClick, this);
-    //             }
-    //         }
-    //     } else {
-    //         if (curCount == maxCount) {
-    //             SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.failCompleteHandler, this.exitCallBack, this);
-    //         } else {
-    //             SkewersManager.getInstance().showGameAlert(this.viewNode, AlertType.Normal, SkewersManager.getInstance().failCompleteStr, "", curCount, maxCount, this.onClickGotoNextlevel1, this.exitCallBack, this);
-    //         }
-    //     }
-    // }
-
-    // private failCompleteHandler(context) {
-    //     if (!SkewersManager.getInstance().isRunOver()) {
-    //         SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Small, SkewersManager.getInstance().currentSkewersCompleteGameStr, SkewersManager.getInstance().singleCompleteStr, 0, 0, context.nextAlertHandler, context.exitCallBack, context);
-    //     } else {
-    //         SkewersManager.getInstance().showGameAlert(context.node, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0, context.totalComplete, context.remoteClick, context);
-    //     }
-    // }
-
-    // private remoteClick() {
-    //     this.exitCallBack(this);
-    //     UIManager.getInstance().showPanel(GenerateReport.NAME);
-    // }
 
     private _resuleBoo: boolean = false;
 
@@ -250,7 +204,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         }
         let duration = (endTime - this._startTime) / 1000;
         this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
-        // SkewersManager.getInstance().requestGameComplete(complete, duration);
     }
 
     private requestGameCenterGameResult(win: boolean = true) {
@@ -272,51 +225,17 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             difficulty: 1,
             levelMode:curGame.levelMode
         });
-        // GameCenterManager.getInstance().gamePassLevel(GameCenterManager.getInstance().currentGame.sessionid, 0,
-        //     this.guessingGameModel.currentQuestionIndex + 1, complete, duration, this.timeLimit, 1, (data) => {
-        //         DebugLog.instance.log(data);
-        //     });
     }
-
-    // private totalComplete(context) {
-    //     context.guessingGameModel.stopAudio();
-    //     AudioManager.getInstance().stop();
-    //     context.pauseTime();
-    //     SkewersManager.getInstance().exitCallBack();
-    // }
 
     exitCallBack(context) {
         context.guessingGameModel.stopAudio();
         super.exitCallBack(context);
-        // AudioManager.getInstance().stop();
-        // context.pauseTime();
-        // if (Global.isSkewersGame) {
-        //     SkewersManager.getInstance().exitCallBack();
-        // } else {
-        //     GameCenterManager.getInstance().exitCallBack();
-        // }
     }
-
-    // nextAlertHandler(context) {
-    //     SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, context.onClickGotoNextlevel1, context.exitCallBack, context);
-    // }
 
     onClickGotoNextlevel() {
         // 下一关
         this.onClickContinueGame();
     }
-
-    // nextHandler(context) {
-    //     if (SkewersManager.getInstance().isRunOver()) {
-    //         SkewersManager.getInstance().exitCallBack();
-    //     } else {
-    //         SkewersManager.getInstance().runNextGame(false);
-    //         context.onClickContinueGame();
-    //     }
-    //     super.nextHandler(context);
-    // }
-
-
 
     goonHandler() {
         this.clearGameView();
@@ -329,8 +248,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             }
         }
     }
-
-
 
     onClickReplay() {
         this._replay = true;
@@ -354,27 +271,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     quitGame() {
         this.guessingGameModel.stopAudio();
         super.quitGame({ parentNode: this.viewNode, context: this });
-        // this.pauseTime();
-        // if (Global.isSkewersGame) {
-        //     let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-        //     let maxCount = trainData.length;
-        //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-        //     SkewersManager.getInstance().quitGame(this.viewNode, curCount, maxCount, this.goonCallBack, this.exitCallBack, this);
-        // } else {
-        //     GameCenterManager.getInstance().quitGame(this.viewNode, this.goonCallBack, this.exitCallBack, this);
-        // }
     }
 
     resumeCallBack(context) {
         context.guessingGameModel.replayQuestionAudio();
         super.resumeCallBack(context);
-        // if (Global.isSkewersGame) {
-        //     if (!SkewersManager.getInstance().isRunOver()) {
-        //         context.resumeTime();
-        //     }
-        // } else {
-        //     context.resumeTime();
-        // }
     }
 
     resumeTime() {
@@ -402,5 +303,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.optionsNode.active = this.questionNode.active = false;
 
         this.frameComponent.playAnimation("idle", 16, true, true);
+    }
+
+    public onClickStartAnswer(){
+        this.guessingGameModel.stopAudio();
+        this.onAudioFinish();
     }
 }
