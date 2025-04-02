@@ -41,10 +41,19 @@ export class SocketManager extends BaseManager {
         this.checkRetry();
     }
 
-    destroy() {
+    cleanSocketDatas(){
+        this._socketDatas = new Map();
+    }
+
+    cleanRetryTimer(){
         if (this._retryTimer) {
             clearInterval(this._retryTimer);
         }
+    }
+
+    destroy() {
+        this.cleanSocketDatas();
+        this.cleanRetryTimer();
         this._socket.close();
     }
 
