@@ -155,16 +155,22 @@ export class Main extends BaseScene<IBaseGameChild> {
         let self = this;
         // 获取当前卡片
         this.currentCard = this.cardPool.children[0].children[index];
-        const sprite = this.currentCard.getComponent(Sprite);
-        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-            LoaderManager.getInstance().loadABRes(this.cardList[index].imgUrl, self.bundleName).then((res) => {
-                const texture = new Texture2D();
-                texture.image = res;
-                const spriteFrame = new SpriteFrame();
-                spriteFrame.texture = texture;
-                sprite.spriteFrame = spriteFrame;
-            })
+        
+        // 创建翻转动画
+        this.flipCardAnimation(this.currentCard, () => {
+            // 翻转到中间点时加载卡片图片
+            const sprite = this.currentCard.getComponent(Sprite);
+            LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                LoaderManager.getInstance().loadABRes(this.cardList[index].imgUrl, self.bundleName).then((res) => {
+                    const texture = new Texture2D();
+                    texture.image = res;
+                    const spriteFrame = new SpriteFrame();
+                    spriteFrame.texture = texture;
+                    sprite.spriteFrame = spriteFrame;
+                })
+            });
         });
+        
         this.cardList[index].isBacked = true;
 
         let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
@@ -189,15 +195,18 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.showSpriteAnimation("texture/error",()=>{
                 isBackedCards.forEach(card => {
                     const cardNode = this.cardPool.children[0].children[card.index];
-                    const sprite = cardNode.getComponent(Sprite);
-                    LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                        LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
-                            const spriteFrame = new SpriteFrame();
-                            const texture = new Texture2D();
-                            texture.image = res;
-                            spriteFrame.texture = texture;
-                            sprite.spriteFrame = spriteFrame;
-                        })
+                    // 添加翻转动画
+                    this.flipCardAnimation(cardNode, () => {
+                        const sprite = cardNode.getComponent(Sprite);
+                        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                            LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
+                                const spriteFrame = new SpriteFrame();
+                                const texture = new Texture2D();
+                                texture.image = res;
+                                spriteFrame.texture = texture;
+                                sprite.spriteFrame = spriteFrame;
+                            })
+                        });
                     });
                     this.cardList[card.index].isBacked = false;
                 })
@@ -207,35 +216,98 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         DebugLog.instance.log(index, this.currentCard);
     }
-    private showSpriteAnimation(textureUrl: string,callback: () => void) {
-        let self = this;
-        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-            LoaderManager.getInstance().loadABRes(textureUrl, self.bundleName).then((res) => {
-                const texture = new Texture2D();
-                texture.image = res;
-                const spriteFrame = new SpriteFrame();
-                spriteFrame.texture = texture;
-                if (self.showSprite) {
-                    self.showSprite.spriteFrame = spriteFrame;
-                    let rightTween= tween(self.showSprite.node)
-                        .to(0.5, { scale: new Vec3(2, 2, 1) })
-                        .call(() => {
-                            callback();
-                            rightTween.stop();
-                            rightTween=null;
-                            self.showSprite.node.active = false;
-                            self.showSprite.node.parent.active = false;
-                            self.showSprite.node.scale = new Vec3(1,1,1);
-                        })
-                        .start();
-                    self.showSprite.node.active = true;
-                    self.showSprite.node.parent.active = true;
-                } else {
-                    DebugLog.instance.error("showSprite is null!");
+    
+    /**
+     * 卡片翻转动画
+     * @param cardNode 卡片节点
+     * @param middleCallback 翻转到中间时的回调函数
+     */
+    flipCardAnimation(cardNode: Node, middleCallback: () => void) {
+        // 取消可能正在进行的动画
+        tween(cardNode).stop();
+        
+        // 动画半程时长，稍微调长保证完成
+        const halfDuration = 0.2;
+        
+        // 强制设置为标准缩放值
+        cardNode.setScale(1, 1, 1);
+        
+        // 监控变量，确保回调只执行一次
+        let callbackExecuted = false;
+        
+        // 创建更可靠的X轴翻转动画
+        const t = tween(cardNode)
+            // 第一阶段：X轴从1缩放到0（卡片看起来消失）
+            .to(halfDuration, { scale: new Vec3(0, 1, 1) })
+            .call(() => {
+                // 防止重复执行
+                if (!callbackExecuted) {
+                    callbackExecuted = true;
+                    
+                    try {
+                        // 执行中间回调，在这里可以改变卡片状态
+                        if (middleCallback) middleCallback();
+                    } catch (error) {
+                        DebugLog.instance.error("翻转卡片回调执行出错:", error);
+                    }
                 }
             })
-        });
+            // 第二阶段：X轴从0缩放回1（卡片看起来出现）
+            .to(halfDuration, { scale: new Vec3(1, 1, 1) })
+            .call(() => {
+                // 确保最终卡片缩放是正确的
+                cardNode.setScale(1, 1, 1);
+                
+                // 设置一个较短的定时器，再次确认卡片缩放正确
+                setTimeout(() => {
+                    if (cardNode && cardNode.isValid) {
+                        cardNode.setScale(1, 1, 1);
+                    }
+                }, 50);
+            });
+        
+        // 开始执行动画
+        t.start();
+        
+        // 为防止卡住的情况，设置一个超时保护
+        setTimeout(() => {
+            // 如果中间回调还没执行，强制执行
+            if (!callbackExecuted && middleCallback) {
+                callbackExecuted = true;
+                try {
+                    middleCallback();
+                } catch (error) {
+                    DebugLog.instance.error("超时保护触发的回调执行出错:", error);
+                }
+            }
+            
+            // 确保卡片最后是正确的缩放
+            if (cardNode && cardNode.isValid) {
+                cardNode.setScale(1, 1, 1);
+            }
+        }, halfDuration * 1000 * 2.5);  // 设置超时时间为动画时长的2.5倍
     }
+    
+    /**
+     * 检查所有卡片状态并修复可能的问题
+     */
+    checkAndFixCardScales() {
+        // 检查并修复所有卡片的缩放
+        if (this.cardPool && this.cardPool.children[0]) {
+            const cards = this.cardPool.children[0].children;
+            for (let i = 0; i < cards.length; i++) {
+                if (cards[i] && cards[i].isValid) {
+                    const scale = cards[i].getScale();
+                    // 检查卡片缩放是否异常
+                    if (scale.x < 0.9 || scale.y < 0.9 || scale.x > 1.1 || scale.y > 1.1) {
+                        DebugLog.instance.log(`修复卡片${i}的异常缩放:`, scale);
+                        cards[i].setScale(1, 1, 1);
+                    }
+                }
+            }
+        }
+    }
+    
     updateSuccessPopupTitle(num) {
         if (num == 1) {
             this.successView.getChildByName('top_Title1').active = true;
@@ -469,18 +541,24 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.cardList.forEach((card, index) => {
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
-                const sprite = cardNode.getComponent(Sprite);
-                LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                    LoaderManager.getInstance().loadABRes(card.imgUrl, self.bundleName).then((res) => {
-                        const spriteFrame = new SpriteFrame();
-                        const texture = new Texture2D();
-                        texture.image = res;
-                        spriteFrame.texture = texture;
-                        sprite.spriteFrame = spriteFrame;
-                    })
+                // 确保卡片处于正确的初始状态
+                cardNode.setScale(1, 1, 1);
+                
+                // 直接添加翻转动画，移除延迟
+                this.flipCardAnimation(cardNode, () => {
+                    const sprite = cardNode.getComponent(Sprite);
+                    LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                        LoaderManager.getInstance().loadABRes(card.imgUrl, self.bundleName).then((res) => {
+                            const spriteFrame = new SpriteFrame();
+                            const texture = new Texture2D();
+                            texture.image = res;
+                            spriteFrame.texture = texture;
+                            sprite.spriteFrame = spriteFrame;
+                        })
+                    });
                 });
             }
-        })
+        });
     }
 
     closeAllCard() {
@@ -492,35 +570,51 @@ export class Main extends BaseScene<IBaseGameChild> {
             card.isDeleted = false;
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
-                const sprite = cardNode.getComponent(Sprite);
-                LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                    LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
-                        const spriteFrame = new SpriteFrame();
-                        const texture = new Texture2D();
-                        texture.image = res;
-                        spriteFrame.texture = texture;
-                        sprite.spriteFrame = spriteFrame;
-                    })
+                // 确保卡片处于正确的初始状态
+                cardNode.setScale(1, 1, 1);
+                
+                // 直接添加翻转动画，移除延迟
+                this.flipCardAnimation(cardNode, () => {
+                    const sprite = cardNode.getComponent(Sprite);
+                    LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+                        LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
+                            const spriteFrame = new SpriteFrame();
+                            const texture = new Texture2D();
+                            texture.image = res;
+                            spriteFrame.texture = texture;
+                            sprite.spriteFrame = spriteFrame;
+                        })
+                    });
                 });
             }
-        })
+        });
     }
     protected onDestroy(): void {
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
     }
 
-    private _setTimeOutId = -1;
+    private _setTimeOutId: NodeJS.Timeout | null = null;
     // 预览卡片，time，秒数
     seconds: number[] = [1.5, 2, 3.5];
     previewCard() {
+        // 先检查并修复可能存在的问题
+        this.checkAndFixCardScales();
+        
         this.showAllCard();
         this._startTime = TimeUtil.getNow();
-        if (this._setTimeOutId != -1) {
+        if (this._setTimeOutId != null) {
             clearTimeout(this._setTimeOutId);
         }
         this._setTimeOutId = setTimeout(() => {
-            clearTimeout(this._setTimeOutId);
+            if (this._setTimeOutId) {
+                clearTimeout(this._setTimeOutId);
+            }
+            this._setTimeOutId = null;
+            
+            // 检查并修复可能存在的问题
+            this.checkAndFixCardScales();
+            
             this.closeAllCard();
         }, this.seconds[this.hardIndex] * 1000);
     }
@@ -618,6 +712,39 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearTimeout(context._setTimeOutId);
         context._setTimeOutId = null;
         super.exitCallBack(this);
+    }
+
+    /**
+     * 显示动画特效
+     */
+    private showSpriteAnimation(textureUrl: string, callback: () => void) {
+        let self = this;
+        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
+            LoaderManager.getInstance().loadABRes(textureUrl, self.bundleName).then((res) => {
+                const texture = new Texture2D();
+                texture.image = res;
+                const spriteFrame = new SpriteFrame();
+                spriteFrame.texture = texture;
+                if (self.showSprite) {
+                    self.showSprite.spriteFrame = spriteFrame;
+                    let rightTween = tween(self.showSprite.node)
+                        .to(0.5, { scale: new Vec3(2, 2, 1) })
+                        .call(() => {
+                            callback();
+                            rightTween.stop();
+                            rightTween = null;
+                            self.showSprite.node.active = false;
+                            self.showSprite.node.parent.active = false;
+                            self.showSprite.node.scale = new Vec3(1, 1, 1);
+                        })
+                        .start();
+                    self.showSprite.node.active = true;
+                    self.showSprite.node.parent.active = true;
+                } else {
+                    DebugLog.instance.error("showSprite is null!");
+                }
+            })
+        });
     }
 
 }
