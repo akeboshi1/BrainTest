@@ -78,8 +78,8 @@ export class App extends BaseObejct {
         Global.userData = new UserData();
 
 
-        console.log('sys.os = ', sys.os);
-        console.log('sys.platform=', sys.platform);
+        DebugLog.instance.log('sys.os = ', sys.os);
+        DebugLog.instance.log('sys.platform=', sys.platform);
 
         this.isWebView = sys.platform != 'ANDROID';
 

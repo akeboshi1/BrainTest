@@ -616,15 +616,15 @@ export class Main extends BaseScene<IBaseGameChild> {
                                     spriteFrame.texture = texture;
                                     sprite.spriteFrame = spriteFrame;
                                 }).catch(err => {
-                                    console.error('加载卡片图片失败:', imagePath, err);
+                                    DebugLog.instance.error('加载卡片图片失败:', imagePath, err);
                                     sprite.spriteFrame = self.frontFrame!;
                                 });
                             }).catch(err => {
-                                console.error('加载子包失败:', self.bundleName, err);
+                                DebugLog.instance.error('加载子包失败:', self.bundleName, err);
                                 sprite.spriteFrame = self.frontFrame!;
                             });
                         } else {
-                            console.error('卡片索引超出范围:', index, '当前卡片值数组:', self.cardValues);
+                            DebugLog.instance.error('卡片索引超出范围:', index, '当前卡片值数组:', self.cardValues);
                             sprite.spriteFrame = self.frontFrame!;
                         }
                     }
@@ -1226,7 +1226,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this.label.color = new Color(0, 0, 0, 255); // 黑色，正常状态
                 }
             } catch (e) {
-                console.error('计算表达式出错:', e);
+                DebugLog.instance.error('计算表达式出错:', e);
                 // 出错时只显示表达式
                 this.setLabel(expression);
                 // this.label.string = expression;
@@ -1346,7 +1346,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             try {
                 this.currentResult = this.calculateExpressionWithBrackets();
             } catch (e) {
-                console.error('计算表达式出错:', e);
+                DebugLog.instance.error('计算表达式出错:', e);
                 this.currentResult = 0;
             }
         } else {

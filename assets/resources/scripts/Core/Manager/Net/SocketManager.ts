@@ -90,9 +90,6 @@ export class SocketManager extends BaseManager {
     private onSocketMessage(data) {
         let jsonObj = JSON.parse(data.data);
         const action = jsonObj.action;
-        if(action == "task.complete_brain_training"){
-            return;
-        }
         let updatedDatas = [];
         let tmpSocketData: SocketData = null;
 
