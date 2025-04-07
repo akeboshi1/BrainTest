@@ -6,6 +6,7 @@ import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global
 import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { GuideHand } from "db://assets/resources/scripts/Core/Manager/Guide/GuideHand";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -92,9 +93,9 @@ export class GameAlert extends Component {
         });
         try {
             const assets = await Promise.all(loadPromises);
-            console.log('All gamealert audio loaded:', assets);
+            DebugLog.instance.log('All gamealert audio loaded:', assets);
         } catch (error) {
-            console.error('Error loading gamealert audio:', error);
+            DebugLog.instance.error('Error loading gamealert audio:', error);
         }
     }
 
@@ -103,6 +104,10 @@ export class GameAlert extends Component {
         this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
+        
+        // 调整alert位置
+        this.adjustAlertPosition();
+        
         switch (type) {
             case AlertType.Normal1:
                 this.exitBtn.node.active = true;
@@ -286,6 +291,51 @@ export class GameAlert extends Component {
         this.exitCallBack = null;
     }
 
+    /**
+     * 根据游戏类型调整alert位置
+     */
+    private adjustAlertPosition() {
+        // 如果alert节点不存在，不进行处理
+        if (!this.alert) return;
+        
+        // 获取当前位置
+        const position = this.alert.position.clone();
+        
+        // 判断是否为语言类型游戏
+        const isLanguageGame = this.isLanguageGameType();
+        
+        // 设置Y坐标
+        position.y = isLanguageGame ? 350 : 0;
+        
+        // 应用新位置
+        this.alert.setPosition(position);
 
+        DebugLog.instance.log(`Alert position adjusted: ${position.x}, ${position.y}, ${position.z}, isLanguage: ${isLanguageGame}`);
+    }
+    
+    /**
+     * 判断当前游戏是否是语言类型
+     */
+    private isLanguageGameType(): boolean {
+        try {
+            
+            // 安全检查Global对象
+            if (!Global || !Global.userData||!Global.userData.curSkewerGameData) {
+                return false;
+            }
+            
+            // 使用索引访问方式检查属性，避免TypeScript类型错误
+            if (Global.userData.curSkewerGameData['type'] === SkewersGameType.Language) {
+                return true;
+            }
+            
+            
+            
+            return false;
+        } catch (error) {
+            DebugLog.instance.error('判断语言游戏类型时出错:', error);
+            return false;
+        }
+    }
 
 }
