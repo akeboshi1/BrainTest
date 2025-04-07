@@ -84,8 +84,8 @@ export class ChatFlowModel extends BaseManager {
     }
 
     public initTTSandARS() {
-        console.log('sys.os = ', sys.os);
-        console.log('sys.platform=', sys.platform);
+        DebugLog.instance.log('sys.os = ', sys.os);
+        DebugLog.instance.log('sys.platform=', sys.platform);
 
         if (sys.platform === 'ANDROID') {
             NativeEventManager.getInstance().on(NativeEvent.ASRResult, this.onASRResultHandle, this);
@@ -255,7 +255,7 @@ export class ChatFlowModel extends BaseManager {
                 setTimeout(() => {
                     if (self.waitingForSeq === seq) {
                         // 超时处理，这里可以添加合适的日志或者错误提示等逻辑
-                        console.error(`Seq ${seq} is missing and timeout!`);
+                        DebugLog.instance.error(`Seq ${seq} is missing and timeout!`);
                         self.waitingForSeq = null;
                     }
                 }, self.seqTimeout);

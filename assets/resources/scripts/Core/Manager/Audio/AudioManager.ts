@@ -1,6 +1,7 @@
 import { Node, AudioSource, AudioClip, resources, director, EventTarget } from 'cc';
 import { BaseManager } from '../BaseManager';
 import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
+import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 
 /**
  * 这是一个用于播放音频的单件类，可以很方便地在项目的任何地方调用。
@@ -61,9 +62,9 @@ export class AudioManager extends BaseManager {
         });
         try {
             const assets = await Promise.all(loadPromises);
-            console.log('All audio loaded:', assets);
+            DebugLog.instance.log('All audio loaded:', assets);
         } catch (error) {
-            console.error('Error loading audio:', error);
+            DebugLog.instance.error('Error loading audio:', error);
         }
 
     }
@@ -110,7 +111,7 @@ export class AudioManager extends BaseManager {
         else {
             resources.load(sound, (err, clip: AudioClip) => {
                 if (err) {
-                    console.log(err);
+                    DebugLog.instance.log(err);
                 }
                 else {
                     this._audioSource.playOneShot(clip, volume);
@@ -138,7 +139,7 @@ export class AudioManager extends BaseManager {
         else {
             resources.load(sound, (err, clip: AudioClip) => {
                 if (err) {
-                    console.log(err);
+                    DebugLog.instance.log(err);
                 }
                 else {
                     this._audioSource.stop();

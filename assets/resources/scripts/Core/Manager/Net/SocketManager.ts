@@ -72,6 +72,7 @@ export class SocketManager extends BaseManager {
         this._socketDatas.forEach((datas, action) => {
             datas.forEach((socketData: SocketData) => {
                 if (socketData.netStatus === SocketDataStatus.request && socketData.needRetry()) {
+                    socketData.recordSendTime();
                     this.resendSocketData(socketData);
                     DebugLog.instance.error(`重试请求: ${action}, 当前重试次数: ${socketData.getCurrentRetryCount()}, 剩余超时时间: ${socketData.getRemainingTimeout()}ms`);
                 }
