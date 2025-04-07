@@ -115,6 +115,10 @@ export class SocketData {
      * 处理达到最大重试次数的情况
      */
     private handleMaxRetriesReached(): void {
+        // 将请求状态设置为过期，确保不会再次重试
+        this.netStatus = SocketDataStatus.complete;
+        this._isExpired = true;
+        
         const alertData: AlertData = new AlertData();
         alertData.message = '网络遇到问题，请重新登录';
         alertData.confirmCb = () => {
