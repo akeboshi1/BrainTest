@@ -10,7 +10,8 @@
                 "d": "小猫"
             },
             "answer": "d",
-            "audioSource": "audio/1"
+            "audioSource": "audio/1",
+            "analysis": "因为小猫会喵喵叫，所以选小猫"
         },
         {
             "questionNumber": 2,

@@ -11,7 +11,7 @@ export class GuessingQuestion {
         d: string;
     };
     answer: string;
-    solutionThoughts: string;
+    analysis: string;
     audioSource: string;
     hasAnswer: boolean;
 }
@@ -61,9 +61,9 @@ export class GuessingGameConfig {
     }
 
     // 根据题目编号获取解题思路
-    getSolutionThoughtsByNumber(questionNumber: number): string {
+    getAnalysisByNumber(questionNumber: number): string {
         const question = this.getQuestionByNumber(questionNumber);
-        return question.solutionThoughts;
+        return question.analysis ? question.analysis : "此题没有解析";
     }
 
     // 根据题目编号获取音频资源文件名
