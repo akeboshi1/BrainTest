@@ -1,4 +1,4 @@
-import { _decorator, Color, color, Component, Enum, EventTouch, Label, Node, Sprite } from 'cc';
+import { _decorator, Button, Color, color, Component, Enum, EventTouch, Label, Node, Sprite } from 'cc';
 import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
 import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
@@ -337,6 +337,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
             if (opnode) {
                 opnode.getComponent(Sprite).color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+                opnode.getComponent(Button).interactable = true;
             }
         }
     }
@@ -351,6 +352,14 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.analysisLabel.string = this.currentQuestion.analysis;
         this.setCorrectOptionColor();
         this.resultPanel.active = false;
+
+        for(let i = 0; i < this.options.length; i++){
+            let op: string = this.options[i];
+            let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
+            if (opnode) {
+                opnode.getComponent(Button).interactable = false;
+            }
+        }
     }
 
     private setAnswerOptionsColor(ans: string) {

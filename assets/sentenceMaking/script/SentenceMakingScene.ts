@@ -1,4 +1,4 @@
-import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, Node, Prefab, Rect, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, Label, Node, Prefab, Rect, RichText, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
 import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
@@ -6,8 +6,8 @@ import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import { LayerUtil } from '../../resources/scripts/Core/Util/LayerUtil';
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -53,6 +53,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     @property(AnimationComponent)
     animRotate: AnimationComponent;
+
+    @property(Node)
+    correctAnswerNode: Node;
+
+    @property(RichText)
+    correctAnswerLabel: RichText;
 
     private rawMaxNum: number = 5;//一行最多放几个对象
     private lineMaxNum: number = 3;//最大行数
@@ -122,7 +128,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
     }
 
-    requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number,levelMode:number) {
+    requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number, levelMode: number) {
         const curGame = (this.sceneModel as any).game;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
@@ -136,7 +142,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         });
     }
 
-    requestGameCompleteCallBack(){
+    requestGameCompleteCallBack() {
         this.model.requestGameCompleteCallBack();
     }
 
@@ -214,6 +220,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private async startGameFlow() {
         this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
+        this.correctAnswerNode.active = false;
         this.hideAnimHupai();
 
         this.btn_commitresult.node.getComponent(Sprite).spriteFrame = this.btnSps[1];
@@ -662,7 +669,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                     isSuccess = false;
                     wrongIndices.push(node);
                 }
-                
+
                 user_answer.push(this.model.getCurrentQuestion().sentence[currentIndex]);
             }
         }
@@ -730,7 +737,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     onTimerEnd() {
-        if(this.sceneModel.gameType != GameType.SKEWERS){
+        if (this.sceneModel.gameType != GameType.SKEWERS) {
             let ad: AlertData = new AlertData();
             ad.cancelButtonVisible = false;
             ad.title = "没有时间啦";
@@ -762,5 +769,37 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     private hideAnimHupai() {
         this.animShow.node.active = false;
+    }
+
+    public onClickRetryBtn() {
+        this.startGameFlow();
+    }
+
+    public onClickShowAnswer() {
+        this.correctAnswerNode.active = true;
+        const question = this.model.getCurrentQuestion();
+        let fixed: number[] = question.fixed;
+        let correctAnswerText: string = "";
+        let lineItemCount = 0; // 当前行元素计数（标点算0.5） 
+
+        for (let i = 0; i < question.sentence.length; i++) {
+            if (lineItemCount > (this.rawMaxNum - 1)) {
+                correctAnswerText += "\n";
+                lineItemCount = 0;
+            }
+            const isPunctuation = question.punctuationOptions.some(p => p.index === i);
+            if (fixed.indexOf(i) >= 0) {
+                correctAnswerText += `<color=#A60202>${question.sentence[i]}</color> `;
+            } else {
+                correctAnswerText += `<color=#000000>${question.sentence[i]}</color> `;
+            }
+            lineItemCount = lineItemCount + (isPunctuation ? 0.5 : 1);
+        }
+
+        this.correctAnswerLabel.string = correctAnswerText;
+    }
+
+    public onClichContinue() {
+        this.goonHandler();
     }
 }
