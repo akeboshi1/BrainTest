@@ -1,4 +1,4 @@
-import { _decorator, Component, EventTouch, Label, Node} from 'cc';
+import { _decorator, Color, color, Component, Enum, EventTouch, Label, Node, Sprite } from 'cc';
 import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
 import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
@@ -7,9 +7,22 @@ import { RollingSubtitleComponent } from './RollingSubtitleComponent';
 import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 const { ccclass, property } = _decorator;
+
+enum OptionButtonColor {
+    WRONG = 0,
+    CORRECT = 1,
+    NORMAL = 2
+}
+
+// 将枚举转换为Color类型
+const OptionButtonColorMap = {
+    [OptionButtonColor.WRONG]: new Color(172, 0, 0, 255),    // #AC0000
+    [OptionButtonColor.CORRECT]: new Color(27, 136, 0, 255), // #1B8800
+    [OptionButtonColor.NORMAL]: new Color(0, 31, 255, 255)   // #001FFF
+}
 
 @ccclass('GuessingGameScene')
 export class GuessingGameScene extends BaseScene<IBaseGameChild> {
@@ -49,6 +62,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     @property(Node)
     viewNode: Node = null;
+
+    @property(Node)
+    analysisNode: Node = null;
+
+    @property(Label)
+    analysisLabel: Label = null;
 
     private timeLimit = 30;
 
@@ -109,7 +128,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         //打开介绍界面；
         let alertData: AlertData = new AlertData();
         alertData.title = "提示";
-        alertData.message = "请认真聆听“可乐派”给出的题目，然后在选项中选出正确答案！";
+        alertData.message = "请认真聆听\"可乐派\"给出的题目，然后在选项中选出正确答案！";
         alertData.confirmButtonText = "开始游戏";
         alertData.cancelButtonVisible = false;
         alertData.confirmCb = this.startGameFlow.bind(this);
@@ -176,6 +195,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.pauseTime();
         this._replay = false;
         const result: boolean = ans && this.currentQuestion.answer == ans;
+        this.setAnswerOptionsColor(ans);
+
         if (result) {
             this.playAudio("audio/music/win", true);
         }
@@ -223,7 +244,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             duration,
             timelimit: this.timeLimit,
             difficulty: 1,
-            levelMode:curGame.levelMode
+            levelMode: curGame.levelMode
         });
     }
 
@@ -268,6 +289,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.resultPanel.active = false;
     }
 
+    onClickRetryGame() {
+        this.resetPanel();
+        this.guessingGameModel.startQuestionFlow();
+        this.resultPanel.active = false;
+    }
+
     quitGame() {
         this.guessingGameModel.stopAudio();
         super.quitGame({ parentNode: this.viewNode, context: this });
@@ -290,7 +317,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
 
     resetPanel() {
-
         this.guessingGameModel.stopAudio();
 
         this.resumeTime();
@@ -303,10 +329,47 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.optionsNode.active = this.questionNode.active = false;
 
         this.frameComponent.playAnimation("idle", 16, true, true);
+
+        this.analysisNode.active = false;
+
+        for(let i = 0; i < this.options.length; i++){
+            let op: string = this.options[i];
+            let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
+            if (opnode) {
+                opnode.getComponent(Sprite).color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+            }
+        }
     }
 
-    public onClickStartAnswer(){
+    public onClickStartAnswer() {
         this.guessingGameModel.stopAudio();
         this.onAudioFinish();
+    }
+
+    public onClickShowAnalysis() {
+        this.analysisNode.active = true;
+        this.analysisLabel.string = this.currentQuestion.analysis;
+        this.setCorrectOptionColor();
+        this.resultPanel.active = false;
+    }
+
+    private setAnswerOptionsColor(ans: string) {
+        const result: boolean = ans && this.currentQuestion.answer == ans;
+
+        let opnode: Node = this.optionsNode.getChildByName("choosen_" + ans);
+        if (opnode) {
+            if (result) {
+                opnode.getComponent(Sprite).color = OptionButtonColorMap[OptionButtonColor.CORRECT];
+            } else {
+                opnode.getComponent(Sprite).color = OptionButtonColorMap[OptionButtonColor.WRONG];
+            }
+        }
+    }
+
+    private setCorrectOptionColor() {
+        let correctNode: Node = this.optionsNode.getChildByName("choosen_" + this.currentQuestion.answer);
+        if (correctNode) {
+            correctNode.getComponent(Sprite).color = OptionButtonColorMap[OptionButtonColor.CORRECT];
+        }
     }
 }
