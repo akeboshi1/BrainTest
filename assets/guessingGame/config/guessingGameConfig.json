@@ -11,7 +11,7 @@
             },
             "answer": "d",
             "audioSource": "audio/1",
-            "analysis": "因为小猫会喵喵叫，所以选小猫"
+            "analysis": "说明：谜面描述的特征（白天休息、夜晚活动、“喵喵”叫）与字母“d”无直接关联，可能是答案输入错误，正确对应动物应为“小猫”。"
         },
         {
             "questionNumber": 2,
@@ -23,7 +23,8 @@
                 "d": "笔记本"
             },
             "answer": "a",
-            "audioSource": "audio/2"
+            "audioSource": "audio/2",
+            "analysis": "手机是一个方方正正的设备，带有屏幕，可以用来打电话和玩游戏。"
         },
         {
             "questionNumber": 3,
@@ -35,7 +36,8 @@
                 "d": "黄瓜"
             },
             "answer": "c",
-            "audioSource": "audio/3"
+            "audioSource": "audio/3",
+            "analysis": "西瓜的外皮是绿色的，果肉是红色的且多汁，籽是黑色的，味道甜美，符合谜面的所有特征。"
         },
         {
             "questionNumber": 4,
@@ -47,7 +49,8 @@
                 "d": "蝙蝠"
             },
             "answer": "c",
-            "audioSource": "audio/4"
+            "audioSource": "audio/4",
+            "analysis": "老鼠通常在白天睡觉，晚上活动，并且会发出“吱吱”的叫声。"
         },
         {
             "questionNumber": 5,
@@ -59,7 +62,8 @@
                 "d": "楼梯"
             },
             "answer": "c",
-            "audioSource": "audio/5"
+            "audioSource": "audio/5",
+            "analysis": "五个手指就像五个兄弟，虽然长短不一但都长在一起。"
         },
         {
             "questionNumber": 6,
@@ -71,7 +75,8 @@
                 "d": "空调"
             },
             "answer": "d",
-            "audioSource": "audio/6"
+            "audioSource": "audio/6",
+            "analysis": "空调在夏季和冬季调节温度时工作繁忙，而在春秋季不使用时就像“放假”一样。"
         },
         {
             "questionNumber": 7,
@@ -83,7 +88,8 @@
                 "d": "鞋子"
             },
             "answer": "c",
-            "audioSource": "audio/7"
+            "audioSource": "audio/7",
+            "analysis": "纽扣有五个扣眼（兄弟五个人），每个扣子必须对应自己的扣眼（各走各的门），扣错了就会显得滑稽（出来笑死人）。"
         },
         {
             "questionNumber": 8,
@@ -95,7 +101,8 @@
                 "d": "风车"
             },
             "answer": "b",
-            "audioSource": "audio/8"
+            "audioSource": "audio/8",
+            "analysis": "说明：扇子在无风时需要手动摇动才能产生风，而有风时则不需要摇动。"
         },
         {
             "questionNumber": 9,
@@ -107,7 +114,8 @@
                 "d": "口罩"
             },
             "answer": "b",
-            "audioSource": "audio/9"
+            "audioSource": "audio/9",
+            "analysis": "眼镜的鼻托架在人的鼻梁上，就像把鼻子当马骑一样。"
         },
         {
             "questionNumber": 10,
@@ -119,7 +127,8 @@
                 "d": "莲藕"
             },
             "answer": "d",
-            "audioSource": "audio/10"
+            "audioSource": "audio/10",
+            "analysis": "白胖娃娃泥里卧形容莲藕的外形和生长环境，腰身扭来心眼多则指莲藕的节状结构和内部孔洞特征。"
         },
         {
             "questionNumber": 11,
@@ -131,7 +140,8 @@
                 "d": "剪刀"
             },
             "answer": "b",
-            "audioSource": "audio/11"
+            "audioSource": "audio/11",
+            "analysis": "筷子成对使用且长度相同，吃饭时总是最先接触食物的味道。"
         },
         {
             "questionNumber": 12,
@@ -143,7 +153,8 @@
                 "d": "床"
             },
             "answer": "a",
-            "audioSource": "audio/12"
+            "audioSource": "audio/12",
+            "analysis": "桌子有平坦的“面”但没有口，有支撑的“脚”但没有手，虽有四条腿但无法自己移动。"
         },
         {
             "questionNumber": 13,
@@ -155,7 +166,8 @@
                 "d": "夜灯"
             },
             "answer": "a",
-            "audioSource": "audio/13"
+            "audioSource": "audio/13",
+            "analysis": "说明：猫头鹰的脸像猫，飞行像鸟，白天休息夜晚捕食，符合谜面的描述。"
         },
         {
             "questionNumber": 14,
@@ -167,7 +179,8 @@
                 "d": "气球"
             },
             "answer": "c",
-            "audioSource": "audio/14"
+            "audioSource": "audio/14",
+            "analysis": "彩虹有七种颜色，像一座桥挂在天空，但无法真正登上去。"
         },
         {
             "questionNumber": 15,
@@ -179,7 +192,8 @@
                 "d": "吸尘器"
             },
             "answer": "b",
-            "audioSource": "audio/15"
+            "audioSource": "audio/15",
+            "analysis": "垃圾桶有一个大肚子，张着口立在街上，专门用来装各种垃圾。"
         },
         {
             "questionNumber": 16,
@@ -191,7 +205,8 @@
                 "d": "萤火虫"
             },
             "answer": "d",
-            "audioSource": "audio/16"
+            "audioSource": "audio/16",
+            "analysis": "萤火虫白天藏在草丛中，夜晚飞行时会发光照明，因此不怕黑暗。"
         },
         {
             "questionNumber": 17,
@@ -203,7 +218,8 @@
                 "d": "手套"
             },
             "answer": "a",
-            "audioSource": "audio/17"
+            "audioSource": "audio/17",
+            "analysis": "帽子比人的位置高（戴在头顶），戴上能遮风挡雨，脱帽则是表示礼貌的举动。"
         },
         {
             "questionNumber": 18,
@@ -215,7 +231,8 @@
                 "d": "蜗牛"
             },
             "answer": "d",
-            "audioSource": "audio/18"
+            "audioSource": "audio/18",
+            "analysis": "蜗牛虽然名字里有“牛”，但不会干活，它力气大且总是背着壳（房子）移动。"
         },
         {
             "questionNumber": 19,
@@ -227,7 +244,8 @@
                 "d": "风筝"
             },
             "answer": "a",
-            "audioSource": "audio/19"
+            "audioSource": "audio/19",
+            "analysis": "影子会随着人的移动而变化长短，并且始终跟随人的动作，人走它也走，人停它也停。"
         },
         {
             "questionNumber": 20,
@@ -239,7 +257,8 @@
                 "d": "冰箱"
             },
             "answer": "d",
-            "audioSource": "audio/20"
+            "audioSource": "audio/20",
+            "analysis": "冰箱的外形方正，有门无窗，外部常温而内部制冷结霜。"
         },
         {
             "questionNumber": 21,
@@ -251,7 +270,8 @@
                 "d": "火鸡"
             },
             "answer": "b",
-            "audioSource": "audio/21"
+            "audioSource": "audio/21",
+            "analysis": "孔雀的尾巴长而华丽，展开时像花伞一样美丽，但它并不是鸡。"
         },
         {
             "questionNumber": 22,
@@ -263,7 +283,8 @@
                 "d": "乌龟"
             },
             "answer": "d",
-            "audioSource": "audio/22"
+            "audioSource": "audio/22",
+            "analysis": "乌龟的头小、四肢短，身体被硬壳保护，性格胆小且寿命很长。"
         },
         {
             "questionNumber": 23,
@@ -275,7 +296,8 @@
                 "d": "蝴蝶"
             },
             "answer": "c",
-            "audioSource": "audio/23"
+            "audioSource": "audio/23",
+            "analysis": "蜜蜂全家住在蜂巢的格子间里，每天在花园中采蜜，工作时发出嗡嗡声，酿出的蜂蜜比糖更甜。"
         },
         {
             "questionNumber": 24,
@@ -287,7 +309,8 @@
                 "d": "头发"
             },
             "answer": "c",
-            "audioSource": "audio/24"
+            "audioSource": "audio/24",
+            "analysis": "雨滴从天上落下时像无数条线，但落入水中后就消失不见了。"
         },
         {
             "questionNumber": 25,
@@ -299,7 +322,8 @@
                 "d": "葡萄"
             },
             "answer": "a",
-            "audioSource": "audio/25"
+            "audioSource": "audio/25",
+            "analysis": "谜面中的“上边草”和“下边草”分别指“艹”草字头，“中间一颗黑葡萄”则指“a”字母中间的黑色圆点，组合起来就是“a”字。"
         },
         {
             "questionNumber": 26,
@@ -311,7 +335,8 @@
                 "d": "狗"
             },
             "answer": "d",
-            "audioSource": "audio/26"
+            "audioSource": "audio/26",
+            "analysis": "狗常伴主人左右，夜晚负责看家护院，听到动静会警觉吠叫，并摇尾巴欢迎熟人。"
         },
         {
             "questionNumber": 27,
@@ -323,7 +348,8 @@
                 "d": "猫头鹰"
             },
             "answer": "a",
-            "audioSource": "audio/27"
+            "audioSource": "audio/27",
+            "analysis": "猫头鹰夜间活动且行动安静，眼睛在黑暗中发亮，爪子锋利能爬树，它的存在让老鼠不敢出没。"
         },
         {
             "questionNumber": 28,
@@ -335,7 +361,8 @@
                 "d": "大象"
             },
             "answer": "d",
-            "audioSource": "audio/28"
+            "audioSource": "audio/28",
+            "analysis": "大象的身躯庞大如山，长鼻像巨蟒一样灵活，耳朵大如蒲扇，行走时稳重缓慢如钟摆。"
         },
         {
             "questionNumber": 29,
@@ -347,7 +374,8 @@
                 "d": "老虎"
             },
             "answer": "d",
-            "audioSource": "audio/29"
+            "audioSource": "audio/29",
+            "analysis": "老虎在山林中称王，额头的斑纹像“王”字，吼声威震山林，令百兽畏惧。"
         },
         {
             "questionNumber": 30,
@@ -359,7 +387,8 @@
                 "d": "斑马"
             },
             "answer": "b",
-            "audioSource": "audio/30"
+            "audioSource": "audio/30",
+            "analysis": "长颈鹿高耸的脖子和斑纹点缀的身体使其在草原上优雅漫步，与谜语描述的特征完全吻合。"
         },
         {
             "questionNumber": 31,
@@ -371,7 +400,8 @@
                 "d": "长颈鹿"
             },
             "answer": "b",
-            "audioSource": "audio/31"
+            "audioSource": "audio/31",
+            "analysis": "斑马身披黑白条纹，在草原上群居奔跑，外形似马但并非马类。"
         },
         {
             "questionNumber": 32,
@@ -383,7 +413,8 @@
                 "d": "马"
             },
             "answer": "d",
-            "audioSource": "audio/32"
+            "audioSource": "audio/32",
+            "analysis": "说明：马以四蹄奔跑扬起尘土，鬃毛随风飘扬，能日行千里，且自古以来就是人类忠诚的伙伴。"
         },
         {
             "questionNumber": 33,
@@ -395,7 +426,8 @@
                 "d": "狮子"
             },
             "answer": "a",
-            "audioSource": "audio/33"
+            "audioSource": "audio/33",
+            "analysis": "说明：熊身披厚毛，力量强大能拔树，冬季会冬眠，春天苏醒，是森林中的强大动物。"
         },
         {
             "questionNumber": 34,
@@ -407,7 +439,8 @@
                 "d": "斑马"
             },
             "answer": "c",
-            "audioSource": "audio/34"
+            "audioSource": "audio/34",
+            "analysis": "熊猫身披黑白两色的毛发，栖息在竹林中，憨态可掬的外表使其成为众所周知的国宝。"
         },
         {
             "questionNumber": 35,
@@ -419,7 +452,8 @@
                 "d": "萤火虫"
             },
             "answer": "a",
-            "audioSource": "audio/35"
+            "audioSource": "audio/35",
+            "analysis": "狼常在夜间活动于山林中，目光锐利，群体生活有序，并以对月嚎叫著称。"
         },
         {
             "questionNumber": 36,
@@ -431,7 +465,8 @@
                 "d": "河马"
             },
             "answer": "b",
-            "audioSource": "audio/36"
+            "audioSource": "audio/36",
+            "analysis": "猪的身体圆滚滚，鼻子长而上翘，喜欢进食和睡觉，并常在泥地里打滚。"
         },
         {
             "questionNumber": 37,
@@ -443,7 +478,8 @@
                 "d": "牛"
             },
             "answer": "d",
-            "audioSource": "audio/37"
+            "audioSource": "audio/37",
+            "analysis": "牛力大无穷用于耕田，弯角似月，以草为食且任劳任怨，默默为人类奉献。"
         },
         {
             "questionNumber": 38,
@@ -455,7 +491,8 @@
                 "d": "山羊"
             },
             "answer": "d",
-            "audioSource": "audio/38"
+            "audioSource": "audio/38",
+            "analysis": "说明：谜语通过“角弯如月”“胡须飘飘”和“攀岩走壁”等特征，生动描绘了山羊的外形与习性，而“叫声悠扬”则呼应了山羊独特的咩咩声。"
         },
         {
             "questionNumber": 39,
@@ -467,7 +504,8 @@
                 "d": "蜥蜴"
             },
             "answer": "b",
-            "audioSource": "audio/39"
+            "audioSource": "audio/39",
+            "analysis": "骆驼背上有两个驼峰，能在沙漠中长时间行走而不需饮水，是商队穿越沙漠的重要交通工具。"
         },
         {
             "questionNumber": 40,
@@ -479,7 +517,8 @@
                 "d": "大象"
             },
             "answer": "a",
-            "audioSource": "audio/40"
+            "audioSource": "audio/40",
+            "analysis": "犀牛身披厚皮如铠甲，鼻上的独角威风凛凛，在草原上漫步时尽显雄姿，其强大的力量也常用来保护领地和幼崽。"
         },
         {
             "questionNumber": 41,
@@ -491,7 +530,8 @@
                 "d": "乌龟"
             },
             "answer": "c",
-            "audioSource": "audio/41"
+            "audioSource": "audio/41",
+            "analysis": "鳄鱼身披坚硬的鳞甲在水中游动，牙齿锋利且捕食时迅猛凶狠，静伏时如枯木般隐蔽，攻击时却快如闪电。"
         },
         {
             "questionNumber": 42,
@@ -503,7 +543,8 @@
                 "d": "松果"
             },
             "answer": "a",
-            "audioSource": "audio/42"
+            "audioSource": "audio/42",
+            "analysis": "松鼠的尾巴蓬松像扫帚，善于在树上跳跃，会储存果实过冬，且体型小巧灵活，常在林中活动。"
         },
         {
             "questionNumber": 43,
@@ -515,7 +556,8 @@
                 "d": "袋鼠"
             },
             "answer": "a",
-            "audioSource": "audio/43"
+            "audioSource": "audio/43",
+            "analysis": "兔子有长耳朵和红眼睛，喜欢蹦跳和吃萝卜，且在十二生肖中排第四，与谜语描述完全吻合。"
         },
         {
             "questionNumber": 44,
@@ -527,7 +569,8 @@
                 "d": "山羊"
             },
             "answer": "b",
-            "audioSource": "audio/44"
+            "audioSource": "audio/44",
+            "analysis": "说明：谜语通过“角如树枝”“草间觅食”等特征描绘了鹿（b）在林间轻盈活动、安静觅食的习性。"
         },
         {
             "questionNumber": 45,
@@ -539,7 +582,8 @@
                 "d": "海豚"
             },
             "answer": "d",
-            "audioSource": "audio/45"
+            "audioSource": "audio/45",
+            "analysis": "海豚是海洋中聪明友善的动物，擅长跳跃表演并用声波导航，因此被称为\"海中精灵\"。"
         },
         {
             "questionNumber": 46,
@@ -551,7 +595,8 @@
                 "d": "海豚"
             },
             "answer": "b",
-            "audioSource": "audio/46"
+            "audioSource": "audio/46",
+            "analysis": "鲸鱼是海洋中的大型动物，能喷出水柱并通过独特的歌声远距离交流，其皮肤呈蓝灰色。"
         },
         {
             "questionNumber": 47,
@@ -563,7 +608,8 @@
                 "d": "鲨鱼"
             },
             "answer": "d",
-            "audioSource": "audio/47"
+            "audioSource": "audio/47",
+            "analysis": "鲨鱼是海洋中的顶级掠食者，以其锋利的牙齿和迅猛的捕猎能力著称，完美契合谜语描述的“海中霸主”形象。"
         },
         {
             "questionNumber": 48,
@@ -575,7 +621,8 @@
                 "d": "螃蟹"
             },
             "answer": "b",
-            "audioSource": "audio/48"
+            "audioSource": "audio/48",
+            "analysis": "乌龟身披硬壳（铠甲）行动缓慢，既能生活在水里也能在陆地栖息，常被视为长寿的象征，且遇到危险时会缩进壳中（藏头藏尾）。"
         },
         {
             "questionNumber": 49,
@@ -587,7 +634,8 @@
                 "d": "风筝"
             },
             "answer": "c",
-            "audioSource": "audio/49"
+            "audioSource": "audio/49",
+            "analysis": "说明：蛇虽然没有脚却能爬行很远，行动时几乎没有声音却可能吓到人，身上有鳞片且常出没于草丛中。"
         },
         {
             "questionNumber": 50,
@@ -599,7 +647,8 @@
                 "d": "荷叶"
             },
             "answer": "b",
-            "audioSource": "audio/50"
+            "audioSource": "audio/50",
+            "analysis": "青蛙身穿绿色外衣，生活在水中，夜晚鸣叫，擅长跳跃捕虫，雨后活动频繁。"
         },
         {
             "questionNumber": 51,
@@ -611,7 +660,8 @@
                 "d": "缝纫机"
             },
             "answer": "b",
-            "audioSource": "audio/51"
+            "audioSource": "audio/51",
+            "analysis": "蜘蛛有八条腿，擅长织网等待猎物，夜晚活动时安静无声，清晨时网上挂着露珠。"
         },
         {
             "questionNumber": 52,
@@ -623,7 +673,8 @@
                 "d": "蜜蜂"
             },
             "answer": "a",
-            "audioSource": "audio/52"
+            "audioSource": "audio/52",
+            "analysis": "蚂蚁虽小但力量惊人，团结协作能克服巨大困难，行进时排成直线，且以勤劳著称。"
         },
         {
             "questionNumber": 53,
@@ -635,7 +686,8 @@
                 "d": "蜜蜂"
             },
             "answer": "d",
-            "audioSource": "audio/53"
+            "audioSource": "audio/53",
+            "analysis": "小蜜蜂穿着黄色外衣在花间飞舞采蜜，为花园带来香甜的蜂蜜。"
         },
         {
             "questionNumber": 54,
@@ -647,7 +699,8 @@
                 "d": "风筝"
             },
             "answer": "b",
-            "audioSource": "audio/54"
+            "audioSource": "audio/54",
+            "analysis": "蝴蝶身披彩色翅膀在花间飞舞，翅膀扇动如画扇，春季活跃采花，秋季消失无踪。"
         },
         {
             "questionNumber": 55,
@@ -659,7 +712,8 @@
                 "d": "苍蝇"
             },
             "answer": "d",
-            "audioSource": "audio/55"
+            "audioSource": "audio/55",
+            "analysis": "苍蝇通常全身黑色，发出嗡嗡声，喜欢脏乱的环境，因此人们见到它都会感到厌烦。"
         },
         {
             "questionNumber": 56,
@@ -671,7 +725,8 @@
                 "d": "飞机"
             },
             "answer": "b",
-            "audioSource": "audio/56"
+            "audioSource": "audio/56",
+            "analysis": "雄鹰展翅高飞于云端，凭借锐利的眼睛捕食，并在高山之巅筑巢，展现了王者的气概。"
         },
         {
             "questionNumber": 57,
@@ -683,7 +738,8 @@
                 "d": "萤火虫"
             },
             "answer": "c",
-            "audioSource": "audio/57"
+            "audioSource": "audio/57",
+            "analysis": "猫头鹰夜间活动且飞行无声，眼睛在黑暗中发亮，头部类似猫但并非猫科动物，常在森林中栖息。"
         },
         {
             "questionNumber": 58,
@@ -695,7 +751,8 @@
                 "d": "麻雀"
             },
             "answer": "d",
-            "audioSource": "audio/58"
+            "audioSource": "audio/58",
+            "analysis": "麻雀体型小巧，羽毛呈褐色，常在枝头跳跃，清晨鸣叫，秋季会成群南迁。"
         },
         {
             "questionNumber": 59,
@@ -707,7 +764,8 @@
                 "d": "风铃"
             },
             "answer": "b",
-            "audioSource": "audio/59"
+            "audioSource": "audio/59",
+            "analysis": "鸽子有白色的羽毛，常作为信使传递信息，栖息在屋檐下，并且是和平的象征。"
         },
         {
             "questionNumber": 60,
@@ -719,7 +777,8 @@
                 "d": "乌鸦"
             },
             "answer": "d",
-            "audioSource": "audio/60"
+            "audioSource": "audio/60",
+            "analysis": "乌鸦身披黑色羽毛（不染尘），常在夜晚发出凄凉的叫声，栖息于枯枝上，古时被视为能预兆吉凶的智慧之鸟。"
         },
         {
             "questionNumber": 61,
@@ -731,7 +790,8 @@
                 "d": "白鹭"
             },
             "answer": "a",
-            "audioSource": "audio/61"
+            "audioSource": "audio/61",
+            "analysis": "天鹅的白色羽毛浮在绿水上，弯曲的脖子朝向天空鸣叫，在湖中优雅游动，象征高洁不染尘世。"
         },
         {
             "questionNumber": 62,
@@ -743,7 +803,8 @@
                 "d": "企鹅"
             },
             "answer": "d",
-            "audioSource": "audio/62"
+            "audioSource": "audio/62",
+            "analysis": "企鹅身穿黑白相间的羽毛，走路时摇摆如跳舞，生活在寒冷的南极，并且擅长在水中游泳。"
         },
         {
             "questionNumber": 63,
@@ -755,7 +816,8 @@
                 "d": "鳄鱼"
             },
             "answer": "c",
-            "audioSource": "audio/63"
+            "audioSource": "audio/63",
+            "analysis": "海象身披灰褐色皮肤，在水中灵活游动，但在陆地上行动笨拙，并能发出响亮的吼声。"
         },
         {
             "questionNumber": 64,
@@ -767,7 +829,8 @@
                 "d": "海带"
             },
             "answer": "c",
-            "audioSource": "audio/64"
+            "audioSource": "audio/64",
+            "analysis": "水母在海中轻盈飘动，身体柔软无骨骼，触手用于捕食，部分种类还能在夜晚发出荧光，与谜面的描述完全吻合。"
         },
         {
             "questionNumber": 65,
@@ -779,7 +842,8 @@
                 "d": "珊瑚"
             },
             "answer": "b",
-            "audioSource": "audio/65"
+            "audioSource": "audio/65",
+            "analysis": "八爪鱼（章鱼）有八条腕足在水中灵活游动，身体柔软无骨，并能喷墨掩护自己，因此谜底是它。"
         },
         {
             "questionNumber": 66,
@@ -791,7 +855,8 @@
                 "d": "螃蟹"
             },
             "answer": "a",
-            "audioSource": "audio/66"
+            "audioSource": "audio/66",
+            "analysis": "螃蟹身披红色硬壳（红铠甲），有一对钳子（似剪刀），在水中横行霸道（称霸王），但离开水后行动迟缓（难逍遥）。"
         },
         {
             "questionNumber": 67,
@@ -803,7 +868,8 @@
                 "d": "螃蟹"
             },
             "answer": "d",
-            "audioSource": "audio/67"
+            "audioSource": "audio/67",
+            "analysis": "螃蟹有八只脚横行移动，双钳像刀剑一样挥舞，外壳坚硬如铠甲，秋天时肉质肥美常被食用。"
         },
         {
             "questionNumber": 68,
@@ -815,7 +881,8 @@
                 "d": "螃蟹"
             },
             "answer": "a",
-            "audioSource": "audio/68"
+            "audioSource": "audio/68",
+            "analysis": "虾身披红色外壳在水中游动，长须小眼且尾部弯曲，煮熟后身体弯曲如新月，味道鲜美。"
         },
         {
             "questionNumber": 69,
@@ -827,7 +894,8 @@
                 "d": "珊瑚"
             },
             "answer": "c",
-            "audioSource": "audio/69"
+            "audioSource": "audio/69",
+            "analysis": "贝壳在海边被拾获，表面的纹路像年轮，内部可能藏有珍珠，外壳则呈现多彩的颜色。"
         },
         {
             "questionNumber": 70,
@@ -839,7 +907,8 @@
                 "d": "乌贼"
             },
             "answer": "d",
-            "audioSource": "audio/70"
+            "audioSource": "audio/70",
+            "analysis": "说明：章鱼（八足）在海中遇到危险时会喷出墨汁（黑雾）掩护自己逃跑，因此被称为\"海中藏墨宝\"。"
         },
         {
             "questionNumber": 71,
@@ -851,7 +920,8 @@
                 "d": "潜艇"
             },
             "answer": "b",
-            "audioSource": "audio/71"
+            "audioSource": "audio/71",
+            "analysis": "海龟身披坚硬的甲壳，寿命长且在沙滩产卵，符合谜面描述的\"铠甲\"\"长寿\"\"沙滩产卵\"等特征。"
         },
         {
             "questionNumber": 72,
@@ -863,7 +933,8 @@
                 "d": "珊瑚"
             },
             "answer": "a",
-            "audioSource": "audio/72"
+            "audioSource": "audio/72",
+            "analysis": "海参身体柔软无骨，生活在海底，遇危险时会断肢逃生，并且是著名的滋补食材。"
         },
         {
             "questionNumber": 73,
@@ -875,7 +946,8 @@
                 "d": "蜗牛"
             },
             "answer": "d",
-            "audioSource": "audio/73"
+            "audioSource": "audio/73",
+            "analysis": "蜗牛背着壳缓慢爬行，雨后常出现并留下黏液痕迹。"
         },
         {
             "questionNumber": 74,
@@ -887,7 +959,8 @@
                 "d": "蚯蚓"
             },
             "answer": "d",
-            "audioSource": "audio/74"
+            "audioSource": "audio/74",
+            "analysis": "蚯蚓身体柔软无骨无壳，能在土中穿行而不留痕迹，雨后常出现，是松土的好帮手。"
         },
         {
             "questionNumber": 75,
@@ -899,7 +972,8 @@
                 "d": "树叶"
             },
             "answer": "c",
-            "audioSource": "audio/75"
+            "audioSource": "audio/75",
+            "analysis": "说明：青蛙（c）身着绿色外衣，擅长跳跃且常见于田间，蹬腿跃起后轻盈落地几乎无声。"
         },
         {
             "questionNumber": 76,
@@ -911,7 +985,8 @@
                 "d": "老鼠"
             },
             "answer": "c",
-            "audioSource": "audio/76"
+            "audioSource": "audio/76",
+            "analysis": "蟑螂常在夜间活动，外壳呈深色，怕光会迅速躲藏，并且经常出现在厨房中。"
         },
         {
             "questionNumber": 77,
@@ -923,7 +998,8 @@
                 "d": "螳螂"
             },
             "answer": "d",
-            "audioSource": "audio/77"
+            "audioSource": "audio/77",
+            "analysis": "螳螂身披绿色外壳（绿铠甲），前肢似双刀，常静止等待猎物并迅速捕捉。"
         },
         {
             "questionNumber": 78,
@@ -935,7 +1011,8 @@
                 "d": "蝙蝠"
             },
             "answer": "a",
-            "audioSource": "audio/78"
+            "audioSource": "audio/78",
+            "analysis": "蚊子常在夜晚嗡嗡叫扰人睡眠，身形细长且嗜血，夏季活动尤为频繁。"
         },
         {
             "questionNumber": 79,
@@ -947,7 +1024,8 @@
                 "d": "鸵鸟"
             },
             "answer": "d",
-            "audioSource": "audio/79"
+            "audioSource": "audio/79",
+            "analysis": "鸵鸟身披灰褐色羽毛，长颈善跑，栖息于沙漠地带，且产的蛋非常大。"
         },
         {
             "questionNumber": 80,
@@ -959,7 +1037,8 @@
                 "d": "太阳"
             },
             "answer": "c",
-            "audioSource": "audio/80"
+            "audioSource": "audio/80",
+            "analysis": "公鸡头戴红色鸡冠，身披彩色羽毛，清晨打鸣报晓，夜晚回窝休息。"
         },
         {
             "questionNumber": 81,
@@ -971,7 +1050,8 @@
                 "d": "船"
             },
             "answer": "c",
-            "audioSource": "audio/81"
+            "audioSource": "audio/81",
+            "analysis": "说明：谜语描述了鸭子扁嘴、水中游动、白羽毛和红脚掌的特征，与“鹅”的形象完全吻合。"
         },
         {
             "questionNumber": 82,
@@ -983,7 +1063,8 @@
                 "d": "鹅"
             },
             "answer": "d",
-            "audioSource": "audio/82"
+            "audioSource": "audio/82",
+            "analysis": "说明：谜语通过“白羽”“红掌”“曲颈”和“声震”等特征生动描绘了鹅的外形与习性，答案“鹅”完美对应这些描述。"
         },
         {
             "questionNumber": 83,
@@ -995,7 +1076,8 @@
                 "d": "萤火虫"
             },
             "answer": "d",
-            "audioSource": "audio/83"
+            "audioSource": "audio/83",
+            "analysis": "萤火虫在夜晚发光飞舞，像闪烁的灯笼和星光，是夏夜常见的发光小昆虫。"
         },
         {
             "questionNumber": 84,
@@ -1007,7 +1089,8 @@
                 "d": "幽灵"
             },
             "answer": "b",
-            "audioSource": "audio/84"
+            "audioSource": "audio/84",
+            "analysis": "说明：白蚁身着白色却非雪，在木材中活动不留痕迹，群体行动安静但破坏力极强，能无声无息摧毁房屋。"
         },
         {
             "questionNumber": 85,
@@ -1019,7 +1102,8 @@
                 "d": "孔雀"
             },
             "answer": "b",
-            "audioSource": "audio/85"
+            "audioSource": "audio/85",
+            "analysis": "变色龙能随环境改变体色，眼睛可独立转动，长舌捕食昆虫，且善于在林中隐蔽。"
         },
         {
             "questionNumber": 86,
@@ -1031,7 +1115,8 @@
                 "d": "啄木鸟"
             },
             "answer": "d",
-            "audioSource": "audio/86"
+            "audioSource": "audio/86",
+            "analysis": "啄木鸟头戴红色羽冠，身着花纹羽毛，通过啄木声为树木治病，因此被称为“森林医生”。"
         },
         {
             "questionNumber": 87,
@@ -1043,7 +1128,8 @@
                 "d": "风筝"
             },
             "answer": "a",
-            "audioSource": "audio/87"
+            "audioSource": "audio/87",
+            "analysis": "大雁在春秋两季迁徙时排成人字形队伍南北往返飞行，并发出嘹亮的鸣叫声。"
         },
         {
             "questionNumber": 88,
@@ -1055,7 +1141,8 @@
                 "d": "指南针"
             },
             "answer": "b",
-            "audioSource": "audio/88"
+            "audioSource": "audio/88",
+            "analysis": "向日葵（俗称“b”）总是面朝太阳，有着金黄色的花盘，并会随着太阳转动方向，秋天结出饱满的籽实。"
         },
         {
             "questionNumber": 89,
@@ -1067,7 +1154,8 @@
                 "d": "玫瑰"
             },
             "answer": "d",
-            "audioSource": "audio/89"
+            "audioSource": "audio/89",
+            "analysis": "玫瑰（d）因其红艳带刺的外表、浓郁香气和象征爱情的特点，常被情侣用作表达爱意的礼物。"
         },
         {
             "questionNumber": 90,
@@ -1079,7 +1167,8 @@
                 "d": "竹子"
             },
             "answer": "d",
-            "audioSource": "audio/90"
+            "audioSource": "audio/90",
+            "analysis": "竹子四季常青，节节向上生长且中空有节，因此常被文人墨客题诗作画。"
         },
         {
             "questionNumber": 91,
@@ -1091,7 +1180,8 @@
                 "d": "玫瑰"
             },
             "answer": "c",
-            "audioSource": "audio/91"
+            "audioSource": "audio/91",
+            "analysis": "仙人掌全身绿色带刺，能在干旱的沙漠中生存且常年保持绿色，开花时格外美丽。"
         },
         {
             "questionNumber": 92,
@@ -1103,7 +1193,8 @@
                 "d": "长发公主"
             },
             "answer": "a",
-            "audioSource": "audio/92"
+            "audioSource": "audio/92",
+            "analysis": "说明：柳树的枝条细长如细腰，随风摆动，垂在水边，春天发芽如绿丝带，秋天落叶飘零。"
         },
         {
             "questionNumber": 93,
@@ -1115,7 +1206,8 @@
                 "d": "玫瑰"
             },
             "answer": "c",
-            "audioSource": "audio/93"
+            "audioSource": "audio/93",
+            "analysis": "松树四季常青，针状叶子耐寒挺拔，能在恶劣环境中生长，因此是“岁寒三友”之首。"
         },
         {
             "questionNumber": 94,
@@ -1127,7 +1219,8 @@
                 "d": "松树"
             },
             "answer": "b",
-            "audioSource": "audio/94"
+            "audioSource": "audio/94",
+            "analysis": "银杏树的叶子像扇子，果实类似杏子，秋天叶子变黄，且是珍贵的古老树种。"
         },
         {
             "questionNumber": 95,
@@ -1139,7 +1232,8 @@
                 "d": "荷花"
             },
             "answer": "d",
-            "audioSource": "audio/95"
+            "audioSource": "audio/95",
+            "analysis": "说明：荷花（“d”为拼音首字母）的绿叶浮于水面，花朵在阳光下红艳绽放，生长于淤泥却洁净不染，并散发清香。"
         },
         {
             "questionNumber": 96,
@@ -1151,7 +1245,8 @@
                 "d": "芦荟"
             },
             "answer": "a",
-            "audioSource": "audio/96"
+            "audioSource": "audio/96",
+            "analysis": "甘蔗身披绿色外衣，节节生长，内部含有甜美的汁液，是田间常见的作物，咀嚼时能品尝到甘甜的味道。"
         },
         {
             "questionNumber": 97,
@@ -1163,7 +1258,8 @@
                 "d": "柿子"
             },
             "answer": "b",
-            "audioSource": "audio/97"
+            "audioSource": "audio/97",
+            "analysis": "苹果（红脸圆润、甜中带酸）在秋季成熟，摘下食用能带来愉悦感。"
         },
         {
             "questionNumber": 98,
@@ -1175,7 +1271,8 @@
                 "d": "芒果"
             },
             "answer": "a",
-            "audioSource": "audio/98"
+            "audioSource": "audio/98",
+            "analysis": "香蕉外皮黄色且弯曲，剥开后露出白色果肉，味道香甜软滑，是广受欢迎的热带水果。"
         },
         {
             "questionNumber": 99,
@@ -1187,7 +1284,8 @@
                 "d": "灯笼"
             },
             "answer": "c",
-            "audioSource": "audio/99"
+            "audioSource": "audio/99",
+            "analysis": "草莓红润的外表（红颜）配上绿色的蒂（绿衣），表面布满小籽（繁星），味道酸甜可口，春天成熟时散发香气。"
         },
         {
             "questionNumber": 100,
@@ -1199,7 +1297,8 @@
                 "d": "樱桃"
             },
             "answer": "a",
-            "audioSource": "audio/100"
+            "audioSource": "audio/100",
+            "analysis": "紫衣裹身的小圆球指葡萄的外形和颜色，酸甜滋味和夏日枝头挂满串描述了葡萄的味道和生长特点，因此答案是葡萄。"
         },
         {
             "questionNumber": 101,
@@ -1211,7 +1310,8 @@
                 "d": "荔枝"
             },
             "answer": "c",
-            "audioSource": "audio/101"
+            "audioSource": "audio/101",
+            "analysis": "樱桃像红色的小珠子挂在绿色的树枝上，小巧玲珑且味道甜美，是夏季受欢迎的水果。"
         },
         {
             "questionNumber": 102,
@@ -1223,7 +1323,8 @@
                 "d": "西瓜"
             },
             "answer": "d",
-            "audioSource": "audio/102"
+            "audioSource": "audio/102",
+            "analysis": "西瓜外表是绿色的，里面是红色的果肉，夏天吃清凉解渴，切开可见黑色籽粒，味道甜美多汁。"
         },
         {
             "questionNumber": 103,
@@ -1235,7 +1336,8 @@
                 "d": "菠萝"
             },
             "answer": "c",
-            "audioSource": "audio/103"
+            "audioSource": "audio/103",
+            "analysis": "西瓜外皮有绿色花纹，果肉甜美多汁，是夏季消暑佳品，且原产于西域地区。"
         },
         {
             "questionNumber": 104,
@@ -1247,7 +1349,8 @@
                 "d": "榴莲"
             },
             "answer": "b",
-            "audioSource": "audio/104"
+            "audioSource": "audio/104",
+            "analysis": "菠萝外表呈金黄色，顶端有绿色叶片，果肉酸甜可口，是热带地区的水果。"
         },
         {
             "questionNumber": 105,
@@ -1259,7 +1362,8 @@
                 "d": "菠萝"
             },
             "answer": "b",
-            "audioSource": "audio/105"
+            "audioSource": "audio/105",
+            "analysis": "这个水果外皮金黄如太阳，果肉甜美多汁，是夏日解渴的热带水果。"
         },
         {
             "questionNumber": 106,
@@ -1271,7 +1375,8 @@
                 "d": "土豆"
             },
             "answer": "b",
-            "audioSource": "audio/106"
+            "audioSource": "audio/106",
+            "analysis": "猕猴桃外表是褐色的毛皮，内部果肉呈翠绿色，味道酸甜且营养丰富。"
         },
         {
             "questionNumber": 107,
@@ -1283,7 +1388,8 @@
                 "d": "石榴"
             },
             "answer": "d",
-            "audioSource": "audio/107"
+            "audioSource": "audio/107",
+            "analysis": "石榴的外皮呈红色，内部有许多晶莹的果粒，秋天成熟时挂满枝头，味道酸甜可口。"
         },
         {
             "questionNumber": 108,
@@ -1295,7 +1401,8 @@
                 "d": "香蕉"
             },
             "answer": "a",
-            "audioSource": "audio/108"
+            "audioSource": "audio/108",
+            "analysis": "外衣金黄、内藏甜蜜的果实，剥开后散发果香，正是秋天成熟的橘子（或橙子）的特征。"
         },
         {
             "questionNumber": 109,
@@ -1307,7 +1414,8 @@
                 "d": "樱桃"
             },
             "answer": "a",
-            "audioSource": "audio/109"
+            "audioSource": "audio/109",
+            "analysis": "葡萄成熟时呈紫色外皮（紫衣）和绿色果肉（绿裙），酸甜多汁，秋季成串垂挂，常用于酿酒。"
         },
         {
             "questionNumber": 110,
@@ -1319,7 +1427,8 @@
                 "d": "柚子"
             },
             "answer": "d",
-            "audioSource": "audio/110"
+            "audioSource": "audio/110",
+            "analysis": "橘子外皮金黄圆润，果肉饱满如珍珠，秋天成熟时挂满枝头，味道酸甜可口。"
         },
         {
             "questionNumber": 111,
@@ -1331,7 +1440,8 @@
                 "d": "樱桃"
             },
             "answer": "c",
-            "audioSource": "audio/111"
+            "audioSource": "audio/111",
+            "analysis": "荔枝外披红色硬壳（红袍），内含晶莹果肉（玉珠），夏季成熟于枝头，味道甜中带酸，完美契合谜面描述。"
         },
         {
             "questionNumber": 112,
@@ -1343,7 +1453,8 @@
                 "d": "西瓜"
             },
             "answer": "a",
-            "audioSource": "audio/112"
+            "audioSource": "audio/112",
+            "analysis": "荔枝外形圆润如珍珠挂在枝头，皮薄肉厚且味道甘甜，是夏日解暑的佳果，与谜语描述完美契合。"
         },
         {
             "questionNumber": 113,
@@ -1355,7 +1466,8 @@
                 "d": "菠萝"
             },
             "answer": "a",
-            "audioSource": "audio/113"
+            "audioSource": "audio/113",
+            "analysis": "荔枝外表有红色鳞状突起果皮，内部果肉洁白如雪，是热带水果，夏天食用清爽解暑。"
         },
         {
             "questionNumber": 114,
@@ -1367,7 +1479,8 @@
                 "d": "榴莲"
             },
             "answer": "b",
-            "audioSource": "audio/114"
+            "audioSource": "audio/114",
+            "analysis": "椰子外表有坚硬的壳，内部含有甜美的汁液，生长在热带地区的高树上。"
         },
         {
             "questionNumber": 115,
@@ -1379,7 +1492,8 @@
                 "d": "雪人"
             },
             "answer": "c",
-            "audioSource": "audio/115"
+            "audioSource": "audio/115",
+            "analysis": "梨的果皮呈黄色，果肉为白色且味道甜，秋天成熟挂在枝头，落叶时声音清脆，是人们喜爱的解渴水果。"
         },
         {
             "questionNumber": 116,
@@ -1391,7 +1505,8 @@
                 "d": "桃子"
             },
             "answer": "d",
-            "audioSource": "audio/116"
+            "audioSource": "audio/116",
+            "analysis": "桃子红润如颊，披着绿色外衣挂在夏日的枝头，香甜的味道吸引人们靠近，而果核中藏着它的种子。"
         },
         {
             "questionNumber": 117,
@@ -1403,7 +1518,8 @@
                 "d": "番茄"
             },
             "answer": "c",
-            "audioSource": "audio/117"
+            "audioSource": "audio/117",
+            "analysis": "柿子秋天成熟时挂满枝头，颜色红黄似灯笼，果皮薄且果肉甜软，通常需经霜打后才适合采摘。"
         },
         {
             "questionNumber": 118,
@@ -1415,7 +1531,8 @@
                 "d": "芦荟"
             },
             "answer": "a",
-            "audioSource": "audio/118"
+            "audioSource": "audio/118",
+            "analysis": "甘蔗披着绿色的外皮，直立生长且内部含有甜汁，嚼食时能尝到甘甜的味道。"
         },
         {
             "questionNumber": 119,
@@ -1427,7 +1544,8 @@
                 "d": "石榴"
             },
             "answer": "c",
-            "audioSource": "audio/119"
+            "audioSource": "audio/119",
+            "analysis": "红枣外表红润皮薄，内含甜美果肉，成熟时挂满枝头像灯笼，是营养丰富的滋补品，常用于煮粥或泡茶。"
         },
         {
             "questionNumber": 120,
@@ -1439,7 +1557,8 @@
                 "d": "桂圆"
             },
             "answer": "d",
-            "audioSource": "audio/120"
+            "audioSource": "audio/120",
+            "analysis": "荔枝的外皮金黄如龙眼，果肉晶莹剔透，是夏日解渴且滋补的美味水果。"
         },
         {
             "questionNumber": 121,
@@ -1451,7 +1570,8 @@
                 "d": "菠萝"
             },
             "answer": "a",
-            "audioSource": "audio/121"
+            "audioSource": "audio/121",
+            "analysis": "说明：谜语描述了无花果（fig）不开花却直接结果、果实隐藏在绿叶中且味道甜美的特点，与答案“a”（代表无花果的英文首字母）形成对应。"
         },
         {
             "questionNumber": 122,
@@ -1463,7 +1583,8 @@
                 "d": "灯笼"
             },
             "answer": "b",
-            "audioSource": "audio/122"
+            "audioSource": "audio/122",
+            "analysis": "辣椒有红色和绿色的外表，常挂在枝头生长，味道酸甜（或辛辣），虽非水果或蔬菜（植物学上属于浆果），但却是烹饪中的重要调味品。"
         },
         {
             "questionNumber": 123,
@@ -1475,7 +1596,8 @@
                 "d": "青蛙"
             },
             "answer": "b",
-            "audioSource": "audio/123"
+            "audioSource": "audio/123",
+            "analysis": "黄瓜身披绿色的外皮，头顶小黄花，是夏日里脆嫩可口的清凉蔬菜。"
         },
         {
             "questionNumber": 124,
@@ -1487,7 +1609,8 @@
                 "d": "香蕉"
             },
             "answer": "c",
-            "audioSource": "audio/124"
+            "audioSource": "audio/124",
+            "analysis": "茄子外皮呈紫色且形状细长弯曲，顶端有绿色蒂梗，是夏季常见蔬菜，烹饪后味道鲜美。"
         },
         {
             "questionNumber": 125,
@@ -1499,7 +1622,8 @@
                 "d": "红薯"
             },
             "answer": "c",
-            "audioSource": "audio/125"
+            "audioSource": "audio/125",
+            "analysis": "说明：花生生长在土里，外皮黄色，果肉白色，内心黄色，煮熟后香气扑鼻，生吃时口感脆爽。"
         },
         {
             "questionNumber": 126,
@@ -1511,7 +1635,8 @@
                 "d": "胡萝卜"
             },
             "answer": "d",
-            "audioSource": "audio/126"
+            "audioSource": "audio/126",
+            "analysis": "胡萝卜外皮呈红色（红袍），顶端有绿色叶子（绿冠），生长在土里，并且是兔子喜爱的食物。"
         },
         {
             "questionNumber": 127,
@@ -1523,7 +1648,8 @@
                 "d": "竹子"
             },
             "answer": "a",
-            "audioSource": "audio/127"
+            "audioSource": "audio/127",
+            "analysis": "说明：谜语描述的是白萝卜（a），它外皮白色（身披白衣裳），顶部有绿色叶子（头戴绿帽子），生长在地下（地下藏身久），拔出时带有泥土清香（拔起满园香）。"
         },
         {
             "questionNumber": 128,
@@ -1535,7 +1661,8 @@
                 "d": "青椒"
             },
             "answer": "d",
-            "audioSource": "audio/128"
+            "audioSource": "audio/128",
+            "analysis": "青椒外表是绿色的，味道辛辣，常用于烹饪和凉拌菜。"
         },
         {
             "questionNumber": 129,
@@ -1547,7 +1674,8 @@
                 "d": "火焰"
             },
             "answer": "a",
-            "audioSource": "audio/129"
+            "audioSource": "audio/129",
+            "analysis": "辣椒外表呈红色或绿色，内部含有辛辣的味道，常被用来为夏日菜肴增添风味，或在冬日食用以温暖身体。"
         },
         {
             "questionNumber": 130,
@@ -1559,7 +1687,8 @@
                 "d": "洋葱"
             },
             "answer": "d",
-            "audioSource": "audio/130"
+            "audioSource": "audio/130",
+            "analysis": "洋葱有多层外皮，剥开时会刺激眼睛流泪，内部味道辛辣，是厨房中常见的食材。"
         },
         {
             "questionNumber": 131,
@@ -1571,7 +1700,8 @@
                 "d": "洋葱"
             },
             "answer": "b",
-            "audioSource": "audio/131"
+            "audioSource": "audio/131",
+            "analysis": "大蒜外衣层层包裹，内部洁白如白玉，味道辛辣，是厨房中常用的调味品。"
         },
         {
             "questionNumber": 132,
@@ -1583,7 +1713,8 @@
                 "d": "冰块"
             },
             "answer": "b",
-            "audioSource": "audio/132"
+            "audioSource": "audio/132",
+            "analysis": "说明：生姜（b）生长在地下，外皮黄色内里白色，味道辛辣，是厨房常用调味品，且有驱寒暖胃的功效。"
         },
         {
             "questionNumber": 133,
@@ -1595,7 +1726,8 @@
                 "d": "蘑菇"
             },
             "answer": "a",
-            "audioSource": "audio/133"
+            "audioSource": "audio/133",
+            "analysis": "西兰花有着层层叠叠的绿色冠部，形状像小树丛，常出现在餐桌上，富含营养。"
         },
         {
             "questionNumber": 134,
@@ -1607,7 +1739,8 @@
                 "d": "土豆"
             },
             "answer": "b",
-            "audioSource": "audio/134"
+            "audioSource": "audio/134",
+            "analysis": "胡萝卜（红根绿叶）生长在土中，是营养丰富的常见蔬菜，契合谜面描述的特征。"
         },
         {
             "questionNumber": 135,
@@ -1619,7 +1752,8 @@
                 "d": "西兰花"
             },
             "answer": "a",
-            "audioSource": "audio/135"
+            "audioSource": "audio/135",
+            "analysis": "生菜（a）的叶子层层叠叠，质地脆嫩适合生食，是沙拉的常见配料。"
         },
         {
             "questionNumber": 136,
@@ -1631,7 +1765,8 @@
                 "d": "章鱼"
             },
             "answer": "c",
-            "audioSource": "audio/136"
+            "audioSource": "audio/136",
+            "analysis": "莲藕生长在水底淤泥中，节节相连形似白玉，切开后可见丝状纤维，味道清甜常用于烹饪。"
         },
         {
             "questionNumber": 137,
@@ -1643,7 +1778,8 @@
                 "d": "香菇"
             },
             "answer": "d",
-            "audioSource": "audio/137"
+            "audioSource": "audio/137",
+            "analysis": "蘑菇的伞盖小而圆，通常生长在木头上，雨后快速生长，并散发出独特的香味。"
         },
         {
             "questionNumber": 138,
@@ -1655,7 +1791,8 @@
                 "d": "西兰花"
             },
             "answer": "a",
-            "audioSource": "audio/138"
+            "audioSource": "audio/138",
+            "analysis": "说明：海带生长在深海，颜色翠绿如绸缎，随海浪飘动，是餐桌上常见的鲜美食物，富含营养。"
         },
         {
             "questionNumber": 139,
@@ -1667,7 +1804,8 @@
                 "d": "黄瓜"
             },
             "answer": "a",
-            "audioSource": "audio/139"
+            "audioSource": "audio/139",
+            "analysis": "说明：丝瓜藤上挂着绿色的果实，形状细长如蛇缠绕，切开后果肉洁白如玉，煮汤时味道鲜美。"
         },
         {
             "questionNumber": 140,
@@ -1679,7 +1817,8 @@
                 "d": "西瓜"
             },
             "answer": "a",
-            "audioSource": "audio/140"
+            "audioSource": "audio/140",
+            "analysis": "苦瓜外皮呈绿色，内部味道苦涩，是夏季清热解暑的常见蔬菜。"
         },
         {
             "questionNumber": 141,
@@ -1691,7 +1830,8 @@
                 "d": "西瓜"
             },
             "answer": "c",
-            "audioSource": "audio/141"
+            "audioSource": "audio/141",
+            "analysis": "南瓜圆滚滚、外皮黄色，生长在藤蔓上，秋季丰收，并常在万圣节被雕刻成鬼脸装饰。"
         },
         {
             "questionNumber": 142,
@@ -1703,7 +1843,8 @@
                 "d": "玉米"
             },
             "answer": "d",
-            "audioSource": "audio/142"
+            "audioSource": "audio/142",
+            "analysis": "说明：玉米的外皮呈金黄色，顶端有绿色的穗须，籽粒饱满，成熟时在田间形成丰收的景象。"
         },
         {
             "questionNumber": 143,
@@ -1715,7 +1856,8 @@
                 "d": "铅笔"
             },
             "answer": "b",
-            "audioSource": "audio/143"
+            "audioSource": "audio/143",
+            "analysis": "说明：竹子春天破土而出，外皮层层包裹，笋尖形似笔头，生长时节节向上。"
         },
         {
             "questionNumber": 144,
@@ -1727,7 +1869,8 @@
                 "d": "葡萄"
             },
             "answer": "c",
-            "audioSource": "audio/144"
+            "audioSource": "audio/144",
+            "analysis": "豌豆外表绿色且圆小，通常成串生长，剥开后露出豆粒，可用于烹饪各种菜肴。"
         },
         {
             "questionNumber": 145,
@@ -1739,7 +1882,8 @@
                 "d": "香蕉"
             },
             "answer": "a",
-            "audioSource": "audio/145"
+            "audioSource": "audio/145",
+            "analysis": "黄瓜外表呈绿色且细长，形状弯曲如月牙，通常成串生长在藤上，是餐桌上常见的蔬菜。"
         },
         {
             "questionNumber": 146,
@@ -1751,7 +1895,8 @@
                 "d": "荷叶"
             },
             "answer": "c",
-            "audioSource": "audio/146"
+            "audioSource": "audio/146",
+            "analysis": "说明：黄瓜外皮呈黄色（或绿色），顶端带有绿色的蒂（“绿帽”），生长在水中但果实不沾泥，是餐桌上常见的蔬菜。"
         },
         {
             "questionNumber": 147,
@@ -1763,7 +1908,8 @@
                 "d": "尺子"
             },
             "answer": "a",
-            "audioSource": "audio/147"
+            "audioSource": "audio/147",
+            "analysis": "铅笔身披木质外壳，内心是石墨笔芯，削尖后能在纸上写字且容易擦除不留痕迹。"
         },
         {
             "questionNumber": 148,
@@ -1775,7 +1921,8 @@
                 "d": "橡皮"
             },
             "answer": "a",
-            "audioSource": "audio/148"
+            "audioSource": "audio/148",
+            "analysis": "钢笔的外壳是金属材质，内部装有墨水，书写时在纸上留下字迹。"
         },
         {
             "questionNumber": 149,
@@ -1787,7 +1934,8 @@
                 "d": "缝衣针"
             },
             "answer": "a",
-            "audioSource": "audio/149"
+            "audioSource": "audio/149",
+            "analysis": "说明：针尖般细的笔尖（如钢笔）内藏墨水，轻轻转动时能在纸上留下字迹。"
         },
         {
             "questionNumber": 150,
@@ -1799,7 +1947,8 @@
                 "d": "剪刀"
             },
             "answer": "c",
-            "audioSource": "audio/150"
+            "audioSource": "audio/150",
+            "analysis": "橡皮擦轻薄如纸片，常在纸上移动，能擦除错误且不留痕迹。"
         },
         {
             "questionNumber": 151,
@@ -1811,7 +1960,8 @@
                 "d": "铅笔"
             },
             "answer": "a",
-            "audioSource": "audio/151"
+            "audioSource": "audio/151",
+            "analysis": "说明：直尺形状笔直，用于测量长度，是学生书桌上的常见工具，常用于画线和作图。"
         },
         {
             "questionNumber": 152,
@@ -1823,7 +1973,8 @@
                 "d": "锤子"
             },
             "answer": "c",
-            "audioSource": "audio/152"
+            "audioSource": "audio/152",
+            "analysis": "剪刀有两片锋利的金属刃（铁嘴），通过开合动作可以剪断线或布料，是裁衣和日常家用的必备工具。"
         },
         {
             "questionNumber": 153,
@@ -1835,7 +1986,8 @@
                 "d": "磁铁"
             },
             "answer": "a",
-            "audioSource": "audio/153"
+            "audioSource": "audio/153",
+            "analysis": "说明：胶水无色透明如水，能粘合各种物品且不留痕迹，一旦粘合后难以分开。"
         },
         {
             "questionNumber": 154,
@@ -1847,7 +1999,8 @@
                 "d": "橡皮擦"
             },
             "answer": "a",
-            "audioSource": "audio/154"
+            "audioSource": "audio/154",
+            "analysis": "订书机用金属钉（铁嘴钢牙）穿透纸张，按压后便能固定文件，是办公中整理文档的常用工具。"
         },
         {
             "questionNumber": 155,
@@ -1859,7 +2012,8 @@
                 "d": "橡皮筋"
             },
             "answer": "c",
-            "audioSource": "audio/155"
+            "audioSource": "audio/155",
+            "analysis": "回形针弯曲的形状像银蛇，轻轻夹住纸张防止其散落，虽是无生命之物却在办公中发挥重要作用。"
         },
         {
             "questionNumber": 156,
@@ -1871,7 +2025,8 @@
                 "d": "相册"
             },
             "answer": "b",
-            "audioSource": "audio/156"
+            "audioSource": "audio/156",
+            "analysis": "书本方方正正像盒子，里面包含丰富的知识和情感，虽然无声却能传递思想。"
         },
         {
             "questionNumber": 157,
@@ -1883,7 +2038,8 @@
                 "d": "笔记本电脑"
             },
             "answer": "c",
-            "audioSource": "audio/157"
+            "audioSource": "audio/157",
+            "analysis": "书本方方正正像一片心，书页层层叠叠藏着知识，翻开可以阅读各种内容，合上后便安静无声。"
         },
         {
             "questionNumber": 158,
@@ -1895,7 +2051,8 @@
                 "d": "计算器"
             },
             "answer": "d",
-            "audioSource": "audio/158"
+            "audioSource": "audio/158",
+            "analysis": "说明：计算器外形方方正正，带有数字按键，能进行加减乘除运算，是日常计算和理财的实用工具。"
         },
         {
             "questionNumber": 159,
@@ -1907,7 +2064,8 @@
                 "d": "日历"
             },
             "answer": "a",
-            "audioSource": "audio/159"
+            "audioSource": "audio/159",
+            "analysis": "报纸每天都会更新不同的内容，以黑白文字排版呈现，并迅速传递新闻信息，常见于家庭桌面上。"
         },
         {
             "questionNumber": 160,
@@ -1919,7 +2077,8 @@
                 "d": "黑板"
             },
             "answer": "c",
-            "audioSource": "audio/160"
+            "audioSource": "audio/160",
+            "analysis": "书本像一扇方正的“门”，里面蕴含着丰富的知识（藏乾坤），是学生日常学习的工具（相伴学子身），带领人们畅游知识的海洋。"
         },
         {
             "questionNumber": 161,
@@ -1931,7 +2090,8 @@
                 "d": "剪刀"
             },
             "answer": "c",
-            "audioSource": "audio/161"
+            "audioSource": "audio/161",
+            "analysis": "削笔刀的铁嘴和钢牙齿能咬住铅笔旋转削尖，就像谜语描述的动作和功能。"
         },
         {
             "questionNumber": 162,
@@ -1943,7 +2103,8 @@
                 "d": "梳子"
             },
             "answer": "b",
-            "audioSource": "audio/162"
+            "audioSource": "audio/162",
+            "analysis": "口红是小巧的化妆品，涂抹在嘴唇上能增添魅力，且便于随身携带使用。"
         },
         {
             "questionNumber": 163,
@@ -1955,7 +2116,8 @@
                 "d": "耳环"
             },
             "answer": "b",
-            "audioSource": "audio/163"
+            "audioSource": "audio/163",
+            "analysis": "眉笔细长轻巧，用于描画眉毛（眉间）来修饰妆容，让美人更显神采。"
         },
         {
             "questionNumber": 164,
@@ -1967,7 +2129,8 @@
                 "d": "春风"
             },
             "answer": "a",
-            "audioSource": "audio/164"
+            "audioSource": "audio/164",
+            "analysis": "香水如同瓶中封存的花香，轻轻喷洒就能让香气弥漫房间，虽然无形却能通过芬芳让人陶醉。"
         },
         {
             "questionNumber": 165,
@@ -1979,7 +2142,8 @@
                 "d": "铅笔"
             },
             "answer": "c",
-            "audioSource": "audio/165"
+            "audioSource": "audio/165",
+            "analysis": "牙刷细长的外形和硬质刷毛能清洁口腔，早晚各使用一次。"
         },
         {
             "questionNumber": 166,
@@ -1991,7 +2155,8 @@
                 "d": "铅笔"
             },
             "answer": "b",
-            "audioSource": "audio/166"
+            "audioSource": "audio/166",
+            "analysis": "牙膏是长条状的白色物体，内部藏着柔软的膏体，每天早晚使用时会散发出清香，起到清洁牙齿和保护牙龈的作用。"
         },
         {
             "questionNumber": 167,
@@ -2003,7 +2168,8 @@
                 "d": "毛巾"
             },
             "answer": "d",
-            "audioSource": "audio/167"
+            "audioSource": "audio/167",
+            "analysis": "毛巾柔软蓬松像云朵，能吸水吸汗，早晚洗漱时使用并挂在墙上晾干。"
         },
         {
             "questionNumber": 168,
@@ -2015,7 +2181,8 @@
                 "d": "香皂"
             },
             "answer": "d",
-            "audioSource": "audio/168"
+            "audioSource": "audio/168",
+            "analysis": "肥皂是方方正正的块状物品，遇水搓揉会化开并散发香气，能清洁污垢并留下清香，是每个家庭必备的清洁用品。"
         },
         {
             "questionNumber": 169,
@@ -2027,7 +2194,8 @@
                 "d": "棉花"
             },
             "answer": "b",
-            "audioSource": "audio/169"
+            "audioSource": "audio/169",
+            "analysis": "肥皂洁白光滑，遇水起泡能去污，是日常清洁的必备品。"
         },
         {
             "questionNumber": 170,
@@ -2039,7 +2207,8 @@
                 "d": "矿泉水"
             },
             "answer": "b",
-            "audioSource": "audio/170"
+            "audioSource": "audio/170",
+            "analysis": "洗衣液无色透明且泡沫丰富，能有效去污并使衣物洁净芳香，是家庭日常必备的清洁用品。"
         },
         {
             "questionNumber": 171,
@@ -2051,7 +2220,8 @@
                 "d": "手表"
             },
             "answer": "c",
-            "audioSource": "audio/171"
+            "audioSource": "audio/171",
+            "analysis": "纽扣是一个小小的圆形物品，常缝在衣服上，通过两个孔穿线固定，与衣服紧密相连。"
         },
         {
             "questionNumber": 172,
@@ -2063,7 +2233,8 @@
                 "d": "围巾"
             },
             "answer": "b",
-            "audioSource": "audio/172"
+            "audioSource": "audio/172",
+            "analysis": "口罩是一片薄布，用于遮住口鼻，能阻挡灰尘和细菌，是出门常备的防护用品。"
         },
         {
             "questionNumber": 173,
@@ -2075,7 +2246,8 @@
                 "d": "玻璃"
             },
             "answer": "a",
-            "audioSource": "audio/173"
+            "audioSource": "audio/173",
+            "analysis": "说明：纸巾薄而洁白，可以轻松抽取使用，遇水即溶，是日常生活中常用的清洁用品。"
         },
         {
             "questionNumber": 174,
@@ -2087,7 +2259,8 @@
                 "d": "钥匙"
             },
             "answer": "d",
-            "audioSource": "audio/174"
+            "audioSource": "audio/174",
+            "analysis": "钥匙轻巧细薄，齿纹密集，插入锁孔后就能打开门锁。"
         },
         {
             "questionNumber": 175,
@@ -2099,7 +2272,8 @@
                 "d": "指南针"
             },
             "answer": "a",
-            "audioSource": "audio/175"
+            "audioSource": "audio/175",
+            "analysis": "钟表是一个圆盘形状，通过指针转动来显示时间，人们每天都会使用它来掌握时刻。"
         },
         {
             "questionNumber": 176,
@@ -2111,7 +2285,8 @@
                 "d": "口罩"
             },
             "answer": "a",
-            "audioSource": "audio/176"
+            "audioSource": "audio/176",
+            "analysis": "墨镜的两片黑色镜片能遮挡阳光保护眼睛，是时尚人士夏季常备的遮阳工具。"
         },
         {
             "questionNumber": 177,
@@ -2123,7 +2298,8 @@
                 "d": "眼镜"
             },
             "answer": "d",
-            "audioSource": "audio/177"
+            "audioSource": "audio/177",
+            "analysis": "眼镜有两片透明镜片，戴在鼻梁上帮助人们看清远近的事物，让视野更清晰。"
         },
         {
             "questionNumber": 178,
@@ -2135,7 +2311,8 @@
                 "d": "耳机"
             },
             "answer": "b",
-            "audioSource": "audio/178"
+            "audioSource": "audio/178",
+            "analysis": "鞋带细长如蛇，穿过鞋孔后拉紧可以固定鞋子，确保行走安全。"
         },
         {
             "questionNumber": 179,
@@ -2147,7 +2324,8 @@
                 "d": "牙刷"
             },
             "answer": "b",
-            "audioSource": "audio/179"
+            "audioSource": "audio/179",
+            "analysis": "梳子的齿紧密排列，轻轻梳理能让头发柔亮，是人们每天早晚打理头发必备的工具，若找不到会令人着急。"
         },
         {
             "questionNumber": 180,
@@ -2159,7 +2337,8 @@
                 "d": "风"
             },
             "answer": "a",
-            "audioSource": "audio/180"
+            "audioSource": "audio/180",
+            "analysis": "说明：这个谜语描述的是字母“a”，它没有口、眼、耳或手，但可以组成单词来表达言语、视觉、听觉和触觉的概念。"
         },
         {
             "questionNumber": 181,
@@ -2171,7 +2350,8 @@
                 "d": "香蕉"
             },
             "answer": "a",
-            "audioSource": "audio/181"
+            "audioSource": "audio/181",
+            "analysis": "发夹形状像弯月，能夹住头发作为装饰，既实用又美观。"
         },
         {
             "questionNumber": 182,
@@ -2183,7 +2363,8 @@
                 "d": "梳子"
             },
             "answer": "a",
-            "audioSource": "audio/182"
+            "audioSource": "audio/182",
+            "analysis": "发胶透明如水晶，粘稠似蜜糖，涂抹后能让发型立刻变得光亮有型。"
         },
         {
             "questionNumber": 183,
@@ -2195,7 +2376,8 @@
                 "d": "帽子"
             },
             "answer": "b",
-            "audioSource": "audio/183"
+            "audioSource": "audio/183",
+            "analysis": "袜子像两只小船一样套在脚上，没有帆桨却随脚移动，脱下时露出脚丫，穿上时提供温暖。"
         },
         {
             "questionNumber": 184,
@@ -2207,7 +2389,8 @@
                 "d": "跳绳"
             },
             "answer": "b",
-            "audioSource": "audio/184"
+            "audioSource": "audio/184",
+            "analysis": "围巾是长条柔软的饰品，常绕在颈部用于冬日保暖，多样的花色能增添风采，随风摆动时轻盈如云烟。"
         },
         {
             "questionNumber": 185,
@@ -2219,7 +2402,8 @@
                 "d": "太阳镜"
             },
             "answer": "a",
-            "audioSource": "audio/185"
+            "audioSource": "audio/185",
+            "analysis": "帽子戴在头顶，能遮阳挡雨，是四季常备的时尚配饰。"
         },
         {
             "questionNumber": 186,
@@ -2231,7 +2415,8 @@
                 "d": "手表"
             },
             "answer": "b",
-            "audioSource": "audio/186"
+            "audioSource": "audio/186",
+            "analysis": "腰带通常由皮革或织物制成，绕在腰间用于固定衣物，是日常生活中不可或缺的服饰配件。"
         },
         {
             "questionNumber": 187,
@@ -2243,7 +2428,8 @@
                 "d": "领带"
             },
             "answer": "d",
-            "audioSource": "audio/187"
+            "audioSource": "audio/187",
+            "analysis": "领带细长如蛇，色彩多样彰显身份，常用于正式场合并可根据需要调节松紧。"
         },
         {
             "questionNumber": 188,
@@ -2255,7 +2441,8 @@
                 "d": "雨伞"
             },
             "answer": "d",
-            "audioSource": "audio/188"
+            "audioSource": "audio/188",
+            "analysis": "伞的骨架撑开时能遮阳挡雨，且可以收叠携带，随时应对风雨天气。"
         },
         {
             "questionNumber": 189,
@@ -2267,7 +2454,8 @@
                 "d": "冰块"
             },
             "answer": "a",
-            "audioSource": "audio/189"
+            "audioSource": "audio/189",
+            "analysis": "玻璃杯透明如水晶，常放在水旁，重量轻且能用来喝水解渴。"
         },
         {
             "questionNumber": 190,
@@ -2279,7 +2467,8 @@
                 "d": "花瓶"
             },
             "answer": "b",
-            "audioSource": "audio/190"
+            "audioSource": "audio/190",
+            "analysis": "茶壶肚大能装水，壶嘴细小可倒水，外表常有彩绘装饰，常用于泡茶。"
         },
         {
             "questionNumber": 191,
@@ -2291,7 +2480,8 @@
                 "d": "灯笼"
             },
             "answer": "a",
-            "audioSource": "audio/191"
+            "audioSource": "audio/191",
+            "analysis": "碗是圆口浅底的容器，常用来盛放饭菜，承载着食物的味道，等待人们用手端起使用。"
         },
         {
             "questionNumber": 192,
@@ -2303,7 +2493,8 @@
                 "d": "吸管"
             },
             "answer": "b",
-            "audioSource": "audio/192"
+            "audioSource": "audio/192",
+            "analysis": "筷子通常成对使用（兄弟俩），长度相同（一般高），用餐时必不可少（吃饭时候少不了），使用时一根动一根静（一个动来一个静），配合夹取食物（配合默契真奇妙）。"
         },
         {
             "questionNumber": 193,
@@ -2315,7 +2506,8 @@
                 "d": "闪电"
             },
             "answer": "b",
-            "audioSource": "audio/193"
+            "audioSource": "audio/193",
+            "analysis": "说明：菜刀（\"b\"谐音）的金属刀身闪亮锋利，能切开食材（\"天地两分张\"），是厨房必备的利器。"
         },
         {
             "questionNumber": 194,
@@ -2327,7 +2519,8 @@
                 "d": "锅铲"
             },
             "answer": "b",
-            "audioSource": "audio/194"
+            "audioSource": "audio/194",
+            "analysis": "砧板是方正的木质工具，在厨房中承受刀切剁肉的辛苦却不损坏。"
         },
         {
             "questionNumber": 195,
@@ -2339,7 +2532,8 @@
                 "d": "纱窗"
             },
             "answer": "b",
-            "audioSource": "audio/195"
+            "audioSource": "audio/195",
+            "analysis": "保鲜膜薄而透明，常用于包裹食物以保持新鲜，是厨房中不可或缺的物品。"
         },
         {
             "questionNumber": 196,
@@ -2351,7 +2545,8 @@
                 "d": "火车"
             },
             "answer": "c",
-            "audioSource": "audio/196"
+            "audioSource": "audio/196",
+            "analysis": "闹钟日夜不停地运转，发出响亮的声音，早晨叫醒人们，晚上也能作为就寝的提醒。"
         },
         {
             "questionNumber": 197,
@@ -2363,7 +2558,8 @@
                 "d": "手机"
             },
             "answer": "a",
-            "audioSource": "audio/197"
+            "audioSource": "audio/197",
+            "analysis": "日历每天更新不同的日期，翻过的页面记录着时间的流逝，在小小的空间里承载着岁月，默默陪伴在身边。"
         },
         {
             "questionNumber": 198,
@@ -2375,7 +2571,8 @@
                 "d": "茶杯"
             },
             "answer": "c",
-            "audioSource": "audio/198"
+            "audioSource": "audio/198",
+            "analysis": "鼠标外形小巧，通过细长的线（或无线信号）连接电脑，点击即可操作，平时静止放在桌面上。"
         },
         {
             "questionNumber": 199,
@@ -2387,7 +2584,8 @@
                 "d": "键盘"
             },
             "answer": "d",
-            "audioSource": "audio/199"
+            "audioSource": "audio/199",
+            "analysis": "键盘虽小（方寸之间）却能通过输入展现广阔信息（藏世界），其按键（黑白琴键）的敲击（指尖轻点）虽无声响，却能传递丰富内容（无声胜有声）。"
         },
         {
             "questionNumber": 200,
@@ -2399,7 +2597,8 @@
                 "d": "书架"
             },
             "answer": "a",
-            "audioSource": "audio/200"
+            "audioSource": "audio/200",
+            "analysis": "打印机方方正正地放在桌边，不需要吃喝也不会说话，能将白纸印上文字，安静地完成工作。"
         },
         {
             "questionNumber": 201,
@@ -2411,7 +2610,8 @@
                 "d": "气球"
             },
             "answer": "b",
-            "audioSource": "audio/201"
+            "audioSource": "audio/201",
+            "analysis": "麦克风（或话筒）外形细长、顶端圆亮，用于扩音（声音从此出），是舞台表演的常见设备。"
         },
         {
             "questionNumber": 202,
@@ -2423,7 +2623,8 @@
                 "d": "暖气片"
             },
             "answer": "c",
-            "audioSource": "audio/202"
+            "audioSource": "audio/202",
+            "analysis": "空调在夏天提供冷气降温，冬天提供暖气保暖，通常安装在墙角且运行时安静，能调节室内温度保持四季如春。"
         },
         {
             "questionNumber": 203,
@@ -2435,7 +2636,8 @@
                 "d": "洗衣机"
             },
             "answer": "a",
-            "audioSource": "audio/203"
+            "audioSource": "audio/203",
+            "analysis": "吸尘器身披金属外壳但不用于战斗，工作时吸入灰尘却不会“咳嗽”，专门负责清洁家中环境且运行时几乎没有噪音。"
         },
         {
             "questionNumber": 204,
@@ -2447,7 +2649,8 @@
                 "d": "吹风机"
             },
             "answer": "d",
-            "audioSource": "audio/204"
+            "audioSource": "audio/204",
+            "analysis": "电吹风的外壳（银甲）能抵御风力，工作时吹出热风（驱湿寒），静置时无声，开启后发出呼呼声（似龙吟）。"
         },
         {
             "questionNumber": 205,
@@ -2459,7 +2662,8 @@
                 "d": "电热毯"
             },
             "answer": "d",
-            "audioSource": "audio/205"
+            "audioSource": "audio/205",
+            "analysis": "电热毯在冬天像小太阳一样提供温暖，虽不发光却能整夜保持床铺暖和。"
         },
         {
             "questionNumber": 206,
@@ -2471,7 +2675,8 @@
                 "d": "电熨斗"
             },
             "answer": "d",
-            "audioSource": "audio/206"
+            "audioSource": "audio/206",
+            "analysis": "熨斗（\"铁面\"指金属底板，\"无私心\"形容其平整功能，\"热力\"指加热特性，行走衣上能消除衣服皱褶）。"
         },
         {
             "questionNumber": 207,
@@ -2483,7 +2688,8 @@
                 "d": "洗衣机"
             },
             "answer": "d",
-            "audioSource": "audio/207"
+            "audioSource": "audio/207",
+            "analysis": "洗衣机是方形的容器，通过旋转清洗衣物和去除污渍。"
         },
         {
             "questionNumber": 208,
@@ -2495,7 +2701,8 @@
                 "d": "萤火虫"
             },
             "answer": "a",
-            "audioSource": "audio/208"
+            "audioSource": "audio/208",
+            "analysis": "蜡烛身形细长，顶端燃烧时发出光亮，夜晚点燃后能驱散黑暗。"
         },
         {
             "questionNumber": 209,
@@ -2507,7 +2714,8 @@
                 "d": "太阳能板"
             },
             "answer": "c",
-            "audioSource": "audio/209"
+            "audioSource": "audio/209",
+            "analysis": "电池虽小却能储存能量，通过正负极（阴阳）释放电力，默默为设备供电，电量耗尽后需要更换。"
         },
         {
             "questionNumber": 210,
@@ -2519,7 +2727,8 @@
                 "d": "蜡烛"
             },
             "answer": "d",
-            "audioSource": "audio/210"
+            "audioSource": "audio/210",
+            "analysis": "蜡烛身披白衣（蜡体），燃烧时滴下蜡泪（泪珠），夜晚点亮光明，最终燃烧殆尽。"
         },
         {
             "questionNumber": 211,
@@ -2531,7 +2740,8 @@
                 "d": "手电筒"
             },
             "answer": "c",
-            "audioSource": "audio/211"
+            "audioSource": "audio/211",
+            "analysis": "打火机体积小巧，内部储存火焰，轻轻一按就能点亮并照亮周围，便于随身携带和使用。"
         },
         {
             "questionNumber": 212,
@@ -2543,7 +2753,8 @@
                 "d": "蜡烛"
             },
             "answer": "a",
-            "audioSource": "audio/212"
+            "audioSource": "audio/212",
+            "analysis": "火柴细长的身体和红色的头，摩擦即可点燃，在黑暗中发出光亮。"
         },
         {
             "questionNumber": 213,
@@ -2555,7 +2766,8 @@
                 "d": "花瓶"
             },
             "answer": "a",
-            "audioSource": "audio/213"
+            "audioSource": "audio/213",
+            "analysis": "笔筒外形圆口小且中空，专门用于存放毛笔（文房四宝之一），插满的笔杆正等待主人取用书写。"
         },
         {
             "questionNumber": 214,
@@ -2567,7 +2779,8 @@
                 "d": "老师"
             },
             "answer": "d",
-            "audioSource": "audio/214"
+            "audioSource": "audio/214",
+            "analysis": "教师手持粉笔在三尺讲台上教书育人，培养出众多优秀学生（桃李满园），默默奉献不求回报。"
         },
         {
             "questionNumber": 215,
@@ -2579,7 +2792,8 @@
                 "d": "厨师"
             },
             "answer": "a",
-            "audioSource": "audio/215"
+            "audioSource": "audio/215",
+            "analysis": "医生身穿白大褂，手握治病救人的职责，日夜守护病人，用仁心解除病痛之忧。"
         },
         {
             "questionNumber": 216,
@@ -2591,7 +2805,8 @@
                 "d": "医生"
             },
             "answer": "a",
-            "audioSource": "audio/216"
+            "audioSource": "audio/216",
+            "analysis": "护士身着白衣，日夜守护病人，用温柔的双手减轻病痛，在生命的关键时刻展现无私的奉献。"
         },
         {
             "questionNumber": 217,
@@ -2603,7 +2818,8 @@
                 "d": "消防员"
             },
             "answer": "c",
-            "audioSource": "audio/217"
+            "audioSource": "audio/217",
+            "analysis": "警察身穿制服维护治安，日夜执勤保护人民安全，象征着正义与守护。"
         },
         {
             "questionNumber": 218,
@@ -2615,7 +2831,8 @@
                 "d": "消防员"
             },
             "answer": "d",
-            "audioSource": "audio/218"
+            "audioSource": "audio/218",
+            "analysis": "消防员身穿红色制服和头盔，在火灾中勇敢逆行，用高压水枪灭火并拯救生命，体现了不言劳累的奉献精神。"
         },
         {
             "questionNumber": 219,
@@ -2627,7 +2844,8 @@
                 "d": "军人"
             },
             "answer": "d",
-            "audioSource": "audio/219"
+            "audioSource": "audio/219",
+            "analysis": "边防战士身着绿色军装驻守边疆，以坚定的意志和整齐的步伐日夜保卫国家，体现了风雨无阻的担当精神。"
         },
         {
             "questionNumber": 220,
@@ -2639,7 +2857,8 @@
                 "d": "园丁"
             },
             "answer": "a",
-            "audioSource": "audio/220"
+            "audioSource": "audio/220",
+            "analysis": "厨师身穿白色工作服站在灶台前，用刀铲烹饪出香气四溢的美味菜肴。"
         },
         {
             "questionNumber": 221,
@@ -2651,7 +2870,8 @@
                 "d": "售货员"
             },
             "answer": "d",
-            "audioSource": "audio/221"
+            "audioSource": "audio/221",
+            "analysis": "店员站在柜台后接待顾客，面带笑容并手持商品，方便顾客购买。"
         },
         {
             "questionNumber": 222,
@@ -2663,7 +2883,8 @@
                 "d": "导游"
             },
             "answer": "d",
-            "audioSource": "audio/222"
+            "audioSource": "audio/222",
+            "analysis": "导游手持小旗带领游客，熟悉路线和景点，确保游客顺利游览。"
         },
         {
             "questionNumber": 223,
@@ -2675,7 +2896,8 @@
                 "d": "教师"
             },
             "answer": "a",
-            "audioSource": "audio/223"
+            "audioSource": "audio/223",
+            "analysis": "说明：作家手握笔杆在纸上创作，通过文字传递思想和故事，日夜辛勤写作只为将作品流传于世。"
         },
         {
             "questionNumber": 224,
@@ -2687,7 +2909,8 @@
                 "d": "邮递员"
             },
             "answer": "b",
-            "audioSource": "audio/224"
+            "audioSource": "audio/224",
+            "analysis": "记者手持话筒采访各地新闻，用笔记录和传播真实事件，日夜忙碌于新闻报道工作。"
         },
         {
             "questionNumber": 225,
@@ -2699,7 +2922,8 @@
                 "d": "司机"
             },
             "answer": "d",
-            "audioSource": "audio/225"
+            "audioSource": "audio/225",
+            "analysis": "说明：谜语描述了快递员（或外卖员）手持圆盘（方向盘）驾驶车辆（风火轮）在城市和乡村间穿梭，以安全送达物品为使命。"
         },
         {
             "questionNumber": 226,
@@ -2711,7 +2935,8 @@
                 "d": "画家"
             },
             "answer": "d",
-            "audioSource": "audio/226"
+            "audioSource": "audio/226",
+            "analysis": "画家手握彩笔在纸上描绘花鸟等生动画面，虽无声却能用画笔展现万千世界。"
         },
         {
             "questionNumber": 227,
@@ -2723,7 +2948,8 @@
                 "d": "面具"
             },
             "answer": "b",
-            "audioSource": "audio/227"
+            "audioSource": "audio/227",
+            "analysis": "演员在舞台上扮演各种角色（千面人），现实中只是一个人，通过表演展现不同情绪，让观众难辨真假。"
         },
         {
             "questionNumber": 228,
@@ -2735,7 +2961,8 @@
                 "d": "画家"
             },
             "answer": "c",
-            "audioSource": "audio/228"
+            "audioSource": "audio/228",
+            "analysis": "木匠使用斧锯等工具制作家具，木屑飞扬是其工作特点，且手艺常通过师徒或家族传承。"
         },
         {
             "questionNumber": 229,
@@ -2747,7 +2974,8 @@
                 "d": "裁缝"
             },
             "answer": "a",
-            "audioSource": "audio/229"
+            "audioSource": "audio/229",
+            "analysis": "理发师手持剪刀（利器），在顾客头顶修剪头发（舞春风），通过梳理千丝万缕的发丝，使顾客焕然一新（旧貌换新容）。"
         },
         {
             "questionNumber": 230,
@@ -2759,7 +2987,8 @@
                 "d": "化妆师"
             },
             "answer": "d",
-            "audioSource": "audio/230"
+            "audioSource": "audio/230",
+            "analysis": "说明：化妆师用画笔（化妆工具）轻描淡写地改变面容色彩，虽非画家或魔术师，却能通过化妆让容颜焕发新生。"
         },
         {
             "questionNumber": 231,
@@ -2771,7 +3000,8 @@
                 "d": "演员"
             },
             "answer": "a",
-            "audioSource": "audio/231"
+            "audioSource": "audio/231",
+            "analysis": "农民日出而作、日落而息，用锄头耕作土地，辛勤劳动换来五谷丰收，因此谜底是农民。"
         },
         {
             "questionNumber": 232,
@@ -2783,7 +3013,8 @@
                 "d": "月亮"
             },
             "answer": "b",
-            "audioSource": "audio/232"
+            "audioSource": "audio/232",
+            "analysis": "馒头洁白如玉，形状圆如月亮，通常用蒸笼蒸制，蒸熟后散发出香气。"
         },
         {
             "questionNumber": 233,
@@ -2795,7 +3026,8 @@
                 "d": "饺子"
             },
             "answer": "d",
-            "audioSource": "audio/233"
+            "audioSource": "audio/233",
+            "analysis": "饺子外皮洁白，形状弯如月牙，煮熟后会浮在水面，并散发出诱人的香气。"
         },
         {
             "questionNumber": 234,
@@ -2807,7 +3039,8 @@
                 "d": "玉米粒"
             },
             "answer": "c",
-            "audioSource": "audio/234"
+            "audioSource": "audio/234",
+            "analysis": "炒饭的米粒金黄分明，在锅中翻炒时香气四溢，虽是日常食物却能充饥。"
         },
         {
             "questionNumber": 235,
@@ -2819,7 +3052,8 @@
                 "d": "彩虹"
             },
             "answer": "c",
-            "audioSource": "audio/235"
+            "audioSource": "audio/235",
+            "analysis": "这个谜语描述的是披萨（pizza），圆盘形状、五彩缤纷的配料、诱人的香气和鲜美的口感都对应披萨的特点。"
         },
         {
             "questionNumber": 236,
@@ -2831,7 +3065,8 @@
                 "d": "烤肉架"
             },
             "answer": "b",
-            "audioSource": "audio/236"
+            "audioSource": "audio/236",
+            "analysis": "火锅（或涮锅）通常摆在桌子中央，加热时冒着热气，大家围坐一圈可以自由选择食材涮煮。"
         },
         {
             "questionNumber": 237,
@@ -2843,7 +3078,8 @@
                 "d": "荷叶鸡"
             },
             "answer": "c",
-            "audioSource": "audio/237"
+            "audioSource": "audio/237",
+            "analysis": "粽子用绿叶包裹，外形棱角分明，是端午节的传统食物，煮熟后香气四溢。"
         },
         {
             "questionNumber": 238,
@@ -2855,7 +3091,8 @@
                 "d": "月饼"
             },
             "answer": "d",
-            "audioSource": "audio/238"
+            "audioSource": "audio/238",
+            "analysis": "月饼形状圆如明月，内含甜咸馅料，是中秋佳节象征团圆的传统食品。"
         },
         {
             "questionNumber": 239,
@@ -2867,7 +3104,8 @@
                 "d": "铅笔"
             },
             "answer": "c",
-            "audioSource": "audio/239"
+            "audioSource": "audio/239",
+            "analysis": "油条金黄细长，经油炸后香脆可口，是早餐常见食物。"
         },
         {
             "questionNumber": 240,
@@ -2879,7 +3117,8 @@
                 "d": "白开水"
             },
             "answer": "d",
-            "audioSource": "audio/240"
+            "audioSource": "audio/240",
+            "analysis": "水无色无味，是解渴消暑的必需品，煮沸后更干净，是人们日常最常饮用的物质。"
         },
         {
             "questionNumber": 241,
@@ -2891,7 +3130,8 @@
                 "d": "啤酒"
             },
             "answer": "c",
-            "audioSource": "audio/241"
+            "audioSource": "audio/241",
+            "analysis": "可乐（cola）是黑色的碳酸饮料，开瓶时会冒泡发出声响，冰镇后清凉解渴，是夏日广受欢迎的饮品。"
         },
         {
             "questionNumber": 242,
@@ -2903,7 +3143,8 @@
                 "d": "果汁"
             },
             "answer": "d",
-            "audioSource": "audio/242"
+            "audioSource": "audio/242",
+            "analysis": "说明：谜语描述的“晶莹剔透似水晶”和“酸甜滋味”指向水果冰棒（d），它外形透明如水晶，内含酸甜果味，是夏日解渴的清凉食品。"
         },
         {
             "questionNumber": 243,
@@ -2915,7 +3156,8 @@
                 "d": "咖啡"
             },
             "answer": "d",
-            "audioSource": "audio/243"
+            "audioSource": "audio/243",
+            "analysis": "咖啡颜色深如夜，香气浓郁如花，味道苦中带甜，并有提神醒脑的作用。"
         },
         {
             "questionNumber": 244,
@@ -2927,7 +3169,8 @@
                 "d": "咖啡"
             },
             "answer": "c",
-            "audioSource": "audio/244"
+            "audioSource": "audio/244",
+            "analysis": "茶叶（绿叶）在水中舒展舞动，散发清香，饮用后能提神或助眠，与谜面描述的特征完全对应。"
         },
         {
             "questionNumber": 245,
@@ -2939,7 +3182,8 @@
                 "d": "螺丝"
             },
             "answer": "d",
-            "audioSource": "audio/245"
+            "audioSource": "audio/245",
+            "analysis": "螺丝的螺纹像“螺纹衣”，头部有螺帽（“小帽顶”），旋转时可以深入物体并固定不动。"
         },
         {
             "questionNumber": 246,
@@ -2951,7 +3195,8 @@
                 "d": "铲子"
             },
             "answer": "a",
-            "audioSource": "audio/246"
+            "audioSource": "audio/246",
+            "analysis": "锤子一头是较重的铁头，另一头是较轻的木柄，通过敲打发挥作用，木柄用于握持，铁头用于敲击固定物体。"
         },
         {
             "questionNumber": 247,
@@ -2963,7 +3208,8 @@
                 "d": "铅笔"
             },
             "answer": "c",
-            "audioSource": "audio/247"
+            "audioSource": "audio/247",
+            "analysis": "钉子身形细长、头部尖锐且坚硬，能够轻松钉入墙壁或木头并固定物体，正是通过反复敲打才能发挥作用。"
         },
         {
             "questionNumber": 248,
@@ -2975,7 +3221,8 @@
                 "d": "螃蟹"
             },
             "answer": "a",
-            "audioSource": "audio/248"
+            "audioSource": "audio/248",
+            "analysis": "钳子有坚硬的金属（铁齿铜牙）双片结构，能牢牢夹住物品，是工匠常用的工具，依靠杠杆原理产生强大夹力。"
         },
         {
             "questionNumber": 249,
@@ -2987,7 +3234,8 @@
                 "d": "羽毛"
             },
             "answer": "a",
-            "audioSource": "audio/249"
+            "audioSource": "audio/249",
+            "analysis": "刀片薄而锋利，能轻易划开物体，与谜面描述的“薄如蝉翼，利如锋芒”及切割效果相符。"
         },
         {
             "questionNumber": 250,
@@ -2999,7 +3247,8 @@
                 "d": "锤子"
             },
             "answer": "b",
-            "audioSource": "audio/250"
+            "audioSource": "audio/250",
+            "analysis": "斧头有坚硬的铁质头部和木质柄身，能够劈开山林，挥动时带起风声，具有强大的砍伐力量。"
         },
         {
             "questionNumber": 251,
@@ -3011,7 +3260,8 @@
                 "d": "斑马"
             },
             "answer": "c",
-            "audioSource": "audio/251"
+            "audioSource": "audio/251",
+            "analysis": "钢琴的黑白琴键排列如梯，指尖弹奏时流淌出溪水般的乐声，静立厅堂却能通过音乐传递丰富情感。"
         },
         {
             "questionNumber": 252,
@@ -3023,7 +3273,8 @@
                 "d": "笛子"
             },
             "answer": "d",
-            "audioSource": "audio/252"
+            "audioSource": "audio/252",
+            "analysis": "笛子有七个音孔，吹气时能发出悦耳的声音，其竹制的管身能演奏出优美的曲调。"
         },
         {
             "questionNumber": 253,
@@ -3035,7 +3286,8 @@
                 "d": "松鼠"
             },
             "answer": "b",
-            "audioSource": "audio/253"
+            "audioSource": "audio/253",
+            "analysis": "兔子有着长而尖的耳朵和短小的尾巴，常在夜晚安静时于田野间轻盈跳跃。"
         },
         {
             "questionNumber": 254,
@@ -3047,7 +3299,8 @@
                 "d": "鹿"
             },
             "answer": "d",
-            "audioSource": "audio/254"
+            "audioSource": "audio/254",
+            "analysis": "梅花鹿在林间轻盈行走，角像树杈一样分叉，夜晚容易被惊动，身上还有斑点花纹。"
         },
         {
             "questionNumber": 255,
@@ -3059,7 +3312,8 @@
                 "d": "乌龟"
             },
             "answer": "d",
-            "audioSource": "audio/255"
+            "audioSource": "audio/255",
+            "analysis": "乌龟背着壳（房子）缓慢移动，遇危险会缩进壳里，并以长寿著称。"
         },
         {
             "questionNumber": 256,
@@ -3071,7 +3325,8 @@
                 "d": "风筝"
             },
             "answer": "c",
-            "audioSource": "audio/256"
+            "audioSource": "audio/256",
+            "analysis": "蛇没有脚却能爬行很远，行动时几乎没有声音，常隐藏在草丛中，属于冷血动物。"
         },
         {
             "questionNumber": 257,
@@ -3083,7 +3338,8 @@
                 "d": "向日葵"
             },
             "answer": "a",
-            "audioSource": "audio/257"
+            "audioSource": "audio/257",
+            "analysis": "蜜蜂身披黄黑相间的外衣，勤劳地采集花蜜并酿成蜂蜜，同时飞行时发出“嗡嗡”声，与春天的景象相呼应。"
         },
         {
             "questionNumber": 258,
@@ -3095,7 +3351,8 @@
                 "d": "彩虹"
             },
             "answer": "b",
-            "audioSource": "audio/258"
+            "audioSource": "audio/258",
+            "analysis": "蝴蝶在空中轻盈飞舞，翅膀色彩斑斓，常在花间无声穿梭，且随季节迁徙，因此答案是蝴蝶。"
         },
         {
             "questionNumber": 259,
@@ -3107,7 +3364,8 @@
                 "d": "萤火虫"
             },
             "answer": "b",
-            "audioSource": "audio/259"
+            "audioSource": "audio/259",
+            "analysis": "猫头鹰在夜晚活动，圆眼如灯且能无声飞行，是捕鼠的能手。"
         },
         {
             "questionNumber": 260,
@@ -3119,7 +3377,8 @@
                 "d": "鹦鹉"
             },
             "answer": "c",
-            "audioSource": "audio/260"
+            "audioSource": "audio/260",
+            "analysis": "白鸽的白色羽毛和红色喙象征纯洁与热情，作为和平与信使的象征，与谜语中的描述完美契合。"
         },
         {
             "questionNumber": 261,
@@ -3131,7 +3390,8 @@
                 "d": "水母"
             },
             "answer": "d",
-            "audioSource": "audio/261"
+            "audioSource": "audio/261",
+            "analysis": "水母像伞一样漂浮在海中，没有骨骼和血液，透明的身体随波摆动并折射光线。"
         },
         {
             "questionNumber": 262,
@@ -3143,7 +3403,8 @@
                 "d": "珊瑚"
             },
             "answer": "a",
-            "audioSource": "audio/262"
+            "audioSource": "audio/262",
+            "analysis": "章鱼有八条腕足（常被比作“八臂”），能通过变色伪装自己，并以其高智商在海底捕猎，完美契合谜面的描述。"
         },
         {
             "questionNumber": 263,
@@ -3155,7 +3416,8 @@
                 "d": "章鱼"
             },
             "answer": "b",
-            "audioSource": "audio/263"
+            "audioSource": "audio/263",
+            "analysis": "螃蟹身披红色硬壳在水中生活，用双钳展现威猛，虽在海底称霸但并非真正的龙族英雄。"
         },
         {
             "questionNumber": 264,
@@ -3167,7 +3429,8 @@
                 "d": "龙虾"
             },
             "answer": "c",
-            "audioSource": "audio/264"
+            "audioSource": "audio/264",
+            "analysis": "螃蟹横着行走，有一对钳子，外壳坚硬，常生活在海底或沙中。"
         },
         {
             "questionNumber": 265,
@@ -3179,7 +3442,8 @@
                 "d": "彩虹"
             },
             "answer": "b",
-            "audioSource": "audio/265"
+            "audioSource": "audio/265",
+            "analysis": "贝壳常被海浪冲刷到沙滩上，其五彩斑斓的扇形外观和静卧沙滩的特点与谜面描述相符。"
         },
         {
             "questionNumber": 266,
@@ -3191,7 +3455,8 @@
                 "d": "章鱼"
             },
             "answer": "b",
-            "audioSource": "audio/266"
+            "audioSource": "audio/266",
+            "analysis": "章鱼身体柔软生活在水中，有八条触手像飘动的绸带，遇到危险时会喷出墨汁掩护自己逃脱。"
         },
         {
             "questionNumber": 267,
@@ -3203,7 +3468,8 @@
                 "d": "海龟"
             },
             "answer": "d",
-            "audioSource": "audio/267"
+            "audioSource": "audio/267",
+            "analysis": "海龟背上有坚硬的壳（盾牌），寿命长且行动缓慢，是海洋中著名的长寿象征。"
         },
         {
             "questionNumber": 268,
@@ -3215,7 +3481,8 @@
                 "d": "蜗牛"
             },
             "answer": "d",
-            "audioSource": "audio/268"
+            "audioSource": "audio/268",
+            "analysis": "蜗牛背着坚硬的壳缓慢爬行，壳保护着柔软的身体，爬过时分泌的黏液会留下银线般的痕迹。"
         },
         {
             "questionNumber": 269,
@@ -3227,7 +3494,8 @@
                 "d": "蚯蚓"
             },
             "answer": "d",
-            "audioSource": "audio/269"
+            "audioSource": "audio/269",
+            "analysis": "蚯蚓没有骨骼却能灵活蠕动，在土壤中无声穿行，尤其雨后活跃，是松土益虫。"
         },
         {
             "questionNumber": 270,
@@ -3239,7 +3507,8 @@
                 "d": "闹钟"
             },
             "answer": "b",
-            "audioSource": "audio/270"
+            "audioSource": "audio/270",
+            "analysis": "蚊子常在夜晚活动，发出细小的嗡嗡声，并用尖嘴叮咬人，留下红肿发痒的包。"
         },
         {
             "questionNumber": 271,
@@ -3251,7 +3520,8 @@
                 "d": "骆驼"
             },
             "answer": "b",
-            "audioSource": "audio/271"
+            "audioSource": "audio/271",
+            "analysis": "鸵鸟生活在沙漠中，虽不能飞但奔跑速度快，长腿和长颈是其显著特征。"
         },
         {
             "questionNumber": 272,
@@ -3263,7 +3533,8 @@
                 "d": "鸭"
             },
             "answer": "d",
-            "audioSource": "audio/272"
+            "audioSource": "audio/272",
+            "analysis": "鸭子有扁平的嘴和黄色的羽毛，喜欢在水中游泳，发出“嘎嘎”的叫声，并以小鱼小虾为食。"
         },
         {
             "questionNumber": 273,
@@ -3275,7 +3546,8 @@
                 "d": "军舰"
             },
             "answer": "c",
-            "audioSource": "audio/273"
+            "audioSource": "audio/273",
+            "analysis": "白鹅身着白色羽毛像穿白袍的将军，在水中游动时用红色的脚掌划水，并弯曲脖子发出鸣叫，形象贴合谜面描述。"
         },
         {
             "questionNumber": 274,
@@ -3287,7 +3559,8 @@
                 "d": "手电筒"
             },
             "answer": "c",
-            "audioSource": "audio/274"
+            "audioSource": "audio/274",
+            "analysis": "萤火虫在夜晚出现，能发出微光，常见于夏夜的田野中。"
         },
         {
             "questionNumber": 275,
@@ -3299,7 +3572,8 @@
                 "d": "蜥蜴"
             },
             "answer": "c",
-            "audioSource": "audio/275"
+            "audioSource": "audio/275",
+            "analysis": "变色龙能随环境改变体色以隐藏自己，并用长舌快速捕食昆虫，与谜面描述的“彩衣随换”“舌长捕虫”完全对应。"
         },
         {
             "questionNumber": 276,
@@ -3311,7 +3585,8 @@
                 "d": "玉米"
             },
             "answer": "b",
-            "audioSource": "audio/276"
+            "audioSource": "audio/276",
+            "analysis": "向日葵的花盘（金盘）托着葵花籽（玉珠），白天随太阳转动（向阳），夏季生长在田间，秋季结出饱满的籽实。"
         },
         {
             "questionNumber": 277,
@@ -3323,7 +3598,8 @@
                 "d": "甘蔗"
             },
             "answer": "b",
-            "audioSource": "audio/277"
+            "audioSource": "audio/277",
+            "analysis": "竹子身着青衣绿袍，节节向上生长且中空，象征坚韧不拔的志气。"
         },
         {
             "questionNumber": 278,
@@ -3335,7 +3611,8 @@
                 "d": "瀑布"
             },
             "answer": "b",
-            "audioSource": "audio/278"
+            "audioSource": "audio/278",
+            "analysis": "柳树的枝条柔软细长，绿叶垂在湖边，春风吹动时轻盈摇曳，如同起舞的仙子。"
         },
         {
             "questionNumber": 279,
@@ -3347,7 +3624,8 @@
                 "d": "蜡烛"
             },
             "answer": "b",
-            "audioSource": "audio/279"
+            "audioSource": "audio/279",
+            "analysis": "梅花在寒冷的冬季独自绽放，花瓣洁白如雪，并在月夜散发幽香，因此谜底是“梅花”。"
         },
         {
             "questionNumber": 280,
@@ -3359,7 +3637,8 @@
                 "d": "黄瓜"
             },
             "answer": "b",
-            "audioSource": "audio/280"
+            "audioSource": "audio/280",
+            "analysis": "香蕉外皮呈黄色，形状弯曲如月，果肉香甜软嫩，是夏季常见的水果，剥皮即可食用。"
         },
         {
             "questionNumber": 281,
@@ -3371,7 +3650,8 @@
                 "d": "灯笼"
             },
             "answer": "c",
-            "audioSource": "audio/281"
+            "audioSource": "audio/281",
+            "analysis": "西瓜外表是绿色的，里面是红色的果肉，夏天吃可以解渴，切开后能看到甜蜜的果肉。"
         },
         {
             "questionNumber": 282,
@@ -3383,7 +3663,8 @@
                 "d": "辣椒"
             },
             "answer": "a",
-            "audioSource": "audio/282"
+            "audioSource": "audio/282",
+            "analysis": "石榴外皮呈红色（红衣），内部有许多籽粒（珍珠），秋天成熟时裂开（笑开颜），内含众多籽粒（千子抱），味道酸甜可口。"
         },
         {
             "questionNumber": 283,
@@ -3395,7 +3676,8 @@
                 "d": "西瓜"
             },
             "answer": "c",
-            "audioSource": "audio/283"
+            "audioSource": "audio/283",
+            "analysis": "椰子身披绿色外皮生长在热带海岛，内部富含清甜如雪的椰汁，坚硬外壳包裹着柔软果肉，是夏日解渴的佳品。"
         },
         {
             "questionNumber": 284,
@@ -3407,7 +3689,8 @@
                 "d": "玉米"
             },
             "answer": "b",
-            "audioSource": "audio/284"
+            "audioSource": "audio/284",
+            "analysis": "甘蔗外表呈紫色且笔直，由多节相连组成，可榨糖，其汁水在夏日能解渴，咬下时充满甜汁。"
         },
         {
             "questionNumber": 285,
@@ -3419,7 +3702,8 @@
                 "d": "蛇"
             },
             "answer": "a",
-            "audioSource": "audio/285"
+            "audioSource": "audio/285",
+            "analysis": "黄瓜外表细长、呈绿色，常攀藤生长，是夏季凉拌菜中清脆解暑的常见食材。"
         },
         {
             "questionNumber": 286,
@@ -3431,7 +3715,8 @@
                 "d": "葡萄"
             },
             "answer": "c",
-            "audioSource": "audio/286"
+            "audioSource": "audio/286",
+            "analysis": "茄子外表呈紫色，生长在枝头，成熟于夏季，切开后果肉是白色的。"
         },
         {
             "questionNumber": 287,
@@ -3443,7 +3728,8 @@
                 "d": "辣椒"
             },
             "answer": "d",
-            "audioSource": "audio/287"
+            "audioSource": "audio/287",
+            "analysis": "辣椒外表呈红色且顶端尖锐，内部含有辛辣成分，食用后会让人感到发热并出汗。"
         },
         {
             "questionNumber": 288,
@@ -3455,7 +3741,8 @@
                 "d": "洋葱"
             },
             "answer": "d",
-            "audioSource": "audio/288"
+            "audioSource": "audio/288",
+            "analysis": "洋葱外表有层层黄色外皮，切开时会刺激眼睛流泪，内部是白色的，是厨房中常见的食材。"
         },
         {
             "questionNumber": 289,
@@ -3467,7 +3754,8 @@
                 "d": "洋葱"
             },
             "answer": "a",
-            "audioSource": "audio/289"
+            "audioSource": "audio/289",
+            "analysis": "大蒜由多个蒜瓣（兄弟）围绕中心茎（柱子）组成，剥皮（脱衣服）后会散发浓烈的气味。"
         },
         {
             "questionNumber": 290,
@@ -3479,7 +3767,8 @@
                 "d": "生姜"
             },
             "answer": "d",
-            "audioSource": "audio/290"
+            "audioSource": "audio/290",
+            "analysis": "生姜外皮呈黄色，生长在土中，味道辛辣能驱寒，是冬季常用的食材和药材，具有暖身功效。"
         },
         {
             "questionNumber": 291,
@@ -3491,7 +3780,8 @@
                 "d": "玫瑰"
             },
             "answer": "b",
-            "audioSource": "audio/291"
+            "audioSource": "audio/291",
+            "analysis": "菠菜的叶子宽大如扇面，根部呈红色，常与豆腐搭配食用，富含铁元素有益健康。"
         },
         {
             "questionNumber": 292,
@@ -3503,7 +3793,8 @@
                 "d": "竹子"
             },
             "answer": "a",
-            "audioSource": "audio/292"
+            "audioSource": "audio/292",
+            "analysis": "说明：莲藕的节节相连且掰断后有丝，夏日荷花盛开时散发清香，因此谜底是莲藕。"
         },
         {
             "questionNumber": 293,
@@ -3515,7 +3806,8 @@
                 "d": "珊瑚"
             },
             "answer": "c",
-            "audioSource": "audio/293"
+            "audioSource": "audio/293",
+            "analysis": "海底森林长出的海藻（如海带）随波浪摇曳，其薄而长的形态常作为食材出现在餐桌上。"
         },
         {
             "questionNumber": 294,
@@ -3527,7 +3819,8 @@
                 "d": "枫叶"
             },
             "answer": "a",
-            "audioSource": "audio/294"
+            "audioSource": "audio/294",
+            "analysis": "红领巾是一片红色的三角形布料，少先队员佩戴在胸前，象征着少年儿童的朝气和祖国的未来。"
         },
         {
             "questionNumber": 295,
@@ -3539,7 +3832,8 @@
                 "d": "玻璃"
             },
             "answer": "c",
-            "audioSource": "audio/295"
+            "audioSource": "audio/295",
+            "analysis": "钻石因其晶莹剔透、坚硬稀有且闪耀如星辰的特质，成为永恒不变的象征。"
         },
         {
             "questionNumber": 296,
@@ -3551,7 +3845,8 @@
                 "d": "月亮"
             },
             "answer": "a",
-            "audioSource": "audio/296"
+            "audioSource": "audio/296",
+            "analysis": "珍珠藏在海底的贝壳中，圆润晶莹，在黑暗中更显光彩夺目。"
         },
         {
             "questionNumber": 297,
@@ -3563,7 +3858,8 @@
                 "d": "围巾"
             },
             "answer": "c",
-            "audioSource": "audio/297"
+            "audioSource": "audio/297",
+            "analysis": "手镯（或手环）通常戴在手腕上，由金银或玉石制成，虽不能说话，但常作为传递情感或心意的信物。"
         },
         {
             "questionNumber": 298,
@@ -3575,7 +3871,8 @@
                 "d": "箭"
             },
             "answer": "c",
-            "audioSource": "audio/298"
+            "audioSource": "audio/298",
+            "analysis": "铅笔外形细长笔直，使用时需要削尖，内部的铅芯（黑心）能在纸上留下书写痕迹。"
         },
         {
             "questionNumber": 299,
@@ -3587,7 +3884,8 @@
                 "d": "玫瑰"
             },
             "answer": "b",
-            "audioSource": "audio/299"
+            "audioSource": "audio/299",
+            "analysis": "口红外形像一支小笔，颜色红艳如花，晨起涂抹后能让笑容如朝霞般美丽。"
         },
         {
             "questionNumber": 300,
@@ -3599,7 +3897,8 @@
                 "d": "梳子"
             },
             "answer": "b",
-            "audioSource": "audio/300"
+            "audioSource": "audio/300",
+            "analysis": "牙刷每天早晨使用，带有细软的刷毛，是清洁牙齿的工具，并需要清水配合。"
         },
         {
             "questionNumber": 301,
@@ -3611,7 +3910,8 @@
                 "d": "海绵"
             },
             "answer": "b",
-            "audioSource": "audio/301"
+            "audioSource": "audio/301",
+            "analysis": "毛巾是长而柔软的浴后用品，吸水性强且拧干后能迅速变干。"
         },
         {
             "questionNumber": 302,
@@ -3623,7 +3923,8 @@
                 "d": "珍珠"
             },
             "answer": "b",
-            "audioSource": "audio/302"
+            "audioSource": "audio/302",
+            "analysis": "肥皂外形方正，触感圆润，遇水产生泡沫，并留下清香，符合谜面的描述。"
         },
         {
             "questionNumber": 303,
@@ -3635,7 +3936,8 @@
                 "d": "口罩"
             },
             "answer": "d",
-            "audioSource": "audio/303"
+            "audioSource": "audio/303",
+            "analysis": "口罩像薄纱一样遮住面部，但依然能顺畅呼吸，用于防护灰尘和病菌，是日常外出的必备品。"
         },
         {
             "questionNumber": 304,
@@ -3647,7 +3949,8 @@
                 "d": "纸巾"
             },
             "answer": "d",
-            "audioSource": "audio/304"
+            "audioSource": "audio/304",
+            "analysis": "纸巾薄而轻，遇水变软，用于擦拭且不留痕迹，符合谜面的描述。"
         },
         {
             "questionNumber": 305,
@@ -3659,7 +3962,8 @@
                 "d": "锁"
             },
             "answer": "b",
-            "audioSource": "audio/305"
+            "audioSource": "audio/305",
+            "analysis": "钥匙身材小巧多为金属材质，能打开各种门锁（“千门万户”），通过转动（“一转一拧”）即可解锁，契合谜面所有特征。"
         },
         {
             "questionNumber": 306,
@@ -3671,7 +3975,8 @@
                 "d": "手表"
             },
             "answer": "d",
-            "audioSource": "audio/306"
+            "audioSource": "audio/306",
+            "analysis": "钟表的圆形表盘上刻有代表四季的时间刻度，指针不停转动且日夜陪伴人们，但它并非真实的生命伴侣。"
         },
         {
             "questionNumber": 307,
@@ -3683,7 +3988,8 @@
                 "d": "钢琴"
             },
             "answer": "b",
-            "audioSource": "audio/307"
+            "audioSource": "audio/307",
+            "analysis": "梳子的齿紧密排列，用于梳理长发，人们常在早晨对镜用它整理发型。"
         },
         {
             "questionNumber": 308,
@@ -3695,7 +4001,8 @@
                 "d": "镜子"
             },
             "answer": "d",
-            "audioSource": "audio/308"
+            "audioSource": "audio/308",
+            "analysis": "镜子虽然静默无声，但能清晰地映照出面前的万物。"
         },
         {
             "questionNumber": 309,
@@ -3707,7 +4014,8 @@
                 "d": "鞋子"
             },
             "answer": "a",
-            "audioSource": "audio/309"
+            "audioSource": "audio/309",
+            "analysis": "说明：袜子像一对兄弟一样成双出现，陪伴着双脚，冬暖夏凉且款式多样。"
         },
         {
             "questionNumber": 310,
@@ -3719,7 +4027,8 @@
                 "d": "围巾"
             },
             "answer": "d",
-            "audioSource": "audio/310"
+            "audioSource": "audio/310",
+            "analysis": "围巾细长柔软可缠绕颈部，冬季用来保暖，常有多彩花纹，随风飘动时显得柔美缠绵。"
         },
         {
             "questionNumber": 311,
@@ -3731,7 +4040,8 @@
                 "d": "雨衣"
             },
             "answer": "a",
-            "audioSource": "audio/311"
+            "audioSource": "audio/311",
+            "analysis": "雨伞在晴天时收起便于携带，雨天时撑开保护行人，既能遮阳又能挡雨。"
         },
         {
             "questionNumber": 312,
@@ -3743,7 +4053,8 @@
                 "d": "筷子"
             },
             "answer": "d",
-            "audioSource": "audio/312"
+            "audioSource": "audio/312",
+            "analysis": "筷子是成对使用、长度相同的餐具，用于夹取食物。"
         },
         {
             "questionNumber": 313,
@@ -3755,7 +4066,8 @@
                 "d": "钩子"
             },
             "answer": "a",
-            "audioSource": "audio/313"
+            "audioSource": "audio/313",
+            "analysis": "勺子形状弯曲如钩，常用于锅边舀取汤饭，是每家必备的餐具。"
         },
         {
             "questionNumber": 314,
@@ -3767,7 +4079,8 @@
                 "d": "汤圆"
             },
             "answer": "b",
-            "audioSource": "audio/314"
+            "audioSource": "audio/314",
+            "analysis": "馒头白胖圆润，通过蒸笼蒸熟后热气腾腾，本身带有自然的香甜味道，是日常主食之一。"
         },
         {
             "questionNumber": 315,
@@ -3779,7 +4092,8 @@
                 "d": "汤圆"
             },
             "answer": "a",
-            "audioSource": "audio/315"
+            "audioSource": "audio/315",
+            "analysis": "汤圆外表洁白如玉（白玉盘），内馅多为绿色豆沙或芝麻（藏翡翠），需在热水中煮熟（热气腾腾水中来），是团圆饭和冬至的传统食物（团圆桌上常见客，冬至时节最相宜）。"
         },
         {
             "questionNumber": 316,
@@ -3791,7 +4105,8 @@
                 "d": "花生"
             },
             "answer": "a",
-            "audioSource": "audio/316"
+            "audioSource": "audio/316",
+            "analysis": "口香糖虽然最初像糖一样香甜，但咀嚼后会释放清凉感，符合谜面中“越嚼越清凉”的特点。"
         },
         {
             "questionNumber": 317,
@@ -3803,7 +4118,8 @@
                 "d": "玻璃杯"
             },
             "answer": "b",
-            "audioSource": "audio/317"
+            "audioSource": "audio/317",
+            "analysis": "透明身躯和气泡翻腾描述了汽水的外观特点，夏日饮用汽水能带来清凉舒爽的感觉。"
         },
         {
             "questionNumber": 318,
@@ -3815,7 +4131,8 @@
                 "d": "三文鱼"
             },
             "answer": "a",
-            "audioSource": "audio/318"
+            "audioSource": "audio/318",
+            "analysis": "牛排产自草原放牧的牛，经铁板炙烤后香气扑鼻，是西餐中常见的刀叉食用菜肴。"
         },
         {
             "questionNumber": 319,
@@ -3827,7 +4144,8 @@
                 "d": "温泉"
             },
             "answer": "a",
-            "audioSource": "audio/319"
+            "audioSource": "audio/319",
+            "analysis": "火锅在锅中煮沸时食材翻滚，红油汤底带来温暖，尤其在冬日里给人带来暖意。"
         },
         {
             "questionNumber": 320,
@@ -3839,7 +4157,8 @@
                 "d": "粽子"
             },
             "answer": "a",
-            "audioSource": "audio/320"
+            "audioSource": "audio/320",
+            "analysis": "青团在清明时节食用，外皮呈绿色，口感软糯香甜，是江南地区的传统小吃。"
         },
         {
             "questionNumber": 321,
@@ -3851,7 +4170,8 @@
                 "d": "烤红薯"
             },
             "answer": "a",
-            "audioSource": "audio/321"
+            "audioSource": "audio/321",
+            "analysis": "冰糖葫芦外表裹着红色糖衣，味道甜美，用竹签串成串，是冬季街头常见的小吃，给人带来温暖。"
         },
         {
             "questionNumber": 322,
@@ -3863,7 +4183,8 @@
                 "d": "茶"
             },
             "answer": "a",
-            "audioSource": "audio/322"
+            "audioSource": "audio/322",
+            "analysis": "清晨饮用的咖啡香气浓郁，能提神醒脑，颜色深如黑玉，味道苦中带甜。"
         },
         {
             "questionNumber": 323,
@@ -3875,7 +4196,8 @@
                 "d": "尺子"
             },
             "answer": "c",
-            "audioSource": "audio/323"
+            "audioSource": "audio/323",
+            "analysis": "锯子有锋利的锯齿却无声响，能轻松分割木头，是工匠常用的切割工具。"
         },
         {
             "questionNumber": 324,
@@ -3887,7 +4209,8 @@
                 "d": "尺子"
             },
             "answer": "b",
-            "audioSource": "audio/324"
+            "audioSource": "audio/324",
+            "analysis": "针线细长，穿梭于布料之间，通过手的牵引快速缝制衣物，默默完成缝补工作。"
         },
         {
             "questionNumber": 325,
@@ -3899,7 +4222,8 @@
                 "d": "铅笔"
             },
             "answer": "b",
-            "audioSource": "audio/325"
+            "audioSource": "audio/325",
+            "analysis": "钥匙身材细长却能打开紧闭的家门，通常金属材质且小巧便携，虽小但用途重要。"
         },
         {
             "questionNumber": 326,
@@ -3911,7 +4235,8 @@
                 "d": "楼梯"
             },
             "answer": "d",
-            "audioSource": "audio/326"
+            "audioSource": "audio/326",
+            "analysis": "电梯通过层层叠叠的上下运行帮助人们快速到达不同楼层，无声无息地提供便利。"
         }
     ]
 }
