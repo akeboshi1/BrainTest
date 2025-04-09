@@ -8,6 +8,7 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import { LayerUtil } from '../../resources/scripts/Core/Util/LayerUtil';
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -96,6 +97,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         this.viewNode = LayerUtil.getPanelLayer();
+
         this.model.init(this).then(() => {
             this.showGameTipAlert()
         }).catch((error) => {
@@ -719,8 +721,17 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
-                if (!this.model.isRunOver) this.clickNextLeve();
+                if(SkewersManager.getInstance().isRunOver()) {
+                    this.correctAnswerNode.active = false;
+                   this.showNextSuccessHandler();
+                } else {
+                    if(SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null){
+                        (this.sceneModel as any).goonHandler(this, true);
+                    } else {
+                        (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
+                        if (!this.model.isRunOver) this.clickNextLeve();
+                    }
+                }
             } else {
                 this.sceneModel.goonHandler();
             }
@@ -771,7 +782,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.animShow.node.active = false;
     }
 
-    public onClickRetryBtn() {
+    public onClickRetryGame() {
         this.startGameFlow();
     }
 

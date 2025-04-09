@@ -263,11 +263,16 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                if(SkewersManager.getInstance().isRunOver()){
-                    (this.sceneModel as any).goonHandler(this);
+                if(SkewersManager.getInstance().isRunOver()) {
+                    this.analysisNode.active = false;
+                    this.showNextSuccessHandler();
                 }else{
-                    (this.sceneModel as any).goonHandler(this, false);
-                    if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
+                    if(SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null){
+                        (this.sceneModel as any).goonHandler(this, true);
+                    } else {
+                        (this.sceneModel as any).goonHandler(this, false);
+                        if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
+                    }
                 }
             } else {
                 this.sceneModel.goonHandler();
