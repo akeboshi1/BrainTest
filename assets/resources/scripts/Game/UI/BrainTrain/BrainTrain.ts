@@ -10,6 +10,7 @@ import { AlertType } from '../Alert/GameAlert';
 import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { Global } from '../../../Core/Manager/Config/Global';
 import {SceneManager} from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
+import {TaskData} from "db://assets/resources/scripts/Game/Task/TaskData";
 const { ccclass, property } = _decorator;
 
 @ccclass('BrainTrain')
@@ -17,6 +18,10 @@ export class BrainTrain extends BasePanel {
     public static NAME: string = "BrainTrain";
     @property({ type: [Node] })
     skewersGameItems: Node[] = [];
+
+
+    @property(Label)
+    label: Label = null;
     private curTaskId: number = -1;
     onEnable(): void {
         if(this.curTaskId == -1){
@@ -25,8 +30,10 @@ export class BrainTrain extends BasePanel {
 
     }
 
+    private _curTask:TaskData;
     async showPanel(){
         super.showPanel();
+        this._curTask = TaskManager.getInstance().taskDic.get(this.curTaskId);
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this,true);
         SkewersManager.getInstance().requestBranisTraining_list(this.curTaskId);
     }
@@ -41,6 +48,7 @@ export class BrainTrain extends BasePanel {
         // EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
         this.node.active = true;
         let gameDatas = data;
+        this.label.string = this._curTask.name;
         let len = this.skewersGameItems.length;
         for (let i = 0; i < len; i++) {
             let gameItem = this.skewersGameItems[i];
