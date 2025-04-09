@@ -9,6 +9,7 @@ import { TaskManager } from '../../Task/TaskManager';
 import { AlertType } from '../Alert/GameAlert';
 import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { Global } from '../../../Core/Manager/Config/Global';
+import {SceneManager} from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('BrainTrain')
@@ -18,15 +19,26 @@ export class BrainTrain extends BasePanel {
     skewersGameItems: Node[] = [];
     private curTaskId: number = -1;
     onEnable(): void {
-        this.curTaskId = TaskManager.getInstance().getCurTaskId;
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this);
+        if(this.curTaskId == -1){
+            this.curTaskId = TaskManager.getInstance().getCurTaskId;
+        }
+
+    }
+
+    async showPanel(){
+        super.showPanel();
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this,true);
         SkewersManager.getInstance().requestBranisTraining_list(this.curTaskId);
+    }
+
+    restore(data){
+        if(data !=null)this.curTaskId = data;
     }
     start() {
 
     }
     private requestBranisTraining_listCallBack(data, context) {
-        EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
+        // EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
         this.node.active = true;
         let gameDatas = data;
         let len = this.skewersGameItems.length;
@@ -86,6 +98,10 @@ export class BrainTrain extends BasePanel {
         //         this._curTaskData = task;
         //     }
         // });
+        if(SkewersManager.getInstance().nextSkewersGameStr == null){
+            this.backToCenteter();
+            return;
+        }
         SkewersManager.getInstance().showGameAlert(this.node, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this._alertNext, null, this);
     }
     private _alertNext() {

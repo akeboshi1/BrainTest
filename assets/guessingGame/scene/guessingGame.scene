@@ -4777,7 +4777,7 @@
     "_fontSize": 60,
     "_fontFamily": "Arial",
     "_lineHeight": 66,
-    "_overflow": 0,
+    "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,

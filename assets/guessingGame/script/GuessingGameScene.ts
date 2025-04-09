@@ -7,8 +7,9 @@ import { RollingSubtitleComponent } from './RollingSubtitleComponent';
 import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
-import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 enum OptionButtonColor {
@@ -262,8 +263,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                (this.sceneModel as any).goonHandler(this, false);
-                if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
+                if(SkewersManager.getInstance().isRunOver()){
+                    (this.sceneModel as any).goonHandler(this);
+                }else{
+                    (this.sceneModel as any).goonHandler(this, false);
+                    if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
+                }
             } else {
                 this.sceneModel.goonHandler();
             }
@@ -347,7 +352,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.onAudioFinish();
     }
 
-    public onClickShowAnalysis() {
+    public onClickShowAnswer() {
         this.analysisNode.active = true;
         this.analysisLabel.string = this.currentQuestion.analysis;
         this.setCorrectOptionColor();

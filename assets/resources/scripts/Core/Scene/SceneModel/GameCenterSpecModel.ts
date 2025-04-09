@@ -97,6 +97,9 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
 
     }
 
+    reviseHandler(context?:any){
+
+    }
 
     nextHandler(): void {
 
@@ -120,6 +123,12 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
 
     totalCompleteHandler(context?: any) {
 
+    }
+
+    retryHandler(context?: any){
+    }
+
+    answerHandler(context?: any): void {
     }
 
     remoteExitCallBack() {

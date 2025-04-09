@@ -1,10 +1,12 @@
-import { director, Node } from "cc";
-import { BaseGameModel, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig} from "./BaseGameModel";
-import { AlertType } from "../../../Game/UI/Alert/GameAlert";
-import { SkewersGameData, SkewersGameTrainData } from "../../../Game/Task/Skewers/SkewersGameData";
-import { SkewersManager } from "../../../Game/Task/Skewers/SkewersManager";
-import { EventManager } from "../../Manager/Event/EventManager";
-
+import {director, Node} from "cc";
+import {BaseGameModel, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig} from "./BaseGameModel";
+import {AlertType} from "../../../Game/UI/Alert/GameAlert";
+import {SkewersGameData, SkewersGameTrainData} from "../../../Game/Task/Skewers/SkewersGameData";
+import {SkewersManager} from "../../../Game/Task/Skewers/SkewersManager";
+import {EventManager} from "../../Manager/Event/EventManager";
+import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
+import {SceneManager} from "../../Manager/Scene/SceneManager";
+import {TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
 
 // 添加类型定义确保desc存在
 interface AlertConfig {
@@ -33,6 +35,7 @@ interface ISkewersSpecific extends IBaseGameChild {
 interface ISkewersGameEndConfig {
     trainID?: number;
     success?: boolean;
+    isCorrection?: boolean;
     complete: number;
     duration: number;
     parentNode: Node;
@@ -84,11 +87,15 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     // ========= 中途退出游戏 =======
     quitGame(config?: IQuitGameConfig): void {
         let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-        let maxCount = SkewersManager.getInstance().getGameCount();
-        let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-        // 退出逻辑...
-        SkewersManager.getInstance().quitGame(config.parentNode, curCount, maxCount,
-            config.context.resumeCallBack, config.context.exitCallBack, config.context);
+        if(trainData){
+            let maxCount = SkewersManager.getInstance().getGameCount();
+            let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
+            // 退出逻辑...
+            SkewersManager.getInstance().quitGame(config.parentNode, curCount, maxCount,
+                config.context.resumeCallBack, config.context.exitCallBack, config.context);
+        }else{
+            SceneManager.getInstance().backToSkewersGameCenter();
+        }
     }
 
     /**
@@ -99,6 +106,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         const callbackWrapper = (data) => {
             config.trainID = data["brain_training_id"];
             config.success = data.success;
+            config.isCorrection = data.is_correction;
             this.requestGameCompleteCallBack(config);
         };
         // 完成当前游戏请求...
@@ -108,12 +116,10 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
 
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
         const { parentNode, trainID, context } = config;
-        const trainData = SkewersManager.getInstance().getTrainData(trainID);
-        // trainData.length
-        const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
         const manager = SkewersManager.getInstance();
-        // this.scene.refreshSceneData(this)
-        // 策略配置表（补充desc字段）
+        const trainData = manager.getTrainData(trainID);
+        manager.curGame.is_correction = config.isCorrection;
+        const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
         const alertStrategies = {
             success: {
                 [AlertType.Normal]: {
@@ -143,6 +149,13 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                     handlers: [context.exitCallBack, context.remoteHandler],
                     curCount: 0,
                     maxCount: 0
+                },
+                [AlertType.Revise_Success]: {
+                    title: manager.singleCompleteStr,
+                    desc: manager.singleBrainScore,
+                    handlers: [context.goonHandler, context.exitCallBack],
+                    curCount: 0,
+                    maxCount: 0
                 }
             },
             failure: {
@@ -159,67 +172,146 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                     handlers: [context.showNextFailHandler, context.exitCallBack],
                     curCount: 0,
                     maxCount: 0
+                },
+                [AlertType.Revise_Fail]: {
+                    title: manager.failCompleteStr,
+                    desc: "",
+                    handlers: [context.answerHandler, context.retryHandler],
+                    curCount: 0,
+                    maxCount: 0
                 }
-                // complete: {
-                //     title: manager.failCompleteStr,
-                //     desc: '', // 新增空描述
-                //     handlers: [context.failCompleteHandler, context.exitCallBack],
-                //     curCount:0,
-                //     maxCount:0
-                // }
+            },
+            // 订正模式的配置
+            revision: {
+                [AlertType.Revise]: {
+                    title: manager.reviseStr,
+                    desc: "",
+                    handlers: [context.nextHandler, context.exitCallBack],
+                    curCount: 0,
+                    maxCount: 0
+                }
             }
         };
+        if(manager.isRunOver() && TaskManager.getInstance().curTask.type != TaskType.Revise){
+            // 请求任务列表 相当于刷新任务
+            EventManager.getInstance().on(TaskManager.TaskListRequestCallBack,()=>{
+                
+                // 修改状态决策逻辑
+                const getAlertConfig = (): {
+                    type: AlertType;
+                    title: string;
+                    desc: string;
+                    handlers: Function[]
+                } => {
 
-        // 修改状态决策逻辑
-        const getAlertConfig = (): {
-            type: AlertType;
-            title: string;
-            desc: string;
-            handlers: Function[]
-        } => {
-            // 当complete为1时表示成功通关
-            if (config.success) {
+                    // 当complete为1时表示成功通关
+                    if (config.success) {
+                        const isFinalStage = curCount == maxCount;
+                        let strategyKey = AlertType.Normal;
+                        if (isFinalStage) {
+                            strategyKey = AlertType.Sucess_Normal;
+                            // AlertType.Sucess_Big : AlertType.Sucess_Normal;
+                        }
+        
+                        return {
+                            type: strategyKey,
+                            curCount,
+                            maxCount,
+                            ...alertStrategies.success[strategyKey]
+                        };
+                    }
+        
+                    // 其他情况视为失败
+                    const isFinalStage = curCount == maxCount;
+                    let failureType = AlertType.Normal;
+                    if (isFinalStage) {
+                        failureType = AlertType.Sucess_Normal;
+                    }
+                    return {
+                        type: failureType,
+                        ...alertStrategies.failure[failureType]
+                    };
+                };
+        
+                // 统一调用（修复参数传递）
+                const { type, title, desc, handlers } = getAlertConfig();
+                const [goonHandler, exitHandler] = handlers;
+        
+                manager.showGameAlert(
+                    parentNode,
+                    type,
+                    title,
+                    desc,
+                    curCount, maxCount,
+                    goonHandler,
+                    exitHandler,
+                    context
+                );
+
+
+            }, this,true);
+            TaskManager.getInstance().requestDingzhenTask("correction",TaskManager.getInstance().curTask.id);
+        }else{
+             // 修改状态决策逻辑
+             const getAlertConfig = (): {
+                type: AlertType;
+                title: string;
+                desc: string;
+                handlers: Function[]
+            } => {
+
+                // 当complete为1时表示成功通关
+                if (config.success) {
+                    const isFinalStage = curCount == maxCount;
+                    let strategyKey =AlertType.Normal;
+                    if(TaskManager.getInstance().curTask.type == TaskType.Revise) {
+                        strategyKey = AlertType.Revise_Success;
+                    }else{
+                        if (isFinalStage) {
+                            strategyKey = AlertType.Sucess_Normal;
+                        }
+                    }
+    
+                    return {
+                        type: strategyKey,
+                        curCount,
+                        maxCount,
+                        ...alertStrategies.success[strategyKey]
+                    };
+                }
+    
+                // 其他情况视为失败
                 const isFinalStage = curCount == maxCount;
-                let strategyKey = AlertType.Normal;
-                if (isFinalStage) {
-                    strategyKey = AlertType.Sucess_Normal;
-                    // AlertType.Sucess_Big : AlertType.Sucess_Normal;
+                let failureType =AlertType.Normal;
+                if(TaskManager.getInstance().curTask.type == TaskType.Revise) {
+                    failureType = AlertType.Revise_Fail;
+                }else{
+                    if (isFinalStage) {
+                        failureType = AlertType.Sucess_Normal;
+                    }
                 }
 
                 return {
-                    type: strategyKey,
-                    curCount,
-                    maxCount,
-                    ...alertStrategies.success[strategyKey]
+                    type: failureType,
+                    ...alertStrategies.failure[failureType]
                 };
-            }
-
-            // 其他情况视为失败
-            const isFinalStage = curCount == maxCount;
-            let failureType = AlertType.Normal;
-            if (isFinalStage) {
-                failureType = AlertType.Sucess_Normal;
-            }
-            return {
-                type: failureType,
-                ...alertStrategies.failure[failureType]
             };
-        };
-
-        // 统一调用（修复参数传递）
-        const { type, title, desc, handlers } = getAlertConfig();
-        const [goonHandler, exitHandler] = handlers;
-
-        manager.showGameAlert(
-            parentNode,
-            type,
-            title,
-            desc,
-            curCount, maxCount,
-            goonHandler,
-            exitHandler,
-            context
-        );
+    
+            // 统一调用（修复参数传递）
+            const { type, title, desc, handlers } = getAlertConfig();
+            const [goonHandler, exitHandler] = handlers;
+    
+            manager.showGameAlert(
+                parentNode,
+                type,
+                title,
+                desc,
+                curCount, maxCount,
+                goonHandler,
+                exitHandler,
+                context
+            );
+        }
     }
 
     // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
@@ -253,8 +345,34 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
 
     // ======= 全部串烧游戏结束 =========
     totalCompleteHandler(context) {
-        SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Big, SkewersManager.getInstance().totalCompleteStr, SkewersManager.getInstance().totalBrainScore, 0, 0,
-            context.exitCallBack, context.remoteHandler, context);
+        let alertType = AlertType.Sucess_Big;
+        if (SkewersManager.getInstance().isRunOver() && TaskManager.getInstance().isRevise(TaskManager.getInstance().curTask.id)) {
+            alertType = AlertType.Revise;
+        }
+        let exitFunc = alertType == AlertType.Revise ? context.reviseHandler:context.exitCallBack;
+        let compStr = alertType == AlertType.Revise?SkewersManager.getInstance().reviseCompleteStr:SkewersManager.getInstance().totalCompleteStr;
+        let remoteHandler = SkewersManager.getInstance().curGame.is_correction ?null:context.remoteHandler;
+        SkewersManager.getInstance().showGameAlert(context.viewNode, alertType, compStr, SkewersManager.getInstance().totalBrainScore, 0, 0,
+            exitFunc, remoteHandler, context);
+    }
+
+    // ========= 订正任务 =========
+    reviseHandler(context){
+       SceneManager.getInstance().backToSkewersGameCenterByID(TaskManager.getInstance().curDingzhenTask.id);
+    }
+
+    // ========= 订正重玩 ==========
+    retryHandler(context){
+      if(context.onClickRetryGame){
+          context.onClickRetryGame();
+      }
+    }
+
+    // ========= 订正查看答案 =========
+    answerHandler(context){
+        if(context.onClickShowAnswer){
+            context.onClickShowAnswer();
+        }
     }
 
     // ========= 下一类型游戏 =========

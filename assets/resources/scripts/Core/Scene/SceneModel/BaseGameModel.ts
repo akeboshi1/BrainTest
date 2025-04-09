@@ -1,33 +1,6 @@
 import { Node } from "cc";
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 
-// // 基础游戏数据类型
-// interface IBaseGameModel<T extends IBaseGameChild> {
-//     hasGuide:boolean;
-//     refreshData(data: T): void;
-//     runNextGame(): void;
-//     quitGame(): void;
-//     requestGameComplete():void;
-//     requestGameCompleteCallBack():void;
-
-//     nextHandler();
-//     goonHandler();
-//     failCompleteHandler();
-//     showNextSuccessHandler();
-//     showNextFailHandler();
-
-//     remoteExitCallBack():void;
-
-//     showStartAlert():void;
-
-//     exitCallBack():void;
-//     resumeCallBack():boolean;
-
-//     totalCompleteHandler():void;
-
-//     destory():void;
-// }
-
 export interface IStartConfig{
     parentNode:Node,
     start:Function,
@@ -65,6 +38,7 @@ export abstract class BaseGameModel<T extends IBaseGameChild> {
     }
     public gameType?: string = "BASE";
 
+
     // 必须实现得方法
     abstract refreshData(data: T): void;
 
@@ -79,6 +53,9 @@ export abstract class BaseGameModel<T extends IBaseGameChild> {
 
     abstract nextHandler(context?:any):void;
     abstract goonHandler(context?:any):void;
+    abstract reviseHandler(context?:any):void;
+    abstract retryHandler(context?:any):void;
+    abstract answerHandler(context?:any):void;
     abstract failCompleteHandler(context?:any):void;
     abstract showStartAlert(config?:any):void;
     abstract showNextSuccessHandler(context?:any);

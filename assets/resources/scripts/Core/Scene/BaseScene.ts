@@ -216,6 +216,33 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     /**
+     * 开始订正任务
+     */
+    reviseHandler(){
+        if(this.sceneModel){
+            this.sceneModel.reviseHandler(this);
+        }
+    }
+
+    /**
+     * 重玩订正任务
+     */
+    retryHandler(){
+        if(this.sceneModel){
+            this.sceneModel.retryHandler(this);
+        }
+    }
+
+    /**
+     * 查看订正答案
+     */
+    answerHandler(){
+        if(this.sceneModel){
+            this.sceneModel.answerHandler(this);
+        }
+    }
+
+    /**
      * 调用串烧游戏外部逻辑
      */
     remoteHandler() {
