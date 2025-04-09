@@ -9,6 +9,7 @@ import { LayerUtil } from '../../resources/scripts/Core/Util/LayerUtil';
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -783,10 +784,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     public onClickRetryGame() {
+        Global.isAgain = true;
         this.startGameFlow();
     }
 
     public onClickShowAnswer() {
+        Global.isAgain = false;
         this.correctAnswerNode.active = true;
         const question = this.model.getCurrentQuestion();
         let fixed: number[] = question.fixed;
