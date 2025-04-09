@@ -1,17 +1,18 @@
-import { _decorator, Component, instantiate, Node, Prefab, Label, ScrollView, ProgressBar, Button, Sprite, UI } from 'cc';
+import {_decorator, Button, instantiate, Label, Node, Prefab, ProgressBar, ScrollView, Sprite} from 'cc';
 
-import { TaskManager } from '../../Task/TaskManager';
-import { EventManager } from '../../../Core/Manager/Event/EventManager';
-import { TaskData, TaskStatus, TaskType } from '../../Task/TaskData';
-import { StringUtil } from '../../../Core/Util/StringUtil';
-import { ColorUtil } from '../../../Core/Util/ColorUtil';
-import { DebugLog } from '../../../Core/Util/DebugLog';
-import { BasePanel } from '../../../Core/UI/BasePanel';
-import { UIManager } from '../../../Core/Manager/UI/UIManager';
-import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
-import { BrainTrain } from '../BrainTrain/BrainTrain';
-import { BundleName } from '../../../Core/Manager/Load/BundleName';
-import { Global } from '../../../Core/Manager/Config/Global';
+import {TaskManager} from '../../Task/TaskManager';
+import {EventManager} from '../../../Core/Manager/Event/EventManager';
+import {TaskData, TaskStatus, TaskType} from '../../Task/TaskData';
+import {StringUtil} from '../../../Core/Util/StringUtil';
+import {ColorUtil} from '../../../Core/Util/ColorUtil';
+import {DebugLog} from '../../../Core/Util/DebugLog';
+import {BasePanel} from '../../../Core/UI/BasePanel';
+import {UIManager} from '../../../Core/Manager/UI/UIManager';
+import AlertManager, {AlertData} from '../../../Core/Manager/Alert/AlertManager';
+import {BrainTrain} from '../BrainTrain/BrainTrain';
+import {BundleName} from '../../../Core/Manager/Load/BundleName';
+import {Global} from '../../../Core/Manager/Config/Global';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('TaskAndNotificationPanelCtrl')
@@ -106,12 +107,14 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
             let arrow = taskItem.getChildByName("arror_right");
             let btnBG = taskItem.getChildByName("btn").getComponent(Sprite);
             let cornorNode = taskItem.getChildByName("cornorNode");
-            cornorNode.active = task.type == TaskType.Review || task.status == TaskStatus.Processing;
+            cornorNode.active = task.type == TaskType.Review|| task.type ==TaskType.Revise || task.status == TaskStatus.Processing;
             let cornorLabel = cornorNode.getChildByName("cornorLabel").getComponent(Label);
             if (task.type == TaskType.Review) {
                 cornorLabel.string = "评测";
             } else if (task.status == TaskStatus.Processing) {
                 cornorLabel.string = "正在做";
+            }else if (task.type == TaskType.Revise) {
+                cornorLabel.string = "订正";
             }
             (label as Label).string = task.name;
             let startTime = StringUtil.spliceStr(task.startTime + "", " ")[1];

@@ -42,6 +42,8 @@ export class SkewersGameData {
     // 串烧游戏训练队列数据
     public trains: SkewersGameTrainData[];
 
+    public is_correction : boolean = false;
+
     // 一类串烧游戏状态
     private _status: number;
 
@@ -65,6 +67,10 @@ export class SkewersGameData {
         }
     }
 
+    public get Revise():boolean{
+        return this.is_correction;
+    }
+
     public hasGuid(): boolean {
         return this.getCurTrainData() ? this.getCurTrainData().hasGuide : false;
     }
@@ -74,6 +80,7 @@ export class SkewersGameData {
         this.gameCode = data['game_code'];
         this.type = data['cog_ability'];
         this._difficulty = data['difficulty'];
+        this.is_correction = data["is_corretion"];
         switch (this.type) {
             case SkewersGameType.Memory:
                 this.gameName = "翻牌";

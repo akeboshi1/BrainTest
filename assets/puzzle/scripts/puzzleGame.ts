@@ -94,6 +94,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private loadTextureResolver: (texture: Texture2D) => void = null;
     private loadTextureRejector: (err) => void = null;
 
+    private _timeID;
+
+    private _endTime: number = 0;
+
+    // 添加一个新属性来控制是否允许拖拽
+    private isDragEnabled: boolean = true;
+
     private async loadPuzzleTexture(id: number): Promise<Texture2D> {
         const bundle = assetManager.getBundle(this.bundleName);
         return new Promise<Texture2D>((resolve, reject) => {
@@ -161,7 +168,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     onDisable() {
-        if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
         if (this.draggableNode) {
             this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
             this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
@@ -173,6 +179,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     protected onDestroy(): void {
+        this.resetDragState();
         this.loadTextureRejector = null;
         this.loadTextureResolver = null;
     }
@@ -232,67 +239,189 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     onTouchStart(event: EventTouch) {
-        if (!this.dragStartFlag) {
-            this.dragStartFlag = true;
-            let currentPos: Vec2 = event.getUILocation();
-            const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
-            const startpos = new Vec2(vec3.x, vec3.y);
-            let selectedObjectIndex = this.checkTouchedObjectIndex(startpos);
-            if (selectedObjectIndex != -1) {
-                this.dragInstance = this.chipsInstances[selectedObjectIndex];
-                this.dragObjectStartPos = this.getChipDataByPuzzlePos(selectedObjectIndex)["objectPos"];
-                this.dragStartPos = startpos; // 记录触摸起始位置
-                DebugLog.instance.log("onTouchStart  ---- selectIndex = " + selectedObjectIndex);
-                this.dragInstance.setSiblingIndex(100);
-            }
+        // 拖拽被禁用或已有拖拽实例时直接返回
+        if (!this.isDragEnabled || this.dragInstance != null || this.dragStartFlag) return;
+        
+        this.dragStartFlag = true;
+        let currentPos: Vec2 = event.getUILocation();
+        const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
+        const startpos = new Vec2(vec3.x, vec3.y);
+        let selectedObjectIndex = this.checkTouchedObjectIndex(startpos);
+        
+        if (selectedObjectIndex != -1) {
+            this.dragInstance = this.chipsInstances[selectedObjectIndex];
+            this.dragObjectStartPos = this.getChipDataByPuzzlePos(selectedObjectIndex)["objectPos"];
+            this.dragStartPos = startpos;
+            this.dragInstance.setSiblingIndex(100);
+        } else {
+            this.resetDragState();
         }
     }
 
     onTouchMove(event: EventTouch) {
-        if (this.dragInstance == null || !this.dragStartFlag) return;
+        if (!this.isDragEnabled || this.dragInstance == null || !this.dragStartFlag) return;
 
         let currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
-        const offset = vec3.subtract(new Vec3(this.dragStartPos.x, this.dragStartPos.y, 0)); // 计算偏移量
+        const offset = vec3.subtract(new Vec3(this.dragStartPos.x, this.dragStartPos.y, 0));
         this.dragInstance.setPosition(this.dragObjectStartPos.x + offset.x, this.dragObjectStartPos.y + offset.y);
     }
 
     onTouchEnd(event: EventTouch) {
-        if (this.dragInstance == null || !this.dragStartFlag) return;
+        if (!this.isDragEnabled || this.dragInstance == null || !this.dragStartFlag) return;
+        
         this.playAudio("music/drag", true);
         this.dragStartFlag = false;
+        
         const currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
         const endpos = new Vec2(vec3.x, vec3.y);
         const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
+        
         if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
-            DebugLog.instance.log("onTouchEnd  ---- swap target index = " + selectedObjectIndex);
             this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
-
-            const puzzleResult = this.checkPuzzleResult();
-            DebugLog.instance.log("puzzleResult  ----  " + puzzleResult);
-            if (puzzleResult) {
+            if (this.checkPuzzleResult()) {
                 this.processGameSuccess();
             }
-        }
-        else {
+        } else {
             this.processTouchCancel();
         }
-
+        
+        this.dragInstance = null;
     }
 
     onTouchCancel(event: EventTouch) {
-        if (this.dragInstance == null || !this.dragStartFlag) return;
+        if (!this.isDragEnabled || this.dragInstance == null || !this.dragStartFlag) return;
 
         this.dragStartFlag = false;
         this.processTouchCancel();
+        this.dragInstance = null;
+    }
+    
+    // 重置拖拽状态
+    private resetDragState() {
+        this.dragStartFlag = false;
+        this.dragInstance = null;
     }
 
     quitGame() {
+        this.resetDragState();
+        
+        // 确保事件监听器被移除
+        if (this.draggableNode) {
+            this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+            this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+            this.draggableNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+            this.draggableNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        }
+        
         super.quitGame({ parentNode: this.viewNode, context: this });
         if (this._timeID) {
             clearTimeout(this._timeID);
         }
+    }
+
+    private processTouchCancel() {
+        if (!this.dragInstance) return;
+        
+        tween(this.dragInstance)
+            .to(0.3, { position: this.dragObjectStartPos })
+            .start();
+
+        this.dragInstance.setSiblingIndex(0);
+        this.resetDragState();
+    }
+
+    processGameSuccess() {
+        this.isDragEnabled = false;
+        
+        if (this._timeID) {
+            clearTimeout(this._timeID);
+        }
+        
+        this.playAudio("music/win", true);
+        this.timerComponent.pauseTimer();
+        this.showSprite.node.active = true;
+        
+        // 设置缩放动画
+        let _tween = tween(this.showSprite.node)
+            .to(2, { scale: new Vec3(1.1, 1.1, 1.1) }, { easing: 'cubicOut' })
+            .to(2, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
+            .union()
+            .repeatForever()
+            .start();
+            
+        // 设置结果处理延迟
+        this._timeID = setTimeout(() => {
+            this.showSprite.node.setScale(new Vec3(1, 1, 1));
+            this.showSprite.node.active = false;
+            
+            if (_tween) {
+                _tween.stop();
+                _tween = null;
+            }
+            
+            // 处理游戏结果
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                this.requestGameResult(true);
+            } else {
+                this._requestGameCenterComplete(1);
+                this.summaryAlert.node.active = true;
+                this.summaryAlert.initByResult(true);
+                this.summaryAlert.fadeIn();
+            }
+        }, 4000);
+    }
+    
+    // 启用拖拽功能和重置游戏状态
+    private enableDragAndResetGame() {
+        this.isDragEnabled = true;
+    }
+    
+    onClickStartGame() {
+        this.enableDragAndResetGame();
+        
+        this._startTime = TimeUtil.getNow();
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
+        } else {
+            this.timerComponent.startTimer(this.gameLength.valueOf());
+        }
+        this.onClickDisturbPuzzleButton();
+        this.bgNode.active = false;
+        this.startGameMask.active = false;
+    }
+    
+    goonHandler() {
+        this.enableDragAndResetGame();
+        
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            (this.sceneModel as any).goonHandler(this);
+            return;
+        }
+
+        this.onClickChangeLevel();
+        this.startGameMask.active = true;
+        this.bgNode.active = true;
+        this.timerComponent.resetTimer();
+    }
+
+    onClickRetryCurrentLevel() {
+        this.enableDragAndResetGame();
+        
+        this.cleanChipsCache();
+        Global.isAgain = true;
+        
+        this.startGameMask.active = true;
+        this.bgNode.active = true;
+        this.timerComponent.resetTimer();
+
+        let textureID = this.randomPlayIndex[this.textureIndex];
+        this.loadPuzzleTexture(textureID).then((texture) => {
+            this.currentTexture2d = texture;
+            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+            this.updatePreviewSprite(this.currentTexture2d);
+        });
     }
 
     private requestGameResult(win: boolean = true) {
@@ -332,19 +461,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         return puzzlePos;
     }
-
-    private processTouchCancel() {
-        const targetPosition = this.dragObjectStartPos;
-        const duration = 0.3;
-
-        tween(this.dragInstance)
-            .to(duration, { position: targetPosition })
-            .start();
-
-        this.dragInstance.setSiblingIndex(0);
-        this.dragInstance = null;
-    }
-
 
     private swapPuzzleChips(puzzlePos1: number, puzzlePos2: number) {
         const chipData1 = this.getChipDataByPuzzlePos(puzzlePos1);
@@ -472,18 +588,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.processGameFail();
     }
 
-    onClickStartGame() {
-        this._startTime = TimeUtil.getNow();
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
-        } else {
-            this.timerComponent.startTimer(this.gameLength.valueOf());
-        }
-        this.onClickDisturbPuzzleButton();
-        this.bgNode.active = false;
-        this.startGameMask.active = false;
-    }
-
     processGameFail() {
         DebugLog.instance.log("失败");
 
@@ -496,46 +600,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.summaryAlert.initByResult(false);
             this.summaryAlert.fadeIn();
         }
-    }
-
-    private _timeID;
-
-    private _endTime: number = 0;
-    processGameSuccess() {
-        if (this._timeID) {
-            clearTimeout(this._timeID);
-        }
-        DebugLog.instance.log("成功");
-        this.playAudio("music/win", true);
-        this.timerComponent.pauseTimer();
-        this.showSprite.node.active = true;
-        const minScale = 1;
-        const maxScale = 1.1;
-        const duration = 2;
-        // this.chipParentNode.
-        let _tween = tween(this.showSprite.node)
-            .to(duration, { scale: new Vec3(maxScale, maxScale, maxScale) }, { easing: 'cubicOut' }) // 放大
-            .to(duration, { scale: new Vec3(minScale, minScale, minScale) }, { easing: 'cubicOut' }) // 缩小
-            .union()
-            .repeatForever()
-            .start();
-        let self = this;
-        this._timeID = setTimeout(() => {
-            this.showSprite.node.setScale(new Vec3(1, 1, 1));
-            this.showSprite.node.active = false;
-            if (_tween) {
-                _tween.stop();
-                _tween = null;
-            }
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
-                this.requestGameResult(true);
-            } else {
-                this._requestGameCenterComplete(1);
-                self.summaryAlert.node.active = true;
-                self.summaryAlert.initByResult(true);
-                self.summaryAlert.fadeIn();
-            }
-        }, 4000);
     }
 
 
@@ -554,43 +618,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             timelimit: this.gameLength,
             difficulty,
             levelMode:curGame.levelMode
-        });
-    }
-
-    goonHandler() {
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            (this.sceneModel as any).goonHandler(this);
-            return;
-        }
-
-        // 下一关
-        this.onClickChangeLevel();
-        this.startGameMask.active = true;
-        this.bgNode.active = true;
-        this.timerComponent.resetTimer();
-    }
-
-    onClickRetryCurrentLevel() {
-        // 重玩
-        this.cleanChipsCache();
-        Global.isAgain = true;
-
-        // let textureIndex = (this.sceneModel as any).level<1?0: (this.sceneModel as any).level - 1;
-        // if(textureIndex == 0){
-        //     this.selectedLevelIndex = 0;
-        // }else{
-        //     this.selectedLevelIndex = textureIndex % 3;
-
-        // }
-        this.startGameMask.active = true;
-        this.bgNode.active = true;
-        this.timerComponent.resetTimer();
-
-        let textureID = this.randomPlayIndex[this.textureIndex];
-        this.loadPuzzleTexture(textureID).then((texture) => {
-            this.currentTexture2d = texture;
-            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
-            this.updatePreviewSprite(this.currentTexture2d);
         });
     }
 

@@ -34,9 +34,9 @@ export class TaskManager {
     //===== 串烧任务
     /**
      * 获取任务列表
-     * @private
+     *
      */
-    private task_get_tasks: string = "task.get_tasks";
+    public task_get_tasks: string = "task.get_tasks";
 
     /**
      * 开始任务
@@ -110,19 +110,102 @@ export class TaskManager {
         this._notificationList = [];
     }
 
+    private _relID:number;
+    public requestDingzhenTask(relType?:string,relID?:number){
+        EventManager.getInstance().on(this.task_get_tasks, this.requestDingzhenTaskCallBack, this,true);
+        
+        // 准备请求数据对象
+        const requestData: any = { task_date: TimeUtil.getNowStr() };
+        
+        // 只有当relType有值且不为空字符串时才添加
+        if (relType !== undefined && relType !== null && relType !== '') {
+            requestData.rel_type = relType;
+        }
+        
+        // 只有当relID有值且为数字类型时才添加
+        if (relID !== undefined && relID !== null && !isNaN(Number(relID))) {
+            requestData.rel_id = relID;
+        }
+
+        this._relID = relID;
+        
+        // 创建并发送请求
+        let requestTaskSocket: SocketData = new SocketData({ 
+            action: this.task_get_tasks, 
+            data: requestData 
+        });
+        
+        SocketManager.getInstance().send(requestTaskSocket);
+    }
+
+    /**
+     * 获取订正任务
+     * @param data 
+     * @param context 
+     */
+    private requestDingzhenTaskCallBack(data: SocketData){
+        let status = data.status;
+        if (status == 0) {
+            DebugLog.instance.error(data.message);
+            const ad: AlertData = new AlertData();
+            ad.title = "提示";
+            ad.message = data.message;
+            AlertManager.getInstance().showAlert(ad);
+            return;
+        } else {
+            let results = data.data['result'];
+
+            let relTask = this._taskDic.get(this._relID);
+
+            for (let i = 0; i < results.length; i++) {
+                let data = results[i];
+                let task = new TaskData();
+                task.refrehData(data);
+                this.curDingzhenTask = task;
+                this._taskDic.set(task.id, task);
+                this._taskList.push(task);
+            }
+            relTask.isCorrection = results.length > 0;
+
+            // type = 0 评测
+            // type = 1 串烧
+            this._taskList.sort((a, b) => {
+                return a.type - b.type;
+            })
+            EventManager.getInstance().emit(TaskManager.TaskListRequestCallBack);
+        }
+    }
+
+    // 当前订正任务
+    public curDingzhenTask:TaskData;
+
+    public isRevise(id:number):boolean{
+        let task = this._taskDic.get(id);
+        return task && task.isCorrection;
+    }
+
 
     /**
      * 请求每日任务列表
      */
     public requestTaskList() {
-        EventManager.getInstance().on(this.task_get_tasks, this.requestTaskListCallback, this);
-        let requestTaskSocket: SocketData = new SocketData({ action: this.task_get_tasks, data: { task_date: TimeUtil.getNowStr() } });
+        EventManager.getInstance().on(this.task_get_tasks, this.requestTaskListCallback, this,true);
+        
+        // 准备请求数据对象
+        const requestData: any = { task_date: TimeUtil.getNowStr() };
+        
+        
+        // 创建并发送请求
+        let requestTaskSocket: SocketData = new SocketData({ 
+            action: this.task_get_tasks, 
+            data: requestData 
+        });
+        
         SocketManager.getInstance().send(requestTaskSocket);
     }
 
     private requestTaskListCallback(data: SocketData, context: any) {
         context._taskList=[];
-        EventManager.getInstance().off(context.task_get_tasks, context);
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
@@ -150,6 +233,14 @@ export class TaskManager {
             })
             EventManager.getInstance().emit(TaskManager.TaskListRequestCallBack);
         }
+    }
+
+    public isCorrection(taskId:number):boolean{
+        let task = this._taskDic.get(taskId);
+        if(task){
+            return task.type == TaskType.Revise;
+        }
+        return false;
     }
 
 
@@ -217,7 +308,7 @@ export class TaskManager {
                 break;
             case TaskStatus.Processing:
                 DebugLog.instance.log(`id：${id} 任务正在进行中！`);
-                SkewersManager.getInstance().start();
+                SkewersManager.getInstance().start(id);
                 break;
             case TaskStatus.UnComplete:
                 EventManager.getInstance().on(this.task_start_task, this.requestStartTaskCallback, this);
@@ -253,7 +344,8 @@ export class TaskManager {
                     break;
                 case TaskType.Review:
                 case TaskType.Brains:
-                    SkewersManager.getInstance().start();
+                case TaskType.Revise:
+                    SkewersManager.getInstance().start(id);
                     break;
                 case TaskType.Interavtive:
                     break;

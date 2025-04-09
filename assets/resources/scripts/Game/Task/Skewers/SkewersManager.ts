@@ -39,6 +39,10 @@ export class SkewersManager {
 
     public normalCompleteStr: string = "太棒了";
 
+    public reviseStr:string = "已完成全部训练，可做订正训练";
+
+    public reviseCompleteStr:string = "已完成全部训练，可做订正训练";
+
     public failCompleteStr: string = "真遗憾，请加油";
 
     public singleBrainScore: string = "收获100点脑力值";
@@ -51,6 +55,9 @@ export class SkewersManager {
     }
 
     public get nextSkewersGameStr(): string {
+        if(!SkewersManager.getInstance().getUnCompleteGameData()){
+            return null;
+        }
         return `接下来将进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}训练`;
     }
 
@@ -119,9 +126,9 @@ export class SkewersManager {
     }
 
 
-    start() {
+    start(id:number) {
         Global.isSkewersGame = true;
-        this.startGame();
+        this.startGame(id);
     }
 
 
@@ -130,13 +137,12 @@ export class SkewersManager {
      * @param taskID
      */
     public requestBranisTraining_list(taskID: number) {
-        EventManager.getInstance().on(this.task_get_grouped_brain_trainings, this.requestBranisTraining_listCallBack, this);
+        EventManager.getInstance().on(this.task_get_grouped_brain_trainings, this.requestBranisTraining_listCallBack, this,true);
         let requestBranisTrainingsSocket = new SocketData({ action: this.task_get_grouped_brain_trainings, data: { task_id: taskID } });
         SocketManager.getInstance().send(requestBranisTrainingsSocket);
     }
 
     private requestBranisTraining_listCallBack(data: any, context: any) {
-        EventManager.getInstance().off(this.task_get_grouped_brain_trainings, this);
         this._gameDatas = [];
         let status = data.status;
         if (status == 0) {
@@ -290,10 +296,10 @@ export class SkewersManager {
                 parentNode.addChild(alertNode);
                 let alert = alertNode.getComponent("GameAlert");
                 alertNode.setPosition(position.x, position.y, position.z);
+                alert['setProgress'](curCount, maxCount);
                 alert["showView"](type);
                 alert["setTitle"](title);
                 alert["setDec"](desc);
-                alert['setProgress'](curCount, maxCount);
                 if (iconUrl) alert['setIcon'](iconUrl);
                 alert['bindCallBack'](goonCallBack, exitCallBack, context);
                 // if(Global.userData.curSkewerGameData.type)
@@ -303,11 +309,12 @@ export class SkewersManager {
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(position.x, position.y, position.z);
+            alert['setProgress'](curCount, maxCount);
             alert["showView"](type);
             alert["setTitle"](title);
             alert["setDec"](desc);
             if (iconUrl) alert['setIcon'](iconUrl);
-            alert['setProgress'](curCount, maxCount);
+
             alert['bindCallBack'](goonCallBack, exitCallBack, context);
         }
     }
@@ -321,6 +328,7 @@ export class SkewersManager {
      */
     public exitCallBack() {
         Global.isAgain = false;
+        Global.isSkewersGame = false;
         GuideManager.getInstance().quitGame();
         if (SkewersManager.getInstance().isRunOver()) {
             SceneManager.getInstance().backToTaskProgress();
@@ -381,6 +389,7 @@ export class SkewersManager {
                 this._curIndex = -1;
                 return;
             }
+            Global.userData.curSkewerGameData.is_correction = data.data.is_correction;
             EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
         }
     }
@@ -391,13 +400,14 @@ export class SkewersManager {
         return this._game;
     }
 
-    public startGame() {
+    public startGame(id:number) {
         if (!this._gameDatas || this._gameDatas.length <= 0) {
             this._curIndex = -1;
             DebugLog.instance.error("当前没有游戏可以运行");
             return;
         }
         this._game = this.getUnCompleteGameData();
+        this._game.taskID = id;
         if (!this._game) {
             this._curIndex = -1;
             DebugLog.instance.error("当前脑力训练已经全部完成！");

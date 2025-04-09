@@ -7,6 +7,7 @@ import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { GuideHand } from "db://assets/resources/scripts/Core/Manager/Guide/GuideHand";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
+import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -21,7 +22,14 @@ export enum AlertType {
     Failed,
     Game_Center,
     Init,
-    Next
+    Next,
+    Revise,
+    Revise_Success,
+    Revise_Fail,
+    Revise_Complete,
+    Answer
+
+
 }
 
 /**
@@ -104,7 +112,7 @@ export class GameAlert extends Component {
         this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
-        
+        this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
         // 调整alert位置
         this.adjustAlertPosition();
         
@@ -196,6 +204,61 @@ export class GameAlert extends Component {
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = true;
                 startBtnUITransform.width = 250;
+                break;
+            case AlertType.Revise:
+                // 订正弹窗
+                this.startBtn.node.active = true;
+                this.startBtn.node.getChildByName("Label").getComponent(Label).string = TaskManager.getInstance().curTask.isCorrection ? "订正" : "继续";
+                this.decLabel.node.active = false;
+                this.titleLabel.node.active = true;
+                this.progressBar.node.active = false;
+                this.iconConNode.active = false;
+                this.exitBtn.node.active = true;
+                this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
+                startBtnUITransform.width = 250;
+                break;
+            case AlertType.Revise_Success:
+                // 订正结算弹窗
+                this.exitBtn.node.active = false;
+                this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
+                startBtnUITransform.width = 500;
+                this.startBtn.node.active = true;
+                this.progressBar.node.active = true;
+                this.titleLabel.node.active = true;
+                this.iconConNode.active = false;
+                this.decLabel.node.active = false;
+                break;
+            case AlertType.Revise_Fail:
+                // 订正结算弹窗
+                this.exitBtn.node.active = true;
+                this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "重试";
+                this.startBtn.node.getChildByName("Label").getComponent(Label).string = "看答案";
+                startBtnUITransform.width = 250;
+                this.startBtn.node.active = true;
+                this.progressBar.node.active = true;
+                this.titleLabel.node.active = true;
+                this.iconConNode.active = false;
+                this.decLabel.node.active = false;
+                break;
+            case AlertType.Revise_Complete:
+                this.startBtn.node.active = false;
+                this.decLabel.node.active = false;
+                this.titleLabel.node.active = true;
+                this.progressBar.node.active = false;
+                this.iconConNode.active = false;
+                this.exitBtn.node.active = true;
+                this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
+                break;
+            case AlertType.Answer:
+                // 查看答案弹窗
+                this.startBtn.node.active = true;
+                this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
+                this.decLabel.node.active = true;
+                this.titleLabel.node.active = false;
+                this.progressBar.node.active = false;
+                this.iconConNode.active = false;
+                this.exitBtn.node.active = false;
+                startBtnUITransform.width = 500;
                 break;
         }
     }
@@ -297,26 +360,48 @@ export class GameAlert extends Component {
     private adjustAlertPosition() {
         // 如果alert节点不存在，不进行处理
         if (!this.alert) return;
-        
+
         // 获取当前位置
         const position = this.alert.position.clone();
         
-        // 判断是否为语言类型游戏
-        const isLanguageGame = this.isLanguageGameType();
+        // 判断是否是否需要调整位置
+        const changePos = this.changePos() && this.isInGameScene();
         
         // 设置Y坐标
-        position.y = isLanguageGame ? 350 : 0;
+        position.y = changePos ? 350 : 0;
         
         // 应用新位置
         this.alert.setPosition(position);
 
-        DebugLog.instance.log(`Alert position adjusted: ${position.x}, ${position.y}, ${position.z}, isLanguage: ${isLanguageGame}`);
+        DebugLog.instance.log(`Alert position adjusted: ${position.x}, ${position.y}, ${position.z}, changePos: ${changePos}`);
     }
     
     /**
-     * 判断当前游戏是否是语言类型
+     * 判断当前是否在游戏场景中
      */
-    private isLanguageGameType(): boolean {
+    private isInGameScene(): boolean {
+        try {
+            // 检查Global对象中的游戏状态
+            if (!Global || !Global.isSkewersGame) {
+                return false;
+            }
+            
+            // 检查是否有当前游戏数据
+            if (!Global.userData || !Global.userData.curSkewerGameData) {
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            DebugLog.instance.error('判断是否在游戏场景时出错:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 判断当前游戏是否是语言类型/订正查看答案
+     */
+    private changePos(): boolean {
         try {
             
             // 安全检查Global对象
@@ -325,12 +410,10 @@ export class GameAlert extends Component {
             }
             
             // 使用索引访问方式检查属性，避免TypeScript类型错误
-            if (Global.userData.curSkewerGameData['type'] === SkewersGameType.Language) {
+            if (Global.userData.curSkewerGameData['type'] === SkewersGameType.Language || this._type == AlertType.Answer) {
                 return true;
             }
-            
-            
-            
+
             return false;
         } catch (error) {
             DebugLog.instance.error('判断语言游戏类型时出错:', error);
