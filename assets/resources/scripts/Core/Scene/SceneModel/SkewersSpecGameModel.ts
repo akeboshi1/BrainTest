@@ -7,6 +7,7 @@ import {EventManager} from "../../Manager/Event/EventManager";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
 import {SceneManager} from "../../Manager/Scene/SceneManager";
 import {TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 // 添加类型定义确保desc存在
 interface AlertConfig {
@@ -103,6 +104,33 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
      * @param config
      */
     requestGameComplete(config?: ISkewersGameEndConfig): void {
+        if(Global.isAgain){
+            let success = config.complete != 0;
+            let manager = SkewersManager.getInstance();
+            let title, goonHandler,exitHandler;
+            if(success){
+                title = manager.singleCompleteStr;
+                goonHandler = config.context.goonHandler;
+                exitHandler = config.context.exitCallBack;
+            }else{
+                title = manager.failCompleteStr;
+                goonHandler = config.context.answerHandler;
+                exitHandler = config.context.retryHandler;
+            }
+            const { type, curCount,maxCount } = this._curAlertParam;
+
+            SkewersManager.getInstance().showGameAlert(
+                config.parentNode,
+                type,
+                title,
+                "",
+                curCount, maxCount,
+                goonHandler,
+                exitHandler,
+                config.context
+            );
+            return;
+        }
         const callbackWrapper = (data) => {
             config.trainID = data["brain_training_id"];
             config.success = data.success;
@@ -114,6 +142,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         SkewersManager.getInstance().requestGameComplete(config.complete, config.duration);
     }
 
+    private _curAlertParam;
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
         const { parentNode, trainID, context } = config;
         const manager = SkewersManager.getInstance();
@@ -236,7 +265,14 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                 // 统一调用（修复参数传递）
                 const { type, title, desc, handlers } = getAlertConfig();
                 const [goonHandler, exitHandler] = handlers;
-        
+                this._curAlertParam = { parentNode,
+                    type,
+                    title,
+                    desc,
+                    curCount, maxCount,
+                    goonHandler,
+                    exitHandler,
+                    context};
                 manager.showGameAlert(
                     parentNode,
                     type,
@@ -300,7 +336,14 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             // 统一调用（修复参数传递）
             const { type, title, desc, handlers } = getAlertConfig();
             const [goonHandler, exitHandler] = handlers;
-    
+            this._curAlertParam = { parentNode,
+                type,
+                title,
+                desc,
+                curCount, maxCount,
+                goonHandler,
+                exitHandler,
+                context};
             manager.showGameAlert(
                 parentNode,
                 type,
@@ -350,8 +393,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             alertType = AlertType.Revise;
         }
         let exitFunc = alertType == AlertType.Revise ? context.reviseHandler:context.exitCallBack;
-        let compStr = alertType == AlertType.Revise?SkewersManager.getInstance().reviseCompleteStr:SkewersManager.getInstance().totalCompleteStr;
-        let remoteHandler = SkewersManager.getInstance().curGame.is_correction ?null:context.remoteHandler;
+        let compStr = alertType == AlertType.Revise ? SkewersManager.getInstance().reviseCompleteStr:SkewersManager.getInstance().totalCompleteStr;
+        let remoteHandler = SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.is_correction ?null:context.remoteHandler;
         SkewersManager.getInstance().showGameAlert(context.viewNode, alertType, compStr, SkewersManager.getInstance().totalBrainScore, 0, 0,
             exitFunc, remoteHandler, context);
     }

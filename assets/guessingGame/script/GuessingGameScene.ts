@@ -10,6 +10,7 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 enum OptionButtonColor {
@@ -300,6 +301,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     onClickRetryGame() {
+        Global.isAgain = true;
         this.resetPanel();
         this.guessingGameModel.startQuestionFlow();
         this.resultPanel.active = false;
@@ -358,6 +360,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     public onClickShowAnswer() {
+        Global.isAgain = false;
         this.analysisNode.active = true;
         this.analysisLabel.string = this.currentQuestion.analysis;
         this.setCorrectOptionColor();
