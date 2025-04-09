@@ -2653,7 +2653,7 @@
     },
     "component": "",
     "_componentId": "81ceaKqSD1PQKpG3qfSMp0H",
-    "handler": "onClichContinue",
+    "handler": "onclickContinue",
     "customEventData": ""
   },
   {

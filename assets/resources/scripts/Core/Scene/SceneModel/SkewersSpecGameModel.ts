@@ -1,7 +1,7 @@
 import {director, Node} from "cc";
 import {BaseGameModel, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig} from "./BaseGameModel";
 import {AlertType} from "../../../Game/UI/Alert/GameAlert";
-import {SkewersGameData, SkewersGameTrainData} from "../../../Game/Task/Skewers/SkewersGameData";
+import {SkewersGameData, SkewersGameTrainData, SkewersGameType} from "../../../Game/Task/Skewers/SkewersGameData";
 import {SkewersManager} from "../../../Game/Task/Skewers/SkewersManager";
 import {EventManager} from "../../Manager/Event/EventManager";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
@@ -99,25 +99,110 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         }
     }
 
+
+    dzgoonHandler(context: any, win: boolean = true): void {
+        const manager = SkewersManager.getInstance();
+        const trainData = manager.curGame.getCurTrainData();
+        const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+        const isFinalStage = curCount == maxCount;
+        let alertType,title,desc,exitHandler,goonHandler;
+            if(isFinalStage){
+                alertType = AlertType.Sucess_Normal;
+               title= win?manager.normalCompleteStr:manager.failCompleteStr;
+               desc= '';
+               exitHandler = context.exitCallBack;
+               goonHandler =  win?context.showNextSuccessHandler:context.showNextFailHandler;
+               curCount;
+                maxCount; 
+            }else{
+                alertType = AlertType.Normal;
+                title=  win?manager.singleCompleteStr:manager.failCompleteStr;
+                desc= ''; // 新增空描述
+                exitHandler = context.exitCallBack;
+                goonHandler = context.dzgoonHandler;
+                curCount;
+                maxCount;
+            }
+        
+        // 继续下一个游戏
+        context.goonHandler(context, true);
+    }
+    
+    dzanswerHandler(context: any): void {
+        const manager = SkewersManager.getInstance();
+        const trainData = manager.curGame.getCurTrainData();
+        const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+        // const isFinalStage = curCount == maxCount;
+        let self = this;
+        let alertType,title,desc,exitHandler,goonHandler;
+            alertType = AlertType.Normal;
+            title= manager.failCompleteStr;
+            desc= ''; // 新增空描述
+            exitHandler = context.exitCallBack;
+            goonHandler = function(){
+                self.dzgoonHandler(context,false);
+            }
+            curCount;
+            maxCount;
+        // 显示弹窗
+        manager.showGameAlert(
+            context.viewNode,
+            alertType,
+            title,
+            desc,
+            curCount,maxCount,
+            goonHandler,
+            exitHandler,
+            context
+        );
+    }
+
     /**
      * 请求上报串烧游戏数据
      * @param config
      */
     requestGameComplete(config?: ISkewersGameEndConfig): void {
-        if(Global.isAgain){
+        // 订正模式
+        let curTask = TaskManager.getInstance().curTask;
+        if(curTask && curTask.type == TaskType.Revise){
             let success = config.complete != 0;
             let manager = SkewersManager.getInstance();
-            let title, goonHandler,exitHandler;
+            const trainData = manager.curGame.getCurTrainData();
+            manager.curGame.is_correction = config.isCorrection;
+            const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+            const isFinalStage = curCount == maxCount;
+            const isLastGameType = manager.isRunOver();
+            let title, goonHandler, exitHandler, type;
+            
             if(success){
-                title = manager.singleCompleteStr;
-                goonHandler = config.context.goonHandler;
-                exitHandler = config.context.exitCallBack;
-            }else{
-                title = manager.failCompleteStr;
-                goonHandler = config.context.answerHandler;
-                exitHandler = config.context.retryHandler;
+               // 普通订正成功
+               type = AlertType.Revise_Success;
+               title = manager.singleCompleteStr;
+               // 使用闭包函数包装dzgoonHandler，保存isFinalStage供后续使用
+               const self = this;
+               goonHandler = function() {
+                   // 当函数被调用时，将context和isFinalStage传给dzgoonHandler
+                   self.dzgoonHandler(this, true);
+               }
+               exitHandler = config.context.exitCallBack;
+            } else {
+               // 普通订正失败
+               type = AlertType.Revise_Fail;
+               title = manager.failCompleteStr;
+               // 使用闭包函数包装onClickShowAnswer，保存isFinalStage供后续使用
+               const originalShowAnswer = config.context.onClickShowAnswer;
+    
+               config.context.onClickShowAnswer = function() {
+                   // 首先调用原始的onClickShowAnswer方法
+                   if (originalShowAnswer) {
+                       originalShowAnswer.call(this,isFinalStage);
+                   }
+      
+               }
+               
+               goonHandler = config.context.onClickShowAnswer;
+               exitHandler = config.context.retryHandler;
             }
-            const { type, curCount,maxCount } = this._curAlertParam;
 
             SkewersManager.getInstance().showGameAlert(
                 config.parentNode,
@@ -131,6 +216,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             );
             return;
         }
+        
+        // 正常串烧模式
         const callbackWrapper = (data) => {
             config.trainID = data["brain_training_id"];
             config.success = data.success;
@@ -142,7 +229,6 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         SkewersManager.getInstance().requestGameComplete(config.complete, config.duration);
     }
 
-    private _curAlertParam;
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
         const { parentNode, trainID, context } = config;
         const manager = SkewersManager.getInstance();
@@ -265,14 +351,6 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                 // 统一调用（修复参数传递）
                 const { type, title, desc, handlers } = getAlertConfig();
                 const [goonHandler, exitHandler] = handlers;
-                this._curAlertParam = { parentNode,
-                    type,
-                    title,
-                    desc,
-                    curCount, maxCount,
-                    goonHandler,
-                    exitHandler,
-                    context};
                 manager.showGameAlert(
                     parentNode,
                     type,
@@ -300,13 +378,10 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                 if (config.success) {
                     const isFinalStage = curCount == maxCount;
                     let strategyKey =AlertType.Normal;
-                    if(TaskManager.getInstance().curTask.type == TaskType.Revise) {
-                        strategyKey = AlertType.Revise_Success;
-                    }else{
-                        if (isFinalStage) {
-                            strategyKey = AlertType.Sucess_Normal;
-                        }
+                    if (isFinalStage) {
+                        strategyKey = AlertType.Sucess_Normal;
                     }
+                    
     
                     return {
                         type: strategyKey,
@@ -336,14 +411,6 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             // 统一调用（修复参数传递）
             const { type, title, desc, handlers } = getAlertConfig();
             const [goonHandler, exitHandler] = handlers;
-            this._curAlertParam = { parentNode,
-                type,
-                title,
-                desc,
-                curCount, maxCount,
-                goonHandler,
-                exitHandler,
-                context};
             manager.showGameAlert(
                 parentNode,
                 type,
