@@ -1058,7 +1058,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 950,
+      "width": 450,
       "height": 107.1
     },
     "_anchorPoint": {
@@ -1186,7 +1186,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -429,
+      "x": -179,
       "y": 183.963,
       "z": 0
     },
@@ -1337,7 +1337,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 415,
+      "x": 165,
       "y": -197,
       "z": 0
     },
@@ -2085,8 +2085,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 350,
-      "height": 88.2
+      "width": 450,
+      "height": 69.3
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2115,14 +2115,14 @@
       "b": 255,
       "a": 255
     },
-    "_string": "记得吃药！",
+    "_string": "串烧任务（订正）",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 70,
-    "_fontSize": 70,
+    "_actualFontSize": 55,
+    "_fontSize": 55,
     "_fontFamily": "Arial",
-    "_lineHeight": 70,
-    "_overflow": 0,
+    "_lineHeight": 55,
+    "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
