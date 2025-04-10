@@ -752,9 +752,13 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
                 // 使用模型中的运行结果
-                let complete = Number(win);
-                let duration = win?this.timerComponent.getElapsedTime():0;
-                
+                let complete = win?1:0
+                let duration = 0;
+        
+
+
+
+
                 // 直接向服务器发送请求，但不处理回调
                 EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                     // 请求完成后不做弹窗处理

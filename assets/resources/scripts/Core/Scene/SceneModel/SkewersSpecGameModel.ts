@@ -124,8 +124,17 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                 maxCount;
             }
         
-        // 继续下一个游戏
-        context.goonHandler(context, true);
+        // 显示弹窗
+        manager.showGameAlert(
+            context.viewNode,
+            alertType,
+            title,
+            desc,
+            curCount,maxCount,
+            goonHandler,
+            exitHandler,
+            context
+        );
     }
     
     dzanswerHandler(context: any): void {
@@ -487,8 +496,11 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
 
     // ========= 下一类型游戏 =========
     nextHandler(context) {
+        let curTask = TaskManager.getInstance().curTask;
+        let isRevise = curTask && curTask.type == TaskType.Revise;
+        let goonHandler = isRevise?context.dzgoonHandler:context.goonHandler;
         SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, SkewersManager.getInstance().singleBrainScore, 0, 0,
-            context.goonHandler, context.exitCallBack, context);
+            goonHandler, context.exitCallBack, context);
     }
 
     // ========= 继续下一局游戏 =========
