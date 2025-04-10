@@ -182,7 +182,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             const isFinalStage = curCount == maxCount;
             const isLastGameType = manager.isRunOver();
             let title, goonHandler, exitHandler, type;
-            
+            trainData.complete = config.complete;
+            trainData.duration = config.duration;
             if(success){
                // 普通订正成功
                type = AlertType.Revise_Success;
@@ -441,7 +442,18 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     // ========= 成功后进入下一类型游戏 =========
     showNextSuccessHandler(context) {
         const manager = SkewersManager.getInstance();
-        const isRunOver = manager.isRunOver() ? context.totalCompleteHandler : context.nextHandler;
+        const trainData = manager.curGame.getCurTrainData();
+        let boo = false;
+        if(!trainData){
+            boo = manager.isRunOver();
+        }else{
+            const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+            boo = curCount >= maxCount;
+            if (boo && TaskManager.getInstance().curTask.type == TaskType.Revise) {
+                boo = manager.gameDatasLength == manager.curGame.index+1;
+            }
+        }
+        const isRunOver = boo ? context.totalCompleteHandler : context.nextHandler;
         manager.showGameAlert(
             context.viewNode,
             AlertType.Sucess_Small,
@@ -457,7 +469,18 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     // ======== 失败后进入下一类型游戏 =========
     showNextFailHandler(context) {
         const manager = SkewersManager.getInstance();
-        const isRunOver = manager.isRunOver() ? context.totalCompleteHandler : context.nextHandler;
+        const trainData = manager.curGame.getCurTrainData();
+        let boo = false;
+        if(!trainData){
+            boo =manager.isRunOver();
+        }else{
+            const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+            boo = curCount >= maxCount;
+            if (boo && TaskManager.getInstance().curTask.type == TaskType.Revise) {
+                boo = manager.gameDatasLength == manager.curGame.index+1;
+            }
+        }
+        const isRunOver = boo ? context.totalCompleteHandler : context.nextHandler;
         SkewersManager.getInstance().showGameAlert(context.viewNode, AlertType.Sucess_Small, manager['currentSkewersCompleteGameStr'], manager['singleBrainScore'], 0, 0,
             isRunOver, context.exitCallBack, context);
     }
@@ -465,12 +488,21 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     // ======= 全部串烧游戏结束 =========
     totalCompleteHandler(context) {
         let alertType = AlertType.Sucess_Big;
-        if (SkewersManager.getInstance().isRunOver() && TaskManager.getInstance().isRevise(TaskManager.getInstance().curTask.id)) {
+        let manager = SkewersManager.getInstance();
+        let isRunOver = manager.isRunOver();
+        if (isRunOver && TaskManager.getInstance().isRevise(TaskManager.getInstance().curTask.id)) {
             alertType = AlertType.Revise;
         }
+        if (!isRunOver && TaskManager.getInstance().curTask.type == TaskType.Revise) {
+            alertType = AlertType.Revise_Complete;
+            const trainData = manager.curGame.getCurTrainData();
+            if(trainData){
+                SkewersManager.getInstance().requestGameComplete(trainData.complete, trainData.duration);
+            }
+        }
         let exitFunc = alertType == AlertType.Revise ? context.reviseHandler:context.exitCallBack;
-        let compStr = alertType == AlertType.Revise ? SkewersManager.getInstance().reviseCompleteStr:SkewersManager.getInstance().totalCompleteStr;
-        let remoteHandler = SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.is_correction ?null:context.remoteHandler;
+        let compStr = alertType == AlertType.Revise ? SkewersManager.getInstance().reviseCompleteStr: alertType == AlertType.Revise_Complete ? SkewersManager.getInstance().reviseDZCompleteStr:SkewersManager.getInstance().totalCompleteStr;
+        let remoteHandler = alertType == AlertType.Revise_Complete ? context.quitGame:context.remoteHandler;
         SkewersManager.getInstance().showGameAlert(context.viewNode, alertType, compStr, SkewersManager.getInstance().totalBrainScore, 0, 0,
             exitFunc, remoteHandler, context);
     }
