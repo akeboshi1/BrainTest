@@ -119,14 +119,15 @@ export class SentenceMakingModel {
         return this._gameTime;
     }
 
-    private _resultBoo: boolean = false;
-
+    public _resultBoo: boolean = false;
+    public _duration: number = 0;
     postGameData(complete: boolean, duration: number, user_answer: string[] = null) {
         if (user_answer != null && !Global.isAgain) {
             this.postSentenceMakingEvaluate(user_answer);
         }
 
         this._resultBoo = complete;
+        this._duration = duration;
         let result = Number(complete);
         if (this._view.sceneModel.gameType == GameType.SKEWERS) {
             this._view.requestSkewersGameComplete(result, duration);

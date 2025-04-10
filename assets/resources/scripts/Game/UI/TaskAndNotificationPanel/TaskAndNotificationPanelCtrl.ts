@@ -78,7 +78,7 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
 
     onEnable(): void {
         this.tabClick(null, 0);
-        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this);
+        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this,true);
         TaskManager.getInstance().start();
 
         EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
@@ -92,7 +92,7 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
 
     // ======= 任务中心
     private taskListRequestCallBack(data, context) {
-        EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
+        // EventManager.getInstance().off(TaskManager.TaskListRequestCallBack, context);
         let taskDatas = TaskManager.getInstance().taskList;
         let index = 0;
         let count = 0;

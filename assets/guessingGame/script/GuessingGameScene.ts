@@ -281,6 +281,40 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         }
     }
 
+    dzgoonHandler(resuleBoo:boolean = true) {
+        this.clearGameView();
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                // 直接发送游戏完成请求，不处理弹窗逻辑
+                let endTime = TimeUtil.getNow();
+                let boo = !resuleBoo?resuleBoo:this._resuleBoo;
+                let complete = Number(boo);
+                if (this._startTime == 0) {
+                    this._startTime = endTime;
+                }
+                let duration = (endTime - this._startTime) / 1000;
+                
+                // 直接向服务器发送请求，但不处理回调
+                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
+                    // 请求完成后不做弹窗处理
+                    // 然后直接继续下一个游戏
+                    // let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+                    // let boo = true;
+                    // if(trainData){
+                    //     let maxCount = SkewersManager.getInstance().getGameCount();
+                    //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
+                    //     boo = curCount == maxCount;
+                    // }
+                    
+                    (this.sceneModel as any).goonHandler(this, true);
+                }, this, true);
+                
+                SkewersManager.getInstance().requestGameComplete(complete, duration);
+            }
+        }
+    }
+
+
     onClickReplay() {
         this._replay = true;
         this.guessingGameModel.replayQuestionAudio();
@@ -290,6 +324,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.playAudio("audio/music/click", true);
         this.processAnswer(p);
     }
+
+    onclickContinue() {
+        (this.sceneModel as any).dzanswerHandler(this);
+    }
+
 
     /**
      * 进入下一局游戏
