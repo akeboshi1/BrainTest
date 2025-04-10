@@ -43,6 +43,8 @@ export class SkewersManager {
 
     public reviseCompleteStr:string = "已完成全部训练，可做订正训练";
 
+    public reviseDZCompleteStr:string = "已完成全部订正";
+
     public failCompleteStr: string = "真遗憾，请加油";
 
     public singleBrainScore: string = "收获100点脑力值";
@@ -159,6 +161,7 @@ export class SkewersManager {
                 let tmpData: any = result[i]; // skewersGameData_data
                 let skewersGameData: SkewersGameData = new SkewersGameData();
                 skewersGameData.refreshData(tmpData);
+                skewersGameData.index = this._gameDatas.length;
                 this._gameDatas.push(skewersGameData);
             }
             Global.userData.skewerGameDatas = this._gameDatas;
@@ -539,12 +542,16 @@ export class SkewersManager {
         return this.getUnCompleteGameData() == null;
     }
 
+    public get gameDatasLength(): number {
+        return this._gameDatas.length;
+    }
+
+
     /**
      * 游戏列表中是否还有未完成得游戏
      * @private
      */
     public getUnCompleteGameData(): SkewersGameData {
-
         let len = this._gameDatas.length;
         for (let i: number = 0; i < len; i++) {
             let gameData = this._gameDatas[i];

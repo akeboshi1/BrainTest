@@ -754,10 +754,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 // 使用模型中的运行结果
                 let complete = win?1:0
                 let duration = 0;
-        
-
-
-
 
                 // 直接向服务器发送请求，但不处理回调
                 EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
