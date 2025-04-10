@@ -298,7 +298,15 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                     // 请求完成后不做弹窗处理
                     // 然后直接继续下一个游戏
-                    (this.sceneModel as any).goonHandler(this, this.guessingGameModel.isRunOver);
+                    // let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+                    // let boo = true;
+                    // if(trainData){
+                    //     let maxCount = SkewersManager.getInstance().getGameCount();
+                    //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
+                    //     boo = curCount == maxCount;
+                    // }
+                    
+                    (this.sceneModel as any).goonHandler(this, true);
                 }, this, true);
                 
                 SkewersManager.getInstance().requestGameComplete(complete, duration);
