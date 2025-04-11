@@ -113,6 +113,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             ad.confirmCb = () => {
                 this.exitCallBack(this);
             };
+            ad.y = 350; // 设置y坐标
             AlertManager.getInstance().showAlert(ad);
         });
     }
@@ -221,6 +222,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         ad.confirmCb = () => {
             this.startGameFlow();
         };
+        ad.y = 350; // 设置y坐标
         AlertManager.getInstance().showAlert(ad);
     }
 
@@ -646,6 +648,9 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         let isSuccess = true;
         let wrongIndices = [];
         let ad: AlertData = new AlertData();
+        ad.y = 350; // 设置y坐标
+
+
         ad.cancelButtonVisible = false;
         let showAlert = true;
 
@@ -804,6 +809,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             ad.cancelButtonVisible = false;
             ad.title = "没有时间啦";
             ad.message = "挑战失败";
+            ad.y = 350; // 设置y坐标
             AlertManager.getInstance().showAlert(ad);
         }
 
