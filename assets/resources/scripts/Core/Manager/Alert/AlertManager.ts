@@ -60,8 +60,10 @@ export default class AlertManager extends BaseManager {
         rootNode.addChild(alertNode);
         this.currentAlert = alertNode;
 
-        // 设置弹窗的初始位置，示例为屏幕中心位置（可根据实际调整）
-        //alertNode.setPosition(new Vec2(this.alertRootNode.width / 2, this.alertRootNode.height / 2));
+        // 设置弹窗位置，如果提供了x和y坐标则使用，否则使用默认位置(中央)
+        if (alertData.x !== 0 || alertData.y !== 0) {
+            alertNode.setPosition(alertData.x, alertData.y);
+        }
 
         // 这里可以添加更多逻辑根据alertData设置弹窗内的文本内容、按钮显示及点击回调等
 
@@ -133,4 +135,6 @@ export class AlertData {
     public cancelButtonVisible: boolean = false;
     public cancelButtonText: string = "取消";
     public confirmButtonText: string = "确认";
+    public x: number = 0; // 弹窗x坐标，默认为0表示使用默认位置
+    public y: number = 0; // 弹窗y坐标，默认为0表示使用默认位置
 }
