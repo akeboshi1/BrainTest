@@ -44,6 +44,8 @@ export class SkewersGameData {
 
     public is_correction : boolean = false;
 
+    public index:number = -1;
+
     // 一类串烧游戏状态
     private _status: number;
 

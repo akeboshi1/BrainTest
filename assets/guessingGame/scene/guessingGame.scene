@@ -5082,8 +5082,8 @@
     },
     "component": "",
     "_componentId": "bdbaeq0i4ZBS45jxyzcUbFZ",
-    "handler": "goonHandler",
-    "customEventData": "d"
+    "handler": "onclickContinue",
+    "customEventData": ""
   },
   {
     "__type__": "cc.Sprite",

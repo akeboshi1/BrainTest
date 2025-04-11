@@ -9,6 +9,9 @@ import { LayerUtil } from '../../resources/scripts/Core/Util/LayerUtil';
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import { TimeUtil } from '../../resources/scripts/Core/Util/TimeUtil';
+import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -212,7 +215,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private showGameTipAlert() {
         let ad: AlertData = new AlertData();
         ad.title = "提示";
-        ad.message = "将麻将按照正确语序，移动到地板上，组成句子，然后点击“胡”！";
+        ad.message = '将麻将按照正确语序，移动到地板上，组成句子，然后点击"胡"！';
         ad.cancelButtonVisible = false;
         ad.confirmCb = () => {
             this.startGameFlow();
@@ -751,6 +754,32 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         }
     }
 
+    onclickContinue() {
+        (this.sceneModel as any).dzanswerHandler(this);
+        // this.requestSkewersGameComplete(Number(this.model._resultBoo), this.model._duration);
+    }
+
+    dzgoonHandler(win:boolean = true) {
+        this.clearGameView();
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 使用模型中的运行结果
+                let complete = win?1:0
+                let duration = 0;
+
+                // 直接向服务器发送请求，但不处理回调
+                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
+                    // 请求完成后不做弹窗处理
+                    // 然后直接继续下一个游戏
+                    (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
+                }, this, true);
+                
+                SkewersManager.getInstance().requestGameComplete(complete, duration);
+            }
+        }
+    }
+
     gotoNextGame() {
         this.clearGameView();
         if (this.sceneModel) {
@@ -806,10 +835,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     public onClickRetryGame() {
+        Global.isAgain = true;
         this.startGameFlow();
     }
 
     public onClickShowAnswer() {
+        Global.isAgain = false;
         this.correctAnswerNode.active = true;
         const question = this.model.getCurrentQuestion();
         let fixed: number[] = question.fixed;
@@ -833,7 +864,4 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.correctAnswerLabel.string = correctAnswerText;
     }
 
-    public onClichContinue() {
-        this.goonHandler();
-    }
 }

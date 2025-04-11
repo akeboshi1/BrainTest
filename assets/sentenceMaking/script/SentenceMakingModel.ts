@@ -5,6 +5,7 @@ import { GameType } from "db://assets/resources/scripts/Core/Scene/SceneModel/Ba
 import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
 import { SocketData } from "../../resources/scripts/Core/Manager/Net/SocketData";
 import { SocketManager } from "../../resources/scripts/Core/Manager/Net/SocketManager";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 export class SentenceMakingModel {
     constructor() {
