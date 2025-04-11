@@ -86,6 +86,9 @@ export class GameAlert extends Component {
 
     private _type = null;
 
+    // 添加图标加载状态标记
+    private iconLoading: boolean = false;
+    private iconLoaded: boolean = false;
 
     private async loadAudio() {
         // 创建一个数组，存放每个异步加载的 Promise
@@ -159,17 +162,13 @@ export class GameAlert extends Component {
                 this.completeIcon.active = true;
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = false;
-                this.completeIcon.setScale(new Vec3(3, 3, 3));
-                tween(this.completeIcon)
-                    .to(0.9, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
-                    .call(() => {
-                        //this.exitBtn.node.active = false;
-                        this.startBtn.node.active = true;
-                    })
-                    .start();
                 this.iconConNode.active = true;
                 this.decLabel.node.active = false;
                 this.progressBar.node.active = false;
+                
+                // 确保图标显示正常并有动画效果
+                this.handleSuccessSmallIcon();
+                
                 this.playAudio("music/cheer", true);
                 startBtnUITransform.width = 250;
                 break;
@@ -295,15 +294,106 @@ export class GameAlert extends Component {
         this.decLabel.string = str;
     }
 
-    setIcon(iconUrl: string) {
-        LoaderManager.getInstance().resourcesLoadFrame(iconUrl).then((spriteframe) => {
-            if (this.icon) {
-                let sprite = this.icon.getComponent(Sprite);
-                sprite.spriteFrame = spriteframe;
-            }
-        }).catch((error) => {
-            DebugLog.instance.error(error);
-        })
+    /**
+     * 设置图标，返回Promise以便等待加载完成
+     * @param iconUrl 图标资源路径
+     * @returns Promise 加载完成后resolve
+     */
+    setIcon(iconUrl: string): Promise<void> {
+        // 设置加载状态
+        this.iconLoading = true;
+        this.iconLoaded = false;
+        
+        return new Promise<void>((resolve, reject) => {
+            LoaderManager.getInstance().resourcesLoadFrame(iconUrl).then((spriteframe) => {
+                if (this.icon) {
+                    let sprite = this.icon.getComponent(Sprite);
+                    sprite.spriteFrame = spriteframe;
+                    
+                    // 更新加载状态
+                    this.iconLoading = false;
+                    this.iconLoaded = true;
+                    
+                    // 如果图标节点处于隐藏状态，确保其现在显示
+                    if (!this.icon.active) {
+                        this.icon.active = true;
+                    }
+                    
+                    // 加载成功，解析Promise
+                    resolve();
+                } else {
+                    // 图标节点不存在，解析Promise但记录错误
+                    DebugLog.instance.warn("Icon node does not exist when setting icon");
+                    this.iconLoading = false;
+                    resolve();
+                }
+            }).catch((error) => {
+                // 记录错误
+                DebugLog.instance.error("Error loading icon:", error);
+                this.iconLoading = false;
+                
+                // 出错时仍然解析Promise，避免阻止UI流程
+                resolve();
+            });
+        });
+    }
+
+    /**
+     * 检查图标是否已加载完成
+     * @returns boolean 是否已加载完成
+     */
+    isIconLoaded(): boolean {
+        return this.iconLoaded;
+    }
+
+    /**
+     * 检查图标是否正在加载中
+     * @returns boolean 是否正在加载
+     */
+    isIconLoading(): boolean {
+        return this.iconLoading;
+    }
+
+    /**
+     * 等待图标加载完成
+     * @param timeout 超时时间（毫秒），默认3000ms
+     * @returns Promise 加载完成或超时后resolve
+     */
+    waitForIconLoaded(timeout: number = 3000): Promise<boolean> {
+        // 如果已加载完成，立即返回
+        if (this.iconLoaded) {
+            return Promise.resolve(true);
+        }
+        
+        // 如果没有在加载中，也立即返回
+        if (!this.iconLoading) {
+            return Promise.resolve(false);
+        }
+        
+        // 否则等待加载完成或超时
+        return new Promise<boolean>((resolve) => {
+            // 设置轮询检查
+            const checkInterval = 100; // ms
+            let elapsed = 0;
+            
+            const checkLoaded = () => {
+                if (this.iconLoaded) {
+                    resolve(true);
+                    return;
+                }
+                
+                if (!this.iconLoading || elapsed >= timeout) {
+                    resolve(false);
+                    return;
+                }
+                
+                elapsed += checkInterval;
+                setTimeout(checkLoaded, checkInterval);
+            };
+            
+            // 开始检查
+            checkLoaded();
+        });
     }
 
     start() {
@@ -418,6 +508,55 @@ export class GameAlert extends Component {
         } catch (error) {
             DebugLog.instance.error('判断语言游戏类型时出错:', error);
             return false;
+        }
+    }
+
+    /**
+     * 处理Sucess_Small类型的图标显示和动画
+     */
+    private handleSuccessSmallIcon(): void {
+        // 确保图标节点可见
+        if (this.completeIcon) {
+            this.completeIcon.setScale(new Vec3(3, 3, 3));
+            
+            // 检查图标是否已加载
+            if (this.iconLoaded) {
+                // 如果已加载，立即执行动画
+                this.playCompleteIconAnimation();
+            } else if (this.iconLoading) {
+                // 如果正在加载，等待加载完成后执行动画
+                this.waitForIconLoaded().then(loaded => {
+                    if (loaded) {
+                        this.playCompleteIconAnimation();
+                    } else {
+                        // 加载失败或超时，仍然显示按钮
+                        this.startBtn.node.active = true;
+                    }
+                });
+            } else {
+                // 没有加载图标，直接显示按钮
+                this.playCompleteIconAnimation();
+            }
+        } else {
+            // 图标节点不存在，直接显示按钮
+            this.startBtn.node.active = true;
+        }
+    }
+    
+    /**
+     * 播放完成图标的动画
+     */
+    private playCompleteIconAnimation(): void {
+        if (this.completeIcon) {
+            tween(this.completeIcon)
+                .to(0.9, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
+                .call(() => {
+                    this.startBtn.node.active = true;
+                })
+                .start();
+        } else {
+            // 图标不存在，直接显示按钮
+            this.startBtn.node.active = true;
         }
     }
 

@@ -1,16 +1,18 @@
-import { _decorator, Button, Color, color, Component, Enum, EventTouch, Label, Node, Sprite } from 'cc';
-import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
-import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
-import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
-import { GuessingQuestion } from './GuessingGameConfig';
-import { RollingSubtitleComponent } from './RollingSubtitleComponent';
-import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
-import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
-import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import {_decorator, Button, Color, EventTouch, Label, Node, Sprite} from 'cc';
+import {GuessingGameEvent, GuessingGameModel} from './GuessingGameModel';
+import {FrameComponent} from '../../resources/scripts/Core/Component/FrameComponent';
+import {EventManager} from '../../resources/scripts/Core/Manager/Event/EventManager';
+import {GuessingQuestion} from './GuessingGameConfig';
+import {RollingSubtitleComponent} from './RollingSubtitleComponent';
+import AlertManager, {AlertData} from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import {TimeUtil} from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import {TimerCommonComponent} from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+
 const { ccclass, property } = _decorator;
 
 enum OptionButtonColor {
@@ -295,21 +297,17 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 let duration = (endTime - this._startTime) / 1000;
                 
                 // 直接向服务器发送请求，但不处理回调
-                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
-                    // 请求完成后不做弹窗处理
-                    // 然后直接继续下一个游戏
-                    // let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-                    // let boo = true;
-                    // if(trainData){
-                    //     let maxCount = SkewersManager.getInstance().getGameCount();
-                    //     let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
-                    //     boo = curCount == maxCount;
-                    // }
-                    
-                    (this.sceneModel as any).goonHandler(this, true);
-                }, this, true);
-                
-                SkewersManager.getInstance().requestGameComplete(complete, duration);
+                let self = this;
+                let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+                let _boo = trainData.type != SkewersGameType.Comprehension;
+                if(!_boo){
+                    EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
+                        (self.sceneModel as any).goonHandler(self, true);
+                    }, this, true);
+                    SkewersManager.getInstance().requestGameComplete(complete, duration);
+                }else{
+                    (this.sceneModel as any).goonHandler(self, true);
+                }
             }
         }
     }

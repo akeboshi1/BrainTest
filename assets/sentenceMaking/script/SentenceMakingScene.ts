@@ -12,6 +12,7 @@ import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/Sk
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { TimeUtil } from '../../resources/scripts/Core/Util/TimeUtil';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
+import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -755,14 +756,22 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 let complete = win?1:0
                 let duration = 0;
 
-                // 直接向服务器发送请求，但不处理回调
-                EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
-                    // 请求完成后不做弹窗处理
-                    // 然后直接继续下一个游戏
-                    (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
-                }, this, true);
-                
-                SkewersManager.getInstance().requestGameComplete(complete, duration);
+
+                let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+                let _boo = trainData.type != SkewersGameType.Language;
+                if(!_boo){
+                    let self = this;
+
+                    // 直接向服务器发送请求，但不处理回调
+                    EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
+                        // 请求完成后不做弹窗处理
+                        // 然后直接继续下一个游戏
+                        (self.sceneModel as any).goonHandler(this, this.model.isRunOver);
+                    }, this, true);
+                    SkewersManager.getInstance().requestGameComplete(complete, duration);
+                }else{
+                    (this.sceneModel as any).goonHandler(self, true);
+                }
             }
         }
     }
