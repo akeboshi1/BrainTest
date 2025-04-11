@@ -90,7 +90,7 @@ export class SkewersManager {
      * 完成脑力保健任务
      * @private
      */
-    private task_complete_brain_training: string = "task.complete_brain_training";
+    public task_complete_brain_training: string = "task.complete_brain_training";
 
 
     public static TASK_GET_BRAIN_TRAININGS: string = "TASK_GET_BRAIN_TRAININGS";
@@ -250,14 +250,15 @@ export class SkewersManager {
      */
     public quitGame(parentNode: Node, curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context) {
         let alertNode = SkewersManager.getInstance()._alertInstance;
-        if (alertNode == null) {
+        if (alertNode == null||!alertNode.isValid) {
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource) => {
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
                 let alert = alertNode.getComponent("GameAlert");
                 alertNode.setPosition(0, 0, 0);
+                alert["setTitle"]("退出");
+                alert["setDec"]("");
                 alert["showView"](AlertType.Normal1);
-                alert["setTitle"]("是否退出当前游戏？");
                 alert['setProgress'](curCount, maxCount);
                 alert['bindCallBack'](goonCallBack, exitCallBack, context);
             });
@@ -266,22 +267,24 @@ export class SkewersManager {
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0, 0, 0);
+            alert["setTitle"]("退出");
             alert["showView"](AlertType.Normal1);
-            alert["setTitle"]("是否退出当前游戏？");
             alert['setProgress'](curCount, maxCount);
             alert['bindCallBack'](goonCallBack, exitCallBack, context);
         }
     }
 
     /**
-     * 串烧游戏中途显示alert
-     * @param parentNode
-     * @param type
-     * @param title
-     * @param desc
-     * @param goonCallBack
-     * @param exitCallBack
-     * @param context
+     * 显示游戏弹窗
+     * @param parentNode 父节点
+     * @param type 弹窗类型
+     * @param title 标题
+     * @param desc 描述
+     * @param curCount 当前计数
+     * @param maxCount 最大计数
+     * @param goonCallBack 继续回调
+     * @param exitCallBack 退出回调
+     * @param context 上下文
      */
     public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
         let alertNode = SkewersManager.getInstance()._alertInstance;
@@ -300,12 +303,25 @@ export class SkewersManager {
                 let alert = alertNode.getComponent("GameAlert");
                 alertNode.setPosition(position.x, position.y, position.z);
                 alert['setProgress'](curCount, maxCount);
-                alert["showView"](type);
+                
+                // 设置回调和基本信息
+                alert['bindCallBack'](goonCallBack, exitCallBack, context);
                 alert["setTitle"](title);
                 alert["setDec"](desc);
-                if (iconUrl) alert['setIcon'](iconUrl);
-                alert['bindCallBack'](goonCallBack, exitCallBack, context);
-                // if(Global.userData.curSkewerGameData.type)
+                
+                // 异步加载图标，然后显示弹窗
+                if (iconUrl) {
+                    alert['setIcon'](iconUrl).then(() => {
+                        // 图标加载完成后再显示弹窗
+                        alert["showView"](type);
+                    }).catch(() => {
+                        // 图标加载失败也要显示弹窗
+                        alert["showView"](type);
+                    });
+                } else {
+                    // 没有图标直接显示弹窗
+                    alert["showView"](type);
+                }
             });
         } else {
             alertNode.active = true;
@@ -313,12 +329,25 @@ export class SkewersManager {
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(position.x, position.y, position.z);
             alert['setProgress'](curCount, maxCount);
-            alert["showView"](type);
+            
+            // 设置回调和基本信息
+            alert['bindCallBack'](goonCallBack, exitCallBack, context);
             alert["setTitle"](title);
             alert["setDec"](desc);
-            if (iconUrl) alert['setIcon'](iconUrl);
-
-            alert['bindCallBack'](goonCallBack, exitCallBack, context);
+            
+            // 异步加载图标，然后显示弹窗
+            if (iconUrl) {
+                alert['setIcon'](iconUrl).then(() => {
+                    // 图标加载完成后再显示弹窗
+                    alert["showView"](type);
+                }).catch(() => {
+                    // 图标加载失败也要显示弹窗
+                    alert["showView"](type);
+                });
+            } else {
+                // 没有图标直接显示弹窗
+                alert["showView"](type);
+            }
         }
     }
 

@@ -7,7 +7,8 @@ import {EventManager} from "../../Manager/Event/EventManager";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
 import {SceneManager} from "../../Manager/Scene/SceneManager";
 import {TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import {BrainTrain} from "db://assets/resources/scripts/Game/UI/BrainTrain/BrainTrain";
 
 // 添加类型定义确保desc存在
 interface AlertConfig {
@@ -87,7 +88,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
 
     // ========= 中途退出游戏 =======
     quitGame(config?: IQuitGameConfig): void {
-        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        let trainData = SkewersManager.getInstance().getUnCompleteGameData()?.getCurTrainData();
         if(trainData){
             let maxCount = SkewersManager.getInstance().getGameCount();
             let curCount = trainData.seq - 1 < 0 ? 0 : trainData.seq - 1;
@@ -140,30 +141,17 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     dzanswerHandler(context: any): void {
         const manager = SkewersManager.getInstance();
         const trainData = manager.curGame.getCurTrainData();
-        const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
-        // const isFinalStage = curCount == maxCount;
-        let self = this;
-        let alertType,title,desc,exitHandler,goonHandler;
-            alertType = AlertType.Normal;
-            title= manager.failCompleteStr;
-            desc= ''; // 新增空描述
-            exitHandler = context.exitCallBack;
-            goonHandler = function(){
-                self.dzgoonHandler(context,false);
+        if(trainData){
+            const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+            if(curCount == maxCount){
+                SkewersManager.getInstance().requestGameComplete(0, 0);
+                this.showNextFailHandler(context);
+            }else{
+                context.dzgoonHandler();
             }
-            curCount;
-            maxCount;
-        // 显示弹窗
-        manager.showGameAlert(
-            context.viewNode,
-            alertType,
-            title,
-            desc,
-            curCount,maxCount,
-            goonHandler,
-            exitHandler,
-            context
-        );
+        }else{
+            context.dzgoonHandler();
+        }
     }
 
     /**
@@ -442,28 +430,50 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     // ========= 成功后进入下一类型游戏 =========
     showNextSuccessHandler(context) {
         const manager = SkewersManager.getInstance();
-        const trainData = manager.curGame.getCurTrainData();
-        let boo = false;
-        if(!trainData){
-            boo = manager.isRunOver();
-        }else{
-            const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
-            boo = curCount >= maxCount;
-            if (boo && TaskManager.getInstance().curTask.type == TaskType.Revise) {
-                boo = manager.gameDatasLength == manager.curGame.index+1;
+        const taskManager = TaskManager.getInstance();
+        const isReviseMode = taskManager.curTask.type == TaskType.Revise;
+
+        // 判断是否运行结束的函数
+        const checkIsRunOver = () => {
+            const trainData = manager.curGame.getCurTrainData();
+            if (!trainData) {
+                return manager.isRunOver();
             }
+
+            const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+            let isOver = curCount >= maxCount;
+
+            if (isOver && isReviseMode) {
+                isOver = manager.gameDatasLength == manager.curGame.index + 1;
+            }
+
+            return isOver;
+        };
+
+        // 显示游戏弹窗
+        const showAlert = () => {
+            const isRunOver = checkIsRunOver();
+            const handler = isRunOver ? context.totalCompleteHandler : context.nextHandler;
+
+            manager.showGameAlert(
+                context.viewNode,
+                AlertType.Sucess_Small,
+                manager['currentSkewersCompleteGameStr'],
+                manager['singleBrainScore'],
+                0, 0,
+                handler,
+                context.exitCallBack,
+                context
+            );
+        };
+
+        // 处理订正模式
+        if (isReviseMode) {
+            EventManager.getInstance().on(manager.task_complete_brain_training, showAlert, this);
+            manager.requestGameComplete(1, 0);
+        } else {
+            showAlert();
         }
-        const isRunOver = boo ? context.totalCompleteHandler : context.nextHandler;
-        manager.showGameAlert(
-            context.viewNode,
-            AlertType.Sucess_Small,
-            manager['currentSkewersCompleteGameStr'],
-            manager['singleBrainScore'],
-            0, 0,
-            isRunOver,
-            context.exitCallBack,
-            context
-        );
     }
 
     // ======== 失败后进入下一类型游戏 =========
@@ -493,12 +503,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         if (isRunOver && TaskManager.getInstance().isRevise(TaskManager.getInstance().curTask.id)) {
             alertType = AlertType.Revise;
         }
-        if (!isRunOver && TaskManager.getInstance().curTask.type == TaskType.Revise) {
+        if (isRunOver && TaskManager.getInstance().curTask.type == TaskType.Revise) {
             alertType = AlertType.Revise_Complete;
-            const trainData = manager.curGame.getCurTrainData();
-            if(trainData){
-                SkewersManager.getInstance().requestGameComplete(trainData.complete, trainData.duration);
-            }
         }
         let exitFunc = alertType == AlertType.Revise ? context.reviseHandler:context.exitCallBack;
         let compStr = alertType == AlertType.Revise ? SkewersManager.getInstance().reviseCompleteStr: alertType == AlertType.Revise_Complete ? SkewersManager.getInstance().reviseDZCompleteStr:SkewersManager.getInstance().totalCompleteStr;
@@ -509,7 +515,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
 
     // ========= 订正任务 =========
     reviseHandler(context){
-       SceneManager.getInstance().backToSkewersGameCenterByID(TaskManager.getInstance().curDingzhenTask.id);
+        TaskManager.getInstance().setCurTaskId(TaskManager.getInstance().curDingzhenTask.id);
+        UIManager.getInstance().showPanel(BrainTrain.NAME);
     }
 
     // ========= 订正重玩 ==========
