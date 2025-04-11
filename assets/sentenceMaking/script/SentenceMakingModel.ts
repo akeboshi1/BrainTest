@@ -118,23 +118,21 @@ export class SentenceMakingModel {
         return this._gameTime;
     }
 
-    private _resultBoo: boolean = false;
-
-    postGameData(complete: boolean, duration: number, user_answer: string[] = null) {
+    postGameData(complete: number, duration: number, user_answer: string[] = null) {
         if (user_answer != null) {
             this.postSentenceMakingEvaluate(user_answer);
         }
-
-        this._resultBoo = complete;
-        let result = Number(complete);
         if (this._view.sceneModel.gameType == GameType.SKEWERS) {
-            this._view.requestSkewersGameComplete(result, duration);
+            this._view.requestSkewersGameComplete(complete, duration);
         } else {
             let curGame = (this._view.sceneModel as any).game;
             // levelmode=1得时候，如何传递level和难度给服务器
+            let count=complete*(this.getCurrentQuestion().sentence.length-this.getCurrentQuestion().fixed.length);
+            console.log('正确数量为-',count);
+            
             let difficulty = this.getCurrentDifficult() == 3 ? 3 : this.getCurrentDifficult();
             let level = curGame.getLevelByDifficult(difficulty);
-            this._view.requestGameCenterComplete(result, level, result, duration, this.gameTime, difficulty, curGame.levelMode);
+            this._view.requestGameCenterComplete(count, level, complete, duration, this.gameTime, difficulty, curGame.levelMode);
         }
     }
 

@@ -288,6 +288,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
         
         this.dragInstance = null;
+        console.log("当前数量：" + this.getCorrentCounts());
+        console.log('总数',this.chipsInstances.length);
+        
+        
     }
 
     onTouchCancel(event: EventTouch) {
@@ -363,7 +367,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             
             // 处理游戏结果
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                this.requestGameResult(true);
+                this.requestGameResult();
             } else {
                 this._requestGameCenterComplete(1);
                 this.summaryAlert.node.active = true;
@@ -424,10 +428,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         });
     }
 
-    private requestGameResult(win: boolean = true) {
+    private requestGameResult() {
         // 上报数据
         let endTime = TimeUtil.getNow();
-        let complete = Number(win);
+        let complete = this.getCorrentCounts()/this.chipsInstances.length;
         if (this._startTime == 0) {
             this._startTime = endTime;
         }
@@ -522,6 +526,15 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         return true;
     }
 
+    private getCorrentCounts() {
+        let counts = 0;
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            if (value["puzzlePos"] == key) {
+                counts++;
+            }
+        }
+        return counts;
+    }
     // 随机交换拼图位置n次的方法
     private randomSwapPuzzleChipsNTimes(n: number) {
         const maxPos = this.selectedLevel.x * this.selectedLevel.y;
@@ -593,7 +606,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
-            this.requestGameResult(false);
+            this.requestGameResult();
         } else {
             this._requestGameCenterComplete(0);
             this.summaryAlert.node.active = true;
@@ -609,11 +622,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         let level = curGame.level;
         let difficulty = curGame.difficulty;//level % 3 == 0?3:level % 3;
         let duration = (this._endTime - this._startTime) / 1000;
+        let complete = this.getCorrentCounts()/this.chipsInstances.length;
+   
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: win,
             level,
-            complete:win,
+            complete,
             duration,
             timelimit: this.gameLength,
             difficulty,

@@ -87,7 +87,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private touchResult: number = 0;
     private touchIndex: number = 0;
     private currentQuestion: SentenceMakingQuestion = null;
-
+    private correctDragCount: number = 0;
+    private winCount:number = 0;
 
     onLoad(): void {
         this.loadAudio().then();
@@ -652,6 +653,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         }
 
         let user_answer: string[] = [];
+      
         for (let i = 0; i < this.resultContainerMap.size; i++) {
             let node = this.resultContainerMap.get(i);
             if (!node) {
@@ -667,11 +669,14 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             node.off(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
             if (cardCtrl) {
                 let currentIndex = cardCtrl.getid();
+
                 if (currentIndex !== i) {
                     isSuccess = false;
                     wrongIndices.push(node);
-                }
-
+                    console.log('fail',this.correctDragCount++);
+                }else{
+                   this.winCount++;
+                }      
                 user_answer.push(this.model.getCurrentQuestion().sentence[currentIndex]);
             }
         }
@@ -701,11 +706,19 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (showAlert) {
             AlertManager.getInstance().showAlert(ad);
         }
-
+        let complete=this.getCorrectPosComplete();
         this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
-        this.model.postGameData(isSuccess, this.timerComponent.getElapsedTime(), user_answer);
+        this.model.postGameData(complete, this.timerComponent.getElapsedTime(), user_answer);
         this.timerComponent.resetTimer();
+        this.winCount=0;
+    }
+    getCorrectPosComplete(){
+        let sumCounts=this.model.getCurrentQuestion().sentence.length;
+        let fiexLength=this.model.getCurrentQuestion().fixed.length;
+        console.log('完成度为-',`${this.winCount-fiexLength}/${sumCounts-fiexLength}`);
+        
+        return (this.winCount-fiexLength)/(sumCounts-fiexLength);
     }
 
     public clickNextLeve() {
@@ -761,15 +774,25 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
         }
 
-        for (let [key, node] of this.resultContainerMap) {
+        for (let [key, node] of this.resultContainerMap) {     
             node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
+            let cardCtrl = node.getComponent(CardCtrl);
+            if (cardCtrl) {
+                let currentIndex = cardCtrl.getid();
+                if (currentIndex !== key) {       
+                    console.log('fail',this.correctDragCount++);
+                }else{
+                   this.winCount++;
+                }      
+            }
         }
 
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
-
-        this.model.postGameData(false, this.model.gameTime);
+        let complete=this.getCorrectPosComplete();
+        this.model.postGameData(complete, this.model.gameTime);
+        this.winCount=0;
     }
 
     private showAnimHupai() {
