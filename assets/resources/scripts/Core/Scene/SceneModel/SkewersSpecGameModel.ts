@@ -162,7 +162,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         // 订正模式
         let curTask = TaskManager.getInstance().curTask;
         if(curTask && curTask.type == TaskType.Revise){
-            let success = config.complete != 0;
+            let success = config.complete >= 1;
             let manager = SkewersManager.getInstance();
             const trainData = manager.curGame.getCurTrainData();
             manager.curGame.is_correction = config.isCorrection;
