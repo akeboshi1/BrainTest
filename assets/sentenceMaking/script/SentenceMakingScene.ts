@@ -693,7 +693,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
         if (isSuccess) {
             // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
-            DebugLog.instance.info("游戏成功！");
+            DebugLog.instance.log("游戏成功！");
             if(this.sceneModel.gameType != GameType.SKEWERS){
                 this.showAnimHupai();
             }
@@ -709,7 +709,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
             ad.title = "可惜";
             ad.message = "挑战失败了";
-            DebugLog.instance.info("游戏失败！");
+            DebugLog.instance.log("游戏失败！");
             this.playFail();
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 showAlert = false;
