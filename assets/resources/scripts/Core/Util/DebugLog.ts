@@ -12,9 +12,13 @@ export class DebugLog {
     /**
      * debug开关
      */
-    public debugBoo:boolean = false;
+    public debugBoo:boolean = true;
     public constructor() {
 
+    }
+
+    public info(...data: any[]){
+        console.info(...data);
     }
 
     public log(...data: any[]){
