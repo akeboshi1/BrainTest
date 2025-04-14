@@ -33,7 +33,7 @@ import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 
-const SHOOT_INTERVAL = 0.65;
+const SHOOT_INTERVAL = 0.8;
 // let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends BaseScene<IBaseGameChild> {
@@ -290,6 +290,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.gameBeforeView.active = false;
         this.gameStartView.active = true;
         this.wangCount = 0;
+        
+        // 初始化答案框显示为?
+        this.initWangLabels();
+        
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.curHard = (this.sceneModel as any).difficulty;
             this.hardIndex = this.hards.indexOf(this.curHard);
@@ -393,7 +397,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
 
-    private createFish(count: number = 1) {
+    private createFish(count: number = 5) {
         if (this.fishParentNode && this.fishPrefab) {
             if (!this.hasGuide) {
                 if (this.sceneModel.hasGuide) {
@@ -405,7 +409,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             let datas = [];
             for (let i = 0; i < len; i++) {
                 let fish = new Fish(this.fishPrefab);
-                fish.positionYIndex = len == 1 ? 1 : Math.floor(Math.random() * this.fishYs.length);
+                fish.positionYIndex = len == 1 ? 1 : i;
                 fish.setParent(this.fishParentNode);
                 this.randomFish(fish);
                 this.fishs.push(fish);
@@ -418,7 +422,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
-    private fishYs: number[] = [-450, -150, 150, 450];
+    private fishYs: number[] = [-450, -230, 50, 300, 550];
     public hasGuide: boolean = false;
     private randomFish(fish: Fish) {
         if (this._clearBoo) {
@@ -442,6 +446,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         fish.setPosition(x, y);
         fish.setScale(1);
+        // 稍后恢复默认颜色
+        fish.resetColor();
         DebugLog.instance.log(`create ---- ${fish.position}`)
 
         fish.setSpriteFrame(spriteFrame);
@@ -454,18 +460,18 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             EventManager.getInstance().off(Fish.FishClick, self);
             EventManager.getInstance().on(Fish.FishClick, self.selectFish, self);
             fish.setQuestion(question);
-            fish.clickHandler();
         });
     }
 
     private selectFish(fish, context) {
-        // if (context.hasWangClick) {
-        //     // DebugLog.instance.log("已经有网飞出来")
-        //     return;
-        // }
-        // if (context._curFish) {
-        //     context._curFish.setSelect(context.unSelectColor, 1);
-        // }
+        if (context.hasWangClick) {
+            // DebugLog.instance.log("已经有网飞出来")
+            return;
+        }
+        // 如果已经有选中的鱼，恢复它的颜色
+        if (context._curFish) {
+            context._curFish.setSelect(context.unSelectColor, 1);
+        }
 
         context._curFish = fish;
         // DebugLog.instance.log("选中鱼currentIndex",fish.currentIndex);
@@ -475,30 +481,27 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         let len = options.length;
 
+        // 显示答案选项
         for (let i = 0; i < len; i++) {
-
             let answer = options[i];
-
             let wangNode = context.wangs[i];
-
             let label = wangNode.getChildByName('Label').getComponent(Label);
-
             label.string = answer;
         }
+        
+        // 设置当前鱼的选中状态
         context._curFish.setSelect(context.selectColor, 1.3);
-        for (let i = 0; i < len; i++) {
-            this.unSelectWang(i);
-        }
     }
 
-    private _offsetX :number = 1080;
+    private _offsetX :number = 980;
     private _offsetX1:number = 1200;
+    private _fastOffset:number = -600;
     moveFishes(fish: Fish, delay: number = 0) {
         if (fish.curTween) {
             fish.curTween.stop();
             fish.curTween = null;
         }
-
+        fish.resetColor();
         let self = this;
         const upDistance = 8; // 上下浮动的距离+
         const duration = (20 * (1600 - Math.abs(800 - fish.position.x))) / 1600; // 每次往返的时间(根据鱼的当前点x坐标动态计算时间)
@@ -514,7 +517,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 fish.curTween = tween(fish)
                     // 对当前鱼对象进行 tween 动画
                     .delay(delay)// 每个对象延迟4秒开始
-                    .to(duration, { position: new Vec3(-600, fish.position.y, fish.position.z) },
+                    .to(duration, { position: new Vec3(self._fastOffset, fish.position.y, fish.position.z) },
                         {
                             onUpdate: () => {
                                 if (fish.pause) {
@@ -561,6 +564,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                             self.clearWangNubmer();
                             self._curFish = null;
                         }
+                        // 显式重置鱼的颜色
+                        fish.resetColor();
+                        fish.setSelect(self.unSelectColor, 1);
                         self.randomFish(fish);
                         self.moveFishes(fish, SHOOT_INTERVAL);
                     })
@@ -568,7 +574,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             } else {
                 // 串烧正常流程
                 if (this._pause && fish.position.x < this._leftSceneX + this._offsetX) {
-                    fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, this.fishYs[fish.positionYIndex], fish.position.z) },
+                    fish.curTween = tween(fish).to(duration, { position: new Vec3(self._fastOffset, this.fishYs[fish.positionYIndex], fish.position.z) },
                         {
                             onUpdate: () => {
                                 if (self._pause) {
@@ -624,6 +630,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                 self.clearWangNubmer();
                                 self._curFish = null;
                             }
+                            // 显式重置鱼的颜色
+                            fish.resetColor();
+                            fish.setSelect(self.unSelectColor, 1);
                             self.randomFish(fish);
                             self.moveFishes(fish, fish.positionYIndex * SHOOT_INTERVAL);
                         })
@@ -680,18 +689,21 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                         self.clearWangNubmer();
                                         self._curFish = null;
                                     }
+                                    // 显式重置鱼的颜色
+                                    fish.resetColor();
+                                    fish.setSelect(self.unSelectColor, 1);
                                     self.randomFish(fish);
                                     self.moveFishes(fish, SHOOT_INTERVAL);
                                 })
                                 .start();
                         })
-                        .start(); // 启动动画
+                        .start();
                 }
             }
         }
         else {
             if (this._pause && fish.position.x < this._leftSceneX + this._offsetX) {
-                fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, this.fishYs[fish.positionYIndex], fish.position.z) },
+                fish.curTween = tween(fish).to(duration, { position: new Vec3(self._fastOffset, this.fishYs[fish.positionYIndex], fish.position.z) },
                     {
                         onUpdate: () => {
                             if (self._pause) {
@@ -725,10 +737,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     self._curFish = fish;
                                     GuideManager.getInstance().start(CatchFishGuide.NAME, { root: this.node, fish: fish, wang: self.wangs });
                                     // 这里暂停tween
-
-
-
-
                                 }
                             }
                         }
@@ -747,6 +755,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                             self.clearWangNubmer();
                             self._curFish = null;
                         }
+                        // 显式重置鱼的颜色
+                        fish.resetColor();
+                        fish.setSelect(self.unSelectColor, 1);
                         self.randomFish(fish);
                         self.moveFishes(fish, fish.positionYIndex * SHOOT_INTERVAL);
                     })
@@ -758,7 +769,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .to(0.2, { position: new Vec3(self._leftSceneX + this._offsetX, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                     .call(() => {
                         self.hasWangClick = false;
-                        fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, fish.position.y, fish.position.z) },
+                        fish.curTween = tween(fish).to(duration, { position: new Vec3(self._fastOffset, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
                                     if (fish.pause) {
@@ -803,12 +814,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     self.clearWangNubmer();
                                     self._curFish = null;
                                 }
+                                // 显式重置鱼的颜色
+                                fish.resetColor();
+                                fish.setSelect(self.unSelectColor, 1);
                                 self.randomFish(fish);
                                 self.moveFishes(fish, SHOOT_INTERVAL);
                             })
                             .start();
                     })
-                    .start(); // 启动动画
+                    .start();
             }
         }
     }
@@ -1111,6 +1125,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 self.moveFishes(self._curFish, SHOOT_INTERVAL);
             })
             .start(); // 启动动画
+    }
+
+    // 添加初始化答案框方法
+    initWangLabels() {
+        for (let i = 0; i < this.wangs.length; i++) {
+            let wangNode = this.wangs[i];
+            let label = wangNode.getChildByName('Label').getComponent(Label);
+            label.string = '?';
+        }
     }
 
 }
