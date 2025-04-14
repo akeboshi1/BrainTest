@@ -30,8 +30,8 @@ export class CreateQuestion {
         let correctAnswer = 0;
 
         if (difficulty === 1) {
-            // 难度一：加减法、除法和乘法
-            const operation = await getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 除法, 4: 乘法
+            // 难度一：加减法和乘法
+            const operation = await getRandomInt(1, 3); // 1: 加法, 2: 减法, 3: 乘法
 
             if (operation === 1) {
                 // 加法（20以内数字，加减1位数，不能加减1和0）
@@ -54,26 +54,15 @@ export class CreateQuestion {
                 correctAnswer = a - b;
 
             } else if (operation === 3) {
-                // 除法（被除数小于10，必须在99乘法表内，且不能产生余数）
-                let divisor, a;
-                do {
-                    divisor = await getRandomInt(2, 9); // 除数不能是1
-                    a = await getRandomInt(2, 9) * divisor; // 确保被除数在99乘法表内
-                } while (a >= 10 || a % divisor !== 0 || a === divisor);
-                question = `${a} ÷ ${divisor}`;
-                correctAnswer = a / divisor;
-
-            } else if (operation === 4) {
                 // 乘法（两个数都小于等于9）
                 let a = await getRandomInt(2, 9);
                 let b = await getRandomInt(2, 9);
                 question = `${a} x ${b}`;
                 correctAnswer = a * b;
-
             }
         } else if (difficulty === 2) {
-            // 难度二：加减法、乘法和除法
-            const operation = await getRandomInt(1, 4); // 1: 加法, 2: 减法, 3: 乘法, 4: 除法
+            // 难度二：加减法和乘法
+            const operation = await getRandomInt(1, 3); // 1: 加法, 2: 减法, 3: 乘法
 
             if (operation === 1) {
                 // 2位数字加法，且需要有一次进位
@@ -101,42 +90,14 @@ export class CreateQuestion {
                 let b = await getRandomInt(2, 5);
                 question = `${a} x ${b}`;
                 correctAnswer = a * b;
-
-            } else if (operation === 4) {
-                // 除法（被除数在10到99之间，除数在2到9之间，且结果为整数）
-                let divisor, a;
-                do {
-                    divisor = await getRandomInt(2, 9);
-                    a = await getRandomInt(10, 99);
-                } while (a % divisor !== 0); // 确保除法结果为整数
-                question = `${a} ÷ ${divisor}`;
-                correctAnswer = a / divisor;
             }
         } else if (difficulty === 3) {
-            // 难度三：复合计算
-            let innerQuestion = '';
-            let innerResult = 0;
-
-            const innerOperation = await getRandomInt(1, 2); // 1: 乘法, 2: 除法
-            let a, b;
-
-            if (innerOperation === 1) {
-                // 括号内乘法（被乘数为12、13、14、15，乘数小于等于5）
-                a = await getRandomInt(12, 15); // 被乘数
-                b = await getRandomInt(2, 5); // 乘数
-                innerQuestion = `${a} x ${b}`;
-                innerResult = a * b;
-
-            } else if (innerOperation === 2) {
-                // 括号内除法（被除数小于10，且不能产生余数）
-                let divisor;
-                do {
-                    divisor = await getRandomInt(2, 9); // 除数不能为1或0
-                    innerResult = await getRandomInt(10, 99); // 被除数
-                } while (innerResult % divisor !== 0 || innerResult < 10 || innerResult === divisor); // 确保能整除，且被除数不能等于除数
-                innerQuestion = `${innerResult} ÷ ${divisor}`;
-                innerResult = innerResult / divisor;
-            }
+            // 难度三：复合计算（只使用乘法作为内部运算）
+            // 括号内乘法（被乘数为12、13、14、15，乘数小于等于5）
+            let a = await getRandomInt(12, 15); // 被乘数
+            let b = await getRandomInt(2, 5); // 乘数
+            let innerQuestion = `${a} x ${b}`;
+            let innerResult = a * b;
 
             // 括号外的数和操作
             let outerNum;

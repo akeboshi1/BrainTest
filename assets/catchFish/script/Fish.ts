@@ -1,4 +1,4 @@
-import {Prefab,instantiate,Node,Sprite,Label,SpriteFrame,Vec3,Button,tween} from 'cc';
+import {Prefab,instantiate,Node,Sprite,Label,SpriteFrame,Vec3,Button,tween,Color} from 'cc';
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 export class Fish {
@@ -73,8 +73,13 @@ export class Fish {
     }
 
     setSelect(color,scale){
-        // this._fishSprite.color = color;
-        this.setScale(scale);
+        this._fishSprite.color = color;
+        //this.setScale(scale);
+    }
+
+    resetColor(){
+        // 恢复默认颜色(白色)
+        this._fishSprite.color = new Color(255, 255, 255, 255);
     }
 
     setScale(_scale:number=1){

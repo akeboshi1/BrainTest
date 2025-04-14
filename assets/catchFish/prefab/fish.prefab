@@ -93,7 +93,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -75.00000000000011,
+      "y": -76,
       "z": 0
     },
     "_lrot": {
@@ -133,8 +133,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 325,
-      "height": 95
+      "width": 280,
+      "height": 80
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -201,8 +201,6 @@
       "__id__": 0
     },
     "fileId": "5dED8nUllIapVy7ia6Qjm7",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -229,7 +227,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 52,
+      "y": 36.4,
       "z": 0
     },
     "_lrot": {
@@ -269,8 +267,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 472,
-      "height": 326
+      "width": 377.6,
+      "height": 280.8
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -337,8 +335,6 @@
       "__id__": 0
     },
     "fileId": "f83UnV9uxE0qUmvs6pF31D",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -365,7 +361,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -75,
+      "y": -74.9,
       "z": 0
     },
     "_lrot": {
@@ -405,8 +401,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 305.185546875,
-      "height": 100.8
+      "width": 254.3212890625,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -444,10 +440,10 @@
     "_string": "(20+20) x 3",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 80,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -496,8 +492,6 @@
       "__id__": 0
     },
     "fileId": "72bWc4O1ZOypUdPyASnjce",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -514,8 +508,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 300,
-      "height": 350
+      "width": 280,
+      "height": 237.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
