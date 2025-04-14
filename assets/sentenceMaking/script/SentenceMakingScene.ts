@@ -690,10 +690,13 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
         }
 
+
         if (isSuccess) {
             // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
-            DebugLog.instance.log("游戏成功！");
-            this.showAnimHupai();
+            DebugLog.instance.info("游戏成功！");
+            if(this.sceneModel.gameType != GameType.SKEWERS){
+                this.showAnimHupai();
+            }
             this.playWin();
             showAlert = false;
         } else {
@@ -706,6 +709,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
             ad.title = "可惜";
             ad.message = "挑战失败了";
+            DebugLog.instance.info("游戏失败！");
             this.playFail();
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 showAlert = false;
@@ -763,6 +767,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     onclickContinue() {
         (this.sceneModel as any).dzanswerHandler(this);
         // this.requestSkewersGameComplete(Number(this.model._resultBoo), this.model._duration);
+    }
+
+    public clearGameView() {
+        super.clearGameView();
+
     }
 
     dzgoonHandler(win:boolean = true) {

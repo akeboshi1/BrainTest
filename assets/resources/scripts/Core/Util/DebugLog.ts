@@ -17,6 +17,10 @@ export class DebugLog {
 
     }
 
+    public info(...data: any[]){
+        console.info(...data);
+    }
+
     public log(...data: any[]){
         if(this.debugBoo)console.log(...data);
     }

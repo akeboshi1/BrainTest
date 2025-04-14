@@ -56,11 +56,22 @@ export class SkewersManager {
         return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}训练`
     }
 
+    public get currentSkewersCompleteGameDZStr(): string {
+        return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}订正`
+    }
+
     public get nextSkewersGameStr(): string {
         if(!SkewersManager.getInstance().getUnCompleteGameData()){
             return null;
         }
         return `接下来将进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}训练`;
+    }
+
+    public get nextSkewersGameDZStr(): string {
+        if(!SkewersManager.getInstance().getUnCompleteGameData()){
+            return null;
+        }
+        return `接下来将进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}订正`;
     }
 
     private _gameDatas: SkewersGameData[];

@@ -223,7 +223,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this._resuleBoo = win;
         // 上报数据
         let endTime = TimeUtil.getNow();
-        let complete = Number(win);
+        let complete = win?1:0;
         if (this._startTime == 0) {
             this._startTime = endTime;
         }
