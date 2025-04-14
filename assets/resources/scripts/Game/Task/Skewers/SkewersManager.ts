@@ -307,7 +307,7 @@ export class SkewersManager {
             const canvas = scene.getComponentInChildren(Canvas); //
             parentNode = canvas.node;
         }
-        if (alertNode == null) {
+        if (alertNode == null || alertNode.isValid==false) {
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource) => {
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
