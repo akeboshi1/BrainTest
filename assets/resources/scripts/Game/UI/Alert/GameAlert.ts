@@ -429,8 +429,8 @@ export class GameAlert extends Component {
      * @param context
      */
     bindCallBack(goonCallBack: Function, exitCallBack: Function, context: any) {
-        this.context = context;
         this.reset();
+        this.context = context;
         if (goonCallBack) {
             this.goonCallBack = goonCallBack.bind(context);
         }
@@ -440,6 +440,7 @@ export class GameAlert extends Component {
     }
 
     reset(){
+        this.context = null;
         this.goonCallBack = null;
         this.exitCallBack = null;
     }
