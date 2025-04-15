@@ -96,7 +96,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             SkewersManager.getInstance().quitGame(config.parentNode, curCount, maxCount,
                 config.context.resumeCallBack, config.context.exitCallBack, config.context);
         }else{
-            SceneManager.getInstance().backToSkewersGameCenter();
+            SceneManager.getInstance().backToTaskProgress();
         }
     }
 
@@ -108,13 +108,15 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         const isFinalStage = curCount == maxCount;
         let alertType,title,desc,exitHandler,goonHandler;
             if(isFinalStage){
-                alertType = AlertType.Sucess_Normal;
-               title= win?manager.normalCompleteStr:manager.failCompleteStr;
-               desc= '';
-               exitHandler = context.exitCallBack;
-               goonHandler =  win?context.showNextSuccessHandler:context.showNextFailHandler;
-               curCount;
-                maxCount; 
+                context.showNextSuccessHandler(context);
+                return;
+                // alertType = AlertType.Sucess_Normal;
+                // title= win?manager.normalCompleteStr:manager.failCompleteStr;
+                // desc= '';
+                // exitHandler = context.exitCallBack;
+                // goonHandler =  win?context.showNextSuccessHandler:context.showNextFailHandler;
+                // curCount;
+                // maxCount;
             }else{
                 alertType = AlertType.Normal;
                 title=  win?manager.singleCompleteStr:manager.failCompleteStr;
