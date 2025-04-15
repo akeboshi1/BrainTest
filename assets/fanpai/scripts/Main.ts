@@ -136,11 +136,13 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
         } else {
             this.successView.active = true;
-            this.titleLabel.string = `看牌结束后开始挑战`
+            this.titleLabel.string = `看牌结束后开始挑战`;
+            this.successViewProgressLabel.node.active = true;
+            this.successViewProgressLabel.string =`看牌倒计时${this.seconds[this.hardIndex]}秒` ;
             this.updateSuccessPopupTitle(1);
             this.successStartButton.node.active = true;
             this.successNextButton.node.active = false;
-            this.successViewProgressLabel.node.active = false;
+          
         }
     }
     clickCardHandler(event, data) {
@@ -361,6 +363,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.successView.active = true;
             this.successStartButton.node.active = false;
             this.successNextButton.node.active = true;
+            this.successViewProgressLabel.node.active = true;
+            this.successViewProgressLabel.string =`看牌倒计时${this.seconds[this.hardIndex+1]}秒` ;
             if (this.curHard == this.hards[0]) {
                 this.updateSuccessPopupTitle(2);
                 this.updateSuccessPopupToptxt(this.curHard);
@@ -370,7 +374,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.updateSuccessPopupToptxt(this.curHard);
                 this.updateSuccessPopupStar(this.curHard);
             } else if (this.curHard == this.hards[2]) {
-                this.successViewProgressLabel.node.active = false;
+              
                 this.successView.active = false;
                 this.bigWin.active = true;
             }
@@ -402,10 +406,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.hardIndex >= this.hards.length - 1) {
             this.hardIndex = 0;
             this.bigWin.active = false;
-            this.successView.active = true;
             this.updateSuccessPopupTitle(1);
             this.updateSuccessPopupToptxt(0);
             this.updateSuccessPopupStar(this.curHard);
+         
         } else {
             this.hardIndex++;       
         }
@@ -416,7 +420,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardView();
         this.gameStartInit();
         this.closeFailView();
-
     }
     playNextCustoms() {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -594,9 +597,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.timerId);
     }
 
-    private _setTimeOutId: NodeJS.Timeout | null = null;
+    private _setTimeOutId;
     // 预览卡片，time，秒数
-    seconds: number[] = [1.5, 2, 3.5];
+    seconds: number[] = [1.5, 3, 4];
     previewCard() {
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
@@ -693,8 +696,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     private requestGameResult() {
         // 上报数据
         this._endTime = TimeUtil.getNow();
+        // 获取已删除卡片数量
         const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
+        // 计算完成度
         let complete = isDeletedCardCount / this.cardTotalCount;
+        // 计算耗时
         let duration = (this._endTime - this._startTime) / 1000;
         return {
             complete,
