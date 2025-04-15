@@ -152,7 +152,12 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                 context.dzgoonHandler();
             }
         }else{
-            context.dzgoonHandler();
+            if(manager.isRunOver()){
+                context.totalCompleteHandler(context);
+            }else{
+                context.dzgoonHandler();
+            }
+
         }
     }
 
