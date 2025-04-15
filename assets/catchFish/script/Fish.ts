@@ -73,11 +73,12 @@ export class Fish {
     }
 
     setSelect(color,scale){
-        this._fishSprite.color = color;
-        //this.setScale(scale);
+        //this._fishSprite.color = color;
+        this.setScale(scale);
     }
 
     resetColor(){
+        return;
         // 恢复默认颜色(白色)
         this._fishSprite.color = new Color(255, 255, 255, 255);
     }

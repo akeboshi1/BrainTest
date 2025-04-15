@@ -106,38 +106,12 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         const trainData = manager.curGame.getCurTrainData();
         const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
         const isFinalStage = curCount == maxCount;
-        let alertType,title,desc,exitHandler,goonHandler;
             if(isFinalStage){
                 context.showNextSuccessHandler(context);
-                return;
-                // alertType = AlertType.Sucess_Normal;
-                // title= win?manager.normalCompleteStr:manager.failCompleteStr;
-                // desc= '';
-                // exitHandler = context.exitCallBack;
-                // goonHandler =  win?context.showNextSuccessHandler:context.showNextFailHandler;
-                // curCount;
-                // maxCount;
             }else{
-                alertType = AlertType.Normal;
-                title=  win?manager.singleCompleteStr:manager.failCompleteStr;
-                desc= ''; // 新增空描述
-                exitHandler = context.exitCallBack;
-                goonHandler = context.dzgoonHandler;
-                curCount;
-                maxCount;
+                context.dzgoonHandler(context);
             }
-        
-        // 显示弹窗
-        manager.showGameAlert(
-            context.viewNode,
-            alertType,
-            title,
-            desc,
-            curCount,maxCount,
-            goonHandler,
-            exitHandler,
-            context
-        );
+
     }
     
     dzanswerHandler(context: any): void {

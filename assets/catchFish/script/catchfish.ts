@@ -33,7 +33,7 @@ import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 
-const SHOOT_INTERVAL = 0.8;
+const SHOOT_INTERVAL = 0.65;
 // let questions = [questions0, questions1, questions2];
 @ccclass('catchfish')
 export class catchfish extends BaseScene<IBaseGameChild> {
@@ -99,7 +99,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private fishs: Fish[];
     private _curFish: Fish;
-    private wangMaxCount: number = 4;
+    private wangMaxCount: number = 5;
     private wangCount: number = 0;
 
     private curHard: number = 0;
@@ -397,7 +397,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
 
-    private createFish(count: number = 5) {
+    private createFish(count: number = 1) {
         if (this.fishParentNode && this.fishPrefab) {
             if (!this.hasGuide) {
                 if (this.sceneModel.hasGuide) {
@@ -409,7 +409,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             let datas = [];
             for (let i = 0; i < len; i++) {
                 let fish = new Fish(this.fishPrefab);
-                fish.positionYIndex = len == 1 ? 1 : i;
+                fish.positionYIndex = Math.floor(Math.random() * this.fishYs.length);
                 fish.setParent(this.fishParentNode);
                 this.randomFish(fish);
                 this.fishs.push(fish);
@@ -446,8 +446,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         fish.setPosition(x, y);
         fish.setScale(1);
-        // 稍后恢复默认颜色
-        fish.resetColor();
+        // // 稍后恢复默认颜色
+        // fish.resetColor();
         DebugLog.instance.log(`create ---- ${fish.position}`)
 
         fish.setSpriteFrame(spriteFrame);
@@ -460,18 +460,19 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             EventManager.getInstance().off(Fish.FishClick, self);
             EventManager.getInstance().on(Fish.FishClick, self.selectFish, self);
             fish.setQuestion(question);
+            EventManager.getInstance().emit(Fish.FishClick,fish);
         });
     }
 
     private selectFish(fish, context) {
-        if (context.hasWangClick) {
-            // DebugLog.instance.log("已经有网飞出来")
-            return;
-        }
-        // 如果已经有选中的鱼，恢复它的颜色
-        if (context._curFish) {
-            context._curFish.setSelect(context.unSelectColor, 1);
-        }
+        // if (context.hasWangClick) {
+        //     // DebugLog.instance.log("已经有网飞出来")
+        //     return;
+        // }
+        // // 如果已经有选中的鱼，恢复它的颜色
+        // if (context._curFish) {
+        //     context._curFish.setSelect(context.unSelectColor, 1);
+        // }
 
         context._curFish = fish;
         // DebugLog.instance.log("选中鱼currentIndex",fish.currentIndex);
@@ -493,7 +494,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         context._curFish.setSelect(context.selectColor, 1.3);
     }
 
-    private _offsetX :number = 980;
+    private _offsetX :number = 900;
     private _offsetX1:number = 1200;
     private _fastOffset:number = -600;
     moveFishes(fish: Fish, delay: number = 0) {
