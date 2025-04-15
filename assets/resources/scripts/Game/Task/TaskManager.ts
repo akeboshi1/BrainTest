@@ -68,6 +68,10 @@ export class TaskManager {
         this._curTaskId = id;
     }
 
+    getTaskByID(id:number):TaskData{
+        return this._taskDic.get(id);
+    }
+
     get taskDic() {
         return this._taskDic;
     }
@@ -162,6 +166,7 @@ export class TaskManager {
                 let task = new TaskData();
                 task.refrehData(data);
                 this.curDingzhenTask = task;
+
                 this._taskDic.set(task.id, task);
                 this._taskList.push(task);
             }

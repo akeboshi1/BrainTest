@@ -10,7 +10,7 @@ import { AlertType } from '../Alert/GameAlert';
 import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { Global } from '../../../Core/Manager/Config/Global';
 import {SceneManager} from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
-import {TaskData} from "db://assets/resources/scripts/Game/Task/TaskData";
+import {TaskData, TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
 const { ccclass, property } = _decorator;
 
 @ccclass('BrainTrain')
@@ -113,7 +113,10 @@ export class BrainTrain extends BasePanel {
             this.backToCenteter();
             return;
         }
-        SkewersManager.getInstance().showGameAlert(this.node, AlertType.Next, SkewersManager.getInstance().nextSkewersGameStr, '', 0, 0, this._alertNext, null, this);
+        let curTask = TaskManager.getInstance().getTaskByID(TaskManager.getInstance().getCurTaskId);
+        let isRevise = curTask && curTask.type == TaskType.Revise;
+        let nextGameStr = isRevise?SkewersManager.getInstance().nextSkewersGameDZStr:SkewersManager.getInstance().nextSkewersGameStr;
+        SkewersManager.getInstance().showGameAlert(this.node, AlertType.Next, nextGameStr, '', 0, 0, this._alertNext, null, this);
     }
     private _alertNext() {
         TaskManager.getInstance().requestStartTask(this.curTaskId);
