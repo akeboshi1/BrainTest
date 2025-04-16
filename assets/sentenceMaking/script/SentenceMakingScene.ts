@@ -8,11 +8,11 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import { LayerUtil } from '../../resources/scripts/Core/Util/LayerUtil';
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { TimeUtil } from '../../resources/scripts/Core/Util/TimeUtil';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
-import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -92,7 +92,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private touchIndex: number = 0;
     private currentQuestion: SentenceMakingQuestion = null;
     private correctDragCount: number = 0;
-    private winCount:number = 0;
+    private winCount: number = 0;
 
     onLoad(): void {
         this.loadAudio().then();
@@ -191,7 +191,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 : this.itemWidth;
 
             // 检查是否需要换行
-            if (!isPunctuation && lineItemCount + (isPunctuation ? 0.5 : 1) > this.rawMaxNum) {
+            if (!isPunctuation && lineItemCount + (isPunctuation ? 0.5 : 1) > (this.rawMaxNum + 1)) {
                 currentX = this.leftOffset;
                 currentY -= (lineHeight + this.paddingy);
                 lineItemCount = 0;
@@ -662,7 +662,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         }
 
         let user_answer: string[] = [];
-      
+
         for (let i = 0; i < this.resultContainerMap.size; i++) {
             let node = this.resultContainerMap.get(i);
             if (!node) {
@@ -682,10 +682,10 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 if (currentIndex !== i) {
                     isSuccess = false;
                     wrongIndices.push(node);
-                    console.log('fail',this.correctDragCount++);
-                }else{
-                   this.winCount++;
-                }      
+                    console.log('fail', this.correctDragCount++);
+                } else {
+                    this.winCount++;
+                }
                 user_answer.push(this.model.getCurrentQuestion().sentence[currentIndex]);
             }
         }
@@ -694,7 +694,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (isSuccess) {
             // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
             DebugLog.instance.log("游戏成功！");
-            if(this.sceneModel.gameType != GameType.SKEWERS){
+            if (this.sceneModel.gameType != GameType.SKEWERS) {
                 this.showAnimHupai();
             }
             this.playWin();
@@ -719,19 +719,19 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (showAlert) {
             AlertManager.getInstance().showAlert(ad);
         }
-        let complete=this.getCorrectPosComplete();
+        let complete = this.getCorrectPosComplete();
         this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
         this.model.postGameData(complete, this.timerComponent.getElapsedTime(), user_answer);
         this.timerComponent.resetTimer();
-        this.winCount=0;
+        this.winCount = 0;
     }
-    getCorrectPosComplete(){
-        let sumCounts=this.model.getCurrentQuestion().sentence.length;
-        let fiexLength=this.model.getCurrentQuestion().fixed.length;
-        console.log('完成度为-',`${this.winCount-fiexLength}/${sumCounts-fiexLength}`);
-        
-        return (this.winCount-fiexLength)/(sumCounts-fiexLength);
+    getCorrectPosComplete() {
+        let sumCounts = this.model.getCurrentQuestion().sentence.length;
+        let fiexLength = this.model.getCurrentQuestion().fixed.length;
+        console.log('完成度为-', `${this.winCount - fiexLength}/${sumCounts - fiexLength}`);
+
+        return (this.winCount - fiexLength) / (sumCounts - fiexLength);
     }
 
     public clickNextLeve() {
@@ -747,11 +747,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                if(SkewersManager.getInstance().isRunOver()) {
+                if (SkewersManager.getInstance().isRunOver()) {
                     this.correctAnswerNode.active = false;
-                   this.showNextSuccessHandler();
+                    this.showNextSuccessHandler();
                 } else {
-                    if(SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null){
+                    if (SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null) {
                         (this.sceneModel as any).goonHandler(this, true);
                     } else {
                         (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
@@ -774,19 +774,19 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     }
 
-    dzgoonHandler(win:boolean = true) {
+    dzgoonHandler(win: boolean = true) {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
                 // 使用模型中的运行结果
-                let complete = win?1:0
+                let complete = win ? 1 : 0
                 let duration = 0;
 
 
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Language;
-                if(!_boo){
+                if (!_boo) {
                     let self = this;
 
                     // 直接向服务器发送请求，但不处理回调
@@ -796,7 +796,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                         (self.sceneModel as any).goonHandler(this, this.model.isRunOver);
                     }, this, true);
                     SkewersManager.getInstance().requestGameComplete(complete, duration);
-                }else{
+                } else {
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -827,25 +827,25 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
         }
 
-        for (let [key, node] of this.resultContainerMap) {     
+        for (let [key, node] of this.resultContainerMap) {
             node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
             let cardCtrl = node.getComponent(CardCtrl);
             if (cardCtrl) {
                 let currentIndex = cardCtrl.getid();
-                if (currentIndex !== key) {       
-                    console.log('fail',this.correctDragCount++);
-                }else{
-                   this.winCount++;
-                }      
+                if (currentIndex !== key) {
+                    console.log('fail', this.correctDragCount++);
+                } else {
+                    this.winCount++;
+                }
             }
         }
 
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
-        let complete=this.getCorrectPosComplete();
+        let complete = this.getCorrectPosComplete();
         this.model.postGameData(complete, this.model.gameTime);
-        this.winCount=0;
+        this.winCount = 0;
     }
 
     private showAnimHupai() {
