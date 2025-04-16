@@ -191,7 +191,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 : this.itemWidth;
 
             // 检查是否需要换行
-            if (!isPunctuation && lineItemCount + (isPunctuation ? 0.5 : 1) > (this.rawMaxNum + 1)) {
+            if (!isPunctuation && lineItemCount + (isPunctuation ? 0.5 : 1) > (this.rawMaxNum + 0.5)) {
                 currentX = this.leftOffset;
                 currentY -= (lineHeight + this.paddingy);
                 lineItemCount = 0;
