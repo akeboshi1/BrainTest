@@ -67,11 +67,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     private rawMaxNum: number = 5;//一行最多放几个对象
     private lineMaxNum: number = 3;//最大行数
-    private leftOffset: number = 25;//左侧的留白像素
+    private leftOffset: number = 62.5;//左侧的留白像素
     private topOffset: number = 10;//顶部的留白像素
     private paddingX: number = 10;//水平间距
     private paddingy: number = 10;//垂直间距
-    private itemWidth: number = 180;//对象宽度
+    private itemWidth: number = 165;//对象宽度
     private itemheight: number = 235;//对象高度
 
     private sourceContainerRects: Rect[] = [];
