@@ -144,12 +144,14 @@ export class PersonalCenterManager {
             }
             data.forEach(e => {
                 const abilityScore = e.scores.find(s => s.cog_ability == ab);
-                const dateKey = this.judgeTimePeriod(e.report_date);
-                element[dateKey] = abilityScore.score
-    
-                if (e.is_latest) {
-                    element.latestScore = abilityScore.score;
-                    element.age_group_percentile = abilityScore.age_group_percentile;
+                if (abilityScore) {
+                    const dateKey = this.judgeTimePeriod(e.report_date);
+                    element[dateKey] = abilityScore.score;
+        
+                    if (e.is_latest) {
+                        element.latestScore = abilityScore.score;
+                        element.age_group_percentile = abilityScore.age_group_percentile;
+                    }
                 }
             })
     
