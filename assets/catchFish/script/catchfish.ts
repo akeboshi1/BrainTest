@@ -295,13 +295,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this.hardIndex = this.hards.indexOf(this.curHard);
             switch (this.curHard) {
                 case 1:
-                    this.wangMaxCount = 4;
+                    //this.wangMaxCount = 4;
                     break;
                 case 2:
-                    this.wangMaxCount = 4;
+                    //this.wangMaxCount = 4;
                     break;
                 case 3:
-                    this.wangMaxCount = 4;
+                    //this.wangMaxCount = 4;
                     break;
             }
         } else {

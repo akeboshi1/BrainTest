@@ -308,7 +308,7 @@ export class SkewersManager {
             const canvas = scene.getComponentInChildren(Canvas); //
             parentNode = canvas.node;
         }
-        if (alertNode == null || alertNode.isValid==false) {
+        if (alertNode == null || alertNode.isValid==false||context.isValid==false) {
             LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource) => {
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
@@ -336,11 +336,8 @@ export class SkewersManager {
                 }
             });
         } else {
-            alertNode.active = true;
-            parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alert["reset"]();
-            alertNode.setPosition(position.x, position.y, position.z);
             alert['setProgress'](curCount, maxCount);
             
             // 设置回调和基本信息
@@ -353,13 +350,22 @@ export class SkewersManager {
                 alert['setIcon'](iconUrl).then(() => {
                     // 图标加载完成后再显示弹窗
                     alert["showView"](type);
+                    alertNode.active = true;
+                    parentNode.addChild(alertNode);
+                    alertNode.setPosition(position.x, position.y, position.z);
                 }).catch(() => {
                     // 图标加载失败也要显示弹窗
                     alert["showView"](type);
+                    alertNode.active = true;
+                    parentNode.addChild(alertNode);
+                    alertNode.setPosition(position.x, position.y, position.z);
                 });
             } else {
                 // 没有图标直接显示弹窗
                 alert["showView"](type);
+                alertNode.active = true;
+                parentNode.addChild(alertNode);
+                alertNode.setPosition(position.x, position.y, position.z);
             }
         }
     }
