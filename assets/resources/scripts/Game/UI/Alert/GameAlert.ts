@@ -401,12 +401,15 @@ export class GameAlert extends Component {
     }
 
     exitHandler() {
-        // SceneManager.getInstance().backToHall();
+        console.error("exitCallBack",this.context)
         AudioManager.getInstance().stop();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
         this.node.removeFromParent();
         if (this.exitCallBack) {
             this.exitCallBack(this.context);
+        }
+        else{
+            console.error("exitCallBack is null",this.context)
         }
     }
 
@@ -414,11 +417,14 @@ export class GameAlert extends Component {
      * 继续
      */
     goHandler() {
+        console.error("goonCallBack",this.context)
         AudioManager.getInstance().resume();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();
         if (this.goonCallBack) {
             this.goonCallBack(this.context);
+        }else{
+            console.error("goonCallBack is null",this.context)
         }
     }
 
