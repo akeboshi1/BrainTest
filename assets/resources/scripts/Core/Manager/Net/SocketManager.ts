@@ -16,7 +16,7 @@ export class SocketManager extends BaseManager {
     public static SOCKET_ONERROR: string = "socket_onerror";
 
     private _socket: WebSocket;
-    private _reSendTime:number = 100;
+    private _reSendTime:number = 500; //防抖500毫秒
     private _reconnectInterval: number = 5; // 重连尝试间隔，单位秒
     private _reconnectMaxCount: number = 5; // 重连最大尝试次数
     private _isReconnecting: boolean = false;
