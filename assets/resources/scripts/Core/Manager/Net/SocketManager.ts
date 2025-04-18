@@ -16,6 +16,7 @@ export class SocketManager extends BaseManager {
     public static SOCKET_ONERROR: string = "socket_onerror";
 
     private _socket: WebSocket;
+    private _reSendTime:number = 500; //防抖500毫秒
     private _reconnectInterval: number = 5; // 重连尝试间隔，单位秒
     private _reconnectMaxCount: number = 5; // 重连最大尝试次数
     private _isReconnecting: boolean = false;
@@ -282,7 +283,7 @@ export class SocketManager extends BaseManager {
 
         for (let i = 0; i < _tmpDatas.length; i++) {
             let _tmpData: SocketData = _tmpDatas[i];
-            if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= 200) {
+            if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= this._reSendTime) {
                 DebugLog.instance.error(`${data.action},已经发送过了，请等待回复`);
                 return;
             }
