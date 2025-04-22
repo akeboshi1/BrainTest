@@ -190,15 +190,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
-    onEnable(): void {
-        super.onEnable();
-    }
-
-    onDisable() {
-        super.onDisable();
-    }
-
-
     // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
     failCompleteHandler() {
         super.failCompleteHanlder(this);
