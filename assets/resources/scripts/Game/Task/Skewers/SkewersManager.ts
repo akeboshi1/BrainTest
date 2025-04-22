@@ -403,13 +403,13 @@ export class SkewersManager {
      * @param data
      */
     public requestCompleteBrainsTrainings(data: any) {
-        EventManager.getInstance().on(this.task_complete_brain_training, this.requestCompleteBrainsTrainingsCallback, this);
+        EventManager.getInstance().on(this.task_complete_brain_training, this.requestCompleteBrainsTrainingsCallback, this,true);
         this._curRequestCompleteData = new SocketData(data);
         SocketManager.getInstance().send(this._curRequestCompleteData);
     }
 
     private requestCompleteBrainsTrainingsCallback(data: any, context: any) {
-        EventManager.getInstance().off(context.task_complete_brain_training, context);
+        // EventManager.getInstance().off(context.task_complete_brain_training, context);
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
