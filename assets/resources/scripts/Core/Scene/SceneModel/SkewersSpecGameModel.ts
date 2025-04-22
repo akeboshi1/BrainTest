@@ -449,7 +449,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
 
         // 处理订正模式
         if (isReviseMode) {
-            EventManager.getInstance().on(manager.task_complete_brain_training, showAlert, context);
+            EventManager.getInstance().on(manager.task_complete_brain_training, showAlert, context,true);
             manager.requestGameComplete(1, 0);
         } else {
             showAlert();

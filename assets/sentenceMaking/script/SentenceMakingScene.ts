@@ -143,6 +143,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.resultContainerEmptyInstance.clear();
 
         this.model.dispose();
+        super.onDestroy();
     }
 
     quitGame(): void {

@@ -36,6 +36,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     protected onDestroy(){
+        EventManager.getInstance().disableContext(this);
         this.sceneModel.destory();
     }
 
@@ -62,7 +63,6 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     onDisable() {
         if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
-         EventManager.getInstance().disableContext(this);
     }
 
     // ========== 资源加载 ==========
