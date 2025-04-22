@@ -13,7 +13,8 @@ import {
     UITransform,
     v3,
     Vec3,
-    Texture2D
+    Texture2D,
+    AudioClip
 } from 'cc';
 import { ColorUtil } from '../../resources/scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
@@ -134,15 +135,21 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // ====================== 继承basescene ===================
     onLoad() {
-        this.audioUrls = ["music/fishCatch", "music/win"];
+        this.audioUrls = [ "music/fishBG","music/fishCatch", "music/win"];
         this.bundleName = BundleName.CATCHFISH;
         this.mask.scale = v3(0, 1, 1);
+        let self = this;
         tween(this.mask)
             .to(0.4, { scale: v3(1, 1, 1) }, { easing: 'quadOut' })
             .call(() => {
             })
             .start();
-        this.loadAudio().then();
+        this.loadAudio().then(()=>{
+            if(!self.bgmClip){
+                self.bgmClip = self.playAudio("music/fishBG",false,true);
+            }
+        });
+
     }
 
 
@@ -322,7 +329,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
         this.createFish();
+
+        if(!this.bgmClip){
+            this.bgmClip = this.playAudio("music/fishBG",false,true);
+        }
     }
+    private bgmClip:AudioClip;
 
 
 
@@ -1003,7 +1015,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
     private endCurHardGame() {
         this.clearGameView();
-        this.playAudio("music/win");
+        this.playAudio("music/win",true);
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this._requestSkewersGameComplete();
         } else {
@@ -1065,6 +1077,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     private _nextGame() {
+        this.bgmClip = null;
         this.gameSuccessView.active = false;
         this.gameFailView.active = false;
         this.startGame(this._state); // 开始下一关

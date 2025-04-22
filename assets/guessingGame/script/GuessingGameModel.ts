@@ -1,4 +1,4 @@
-import { AssetManager, assetManager, AudioClip } from "cc";
+import { AssetManager, assetManager, AudioClip,AudioSource } from "cc";
 import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
 import { GuessingGameConfig, GuessingQuestion } from "./GuessingGameConfig";
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
@@ -20,6 +20,7 @@ export class GuessingGameModel {
     private cacheAudioClip: AudioClip = null;
 
     private _curQuestion: GuessingQuestion = null;
+
     private _view: GuessingGameScene;
     async init(view: GuessingGameScene) {
         this._view = view;
