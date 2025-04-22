@@ -1,20 +1,18 @@
-import { assetManager, director, AssetManager, Scene, find } from 'cc';
+import { assetManager, director, AssetManager, Scene, find ,EventTarget} from 'cc';
 import { BaseManager } from "../BaseManager";
-import { LoaderManager } from "../../../Core/Manager/Load/LoaderManager";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { GameSceneConst } from "../../../Core/Data/GameSceneConst";
 import { Global } from "../../../Core/Manager/Config/Global";
-import { MainScene, MainSceneView } from "db://assets/resources/scripts/Game/Scene/MainScene";
-import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
-import { EventManager } from '../Event/EventManager';
+import { MainSceneView } from "db://assets/resources/scripts/Game/Scene/MainScene";
+import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { BundleName } from '../Load/BundleName';
 import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';
-import {GenerateReport} from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
+import { GenerateReport } from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
+import { EventManager } from '../Event/EventManager';
 
 export class SceneManager extends BaseManager {
 
     private static _instance: SceneManager;
-
 
     public static getInstance(): SceneManager {
         if (!SceneManager._instance) {
@@ -23,15 +21,16 @@ export class SceneManager extends BaseManager {
         return SceneManager._instance;
     }
 
-    public static SCENE_CHANGED:string = "SCENEMANAGER.SCENE.CHANGED";
+    public static SCENE_CHANGED: string = "SCENEMANAGER.SCENE.CHANGED";
 
-    public static SCENE_ENTER:string = "SCENE_ENTER";
+    public static SCENE_ENTER: string = "SCENE_ENTER";
 
-    // 场景字典
-    private scenes: {};
+    public eventTarget: EventTarget = new EventTarget();
+
+    private _curSceneName: string = "";
 
     init() {
-        this.scenes = {};
+
     }
 
     update() {
@@ -44,36 +43,46 @@ export class SceneManager extends BaseManager {
      * @param url bundle路径
      * @param sceneName scene名字
      */
-    async changeScene(url: string, sceneName: string): Promise<Scene> {
+    async changeScene(url: string, sceneName: string, bundleName: string = ""): Promise<Scene> {
         DebugLog.instance.log(`${sceneName} 开始切换场景0`);
+        const preScene = director.getScene();
+        EventManager.getInstance().disableContext(preScene);
+
         return new Promise((resolve, reject) => {
-            let sceneBundle = assetManager.getBundle(sceneName);
+            bundleName = bundleName == "" ? sceneName : bundleName;
+            let sceneBundle = assetManager.getBundle(bundleName);
             if (!sceneBundle) {
-                DebugLog.instance.log(`${sceneName} 开始切换场景1`);
-                // 获取LoaderManager实例
-                LoaderManager.getInstance().assetBundleLoad(url, sceneName).then((bundle: AssetManager.Bundle) => {
-                    // 加载场景
+                DebugLog.instance.log(`${sceneName} 开始切换场景`);
+                DebugLog.instance.warn(`${sceneName} 请使用perloadScene预加载场景`);
+
+                assetManager.loadBundle(bundleName, (err, bundle) => {
+                    if (err) {
+                        DebugLog.instance.error(err);
+                        reject(err);
+                        return;
+                    }
                     bundle.loadScene(sceneName, (err, scene) => {
-                        // 加载场景
+                        if (err) {
+                            DebugLog.instance.error(err);
+                            reject(err);
+                            return;
+                        }
                         director.loadScene(sceneName, (err, scene) => {
                             // 如果加载失败，打印错误信息
                             if (err) {
                                 DebugLog.instance.log(`${sceneName} 切换场景失败`);
                                 DebugLog.instance.error(err);
+                                reject(err);
                                 return;
                             }
-                            // 切换场景时，由于上一个场景得node被销毁，所以一些通用界面需要重新被注册，后续改进
-                            UIManager.getInstance().destroy();
-                            
+                            const lastSceneName = this._curSceneName;
+                            this._curSceneName = sceneName;
                             DebugLog.instance.log(`${sceneName} 场景切换成功`);
                             // 返回场景
                             resolve(scene);
-                            this.emitSceneChangedEvent();
+                            this.emitSceneChangedEvent(sceneName, lastSceneName);
                         });
                     });
-                }).catch(err => {
-                    DebugLog.instance.log(`${sceneName} 加载子包失败`);
-                    reject(err);
                 });
             } else {
                 DebugLog.instance.log(`${sceneName} 开始切换场景2`);
@@ -84,16 +93,16 @@ export class SceneManager extends BaseManager {
                         DebugLog.instance.error(err);
                         return;
                     }
+                    const lastSceneName = this._curSceneName;
+                    this._curSceneName = sceneName;
                     DebugLog.instance.log(`${sceneName} 场景切换成功`);
                     resolve(scene);
-                    this.emitSceneChangedEvent();
+                    this.emitSceneChangedEvent(sceneName, lastSceneName);
                     //emit event
                 })
             }
         })
     }
-
-
 
     /**
      * 切换custom ab文件内的场景
@@ -151,10 +160,6 @@ export class SceneManager extends BaseManager {
             let url = Global.RES_Root + GameSceneConst.Hall;
             SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
                 DebugLog.instance.log('返回串烧游戏大厅');
-                // let node = find("Canvas");
-                // let scriptNode = node.getChildByName("scriptNode");
-                // let mainScene = scriptNode.getComponent("MainScene");
-                // mainScene['setCurrentIndex'](MainSceneView.BrainTrainView);
                 UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
                 UIManager.getInstance().showPanel(BrainTrain.NAME);
                 resolve();
@@ -164,17 +169,13 @@ export class SceneManager extends BaseManager {
         })
     }
 
-    async backToSkewersGameCenterByID(id:number): Promise<void> {
+    async backToSkewersGameCenterByID(id: number): Promise<void> {
         return new Promise((resolve, reject) => {
             let url = Global.RES_Root + GameSceneConst.Hall;
             SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
                 DebugLog.instance.log('返回串烧游戏大厅');
-                // let node = find("Canvas");
-                // let scriptNode = node.getChildByName("scriptNode");
-                // let mainScene = scriptNode.getComponent("MainScene");
-                // mainScene['setCurrentIndex'](MainSceneView.BrainTrainView);
                 UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
-                UIManager.getInstance().showPanel(BrainTrain.NAME,id);
+                UIManager.getInstance().showPanel(BrainTrain.NAME, id);
                 resolve();
             }).catch(err => {
                 reject(err);
@@ -273,11 +274,10 @@ export class SceneManager extends BaseManager {
     }
 
     destroy() {
-        this.scenes = {};
+        this._curSceneName = "";
     }
 
-
-    emitSceneChangedEvent(){
-        EventManager.getInstance().emit(SceneManager.SCENE_CHANGED,{});
+    emitSceneChangedEvent(sceneName: string, lastSceneName: string) {
+        this.eventTarget.emit(SceneManager.SCENE_CHANGED, sceneName, lastSceneName);
     }
 }

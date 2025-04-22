@@ -1,11 +1,10 @@
 /**
  * 音乐管理器
  */
-import Global from "../FindingGlobal";
 import GameLog from "./GameLogMgr";
 import CacheMgr from "./CacheMgr";
-import LoadMgr from "./LoadMgr";
-import {_decorator,AudioSource,AudioClip} from 'cc';
+import {_decorator,AudioSource,AudioClip, assetManager} from 'cc';
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 
 const {ccclass,} = _decorator;
 
@@ -19,19 +18,19 @@ export default class AudioMgr {
     public static backMusic(isStop = true) {
         if (CacheMgr.setting.setting.music === 0) {
             AudioMgr.audioSource.stop();
-            // AudioSource.stopMusic();
         } else if (!isStop) {
             AudioMgr.audioSource.stop();
-            // audioEngine.stopMusic();
         } else if (!AudioMgr.audioSource.playing) {
-            LoadMgr.load_AudioClip("sub/audio/bg").then((audio: AudioClip) => {
+            const bundle = assetManager.getBundle(BundleName.FINGING);
+            bundle.load("sub/audio/bg", AudioClip, (err: Error, audio: AudioClip) => {
+                if (err) {
+                    return;
+                }
                 AudioMgr.audioSource.clip = audio;
                 AudioMgr.audioSource.loop = true;
                 AudioMgr.audioSource.volume = CacheMgr.setting.setting.music
                 AudioMgr.audioSource.play();
-                // audioEngine.playMusic(audio, true);
-                // audioEngine.setMusicVolume(CacheMgr.setting.setting.music);
-            });
+            })
         }
     }
 
@@ -42,24 +41,12 @@ export default class AudioMgr {
                 resolve(false);
             }
 
-            LoadMgr.load_AudioClip(url).then((audio: AudioClip) => {
-                //let id: number = 0;
+            const bundle = assetManager.getBundle(BundleName.FINGING);
+            bundle.load(url, AudioClip, (err: Error, audio: AudioClip) => {
+                if (err) {return};
                 AudioMgr.audioSource.playOneShot(audio,max);
-                // audioEngine.setEffectsVolume(max * CacheMgr.setting.setting.audio);
-                //id = audioEngine.playEffect(audio, loop)
                 resolve(true);
-            })
-
-            // Global.bundleList.audio.load(url, AudioClip, (err: Error, audio: AudioClip) => {
-            //     if (err) {
-            //         GameLog.error(' 音效播放错误 ', url);
-            //         reject(false);
-            //     }
-            //     let id: number = 0;
-            //     audioEngine.setEffectsVolume(max * CacheMgr.setting.setting.audio);
-            //     id = audioEngine.playEffect(audio, loop)
-            //     resolve(id);
-            // });
+            });
         });
     }
 }

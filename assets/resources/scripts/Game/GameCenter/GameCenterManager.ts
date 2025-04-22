@@ -4,8 +4,7 @@ import { SocketData } from "../../Core/Manager/Net/SocketData";
 import { Global } from "../../Core/Manager/Config/Global";
 import { DebugLog } from "../../Core/Util/DebugLog";
 import { SceneManager } from "../../Core/Manager/Scene/SceneManager";
-import { LoaderManager } from "../../Core/Manager/Load/LoaderManager";
-import { instantiate, Node } from "cc";
+import { instantiate, Node, Prefab, resources } from "cc";
 import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "../../Core/Manager/Load/BundlePreloadManager";
@@ -306,25 +305,19 @@ export class GameCenterManager {
      * @param context
      */
     public quitGame(parentNode: Node, goon_callback: Function, exit_callback: Function, context) {
-        let alertNode = GameCenterManager.getInstance()._alertInstance;
-        if (alertNode == null) {
-            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource) => {
-                alertNode = GameCenterManager.getInstance()._alertInstance = instantiate(resource);
-                parentNode.addChild(alertNode);
-                let alert = alertNode.getComponent("GameAlert");
-                alertNode.setPosition(0, 0, 0);
-                alert["showView"](AlertType.Game_Center);
-                alert["setTitle"]("是否退出当前游戏？");
-                alert["bindCallBack"](goon_callback, exit_callback, context);
-            });
-        } else {
+        resources.load("prefab/BrainTrainAlert",Prefab,(err,prefab)=>{
+            if(err){
+                DebugLog.instance.error(err);
+                return;
+            }
+            let alertNode = GameCenterManager.getInstance()._alertInstance = instantiate(prefab);
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0, 0, 0);
             alert["showView"](AlertType.Game_Center);
             alert["setTitle"]("是否退出当前游戏？");
             alert["bindCallBack"](goon_callback, exit_callback, context);
-        }
+        });
     }
 
     /**

@@ -6,9 +6,8 @@ import { SkewersGameStatus } from "../../../Core/Data/GameState";
 import { SocketManager } from "../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../Core/Manager/Net/SocketData";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
-import { LoaderManager } from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import { AlertType, GameAlert } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
-import { Canvas, director, instantiate, Node, UITransform, Vec3 } from "cc";
+import { Canvas, director, instantiate, Node, Prefab, resources, UITransform, Vec3 } from "cc";
 import { TaskStatus } from "db://assets/resources/scripts/Game/Task/TaskData";
 import AlertManager, { AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "db://assets/resources/scripts/Core/Manager/Load/BundlePreloadManager";
@@ -257,7 +256,12 @@ export class SkewersManager {
     public quitGame(parentNode: Node, curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context) {
         let alertNode = SkewersManager.getInstance()._alertInstance;
         if (alertNode == null||!alertNode.isValid) {
-            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource) => {
+            resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                    return;
+                }
+
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
                 let alert = alertNode.getComponent("GameAlert");
@@ -304,7 +308,11 @@ export class SkewersManager {
             parentNode = canvas.node;
         }
         if (alertNode == null || alertNode.isValid==false||context.isValid==false) {
-            LoaderManager.getInstance().resourcesLoadPrefab("prefab/BrainTrainAlert").then((resource) => {
+            resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                    return;
+                }
                 alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
                 parentNode.addChild(alertNode);
                 let alert = alertNode.getComponent("GameAlert");

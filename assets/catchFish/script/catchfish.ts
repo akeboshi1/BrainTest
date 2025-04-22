@@ -14,7 +14,8 @@ import {
     v3,
     Vec3,
     Texture2D,
-    AudioClip
+    AudioClip,
+    assetManager
 } from 'cc';
 import { ColorUtil } from '../../resources/scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
@@ -23,7 +24,6 @@ import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { CatchFishGuide } from "db://assets/resources/scripts/Core/Manager/Guide/game/CatchFishGuide";
-import { LoaderManager } from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import {CreateQuestion, FishQuestion} from "db://assets/catchFish/script/createQuestion";
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -156,17 +156,23 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         let logoSprite = this.logoNode.getComponent(Sprite);
+        const bundle = assetManager.getBundle(this.bundleName);
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-            LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame) => {
-                logoSprite.spriteFrame = spiteFrame;
+            bundle.load("texture/game/logo/judgment/spriteFrame",SpriteFrame,(err,sp)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                    return;
+                }
+                logoSprite.spriteFrame = sp;
             });
+            
         } else {
-            LoaderManager.getInstance().loadABRes("texture/page1_start/logo", this.bundleName).then((res) => {
-                const texture = new Texture2D();
-                texture.image = res;
-                const spriteFrame = new SpriteFrame();
-                spriteFrame.texture = texture;
-                logoSprite.spriteFrame = spriteFrame;
+            bundle.load("texture/page1_start/logo/spriteFrame",SpriteFrame,(err,sp)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                    return;
+                }
+                logoSprite.spriteFrame = sp;
             });
         }
         const scene = director.getScene();

@@ -7,6 +7,7 @@ import { BundleName } from "./BundleName";
 import { UIManager } from "../UI/UIManager";
 import { LoadPanel } from "../../../Game/UI/Load/LoadPanel";
 import { BundleManager } from "db://assets/app/BundleManager";
+import { SceneManager } from "../Scene/SceneManager";
 // BundlePreloadManager类用于管理资源包的预加载和释放操作，通过配置文件获取预加载信息，并触发相应事件通知外部相关进度和状态 
 
 export class BundlePreloadManager extends BaseManager {
@@ -33,6 +34,14 @@ export class BundlePreloadManager extends BaseManager {
             this.bInit = true;
 
             UIManager.getInstance().registerPanel(LoadPanel.NAME, BundleName.RESOURCES, 'prefab/LoadPanel', LoadPanel);
+            SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
+        }
+    }
+
+    private onSceneChanged(sceneName: string, lastSceneName: string) {
+        DebugLog.instance.log(`场景切换 ${sceneName}, ${lastSceneName}`);
+        if (lastSceneName != sceneName && (lastSceneName != BundleName.RESOURCES && lastSceneName != BundleName.MAIN)) {
+            this.release(lastSceneName as BundleName);
         }
     }
 
@@ -57,7 +66,7 @@ export class BundlePreloadManager extends BaseManager {
         EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
 
         let bundle: AssetManager.Bundle = null;
-        
+
         try {
             bundle = assetManager.getBundle(bundleName);
             if (!bundle) {

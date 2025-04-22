@@ -9,7 +9,10 @@
     },
     "finding": {
         "preloadScene": "finding",
-        "preloadAssets": []
+        "preloadAssets": [ {
+            "path": "View/homeView/prefab/homeView",
+            "type": "Prefab"
+        }]
     },
     "guessingGame": {
         "preloadScene": "guessingGame",

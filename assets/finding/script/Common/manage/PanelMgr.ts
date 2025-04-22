@@ -2,13 +2,11 @@ import GameLogMgr from "./GameLogMgr";
 import Emit from "./Emit/Emit";
 import {EventCode} from "./Emit/EmitData";
 import LayerPanel, {UrlInfo} from "./Layer/LayerPanel";
-import LoadMgr from "./LoadMgr";
 import Global from "../FindingGlobal";
 import Tools from "../Tools";
 import CacheMgr from "./CacheMgr";
 import Constant from "../Constant";
-import {_decorator,Node,Component,instantiate,Prefab} from "cc"
-import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
+import {_decorator,Node,Component,instantiate,Prefab, assetManager} from "cc"
 import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 
 const {ccclass, property} = _decorator;
@@ -95,24 +93,24 @@ export default class PanelMgr extends Component {
                     resolve();
                 }, 0)
             } else {
-                LoaderManager.getInstance().assetBundleLoad(BundleName.FINGING,BundleName.FINGING).then((bundle) => {
-                    LoadMgr.loadPrefab(urlInfo.name).then((prefab: Prefab) => {
-                        panel = instantiate(prefab);
-                        panel.parent = layer;
-                        panel.active = false;
-                        self.openList.set(urlInfo.name, panel);
-                        const layerpanel = panel.getComponent(LayerPanel) as LayerPanel;
-                        layerpanel.initUI().then(()=>{
-                            self.showPanel(panel, param.param, config);
-                            self.LoadingList.delete(urlInfo.name);
-                            if (self.LoadingList.size == 0) {
-                                // todo mask
-                            }
-                            resolve();
-                        });
-
-                    })
-                })
+                const bundle = assetManager.getBundle(BundleName.FINGING);  
+                bundle.load(urlInfo.name, Prefab, (err: Error, prefab: Prefab) => {
+                    if (err) {
+                        GameLogMgr.error("openPanel 加载失败", err);
+                        reject(err);
+                        return;
+                    }
+                    panel = instantiate(prefab);
+                    panel.parent = layer;
+                    panel.active = false;
+                    self.openList.set(urlInfo.name, panel);
+                    const layerpanel = panel.getComponent(LayerPanel) as LayerPanel;
+                    layerpanel.initUI().then(()=>{
+                        self.showPanel(panel, param.param, config);
+                        self.LoadingList.delete(urlInfo.name);
+                        resolve();
+                    });
+                });
             }
         })
     }

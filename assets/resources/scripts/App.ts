@@ -3,7 +3,6 @@ import { EventManager } from "./Core/Manager/Event/EventManager";
 import { SocketManager } from "./Core/Manager/Net/SocketManager";
 import { UIManager } from "./Core/Manager/UI/UIManager";
 import { SceneManager } from "./Core/Manager/Scene/SceneManager";
-import { LoaderManager } from "./Core/Manager/Load/LoaderManager";
 import { PoolManager } from "./Core/Manager/Pool/PoolManager";
 import { DebugLog } from './Core/Util/DebugLog';
 import { BaseObejct } from "./Core/Object/BaseObject";
@@ -136,7 +135,6 @@ export class App extends BaseObejct {
 
     private async initManager() {
         EventManager.getInstance().init();
-        LoaderManager.getInstance().init();
         if (!this.isPad) {
             LoginManager.getInstance().init();
             TaskManager.getInstance().init();

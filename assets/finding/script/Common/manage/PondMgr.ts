@@ -1,6 +1,6 @@
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import GameLog from "./GameLogMgr";
-import LoadMgr from "./LoadMgr";
-import {NodePool,Node,instantiate,Prefab} from "cc";
+import {NodePool,Node,instantiate,Prefab, assetManager} from "cc";
 
 export default class PondMgr {
 
@@ -96,13 +96,17 @@ export default class PondMgr {
             }
         } else {
             //节点不存在，只能去加载咯 ，芜湖
-            LoadMgr.loadPrefab(url).then((prefab: Prefab) => {
+            const bundle = assetManager.getBundle(BundleName.FINGING);
+            bundle.load(url, Prefab, (err: Error, prefab: Prefab) => {
+                if (err) {
+                    return
+                };
                 this.addToCaches(url, prefab);
                 item = this.getNodeFromPool(url);
                 if (callFun) {
                     callFun(item);
                 }
-            })
+            });
         }
     }
 }
