@@ -1,4 +1,4 @@
-import {_decorator, Button, Color, EventTouch, Label, Node, Sprite} from 'cc';
+import {_decorator, Button, Color, EventTouch, Label, Node, Sprite,AudioClip,AudioSource} from 'cc';
 import {GuessingGameEvent, GuessingGameModel} from './GuessingGameModel';
 import {FrameComponent} from '../../resources/scripts/Core/Component/FrameComponent';
 import {EventManager} from '../../resources/scripts/Core/Manager/Event/EventManager';
@@ -12,6 +12,7 @@ import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 
 const { ccclass, property } = _decorator;
 
@@ -86,10 +87,14 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     protected bundleName: string = 'guessingGame';
 
-
+    private bgmClip:AudioClip;
     onLoad() {
-        this.audioUrls = ["audio/music/click", "audio/music/win"];
-        this.loadAudio().then();
+        this.audioUrls = ['audio/music/caimiBG',"audio/music/click", "audio/music/win"];
+        let self = this;
+        this.loadAudio().then(()=>{
+            // 使用AudioManager播放背景音乐
+           self.playBgmAudio('audio/music/caimiBG', true);
+        });
     }
 
     start() {
@@ -142,6 +147,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private startGameFlow() {
         this.guessingGameModel.startQuestionFlow();
+        // 确保背景音乐在开始游戏时播放
+        if(!AudioManager.getInstance().isBgmPlaying()) {
+            this.playBgmAudio('audio/music/caimiBG', true);
+        }
     }
 
     private onShowQuestion(data: any) {
@@ -202,7 +211,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.setAnswerOptionsColor(ans);
 
         if (result) {
-            this.playAudio("audio/music/win", true);
+            // 播放成功音效，使用playOneShot
+           this.playAudio("audio/music/win",true);
         }
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.resultPanel.active = false;
@@ -253,6 +263,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     exitCallBack(context) {
+        // 停止背景音乐
+        AudioManager.getInstance().stopBgm();
         context.guessingGameModel.stopAudio();
         super.exitCallBack(context);
     }
@@ -272,6 +284,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 }else{
                     if(SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null){
                         (this.sceneModel as any).goonHandler(this, true);
+                        this.clearGameView();
                     } else {
                         (this.sceneModel as any).goonHandler(this, false);
                         if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
@@ -312,14 +325,14 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         }
     }
 
-
     onClickReplay() {
         this._replay = true;
         this.guessingGameModel.replayQuestionAudio();
     }
 
     onChooseOption(event: EventTouch, p: string) {
-        this.playAudio("audio/music/click", true);
+        // 播放点击音效
+        this.playAudio("audio/music/click",true);
         this.processAnswer(p);
     }
 
@@ -332,6 +345,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
      * 进入下一局游戏
      */
     onClickContinueGame() {
+        // this.bgmClip = null;
         this.resetPanel();
         this.guessingGameModel.goNextQuestion();
         this.resultPanel.active = false;
@@ -345,6 +359,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     quitGame() {
+        // 停止背景音乐
+        AudioManager.getInstance().pauseBgm();
         this.guessingGameModel.stopAudio();
         super.quitGame({ parentNode: this.viewNode, context: this });
     }
@@ -355,11 +371,13 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     resumeTime() {
+        AudioManager.getInstance().resumeBgm();
         this.timerRT.resumeTimer();
         this.timerStartGame.resumeTimer();
     }
 
     pauseTime() {
+        AudioManager.getInstance().pauseBgm();
         this.timerRT.pauseTimer();
         this.timerStartGame.pauseTimer();
     }
@@ -367,7 +385,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     resetPanel() {
         this.guessingGameModel.stopAudio();
-
+        // 确保背景音乐在重置面板时正常播放
+        if(!AudioManager.getInstance().isBgmPlaying()) {
+            this.playBgmAudio('audio/music/caimiBG', true);
+        }
         this.resumeTime();
         this.timerRT.node.active = false;
         this.timerStartGame.node.active = false;
@@ -389,6 +410,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 opnode.getComponent(Button).interactable = true;
             }
         }
+
     }
 
     public onClickStartAnswer() {

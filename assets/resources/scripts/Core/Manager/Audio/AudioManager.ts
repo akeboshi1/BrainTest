@@ -15,7 +15,12 @@ export class AudioManager extends BaseManager {
         return this._inst;
     }
 
+    // 主音频源，用于音效和普通音频
     private _audioSource: AudioSource;
+
+    // 第二音频源，主要用于背景音乐
+    private _bgmAudioSource: AudioSource;
+
     // 创建一个事件目标对象，用于触发和监听自定义事件
     private eventTarget: EventTarget = new EventTarget();
 
@@ -25,28 +30,39 @@ export class AudioManager extends BaseManager {
     // 保存绑定后的函数引用
     private boundOnAudioStarted: Function;
     private boundOnAudioEnded: Function;
+    private boundOnBgmAudioStarted: Function;
+    private boundOnBgmAudioEnded: Function;
 
     constructor() {
         super();
        
-        
         let audioMgr = new Node();
         audioMgr.name = '__audioMgr__';
         director.getScene().addChild(audioMgr);
         director.addPersistRootNode(audioMgr);
         this._audioSource = audioMgr.addComponent(AudioSource);
-       
+        
+        // 初始化背景音乐音频源
+        this._bgmAudioSource = audioMgr.addComponent(AudioSource);
     }
 
     public init(){
         super.init();
         this.loadAudio().then();
+        
         // 创建绑定函数并保存引用
         this.boundOnAudioStarted = this.onAudioStarted.bind(this);
         this.boundOnAudioEnded = this.onAudioEnded.bind(this);
+        this.boundOnBgmAudioStarted = this.onBgmAudioStarted.bind(this);
+        this.boundOnBgmAudioEnded = this.onBgmAudioEnded.bind(this);
+        
         // 监听音频源的事件，使用保存的绑定函数
         this._audioSource.node.on(AudioSource.EventType.STARTED, this.boundOnAudioStarted);
         this._audioSource.node.on(AudioSource.EventType.ENDED, this.boundOnAudioEnded);
+        
+        // 监听背景音乐音频源的事件
+        this._bgmAudioSource.node.on(AudioSource.EventType.STARTED, this.boundOnBgmAudioStarted);
+        this._bgmAudioSource.node.on(AudioSource.EventType.ENDED, this.boundOnBgmAudioEnded);
     }
 
     private async loadAudio(){
@@ -66,7 +82,6 @@ export class AudioManager extends BaseManager {
         } catch (error) {
             DebugLog.instance.error('Error loading audio:', error);
         }
-
     }
 
     public playWin(){
@@ -81,20 +96,37 @@ export class AudioManager extends BaseManager {
         return this._audioSource;
     }
 
+    public get bgmAudioSource() {
+        return this._bgmAudioSource;
+    }
+
     /**
-     * 当音频播放开始时触发的回调函数，用于发送自定义事件
+     * 当主音频源播放开始时触发的回调函数
      */
     private onAudioStarted() {
         this.eventTarget.emit('audio-started');
     }
 
     /**
-     * 当音频播放结束时触发的回调函数，用于发送自定义事件
+     * 当主音频源播放结束时触发的回调函数
      */
     private onAudioEnded() {
         this.eventTarget.emit('audio-ended');
     }
 
+    /**
+     * 当背景音乐播放开始时触发的回调函数
+     */
+    private onBgmAudioStarted() {
+        this.eventTarget.emit('bgm-started');
+    }
+
+    /**
+     * 当背景音乐播放结束时触发的回调函数
+     */
+    private onBgmAudioEnded() {
+        this.eventTarget.emit('bgm-ended');
+    }
 
     /**
      * @en
@@ -128,13 +160,13 @@ export class AudioManager extends BaseManager {
      * @param sound clip or url for the sound
      * @param volume
      */
-    play(sound: AudioClip | string,loop:boolean = false, volume: number = 1.0) {
+    play(sound: AudioClip | string, loop:boolean = false, volume: number = 1.0) {
         if (sound instanceof AudioClip) {
             this._audioSource.stop();
             this._audioSource.clip = sound;
             this._audioSource.loop = loop;
             this._audioSource.play();
-            this.audioSource.volume = volume;
+            this._audioSource.volume = volume;
         }
         else {
             resources.load(sound, (err, clip: AudioClip) => {
@@ -146,9 +178,83 @@ export class AudioManager extends BaseManager {
                     this._audioSource.clip = clip;
                     this._audioSource.loop = loop;
                     this._audioSource.play();
-                    this.audioSource.volume = volume;
+                    this._audioSource.volume = volume;
                 }
             });
+        }
+    }
+
+    /**
+     * 播放背景音乐，使用专用的背景音乐音频源
+     * @param sound 音频剪辑或URL
+     * @param loop 是否循环播放
+     * @param volume 音量
+     */
+    playBgm(sound: AudioClip | string, loop:boolean = true, volume: number = 0.8) {
+        if (sound instanceof AudioClip) {
+            this._bgmAudioSource.stop();
+            this._bgmAudioSource.clip = sound;
+            this._bgmAudioSource.loop = loop;
+            this._bgmAudioSource.volume = volume;
+            this._bgmAudioSource.play();
+        }
+        else {
+            resources.load(sound, (err, clip: AudioClip) => {
+                if (err) {
+                    DebugLog.instance.log(err);
+                }
+                else {
+                    this._bgmAudioSource.stop();
+                    this._bgmAudioSource.clip = clip;
+                    this._bgmAudioSource.loop = loop;
+                    this._bgmAudioSource.volume = volume;
+                    this._bgmAudioSource.play();
+                }
+            });
+        }
+    }
+
+    /**
+     * 检查背景音乐是否在播放
+     */
+    isBgmPlaying(): boolean {
+        return this._bgmAudioSource && this._bgmAudioSource.playing;
+    }
+
+    /**
+     * 停止背景音乐
+     */
+    stopBgm() {
+        if (this._bgmAudioSource) {
+            this._bgmAudioSource.stop();
+            this._bgmAudioSource.clip = null;
+        }
+    }
+
+    /**
+     * 暂停背景音乐
+     */
+    pauseBgm() {
+        if (this._bgmAudioSource) {
+            this._bgmAudioSource.pause();
+        }
+    }
+
+    /**
+     * 恢复背景音乐播放
+     */
+    resumeBgm() {
+        if (this._bgmAudioSource && this._bgmAudioSource.clip) {
+            this._bgmAudioSource.play();
+        }
+    }
+
+    /**
+     * 设置背景音乐音量
+     */
+    setBgmVolume(volume: number) {
+        if (this._bgmAudioSource) {
+            this._bgmAudioSource.volume = Math.max(0, Math.min(1, volume));
         }
     }
 
@@ -174,6 +280,14 @@ export class AudioManager extends BaseManager {
         this._audioSource.play();
     }
 
+    /**
+     * 停止所有音频（包括背景音乐和音效）
+     */
+    stopAll() {
+        this.stop();
+        this.stopBgm();
+    }
+
     onAudioEnd(callback: () => void , context) {
         this.eventTarget.on('audio-ended', callback, context);
     }
@@ -190,6 +304,22 @@ export class AudioManager extends BaseManager {
         this.eventTarget.off('audio-started', callback, context);
     }
 
+    onBgmEnd(callback: () => void, context) {
+        this.eventTarget.on('bgm-ended', callback, context);
+    }
+
+    offBgmEnd(callback: () => void, context) {
+        this.eventTarget.off('bgm-ended', callback, context);
+    }
+
+    onBgmStart(callback: () => void, context) {
+        this.eventTarget.on('bgm-started', callback, context);
+    }
+
+    offBgmStart(callback: () => void, context) {
+        this.eventTarget.off('bgm-started', callback, context);
+    }
+
     destory() {
         if (this._audioSource) {
             this._audioSource.stop();
@@ -197,8 +327,17 @@ export class AudioManager extends BaseManager {
             // 使用保存的绑定函数移除监听器
             this._audioSource.node.off(AudioSource.EventType.STARTED, this.boundOnAudioStarted);
             this._audioSource.node.off(AudioSource.EventType.ENDED, this.boundOnAudioEnded);
-            this.eventTarget = new EventTarget();
-            this.audioMap = new Map();
         }
+        
+        if (this._bgmAudioSource) {
+            this._bgmAudioSource.stop();
+            this._bgmAudioSource.clip = null;
+            // 使用保存的绑定函数移除监听器
+            this._bgmAudioSource.node.off(AudioSource.EventType.STARTED, this.boundOnBgmAudioStarted);
+            this._bgmAudioSource.node.off(AudioSource.EventType.ENDED, this.boundOnBgmAudioEnded);
+        }
+        
+        this.eventTarget = new EventTarget();
+        this.audioMap = new Map();
     }
 }

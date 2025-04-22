@@ -13,6 +13,7 @@ import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global
 import { TimeUtil } from '../../resources/scripts/Core/Util/TimeUtil';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -94,10 +95,27 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private correctDragCount: number = 0;
     private winCount: number = 0;
 
-    onLoad(): void {
-        this.loadAudio().then();
+    private bgmClip:AudioClip;
+
+
+
+    onLoad() {
+        this.audioUrls = ["audio/majiangbgm"];
+        this.bundleName = BundleName.SENTENCEMAKING;
+        let self = this;
+        this.loadAudio().then(()=>{
+            if(!self.bgmClip){
+                self.bgmClip = self.playAudio("audio/majiangbgm",false,true);
+            }
+        });
         this.audioMap.set(this.audioUrl, this.cardAudioClip);
     }
+
+
+    // onLoad(): void {
+    //     this.loadAudio().then();
+    //     this.audioMap.set(this.audioUrl, this.cardAudioClip);
+    // }
 
     start() {
         super.start();
@@ -241,6 +259,9 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.initRects(question);
 
         await this.initCardsInstance(question);
+        // if(!this.bgmClip){
+        //     this.bgmClip = this.playAudio("audio/majiangbgm",false,true);
+        // }
     }
 
     private recyleCardModel() {
@@ -735,6 +756,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     public clickNextLeve() {
+        this.bgmClip = null;
         this.model.goNextQuestion();
         this.startGameFlow();
     }

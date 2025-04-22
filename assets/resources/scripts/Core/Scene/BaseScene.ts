@@ -262,7 +262,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     // ========== 播放音频 ==========
-    public playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
+    public playAudio(url: string, isShot: boolean = false, isLoop: boolean = false):AudioClip {
         let audioRes = this.audioMap.get(url);
         if (audioRes != null) {
             if (isShot) {
@@ -270,6 +270,20 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
             } else {
                 AudioManager.getInstance().play(audioRes, isLoop);
             }
+            return audioRes;
+        }else{
+            return null;
+        }
+    }
+
+    // ========== 播放音频 ==========
+    public playBgmAudio(url: string, isLoop: boolean = false):AudioClip {
+        let audioRes = this.audioMap.get(url);
+        if (audioRes != null) {
+            AudioManager.getInstance().playBgm(audioRes, isLoop);
+            return audioRes;
+        }else{
+            return null;
         }
     }
 
