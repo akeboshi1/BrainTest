@@ -190,7 +190,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     onDisable() {
         super.onDisable();
-        EventManager.getInstance().disableContext(this);
     }
 
 

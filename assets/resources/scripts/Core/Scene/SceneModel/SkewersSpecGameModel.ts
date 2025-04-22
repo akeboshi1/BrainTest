@@ -75,7 +75,6 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         SkewersManager.getInstance().showGameAlert(config.parentNode, AlertType.Init, "开始游戏!", "", 0, 0, config.start, null, config.context);
     }
 
-
     refreshData(data: ISkewersSpecific): void {
         // this.currentChild = data;
         // 具体刷新逻辑...
@@ -565,8 +564,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     }
 
     destory() {
-        // 销毁所有监听
-        EventManager.getInstance().off(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this);
+        EventManager.getInstance().disableContext(this);
     }
 
 }

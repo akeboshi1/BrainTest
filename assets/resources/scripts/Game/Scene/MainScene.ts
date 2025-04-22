@@ -1,4 +1,4 @@
-import { _decorator, Button, Component, instantiate, Label, Node, Prefab, ProgressBar, Sprite } from 'cc';
+import { _decorator, Button, Component, director, Label, Node, WebView, ProgressBar, Sprite } from 'cc';
 import { DebugLog } from "../../../scripts/Core/Util/DebugLog";
 import { TaskManager } from "../../Game/Task/TaskManager";
 import { EventManager } from "../../Core/Manager/Event/EventManager";
@@ -311,6 +311,11 @@ export class MainScene extends Component {
 
     backToCenteter() {
         SceneManager.getInstance().backToHall();
+    }
+
+    onDestroy(){
+        EventManager.getInstance().disableContext(this);
+        // super.onDestroy();
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {

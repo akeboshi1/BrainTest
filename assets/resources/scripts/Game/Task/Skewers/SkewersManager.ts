@@ -115,8 +115,6 @@ export class SkewersManager {
 
     private _iconUrlMap: Map<SkewersGameType, string>;
 
-    private _curSkewersSpecData: SkewersSpecGameModel;
-
     public init() {
         GameDataFactory.registerGameType(GameType.SKEWERS, SkewersSpecGameModel);
         this._gameDatas = [];
@@ -132,10 +130,7 @@ export class SkewersManager {
     }
 
     public get skewersSpecData(): SkewersSpecGameModel {
-        if (!this._curSkewersSpecData) {
-            this._curSkewersSpecData = GameDataFactory.create(GameType.SKEWERS);
-        }
-        return this._curSkewersSpecData;
+        return GameDataFactory.create(GameType.SKEWERS);
     }
 
 

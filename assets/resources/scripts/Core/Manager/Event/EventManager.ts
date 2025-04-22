@@ -167,6 +167,7 @@ export class EventManager extends BaseManager {
             
             if (filteredHandlers.length === 0) {
                 this.events.delete(eventName);
+                console.log("移除监听:"+`${eventName}`,`${context}`);
             } else {
                 this.events.set(eventName, filteredHandlers);
             }

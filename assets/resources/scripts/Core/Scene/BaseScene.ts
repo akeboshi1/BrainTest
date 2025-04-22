@@ -9,6 +9,7 @@ import {
 import {TimerCommonComponent} from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 
 /**
  * 基础场景
@@ -34,6 +35,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         this.sceneModel = (director.getScene() as unknown as { sceneModel }).sceneModel;
     }
 
+    protected onDestroy(){
+        this.sceneModel.destory();
+    }
+
     //
     sceneInit(){
         this.resetTime();
@@ -57,6 +62,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     onDisable() {
         if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
+         EventManager.getInstance().disableContext(this);
     }
 
     // ========== 资源加载 ==========
