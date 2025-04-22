@@ -2,15 +2,15 @@ import LayerPanel, {UrlInfo} from "../../Common/manage/Layer/LayerPanel";
 import PanelMgr, {Layer} from "../../Common/manage/PanelMgr";
 import GameView from "./GameView";
 import GameInfoView from "./GameInfoView";
-import LoadMgr from "../../Common/manage/LoadMgr";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
-import {_decorator, director, Node, Sprite, SpriteFrame, Texture2D} from "cc";
+import {_decorator, assetManager, director, Node, Sprite, SpriteFrame, Texture2D} from "cc";
 import {TimeUtil} from "db://assets/resources/scripts/Core/Util/TimeUtil";
-import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -43,17 +43,22 @@ export default class HomeView extends LayerPanel {
                 this.pictureBGNode = this.getNode("bg");
                 this.logoNode = this.getNode("logo");
                 let logoSprite = this.logoNode.getComponent(Sprite);
+                const bundle = assetManager.getBundle(this.bundleName);
                 if(this.sceneModel.gameType == GameType.SKEWERS){
-                    LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame)=>{
-                        logoSprite.spriteFrame = spiteFrame;
+                    bundle.load("texture/game/logo/judgment/spriteFrame",SpriteFrame,(err,sp)=>{
+                        if(err){
+                            DebugLog.instance.error(err);
+                            return;
+                        }
+                        logoSprite.spriteFrame = sp;
                     });
                 }else{
-                    LoaderManager.getInstance().loadABRes("scene/loading/image/logo",this.bundleName).then((res)=>{
-                        const texture = new Texture2D();
-                        texture.image = res;
-                        const spriteFrame = new SpriteFrame();
-                        spriteFrame.texture = texture;
-                        logoSprite.spriteFrame = spriteFrame;
+                    bundle.load("scene/loading/image/logo",SpriteFrame,(err,sp)=>{
+                        if(err){
+                            DebugLog.instance.error(err);
+                            return;
+                        }
+                        logoSprite.spriteFrame = sp;
                     });
                 }
                 FindingGlobal.skewersGameList = GameConfig.level_order;
@@ -87,11 +92,6 @@ export default class HomeView extends LayerPanel {
             checkPoint = CacheMgr.checkpoint;
         }else{
             checkPoint = this.sceneModel.gameType == GameType.SKEWERS?this.randomSkewerGame():CacheMgr.checkpoint;
-            // checkPoint = this.sceneModel.gameType == GameType.SKEWERS
-            //     ? this.randomSkewerGame()
-            //     : CacheMgr.checkpoint==0
-            //         ? CacheMgr.checkpoint = (this.sceneModel as any).level
-            //         : CacheMgr.checkpoint;
         }
         if (checkPoint == 0) {
             CacheMgr.checkpoint = 1;
@@ -106,27 +106,19 @@ export default class HomeView extends LayerPanel {
         let imageName = GameConfig.image_name.get(custom);
 
         let way = () => {
-            let url = "level" + custom+"/image/"+imageName+"_1_32";
-            LoadMgr.loadSprite(pictureSprite, url).then(()=>{
+            let url = "level" + custom+"/image/"+imageName+"_1_32/spriteFrame";
+
+            const bundle = assetManager.getBundle(BundleName.FINGING);
+            bundle.load(url,SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                }
+                pictureSprite.spriteFrame = spriteFrame;
+                pictureSprite.node.active = true;
                 this.pictureBGNode.active = true;
             });
         }
         way();
-
-        // this.onTouch(this.getNode("next"), () => {
-        //     if (this.beClick) return;
-        //     this.beClick = true;
-        //     let way2 = () => {
-        //         PanelMgr.INS.openPanel({
-        //             layer: Layer.gameLayer,
-        //             panel: GameView,
-        //             call: () => {
-        //                 PanelMgr.INS.closePanel(HomeView, true)
-        //             }
-        //         })
-        //     }
-        //     way2();
-        // })
     }
 
     nextHandler(){
@@ -145,12 +137,10 @@ export default class HomeView extends LayerPanel {
                 this.beClick = false;
                 this.pictureNode.getComponent(Sprite).spriteFrame = null;
                 PanelMgr.INS.closePanel(HomeView, false)
-            })
+            }).catch((err)=>{
+                DebugLog.instance.error(err);
+            });
         })
-    }
-
-    public loadBundle(checkPoint): boolean {
-        return LoadMgr.judgeBundleLoad("level" + checkPoint);
     }
 
     hide() {

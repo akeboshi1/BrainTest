@@ -1,12 +1,11 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tween } from 'cc';
-import { LoaderManager } from "../../resources/scripts/Core/Manager/Load/LoaderManager";
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D, Vec3, tween, assetManager } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -115,7 +114,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.level = (this.sceneModel as any).level;
-        }else{
+        } else {
 
             this.level = (this.sceneModel as any).level;
             this.hardIndex = 0;//((this.level % 3) == 0?3:(this.level % 3))-1;
@@ -138,11 +137,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.successView.active = true;
             this.titleLabel.string = `看牌结束后开始挑战`;
             this.successViewProgressLabel.node.active = true;
-            this.successViewProgressLabel.string =`看牌倒计时${this.seconds[this.hardIndex]}秒` ;
+            this.successViewProgressLabel.string = `看牌倒计时${this.seconds[this.hardIndex]}秒`;
             this.updateSuccessPopupTitle(1);
             this.successStartButton.node.active = true;
             this.successNextButton.node.active = false;
-          
+
         }
     }
     clickCardHandler(event, data) {
@@ -157,22 +156,22 @@ export class Main extends BaseScene<IBaseGameChild> {
         let self = this;
         // 获取当前卡片
         this.currentCard = this.cardPool.children[0].children[index];
-        
+
         // 创建翻转动画
         this.flipCardAnimation(this.currentCard, () => {
             // 翻转到中间点时加载卡片图片
             const sprite = this.currentCard.getComponent(Sprite);
-            LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                LoaderManager.getInstance().loadABRes(this.cardList[index].imgUrl, self.bundleName).then((res) => {
-                    const texture = new Texture2D();
-                    texture.image = res;
-                    const spriteFrame = new SpriteFrame();
-                    spriteFrame.texture = texture;
-                    sprite.spriteFrame = spriteFrame;
-                })
-            });
+
+            const bundle = assetManager.getBundle(self.bundleName);
+            bundle.load(this.cardList[index].imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
+                if (err) {
+                    DebugLog.instance.error(err);
+                    return;
+                }
+                sprite.spriteFrame = sp;
+            })
         });
-        
+
         this.cardList[index].isBacked = true;
 
         let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
@@ -189,36 +188,37 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.currentCustomsSuccess();
                 return;
             }
-            this.showSpriteAnimation("texture/right",()=>{});
-            this.playAudio("music/success",true);
+            this.showSpriteAnimation("texture/right", () => { });
+            this.playAudio("music/success", true);
         }
 
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl !== isBackedCards[1].imgUrl) {
-            this.showSpriteAnimation("texture/error",()=>{
+            this.showSpriteAnimation("texture/error", () => {
                 isBackedCards.forEach(card => {
                     const cardNode = this.cardPool.children[0].children[card.index];
                     // 添加翻转动画
                     this.flipCardAnimation(cardNode, () => {
                         const sprite = cardNode.getComponent(Sprite);
-                        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                            LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
-                                const spriteFrame = new SpriteFrame();
-                                const texture = new Texture2D();
-                                texture.image = res;
-                                spriteFrame.texture = texture;
-                                sprite.spriteFrame = spriteFrame;
-                            })
-                        });
+
+                        const bundle = assetManager.getBundle(self.bundleName);
+                        bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
+                            if (err) {
+                                DebugLog.instance.error(err);
+                                return;
+                            }
+                            sprite.spriteFrame = sp;
+                        })
+
                     });
                     this.cardList[card.index].isBacked = false;
                 })
             });
-            this.playAudio("music/fail",true);
+            this.playAudio("music/fail", true);
         }
 
         DebugLog.instance.log(index, this.currentCard);
     }
-    
+
     /**
      * 卡片翻转动画
      * @param cardNode 卡片节点
@@ -227,16 +227,16 @@ export class Main extends BaseScene<IBaseGameChild> {
     flipCardAnimation(cardNode: Node, middleCallback: () => void) {
         // 取消可能正在进行的动画
         tween(cardNode).stop();
-        
+
         // 动画半程时长，稍微调长保证完成
         const halfDuration = 0.2;
-        
+
         // 强制设置为标准缩放值
         cardNode.setScale(1, 1, 1);
-        
+
         // 监控变量，确保回调只执行一次
         let callbackExecuted = false;
-        
+
         // 创建更可靠的X轴翻转动画
         const t = tween(cardNode)
             // 第一阶段：X轴从1缩放到0（卡片看起来消失）
@@ -245,7 +245,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 防止重复执行
                 if (!callbackExecuted) {
                     callbackExecuted = true;
-                    
+
                     try {
                         // 执行中间回调，在这里可以改变卡片状态
                         if (middleCallback) middleCallback();
@@ -259,7 +259,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             .call(() => {
                 // 确保最终卡片缩放是正确的
                 cardNode.setScale(1, 1, 1);
-                
+
                 // 设置一个较短的定时器，再次确认卡片缩放正确
                 setTimeout(() => {
                     if (cardNode && cardNode.isValid) {
@@ -267,10 +267,10 @@ export class Main extends BaseScene<IBaseGameChild> {
                     }
                 }, 50);
             });
-        
+
         // 开始执行动画
         t.start();
-        
+
         // 为防止卡住的情况，设置一个超时保护
         setTimeout(() => {
             // 如果中间回调还没执行，强制执行
@@ -282,14 +282,14 @@ export class Main extends BaseScene<IBaseGameChild> {
                     DebugLog.instance.error("超时保护触发的回调执行出错:", error);
                 }
             }
-            
+
             // 确保卡片最后是正确的缩放
             if (cardNode && cardNode.isValid) {
                 cardNode.setScale(1, 1, 1);
             }
         }, halfDuration * 1000 * 2.5);  // 设置超时时间为动画时长的2.5倍
     }
-    
+
     /**
      * 检查所有卡片状态并修复可能的问题
      */
@@ -309,7 +309,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
         }
     }
-    
+
     updateSuccessPopupTitle(num) {
         if (num == 1) {
             this.successView.getChildByName('top_Title1').active = true;
@@ -364,7 +364,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.successStartButton.node.active = false;
             this.successNextButton.node.active = true;
             this.successViewProgressLabel.node.active = true;
-            this.successViewProgressLabel.string =`看牌倒计时${this.seconds[this.hardIndex+1]}秒` ;
+            this.successViewProgressLabel.string = `看牌倒计时${this.seconds[this.hardIndex + 1]}秒`;
             if (this.curHard == this.hards[0]) {
                 this.updateSuccessPopupTitle(2);
                 this.updateSuccessPopupToptxt(this.curHard);
@@ -374,12 +374,12 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.updateSuccessPopupToptxt(this.curHard);
                 this.updateSuccessPopupStar(this.curHard);
             } else if (this.curHard == this.hards[2]) {
-              
+
                 this.successView.active = false;
                 this.bigWin.active = true;
             }
             if (!this.customsSendDataState) {
-                this._requestGameCenterComplete( obj.complete, obj.duration);
+                this._requestGameCenterComplete(obj.complete, obj.duration);
             }
         } else {
             this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
@@ -409,12 +409,12 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.updateSuccessPopupTitle(1);
             this.updateSuccessPopupToptxt(0);
             this.updateSuccessPopupStar(this.curHard);
-         
+
         } else {
-            this.hardIndex++;       
+            this.hardIndex++;
         }
         this.level++;
-      
+
         this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
         this.initCardView();
@@ -466,7 +466,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
-        this.cardTheme  = (this.level >= 21) ? this.level % 21 + 1: this.level;  // 达到27后重置为7
+        this.cardTheme = (this.level >= 21) ? this.level % 21 + 1 : this.level;  // 达到27后重置为7
     }
 
     // 初始化卡片数据
@@ -546,19 +546,19 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (cardNode) {
                 // 确保卡片处于正确的初始状态
                 cardNode.setScale(1, 1, 1);
-                
+
                 // 直接添加翻转动画，移除延迟
                 this.flipCardAnimation(cardNode, () => {
                     const sprite = cardNode.getComponent(Sprite);
-                    LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                        LoaderManager.getInstance().loadABRes(card.imgUrl, self.bundleName).then((res) => {
-                            const spriteFrame = new SpriteFrame();
-                            const texture = new Texture2D();
-                            texture.image = res;
-                            spriteFrame.texture = texture;
-                            sprite.spriteFrame = spriteFrame;
-                        })
-                    });
+
+                    const bundle = assetManager.getBundle(self.bundleName);
+                    bundle.load(card.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
+                        if (err) {
+                            DebugLog.instance.error(err);
+                            return;
+                        }
+                        sprite.spriteFrame = sp;
+                    })
                 });
             }
         });
@@ -575,19 +575,20 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (cardNode) {
                 // 确保卡片处于正确的初始状态
                 cardNode.setScale(1, 1, 1);
-                
+
                 // 直接添加翻转动画，移除延迟
                 this.flipCardAnimation(cardNode, () => {
                     const sprite = cardNode.getComponent(Sprite);
-                    LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                        LoaderManager.getInstance().loadABRes("texture/card/Card_back_d", self.bundleName).then((res) => {
-                            const spriteFrame = new SpriteFrame();
-                            const texture = new Texture2D();
-                            texture.image = res;
-                            spriteFrame.texture = texture;
-                            sprite.spriteFrame = spriteFrame;
-                        })
-                    });
+
+                    const bundle = assetManager.getBundle(self.bundleName);
+                    bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
+                        if (err) {
+                            DebugLog.instance.error(err);
+                            return;
+                        }
+                        sprite.spriteFrame = sp;
+                    })
+
                 });
             }
         });
@@ -603,7 +604,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     previewCard() {
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
-        
+
         this.showAllCard();
         this._startTime = TimeUtil.getNow();
         if (this._setTimeOutId != null) {
@@ -614,10 +615,10 @@ export class Main extends BaseScene<IBaseGameChild> {
                 clearTimeout(this._setTimeOutId);
             }
             this._setTimeOutId = null;
-            
+
             // 检查并修复可能存在的问题
             this.checkAndFixCardScales();
-            
+
             this.closeAllCard();
         }, this.seconds[this.hardIndex] * 1000);
     }
@@ -632,9 +633,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerComponent.resetTimer();
     }
     timerTick() {
-        if(this.sceneModel.gameType == GameType.SKEWERS){
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
-        }else{
+        } else {
             this.timerComponent.startTimer(this.INIT_TIME);
         }
     }
@@ -643,12 +644,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         let config = {
             sessionId: curGame.sessionid,
             count: complete * this.cardTotalCount / 2,
-            level:  this.level,
+            level: this.level,
             complete: complete,
             duration: duration,
             timelimit: this.INIT_TIME,
             difficulty: this.hards[this.hardIndex],
-            levelMode:curGame.levelMode,
+            levelMode: curGame.levelMode,
             callback: () => { }
         }
         this.sceneModel.requestGameComplete(config)
@@ -713,7 +714,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.timerId);
     }
 
- 
+
     exitCallBack(context) {
         clearTimeout(context._setTimeOutId);
         context._setTimeOutId = null;
@@ -725,31 +726,30 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
     private showSpriteAnimation(textureUrl: string, callback: () => void) {
         let self = this;
-        LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-            LoaderManager.getInstance().loadABRes(textureUrl, self.bundleName).then((res) => {
-                const texture = new Texture2D();
-                texture.image = res;
-                const spriteFrame = new SpriteFrame();
-                spriteFrame.texture = texture;
-                if (self.showSprite) {
-                    self.showSprite.spriteFrame = spriteFrame;
-                    let rightTween = tween(self.showSprite.node)
-                        .to(0.5, { scale: new Vec3(2, 2, 1) })
-                        .call(() => {
-                            callback();
-                            rightTween.stop();
-                            rightTween = null;
-                            self.showSprite.node.active = false;
-                            self.showSprite.node.parent.active = false;
-                            self.showSprite.node.scale = new Vec3(1, 1, 1);
-                        })
-                        .start();
-                    self.showSprite.node.active = true;
-                    self.showSprite.node.parent.active = true;
-                } else {
-                    DebugLog.instance.error("showSprite is null!");
-                }
-            })
+        const bundle = assetManager.getBundle(self.bundleName);
+        bundle.load(textureUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
+            if (err) {
+                DebugLog.instance.error(err);
+                return;
+            }
+            if (self.showSprite) {
+                self.showSprite.spriteFrame = sp;
+                let rightTween = tween(self.showSprite.node)
+                    .to(0.5, { scale: new Vec3(2, 2, 1) })
+                    .call(() => {
+                        callback();
+                        rightTween.stop();
+                        rightTween = null;
+                        self.showSprite.node.active = false;
+                        self.showSprite.node.parent.active = false;
+                        self.showSprite.node.scale = new Vec3(1, 1, 1);
+                    })
+                    .start();
+                self.showSprite.node.active = true;
+                self.showSprite.node.parent.active = true;
+            } else {
+                DebugLog.instance.error("showSprite is null!");
+            }
         });
     }
 

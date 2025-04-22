@@ -38,7 +38,7 @@ export class UIManager extends BaseManager {
 
     async init() {
         this.maps = {};
-        EventManager.getInstance().on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
+        SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
 
         this.screenLockerPrefab = await new Promise<Prefab>((resolve, reject) => {
             resources.load(UIManager.SCREEN_LOCKER_PREFAB_PATH, Prefab, null, (err: Error, data: Prefab) => {
@@ -185,7 +185,7 @@ export class UIManager extends BaseManager {
         }
     }
 
-    getActivePanel(name:string){
+    getActivePanel(name: string) {
         return this.activePanelMap.get(name);
     }
 
@@ -238,7 +238,7 @@ export class UIManager extends BaseManager {
         this.screenLockerNum--;
 
         //防止场景切换后调用导致计数器异常
-        if(this.screenLockerNum < 0){
+        if (this.screenLockerNum < 0) {
             this.screenLockerNum = 0;
         }
 
@@ -246,14 +246,14 @@ export class UIManager extends BaseManager {
             this.screenLockerNode.removeFromParent();
             this.screenLockerNode = null;
 
-            if(this.screenLockerTimer != null){
+            if (this.screenLockerTimer != null) {
                 clearTimeout(this.screenLockerTimer);
                 this.screenLockerTimer = null;
             }
         }
     }
 
-    private onSceneChanged() {
+    private onSceneChanged(sceneName: string, lastSceneName: string) {
         this.screenLockerNum = 0;
 
         if (this.screenLockerNode) {
@@ -261,7 +261,7 @@ export class UIManager extends BaseManager {
             this.screenLockerNode = null;
         }
 
-        if(this.screenLockerTimer != null){
+        if (this.screenLockerTimer != null) {
             clearTimeout(this.screenLockerTimer);
             this.screenLockerTimer = null;
         }

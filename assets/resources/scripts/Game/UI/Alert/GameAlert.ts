@@ -1,10 +1,8 @@
-import { Component, _decorator, Node, Label, Button, ProgressBar, UITransform, tween, Sprite, Vec3, AudioClip } from "cc";
+import { Component, _decorator, Node, Label, Button, ProgressBar, UITransform, tween, Sprite, Vec3, AudioClip, resources, SpriteFrame, error } from "cc";
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
-import { LoaderManager } from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
-import { GuideHand } from "db://assets/resources/scripts/Core/Manager/Guide/GuideHand";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
@@ -94,11 +92,14 @@ export class GameAlert extends Component {
         // 创建一个数组，存放每个异步加载的 Promise
         const loadPromises = this.audioUrls.map(audioUrl => {
             return new Promise((resolve, reject) => {
-                LoaderManager.getInstance().resourcesLoadAudio(audioUrl).then((audioRes: AudioClip) => {
+                resources.load(audioUrl, AudioClip,(err, audioRes) => {
+                    if(err){
+                        DebugLog.instance.error(err);
+                        reject(err);
+                        return;
+                    }
                     this.audioMap.set(audioUrl, audioRes);
                     resolve(audioRes);
-                }).catch((err) => {
-                    reject(err);
                 });
             });
         });
@@ -305,7 +306,13 @@ export class GameAlert extends Component {
         this.iconLoaded = false;
         
         return new Promise<void>((resolve, reject) => {
-            LoaderManager.getInstance().resourcesLoadFrame(iconUrl).then((spriteframe) => {
+            resources.load(iconUrl+"/spriteFrame", SpriteFrame,(err, spriteframe) => {
+                if(err){
+                    DebugLog.instance.error("Error loading icon:", error);
+                    this.iconLoading = false;
+                    resolve();
+                    return;
+                }
                 if (this.icon) {
                     let sprite = this.icon.getComponent(Sprite);
                     sprite.spriteFrame = spriteframe;
@@ -327,13 +334,6 @@ export class GameAlert extends Component {
                     this.iconLoading = false;
                     resolve();
                 }
-            }).catch((error) => {
-                // 记录错误
-                DebugLog.instance.error("Error loading icon:", error);
-                this.iconLoading = false;
-                
-                // 出错时仍然解析Promise，避免阻止UI流程
-                resolve();
             });
         });
     }

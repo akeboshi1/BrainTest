@@ -1,11 +1,10 @@
 import Tools from "../Common/Tools";
 import TestMgr from "../Common/Test";
-import LoadMgr from "../Common/manage/LoadMgr";
-import { _decorator, Node, tween, director, Sprite, v3, Texture2D, SpriteFrame } from "cc";
-import { LoaderManager } from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
+import { _decorator, Node, tween, director, Sprite, v3, Texture2D, SpriteFrame, resources } from "cc";
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import CacheMgr from "db://assets/finding/script/Common/manage/CacheMgr";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -25,16 +24,20 @@ export class Loading extends BaseScene<IBaseGameChild> {
         super.start();
         let logoSprite = this.logoNode.getComponent(Sprite);
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-            LoaderManager.getInstance().resourcesLoadFrame("texture/game/logo/judgment").then((spiteFrame) => {
-                logoSprite.spriteFrame = spiteFrame;
+            resources.load("texture/game/logo/judgment/spriteFrame", SpriteFrame,(err,sp)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                    return;
+                }
+                logoSprite.spriteFrame = sp;
             });
         } else {
-            LoaderManager.getInstance().loadABRes("scene/loading/image/logo", this.bundleName).then((res) => {
-                const texture = new Texture2D();
-                texture.image = res;
-                const spriteFrame = new SpriteFrame();
-                spriteFrame.texture = texture;
-                logoSprite.spriteFrame = spriteFrame;
+            resources.load("scene/loading/image/logo/spriteFrame", SpriteFrame,(err,sp)=>{
+                if(err){
+                    DebugLog.instance.error(err);
+                    return;
+                }
+                logoSprite.spriteFrame = sp;
             });
         }
         this._initSystemEvent();
@@ -50,7 +53,6 @@ export class Loading extends BaseScene<IBaseGameChild> {
         let i = 0;
 
         director.preloadScene("Game");
-        LoadMgr.init_bundleMgr()
 
         TestMgr.start("加载总时长")
         let self = this;
@@ -72,42 +74,6 @@ export class Loading extends BaseScene<IBaseGameChild> {
             // }
         });
     }
-
-    // protected onLoad() {
-    //     this._initSystemEvent();
-
-    //     this.mask.scale = v3(0, 1, 1);
-
-        
-
-    //     //假的进度条
-    //     this.tween = tween(this.mask)
-    //         .to(5, { scale: v3(1, 1, 1) }, { easing: "quadOut" })
-    //         .start();
-    //     let i = 0;
-
-    //     director.preloadScene("Game");
-    //     LoadMgr.init_bundleMgr()
-
-    //     TestMgr.start("加载总时长")
-    //     let self = this;
-    //     let num = Tools.model_initModel(() => {
-    //         // i++
-    //         // if (i === num) {
-    //         TestMgr.end("加载总时长")
-    //         this.tween.stop();
-    //         tween(this.mask)
-    //             .to(0.2, { scale: v3(1, 1, 1) }, { easing: 'quadOut' })
-    //             .call(() => {
-    //                 director.loadScene('Game',(err,scene)=>{
-    //                     (scene as any).sceneModel = self.sceneModel;
-    //                     (scene as any).sceneModel.scene = scene as any;
-    //                 });
-    //             })
-    //             .start();
-    //         // }
-    //     });
-    // }
 
     _initSystemEvent() {
 

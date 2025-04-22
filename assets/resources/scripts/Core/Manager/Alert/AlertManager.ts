@@ -1,10 +1,7 @@
-import { Button, director, error, find, instantiate, Label, Node, Prefab, Vec2 } from "cc";
+import { Button, instantiate, Label, Node, Prefab, resources} from "cc";
 import { BaseManager } from "../BaseManager";
-import { Global } from "../Config/Global";
-import { LoaderManager } from "../Load/LoaderManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
-import { EventManager } from "../Event/EventManager";
 import { SceneManager } from "../Scene/SceneManager";
 
 export default class AlertManager extends BaseManager {
@@ -22,19 +19,21 @@ export default class AlertManager extends BaseManager {
     private currentAlert: Node = null; // 当前正在显示的alert节点
 
     public async init() {
-        EventManager.getInstance().on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
+        SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
 
-        return new Promise<void>((resolve,reject)=>{
-            LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/Common/CommonAlert").then((resource) => {
+        return new Promise<void>((resolve, reject) => {
+            resources.load("prefab/Common/CommonAlert", Prefab,(err,resource)=>{
+                if(err){
+                    DebugLog.instance.warn("Common Alert Prefab Load failed!!!");
+                    reject();
+                    return;
+                }
                 DebugLog.instance.log("Common Alert Prefab Load success!!!");
                 this.commonAlertPrefab = resource;
                 resolve();
-            }).catch((error) => {
-                DebugLog.instance.warn("Common Alert Prefab Load failed!!!");
-                reject();
             });
         });
-        
+
     }
 
     public showAlert(alertData: AlertData) {
@@ -52,7 +51,7 @@ export default class AlertManager extends BaseManager {
         // 实例化预制体
         let alertNode = instantiate(this.commonAlertPrefab);
         let rootNode: Node = LayerUtil.getAlertLayer();
-        if(!rootNode){
+        if (!rootNode) {
             DebugLog.instance.error("Can not find alert layer!");
             return;
         }
@@ -121,7 +120,7 @@ export default class AlertManager extends BaseManager {
         }
     }
 
-    private onSceneChanged() {
+    private onSceneChanged(sceneName: string, lastSceneName: string) {
         this.alertQueue = [];
         this.closeCurrentAlert();
     }
