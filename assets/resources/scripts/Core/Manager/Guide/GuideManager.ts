@@ -1,8 +1,6 @@
-import {Node,Sprite,UITransform,Prefab,instantiate} from "cc";
+import {Node,Sprite,UITransform,Prefab,instantiate, resources} from "cc";
 import {BaseManager} from "db://assets/resources/scripts/Core/Manager/BaseManager";
 import {BaseGuide} from "db://assets/resources/scripts/Core/Manager/Guide/BaseGuide";
-import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import {FindingGuide} from "db://assets/resources/scripts/Core/Manager/Guide/game/FindingGuide";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import {GuideHand} from "db://assets/resources/scripts/Core/Manager/Guide/GuideHand";
@@ -50,10 +48,15 @@ export class GuideManager extends BaseManager{
 
     public init(){
         let self = this;
-        LoaderManager.getInstance().resourcesLoadPrefab(Global.RES_Root + "prefab/hand/handPrefab").then((res)=>{
-             self._hand = new GuideHand(res);
-             self._hand.init();
-             self._initGuideData();
+
+        resources.load("prefab/hand/handPrefab",Prefab,(err,resource)=>{
+            if(err){
+                DebugLog.instance.error('加载引导手柄失败:', err);
+                return;
+            }
+            self._hand = new GuideHand(resource);
+            self._hand.init();
+            self._initGuideData();
         });
     }
 

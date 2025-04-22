@@ -6,7 +6,6 @@ import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/Bundle
 import {Math24CardData, SymbolsType} from "db://assets/math24/scripts/Math24CardData";
 import {Math24Database} from "db://assets/math24/scripts/Math24Database";
 import {Math24Question} from "db://assets/math24/scripts/Math24Generator";
-import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
@@ -601,27 +600,18 @@ export class Main extends BaseScene<IBaseGameChild> {
                             // 构建完整的图片路径
                             const imagePath = randomFlower + cardDisplayValue;
                             
-                            // 使用LoaderManager加载资源
-                            LoaderManager.getInstance().assetBundleLoad(self.bundleName, self.bundleName).then((bundle) => {
-                                // 释放之前的资源
-                                if (sprite.spriteFrame && sprite.spriteFrame.texture) {
-                                    sprite.spriteFrame.texture.destroy();
-                                }
-                                
-                                // 加载新资源
-                                LoaderManager.getInstance().loadABRes(imagePath, self.bundleName).then((res) => {
-                                    const texture = new Texture2D();
-                                    texture.image = res;
-                                    const spriteFrame = new SpriteFrame();
-                                    spriteFrame.texture = texture;
-                                    sprite.spriteFrame = spriteFrame;
-                                }).catch(err => {
+                            const bundle = assetManager.getBundle(self.bundleName);
+                            if (sprite.spriteFrame && sprite.spriteFrame.texture) {
+                                sprite.spriteFrame.texture.destroy();
+                            }
+                            
+                            bundle.load(imagePath+"/spriteFrame",SpriteFrame,(err,sp)=>{
+                                if(err){
                                     DebugLog.instance.error('加载卡片图片失败:', imagePath, err);
                                     sprite.spriteFrame = self.frontFrame!;
-                                });
-                            }).catch(err => {
-                                DebugLog.instance.error('加载子包失败:', self.bundleName, err);
-                                sprite.spriteFrame = self.frontFrame!;
+                                    return;
+                                }
+                                sprite.spriteFrame = sp;
                             });
                         } else {
                             DebugLog.instance.error('卡片索引超出范围:', index, '当前卡片值数组:', self.cardValues);

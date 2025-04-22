@@ -2,7 +2,6 @@ import LayerPanel, { UrlInfo } from "../../Common/manage/Layer/LayerPanel";
 import PanelMgr, { Layer } from "../../Common/manage/PanelMgr";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
-import LoadMgr from "../../Common/manage/LoadMgr";
 import Tools from "../../Common/Tools";
 import AudioMgr from "../../Common/manage/AudioMgr";
 import HintPrefab from "../Game/HintPrefab";
@@ -10,8 +9,10 @@ import EndView from "./EndView";
 import Constant from "../../Common/Constant";
 import {
     _decorator,
+    assetManager,
     Color,
     director,
+    ImageAsset,
     instantiate,
     Label,
     Node,
@@ -20,6 +21,7 @@ import {
     Prefab,
     Rect,
     Sprite,
+    SpriteFrame,
     tween,
     UIOpacity,
     UITransform,
@@ -34,6 +36,10 @@ import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Game } from "../../Scene/Game";
 import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import { AbortablePromise } from "db://assets/resources/scripts/Core/StateMachine/AbortablePromise";
+import { UnitFlow } from "db://assets/resources/scripts/Core/StateMachine/UnitFlow";
+import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
 
 const { ccclass, property } = _decorator;
 
@@ -199,65 +205,75 @@ export default class GameView extends LayerPanel {
             let pictureSprite1 = this.picture1.getComponent(Sprite);
             let pictureSprite2 = this.picture2.getComponent(Sprite);
             let self = this;
-            LoadMgr.loadSprite(pictureSprite1, bundleName + `/image/${imageName}_1_32`).then(() => {
-                LoadMgr.loadSprite(pictureSprite2, bundleName + `/image/${imageName}_2_32`).then(() => {
-                    let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
-                    let tmpDataList = tmpDatas.split("|");
-                    let len = tmpDataList.length;
-                    // let custData = GameConfig.level_data[loopLevel - 1];
-                    // let sizeData = GameConfig.level_data_size[loopLevel - 1];
-                    let uitransform = self.picture1.getComponent(UITransform)
-                    for (let i = 0; i < len; i++) {
-                        let node: Node = new Node();
-                        let nodeUITransform = node.addComponent(UITransform);
-                        let tempData = tmpDataList[i].split(",");
-                        // 左上角
-                        nodeUITransform.width = Number(tempData[2]);
-                        nodeUITransform.height = Number(tempData[3]);
-                        node.setPosition(Number(tempData[0]) * 1.5, uitransform.height - Number(tempData[1]) * 1.5);
-                        nodeUITransform.setAnchorPoint(0, 1);
 
-                        // nodeUITransform.width = sizeData[i].w;
-                        // nodeUITransform.height = sizeData[i].h;
-                        node.setScale(1.4, 1.4);
-                        // node.setPosition(custData[i].x * 1.5, custData[i].y * 1.5)
-
-
-                        // let sprite = node.addComponent(Sprite);
-                        // LoadMgr.loadSprite(sprite, bundleName + "/image/" + String(i)).then()
-                        // sprite.sizeMode = Sprite.SizeMode.CUSTOM;
-                        // sprite.color = ColorUtil.hexToColor("rgba(230,237,7,0.8)");
-                        nodeUITransform.convertToWorldSpaceAR(node.position);
-                        self.framePostions.push(node.position);
-                        self.picture1.addChild(node);
-                        self.frameList.push(nodeUITransform.getBoundingBox());
-                        self.frameList[i].id = i + 1;
+            const bundle = assetManager.getBundle(BundleName.FINGING);
+            let spriteFrame1 = null;
+            let spriteFrame2 = null;
+            let flow1 = new AbortablePromise((res,rej)=>{
+                bundle.load(bundleName + `/image/${imageName}_1_32/spriteFrame`,SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
+                    if(err){
+                        rej(err);
                     }
-                    if (self._checkPoint == 1 && self.sceneModel.gameType != GameType.SKEWERS) {
-                        self.newHandHint();
-                    }
-
-                    for (let j = 0; j < self.resultNode.children.length; j++) {
-                        let children = self.resultNode.children[j].getChildByName("right");
-                        children.active = false;
-                        if (j >= self._maxCount) {
-                            self.resultNode.children[j].active = false;
-                        }
-                    }
-
-
-                    if (Game.Ins) {
-                        Game.Ins.setGameViewRef(this);
-                    }
-
-
-                    resolve();
-
-                }).catch((err) => {
-                    DebugLog.instance.error(err);
+                    spriteFrame1 = spriteFrame;
+                    res(spriteFrame);
                 });
-            }).catch((err) => {
-                DebugLog.instance.error(err)
+            });
+
+            let flow2 = new AbortablePromise((res,rej)=>{
+                bundle.load(bundleName + `/image/${imageName}_2_32/spriteFrame`,SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
+                    if(err){
+                        rej(err);
+                    }
+                    spriteFrame2 = spriteFrame;
+                    res(spriteFrame);
+                });
+            });
+
+            let flow = new SequenceFlow();
+            flow.addFlow(flow1);
+            flow.addFlow(flow2);
+            flow.start().then(()=>{
+                pictureSprite1.spriteFrame = spriteFrame1;
+                pictureSprite2.spriteFrame = spriteFrame2;
+                pictureSprite1.node.active = true;
+                pictureSprite2.node.active = true;
+
+                let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
+                let tmpDataList = tmpDatas.split("|");
+                let len = tmpDataList.length;
+                let uitransform = self.picture1.getComponent(UITransform)
+                for (let i = 0; i < len; i++) {
+                    let node: Node = new Node();
+                    let nodeUITransform = node.addComponent(UITransform);
+                    let tempData = tmpDataList[i].split(",");
+                    // 左上角
+                    nodeUITransform.width = Number(tempData[2]);
+                    nodeUITransform.height = Number(tempData[3]);
+                    node.setPosition(Number(tempData[0]) * 1.5, uitransform.height - Number(tempData[1]) * 1.5);
+                    nodeUITransform.setAnchorPoint(0, 1);
+                    node.setScale(1.4, 1.4);
+                    nodeUITransform.convertToWorldSpaceAR(node.position);
+                    self.framePostions.push(node.position);
+                    self.picture1.addChild(node);
+                    self.frameList.push(nodeUITransform.getBoundingBox());
+                    self.frameList[i].id = i + 1;
+                }
+                if (self._checkPoint == 1 && self.sceneModel.gameType != GameType.SKEWERS) {
+                    self.newHandHint();
+                }
+                for (let j = 0; j < self.resultNode.children.length; j++) {
+                    let children = self.resultNode.children[j].getChildByName("right");
+                    children.active = false;
+                    if (j >= self._maxCount) {
+                        self.resultNode.children[j].active = false;
+                    }
+                }
+                if (Game.Ins) {
+                    Game.Ins.setGameViewRef(this);
+                }
+                resolve();
+            }).catch((err)=>{
+                DebugLog.instance.error(err);
             });
         })
     }
@@ -699,7 +715,12 @@ export default class GameView extends LayerPanel {
             this.reminderNode.destroy();
             this.reminderNode = null;
         }
-        LoadMgr.loadPrefab(GameConfig.prefabData[this.hintIndex]).then((prefab: Prefab) => {
+
+        const bundle = assetManager.getBundle(BundleName.FINGING);
+        bundle.load(GameConfig.prefabData[this.hintIndex],Prefab,(err:Error,prefab:Prefab)=>{
+            if(err){
+                DebugLog.instance.error(err);
+            }
             let node = instantiate(prefab);
             this.viewNode.addChild(node);
             let script = node.getComponent(HintPrefab);
@@ -708,7 +729,7 @@ export default class GameView extends LayerPanel {
             this.isStartCount = true;
             this.interval = 0;
             this.reminderNode = node;
-        })
+        });
     }
 
     public createParticle(clickPos) {
@@ -735,9 +756,15 @@ export default class GameView extends LayerPanel {
         node.setPosition(pos);
         let particleComp: ParticleSystem2D = node.addComponent(ParticleSystem2D);
         let particleUrl = "sub/image/view/gameView/particle/win";
-        LoadMgr.loadParticle(particleUrl).then((particle: ParticleAsset) => {
+
+        const bundle = assetManager.getBundle(BundleName.FINGING);
+        bundle.load(particleUrl,ParticleAsset,(err:Error,particle:ParticleAsset)=>{
+            if(err){
+                DebugLog.instance.error(err);
+            }
             particleComp.file = particle;
-        })
+        });
+
         this.viewNode.addChild(node);
         tween(node)
             .to(0.5, { position: new Vec3(targetNodePos.x, targetNodePos.y) })
@@ -770,7 +797,16 @@ export default class GameView extends LayerPanel {
         node.setScale(new Vec3(2, 2, 2));
         let sprite: Sprite = node.addComponent(Sprite);
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
-        LoadMgr.loadSprite(sprite, url).then();
+
+        const bundle = assetManager.getBundle(BundleName.FINGING);
+        bundle.load(url+"/spriteFrame",SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
+            if(err){
+                DebugLog.instance.error(err);
+            }
+            sprite.spriteFrame = spriteFrame;
+            sprite.node.active = true;
+        });
+
         this.pictureList[index2].addChild(node);
         // 推送数据
 
@@ -795,7 +831,16 @@ export default class GameView extends LayerPanel {
         nodeUITransform.setAnchorPoint(0.5, 0.5);
         let sprite: Sprite = node.addComponent(Sprite);
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
-        LoadMgr.loadSprite(sprite, "sub/image/view/gameView/public/err").then();
+
+        const bundle = assetManager.getBundle(BundleName.FINGING);
+        bundle.load("sub/image/view/gameView/public/err/spriteFrame",SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
+            if(err){
+                DebugLog.instance.error(err);
+            }
+            sprite.spriteFrame = spriteFrame;
+            sprite.node.active = true;
+        });
+
         node.setScale(1.6, 1.6);
         this.viewNode.addChild(node);
         this.errNode = node;

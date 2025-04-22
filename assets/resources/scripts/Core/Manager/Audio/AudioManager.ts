@@ -1,6 +1,5 @@
 import { Node, AudioSource, AudioClip, resources, director, EventTarget } from 'cc';
 import { BaseManager } from '../BaseManager';
-import {LoaderManager} from "db://assets/resources/scripts/Core/Manager/Load/LoaderManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 
 /**
@@ -68,11 +67,14 @@ export class AudioManager extends BaseManager {
     private async loadAudio(){
         const loadPromises = this.audioUrls.map(audioUrl => {
             return new Promise((resolve, reject) => {
-                LoaderManager.getInstance().resourcesLoadAudio(audioUrl).then((audioRes:AudioClip)=>{
+                resources.load(audioUrl, AudioClip,(err,audioRes:AudioClip)=>{
+                    if(err){
+                        DebugLog.instance.error('加载音频失败:', audioUrl, err);
+                        reject(err);
+                        return;
+                    }
                     this.audioMap.set(audioUrl,audioRes);
                     resolve(audioRes);
-                }).catch((err)=>{
-                    reject(err);
                 });
             });
         });

@@ -86,8 +86,6 @@ export class GuessingGameModel {
         let succeeded = false;
 
         while (retryCount < maxRetries && !succeeded) {
-            // 确保先释放可能存在的资源
-            bundle.release(audioUrl);
             if (retryCount > 0) {
                 DebugLog.instance.log(`尝试第 ${retryCount} 次重新加载音频: ${audioUrl}`);
                 // 加入一点延迟，避免释放和重新加载之间的潜在冲突

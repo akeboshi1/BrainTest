@@ -208,7 +208,7 @@ export class LoginManager {
         EventManager.getInstance().destory();
         AudioManager.getInstance().destory();
         SocketManager.getInstance().cleanSocketDatas();
-        SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start").then(() => {
+        SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start", BundleName.RESOURCES).then(() => {
             DebugLog.instance.log(`start场景切换成功`);
         });
     }
