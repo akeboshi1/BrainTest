@@ -317,6 +317,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
+                    this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(complete, duration);
                 }else{
                     (this.sceneModel as any).goonHandler(self, true);

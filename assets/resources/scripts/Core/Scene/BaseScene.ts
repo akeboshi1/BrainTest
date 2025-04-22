@@ -259,6 +259,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     // ========= 清理场景 ===========
     public clearGameView() {
         AudioManager.getInstance().stop();
+        AudioManager.getInstance().stopBgm();
     }
 
     // ========== 播放音频 ==========
