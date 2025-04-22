@@ -258,9 +258,9 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.initRects(question);
 
         await this.initCardsInstance(question);
-        // if(!this.bgmClip){
-        //     this.bgmClip = this.playAudio("audio/majiangbgm",false,true);
-        // }
+        if(!this.bgmClip){
+            this.bgmClip = this.playAudio("audio/majiangbgm",false,true);
+        }
     }
 
     private recyleCardModel() {
@@ -881,6 +881,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     public onClickRetryGame() {
         Global.isAgain = true;
+        this.bgmClip = null;
         this.startGameFlow();
     }
 
