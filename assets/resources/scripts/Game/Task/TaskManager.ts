@@ -316,7 +316,7 @@ export class TaskManager {
                 SkewersManager.getInstance().start(id);
                 break;
             case TaskStatus.UnComplete:
-                EventManager.getInstance().on(this.task_start_task, this.requestStartTaskCallback, this);
+                EventManager.getInstance().on(this.task_start_task, this.requestStartTaskCallback, this,true);
                 let requestStartTaskSocket: SocketData = new SocketData({ action: this.task_start_task, data: { task_id: id } });
                 SocketManager.getInstance().send(requestStartTaskSocket);
                 break;
