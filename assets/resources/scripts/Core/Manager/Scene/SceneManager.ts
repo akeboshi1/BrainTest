@@ -46,6 +46,8 @@ export class SceneManager extends BaseManager {
      */
     async changeScene(url: string, sceneName: string): Promise<Scene> {
         DebugLog.instance.log(`${sceneName} 开始切换场景0`);
+        const preScene = director.getScene();
+        EventManager.getInstance().disableContext(preScene);
         return new Promise((resolve, reject) => {
             let sceneBundle = assetManager.getBundle(sceneName);
             if (!sceneBundle) {
