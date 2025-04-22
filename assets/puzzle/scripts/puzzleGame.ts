@@ -311,14 +311,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     quitGame() {
         this.resetDragState();
         
-        // 确保事件监听器被移除
-        if (this.draggableNode) {
-            this.draggableNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
-            this.draggableNode.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
-            this.draggableNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-            this.draggableNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
-        }
-        
         super.quitGame({ parentNode: this.viewNode, context: this });
         if (this._timeID) {
             clearTimeout(this._timeID);
@@ -347,34 +339,28 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.timerComponent.pauseTimer();
         this.showSprite.node.active = true;
         
-        // 设置缩放动画
+        // 设置缩放动画（循环2次后完成）
         let _tween = tween(this.showSprite.node)
             .to(2, { scale: new Vec3(1.1, 1.1, 1.1) }, { easing: 'cubicOut' })
             .to(2, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
             .union()
-            .repeatForever()
+            .repeat(1)  // 指定重复次数
+            .call(() => {
+                // 动画完成回调，在指定次数的动画全部完成后执行
+                this.showSprite.node.setScale(new Vec3(1, 1, 1));
+                this.showSprite.node.active = false;
+                
+                // 处理游戏结果
+                if (this.sceneModel.gameType == GameType.SKEWERS) {
+                    this.requestGameResult();
+                } else {
+                    this._requestGameCenterComplete(1);
+                    this.summaryAlert.node.active = true;
+                    this.summaryAlert.initByResult(true);
+                    this.summaryAlert.fadeIn();
+                }
+            })
             .start();
-            
-        // 设置结果处理延迟
-        this._timeID = setTimeout(() => {
-            this.showSprite.node.setScale(new Vec3(1, 1, 1));
-            this.showSprite.node.active = false;
-            
-            if (_tween) {
-                _tween.stop();
-                _tween = null;
-            }
-            
-            // 处理游戏结果
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
-                this.requestGameResult();
-            } else {
-                this._requestGameCenterComplete(1);
-                this.summaryAlert.node.active = true;
-                this.summaryAlert.initByResult(true);
-                this.summaryAlert.fadeIn();
-            }
-        }, 4000);
     }
     
     // 启用拖拽功能和重置游戏状态
