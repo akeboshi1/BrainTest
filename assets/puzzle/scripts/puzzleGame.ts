@@ -182,6 +182,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.resetDragState();
         this.loadTextureRejector = null;
         this.loadTextureResolver = null;
+        super.onDestroy();
     }
 
     cropTextureToSprites(cropSize: Vec2, texture: Texture2D) {

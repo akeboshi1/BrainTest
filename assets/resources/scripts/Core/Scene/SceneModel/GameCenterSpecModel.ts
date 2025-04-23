@@ -141,8 +141,8 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
         // 大厅数据刷新逻辑...
     }
 
-    destory(): void {
-
+    destory() {
+        EventManager.getInstance().disableContext(this);
     }
 
 }

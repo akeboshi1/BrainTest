@@ -131,6 +131,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.guessingGameModel.dispose();
             this.guessingGameModel = null;
         }
+        super.onDestroy();
     }
 
     private onModelInitComplete() {

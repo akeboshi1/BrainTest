@@ -167,6 +167,7 @@ export class EventManager extends BaseManager {
             
             if (filteredHandlers.length === 0) {
                 this.events.delete(eventName);
+                console.log("移除监听:"+`${eventName}`,`${context}`);
             } else {
                 this.events.set(eventName, filteredHandlers);
             }
@@ -178,6 +179,19 @@ export class EventManager extends BaseManager {
      */
     clear() {
         this.events = new Map();
+    }
+
+    getListenerByContext(eventName: string, context: any): boolean {
+        // 如果事件名不存在或者在events中找不到该事件，返回false
+        if (!eventName || !this.events.has(eventName)) {
+            return false;
+        }
+        
+        // 获取该事件的所有处理器
+        const handlers = this.events.get(eventName);
+        
+        // 检查是否存在与指定context匹配的处理器
+        return handlers.some(handler => handler.context === context);
     }
 
     /**

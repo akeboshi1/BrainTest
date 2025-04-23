@@ -47,14 +47,14 @@ export class SceneManager extends BaseManager {
         DebugLog.instance.log(`${sceneName} 开始切换场景0`);
         const preScene = director.getScene();
         EventManager.getInstance().disableContext(preScene);
-        
+
         return new Promise((resolve, reject) => {
             bundleName = bundleName == "" ? sceneName : bundleName;
             let sceneBundle = assetManager.getBundle(bundleName);
             if (!sceneBundle) {
                 DebugLog.instance.log(`${sceneName} 开始切换场景`);
                 DebugLog.instance.warn(`${sceneName} 请使用perloadScene预加载场景`);
-                
+
                 assetManager.loadBundle(bundleName, (err, bundle) => {
                     if (err) {
                         DebugLog.instance.error(err);

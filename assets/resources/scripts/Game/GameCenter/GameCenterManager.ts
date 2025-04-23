@@ -143,10 +143,7 @@ export class GameCenterManager {
     }
 
     public get gameSpecData(): GameCenterSpecModel {
-        if (!this._curGameSpecData) {
-            this._curGameSpecData = GameDataFactory.create(GameType.GAME_CENTER);
-        }
-        return this._curGameSpecData;
+        return  GameDataFactory.create(GameType.GAME_CENTER);
     }
 
     public enterGameCenter() {

@@ -415,6 +415,9 @@ export class TaskManager {
      */
 
     public pushTask() {
+        if(EventManager.getInstance().getListenerByContext(TaskManager.pushEvet,this)){
+            return;
+        }
         EventManager.getInstance().on(TaskManager.pushEvet, this.pushEventCallback, this);
     }
     public pushEventCallback(data: SocketData, context: any) {

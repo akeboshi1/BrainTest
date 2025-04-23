@@ -596,6 +596,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     protected onDestroy(): void {
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
+        super.onDestroy();
     }
 
     private _setTimeOutId;

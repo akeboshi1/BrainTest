@@ -9,6 +9,7 @@ import {
 import {TimerCommonComponent} from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 
 /**
  * 基础场景
@@ -32,6 +33,11 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     // ========== component生命周期 ==========
     start() {
         this.sceneModel = (director.getScene() as unknown as { sceneModel }).sceneModel;
+    }
+
+    protected onDestroy(){
+        EventManager.getInstance().disableContext(this);
+        this.sceneModel.destory();
     }
 
     //
