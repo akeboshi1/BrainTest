@@ -629,8 +629,10 @@ export default class GameView extends LayerPanel {
         this.removeMonitorEvent();
         if (isWin) {
             this.victory.active = true;
+            AudioMgr.play("sub/audio/view/game/win", 1, false).then();
+        } else {
+            AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
         }
-
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
