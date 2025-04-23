@@ -136,8 +136,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     protected onDestroy(): void {
-        this.clearGameView();
-
         this.sourceContainerMap.clear();
         this.resultContainerMap.clear();
         this.resultContainerEmptyInstance.clear();
