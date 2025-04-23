@@ -92,7 +92,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     protected bundleName: string = BundleName.FANPAI;
 
 
-    protected audioUrls = ["music/fanpai", "music/win", 'music/bgMusic'];
+    protected audioUrls = ['music/bgMusic',"music/fanpai", "music/win","music/success","music/fail"];
 
     constructor() {
         super();
@@ -356,7 +356,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
 
-        this.playAudio("music/win");
+        this.playAudio("music/win",true);
         let obj = this.requestGameResult();
         // 非串烧游戏
         if (this.sceneModel.gameType !== GameType.SKEWERS) {
@@ -436,7 +436,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerTick();
         this.closeFailView();
         this.previewCard();
-        this.playAudio("music/bgMusic");
+        this.playAudio("music/bgMusic",false,true);
     }
 
     closeFailView() {
@@ -462,7 +462,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.previewCard();
 
-        this.playAudio("music/bgMusic");
+        this.playAudio("music/bgMusic",false,true);
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
