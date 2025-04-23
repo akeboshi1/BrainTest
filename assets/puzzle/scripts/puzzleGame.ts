@@ -590,7 +590,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     processGameFail() {
         DebugLog.instance.log("失败");
-
+        this.playFail();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult();
