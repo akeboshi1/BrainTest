@@ -36,6 +36,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     protected onDestroy(){
+        this.clearGameView();
         EventManager.getInstance().disableContext(this);
         this.sceneModel.destory();
     }
