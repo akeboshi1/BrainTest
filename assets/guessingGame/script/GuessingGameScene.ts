@@ -214,6 +214,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (result) {
             // 播放成功音效，使用playOneShot
            this.playAudio("audio/music/win",true);
+        }else{
+            this.playFail();
         }
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.resultPanel.active = false;
