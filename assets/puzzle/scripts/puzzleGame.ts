@@ -283,6 +283,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
             if (this.checkPuzzleResult()) {
                 this.processGameSuccess();
+            }else{
+                this.playFail();
             }
         } else {
             this.processTouchCancel();

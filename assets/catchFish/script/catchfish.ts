@@ -235,6 +235,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     onTimerEnd() {
         super.onTimerEnd();
+        this.playFail();
         if (this.wangCount !== this.wangMaxCount) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 //上报数据
@@ -857,6 +858,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
         this.createFish();
+        if(!this.bgmClip){
+            this.bgmClip = this.playAudio("music/fishBG",false,true);
+        }
     }
 
     private _wangTween;
