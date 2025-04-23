@@ -848,6 +848,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     rePlayGame() {
+        this.bgmClip = null;
         this.customsSendDataState = true;
         Global.isAgain = true;
         this.clearGameView();
