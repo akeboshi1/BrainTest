@@ -843,24 +843,30 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
         }
 
-        for (let [key, node] of this.resultContainerMap) {
+        let user_answer: string[] = [];
+        for (let i = 0; i < this.model.getCurrentQuestion().sentence.length; i++) {
+            let node = this.resultContainerMap.get(i);
+            if (!node) {
+                continue;
+            }
             node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
             let cardCtrl = node.getComponent(CardCtrl);
             if (cardCtrl) {
                 let currentIndex = cardCtrl.getid();
-                if (currentIndex !== key) {
-                    console.log('fail', this.correctDragCount++);
+                if (currentIndex !== i) {
+                    DebugLog.instance.log('fail', this.correctDragCount++);
                 } else {
                     this.winCount++;
                 }
+                user_answer.push(this.model.getCurrentQuestion().sentence[currentIndex]);
             }
         }
 
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
         let complete = this.getCorrectPosComplete();
-        this.model.postGameData(complete, this.model.gameTime);
+        this.model.postGameData(complete, this.model.gameTime, user_answer);
         this.winCount = 0;
     }
 

@@ -1,6 +1,6 @@
 import {BaseManager} from "../BaseManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
-
+import {director} from 'cc';
 interface EventHandler {
     callback: Function;
     context: any;
@@ -25,6 +25,16 @@ export class EventManager extends BaseManager {
 
     init() {
         // 已在构造函数中初始化，此方法保留为空以兼容旧代码
+        var webViewNode = director.getScene().getChildByName("webview");
+        if(!webViewNode)return;
+        let event = webViewNode.getChildByName("event");
+        if(!event)return;
+        event.off("game_on_low_memory",this.lowMemoryHandler,this);
+        event.on("game_on_low_memory",this.lowMemoryHandler,this);
+    }
+
+    private lowMemoryHandler(){
+        DebugLog.instance.error("内存过低！！！");
     }
 
     /**

@@ -30,6 +30,6 @@ export class DebugLog {
     }
 
     public error(...data: any[]){
-        if(this.debugBoo)console.error(...data);
+        console.error(...data);
     }
 }

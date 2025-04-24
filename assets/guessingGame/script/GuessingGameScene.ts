@@ -177,7 +177,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private onAudioFinish() {
         this.frameComponent.playAnimation("idle", 16, true, true);
-        this.startAnswer();
     }
 
     private _replay: boolean = false;
@@ -419,7 +418,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     public onClickStartAnswer() {
         this.guessingGameModel.stopAudio();
-        this.onAudioFinish();
+        this.frameComponent.playAnimation("idle", 16, true, true);
+        this.startAnswer();
     }
 
     public onClickShowAnswer() {

@@ -62,6 +62,9 @@ export class App extends BaseObejct {
     @property(WebView)
     fsr: WebView;
 
+    @property(Node)
+    event:Node;
+
     @property(PublishSetting)
     publishSetting: PublishSetting;
 
