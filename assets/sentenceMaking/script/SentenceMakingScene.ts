@@ -849,6 +849,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
         }
 
+        let user_answer: string[] = [];
         for (let [key, node] of this.resultContainerMap) {
             node.off(Node.EventType.TOUCH_START, this.onDragStart, this);
             node.off(Node.EventType.TOUCH_MOVE, this.onDragMove, this);
@@ -860,13 +861,14 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 } else {
                     this.winCount++;
                 }
+                user_answer.push(this.model.getCurrentQuestion().sentence[currentIndex]);
             }
         }
 
         this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
         let complete = this.getCorrectPosComplete();
-        this.model.postGameData(complete, this.model.gameTime);
+        this.model.postGameData(complete, this.model.gameTime, user_answer);
         this.winCount = 0;
     }
 
