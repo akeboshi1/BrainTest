@@ -855,7 +855,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             if (cardCtrl) {
                 let currentIndex = cardCtrl.getid();
                 if (currentIndex !== i) {
-                    console.log('fail', this.correctDragCount++);
+                    DebugLog.instance.log('fail', this.correctDragCount++);
                 } else {
                     this.winCount++;
                 }

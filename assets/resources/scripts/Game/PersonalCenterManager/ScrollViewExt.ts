@@ -224,7 +224,7 @@ export class ScrollViewExt extends Component {
     scrollToOffset(scroll: ScrollView) {
         const offset = this.getScrollChildOffset(scroll)
         const scrollOffset = scroll.getScrollOffset();
-        console.log("scrollToOffset ---------- " + offset + "," + scrollOffset.y);
+        // console.log("scrollToOffset ---------- " + offset + "," + scrollOffset.y);
         if (Math.abs(this.nowOffsetY - scrollOffset.y) < 0.01)
             return this.setSelectChildIndex(this.selectChildIndex);
         this.nowOffsetY = offset;
