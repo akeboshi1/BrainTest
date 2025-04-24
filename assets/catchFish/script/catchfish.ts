@@ -13,7 +13,7 @@ import {
     UITransform,
     v3,
     Vec3,
-    Texture2D,
+    resources,
     AudioClip,
     assetManager
 } from 'cc';
@@ -158,7 +158,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         let logoSprite = this.logoNode.getComponent(Sprite);
         const bundle = assetManager.getBundle(this.bundleName);
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-            bundle.load("texture/game/logo/judgment/spriteFrame",SpriteFrame,(err,sp)=>{
+            resources.load("texture/game/logo/judgment/spriteFrame",SpriteFrame,(err,sp)=>{
                 if(err){
                     DebugLog.instance.error(err);
                     return;
