@@ -155,13 +155,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         const index = Number(data);
         let self = this;
         // 获取当前卡片
-        this.currentCard = this.cardPool.children[0].children[index];
-
-        // 创建翻转动画
-        this.flipCardAnimation(this.currentCard, () => {
+        const currentCard = this.cardPool.children[0].children[index];
+        const sprite = currentCard.getComponent(Sprite);
+        this.flipCardAnimation(currentCard, () => {
             // 翻转到中间点时加载卡片图片
-            const sprite = this.currentCard.getComponent(Sprite);
-
             const bundle = assetManager.getBundle(self.bundleName);
             bundle.load(this.cardList[index].imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
                 if (err) {
@@ -216,7 +213,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.playAudio("music/fail", true);
         }
 
-        DebugLog.instance.log(index, this.currentCard);
+        DebugLog.instance.log(index, currentCard);
     }
 
     /**
