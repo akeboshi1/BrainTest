@@ -129,7 +129,7 @@ export class SentenceMakingModel {
             let curGame = (this._view.sceneModel as any).game;
             // levelmode=1得时候，如何传递level和难度给服务器
             let count=complete*(this.getCurrentQuestion().sentence.length-this.getCurrentQuestion().fixed.length);
-            console.log('正确数量为-',count);
+            DebugLog.instance.log('正确数量为-',count);
             
             let difficulty = this.getCurrentDifficult() == 3 ? 3 : this.getCurrentDifficult();
             let level = curGame.getLevelByDifficult(difficulty);

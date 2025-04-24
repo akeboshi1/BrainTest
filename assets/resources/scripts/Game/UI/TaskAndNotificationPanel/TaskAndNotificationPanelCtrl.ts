@@ -206,7 +206,7 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
         this.progressInfoNode.active = true;
     }
     scrollViewEvent(event, index: number) {
-        console.log("scrollview", event, index);
+        // console.log("scrollview", event, index);
         this.hideRedDot();
 
         const subIds: number[] = this.notificationList.map(item => (item as any).id);
