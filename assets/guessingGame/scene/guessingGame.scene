@@ -2066,7 +2066,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "直接答题",
+    "_string": "开始答题",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 50,
