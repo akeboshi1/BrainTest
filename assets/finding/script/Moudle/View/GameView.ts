@@ -629,8 +629,10 @@ export default class GameView extends LayerPanel {
         this.removeMonitorEvent();
         if (isWin) {
             this.victory.active = true;
+            AudioMgr.play("sub/audio/view/game/win", 1, false).then();
+        } else {
+            AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
         }
-
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -860,9 +862,9 @@ export default class GameView extends LayerPanel {
         countTransform.setAnchorPoint(0.5, 0.5);
         let countSprite = count.addComponent(Sprite);
         countSprite.color = new Color(255, 0, 0, 255);
-        let str = count.addComponent(Label);
-        str.string = "-10";
-        str.fontSize = 40;
+        // let str = count.addComponent(Label);
+        // str.string = "-10";
+        // str.fontSize = 40;
         this.viewNode.addChild(count);
         let countDownLabelUITransform = this.countDownLabel.getComponent(UITransform);
         if (!countDownLabelUITransform) {
@@ -878,7 +880,7 @@ export default class GameView extends LayerPanel {
             .to(1, { position: new Vec3(nodePos.x, nodePos.y) })
             .call(() => {
                 count.destroy();
-                this.countDownTime -= 10;
+               // this.countDownTime -= 10;
             })
             .start()
     }

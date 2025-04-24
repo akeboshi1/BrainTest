@@ -601,7 +601,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private _setTimeOutId;
     // 预览卡片，time，秒数
-    seconds: number[] = [1.5, 3, 4];
+    seconds: number[] = [2.5, 4, 5];
     previewCard() {
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();

@@ -401,7 +401,7 @@ export class GameAlert extends Component {
     }
 
     exitHandler() {
-        DebugLog.instance.error("exitCallBack",this.context)
+        // DebugLog.instance.error("exitCallBack",this.context)
         AudioManager.getInstance().stop();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
         this.node.removeFromParent();
@@ -417,7 +417,7 @@ export class GameAlert extends Component {
      * 继续
      */
     goHandler() {
-        DebugLog.instance.error("goonCallBack",this.context)
+        //DebugLog.instance.error("goonCallBack",this.context)
         AudioManager.getInstance().resume();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();

@@ -4,7 +4,7 @@ import GameView from "./GameView";
 import GameInfoView from "./GameInfoView";
 import CacheMgr from "../../Common/manage/CacheMgr";
 import GameConfig from "../Game/GameConfig";
-import {_decorator, assetManager, director, Node, Sprite, SpriteFrame, Texture2D} from "cc";
+import {_decorator, assetManager, director, Node, Sprite, SpriteFrame, resources} from "cc";
 import {TimeUtil} from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
@@ -45,7 +45,7 @@ export default class HomeView extends LayerPanel {
                 let logoSprite = this.logoNode.getComponent(Sprite);
                 const bundle = assetManager.getBundle(this.bundleName);
                 if(this.sceneModel.gameType == GameType.SKEWERS){
-                    bundle.load("texture/game/logo/judgment/spriteFrame",SpriteFrame,(err,sp)=>{
+                    resources.load("texture/game/logo/judgment/spriteFrame",SpriteFrame,(err,sp)=>{
                         if(err){
                             DebugLog.instance.error(err);
                             return;
@@ -53,7 +53,7 @@ export default class HomeView extends LayerPanel {
                         logoSprite.spriteFrame = sp;
                     });
                 }else{
-                    bundle.load("scene/loading/image/logo",SpriteFrame,(err,sp)=>{
+                    bundle.load("scene/loading/image/logo/spriteFrame",SpriteFrame,(err,sp)=>{
                         if(err){
                             DebugLog.instance.error(err);
                             return;

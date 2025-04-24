@@ -136,8 +136,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     protected onDestroy(): void {
-        // AudioManager.getInstance().stop();
-
         this.sourceContainerMap.clear();
         this.resultContainerMap.clear();
         this.resultContainerEmptyInstance.clear();
@@ -791,10 +789,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         // this.requestSkewersGameComplete(Number(this.model._resultBoo), this.model._duration);
     }
 
-    public clearGameView() {
-        super.clearGameView();
-
-    }
 
     dzgoonHandler(win: boolean = true) {
         this.clearGameView();

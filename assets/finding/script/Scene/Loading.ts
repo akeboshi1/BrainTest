@@ -1,6 +1,6 @@
 import Tools from "../Common/Tools";
 import TestMgr from "../Common/Test";
-import { _decorator, Node, tween, director, Sprite, v3, Texture2D, SpriteFrame, resources } from "cc";
+import { _decorator, Node, tween, director, Sprite, v3, assetManager, SpriteFrame, resources } from "cc";
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import CacheMgr from "db://assets/finding/script/Common/manage/CacheMgr";
@@ -23,6 +23,7 @@ export class Loading extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         let logoSprite = this.logoNode.getComponent(Sprite);
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             resources.load("texture/game/logo/judgment/spriteFrame", SpriteFrame,(err,sp)=>{
                 if(err){
@@ -32,7 +33,8 @@ export class Loading extends BaseScene<IBaseGameChild> {
                 logoSprite.spriteFrame = sp;
             });
         } else {
-            resources.load("scene/loading/image/logo/spriteFrame", SpriteFrame,(err,sp)=>{
+            const bundle = assetManager.getBundle(this.bundleName);
+            bundle.load("scene/loading/image/logo/spriteFrame", SpriteFrame,(err,sp)=>{
                 if(err){
                     DebugLog.instance.error(err);
                     return;

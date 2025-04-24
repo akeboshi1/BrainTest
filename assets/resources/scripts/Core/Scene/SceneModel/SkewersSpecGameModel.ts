@@ -498,7 +498,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     // ========= 订正任务 =========
     reviseHandler(context){
         TaskManager.getInstance().setCurTaskId(TaskManager.getInstance().curDingzhenTask.id);
-        UIManager.getInstance().showPanel(BrainTrain.NAME);
+        SceneManager.getInstance().backToSkewersGameCenterByID(TaskManager.getInstance().curDingzhenTask.id);
+        // UIManager.getInstance().showPanel(BrainTrain.NAME);
     }
 
     // ========= 订正重玩 ==========
