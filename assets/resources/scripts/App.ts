@@ -1,4 +1,4 @@
-import { _decorator, Camera, Node, director, WebView, sys,profiler } from 'cc';
+import { _decorator, Camera, Node, director, WebView, sys } from 'cc';
 import { EventManager } from "./Core/Manager/Event/EventManager";
 import { SocketManager } from "./Core/Manager/Net/SocketManager";
 import { UIManager } from "./Core/Manager/UI/UIManager";
@@ -87,8 +87,6 @@ export class App extends BaseObejct {
 
         if (this.isWebView) {
             this.webView.active = true;
-            this.event.off("game_on_low_memory",this.lowMemoryHandler,this.webView);
-            this.event.on("game_on_low_memory",this.lowMemoryHandler,this.webView);
             // 增加常驻节点
             director.addPersistRootNode(this.webView);
         } else {
@@ -101,10 +99,6 @@ export class App extends BaseObejct {
 
         //预加载
         this.preLoadRes();
-    }
-
-    private lowMemoryHandler(){
-        DebugLog.instance.error("内存过低！！！");
     }
 
     onEnable() {
