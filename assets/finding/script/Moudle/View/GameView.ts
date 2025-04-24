@@ -862,9 +862,9 @@ export default class GameView extends LayerPanel {
         countTransform.setAnchorPoint(0.5, 0.5);
         let countSprite = count.addComponent(Sprite);
         countSprite.color = new Color(255, 0, 0, 255);
-        let str = count.addComponent(Label);
-        str.string = "-10";
-        str.fontSize = 40;
+        // let str = count.addComponent(Label);
+        // str.string = "-10";
+        // str.fontSize = 40;
         this.viewNode.addChild(count);
         let countDownLabelUITransform = this.countDownLabel.getComponent(UITransform);
         if (!countDownLabelUITransform) {
@@ -880,7 +880,7 @@ export default class GameView extends LayerPanel {
             .to(1, { position: new Vec3(nodePos.x, nodePos.y) })
             .call(() => {
                 count.destroy();
-                this.countDownTime -= 10;
+               // this.countDownTime -= 10;
             })
             .start()
     }
