@@ -289,8 +289,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
         
         this.dragInstance = null;
-        console.log("当前数量：" + this.getCorrentCounts());
-        console.log('总数',this.chipsInstances.length);
+        DebugLog.instance.log("当前数量：" + this.getCorrentCounts());
+        DebugLog.instance.log('总数',this.chipsInstances.length);
         
         
     }
