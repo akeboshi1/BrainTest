@@ -104,7 +104,6 @@ export class App extends BaseObejct {
     }
 
     private lowMemoryHandler(){
-        profiler.showStats();
         DebugLog.instance.error("内存过低！！！");
     }
 
