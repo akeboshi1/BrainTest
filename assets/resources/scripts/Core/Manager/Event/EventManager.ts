@@ -1,6 +1,6 @@
 import {BaseManager} from "../BaseManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
-import {director} from 'cc';
+import {Game,game,gfx} from 'cc';
 interface EventHandler {
     callback: Function;
     context: any;
@@ -25,16 +25,16 @@ export class EventManager extends BaseManager {
 
     init() {
         // 已在构造函数中初始化，此方法保留为空以兼容旧代码
-        var webViewNode = director.getScene().getChildByName("webview");
-        if(!webViewNode)return;
-        let event = webViewNode.getChildByName("event");
-        if(!event)return;
-        event.off("game_on_low_memory",this.lowMemoryHandler,this);
-        event.on("game_on_low_memory",this.lowMemoryHandler,this);
+        game.on(Game.EVENT_LOW_MEMORY,this.lowMemoryHandler,this)
     }
 
     private lowMemoryHandler(){
+        // 一般来说，许多手机在可用内存降到10%到20%时会发出内存警告
+        const bufferMemory = gfx.deviceManager.gfxDevice.memoryStatus.bufferSize/(1024*1024);
+        const textureMemory = gfx.deviceManager.gfxDevice.memoryStatus.textureSize/(1024*1024);
         DebugLog.instance.error("内存过低！！！");
+        DebugLog.instance.error("bufferMemory:",bufferMemory);
+        DebugLog.instance.error("textureMemory:",textureMemory);
     }
 
     /**
