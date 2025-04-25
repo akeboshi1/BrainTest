@@ -117,8 +117,6 @@ export class GameCenterManager {
 
     private _curGame: GameCenterData;
 
-    private _alertInstance: Node = null;
-
     private _curGameSpecData: GameCenterSpecModel;
 
     constructor() {
@@ -310,7 +308,7 @@ export class GameCenterManager {
                 DebugLog.instance.error(err);
                 return;
             }
-            let alertNode = GameCenterManager.getInstance()._alertInstance = instantiate(prefab);
+            let alertNode = instantiate(prefab);
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0, 0, 0);

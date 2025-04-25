@@ -110,8 +110,6 @@ export class SkewersManager {
      */
     public static REQUEST_SKEWERSGAME_COMPLETE = "REQUEST_SKEWERSGAME_COMPLETE";
 
-    private _alertInstance: Node = null;
-
     private _iconUrlMap: Map<SkewersGameType, string>;
 
     public init() {
@@ -254,35 +252,21 @@ export class SkewersManager {
      * @param context
      */
     public quitGame(parentNode: Node, curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context) {
-        let alertNode = SkewersManager.getInstance()._alertInstance;
-        if (alertNode == null||!alertNode.isValid) {
-            resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
-                if(err){
-                    DebugLog.instance.error(err);
-                    return;
-                }
-
-                alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
-                parentNode.addChild(alertNode);
-                let alert = alertNode.getComponent("GameAlert");
-                alertNode.setPosition(0, 0, 0);
-                alert["setTitle"]("退出");
-                alert["setDec"]("");
-                alert["showView"](AlertType.Normal1);
-                alert['setProgress'](curCount, maxCount);
-                alert['bindCallBack'](goonCallBack, exitCallBack, context);
-            });
-        } else {
-            alertNode.active = true;
+        resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+            if(err){
+                DebugLog.instance.error(err);
+                return;
+            }
+            const alertNode = instantiate(resource);
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0, 0, 0);
-            alert["reset"]();
             alert["setTitle"]("退出");
+            alert["setDec"]("");
             alert["showView"](AlertType.Normal1);
             alert['setProgress'](curCount, maxCount);
             alert['bindCallBack'](goonCallBack, exitCallBack, context);
-        }
+        });
     }
 
     /**
@@ -298,7 +282,6 @@ export class SkewersManager {
      * @param context 上下文
      */
     public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
-        let alertNode = SkewersManager.getInstance()._alertInstance;
         let gameType = type == AlertType.Next ? SkewersManager.getInstance().getUnCompleteGameData().type : Global.userData.curSkewerGameData.type;
         let iconUrl = this._iconUrlMap.get(gameType);
         let position = new Vec3(0, 0, 0);
@@ -307,40 +290,16 @@ export class SkewersManager {
             const canvas = scene.getComponentInChildren(Canvas); //
             parentNode = canvas.node;
         }
-        if (alertNode == null || alertNode.isValid==false||context.isValid==false) {
-            resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
-                if(err){
-                    DebugLog.instance.error(err);
-                    return;
-                }
-                alertNode = SkewersManager.getInstance()._alertInstance = instantiate(resource);
-                parentNode.addChild(alertNode);
-                let alert = alertNode.getComponent("GameAlert");
-                alertNode.setPosition(position.x, position.y, position.z);
-                alert['setProgress'](curCount, maxCount);
-                
-                // 设置回调和基本信息
-                alert['bindCallBack'](goonCallBack, exitCallBack, context);
-                alert["setTitle"](title);
-                alert["setDec"](desc);
-                
-                // 异步加载图标，然后显示弹窗
-                if (iconUrl) {
-                    alert['setIcon'](iconUrl).then(() => {
-                        // 图标加载完成后再显示弹窗
-                        alert["showView"](type);
-                    }).catch(() => {
-                        // 图标加载失败也要显示弹窗
-                        alert["showView"](type);
-                    });
-                } else {
-                    // 没有图标直接显示弹窗
-                    alert["showView"](type);
-                }
-            });
-        } else {
+
+        resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+            if(err){
+                DebugLog.instance.error(err);
+                return;
+            }
+            const alertNode = instantiate(resource);
+            parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
-            alert["reset"]();
+            alertNode.setPosition(position.x, position.y, position.z);
             alert['setProgress'](curCount, maxCount);
             
             // 设置回调和基本信息
@@ -353,24 +312,16 @@ export class SkewersManager {
                 alert['setIcon'](iconUrl).then(() => {
                     // 图标加载完成后再显示弹窗
                     alert["showView"](type);
-                    alertNode.active = true;
-                    parentNode.addChild(alertNode);
-                    alertNode.setPosition(position.x, position.y, position.z);
                 }).catch(() => {
                     // 图标加载失败也要显示弹窗
                     alert["showView"](type);
-                    alertNode.active = true;
-                    parentNode.addChild(alertNode);
-                    alertNode.setPosition(position.x, position.y, position.z);
                 });
             } else {
                 // 没有图标直接显示弹窗
                 alert["showView"](type);
-                alertNode.active = true;
-                parentNode.addChild(alertNode);
-                alertNode.setPosition(position.x, position.y, position.z);
             }
-        }
+        });
+ 
     }
 
     public showGameTip(title: string, curCount: number, maxCount: number) {
