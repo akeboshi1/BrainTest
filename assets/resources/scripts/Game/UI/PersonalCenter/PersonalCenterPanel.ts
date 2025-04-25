@@ -1,4 +1,4 @@
-import { _decorator, Label, Node } from 'cc';
+import { _decorator, Label,profiler,Node} from 'cc';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
@@ -62,6 +62,14 @@ export class PersonalCenterPanel extends BasePanel {
     }
     setPersonalCenterTitle(title: string) {
         this.userName.string = title;
+    }
+
+    openMemoryNode(){
+        if(profiler.isShowingStats()){
+            profiler.hideStats();
+        }else{
+            profiler.showStats();
+        }
     }
 
     backToParent() {
