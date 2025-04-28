@@ -1526,7 +1526,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 96,
+      "width": 192,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -1562,7 +1562,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "指导",
+    "_string": "玩法介绍",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
@@ -1635,8 +1635,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 180,
-      "height": 80
+      "width": 220,
+      "height": 100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
