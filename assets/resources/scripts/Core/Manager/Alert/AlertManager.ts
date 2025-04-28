@@ -77,6 +77,19 @@ export default class AlertManager extends BaseManager {
             messageLabel.string = alertData.message;
         }
 
+        let guideButton = alertNode.getChildByName('guideButton').getComponent(Button);
+        if(guideButton){
+            guideButton.node.active = alertData.guideButtonVisible;
+            guideButton.node.on('click', () => {
+                if (alertData.guideCallBack) {
+                    alertData.guideCallBack();
+                }
+                this.closeCurrentAlert();
+            });
+
+            guideButton.node.getChildByName("Label").getComponent(Label).string = alertData.guideButtonText;
+        }
+
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）
         let cancelButton = alertNode.getChildByName('cancelButton').getComponent(Button);
         if (cancelButton) {
@@ -119,7 +132,6 @@ export default class AlertManager extends BaseManager {
             }
         }
     }
-
     private onSceneChanged(sceneName: string, lastSceneName: string) {
         this.alertQueue = [];
         this.closeCurrentAlert();
@@ -131,7 +143,10 @@ export class AlertData {
     public message: string = "";
     public cancelCb: () => void = null;
     public confirmCb: () => void = null;
+    public guideCallBack:()=> void = null;
     public cancelButtonVisible: boolean = false;
+    public guideButtonVisible:boolean = false;
+    public guideButtonText:string = '玩法介绍';
     public cancelButtonText: string = "取消";
     public confirmButtonText: string = "确认";
     public x: number = 0; // 弹窗x坐标，默认为0表示使用默认位置
