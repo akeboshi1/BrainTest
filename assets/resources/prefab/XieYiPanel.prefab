@@ -850,7 +850,7 @@
     "node": {
       "__id__": 30
     },
-    "_enabled": false,
+    "_enabled": true,
     "__prefab": {
       "__id__": 34
     },
@@ -872,7 +872,7 @@
     "node": {
       "__id__": 30
     },
-    "_enabled": false,
+    "_enabled": true,
     "__prefab": {
       "__id__": 36
     },
