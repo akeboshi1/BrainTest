@@ -186,6 +186,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.gameBeforeView.active = false;
             this.sceneModel.runNextGame = this.startGame.bind(this);
+            this.sceneModel.runNextGame();
         } else {
             this.gameBeforeView.active = true;
             this.sceneModel.runNextGame = this._nextGame.bind(this);
