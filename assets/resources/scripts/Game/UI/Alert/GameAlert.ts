@@ -74,8 +74,6 @@ export class GameAlert extends Component {
 
     public exitCallBack: Function = null;
 
-    private audioUrls = ["music/cheer"];
-    private audioMap: Map<string, AudioClip> = new Map();
 
     /**
      * 回调函数上下文
@@ -87,29 +85,6 @@ export class GameAlert extends Component {
     // 添加图标加载状态标记
     private iconLoading: boolean = false;
     private iconLoaded: boolean = false;
-
-    private async loadAudio() {
-        // 创建一个数组，存放每个异步加载的 Promise
-        const loadPromises = this.audioUrls.map(audioUrl => {
-            return new Promise((resolve, reject) => {
-                resources.load(audioUrl, AudioClip,(err, audioRes) => {
-                    if(err){
-                        DebugLog.instance.error(err);
-                        reject(err);
-                        return;
-                    }
-                    this.audioMap.set(audioUrl, audioRes);
-                    resolve(audioRes);
-                });
-            });
-        });
-        try {
-            const assets = await Promise.all(loadPromises);
-            DebugLog.instance.log('All gamealert audio loaded:', assets);
-        } catch (error) {
-            DebugLog.instance.error('Error loading gamealert audio:', error);
-        }
-    }
 
     showView(type: AlertType) {
         AudioManager.getInstance().pause();
@@ -170,7 +145,7 @@ export class GameAlert extends Component {
                 // 确保图标显示正常并有动画效果
                 this.handleSuccessSmallIcon();
                 
-                this.playAudio("music/cheer", true);
+                AudioManager.getInstance().playCheer();
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
@@ -260,17 +235,6 @@ export class GameAlert extends Component {
                 this.exitBtn.node.active = false;
                 startBtnUITransform.width = 500;
                 break;
-        }
-    }
-
-    private playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
-        let audioRes = this.audioMap.get(url);
-        if (audioRes != null) {
-            if (isShot) {
-                AudioManager.getInstance().playOneShot(audioRes);
-            } else {
-                AudioManager.getInstance().play(audioRes, isLoop);
-            }
         }
     }
 
@@ -397,7 +361,7 @@ export class GameAlert extends Component {
     }
 
     start() {
-        this.loadAudio();
+        // this.loadAudio();
     }
 
     exitHandler() {
