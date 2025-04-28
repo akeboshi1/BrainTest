@@ -28,6 +28,8 @@ export default class HomeView extends LayerPanel {
 
     private logoNode:Node = null;
 
+    guideView:Node = null;
+
     private beClick: boolean = false;
 
     protected bundleName:string = "finding";
@@ -42,6 +44,7 @@ export default class HomeView extends LayerPanel {
                 this.pictureNode = this.getNode("bg/picture");
                 this.pictureBGNode = this.getNode("bg");
                 this.logoNode = this.getNode("logo");
+                this.guideView = this.getNode("guideNode");
                 let logoSprite = this.logoNode.getComponent(Sprite);
                 const bundle = assetManager.getBundle(this.bundleName);
                 if(this.sceneModel.gameType == GameType.SKEWERS){
@@ -127,6 +130,15 @@ export default class HomeView extends LayerPanel {
         this.way2();
     }
 
+    showGuide(){
+       super.showGuide();
+    }
+
+    hideGuide(){
+        super.hideGuide();
+        this.way3();
+    }
+
     private way2():Promise<void>{
         return new Promise(async () => {
             await TimeUtil.delay(500);
@@ -137,6 +149,22 @@ export default class HomeView extends LayerPanel {
                 this.beClick = false;
                 this.pictureNode.getComponent(Sprite).spriteFrame = null;
                 PanelMgr.INS.closePanel(HomeView, false)
+            }).catch((err)=>{
+                DebugLog.instance.error(err);
+            });
+        })
+    }
+
+    private way3():Promise<void>{
+        this.beClick = false;
+        this.pictureNode.getComponent(Sprite).spriteFrame = null;
+        PanelMgr.INS.closePanel(HomeView, false);
+        return new Promise(async () => {
+            PanelMgr.INS.openPanel({
+                layer: Layer.gameLayer,
+                panel: GameView
+            }).then(()=>{
+
             }).catch((err)=>{
                 DebugLog.instance.error(err);
             });

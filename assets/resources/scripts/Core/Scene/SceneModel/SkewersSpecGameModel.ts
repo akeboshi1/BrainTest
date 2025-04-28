@@ -119,7 +119,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         if(trainData){
             const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
             if(curCount == maxCount){
-                SkewersManager.getInstance().requestGameComplete(0, 0);
+                SkewersManager.getInstance().requestGameComplete(context.complete, context.duration);
                 this.showNextFailHandler(context);
             }else{
                 context.dzgoonHandler();
@@ -450,7 +450,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         // 处理订正模式
         if (isReviseMode) {
             EventManager.getInstance().on(manager.task_complete_brain_training, showAlert, context,true);
-            manager.requestGameComplete(1, 0);
+            manager.requestGameComplete(context.complete, context.duration);
         } else {
             showAlert();
         }

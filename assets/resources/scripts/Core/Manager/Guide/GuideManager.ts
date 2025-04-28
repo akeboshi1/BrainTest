@@ -69,7 +69,7 @@ export class GuideManager extends BaseManager{
     public start(name:string,data = null):BaseGuide {
         let guide = this._map.get(name);
         if(!guide){
-            DebugLog.instance.error(`${name} 引导不存在`);
+            DebugLog.instance.error(`${name}`+"引导不存在");
             return null;
         }
         guide.start(data,name);
@@ -100,7 +100,7 @@ export class GuideManager extends BaseManager{
         GuideManager.getInstance().guideHand.end();
         let guide = this._map.get(name);
         if(!guide){
-            DebugLog.instance.error(`${name} 引导不存在`);
+            DebugLog.instance.error(`${name}`+"引导不存在");
             return null;
         }
         return guide;
