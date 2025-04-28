@@ -1,10 +1,13 @@
-import { _decorator, Toggle, Node} from 'cc';
+import { _decorator, Toggle, Node, Prefab} from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import {FrameComponent} from "db://assets/resources/scripts/Core/Component/FrameComponent";
 import AlertManager, {AlertData} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { PhoneLoginPanel } from './PhoneLoginPanel';
+import {UseragreePanel} from "db://assets/resources/scripts/Game/UI/Alert/UseragreePanel";
+import { BundleName } from '../../../Core/Manager/Load/BundleName';
+import { XieYiPanel } from './XieYiPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -21,6 +24,9 @@ export class LoginPanel extends BasePanel {
 
     @property(FrameComponent)
     roleFrameComponent:FrameComponent;
+
+    @property(Prefab)
+    xieyiPrefab:Prefab;
     
     public static NAME: string = "LoginPanel";
 
@@ -50,27 +56,29 @@ export class LoginPanel extends BasePanel {
     /**
      * 点击协议显示协议面板
      */
-    public xieyiClick() {
-        let ad:AlertData = new AlertData();
-        ad.title = "请查看具体协议";
-        ad.message = "阅读并同意《电信服务协议》和\n《用户协议》和《隐私协议》";
-        ad.confirmButtonText = "同意并继续";
-        ad.cancelButtonVisible = true;
-        ad.confirmCb = this.confirmHandler.bind(this);
-        AlertManager.getInstance().showAlert(ad);
-    }
 
     public loginClick(){
         if(!this.toggle.isChecked){
             let ad:AlertData = new AlertData();
             ad.title = "提示";
-            ad.message = "请确认同意协议";
-            AlertManager.getInstance().showAlert(ad);
-            ad.cancelButtonVisible = false;
+            ad.cancelButtonVisible=true;
+            ad.cancelButtonText="不接受"
+            ad.confirmButtonText="接受"
+            ad.contentClickCb = this.showXieYi.bind(this);
+            AlertManager.getInstance().showUserAgreeAlert(ad);
             ad.confirmCb = this.confirmHandler.bind(this);
+            ad.cancelCb=this.cancelHandler.bind(this);
             return;
         }
         UIManager.getInstance().showPanel(PhoneLoginPanel.NAME);
+    }
+    cancelHandler(){
+        AlertManager.getInstance().closeCurrentAlert();
+    }
+    // 显示协议
+    showXieYi(){
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME);
     }
 
     private confirmHandler() {

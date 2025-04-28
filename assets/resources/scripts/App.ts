@@ -158,6 +158,7 @@ export class App extends BaseObejct {
             this.initGame();
         } else {
             await AlertManager.getInstance().init();
+            await AlertManager.getInstance().initUserAgreeAlert();
 
             // 初始化socket
             SocketManager.getInstance().initSocket(this.publishSetting.currentApiUrl).then(() => {
