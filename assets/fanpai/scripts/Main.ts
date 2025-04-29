@@ -655,6 +655,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     onTimerEnd() {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
+        this.playFail();
         // clearInterval(this.timerId);
         // this.isAbleClick = false
         let { complete, duration } = this.requestGameResult();
