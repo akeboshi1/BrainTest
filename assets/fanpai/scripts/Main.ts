@@ -6,6 +6,7 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -92,7 +93,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     protected bundleName: string = BundleName.FANPAI;
 
 
-    protected audioUrls = ['music/bgMusic',"music/fanpai", "music/win","music/success","music/fail"];
+    protected audioUrls = ['music/bgMusic',"music/fanpai", "music/win","music/success"];
 
     constructor() {
         super();
@@ -210,7 +211,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this.cardList[card.index].isBacked = false;
                 })
             });
-            this.playAudio("music/fail", true);
+           AudioManager.getInstance().playFail();
         }
 
         DebugLog.instance.log(index, currentCard);
