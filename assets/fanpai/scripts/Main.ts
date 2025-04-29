@@ -6,6 +6,7 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -210,7 +211,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this.cardList[card.index].isBacked = false;
                 })
             });
-            this.playAudio("music/fail", true);
+            this.playAudio("music/fail",true);
         }
 
         DebugLog.instance.log(index, currentCard);
@@ -654,6 +655,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     onTimerEnd() {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
+        this.playFail();
         // clearInterval(this.timerId);
         // this.isAbleClick = false
         let { complete, duration } = this.requestGameResult();

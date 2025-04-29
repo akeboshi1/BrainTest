@@ -57,7 +57,7 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     }
 
     get hasGuide(): boolean {
-        return (GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
+        return false;//(GameCenterManager.getInstance().currentGame && GameCenterManager.getInstance().currentGame.level == 1)
     }
 
     showStartAlert(config: IStartConfig) {

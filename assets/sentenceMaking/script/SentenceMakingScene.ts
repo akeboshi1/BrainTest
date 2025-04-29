@@ -31,6 +31,9 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     emptyModel: Prefab = null;
 
     @property(Node)
+    guideView: Node = null;
+
+    @property(Node)
     cardContainer: Node;
 
     @property(Node)
@@ -149,7 +152,10 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     requestSkewersGameComplete(complete: number, duration: number) {
-        this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+        this.requestGameComplete({
+             complete,duration,parentNode:this.viewNode,context:this
+        });
+        // this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
     }
 
     requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number, levelMode: number) {
@@ -235,12 +241,23 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         ad.title = "提示";
         ad.message = '将麻将按照正确语序，移动到地板上，组成句子，然后点击"胡"！';
         ad.cancelButtonVisible = false;
+        ad.guideButtonVisible = this.sceneModel.gameType == GameType.GAME_CENTER;
+        ad.guideCallBack = () =>{
+           this.showGuide();
+        };
         ad.confirmCb = () => {
             this.startGameFlow();
         };
         // ad.y = 350; // 设置y坐标
         AlertManager.getInstance().showAlert(ad);
     }
+
+    public hideGuide(){
+        super.hideGuide();
+        this.startGameFlow();
+    }
+
+
 
     private async startGameFlow() {
         this.btn_nextlevel.node.active = false;
@@ -701,7 +718,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 if (currentIndex !== i) {
                     isSuccess = false;
                     wrongIndices.push(node);
-                    console.log('fail', this.correctDragCount++);
+                    DebugLog.instance.log('fail', this.correctDragCount++);
                 } else {
                     this.winCount++;
                 }
@@ -748,7 +765,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     getCorrectPosComplete() {
         let sumCounts = this.model.getCurrentQuestion().sentence.length;
         let fiexLength = this.model.getCurrentQuestion().fixed.length;
-        console.log('完成度为-', `${this.winCount - fiexLength}/${sumCounts - fiexLength}`);
+        DebugLog.instance.log('完成度为-', `${this.winCount - fiexLength}/${sumCounts - fiexLength}`);
 
         return (this.winCount - fiexLength) / (sumCounts - fiexLength);
     }

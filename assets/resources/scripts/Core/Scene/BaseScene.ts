@@ -18,6 +18,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     sceneModel: BaseGameModel<T>;
     viewNode: Node;
     timerComponent: TimerCommonComponent;
+    guideView:Node = null;
+
+    public complete:number = 0;
+    public duration:number = 0;
 
     protected bundleName: string = '';
     protected curView: BaseScene<IBaseGameChild> = null;
@@ -36,9 +40,19 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     }
 
     protected onDestroy(){
+        this.complete = 0;
+        this.duration = 0;
         this.clearGameView();
         EventManager.getInstance().disableContext(this);
         this.sceneModel.destory();
+    }
+
+    public showGuide(){
+        if(this.guideView)this.guideView.active = true;
+    }
+
+    public hideGuide(){
+        if(this.guideView)this.guideView.active = false;
     }
 
     //
@@ -158,6 +172,8 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // =========== 上报数据 ============
     public requestGameComplete(config: any) {
+        this.complete = config.complete;
+        this.duration = config.duration;
         if (this.sceneModel) {
             this.sceneModel.requestGameComplete(config);
         }
@@ -260,7 +276,8 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
      * 请求游戏完成数据返回
      */
     requestGameCompleteCallBack() {
-
+        this.complete = 0;
+        this.duration = 0;
     }
 
     // ========= 清理场景 ===========

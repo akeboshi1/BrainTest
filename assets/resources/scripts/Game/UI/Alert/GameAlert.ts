@@ -6,6 +6,9 @@ import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
+import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -51,6 +54,9 @@ export class GameAlert extends Component {
     @property(Button)
     startBtn: Button = null;
 
+    @property(Button)
+    guideBtn: Button = null;
+
     @property(Node)
     icon: Node = null;
 
@@ -74,8 +80,6 @@ export class GameAlert extends Component {
 
     public exitCallBack: Function = null;
 
-    private audioUrls = ["music/cheer"];
-    private audioMap: Map<string, AudioClip> = new Map();
 
     /**
      * 回调函数上下文
@@ -87,29 +91,6 @@ export class GameAlert extends Component {
     // 添加图标加载状态标记
     private iconLoading: boolean = false;
     private iconLoaded: boolean = false;
-
-    private async loadAudio() {
-        // 创建一个数组，存放每个异步加载的 Promise
-        const loadPromises = this.audioUrls.map(audioUrl => {
-            return new Promise((resolve, reject) => {
-                resources.load(audioUrl, AudioClip,(err, audioRes) => {
-                    if(err){
-                        DebugLog.instance.error(err);
-                        reject(err);
-                        return;
-                    }
-                    this.audioMap.set(audioUrl, audioRes);
-                    resolve(audioRes);
-                });
-            });
-        });
-        try {
-            const assets = await Promise.all(loadPromises);
-            DebugLog.instance.log('All gamealert audio loaded:', assets);
-        } catch (error) {
-            DebugLog.instance.error('Error loading gamealert audio:', error);
-        }
-    }
 
     showView(type: AlertType) {
         AudioManager.getInstance().pause();
@@ -124,6 +105,7 @@ export class GameAlert extends Component {
             case AlertType.Normal1:
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
@@ -133,6 +115,7 @@ export class GameAlert extends Component {
             case AlertType.Sucess_Normal:
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
@@ -142,6 +125,7 @@ export class GameAlert extends Component {
             case AlertType.Normal:
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
@@ -151,6 +135,7 @@ export class GameAlert extends Component {
             case AlertType.Next:
                 this.titleLabel.node.active = true;
                 this.exitBtn.node.active = true;
+                this.guideBtn.node.active = true;
                 this.startBtn.node.active = true;
                 this.iconConNode.active = true;
                 this.decLabel.node.active = false;
@@ -161,6 +146,7 @@ export class GameAlert extends Component {
             case AlertType.Sucess_Small:
                 this.titleLabel.node.active = true;
                 this.completeIcon.active = true;
+                this.guideBtn.node.active = false;
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = false;
                 this.iconConNode.active = true;
@@ -170,12 +156,13 @@ export class GameAlert extends Component {
                 // 确保图标显示正常并有动画效果
                 this.handleSuccessSmallIcon();
                 
-                this.playAudio("music/cheer", true);
+                AudioManager.getInstance().playCheer();
                 startBtnUITransform.width = 250;
                 break;
             case AlertType.Sucess_Big:
                 this.startBtn.node.active = true;
                 this.decLabel.node.active = false;
+                this.guideBtn.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
@@ -189,6 +176,7 @@ export class GameAlert extends Component {
             case AlertType.Init:
                 this.startBtn.node.active = true;
                 this.decLabel.node.active = false;
+                this.guideBtn.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
@@ -198,6 +186,7 @@ export class GameAlert extends Component {
                 break;
             case AlertType.Game_Center:
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
@@ -208,6 +197,7 @@ export class GameAlert extends Component {
             case AlertType.Revise:
                 // 订正弹窗
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = TaskManager.getInstance().curTask.isCorrection ? "订正" : "继续";
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
@@ -220,6 +210,7 @@ export class GameAlert extends Component {
             case AlertType.Revise_Success:
                 // 订正结算弹窗
                 this.exitBtn.node.active = false;
+                this.guideBtn.node.active = false;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
                 startBtnUITransform.width = 500;
                 this.startBtn.node.active = true;
@@ -231,6 +222,7 @@ export class GameAlert extends Component {
             case AlertType.Revise_Fail:
                 // 订正结算弹窗
                 this.exitBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "重试";
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "看答案";
                 startBtnUITransform.width = 250;
@@ -242,6 +234,7 @@ export class GameAlert extends Component {
                 break;
             case AlertType.Revise_Complete:
                 this.startBtn.node.active = false;
+                this.guideBtn.node.active = false;
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
@@ -253,6 +246,7 @@ export class GameAlert extends Component {
                 // 查看答案弹窗
                 this.startBtn.node.active = true;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
+                this.guideBtn.node.active = false;
                 this.decLabel.node.active = true;
                 this.titleLabel.node.active = false;
                 this.progressBar.node.active = false;
@@ -260,17 +254,6 @@ export class GameAlert extends Component {
                 this.exitBtn.node.active = false;
                 startBtnUITransform.width = 500;
                 break;
-        }
-    }
-
-    private playAudio(url: string, isShot: boolean = false, isLoop: boolean = false) {
-        let audioRes = this.audioMap.get(url);
-        if (audioRes != null) {
-            if (isShot) {
-                AudioManager.getInstance().playOneShot(audioRes);
-            } else {
-                AudioManager.getInstance().play(audioRes, isLoop);
-            }
         }
     }
 
@@ -396,8 +379,14 @@ export class GameAlert extends Component {
         });
     }
 
+    showGuide(){
+        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        if(!trainData)return;
+       UIManager.getInstance().showPanel(GuidePanel.NAME,trainData.type);
+    }
+
     start() {
-        this.loadAudio();
+        // this.loadAudio();
     }
 
     exitHandler() {

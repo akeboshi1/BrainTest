@@ -25,8 +25,6 @@ export class UIManager extends BaseManager {
         return UIManager._instance;
     }
 
-    public static LOAD_PANEL = "LoadPanel";
-
     public static SCREEN_LOCKER_PREFAB_PATH: string = "prefab/Common/ScreenLocker";
     private panelRegisterConfig: Map<string, PanelInfo> = new Map();
     private activePanelMap: Map<string, { rootNode: Node, comp: BasePanel }> = new Map();

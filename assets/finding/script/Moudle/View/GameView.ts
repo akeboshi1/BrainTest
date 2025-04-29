@@ -305,10 +305,13 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
         this.tempList = [];
         this.clockTime = GameConfig.clockTime;
-        if (this._checkPoint != 1 || this.sceneModel.gameType == GameType.SKEWERS) this.monitorEvent();
+        this.monitorEvent();
+        // if (this._checkPoint != 1 || this.sceneModel.gameType == GameType.SKEWERS) this.monitorEvent();
     }
 
     public newHandHint() {
+        return;
+        // 暂时不需要点击类型的引导
         console.log("进入新手提示");
         // this.monitorEvent();
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_EMIT, this.guideClick.bind(this), this);

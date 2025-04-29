@@ -1,17 +1,12 @@
-import { _decorator, Button, Component, director, Label, Node, WebView, ProgressBar, Sprite } from 'cc';
+import { _decorator, Button, Component, Label, Node} from 'cc';
 import { DebugLog } from "../../../scripts/Core/Util/DebugLog";
 import { TaskManager } from "../../Game/Task/TaskManager";
 import { EventManager } from "../../Core/Manager/Event/EventManager";
-import { TaskData, TaskStatus, TaskType } from "../../Game/Task/TaskData";
-import { StringUtil } from "../../Core/Util/StringUtil";
-import { ColorUtil } from "../../Core/Util/ColorUtil";
 import { ChatPanelCtrl } from '../UI/ChatPanel/ChatPanelCtrl';
 import { TimeUtil } from "../../Core/Util/TimeUtil";
-import { GameCenterManager } from "db://assets/resources/scripts/Game/GameCenter/GameCenterManager";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { SceneManager } from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
 import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import { SkewersGameData, SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
 import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
 

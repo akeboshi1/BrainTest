@@ -58,6 +58,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     @property(Node)
     gameStartView: Node;
 
+    @property(Node)
+    guideView:Node;
+
     // @property(Label)
     // Timer: Label;
 
@@ -188,6 +191,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this.gameBeforeView.active = true;
             this.sceneModel.runNextGame = this._nextGame.bind(this);
         }
+    }
+
+
+
+    public hideGuide(){
+        super.hideGuide();
+        this.sceneModel.runNextGame();
     }
 
     // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
