@@ -597,7 +597,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 685.3359375,
+      "width": 698.671875,
       "height": 117.51999999999998
     },
     "_anchorPoint": {
@@ -682,7 +682,7 @@
       "__id__": 28
     },
     "_lineHeight": 52,
-    "_string": "请您阅读<color=#2462cf><on click=\"onClick\" param=\"hello world\"> 用户协议</on></color>的全部条款，\n接受后可使用我们的服务",
+    "_string": "请您阅读<color=#2462cf><on click=\"onClick\" param=\"hello world\"> 用户协议 </on></color>的全部条款，\n接受后可使用我们的服务",
     "_horizontalAlign": 1,
     "_verticalAlign": 0,
     "_fontSize": 48,
