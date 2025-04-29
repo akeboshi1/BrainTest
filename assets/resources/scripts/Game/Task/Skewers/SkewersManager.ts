@@ -18,6 +18,7 @@ import { BundleName } from "../../../Core/Manager/Load/BundleName";
 import {SkewersSpecGameModel} from "db://assets/resources/scripts/Core/Scene/SceneModel/SkewersSpecGameModel";
 import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {GameDataFactory} from "db://assets/resources/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
+import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
 /**
  * 脑力串烧管理器
  */
@@ -114,6 +115,11 @@ export class SkewersManager {
 
     public init() {
         GameDataFactory.registerGameType(GameType.SKEWERS, SkewersSpecGameModel);
+
+
+        UIManager.getInstance().registerPanel(GuidePanel.NAME,BundleName.RESOURCES,"prefab/GuidePanel/GuidePanel",GuidePanel);
+
+
         this._gameDatas = [];
         this._iconUrlMap = new Map();
         this._iconUrlMap.set(SkewersGameType.Comprehension, "texture/game/icon/caimiIcon");

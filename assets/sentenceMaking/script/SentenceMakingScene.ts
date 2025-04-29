@@ -241,7 +241,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         ad.title = "提示";
         ad.message = '将麻将按照正确语序，移动到地板上，组成句子，然后点击"胡"！';
         ad.cancelButtonVisible = false;
-        ad.guideButtonVisible = true;
+        ad.guideButtonVisible = this.sceneModel.gameType == GameType.GAME_CENTER;
         ad.guideCallBack = () =>{
            this.showGuide();
         };

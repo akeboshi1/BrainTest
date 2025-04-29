@@ -6,6 +6,9 @@ import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
+import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -50,6 +53,9 @@ export class GameAlert extends Component {
 
     @property(Button)
     startBtn: Button = null;
+
+    @property(Button)
+    guideBtn: Button = null;
 
     @property(Node)
     icon: Node = null;
@@ -99,6 +105,7 @@ export class GameAlert extends Component {
             case AlertType.Normal1:
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
@@ -108,6 +115,7 @@ export class GameAlert extends Component {
             case AlertType.Sucess_Normal:
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
@@ -117,6 +125,7 @@ export class GameAlert extends Component {
             case AlertType.Normal:
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
@@ -126,6 +135,7 @@ export class GameAlert extends Component {
             case AlertType.Next:
                 this.titleLabel.node.active = true;
                 this.exitBtn.node.active = true;
+                this.guideBtn.node.active = true;
                 this.startBtn.node.active = true;
                 this.iconConNode.active = true;
                 this.decLabel.node.active = false;
@@ -136,6 +146,7 @@ export class GameAlert extends Component {
             case AlertType.Sucess_Small:
                 this.titleLabel.node.active = true;
                 this.completeIcon.active = true;
+                this.guideBtn.node.active = false;
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = false;
                 this.iconConNode.active = true;
@@ -151,6 +162,7 @@ export class GameAlert extends Component {
             case AlertType.Sucess_Big:
                 this.startBtn.node.active = true;
                 this.decLabel.node.active = false;
+                this.guideBtn.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
@@ -164,6 +176,7 @@ export class GameAlert extends Component {
             case AlertType.Init:
                 this.startBtn.node.active = true;
                 this.decLabel.node.active = false;
+                this.guideBtn.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
@@ -173,6 +186,7 @@ export class GameAlert extends Component {
                 break;
             case AlertType.Game_Center:
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
@@ -183,6 +197,7 @@ export class GameAlert extends Component {
             case AlertType.Revise:
                 // 订正弹窗
                 this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = TaskManager.getInstance().curTask.isCorrection ? "订正" : "继续";
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
@@ -195,6 +210,7 @@ export class GameAlert extends Component {
             case AlertType.Revise_Success:
                 // 订正结算弹窗
                 this.exitBtn.node.active = false;
+                this.guideBtn.node.active = false;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
                 startBtnUITransform.width = 500;
                 this.startBtn.node.active = true;
@@ -206,6 +222,7 @@ export class GameAlert extends Component {
             case AlertType.Revise_Fail:
                 // 订正结算弹窗
                 this.exitBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "重试";
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "看答案";
                 startBtnUITransform.width = 250;
@@ -217,6 +234,7 @@ export class GameAlert extends Component {
                 break;
             case AlertType.Revise_Complete:
                 this.startBtn.node.active = false;
+                this.guideBtn.node.active = false;
                 this.decLabel.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
@@ -228,6 +246,7 @@ export class GameAlert extends Component {
                 // 查看答案弹窗
                 this.startBtn.node.active = true;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
+                this.guideBtn.node.active = false;
                 this.decLabel.node.active = true;
                 this.titleLabel.node.active = false;
                 this.progressBar.node.active = false;
@@ -358,6 +377,12 @@ export class GameAlert extends Component {
             // 开始检查
             checkLoaded();
         });
+    }
+
+    showGuide(){
+        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+        if(!trainData)return;
+       UIManager.getInstance().showPanel(GuidePanel.NAME,trainData.type);
     }
 
     start() {
