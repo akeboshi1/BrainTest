@@ -93,7 +93,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     protected bundleName: string = BundleName.FANPAI;
 
 
-    protected audioUrls = ['music/bgMusic',"music/fanpai", "music/win","music/success"];
+    protected audioUrls = ['music/bgMusic',"music/fanpai", "music/win","music/success","music/fail"];
 
     constructor() {
         super();
@@ -211,7 +211,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this.cardList[card.index].isBacked = false;
                 })
             });
-           AudioManager.getInstance().playFail();
+            this.playAudio("music/fail",true);
         }
 
         DebugLog.instance.log(index, currentCard);
