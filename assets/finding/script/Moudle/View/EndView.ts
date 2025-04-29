@@ -107,7 +107,7 @@ export default class EndView extends LayerPanel {
     }
 
     public onClickNext() {
-        CacheMgr.checkpoint ++;
+        FindingGlobal.gameCenterGameLevel ++;
         Global.isAgain = false;
         this.closeEnd();
     }
@@ -139,7 +139,7 @@ export default class EndView extends LayerPanel {
         PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: HomeView,
-                param: CacheMgr.checkpoint
+                param: FindingGlobal.gameCenterGameLevel
         }).then(()=>{
 
                 PanelMgr.INS.closePanel(EndView);
