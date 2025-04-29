@@ -1492,7 +1492,7 @@
       }
     ],
     "_interactable": true,
-    "_transition": 0,
+    "_transition": 3,
     "_normalColor": {
       "__type__": "cc.Color",
       "r": 255,
@@ -1526,7 +1526,7 @@
     "_pressedSprite": null,
     "_disabledSprite": null,
     "_duration": 0.1,
-    "_zoomScale": 1.2,
+    "_zoomScale": 0.8,
     "_target": null,
     "_id": "afK9kZAdNHo7FCV63B8Fr0"
   },
@@ -10799,7 +10799,7 @@
     "_hoverSprite": null,
     "_pressedSprite": null,
     "_disabledSprite": null,
-    "_duration": 1,
+    "_duration": 0.1,
     "_zoomScale": 0.8,
     "_target": null,
     "_id": "1f+NuCw0BEiJ+OpZewvC4N"
