@@ -544,10 +544,10 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 确保卡片处于正确的初始状态
                 cardNode.setScale(1, 1, 1);
 
+                const sprite = cardNode.getComponent(Sprite);
+                sprite.spriteFrame = null;
                 // 直接添加翻转动画，移除延迟
                 this.flipCardAnimation(cardNode, () => {
-                    const sprite = cardNode.getComponent(Sprite);
-
                     const bundle = assetManager.getBundle(self.bundleName);
                     bundle.load(card.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
                         if (err) {
