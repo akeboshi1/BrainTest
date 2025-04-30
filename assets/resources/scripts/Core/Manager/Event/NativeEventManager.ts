@@ -18,6 +18,11 @@ export class NativeEventManager extends BaseManager {
     private events;
 
     private initFlag = false;
+    
+    private _deviceID:string = "";
+    get deviceID():string{
+        return this._deviceID;
+    }
 
     constructor() {
         super();
@@ -28,6 +33,10 @@ export class NativeEventManager extends BaseManager {
             if (!this.events) this.events = {};
             native.bridge.onNative = this.nativeEventHandle.bind(this);
             this.initFlag = true;
+
+            this.on(NativeEvent.Device, (data:any) => {
+                this._deviceID = data.deviceID;
+            },this);
         }
     }
 

@@ -16,6 +16,9 @@ import { DebugLog } from "../../Util/DebugLog";
 import { GenerateReport } from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import { NativeEventManager } from "../Event/NativeEventManager";
+import { NativeEvent } from "../Event/NativeEvent";
+import { native, sys } from "cc";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -93,6 +96,10 @@ export class LoginManager {
         }
 
         GlobalConfigManager.getInstance().init();
+        
+        if(sys.platform === 'ANDROID'){
+            native.bridge.sendToNative(NativeEvent.Device, 'info');
+        }
     }
 
     private setInviteCodeCallBack(data: any) {
