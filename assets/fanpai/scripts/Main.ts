@@ -69,6 +69,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(TimerCommonComponent)
     timerComponent: TimerCommonComponent;
 
+    @property(Node)
+    guideView:Node;
+
     private currentCard: Node;
     private buttonLableText: Label;
 

@@ -68,6 +68,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(Sprite)
     private showSprite: Sprite;
 
+    @property(Node)
+    guideView:Node;
+
     //显示对象
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
