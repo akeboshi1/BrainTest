@@ -4,6 +4,8 @@
 export default class FindingGlobal {
     public static skewersGameList = [];
     public static curSkewersGameIndex: number = 0;
+    public static skewersGameLevel:number = 0;
+    public static gameCenterGameLevel:number = 0;
 
     public static reset(){
         FindingGlobal.curSkewersGameIndex = 0;

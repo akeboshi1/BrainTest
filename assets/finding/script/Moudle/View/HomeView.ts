@@ -90,15 +90,18 @@ export default class HomeView extends LayerPanel {
         pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
         this.pictureBGNode.active = false;
         let checkPoint=0;
-        CacheMgr.checkpoint = (param !=null)?param:(this.sceneModel as any).level;
-        if(Global.isAgain){
-            checkPoint = CacheMgr.checkpoint;
+        if(this.sceneModel.gameType === GameType.SKEWERS){
+            checkPoint = !Global.isAgain ?this.randomSkewerGame():(this.sceneModel as any).level;
+            FindingGlobal.skewersGameLevel = checkPoint;
         }else{
-            checkPoint = this.sceneModel.gameType == GameType.SKEWERS?this.randomSkewerGame():CacheMgr.checkpoint;
+            checkPoint = (this.sceneModel as any).level;
+            FindingGlobal.gameCenterGameLevel = checkPoint;
         }
+
         if (checkPoint == 0) {
-            CacheMgr.checkpoint = 1;
+            // CacheMgr.checkpoint = 1;
             checkPoint = 1;
+            FindingGlobal.gameCenterGameLevel = checkPoint;
             FindingGlobal.curSkewersGameIndex = 1;
         }
         let loopLevel = checkPoint % GameConfig.allCheckPoint;

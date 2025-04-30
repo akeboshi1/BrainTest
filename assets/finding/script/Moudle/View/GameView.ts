@@ -156,9 +156,9 @@ export default class GameView extends LayerPanel {
             this.victory.active = false;
             this.plistNode = this.getNode("caidai");
             this.plistNode.active = false;
-            this._checkPoint = CacheMgr.checkpoint;
             let loopLevel = 0;
             if (this.sceneModel.gameType == GameType.SKEWERS) {
+                this._checkPoint = FindingGlobal.curSkewersGameIndex;
                 let skewersGameData = (this.sceneModel as any).game;
                 this._curHard = (this.sceneModel as any).difficulty;//Global.userData.curSkewerGameData.difficulty;
                 // test code
@@ -169,12 +169,12 @@ export default class GameView extends LayerPanel {
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
                 let _hard = CacheMgr.hard;
+                this._checkPoint = FindingGlobal.gameCenterGameLevel;
                 if(Global.isAgain){
                     CacheMgr.hard --;
                     _hard = _hard<0?0:_hard-1;
                 }
 
-                this._checkPoint = CacheMgr.checkpoint;
                 if (_hard % 3 == 0) {
                     if (_hard == 0) {
                         this._curHard = 1;
@@ -639,6 +639,7 @@ export default class GameView extends LayerPanel {
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
+            FindingGlobal.skewersGameLevel = 0;
             this._requestSkewersGameComplete();
         } else {
             this._requestGameCenterComplete();
@@ -690,7 +691,7 @@ export default class GameView extends LayerPanel {
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: this.resultList.length,
-            level:CacheMgr.checkpoint,
+            level:FindingGlobal.gameCenterGameLevel,
             complete: this.resultList.length / this._maxCount,
             duration,
             timelimit: GameConfig.customTime,
@@ -777,10 +778,10 @@ export default class GameView extends LayerPanel {
                 let children = resultNode.getChildByName("right")
                 children.active = true;
                 this.checkResult();
-                let checkPoint = CacheMgr.checkpoint;
-                if (checkPoint == 1) {
-                    this.clickHint(false);
-                }
+                // let checkPoint = CacheMgr.checkpoint;
+                // if (checkPoint == 1) {
+                //     this.clickHint(false);
+                // }
                 setTimeout(() => {
                     node.destroy();
                 }, 200)

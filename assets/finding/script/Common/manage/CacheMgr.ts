@@ -1,5 +1,9 @@
 import Global from "../FindingGlobal";
+
 class CachesMgr {
+    private static instance: CachesMgr;
+    private cache: Map<string, any> = new Map();
+
     constructor() {
         let string = Object.keys(this)
         for (let i = 0; i < string.length; i++) {
@@ -8,6 +12,13 @@ class CachesMgr {
             }
             this.getData(string[i])
         }
+    }
+
+    public static getInstance(): CachesMgr {
+        if (!CachesMgr.instance) {
+            CachesMgr.instance = new CachesMgr();
+        }
+        return CachesMgr.instance;
     }
 
     private _userId: number = 0;
@@ -171,27 +182,9 @@ class CachesMgr {
     public hard:number=1;
 
     set checkpoint(value: number) {
-        this.saveData("_checkpoint", value);
         this._checkpoint = value;
     }
 
-    get gold(): number {
-        return this._gold;
-    }
-
-    set gold(value: number) {
-        this.saveData("_gold", value)
-        this._gold = value;
-    }
-
-    get diamond(): number {
-        return this._diamond;
-    }
-
-    set diamond(value: number) {
-        this.saveData("_diamond", value)
-        this._diamond = value;
-    }
 
     get user_code(): string {
         return this._user_code;
@@ -211,30 +204,19 @@ class CachesMgr {
         this._openId = value;
     }
 
-    //都用json 存储吧 ，不然太麻烦了
     private saveData(key: string, value: any, isSend: boolean = true) {
-
-        if (value instanceof Map) {
-            localStorage.setItem(key, this._mapToJson(value))
-        } else {
-            localStorage.setItem(key, JSON.stringify(value))
-        }
+        this.cache.set(key, value);
     }
 
     private getData(key: string): boolean {
-        let result = true
-        let dataText = localStorage.getItem(key)
-        if (dataText == null || dataText == "" || dataText == undefined) {
-            result = false
-            this.saveData(key, this[key], false) //没有的话，先给他存进去
-            return
+        let result = true;
+        if (!this.cache.has(key)) {
+            result = false;
+            this.saveData(key, this[key], false);
+            return result;
         }
-        if (this[key] instanceof Map) {
-            this[key] = this._jsonToMap(dataText)
-        } else {
-            this[key] = JSON.parse(dataText)
-        }
-        return result
+        this[key] = this.cache.get(key);
+        return result;
     }
 
     private _strMapToObj(strMap) {
@@ -280,9 +262,71 @@ class CachesMgr {
             userId: this.userId
         }
     }
+
+    public clear(): void {
+        this.cache.clear();
+
+        this._userId = 0;
+        this._checkpoint = 0;
+        this._gold = 0;
+        this._diamond = 0;
+        this._stamina = 20;
+        this._user_code = "";
+        this._openId = "";
+        this._lastTimeLogin = 0;
+        this._hit = [];
+        this._userInfo = null;
+        this._newUser = false;
+        this.nowCheckPoint = -1;
+        this._isNeedHint = true;
+        this._isAuth = false;
+        this._addTime = 0;
+        this._hint = 0;
+        this._signInCount = 0;
+        this._currTimestamp = null;
+        this._setting = {
+            hintNum: 5,
+            setting: {
+                music: 1,
+                audio: 1,
+                vibrate: 1,
+            }
+        };
+
+        const properties = Object.keys(this).filter(key => key.startsWith('_'));
+        properties.forEach(key => {
+            this.saveData(key, this[key], false);
+        });
+
+        console.log('找茬缓存数据已清理完成');
+    }
+
+    public getCache(key: string): any {
+        return this.cache.get(key);
+    }
+
+    public setCache(key: string, value: any): void {
+        this.cache.set(key, value);
+    }
+
+    public deleteCache(key: string): boolean {
+        return this.cache.delete(key);
+    }
+
+    public hasCache(key: string): boolean {
+        return this.cache.has(key);
+    }
+
+    public getCacheKeys(): string[] {
+        return Array.from(this.cache.keys());
+    }
+
+    public getCacheValues(): any[] {
+        return Array.from(this.cache.values());
+    }
 }
 
-export default new CachesMgr()
+export default CachesMgr.getInstance();
 
 interface Setting {
     music: number,  // 音乐音量大小 0 -1
