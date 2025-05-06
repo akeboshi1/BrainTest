@@ -96,10 +96,6 @@ export class LoginManager {
         }
 
         GlobalConfigManager.getInstance().init();
-        
-        if(sys.platform === 'ANDROID'){
-            native.bridge.sendToNative(NativeEvent.Device, 'info');
-        }
     }
 
     private setInviteCodeCallBack(data: any) {
@@ -202,6 +198,11 @@ export class LoginManager {
                     SceneManager.getInstance().backToHall();
                 }
             });
+        }
+
+        if(sys.platform === 'ANDROID'){
+            console.log(`发送设备信息到native`);
+            native.bridge.sendToNative(NativeEvent.Device, 'info');
         }
     }
 

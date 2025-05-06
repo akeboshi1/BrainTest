@@ -17,6 +17,7 @@ import { AudioManager } from './Core/Manager/Audio/AudioManager';
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { PublishSetting } from './PublishSetting';
 import FeatureTogglesSetting from './FeatureTogglesSetting';
+import { NativeEventManager } from './Core/Manager/Event/NativeEventManager';
 
 const { ccclass, property } = _decorator;
 
@@ -138,6 +139,7 @@ export class App extends BaseObejct {
 
     private async initManager() {
         EventManager.getInstance().init();
+        NativeEventManager.getInstance().init();
         if (!this.isPad) {
             LoginManager.getInstance().init();
             TaskManager.getInstance().init();

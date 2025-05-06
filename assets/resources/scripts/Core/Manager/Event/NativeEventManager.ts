@@ -34,8 +34,10 @@ export class NativeEventManager extends BaseManager {
             native.bridge.onNative = this.nativeEventHandle.bind(this);
             this.initFlag = true;
 
+            console.log(`初始化NativeEventManager`);
             this.on(NativeEvent.Device, (data:any) => {
                 this._deviceID = data.deviceID;
+                console.log(`获取设备信息: ${this._deviceID}`);
             },this);
         }
     }
