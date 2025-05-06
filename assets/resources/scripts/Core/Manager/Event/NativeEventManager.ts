@@ -18,6 +18,11 @@ export class NativeEventManager extends BaseManager {
     private events;
 
     private initFlag = false;
+    
+    private _deviceID:string = "";
+    get deviceID():string{
+        return this._deviceID;
+    }
 
     constructor() {
         super();
@@ -28,6 +33,12 @@ export class NativeEventManager extends BaseManager {
             if (!this.events) this.events = {};
             native.bridge.onNative = this.nativeEventHandle.bind(this);
             this.initFlag = true;
+
+            console.log(`初始化NativeEventManager`);
+            this.on(NativeEvent.DEVICEInfo, (data:any) => {
+                this._deviceID = data.deviceId;
+                console.log(`获取设备信息: ${this._deviceID}`);
+            },this);
         }
     }
 

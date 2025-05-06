@@ -1,4 +1,4 @@
-import { _decorator, Label,profiler,Node} from 'cc';
+import { _decorator, Label,profiler,Node, sys} from 'cc';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
@@ -8,6 +8,7 @@ import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { GenerateReport } from './GenerateReport';
 import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 import FeatureTogglesSetting, { FeatureToggle } from '../../../FeatureTogglesSetting';
+import { NativeEventManager } from '../../../Core/Manager/Event/NativeEventManager';
 
 const { ccclass, property } = _decorator;
 
@@ -30,11 +31,18 @@ export class PersonalCenterPanel extends BasePanel {
     @property(Node)
     reportNode: Node = null;
 
+    @property(Label)
+    deviceIdLabel: Label = null;
 
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         PersonalCenterManager.getInstance().requestUserInfo();
         this.initFeature();
+
+        if(sys.platform === 'ANDROID'){
+            this.deviceIdLabel.node.active = true;
+            this.deviceIdLabel.string = "设备ID：" + NativeEventManager.getInstance().deviceID;
+        }
     }
 
     initFeature(){
