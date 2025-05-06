@@ -35,8 +35,8 @@ export class NativeEventManager extends BaseManager {
             this.initFlag = true;
 
             console.log(`初始化NativeEventManager`);
-            this.on(NativeEvent.Device, (data:any) => {
-                this._deviceID = data.deviceID;
+            this.on(NativeEvent.DEVICEInfo, (data:any) => {
+                this._deviceID = data.deviceId;
                 console.log(`获取设备信息: ${this._deviceID}`);
             },this);
         }
