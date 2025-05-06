@@ -16,6 +16,9 @@ import { DebugLog } from "../../Util/DebugLog";
 import { GenerateReport } from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import { NativeEventManager } from "../Event/NativeEventManager";
+import { NativeEvent } from "../Event/NativeEvent";
+import { native, sys } from "cc";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -195,6 +198,11 @@ export class LoginManager {
                     SceneManager.getInstance().backToHall();
                 }
             });
+        }
+
+        if(sys.platform === 'ANDROID'){
+            console.log(`发送设备信息到native`);
+            native.bridge.sendToNative(NativeEvent.Device, 'info');
         }
     }
 
