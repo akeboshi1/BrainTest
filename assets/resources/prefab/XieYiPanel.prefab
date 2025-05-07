@@ -368,7 +368,7 @@
     "__prefab": {
       "__id__": 15
     },
-    "_url": "https://colapai.xinjiaxianglao.com/xieyi.html",
+    "_url": "",
     "webviewEvents": [],
     "_id": ""
   },
@@ -473,6 +473,9 @@
     "_enabled": true,
     "__prefab": {
       "__id__": 22
+    },
+    "webView": {
+      "__id__": 14
     },
     "_id": ""
   },
