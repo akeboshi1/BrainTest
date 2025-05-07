@@ -204,6 +204,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         }
     }
 
+    dzgoonHandler(requestBoo:boolean = true){
+        this.clearGameView();
+    }
+
     showNextSuccessHandler() {
         if (this.sceneModel) {
             this.sceneModel.showNextSuccessHandler(this);
