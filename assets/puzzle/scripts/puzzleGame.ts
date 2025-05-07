@@ -23,6 +23,9 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -395,6 +398,35 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.startGameMask.active = true;
         this.bgNode.active = true;
         this.timerComponent.resetTimer();
+    }
+
+    dzgoonHandler(resuleBoo:boolean = true) {
+        this.clearGameView();
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                // 直接发送游戏完成请求，不处理弹窗逻辑
+                let endTime = TimeUtil.getNow();
+                let boo = resuleBoo;
+                let complete = Number(boo);
+                if (this._startTime == 0) {
+                    this._startTime = endTime;
+                }
+                let duration = (endTime - this._startTime) / 1000;
+                // 直接向服务器发送请求，但不处理回调
+                let self = this;
+                let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+                let _boo = trainData.type != SkewersGameType.Executionability;
+                if(!_boo){
+                    EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
+                        (self.sceneModel as any).goonHandler(self, true);
+                    }, this, true);
+                    this.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(complete, duration);
+                }else{
+                    (this.sceneModel as any).goonHandler(self, true);
+                }
+            }
+        }
     }
 
     onClickRetryCurrentLevel() {
