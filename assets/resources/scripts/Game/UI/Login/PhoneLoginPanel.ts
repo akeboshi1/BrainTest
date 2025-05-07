@@ -6,6 +6,8 @@ import { Global } from "../../../Core/Manager/Config/Global";
 import { UIManager } from "../../../Core/Manager/UI/UIManager";
 import { ColorUtil } from "db://assets/resources/scripts/Core/Util/ColorUtil";
 import { LoginPopUpPanel } from './LoginPopUpPanel';
+import { XieYiPanel } from './XieYiPanel';
+import { BundleName } from '../../../Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
 @ccclass('PhoneLoginPanel')
@@ -72,6 +74,22 @@ export class PhoneLoginPanel extends BasePanel {
         
         // 发送验证码请求
         LoginManager.getInstance().requestSendMpCode(phoneNum);
+    }
+
+    showXieYi(){
+        let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:xieyiFlagUrl
+        });
+    }
+
+    showPrivacy(){
+        let privacyUrl="https://colapai.xinjiaxianglao.com/privacy.html"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:privacyUrl
+        });
     }
 
     /**
