@@ -1,4 +1,4 @@
-import { native } from "cc";
+import { native, sys } from "cc";
 import { BaseManager } from "../BaseManager";
 import { NativeEvent } from "./NativeEvent";
 import { DebugLog } from "../../Util/DebugLog";
@@ -29,7 +29,7 @@ export class NativeEventManager extends BaseManager {
     }
 
     init() {
-        if (!this.initFlag) {
+        if (!this.initFlag && sys.platform === sys.Platform.ANDROID) {
             if (!this.events) this.events = {};
             native.bridge.onNative = this.nativeEventHandle.bind(this);
             this.initFlag = true;
