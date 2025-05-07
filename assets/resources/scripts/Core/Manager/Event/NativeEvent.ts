@@ -8,4 +8,6 @@ export enum NativeEvent {
     TTSEnd = 'TTSEnd',
     TTSStart = 'TTSStart',
     FSRResult = 'FSRResult',
+    Device = 'DEVICE',
+    DEVICEInfo = 'DEVICEInfo',
 }

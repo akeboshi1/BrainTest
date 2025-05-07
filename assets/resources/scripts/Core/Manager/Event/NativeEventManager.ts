@@ -1,4 +1,4 @@
-import { native } from "cc";
+import { native, sys } from "cc";
 import { BaseManager } from "../BaseManager";
 import { NativeEvent } from "./NativeEvent";
 import { DebugLog } from "../../Util/DebugLog";
@@ -18,16 +18,27 @@ export class NativeEventManager extends BaseManager {
     private events;
 
     private initFlag = false;
+    
+    private _deviceID:string = "";
+    get deviceID():string{
+        return this._deviceID;
+    }
 
     constructor() {
         super();
     }
 
     init() {
-        if (!this.initFlag) {
+        if (!this.initFlag && sys.platform === sys.Platform.IOS) {
             if (!this.events) this.events = {};
             native.bridge.onNative = this.nativeEventHandle.bind(this);
             this.initFlag = true;
+
+            console.log(`初始化NativeEventManager`);
+            this.on(NativeEvent.DEVICEInfo, (data:any) => {
+                this._deviceID = data.deviceId;
+                console.log(`获取设备信息: ${this._deviceID}`);
+            },this);
         }
     }
 
