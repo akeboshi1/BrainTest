@@ -17,10 +17,11 @@ export class UseragreePanel extends Component {
     }
 
     onClick(param: any) {
-        console.log("Clicked");
-        console.log(param);
+        let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:xieyiFlagUrl
+        });
         AlertManager.getInstance().closeCurrentAlert();
     }
 }
