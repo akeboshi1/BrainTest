@@ -124,6 +124,8 @@ export default class GameView extends LayerPanel {
 
     private _curCount: number = 0;
     private _maxCount: number = 0;
+    private _endTimeoutId: any = null;
+    private _particleTimeoutIds: Map<string, any> = new Map();
 
     /**
      * 找茬个数
@@ -307,10 +309,13 @@ export default class GameView extends LayerPanel {
     show(param: any): void {
         this.tempList = [];
         this.clockTime = GameConfig.clockTime;
-        if (this._checkPoint != 1 || this.sceneModel.gameType == GameType.SKEWERS) this.monitorEvent();
+        this.monitorEvent();
+        // if (this._checkPoint != 1 || this.sceneModel.gameType == GameType.SKEWERS) this.monitorEvent();
     }
 
     public newHandHint() {
+        return;
+        // 暂时不需要点击类型的引导
         console.log("进入新手提示");
         // this.monitorEvent();
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_EMIT, this.guideClick.bind(this), this);
@@ -467,6 +472,18 @@ export default class GameView extends LayerPanel {
         if (this.picture2) this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
         EventManager.getInstance().off(FindingGuide.GUIDE_FIND_EMIT, this);
         EventManager.getInstance().off(FindingGuide.GUIDE_FIND_END, this);
+
+        // 清理计时器
+        if (this._endTimeoutId) {
+            clearTimeout(this._endTimeoutId);
+            this._endTimeoutId = null;
+        }
+
+        // 清理所有粒子计时器
+        this._particleTimeoutIds.forEach((id) => {
+            clearTimeout(id);
+        });
+        this._particleTimeoutIds.clear();
     }
 
     public onTouchDown(event) {
@@ -723,7 +740,7 @@ export default class GameView extends LayerPanel {
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: this.resultList.length,
-            level:CacheMgr.checkpoint,
+            level: CacheMgr.checkpoint,
             complete: this.resultList.length / this._maxCount,
             duration,
             timelimit: GameConfig.customTime,
@@ -733,7 +750,7 @@ export default class GameView extends LayerPanel {
         // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
 
-        setTimeout(() => {
+        this._endTimeoutId = setTimeout(() => {
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: EndView,
@@ -810,13 +827,16 @@ export default class GameView extends LayerPanel {
                 let children = resultNode.getChildByName("right")
                 children.active = true;
                 this.checkResult();
-                let checkPoint = CacheMgr.checkpoint;
-                if (checkPoint == 1) {
-                    this.clickHint(false);
-                }
-                setTimeout(() => {
+                // let checkPoint = CacheMgr.checkpoint;
+                // if (checkPoint == 1) {
+                //     this.clickHint(false);
+                // }
+                const particleId = `particle_${Date.now()}_${Math.random()}`;
+                const timeoutId = setTimeout(() => {
                     node.destroy();
-                }, 200)
+                    this._particleTimeoutIds.delete(particleId);
+                }, 200);
+                this._particleTimeoutIds.set(particleId, timeoutId);
             })
             .start()
     }
@@ -916,7 +936,7 @@ export default class GameView extends LayerPanel {
             .to(1, { position: new Vec3(nodePos.x, nodePos.y) })
             .call(() => {
                 count.destroy();
-               // this.countDownTime -= 10;
+                // this.countDownTime -= 10;
             })
             .start()
     }
