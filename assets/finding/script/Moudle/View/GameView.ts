@@ -38,7 +38,9 @@ import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/Base
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import { AbortablePromise } from "db://assets/resources/scripts/Core/StateMachine/AbortablePromise";
-import { UnitFlow } from "db://assets/resources/scripts/Core/StateMachine/UnitFlow";
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
 
 const { ccclass, property } = _decorator;
@@ -122,6 +124,8 @@ export default class GameView extends LayerPanel {
 
     private _curCount: number = 0;
     private _maxCount: number = 0;
+    private _endTimeoutId: any = null;
+    private _particleTimeoutIds: Map<string, any> = new Map();
 
     /**
      * 找茬个数
@@ -468,6 +472,18 @@ export default class GameView extends LayerPanel {
         if (this.picture2) this.picture2.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
         EventManager.getInstance().off(FindingGuide.GUIDE_FIND_EMIT, this);
         EventManager.getInstance().off(FindingGuide.GUIDE_FIND_END, this);
+
+        // 清理计时器
+        if (this._endTimeoutId) {
+            clearTimeout(this._endTimeoutId);
+            this._endTimeoutId = null;
+        }
+
+        // 清理所有粒子计时器
+        this._particleTimeoutIds.forEach((id) => {
+            clearTimeout(id);
+        });
+        this._particleTimeoutIds.clear();
     }
 
     public onTouchDown(event) {
@@ -608,6 +624,40 @@ export default class GameView extends LayerPanel {
         super.goonHandler(context);
     }
 
+    dzgoonHandler(resuleBoo:boolean = true) {
+        this.clearGameView();
+        if (this.sceneModel) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                // 直接发送游戏完成请求，不处理弹窗逻辑
+                let endTime = TimeUtil.getNow();
+                let boo = resuleBoo;
+                let complete = Number(boo);
+                if (this._startTime == 0) {
+                    this._startTime = endTime;
+                }
+                let duration = (endTime - this._startTime) / 1000;
+                // 直接向服务器发送请求，但不处理回调
+                let self = this;
+                let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+                let _boo = trainData.type != SkewersGameType.Judgment;
+                if(!_boo){
+                    EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
+                        (self.sceneModel as any).goonHandler(self, true);
+                    }, this, true);
+                    this.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(complete, duration);
+                }else{
+                    (this.sceneModel as any).goonHandler(self, true);
+                }
+            }
+        }
+    }
+    public clearGameView() {
+        super.clearGameView();
+        AudioMgr.stop();
+    }
+
+
     private _pauseStartTime: number = 0;
     private _pauseDurTime: number = 0;
     nextHandler(context) {
@@ -691,7 +741,7 @@ export default class GameView extends LayerPanel {
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: this.resultList.length,
-            level:FindingGlobal.gameCenterGameLevel,
+            level: CacheMgr.checkpoint,
             complete: this.resultList.length / this._maxCount,
             duration,
             timelimit: GameConfig.customTime,
@@ -701,7 +751,7 @@ export default class GameView extends LayerPanel {
         // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
 
-        setTimeout(() => {
+        this._endTimeoutId = setTimeout(() => {
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: EndView,
@@ -782,9 +832,12 @@ export default class GameView extends LayerPanel {
                 // if (checkPoint == 1) {
                 //     this.clickHint(false);
                 // }
-                setTimeout(() => {
+                const particleId = `particle_${Date.now()}_${Math.random()}`;
+                const timeoutId = setTimeout(() => {
                     node.destroy();
-                }, 200)
+                    this._particleTimeoutIds.delete(particleId);
+                }, 200);
+                this._particleTimeoutIds.set(particleId, timeoutId);
             })
             .start()
     }
@@ -884,7 +937,7 @@ export default class GameView extends LayerPanel {
             .to(1, { position: new Vec3(nodePos.x, nodePos.y) })
             .call(() => {
                 count.destroy();
-               // this.countDownTime -= 10;
+                // this.countDownTime -= 10;
             })
             .start()
     }

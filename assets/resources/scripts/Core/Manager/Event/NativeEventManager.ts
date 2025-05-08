@@ -29,7 +29,7 @@ export class NativeEventManager extends BaseManager {
     }
 
     init() {
-        if (!this.initFlag && sys.platform === sys.Platform.IOS) {
+        if (!this.initFlag && sys.platform === sys.Platform.ANDROID) {
             if (!this.events) this.events = {};
             native.bridge.onNative = this.nativeEventHandle.bind(this);
             this.initFlag = true;
