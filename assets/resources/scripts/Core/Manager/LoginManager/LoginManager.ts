@@ -103,7 +103,7 @@ export class LoginManager {
             const alertData: AlertData = new AlertData();
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             alertData.confirmCb = function () {
-                this.showVerifryView();
+                // this.showVerifryView();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
             return;
@@ -157,7 +157,9 @@ export class LoginManager {
         let isNew = data.data["is_new"];
         if (isNew) {
             // 主动弹出邀请码界面
-            UIManager.getInstance().showPanel(VerifyPanel.NAME);
+            // UIManager.getInstance().showPanel(VerifyPanel.NAME);
+            // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME);
+            SceneManager.getInstance().backToHall();
         } else {
             SceneManager.getInstance().backToHall();
         }
