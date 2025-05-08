@@ -61,13 +61,15 @@ export class PhoneLoginPanel extends BasePanel {
         LoginManager.getInstance().phoneNum = phoneNum;
         
         // 添加监听
+        let self = this;
         EventManager.getInstance().on('login.send_mp_code', (data) => {
             if (data['status'] == 0) {
                 // 请求失败，不进行操作
                 return;
             }
+            LoginManager.getInstance().requestLoginByMp("1234");
             // 请求成功，显示验证码面板
-            UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
+            // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
         }, this, true);
         
         // 发送验证码请求

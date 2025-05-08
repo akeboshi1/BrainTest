@@ -157,7 +157,8 @@ export class LoginManager {
         let isNew = data.data["is_new"];
         if (isNew) {
             // 主动弹出邀请码界面
-            UIManager.getInstance().showPanel(VerifyPanel.NAME);
+            // UIManager.getInstance().showPanel(VerifyPanel.NAME);
+            SceneManager.getInstance().backToHall();
         } else {
             SceneManager.getInstance().backToHall();
         }
