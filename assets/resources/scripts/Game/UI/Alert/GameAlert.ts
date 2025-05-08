@@ -92,13 +92,20 @@ export class GameAlert extends Component {
         // 创建一个数组，存放每个异步加载的 Promise
         const loadPromises = this.audioUrls.map(audioUrl => {
             return new Promise((resolve, reject) => {
+                let self = this;
+                // 检查audioMap中是否已经加载过此音效
+                if (self.audioMap.has(audioUrl)) {
+                    // 如果已加载，直接返回缓存的音效资源
+                    resolve(self.audioMap.get(audioUrl));
+                    return;
+                }
                 resources.load(audioUrl, AudioClip,(err, audioRes) => {
                     if(err){
                         DebugLog.instance.error(err);
                         reject(err);
                         return;
                     }
-                    this.audioMap.set(audioUrl, audioRes);
+                    self.audioMap.set(audioUrl, audioRes);
                     resolve(audioRes);
                 });
             });
@@ -397,6 +404,10 @@ export class GameAlert extends Component {
     }
 
     start() {
+
+    }
+
+    onEnable(){
         this.loadAudio();
     }
 
