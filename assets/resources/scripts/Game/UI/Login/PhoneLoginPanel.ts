@@ -69,9 +69,8 @@ export class PhoneLoginPanel extends BasePanel {
                 // 请求失败，不进行操作
                 return;
             }
-            LoginManager.getInstance().requestLoginByMp("1234");
             // 请求成功，显示验证码面板
-            // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
+            UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
         }, this, true);
         
         // 发送验证码请求
