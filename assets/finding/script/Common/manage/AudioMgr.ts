@@ -49,4 +49,8 @@ export default class AudioMgr {
             });
         });
     }
+
+    public static stop(){
+        if(AudioMgr.audioSource)AudioMgr.audioSource.stop();
+    }
 }

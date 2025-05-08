@@ -10,10 +10,6 @@ import AlertManager, { AlertData } from "../Alert/AlertManager";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
-    public static SOCKET_ON: string = "socket_on";
-    public static SOCKET_OFF: string = "socket_off";
-    public static SOCKET_ONMESSAGE: string = "socket_onmessage";
-    public static SOCKET_ONERROR: string = "socket_onerror";
 
     private _socket: WebSocket;
     private _reSendTime:number = 500; //防抖500毫秒
@@ -55,7 +51,10 @@ export class SocketManager extends BaseManager {
     destroy() {
         this.cleanSocketDatas();
         this.cleanRetryTimer();
-        this._socket.close();
+        if (this._socket) {
+            this._socket.close();
+            this._socket = null;
+        }
     }
 
     private startRetryCheck() {
