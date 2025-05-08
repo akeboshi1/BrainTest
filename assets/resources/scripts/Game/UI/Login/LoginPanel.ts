@@ -83,6 +83,13 @@ export class LoginPanel extends BasePanel {
             url:xieyiFlagUrl
         });
     }
+    showPrivacy(){
+        let privacyUrl="https://colapai.xinjiaxianglao.com/privacy.html"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:privacyUrl
+        });
+    }
 
     private confirmHandler() {
         //todo
