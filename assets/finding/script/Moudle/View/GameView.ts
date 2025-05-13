@@ -209,7 +209,10 @@ export default class GameView extends LayerPanel {
             let pictureSprite1 = this.picture1.getComponent(Sprite);
             let pictureSprite2 = this.picture2.getComponent(Sprite);
             let self = this;
-
+            DebugLog.instance.error("CacheMgr.checkpoint",CacheMgr.checkpoint);
+            DebugLog.instance.error("loopLevel",loopLevel);
+            DebugLog.instance.error("level",_level);
+            DebugLog.instance.error("imageName",imageName);
             const bundle = assetManager.getBundle(BundleName.FINGING);
             let spriteFrame1 = null;
             let spriteFrame2 = null;
