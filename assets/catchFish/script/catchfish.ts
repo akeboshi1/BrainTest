@@ -223,13 +223,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
-                let endTime = TimeUtil.getNow();
-                let boo = resuleBoo;
-                let complete = Number(boo);
-                if (this._startTime == 0) {
-                    this._startTime = endTime;
-                }
-                let duration = (endTime - this._startTime) / 1000;
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -239,7 +232,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(complete, duration);
+                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
                 }else{
                     (this.sceneModel as any).goonHandler(self, true);
                 }
