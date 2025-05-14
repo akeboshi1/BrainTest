@@ -325,7 +325,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         EventManager.getInstance().off(Fish.FishClick, this);
 
         // this.resetQuestions();
-        if (this.fishs) {
+        if (this.fishs && this.fishParentNode) {
             let len = this.fishs.length;
             for (let i: number = 0; i < len; i++) {
                 let fish = this.fishs[i];
@@ -334,7 +334,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         fish.curTween.stop();
                         fish.curTween = null;
                     }
-                    this.fishParentNode.removeChild(fish.getFishNode());
+                    // 确保鱼节点存在且有效
+                    const fishNode = fish.getFishNode();
+                    if (fishNode && fishNode.isValid && this.fishParentNode.isValid) {
+                        if (fishNode.parent === this.fishParentNode) {
+                            this.fishParentNode.removeChild(fishNode);
+                        }
+                    }
                     fish = null;
                 }
             }
@@ -402,8 +408,17 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // 初始化鱼群运动
     startFishMovement() {
-        this.setupFishGroup(this.fishes1, true, this._moveSpeeds.leftToRight);
-        this.setupFishGroup(this.fishes2, false, this._moveSpeeds.rightToLeft);
+        try {
+            if (this.fishes1 && this.fishes1.isValid) {
+                this.setupFishGroup(this.fishes1, true, this._moveSpeeds.leftToRight);
+            }
+            
+            if (this.fishes2 && this.fishes2.isValid) {
+                this.setupFishGroup(this.fishes2, false, this._moveSpeeds.rightToLeft);
+            }
+        } catch (e) {
+            console.error("启动鱼群动画时发生错误:", e);
+        }
     }
 
     private setupFishGroup(fishNode: Node, startFromLeft: boolean, speed: number) {
@@ -1334,18 +1349,62 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._fishTweens = [];
         this._isPaused = false;
         
-        // 确保背景鱼群节点存在
-        if (this.fishes1 && this.fishes2) {
-            // 重置鱼群位置和状态
-            this.fishes1.setPosition(new Vec3(-this._sceneWidth / 2, this.fishes1.position.y, this.fishes1.position.z));
-            this.fishes1.scale = new Vec3(1, 1, 1);
-            
-            this.fishes2.setPosition(new Vec3(this._sceneWidth / 2, this.fishes2.position.y, this.fishes2.position.z));
-            this.fishes2.scale = new Vec3(-1, 1, 1);
-            
-            // 重新启动鱼群动画
-            this.startFishMovement();
+        // 确保背景鱼群节点存在且有效
+        if (this.fishes1 && this.fishes2 && this.fishes1.isValid && this.fishes2.isValid) {
+            try {
+                // 重置鱼群位置和状态
+                this.fishes1.setPosition(new Vec3(-this._sceneWidth / 2, this.fishes1.position.y, this.fishes1.position.z));
+                this.fishes1.scale = new Vec3(1, 1, 1);
+                
+                this.fishes2.setPosition(new Vec3(this._sceneWidth / 2, this.fishes2.position.y, this.fishes2.position.z));
+                this.fishes2.scale = new Vec3(-1, 1, 1);
+                
+                // 重新启动鱼群动画
+                this.startFishMovement();
+            } catch (e) {
+                console.error("重置鱼群动画时发生错误:", e);
+            }
         }
+    }
+
+    onDestroy() {
+        // 确保在组件销毁前清理所有资源
+        if (this._wangTween) {
+            this._wangTween.stop();
+            this._wangTween = null;
+        }
+        
+        // 停止所有鱼群动画
+        if (this._fishTweens) {
+            this._fishTweens.forEach(tween => {
+                if (tween) {
+                    tween.stop();
+                }
+            });
+            this._fishTweens = [];
+        }
+        
+        // 停止所有鱼的动画
+        if (this.fishs) {
+            this.fishs.forEach(fish => {
+                if (fish && fish.curTween) {
+                    fish.curTween.stop();
+                    fish.curTween = null;
+                }
+            });
+        }
+        
+        // 停止背景音乐
+        if (this.bgmClip) {
+            this.bgmClip = null;
+        }
+        
+        // 解除事件监听
+        EventManager.getInstance().off(Fish.FishClick, this);
+        EventManager.getInstance().off(CatchFishGuide.GUIDECLICK, this);
+        
+        // 调用父类的onDestroy方法
+        super.onDestroy();
     }
 }
 
