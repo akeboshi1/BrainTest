@@ -929,7 +929,9 @@ export default class GameView extends LayerPanel {
                 DebugLog.instance.error(err);
             }
             sprite.spriteFrame = spriteFrame;
-            sprite.color = new Color(255, 0, 0, 255); // 红色
+            if(url == "sub/image/view/gameView/public/hint"){
+                sprite.color = new Color(255, 0, 0, 255); // 红色
+            }
             sprite.node.active = true;
         });
 
