@@ -929,11 +929,13 @@ export default class GameView extends LayerPanel {
                 DebugLog.instance.error(err);
             }
             sprite.spriteFrame = spriteFrame;
+            if(url == "sub/image/view/gameView/public/hint"){
+                sprite.color = new Color(255, 0, 0, 255); // 红色
+            }
             sprite.node.active = true;
         });
 
         this.pictureList[index2].addChild(node);
-        // 推送数据
 
         return node;
     }
