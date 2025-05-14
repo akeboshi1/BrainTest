@@ -313,7 +313,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._wangTween = null;
         }
 
+        // 停止所有动画
         Tween.stopAll();
+        this._fishTweens.forEach(tween => {
+            if (tween) {
+                tween.stop();
+            }
+        });
+        this._fishTweens = [];
+        
         EventManager.getInstance().off(Fish.FishClick, this);
 
         // this.resetQuestions();
@@ -340,7 +348,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     startGame(win: number = 1) {
         this.customsSendDataState = false;
         this._clearBoo = false;
-        this.startFishMovement();
+        
+        // 确保鱼群动画重置并启动
+        this.resetAndStartFishMovement();
+        
         this._startTime = TimeUtil.getNow();
         this.gameBeforeView.active = false;
         this.gameStartView.active = true;
@@ -925,6 +936,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.clearWrongQuestions();
         this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
+        
+        // 重置并重启鱼群背景动画
+        this.resetAndStartFishMovement();
+        
         this.createFish();
         if(!this.bgmClip){
             this.bgmClip = this.playAudio("music/fishBG",false,true);
@@ -1233,6 +1248,21 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     // 显示订正界面
     public onClickShowAnswer(): void {
         Global.isAgain = false;
+        
+        // 暂停鱼群动画
+        this._isPaused = true;
+        this._fishTweens.forEach(tween => tween.stop());
+        
+        // 如果有鱼的动画正在进行，也需要停止
+        if (this.fishs) {
+            this.fishs.forEach(fish => {
+                if (fish && fish.curTween) {
+                    fish.curTween.stop();
+                    fish.pause = true;
+                }
+            });
+        }
+        
         // 显示订正界面
         this.answerView.active = true;
         
@@ -1265,7 +1295,58 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
     
+    // // 关闭订正界面并恢复动画
+    // public onClickCloseAnswer(): void {
+    //     // 关闭订正界面
+    //     this.answerView.active = false;
+        
+    //     // 恢复鱼群动画
+    //     this._isPaused = false;
+        
+    //     // 重置并重启鱼群背景动画
+    //     this.resetAndStartFishMovement();
+        
+    //     // 恢复鱼的动画
+    //     if (this.fishs) {
+    //         this.fishs.forEach(fish => {
+    //             if (fish) {
+    //                 fish.pause = false;
+    //                 // 如果鱼没有动画，重新创建动画
+    //                 if (!fish.curTween) {
+    //                     this.moveFishes(fish, 0);
+    //                 } else {
+    //                     // 如果有动画，继续执行
+    //                     fish.curTween.start();
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }
 
+    // 重置并重启鱼群背景动画
+    private resetAndStartFishMovement(): void {
+        // 停止所有现有的鱼群动画
+        this._fishTweens.forEach(tween => {
+            if (tween) {
+                tween.stop();
+            }
+        });
+        this._fishTweens = [];
+        this._isPaused = false;
+        
+        // 确保背景鱼群节点存在
+        if (this.fishes1 && this.fishes2) {
+            // 重置鱼群位置和状态
+            this.fishes1.setPosition(new Vec3(-this._sceneWidth / 2, this.fishes1.position.y, this.fishes1.position.z));
+            this.fishes1.scale = new Vec3(1, 1, 1);
+            
+            this.fishes2.setPosition(new Vec3(this._sceneWidth / 2, this.fishes2.position.y, this.fishes2.position.z));
+            this.fishes2.scale = new Vec3(-1, 1, 1);
+            
+            // 重新启动鱼群动画
+            this.startFishMovement();
+        }
+    }
 }
 
 
