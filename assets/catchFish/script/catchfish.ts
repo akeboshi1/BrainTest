@@ -59,6 +59,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     @property(Node)
     gameStartView: Node;
 
+    @property(Node)
+    answerView:Node
+
     // @property(Label)
     // Timer: Label;
 
@@ -70,6 +73,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     @property([Node])
     stars: Node[] = [];
+
+    @property([Node])
+    answerNodes: Node[] = [];
 
     @property(Label)
     catchLabel: Label;
@@ -98,6 +104,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
     private unSelectColor = ColorUtil.hexToColor("#FFFFFF");
     private ErrorColor = ColorUtil.hexToColor("#FC0505");
+
+    // 存储答错的题目
+    private wrongQuestions: FishQuestion[] = [];
 
     private fishs: Fish[];
     private _curFish: Fish;
@@ -150,9 +159,16 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 self.bgmClip = self.playAudio("music/fishBG",false,true);
             }
         });
-
+        
+        // 加载错题列表
+        this.loadWrongQuestions();
     }
 
+    // 从本地存储加载错题列表
+    private loadWrongQuestions(): void {
+        // 不再从localStorage加载，保持wrongQuestions为空
+        this.wrongQuestions = [];
+    }
 
     start() {
         super.start();
@@ -268,6 +284,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     onTimerEnd() {
         super.onTimerEnd();
         this.playFail();
+        // 保存错题
+        this.saveWrongQuestions();
+        
         if (this.wangCount !== this.wangMaxCount) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 //上报数据
@@ -326,6 +345,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.gameBeforeView.active = false;
         this.gameStartView.active = true;
         this.wangCount = 0;
+        // 清空错题列表
+        this.clearWrongQuestions();
+        
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.curHard = (this.sceneModel as any).difficulty;
             this.hardIndex = this.hards.indexOf(this.curHard);
@@ -795,7 +817,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .to(0.2, { position: new Vec3(self._leftSceneX + this._offsetX, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                     .call(() => {
                         self.hasWangClick = false;
-                        fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, fish.position.y, fish.position.z) },
+                        fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - this._offsetX1, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
                                     if (fish.pause) {
@@ -840,6 +862,17 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     self.clearWangNubmer();
                                     self._curFish = null;
                                 }
+                                
+                                // 当鱼游出边界未被回答时，记录为错题
+                                const fishData = fish.getData();
+                                if (fishData && !fishData.hasChose) {
+                                    // 避免重复添加同一个题目
+                                    if (!self.wrongQuestions.some(q => q.question === fishData.question)) {
+                                        self.wrongQuestions.push(fishData);
+                                        console.log("边界错题已保存:", fishData.question);
+                                    }
+                                }
+                                
                                 self.randomFish(fish);
                                 self.moveFishes(fish, SHOOT_INTERVAL);
                             })
@@ -888,6 +921,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._startTime = TimeUtil.getNow();
         this.gameFailView.active = false;
         this.wangCount = 0;
+        // 清空错题列表
+        this.clearWrongQuestions();
         this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
         this.createFish();
@@ -954,7 +989,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         let fishWorldPos = self._curFish.getFishNode().parent.getComponent(UITransform).convertToWorldSpaceAR(this._curFish.position);
         let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wangPrefab.position);
         let question = this._curFish.getData();
-        question.hasChose = false;
+        // 标记题目为已回答
+        question.hasChose = true;
+        
         if (this._wangTween) this._wangTween.stop();
         // 启动动画
         this._wangTween = tween(wangPrefab).parallel(
@@ -1049,6 +1086,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private endCurHardGame() {
         this.clearGameView();
         this.playAudio("music/win",true);
+        // 保存错题
+        this.saveWrongQuestions();
+        
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this._requestSkewersGameComplete();
         } else {
@@ -1134,6 +1174,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._curFish.curTween.stop();
             this._curFish.curTween = null;
         }
+
+        // 保存答错的题目
+        const question = this._curFish.getData();
+        // 避免重复添加同一个题目
+        if (!this.wrongQuestions.some(q => q.question === question.question)) {
+            this.wrongQuestions.push(question);
+            console.log("错题已保存:", question.question);
+        }
+
         this._curFish.curTween = tween(this._curFish)
             .to(0.8, { position: new Vec3(self._leftSceneX - 300, self._curFish.position.y, self._curFish.position.z) }, { easing: "sineOut" })
             .call(() => {
@@ -1154,6 +1203,68 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             })
             .start(); // 启动动画
     }
+
+    // 获取错题列表
+    public getWrongQuestions(): FishQuestion[] {
+        return this.wrongQuestions;
+    }
+
+    // 清空错题列表
+    public clearWrongQuestions(): void {
+        this.wrongQuestions = [];
+    }
+
+    // 保存错题到本地存储
+    private saveWrongQuestions(): void {
+        // 不再保存到localStorage，只在当前游戏中使用
+        console.log(`当前游戏中有${this.wrongQuestions.length}个错题`);
+    }
+
+    public onClickRetryGame() {
+        this.rePlayGame();
+    }
+
+
+    onclickContinue() {
+        (this.sceneModel as any).dzanswerHandler(this);
+    }
+
+
+    // 显示订正界面
+    public onClickShowAnswer(): void {
+        Global.isAgain = false;
+        // 显示订正界面
+        this.answerView.active = true;
+        
+        // 使用当前游戏中累积的错题
+        const wrongQuestions = this.wrongQuestions;
+        
+        // 取最后5道错题
+        const questionsToShow = wrongQuestions.slice(-5);
+        
+        // 显示到answerNodes上
+        let len = Math.min(questionsToShow.length, this.answerNodes.length);
+        for (let i = 0; i < len; i++) {
+            const node = this.answerNodes[i];
+            node.active = true;
+            
+            // 获取题目和答案
+            const question = questionsToShow[i];
+            
+            // 直接获取节点上的label组件并设置文本
+            const label = node.getChildByName("label").getComponent(Label);
+            if (label) {
+                // 显示题目和正确答案
+                label.string = `${question.question} = ${question.correctAnswer}`;
+            }
+        }
+        
+        // 如果错题不足5道，隐藏多余的节点
+        for (let i = len; i < this.answerNodes.length; i++) {
+            this.answerNodes[i].active = false;
+        }
+    }
+    
 
 }
 

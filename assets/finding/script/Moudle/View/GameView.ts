@@ -42,6 +42,7 @@ import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/Sk
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
+import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
 
 const { ccclass, property } = _decorator;
 
@@ -106,6 +107,8 @@ export default class GameView extends LayerPanel {
     @property(Node)
     private backNode: Node = null;
 
+    private goonBtn:Node = null;
+
     private clockTime: number = null;
 
     private plistNode: Node = null;
@@ -154,10 +157,11 @@ export default class GameView extends LayerPanel {
             this.progressSprite = this.progress.getComponent(Sprite);
             this.customsNode = this.getNode("customs/Label");
             this.victory = this.getNode("victory");
-
-
-
             this.victory.active = false;
+
+            this.goonBtn = this.getNode("goonBtn");
+            this.goonBtn.active = false
+
             this.plistNode = this.getNode("caidai");
             this.plistNode.active = false;
             this._checkPoint = CacheMgr.checkpoint;
@@ -633,8 +637,7 @@ export default class GameView extends LayerPanel {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
                 let endTime = TimeUtil.getNow();
-                let boo = resuleBoo;
-                let complete = Number(boo);
+                let complete = resuleBoo ? 1 : 0
                 if (this._startTime == 0) {
                     this._startTime = endTime;
                 }
@@ -668,6 +671,67 @@ export default class GameView extends LayerPanel {
         context._pauseStartTime = TimeUtil.getNow();
         super.nextHandler(context);
         // SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
+    }
+
+    nextClick(){
+        this.nextHandler(this);
+    }
+
+    /**
+     * 显示所有不同的地方
+     * @private
+     */
+    private showAllPoint(){
+        // 用粉色圆圈显示所有尚未点击的不同点
+        const url = "sub/image/view/gameView/public/hint";
+        for (let i = 0; i < this.frameList.length; i++) {
+            // 如果这个点尚未被找到
+            if (!this.frameList[i].dot) {
+                // 在两张图片上都创建标记
+                for (let j = 0; j < this.pictureList.length; j++) {
+                    this.createRound(i, j, url, 120);
+                }
+                // 标记为已找到，避免重复点击时出错
+                this.frameList[i].dot = true;
+                // 添加到已找到列表
+                this.resultList.push(i);
+                this.tempList.push(this.frameList[i].id);
+            }
+        }
+        
+        // 更新显示结果
+        for (let i = 0; i < this.resultList.length && i < this.resultNode.children.length; i++) {
+            let resultNode = this.resultNode.children[i];
+            let children = resultNode.getChildByName("right");
+            if (children) {
+                children.active = true;
+            }
+        }
+        
+        // 游戏结束
+        if (this.resultList.length >= this._maxCount) {
+            this.gameOver = true;
+            this.canAddTime = false;
+        }
+    }
+
+    public onClickShowAnswer(){
+        Global.isAgain = false;
+        this.goonBtn.active = true;
+        this.showAllPoint();
+    }
+
+
+    public onClickRetryGame() {
+        Global.isAgain = true;
+        PanelMgr.INS.openPanel({
+            layer: Layer.gameLayer,
+            panel: HomeView,
+            param: CacheMgr.checkpoint
+        }).then(()=>{
+
+            PanelMgr.INS.closePanel(GameView);
+        });
     }
 
     exitCallBack(context) {
@@ -872,6 +936,10 @@ export default class GameView extends LayerPanel {
         // 推送数据
 
         return node;
+    }
+
+    onclickContinue() {
+        (this.sceneModel as any).dzanswerHandler(this);
     }
 
     public createErr(clickPos) {
