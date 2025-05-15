@@ -26,9 +26,6 @@ import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
-import PanelMgr, {Layer} from "db://assets/finding/script/Common/manage/PanelMgr";
-import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
-import CacheMgr from "db://assets/finding/script/Common/manage/CacheMgr";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
