@@ -26,6 +26,9 @@ import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import PanelMgr, {Layer} from "db://assets/finding/script/Common/manage/PanelMgr";
+import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
+import CacheMgr from "db://assets/finding/script/Common/manage/CacheMgr";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -40,6 +43,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     @property(Node)
     private chipParentNode: Node;
+
+    @property(Node)
+    private introduceBtn: Node;
 
     // 可拖拽的节点
     @property(Node)
@@ -659,7 +665,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onTimerEnd();
     }
 
-    public showResult() {
+    public onClickShowAnswer() {
+        Global.isAgain = false;
         this.showResultContinueButton.active = true;
         // 遍历所有拼图块
         for (let [key, value] of this.chipsDataMap.entries()) {
@@ -678,8 +685,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
     }
 
-    public onClickShowResultContinueButton() {
-        this.showResultContinueButton.active = false;
-        this.dzgoonHandler(false);
+    public onClickRetryGame() {
+        this.onClickRetryCurrentLevel();
     }
+
+    public onclickContinue() {
+        this.showResultContinueButton.active = false;
+        (this.sceneModel as any).dzanswerHandler(this);
+    }
+
 }
