@@ -132,18 +132,21 @@ export class EventManager extends BaseManager {
         }
 
         const handlers = this.events.get(eventName);
-        // 存储需要在所有回调执行后移除的一次性监听器
+        // 存储需要在所有回调执行后移除的监听器
         const handlersToRemove: EventHandler[] = [];
 
         // 执行所有回调
         for (const handler of handlers) {
             try {
                 // 检查上下文是否有效
-                if (handler.context && handler.context.isValid === false) {
-                    console.warn(`EventManager: 尝试触发事件 ${eventName} 但上下文已被销毁，将移除此监听器`);
-                    // 可以选择自动移除这个监听器
-                    this.off(eventName, handler.context);
-                    return;
+                if (handler.context) {
+                    // 检查是否为Node对象（有isValid属性）
+                    if (typeof handler.context.isValid !== 'undefined' && handler.context.isValid === false) {
+                        DebugLog.instance.warn(`EventManager: 事件 ${eventName} 的上下文已被销毁，将移除此监听器`);
+                        // 移除这个监听器
+                        handlersToRemove.push(handler);
+                        continue;
+                    }
                 }
                 
                 handler.callback(data, handler.context);
@@ -154,17 +157,21 @@ export class EventManager extends BaseManager {
                 }
             } catch (error) {
                 DebugLog.instance.error(`EventManager: 事件 ${eventName} 处理出错:`, error);
+                // 出错的监听器也应该被移除，避免持续报错
+                handlersToRemove.push(handler);
             }
         }
 
-        // 移除所有一次性监听器
+        // 移除所有需要移除的监听器
         if (handlersToRemove.length > 0) {
             const remainingHandlers = handlers.filter(handler => !handlersToRemove.includes(handler));
             
             if (remainingHandlers.length === 0) {
                 this.events.delete(eventName);
+                DebugLog.instance.log(`EventManager: 事件 ${eventName} 的所有监听器已被移除`);
             } else {
                 this.events.set(eventName, remainingHandlers);
+                DebugLog.instance.log(`EventManager: 事件 ${eventName} 移除了 ${handlersToRemove.length} 个监听器，还剩 ${remainingHandlers.length} 个`);
             }
         }
     }
