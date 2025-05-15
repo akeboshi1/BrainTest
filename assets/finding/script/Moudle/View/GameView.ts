@@ -42,6 +42,7 @@ import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/Sk
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
+import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
 
 const { ccclass, property } = _decorator;
 
@@ -106,6 +107,8 @@ export default class GameView extends LayerPanel {
     @property(Node)
     private backNode: Node = null;
 
+    private goonBtn:Node = null;
+
     private clockTime: number = null;
 
     private plistNode: Node = null;
@@ -154,10 +157,11 @@ export default class GameView extends LayerPanel {
             this.progressSprite = this.progress.getComponent(Sprite);
             this.customsNode = this.getNode("customs/Label");
             this.victory = this.getNode("victory");
-
-
-
             this.victory.active = false;
+
+            this.goonBtn = this.getNode("goonBtn");
+            this.goonBtn.active = false
+
             this.plistNode = this.getNode("caidai");
             this.plistNode.active = false;
             let loopLevel = 0;
@@ -209,7 +213,10 @@ export default class GameView extends LayerPanel {
             let pictureSprite1 = this.picture1.getComponent(Sprite);
             let pictureSprite2 = this.picture2.getComponent(Sprite);
             let self = this;
-
+            DebugLog.instance.error("CacheMgr.checkpoint",CacheMgr.checkpoint);
+            DebugLog.instance.error("loopLevel",loopLevel);
+            DebugLog.instance.error("level",_level);
+            DebugLog.instance.error("imageName",imageName);
             const bundle = assetManager.getBundle(BundleName.FINGING);
             let spriteFrame1 = null;
             let spriteFrame2 = null;
@@ -629,13 +636,6 @@ export default class GameView extends LayerPanel {
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
-                let endTime = TimeUtil.getNow();
-                let boo = resuleBoo;
-                let complete = Number(boo);
-                if (this._startTime == 0) {
-                    this._startTime = endTime;
-                }
-                let duration = (endTime - this._startTime) / 1000;
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -645,7 +645,7 @@ export default class GameView extends LayerPanel {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(complete, duration);
+                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
                 }else{
                     (this.sceneModel as any).goonHandler(self, true);
                 }
@@ -665,6 +665,67 @@ export default class GameView extends LayerPanel {
         context._pauseStartTime = TimeUtil.getNow();
         super.nextHandler(context);
         // SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
+    }
+
+    nextClick(){
+        this.nextHandler(this);
+    }
+
+    /**
+     * 显示所有不同的地方
+     * @private
+     */
+    private showAllPoint(){
+        // 用粉色圆圈显示所有尚未点击的不同点
+        const url = "sub/image/view/gameView/public/hint";
+        for (let i = 0; i < this.frameList.length; i++) {
+            // 如果这个点尚未被找到
+            if (!this.frameList[i].dot) {
+                // 在两张图片上都创建标记
+                for (let j = 0; j < this.pictureList.length; j++) {
+                    this.createRound(i, j, url, 120);
+                }
+                // 标记为已找到，避免重复点击时出错
+                this.frameList[i].dot = true;
+                // 添加到已找到列表
+                this.resultList.push(i);
+                this.tempList.push(this.frameList[i].id);
+            }
+        }
+        
+        // 更新显示结果
+        for (let i = 0; i < this.resultList.length && i < this.resultNode.children.length; i++) {
+            let resultNode = this.resultNode.children[i];
+            let children = resultNode.getChildByName("right");
+            if (children) {
+                children.active = true;
+            }
+        }
+        
+        // 游戏结束
+        if (this.resultList.length >= this._maxCount) {
+            this.gameOver = true;
+            this.canAddTime = false;
+        }
+    }
+
+    public onClickShowAnswer(){
+        Global.isAgain = false;
+        this.goonBtn.active = true;
+        this.showAllPoint();
+    }
+
+
+    public onClickRetryGame() {
+        Global.isAgain = true;
+        PanelMgr.INS.openPanel({
+            layer: Layer.gameLayer,
+            panel: HomeView,
+            param: CacheMgr.checkpoint
+        }).then(()=>{
+
+            PanelMgr.INS.closePanel(GameView);
+        });
     }
 
     exitCallBack(context) {
@@ -767,7 +828,8 @@ export default class GameView extends LayerPanel {
     }
 
     public createHintPrefab() {
-        if (this.reminderNode) {
+        // 只在reminderNode存在且有效时进行销毁
+        if (this.reminderNode && this.reminderNode.isValid) {
             this.reminderNode.destroy();
             this.reminderNode = null;
         }
@@ -776,7 +838,15 @@ export default class GameView extends LayerPanel {
         bundle.load(GameConfig.prefabData[this.hintIndex],Prefab,(err:Error,prefab:Prefab)=>{
             if(err){
                 DebugLog.instance.error(err);
+                return;
             }
+            
+            // 再次检查，确保在异步加载完成后reminderNode仍然为null
+            if (this.reminderNode && this.reminderNode.isValid) {
+                this.reminderNode.destroy();
+                this.reminderNode = null;
+            }
+            
             let node = instantiate(prefab);
             this.viewNode.addChild(node);
             let script = node.getComponent(HintPrefab);
@@ -863,13 +933,19 @@ export default class GameView extends LayerPanel {
                 DebugLog.instance.error(err);
             }
             sprite.spriteFrame = spriteFrame;
+            if(url == "sub/image/view/gameView/public/hint"){
+                sprite.color = new Color(255, 0, 0, 255); // 红色
+            }
             sprite.node.active = true;
         });
 
         this.pictureList[index2].addChild(node);
-        // 推送数据
 
         return node;
+    }
+
+    onclickContinue() {
+        (this.sceneModel as any).dzanswerHandler(this);
     }
 
     public createErr(clickPos) {
