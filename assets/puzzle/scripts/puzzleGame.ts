@@ -41,6 +41,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(Node)
     private chipParentNode: Node;
 
+    @property(Node)
+    private introduceBtn: Node;
+
     // 可拖拽的节点
     @property(Node)
     private draggableNode: Node;
@@ -659,7 +662,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onTimerEnd();
     }
 
-    public showResult() {
+    public onClickShowAnswer() {
+        Global.isAgain = false;
         this.showResultContinueButton.active = true;
         // 遍历所有拼图块
         for (let [key, value] of this.chipsDataMap.entries()) {
@@ -678,8 +682,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
     }
 
-    public onClickShowResultContinueButton() {
-        this.showResultContinueButton.active = false;
-        this.dzgoonHandler(false);
+    public onClickRetryGame() {
+        this.onClickRetryCurrentLevel();
     }
+
+    public onclickContinue() {
+        this.showResultContinueButton.active = false;
+        (this.sceneModel as any).dzanswerHandler(this);
+    }
+
 }
