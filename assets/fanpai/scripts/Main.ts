@@ -75,6 +75,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(Node)
     guideView:Node;
 
+    @property(Label)
+    countDownLabel:Label;
+
     private currentCard: Node;
     private buttonLableText: Label;
 
@@ -452,14 +455,11 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     gameStartInit() {
         this.successView.active = false;
-        // this.bigWin.active = false;
-        // this.failView.active = false;
         this.customsSendDataState = false;
         this.initCardView();
 
         this.timerInit();
-        this.timerTick();
-
+      
         this.initCardTheme();
         this.initCardData();
 
@@ -543,7 +543,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.closeAllCard();
     }
 
-    showAllCard() {
+   async showAllCard() {
         let self = this;
         this.cardList.forEach((card, index) => {
             const cardNode = this.cardPool.children[0].children[index];
@@ -600,17 +600,50 @@ export class Main extends BaseScene<IBaseGameChild> {
     protected onDestroy(): void {
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
+        clearInterval(this.intervalId);
         super.onDestroy();
     }
 
     private _setTimeOutId;
     // 预览卡片，time，秒数
     seconds: number[] = [2.5, 4, 5];
-    previewCard() {
+    private intervalId;
+    async previewCard() {
+        let self = this;
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
 
-        this.showAllCard();
+        await this.showAllCard();
+        this.countDownLabel.node.active = true;
+        this.countDownLabel.string = `${this.seconds[this.hardIndex].toFixed(1)}s`;
+        this.countDownLabel.node.setScale(1, 1, 1);
+        let remainTime = this.seconds[this.hardIndex];
+        
+        const updateDisplay = (time) => {
+            self.countDownLabel.string = `${time.toFixed(1)}s`;
+            tween(self.countDownLabel.node)
+                .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
+                .to(0.25, { scale: new Vec3(1, 1, 1) })
+                .start();
+        };
+
+        this.intervalId = setInterval(() => {
+            if (remainTime >= 1) {  
+                remainTime -= 1;
+                updateDisplay(remainTime);
+            } else {  
+                clearInterval(this.intervalId);
+                remainTime -= 0.5;
+                updateDisplay(remainTime);
+                // 创建新的0.5秒定时器
+                this.intervalId = setInterval(() => {
+                    if (remainTime > 0) {
+                        remainTime -= 0.5;
+                        updateDisplay(remainTime);
+                    }
+                }, 500);
+            }
+        }, 1000);
         this._startTime = TimeUtil.getNow();
         if (this._setTimeOutId != null) {
             clearTimeout(this._setTimeOutId);
@@ -619,12 +652,18 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (this._setTimeOutId) {
                 clearTimeout(this._setTimeOutId);
             }
+            if(this.intervalId){
+                clearInterval(this.intervalId);
+            }
             this._setTimeOutId = null;
 
             // 检查并修复可能存在的问题
             this.checkAndFixCardScales();
 
             this.closeAllCard();
+            this.countDownLabel.node.active = false;
+            this.timerTick();
+
         }, this.seconds[this.hardIndex] * 1000);
     }
 
