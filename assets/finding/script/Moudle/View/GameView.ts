@@ -292,7 +292,10 @@ export default class GameView extends LayerPanel {
     private backHandler() {
         this.pause = true;
         FindingGlobal.reset();
-        this.quitGame({ parentNode: this.viewNode, context: this });
+        this.quitGame({ 
+            parentNode: this.viewNode, 
+            context: this 
+        });
     }
 
 

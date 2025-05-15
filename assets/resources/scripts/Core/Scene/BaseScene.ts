@@ -101,7 +101,28 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     // ========== 游戏退出 ==========
     public quitGame(config: IQuitGameConfig) {
         this.pauseTime();
-        if (config.context.sceneModel) config.context.sceneModel.quitGame(config);
+        
+        // 检查config和context是否有效
+        if (!config) {
+            DebugLog.instance.error("quitGame: config is null or undefined");
+            return;
+        }
+        
+        // 如果context不存在，使用this作为context
+        if (!config.context) {
+            DebugLog.instance.warn("quitGame: context is null, using this as context");
+            config.context = this;
+        }
+        
+        // 确保sceneModel存在后再调用
+        if (config.context.sceneModel) {
+            config.context.sceneModel.quitGame(config);
+        } else if (this.sceneModel) {
+            // 如果context没有sceneModel，但this有，使用this的sceneModel
+            this.sceneModel.quitGame({...config, context: this});
+        } else {
+            DebugLog.instance.error("quitGame: no sceneModel available, cannot quit game properly");
+        }
     }
 
     // ========== 开始倒计时 ==========
