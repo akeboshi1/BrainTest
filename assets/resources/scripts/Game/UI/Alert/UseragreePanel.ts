@@ -15,12 +15,21 @@ export class UseragreePanel extends Component {
     update(deltaTime: number) {
         
     }
-
-    onClick(param: any) {
-        console.log("Clicked");
-        console.log(param);
+    
+    handleXieyiClick() {
+        let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:xieyiFlagUrl
+        });
+        AlertManager.getInstance().closeCurrentAlert();
+    }
+    handlePrivacyClick(){
+        let privacyUrl="https://colapai.xinjiaxianglao.com/privacy.html"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:privacyUrl
+        });
         AlertManager.getInstance().closeCurrentAlert();
     }
 }

@@ -304,7 +304,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
                 let endTime = TimeUtil.getNow();
-                let boo = !resuleBoo?resuleBoo:this._resuleBoo;
+                let boo = this._resuleBoo;
                 let complete = Number(boo);
                 if (this._startTime == 0) {
                     this._startTime = endTime;

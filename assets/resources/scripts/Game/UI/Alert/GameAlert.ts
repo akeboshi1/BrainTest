@@ -80,6 +80,8 @@ export class GameAlert extends Component {
 
     public exitCallBack: Function = null;
 
+    private audioUrls = ["music/cheer"];
+    private audioMap: Map<string, AudioClip> = new Map();
 
     /**
      * 回调函数上下文
@@ -91,6 +93,36 @@ export class GameAlert extends Component {
     // 添加图标加载状态标记
     private iconLoading: boolean = false;
     private iconLoaded: boolean = false;
+
+    private async loadAudio() {
+        // 创建一个数组，存放每个异步加载的 Promise
+        const loadPromises = this.audioUrls.map(audioUrl => {
+            return new Promise((resolve, reject) => {
+                let self = this;
+                // 检查audioMap中是否已经加载过此音效
+                if (self.audioMap.has(audioUrl)) {
+                    // 如果已加载，直接返回缓存的音效资源
+                    resolve(self.audioMap.get(audioUrl));
+                    return;
+                }
+                resources.load(audioUrl, AudioClip,(err, audioRes) => {
+                    if(err){
+                        DebugLog.instance.error(err);
+                        reject(err);
+                        return;
+                    }
+                    self.audioMap.set(audioUrl, audioRes);
+                    resolve(audioRes);
+                });
+            });
+        });
+        try {
+            const assets = await Promise.all(loadPromises);
+            DebugLog.instance.log('All gamealert audio loaded:', assets);
+        } catch (error) {
+            DebugLog.instance.error('Error loading gamealert audio:', error);
+        }
+    }
 
     showView(type: AlertType) {
         AudioManager.getInstance().pause();
@@ -386,7 +418,11 @@ export class GameAlert extends Component {
     }
 
     start() {
-        // this.loadAudio();
+
+    }
+
+    onEnable(){
+        this.loadAudio();
     }
 
     exitHandler() {

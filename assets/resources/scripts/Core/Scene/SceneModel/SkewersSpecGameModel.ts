@@ -100,7 +100,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     }
 
 
-    dzgoonHandler(context: any, win: boolean = true): void {
+    dzgoonHandler(context: any, win: boolean = false): void {
         const manager = SkewersManager.getInstance();
         const trainData = manager.curGame.getCurTrainData();
         const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
@@ -108,7 +108,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             if(isFinalStage){
                 context.showNextSuccessHandler(context);
             }else{
-                context.dzgoonHandler(context);
+                context.dzgoonHandler(win);
             }
 
     }

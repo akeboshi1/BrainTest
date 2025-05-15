@@ -61,17 +61,6 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     }
 
-    refreshsceneModel(data:BaseGameModel<T>){
-        data.gameType == GameType.SKEWERS
-        // logic
-    }
-
-
-    gameResult(){
-
-    }
-
-
     onEnable() {
         if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
     }
@@ -218,6 +207,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         if (context.sceneModel) {
             context.sceneModel.goonHandler(context);
         }
+    }
+
+    dzgoonHandler(requestBoo:boolean = true){
+        this.clearGameView();
     }
 
     showNextSuccessHandler() {

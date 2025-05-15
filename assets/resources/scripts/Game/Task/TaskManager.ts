@@ -10,11 +10,12 @@ import {DebugLog} from "../../Core/Util/DebugLog";
 import {SceneManager} from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
 import AlertManager, {AlertData} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {BaseManager} from "../../Core/Manager/BaseManager";
 
 /**
  * 任务管理器
  */
-export class TaskManager {
+export class TaskManager extends BaseManager {
 
     private static _instance: TaskManager;
 
@@ -59,8 +60,6 @@ export class TaskManager {
         return Global.userData.curTaskData;
     }
 
-    constructor() {
-    }
     get getCurTaskId():number{
         return this._curTaskId;
     }
@@ -116,36 +115,37 @@ export class TaskManager {
 
     private _relID:number;
     public requestDingzhenTask(relType?:string,relID?:number){
+        EventManager.getInstance().off(this.task_get_tasks, this);
         EventManager.getInstance().on(this.task_get_tasks, this.requestDingzhenTaskCallBack, this,true);
-        
+
         // 准备请求数据对象
         const requestData: any = { task_date: TimeUtil.getNowStr() };
-        
+
         // 只有当relType有值且不为空字符串时才添加
         if (relType !== undefined && relType !== null && relType !== '') {
             requestData.rel_type = relType;
         }
-        
+
         // 只有当relID有值且为数字类型时才添加
         if (relID !== undefined && relID !== null && !isNaN(Number(relID))) {
             requestData.rel_id = relID;
         }
 
         this._relID = relID;
-        
+
         // 创建并发送请求
-        let requestTaskSocket: SocketData = new SocketData({ 
-            action: this.task_get_tasks, 
-            data: requestData 
+        let requestTaskSocket: SocketData = new SocketData({
+            action: this.task_get_tasks,
+            data: requestData
         });
-        
+
         SocketManager.getInstance().send(requestTaskSocket);
     }
 
     /**
      * 获取订正任务
-     * @param data 
-     * @param context 
+     * @param data
+     * @param context
      */
     private requestDingzhenTaskCallBack(data: SocketData){
         let status = data.status;
@@ -194,22 +194,27 @@ export class TaskManager {
      * 请求每日任务列表
      */
     public requestTaskList() {
+        EventManager.getInstance().off(this.task_get_tasks, this);
         EventManager.getInstance().on(this.task_get_tasks, this.requestTaskListCallback, this,true);
-        
+
         // 准备请求数据对象
         const requestData: any = { task_date: TimeUtil.getNowStr() };
-        
-        
+
+
         // 创建并发送请求
-        let requestTaskSocket: SocketData = new SocketData({ 
-            action: this.task_get_tasks, 
-            data: requestData 
+        let requestTaskSocket: SocketData = new SocketData({
+            action: this.task_get_tasks,
+            data: requestData
         });
-        
+
         SocketManager.getInstance().send(requestTaskSocket);
     }
 
     private requestTaskListCallback(data: SocketData, context: any) {
+        if(!context){
+            DebugLog.instance.error("context为空");
+            return;
+        }
         context._taskList=[];
         let status = data.status;
         if (status == 0) {
@@ -316,7 +321,7 @@ export class TaskManager {
                 SkewersManager.getInstance().start(id);
                 break;
             case TaskStatus.UnComplete:
-                EventManager.getInstance().on(this.task_start_task, this.requestStartTaskCallback, this,true);
+                EventManager.getInstance().on(this.task_start_task, this.requestStartTaskCallback.bind(this), this,true);
                 let requestStartTaskSocket: SocketData = new SocketData({ action: this.task_start_task, data: { task_id: id } });
                 SocketManager.getInstance().send(requestStartTaskSocket);
                 break;
@@ -328,6 +333,10 @@ export class TaskManager {
     }
 
     private requestStartTaskCallback(data: SocketData, context: any) {
+        if(!context){
+            DebugLog.instance.error("context为空");
+            return;
+        }
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
@@ -362,7 +371,7 @@ export class TaskManager {
      * 获取通知
      */
     public requestStartInform() {
-        EventManager.getInstance().on(this.notification_start_notifications, this.requestStartNotificationCallback, this);
+        EventManager.getInstance().on(this.notification_start_notifications, this.requestStartNotificationCallback.bind(this), this);
         let requestStartTaskSocket: SocketData = new SocketData({
             action: this.notification_start_notifications, data: {
                 "is_read": false,
@@ -399,7 +408,7 @@ export class TaskManager {
      * 是否已读
      */
     public isReadNotification(notification_ids: number[]) {
-        EventManager.getInstance().on(this.notification_read, this.requestReadNotificationCallback, this);
+        EventManager.getInstance().on(this.notification_read, this.requestReadNotificationCallback.bind(this), this);
         let requestStartTaskSocket: SocketData = new SocketData({
             action: this.notification_read, data: { notification_ids }
         });
@@ -418,7 +427,7 @@ export class TaskManager {
         if(EventManager.getInstance().getListenerByContext(TaskManager.pushEvet,this)){
             return;
         }
-        EventManager.getInstance().on(TaskManager.pushEvet, this.pushEventCallback, this);
+        EventManager.getInstance().on(TaskManager.pushEvet, this.pushEventCallback.bind(this), this);
     }
     public pushEventCallback(data: SocketData, context: any) {
         // 

@@ -1,0 +1,160 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 代码规范文档
+
+## 项目结构
+
+### assets 目录结构
+项目采用模块化的目录结构，每个游戏模块都有其独立的目录。主要目录结构如下：
+
+- `app/`: 应用程序主目录，包含核心功能和共享资源
+- `resources/`: 全局资源目录，存放共享的图片、音频等资源
+- `finding/`: 找一找游戏模块
+- `guessingGame/`: 猜一猜游戏模块
+- `math24/`: 24点游戏模块
+- `fanpai/`: 翻牌游戏模块
+- `catchFish/`: 捕鱼游戏模块
+- `smalltheater/`: 小剧场游戏模块
+- `sentenceMaking/`: 造句游戏模块
+- `puzzle/`: 拼图游戏模块
+
+## 命名规范
+
+### 目录命名
+- 使用小写字母
+- 多个单词使用驼峰命名法（camelCase）
+- 模块目录名应该清晰表达其功能
+
+### 文件命名
+- 场景文件：使用 PascalCase，如 `MainScene.scene`
+- 预制体文件：使用 PascalCase，如 `PlayerPrefab.prefab`
+- 脚本文件：使用 PascalCase，如 `GameManager.ts`
+- 资源文件：使用小写字母，单词间用下划线连接，如 `player_avatar.png`
+
+## 代码组织
+
+### 脚本组织
+- 每个游戏模块的脚本应该放在对应模块目录下的 `scripts` 文件夹中
+- 共享的工具类和通用组件放在 `app/scripts` 目录下
+- 每个脚本文件应该只负责一个主要功能
+
+### 资源组织
+- 每个模块的资源应该放在对应模块目录下的 `resources` 文件夹中
+- 共享资源放在全局 `resources` 目录下
+- 资源文件应该按类型分类存放（如 images、audio、prefabs 等）
+
+## 代码风格
+
+### TypeScript 规范
+- 使用 TypeScript 的类型系统，避免使用 `any` 类型
+- 类名使用 PascalCase
+- 变量和函数名使用 camelCase
+- 常量使用全大写下划线命名（UPPER_SNAKE_CASE）
+- 私有成员变量以下划线开头
+
+### 注释规范
+- 使用 JSDoc 风格的注释
+- 关键函数和类必须添加注释说明
+- 复杂逻辑需要添加适当的行内注释
+
+## 最佳实践
+
+### 性能优化
+- 合理使用对象池
+- 及时释放不需要的资源
+- 避免在 update 中进行复杂计算
+
+### 错误处理
+- 使用 try-catch 处理可能的异常
+- 添加适当的错误日志
+- 关键操作需要添加错误处理机制
+
+### 版本控制
+- 提交信息需要清晰描述改动内容
+- 重要功能开发使用独立分支
+- 定期合并主分支代码
+
+## Panel创建规范
+
+### 基本要求
+- 所有Panel必须继承自`BasePanel`类
+- Panel类名必须使用PascalCase命名法，并以"Panel"结尾
+- 每个Panel必须定义静态NAME属性作为唯一标识符
+- Panel的预制体文件必须放在对应模块的prefab目录下
+
+### 注册规范
+- 所有Panel必须在对应模块的Manager中通过`UIManager.registerPanel`进行注册
+- 注册时必须提供以下参数：
+  - name: Panel的唯一标识符
+  - bundleName: 资源包名称
+  - prefabUrl: 预制体路径
+  - comp: Panel组件类
+  - exclusive: 是否排他性面板（默认为true）
+  - compPath: 组件挂载路径（可选）
+
+### 生命周期管理
+- 必须正确实现以下生命周期方法：
+  - onLoad(): 初始化面板
+  - onEnable(): 面板启用时调用
+  - onDisable(): 面板禁用时调用
+  - onDestroy(): 面板销毁时调用
+- 必须实现`restore(data: any)`方法用于数据恢复
+- 必须实现`showPanel()`和`hidePanel()`方法处理显示和隐藏逻辑
+
+### 资源管理
+- Panel使用的资源必须放在对应模块的resources目录下
+- 大型资源建议使用异步加载
+- 必须正确处理资源的释放，避免内存泄漏
+
+### 事件处理
+- 面板内的事件监听必须在onEnable中注册，在onDisable中注销
+- 使用EventManager进行事件管理，避免直接使用cc.EventTarget
+
+### 错误处理
+- 必须对异步操作进行错误处理
+- 使用DebugLog记录关键错误信息
+- 在显示失败时正确清理资源
+
+### 示例代码
+```typescript
+@ccclass('ExamplePanel')
+export class ExamplePanel extends BasePanel {
+    public static NAME: string = "ExamplePanel";
+
+    constructor() {
+        super();
+        this.name = ExamplePanel.NAME;
+    }
+
+    onLoad() {
+        // 初始化面板
+    }
+
+    onEnable() {
+        // 注册事件监听
+    }
+
+    onDisable() {
+        // 注销事件监听
+    }
+
+    onDestroy() {
+        super.onDestroy();
+        // 清理资源
+    }
+
+    restore(data: any) {
+        // 恢复面板数据
+    }
+
+    async showPanel() {
+        // 显示面板逻辑
+    }
+
+    async hidePanel() {
+        // 隐藏面板逻辑
+    }
+} 

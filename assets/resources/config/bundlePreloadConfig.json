@@ -43,5 +43,9 @@
     "smalltheater": {
         "preloadScene": "smalltheater",
         "preloadAssets": []
+    },
+    "fingerGame": {
+        "preloadScene": "fingerGame",
+        "preloadAssets": []
     }
 }

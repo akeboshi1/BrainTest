@@ -77,8 +77,18 @@ export class LoginPanel extends BasePanel {
     }
     // 显示协议
     showXieYi(){
+        let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:xieyiFlagUrl
+        });
+    }
+    showPrivacy(){
+        let privacyUrl="https://colapai.xinjiaxianglao.com/privacy.html"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:privacyUrl
+        });
     }
 
     private confirmHandler() {

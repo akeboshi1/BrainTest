@@ -9,6 +9,7 @@ import { GenerateReport } from './GenerateReport';
 import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 import FeatureTogglesSetting, { FeatureToggle } from '../../../FeatureTogglesSetting';
 import { NativeEventManager } from '../../../Core/Manager/Event/NativeEventManager';
+import { XieYiPanel } from '../Login/XieYiPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -43,6 +44,13 @@ export class PersonalCenterPanel extends BasePanel {
             this.deviceIdLabel.node.active = true;
             this.deviceIdLabel.string = "设备ID：" + NativeEventManager.getInstance().deviceID;
         }
+    }
+    showPrivacy(){
+        let privacyUrl="https://colapai.xinjiaxianglao.com/privacy.html"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:privacyUrl
+        });
     }
 
     initFeature(){

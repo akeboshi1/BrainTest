@@ -191,9 +191,13 @@ export class MainScene extends Component {
             return;
         }
         this._clickBoo = true;
-        let url = Global.RES_Root + BundleName.SMALLTHEATER;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.SMALLTHEATER), this, true);
-        BundlePreloadManager.getInstance().preload(BundleName.SMALLTHEATER);
+        // let url = Global.RES_Root + BundleName.SMALLTHEATER;
+        // EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.SMALLTHEATER), this, true);
+        // BundlePreloadManager.getInstance().preload(BundleName.SMALLTHEATER);
+
+        let url = Global.RES_Root + BundleName.FINGERGAME;
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.FINGERGAME), this, true);
+        BundlePreloadManager.getInstance().preload(BundleName.FINGERGAME);
     }
 
     private switchTaskNode(open: boolean = false) {
