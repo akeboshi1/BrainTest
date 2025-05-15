@@ -827,7 +827,8 @@ export default class GameView extends LayerPanel {
     }
 
     public createHintPrefab() {
-        if (this.reminderNode) {
+        // 只在reminderNode存在且有效时进行销毁
+        if (this.reminderNode && this.reminderNode.isValid) {
             this.reminderNode.destroy();
             this.reminderNode = null;
         }
@@ -836,7 +837,15 @@ export default class GameView extends LayerPanel {
         bundle.load(GameConfig.prefabData[this.hintIndex],Prefab,(err:Error,prefab:Prefab)=>{
             if(err){
                 DebugLog.instance.error(err);
+                return;
             }
+            
+            // 再次检查，确保在异步加载完成后reminderNode仍然为null
+            if (this.reminderNode && this.reminderNode.isValid) {
+                this.reminderNode.destroy();
+                this.reminderNode = null;
+            }
+            
             let node = instantiate(prefab);
             this.viewNode.addChild(node);
             let script = node.getComponent(HintPrefab);
