@@ -48,6 +48,9 @@ export class Fish {
     setQuestion(question){
         this._button.node.off('click', this.clickHandler, this);
         this._button.node.on('click', this.clickHandler, this);
+        if (question && typeof question.hasChose === 'undefined') {
+            question.hasChose = false;
+        }
         this._data = question;
         this._label.string = question.question;
         let answers:string[] = question.options;
