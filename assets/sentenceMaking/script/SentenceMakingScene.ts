@@ -152,7 +152,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     requestSkewersGameComplete(complete: number, duration: number) {
-        this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+        this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
     }
 
     requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number, levelMode: number) {
