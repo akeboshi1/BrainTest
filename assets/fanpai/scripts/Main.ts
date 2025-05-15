@@ -543,7 +543,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.closeAllCard();
     }
 
-    showAllCard() {
+   async showAllCard() {
         let self = this;
         this.cardList.forEach((card, index) => {
             const cardNode = this.cardPool.children[0].children[index];
@@ -600,18 +600,20 @@ export class Main extends BaseScene<IBaseGameChild> {
     protected onDestroy(): void {
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
+        clearInterval(this.intervalId);
         super.onDestroy();
     }
 
     private _setTimeOutId;
     // 预览卡片，time，秒数
     seconds: number[] = [2.5, 4, 5];
-    previewCard() {
+    private intervalId;
+    async previewCard() {
         let self = this;
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
 
-        this.showAllCard();
+        await this.showAllCard();
         this.countDownLabel.node.active = true;
         this.countDownLabel.string = `${this.seconds[this.hardIndex].toFixed(1)}s`;
         this.countDownLabel.node.setScale(1, 1, 1);
@@ -625,16 +627,16 @@ export class Main extends BaseScene<IBaseGameChild> {
                 .start();
         };
 
-        let intervalId = window.setInterval(() => {
+        this.intervalId = setInterval(() => {
             if (remainTime >= 1) {  
                 remainTime -= 1;
                 updateDisplay(remainTime);
             } else {  
-                clearInterval(intervalId);
+                clearInterval(this.intervalId);
                 remainTime -= 0.5;
                 updateDisplay(remainTime);
                 // 创建新的0.5秒定时器
-                intervalId = window.setInterval(() => {
+                this.intervalId = setInterval(() => {
                     if (remainTime > 0) {
                         remainTime -= 0.5;
                         updateDisplay(remainTime);
@@ -650,8 +652,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (this._setTimeOutId) {
                 clearTimeout(this._setTimeOutId);
             }
-            if(intervalId){
-                clearInterval(intervalId);
+            if(this.intervalId){
+                clearInterval(this.intervalId);
             }
             this._setTimeOutId = null;
 
