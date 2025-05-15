@@ -152,10 +152,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     requestSkewersGameComplete(complete: number, duration: number) {
-        this.requestGameComplete({
-             complete,duration,parentNode:this.viewNode,context:this
-        });
-        // this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+        this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
     }
 
     requestGameCenterComplete(count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number, levelMode: number) {
@@ -812,6 +809,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 使用模型中的运行结果
 
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Language;

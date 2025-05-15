@@ -138,6 +138,14 @@ export class EventManager extends BaseManager {
         // 执行所有回调
         for (const handler of handlers) {
             try {
+                // 检查上下文是否有效
+                if (handler.context && handler.context.isValid === false) {
+                    console.warn(`EventManager: 尝试触发事件 ${eventName} 但上下文已被销毁，将移除此监听器`);
+                    // 可以选择自动移除这个监听器
+                    this.off(eventName, handler.context);
+                    return;
+                }
+                
                 handler.callback(data, handler.context);
                 
                 // 如果是一次性监听器，则标记为待移除
@@ -229,5 +237,17 @@ export class EventManager extends BaseManager {
 
     destory() {
         this.clear();
+    }
+
+    // 添加一个方法来移除特定上下文的所有事件监听
+    public offAllByContext(context: any): void {
+        if (!context) return;
+        
+        this.events.forEach((listeners, eventName) => {
+            const newListeners = listeners.filter(listener => listener.context !== context);
+            if (newListeners.length !== listeners.length) {
+                this.events.set(eventName, newListeners);
+            }
+        });
     }
 }

@@ -62,6 +62,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     @property(Node)
     guideView:Node;
 
+    @property(Node)
+    answerView:Node
+
     // @property(Label)
     // Timer: Label;
 
@@ -73,6 +76,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     @property([Node])
     stars: Node[] = [];
+
+    @property([Node])
+    answerNodes: Node[] = [];
 
     @property(Label)
     catchLabel: Label;
@@ -101,6 +107,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
     private unSelectColor = ColorUtil.hexToColor("#FFFFFF");
     private ErrorColor = ColorUtil.hexToColor("#FC0505");
+
+    // 存储答错的题目
+    private wrongQuestions: FishQuestion[] = [];
 
     private fishs: Fish[];
     private _curFish: Fish;
@@ -154,8 +163,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             }
         });
 
+        // 加载错题列表
+        this.loadWrongQuestions();
     }
 
+    // 从本地存储加载错题列表
+    private loadWrongQuestions(): void {
+        // 不再从localStorage加载，保持wrongQuestions为空
+        this.wrongQuestions = [];
+    }
 
     start() {
         super.start();
@@ -169,7 +185,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 }
                 logoSprite.spriteFrame = sp;
             });
-            
+
         } else {
             bundle.load("texture/page1_start/logo/spriteFrame",SpriteFrame,(err,sp)=>{
                 if(err){
@@ -217,13 +233,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送游戏完成请求，不处理弹窗逻辑
-                let endTime = TimeUtil.getNow();
-                let boo = resuleBoo;
-                let complete = Number(boo);
-                if (this._startTime == 0) {
-                    this._startTime = endTime;
-                }
-                let duration = (endTime - this._startTime) / 1000;
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -233,7 +242,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(complete, duration);
+                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
                 }else{
                     (this.sceneModel as any).goonHandler(self, true);
                 }
@@ -278,6 +287,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     onTimerEnd() {
         super.onTimerEnd();
         this.playFail();
+        // 保存错题
+        this.saveWrongQuestions();
+
         if (this.wangCount !== this.wangMaxCount) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 //上报数据
@@ -304,11 +316,19 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._wangTween = null;
         }
 
+        // 停止所有动画
         Tween.stopAll();
+        this._fishTweens.forEach(tween => {
+            if (tween) {
+                tween.stop();
+            }
+        });
+        this._fishTweens = [];
+
         EventManager.getInstance().off(Fish.FishClick, this);
 
         // this.resetQuestions();
-        if (this.fishs) {
+        if (this.fishs && this.fishParentNode) {
             let len = this.fishs.length;
             for (let i: number = 0; i < len; i++) {
                 let fish = this.fishs[i];
@@ -317,7 +337,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         fish.curTween.stop();
                         fish.curTween = null;
                     }
-                    this.fishParentNode.removeChild(fish.getFishNode());
+                    // 确保鱼节点存在且有效
+                    const fishNode = fish.getFishNode();
+                    if (fishNode && fishNode.isValid && this.fishParentNode.isValid) {
+                        if (fishNode.parent === this.fishParentNode) {
+                            this.fishParentNode.removeChild(fishNode);
+                        }
+                    }
                     fish = null;
                 }
             }
@@ -331,11 +357,17 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     startGame(win: number = 1) {
         this.customsSendDataState = false;
         this._clearBoo = false;
-        this.startFishMovement();
+
+        // 确保鱼群动画重置并启动
+        this.resetAndStartFishMovement();
+
         this._startTime = TimeUtil.getNow();
         this.gameBeforeView.active = false;
         this.gameStartView.active = true;
         this.wangCount = 0;
+        // 清空错题列表
+        this.clearWrongQuestions();
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.curHard = (this.sceneModel as any).difficulty;
             this.hardIndex = this.hards.indexOf(this.curHard);
@@ -379,8 +411,17 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // 初始化鱼群运动
     startFishMovement() {
-        this.setupFishGroup(this.fishes1, true, this._moveSpeeds.leftToRight);
-        this.setupFishGroup(this.fishes2, false, this._moveSpeeds.rightToLeft);
+        try {
+            if (this.fishes1 && this.fishes1.isValid) {
+                this.setupFishGroup(this.fishes1, true, this._moveSpeeds.leftToRight);
+            }
+
+            if (this.fishes2 && this.fishes2.isValid) {
+                this.setupFishGroup(this.fishes2, false, this._moveSpeeds.rightToLeft);
+            }
+        } catch (e) {
+            console.error("启动鱼群动画时发生错误:", e);
+        }
     }
 
     private setupFishGroup(fishNode: Node, startFromLeft: boolean, speed: number) {
@@ -805,7 +846,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .to(0.2, { position: new Vec3(self._leftSceneX + this._offsetX, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                     .call(() => {
                         self.hasWangClick = false;
-                        fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, fish.position.y, fish.position.z) },
+                        fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - this._offsetX1, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
                                     if (fish.pause) {
@@ -850,6 +891,17 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                     self.clearWangNubmer();
                                     self._curFish = null;
                                 }
+
+                                // 当鱼游出边界未被回答时，记录为错题
+                                const fishData = fish.getData();
+                                if (fishData && !fishData.hasChose) {
+                                    // 避免重复添加同一个题目
+                                    if (!self.wrongQuestions.some(q => q.question === fishData.question)) {
+                                        self.wrongQuestions.push(fishData);
+                                        console.log("边界错题已保存:", fishData.question);
+                                    }
+                                }
+
                                 self.randomFish(fish);
                                 self.moveFishes(fish, SHOOT_INTERVAL);
                             })
@@ -898,8 +950,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._startTime = TimeUtil.getNow();
         this.gameFailView.active = false;
         this.wangCount = 0;
+        // 清空错题列表
+        this.clearWrongQuestions();
         this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
+
+        // 重置并重启鱼群背景动画
+        this.resetAndStartFishMovement();
+
         this.createFish();
         if(!this.bgmClip){
             this.bgmClip = this.playAudio("music/fishBG",false,true);
@@ -964,7 +1022,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         let fishWorldPos = self._curFish.getFishNode().parent.getComponent(UITransform).convertToWorldSpaceAR(this._curFish.position);
         let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wangPrefab.position);
         let question = this._curFish.getData();
-        question.hasChose = false;
+        // 标记题目为已回答
+        question.hasChose = true;
+
         if (this._wangTween) this._wangTween.stop();
         // 启动动画
         this._wangTween = tween(wangPrefab).parallel(
@@ -1059,6 +1119,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private endCurHardGame() {
         this.clearGameView();
         this.playAudio("music/win",true);
+        // 保存错题
+        this.saveWrongQuestions();
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this._requestSkewersGameComplete();
         } else {
@@ -1144,6 +1207,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._curFish.curTween.stop();
             this._curFish.curTween = null;
         }
+
+        // 保存答错的题目
+        const question = this._curFish.getData();
+        // 避免重复添加同一个题目
+        if (!this.wrongQuestions.some(q => q.question === question.question)) {
+            this.wrongQuestions.push(question);
+            console.log("错题已保存:", question.question);
+        }
+
         this._curFish.curTween = tween(this._curFish)
             .to(0.8, { position: new Vec3(self._leftSceneX - 300, self._curFish.position.y, self._curFish.position.z) }, { easing: "sineOut" })
             .call(() => {
@@ -1165,6 +1237,178 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             .start(); // 启动动画
     }
 
+    // 获取错题列表
+    public getWrongQuestions(): FishQuestion[] {
+        return this.wrongQuestions;
+    }
+
+    // 清空错题列表
+    public clearWrongQuestions(): void {
+        this.wrongQuestions = [];
+    }
+
+    // 保存错题到本地存储
+    private saveWrongQuestions(): void {
+        // 不再保存到localStorage，只在当前游戏中使用
+        console.log(`当前游戏中有${this.wrongQuestions.length}个错题`);
+    }
+
+    public onClickRetryGame() {
+        this.rePlayGame();
+    }
+
+
+    onclickContinue() {
+        (this.sceneModel as any).dzanswerHandler(this);
+    }
+
+
+    // 显示订正界面
+    public onClickShowAnswer(): void {
+        Global.isAgain = false;
+
+        // 暂停鱼群动画
+        this._isPaused = true;
+        this._fishTweens.forEach(tween => tween.stop());
+
+        // 如果有鱼的动画正在进行，也需要停止
+        if (this.fishs) {
+            this.fishs.forEach(fish => {
+                if (fish && fish.curTween) {
+                    fish.curTween.stop();
+                    fish.pause = true;
+                }
+            });
+        }
+
+        // 显示订正界面
+        this.answerView.active = true;
+
+        // 使用当前游戏中累积的错题
+        const wrongQuestions = this.wrongQuestions;
+
+        // 取最后5道错题
+        const questionsToShow = wrongQuestions.slice(-5);
+
+        // 显示到answerNodes上
+        let len = Math.min(questionsToShow.length, this.answerNodes.length);
+        for (let i = 0; i < len; i++) {
+            const node = this.answerNodes[i];
+            node.active = true;
+
+            // 获取题目和答案
+            const question = questionsToShow[i];
+
+            // 直接获取节点上的label组件并设置文本
+            const label = node.getChildByName("label").getComponent(Label);
+            if (label) {
+                // 显示题目和正确答案
+                label.string = `${question.question} = ${question.correctAnswer}`;
+            }
+        }
+
+        // 如果错题不足5道，隐藏多余的节点
+        for (let i = len; i < this.answerNodes.length; i++) {
+            this.answerNodes[i].active = false;
+        }
+    }
+
+    // // 关闭订正界面并恢复动画
+    // public onClickCloseAnswer(): void {
+    //     // 关闭订正界面
+    //     this.answerView.active = false;
+
+    //     // 恢复鱼群动画
+    //     this._isPaused = false;
+
+    //     // 重置并重启鱼群背景动画
+    //     this.resetAndStartFishMovement();
+
+    //     // 恢复鱼的动画
+    //     if (this.fishs) {
+    //         this.fishs.forEach(fish => {
+    //             if (fish) {
+    //                 fish.pause = false;
+    //                 // 如果鱼没有动画，重新创建动画
+    //                 if (!fish.curTween) {
+    //                     this.moveFishes(fish, 0);
+    //                 } else {
+    //                     // 如果有动画，继续执行
+    //                     fish.curTween.start();
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }
+
+    // 重置并重启鱼群背景动画
+    private resetAndStartFishMovement(): void {
+        // 停止所有现有的鱼群动画
+        this._fishTweens.forEach(tween => {
+            if (tween) {
+                tween.stop();
+            }
+        });
+        this._fishTweens = [];
+        this._isPaused = false;
+
+        // 确保背景鱼群节点存在且有效
+        if (this.fishes1 && this.fishes2 && this.fishes1.isValid && this.fishes2.isValid) {
+            try {
+                // 重置鱼群位置和状态
+                this.fishes1.setPosition(new Vec3(-this._sceneWidth / 2, this.fishes1.position.y, this.fishes1.position.z));
+                this.fishes1.scale = new Vec3(1, 1, 1);
+
+                this.fishes2.setPosition(new Vec3(this._sceneWidth / 2, this.fishes2.position.y, this.fishes2.position.z));
+                this.fishes2.scale = new Vec3(-1, 1, 1);
+
+                // 重新启动鱼群动画
+                this.startFishMovement();
+            } catch (e) {
+                console.error("重置鱼群动画时发生错误:", e);
+            }
+        }
+    }
+
+    onDestroy() {
+        // 确保在组件销毁前清理所有资源
+        if (this._wangTween) {
+            this._wangTween.stop();
+            this._wangTween = null;
+        }
+
+        // 停止所有鱼群动画
+        if (this._fishTweens) {
+            this._fishTweens.forEach(tween => {
+                if (tween) {
+                    tween.stop();
+                }
+            });
+            this._fishTweens = [];
+        }
+
+        // 停止所有鱼的动画
+        if (this.fishs) {
+            this.fishs.forEach(fish => {
+                if (fish && fish.curTween) {
+                    fish.curTween.stop();
+                    fish.curTween = null;
+                }
+            });
+        }
+
+        // 停止背景音乐
+        if (this.bgmClip) {
+            this.bgmClip = null;
+        }
+
+        // 解除事件监听
+        EventManager.getInstance().off(Fish.FishClick, this);
+        EventManager.getInstance().off(CatchFishGuide.GUIDECLICK, this);
+
+        // 调用父类的onDestroy方法
+        super.onDestroy();
+    }
 }
 
 
