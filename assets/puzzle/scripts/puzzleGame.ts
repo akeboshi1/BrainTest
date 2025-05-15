@@ -74,6 +74,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(Node)
     guideView:Node;
 
+    @property(Node)
+    private showResultContinueButton: Node;
+
     //显示对象
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
@@ -661,5 +664,29 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     onClickTimeOut() {
         this.timerComponent.resetTimer();
         this.onTimerEnd();
+    }
+
+    public showResult() {
+        this.showResultContinueButton.active = true;
+        // 遍历所有拼图块
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            const currentPos = value["puzzlePos"];
+            const correctPos = key;
+            
+            // 如果当前位置不是正确位置，则交换
+            if (currentPos !== correctPos) {
+                // 找到当前在正确位置的拼图块
+                const chipAtCorrectPos = this.getChipDataByPuzzlePos(correctPos);
+                if (chipAtCorrectPos) {
+                    // 交换两个拼图块的位置
+                    this.swapPuzzleChips(currentPos, correctPos);
+                }
+            }
+        }
+    }
+
+    public onClickShowResultContinueButton() {
+        this.showResultContinueButton.active = false;
+        this.dzgoonHandler(false);
     }
 }
