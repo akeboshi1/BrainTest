@@ -78,6 +78,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(Label)
     countDownLabel:Label;
 
+    @property(Node)
+    showResultContinueButton: Node;
+
     private currentCard: Node;
     private buttonLableText: Label;
 
@@ -820,6 +823,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         });
     }
 
+    public onClickShowAnswer() {
+        Global.isAgain = false;
+        this.showResultContinueButton.active = true;
+        this.showAllCard();
+        
+    }
+    public onclickContinue() {
+        this.showResultContinueButton.active = false;
+    }
 }
 
 
