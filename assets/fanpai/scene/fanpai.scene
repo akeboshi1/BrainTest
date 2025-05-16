@@ -175,7 +175,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 981.8181818181818,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -9500,9 +9500,11 @@
   },
   {
     "__type__": "cc.ClickEvent",
-    "target": null,
+    "target": {
+      "__id__": 5
+    },
     "component": "",
-    "_componentId": "6ff6cdD/NhBBY3YkUQRMn/+",
+    "_componentId": "6b496Ktz2tIWIM7bSl8+ETS",
     "handler": "onclickContinue",
     "customEventData": ""
   },
