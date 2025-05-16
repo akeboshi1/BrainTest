@@ -433,6 +433,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.closeFailView();
     }
     playNextCustoms() {
+        this.isAbleClick = true;
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.sceneModel.goonHandler(this)
         } else {
@@ -745,11 +746,6 @@ export class Main extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-    }
-
-    reCurrentCustoms() {
-        this.failView.active = false;
-        this.startGame();
     }
 
     /**
