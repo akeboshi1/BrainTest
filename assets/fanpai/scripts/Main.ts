@@ -462,7 +462,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardView();
 
         this.timerInit();
-      
+
         this.initCardTheme();
         this.initCardData();
 
@@ -546,7 +546,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.closeAllCard();
     }
 
-   async showAllCard() {
+    async showAllCard() {
         let self = this;
         this.cardList.forEach((card, index) => {
             const cardNode = this.cardPool.children[0].children[index];
@@ -621,7 +621,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.countDownLabel.string = `${this.seconds[this.hardIndex].toFixed(1)}s`;
         this.countDownLabel.node.setScale(1, 1, 1);
         let remainTime = this.seconds[this.hardIndex];
-        
+
         const updateDisplay = (time) => {
             self.countDownLabel.string = `${time.toFixed(1)}s`;
             tween(self.countDownLabel.node)
@@ -631,10 +631,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         };
 
         this.intervalId = setInterval(() => {
-            if (remainTime >= 1) {  
+            if (remainTime >= 1) {
                 remainTime -= 1;
                 updateDisplay(remainTime);
-            } else {  
+            } else {
                 clearInterval(this.intervalId);
                 remainTime -= 0.5;
                 updateDisplay(remainTime);
@@ -827,10 +827,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         Global.isAgain = false;
         this.showResultContinueButton.active = true;
         this.showAllCard();
-        
+
     }
     public onclickContinue() {
         this.showResultContinueButton.active = false;
+        (this.sceneModel as any).dzanswerHandler(this);
+    }
+
+    public onClickRetryGame(){
+        this.replayGame();
     }
 }
 
