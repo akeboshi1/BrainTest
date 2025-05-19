@@ -101,6 +101,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private level: number = 1;
 
     private customsSendDataState: boolean;
+    private isAbleClick: boolean = true;
 
     @property(Sprite)
     private showSprite: Sprite;
@@ -161,7 +162,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
     clickCardHandler(event, data) {
-        // if (!this.isAbleClick) { return; }
+        if (!this.isAbleClick) { return; }
         if (!this.cardList || this._setTimeOutId != null) {
             return;
         }
@@ -364,7 +365,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private _startTime: number = 0
     private _endTime: number = 0;
     currentCustomsSuccess() {
-        // this.isAbleClick = false;
+        this.isAbleClick = false;
         this._endTime = TimeUtil.getNow();
         this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
@@ -402,7 +403,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     startGame() {
-        // this.isAbleClick = true;
+        this.isAbleClick = true;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
         this.gameStartInit();
@@ -435,6 +436,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.closeFailView();
     }
     playNextCustoms() {
+        this.isAbleClick = true;
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.sceneModel.goonHandler(this)
         } else {
@@ -443,6 +445,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     replayGame() {
+        this.isAbleClick = true;
         Global.isAgain = true;
         this.closeAllCard();
         this.timerInit();
@@ -708,7 +711,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
         this.playFail();
         // clearInterval(this.timerId);
-        // this.isAbleClick = false
+        this.isAbleClick = false
         let { complete, duration } = this.requestGameResult();
         // 倒计时结束，游戏结束
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -746,11 +749,6 @@ export class Main extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-    }
-
-    reCurrentCustoms() {
-        this.failView.active = false;
-        this.startGame();
     }
 
     /**
@@ -827,6 +825,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     public onClickShowAnswer() {
+        this.isAbleClick = false;
         super.onClickShowAnswer();
         this.showResultContinueButton.active = true;
         this.showAllCard();
