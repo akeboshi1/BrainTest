@@ -104,8 +104,7 @@ export default class GameView extends LayerPanel {
 
     private victory: Node = null;
 
-    @property(Node)
-    private backNode: Node = null;
+    quitBtn: Node;
 
     private goonBtn:Node = null;
 
@@ -158,6 +157,8 @@ export default class GameView extends LayerPanel {
             this.customsNode = this.getNode("customs/Label");
             this.victory = this.getNode("victory");
             this.victory.active = false;
+
+            this.quitBtn = this.getNode("back");
 
             this.goonBtn = this.getNode("goonBtn");
             this.goonBtn.active = false
@@ -713,7 +714,7 @@ export default class GameView extends LayerPanel {
     }
 
     public onClickShowAnswer(){
-        Global.isAgain = false;
+        super.onClickShowAnswer();
         this.goonBtn.active = true;
         this.showAllPoint();
     }

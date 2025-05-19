@@ -44,6 +44,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     @property(Label)
     private questionLabel: Label = null;
 
+    @property(Node)
+    quitBtn: Node;
+
     @property(RollingSubtitleComponent)
     private rollingSubtitleCom: RollingSubtitleComponent = null;
 
@@ -415,7 +418,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     public onClickShowAnswer() {
-        Global.isAgain = false;
+        super.onClickShowAnswer();
         this.analysisNode.active = true;
         this.analysisLabel.string = this.currentQuestion.analysis;
         this.setCorrectOptionColor();

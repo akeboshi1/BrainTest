@@ -176,7 +176,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 959.9999999999999,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -701,6 +701,9 @@
     "emptyContainer": {
       "__id__": 32
     },
+    "quitBtn": {
+      "__id__": 6
+    },
     "btn_commitresult": {
       "__id__": 35
     },
@@ -1123,7 +1126,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -540,
-      "y": 780.2920000000001,
+      "y": 780.292,
       "z": 0
     },
     "_lrot": {
@@ -1290,7 +1293,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -540,
-      "y": 780.292,
+      "y": 780.2919999999999,
       "z": 0
     },
     "_lrot": {
@@ -3065,7 +3068,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3156,7 +3159,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1919.9999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

@@ -10,6 +10,7 @@ import {TimerCommonComponent} from "db://assets/resources/scripts/Game/UI/Common
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 
 /**
  * 基础场景
@@ -18,7 +19,8 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     sceneModel: BaseGameModel<T>;
     viewNode: Node;
     timerComponent: TimerCommonComponent;
-    guideView:Node = null;
+    guideView: Node = null;
+    quitBtn: Node = null;
 
     public complete:number = 0;
     public duration:number = 0;
@@ -58,8 +60,19 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     //
     sceneInit(){
         this.resetTime();
-
     }
+
+    onClickShowAnswer(){
+        Global.isAgain = false;
+        if(this.quitBtn)this.quitBtn.active = false;
+    }
+
+    dzanswerHandler(context){
+        // if(this.quitBtn)this.quitBtn.active = true;
+        if (this.sceneModel) this.sceneModel.dzanswerHandler(context);
+    }
+
+
 
     onEnable() {
         if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
