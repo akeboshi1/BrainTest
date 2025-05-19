@@ -59,7 +59,10 @@ export abstract class BaseGameModel<T extends IBaseGameChild> {
     abstract failCompleteHandler(context?:any):void;
     abstract showStartAlert(config?:any):void;
     abstract showNextSuccessHandler(context?:any);
-    abstract showNextFailHandler(context?:any)
+    abstract showNextFailHandler(context?:any);
+
+    abstract dzanswerHandler(context?:any);
+
 
     abstract exitCallBack():void;
     abstract resumeCallBack(): boolean;

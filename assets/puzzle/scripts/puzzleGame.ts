@@ -44,6 +44,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(Node)
     private introduceBtn: Node;
 
+    @property(Node)
+    quitBtn: Node;
+
     // 可拖拽的节点
     @property(Node)
     private draggableNode: Node;
@@ -663,7 +666,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     public onClickShowAnswer() {
-        Global.isAgain = false;
+        super.onClickShowAnswer();
         this.showResultContinueButton.active = true;
         // 遍历所有拼图块
         for (let [key, value] of this.chipsDataMap.entries()) {

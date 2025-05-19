@@ -64,6 +64,10 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
 
     }
 
+    dzanswerHandler(){
+
+    }
+
     runNextGame(): void {
         // 大厅游戏切换逻辑...
     }

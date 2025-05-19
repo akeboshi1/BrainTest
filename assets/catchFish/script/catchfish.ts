@@ -65,6 +65,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     @property(Node)
     answerView:Node
 
+    @property(Node)
+    quitBtn: Node;
+
     // @property(Label)
     // Timer: Label;
 
@@ -1265,7 +1268,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // 显示订正界面
     public onClickShowAnswer(): void {
-        Global.isAgain = false;
+        super.onClickShowAnswer();
 
         // 暂停鱼群动画
         this._isPaused = true;

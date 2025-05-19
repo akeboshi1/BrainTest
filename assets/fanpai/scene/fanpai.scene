@@ -9895,6 +9895,9 @@
     "cardPool": {
       "__id__": 9
     },
+    "quitBtn": {
+      "__id__": 96
+    },
     "nextButton": {
       "__id__": 153
     },

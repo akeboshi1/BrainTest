@@ -42,6 +42,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(Node)
     cardPool: Node;
 
+    @property(Node)
+    quitBtn: Node;
+
     @property(Button)
     nextButton: Button;
 
@@ -824,14 +827,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     public onClickShowAnswer() {
-        Global.isAgain = false;
+        super.onClickShowAnswer();
         this.showResultContinueButton.active = true;
         this.showAllCard();
 
     }
     public onclickContinue() {
         this.showResultContinueButton.active = false;
-        (this.sceneModel as any).dzanswerHandler(this);
+        this.dzanswerHandler(this);
     }
 
     public onClickRetryGame(){

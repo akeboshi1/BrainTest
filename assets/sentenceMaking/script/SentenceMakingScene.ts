@@ -42,6 +42,9 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     @property(Node)
     emptyContainer: Node;
 
+    @property(Node)
+    quitBtn: Node;
+
     @property(Button)
     btn_commitresult: Button;
 
@@ -898,7 +901,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     public onClickShowAnswer() {
-        Global.isAgain = false;
+        super.onClickShowAnswer();
         this.correctAnswerNode.active = true;
         const question = this.model.getCurrentQuestion();
         let fixed: number[] = question.fixed;
