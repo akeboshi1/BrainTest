@@ -83,6 +83,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(Node)
     private showResultContinueButton: Node;
 
+    @property(Node)
+    private touchMask: Node;
+
     //显示对象
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
@@ -668,6 +671,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     public onClickShowAnswer() {
         super.onClickShowAnswer();
         this.showResultContinueButton.active = true;
+        this.touchMask.active = true;
         // 遍历所有拼图块
         for (let [key, value] of this.chipsDataMap.entries()) {
             const currentPos = value["puzzlePos"];
@@ -690,6 +694,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     public onclickContinue() {
+        this.touchMask.active = false;
         this.showResultContinueButton.active = false;
         (this.sceneModel as any).dzanswerHandler(this);
     }
