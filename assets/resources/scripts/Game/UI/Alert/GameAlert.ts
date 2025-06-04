@@ -142,7 +142,7 @@ export class GameAlert extends Component {
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-                startBtnUITransform.width = 250;
+                startBtnUITransform.width = 300;
                 break;
             case AlertType.Sucess_Normal:
                 this.exitBtn.node.active = false;
@@ -152,7 +152,7 @@ export class GameAlert extends Component {
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-                startBtnUITransform.width = 500;
+                startBtnUITransform.width = 900;
                 break;
             case AlertType.Normal:
                 this.exitBtn.node.active = false;
@@ -162,7 +162,7 @@ export class GameAlert extends Component {
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-                startBtnUITransform.width = 500;
+                startBtnUITransform.width = 900;
                 break;
             case AlertType.Next:
                 this.titleLabel.node.active = true;
@@ -173,7 +173,7 @@ export class GameAlert extends Component {
                 this.decLabel.node.active = false;
                 this.completeIcon.active = false;
                 this.progressBar.node.active = false;
-                startBtnUITransform.width = 250;
+                startBtnUITransform.width = 300;
                 break;
             case AlertType.Sucess_Small:
                 this.titleLabel.node.active = true;
@@ -189,7 +189,7 @@ export class GameAlert extends Component {
                 this.handleSuccessSmallIcon();
                 
                 AudioManager.getInstance().playCheer();
-                startBtnUITransform.width = 250;
+                startBtnUITransform.width = 300;
                 break;
             case AlertType.Sucess_Big:
                 this.startBtn.node.active = true;
@@ -200,7 +200,7 @@ export class GameAlert extends Component {
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = Global.userData.curTaskData.type == TaskType.Review;
                 this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
-                startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review ? 250 : 500;
+                startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review ? 300 : 900;
                 break;
             case AlertType.Failed:
                 // todo
@@ -214,7 +214,7 @@ export class GameAlert extends Component {
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = false;
 
-                startBtnUITransform.width = 500;
+                startBtnUITransform.width = 900;
                 break;
             case AlertType.Game_Center:
                 this.startBtn.node.active = true;
@@ -224,7 +224,7 @@ export class GameAlert extends Component {
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = true;
-                startBtnUITransform.width = 250;
+                startBtnUITransform.width = 300;
                 break;
             case AlertType.Revise:
                 // 订正弹窗
@@ -237,14 +237,14 @@ export class GameAlert extends Component {
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = true;
                 this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
-                startBtnUITransform.width = 250;
+                startBtnUITransform.width = 300;
                 break;
             case AlertType.Revise_Success:
                 // 订正结算弹窗
                 this.exitBtn.node.active = false;
                 this.guideBtn.node.active = false;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
-                startBtnUITransform.width = 500;
+                startBtnUITransform.width = 900;
                 this.startBtn.node.active = true;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
@@ -257,7 +257,7 @@ export class GameAlert extends Component {
                 this.guideBtn.node.active = false;
                 this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "重试";
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "看答案";
-                startBtnUITransform.width = 250;
+                startBtnUITransform.width = 300;
                 this.startBtn.node.active = true;
                 this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
@@ -284,7 +284,7 @@ export class GameAlert extends Component {
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = false;
-                startBtnUITransform.width = 500;
+                startBtnUITransform.width = 900;
                 break;
         }
     }
