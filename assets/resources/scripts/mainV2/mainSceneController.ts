@@ -1,10 +1,11 @@
 import { _decorator, Component, Node } from 'cc';
-import { PageController } from './PageController';
+import { PageController } from '../MainV2/PageController';
+
 
 const { ccclass, property } = _decorator;
 
-@ccclass('mainSceneController')
-export class mainSceneController extends Component {
+@ccclass('MainSceneController')
+export class MainSceneController extends Component {
    @property(Node)
    pageContainer: Node = null;
    @property(PageController)

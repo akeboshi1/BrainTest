@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, Prefab, instantiate } from 'cc';
 const { ccclass, property } = _decorator;
 
-@ccclass('indexPageController')
-export class indexPageController extends Component {
+@ccclass('IndexPageController')
+export class IndexPageController extends Component {
     @property(Prefab)
     private taskPrefab: Prefab = null;
     @property(Node)
@@ -15,8 +15,12 @@ export class indexPageController extends Component {
         
     }
     generateTask() {
-        const task = instantiate(this.taskPrefab);
-        this.taskContainer.addChild(task);
+        for (let i = 0; i < 2; i++) {
+            const task = instantiate(this.taskPrefab);
+          
+            this.taskContainer.addChild(task);
+            task.setPosition(0, -i*350-150, 0);
+        }
     }
 }
 
