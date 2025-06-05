@@ -1,9 +1,8 @@
 import { BasePanel, PanelState } from "../../../Core/UI/BasePanel";
-import { _decorator, Label } from "cc";
+import { _decorator, Label ,Node} from "cc";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { BundlePreloadEvent } from "../../../Core/Manager/Load/BundlePreloadManager";
-import { UIManager } from "../../../Core/Manager/UI/UIManager";
 
 const { ccclass, property } = _decorator;
 
@@ -15,6 +14,9 @@ export class LoadPanel extends BasePanel {
 
       @property(Label)
       progressLabel: Label;
+
+      @property(Node)
+      loadSprite:Node = null;
 
       public static NAME: string = 'LoadPanel';
 
