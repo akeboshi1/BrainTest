@@ -9,12 +9,13 @@
         "z": 1,
         "w": 1
       },
-      "image": "project://settings/kelepai.png"
+      "image": "project://settings/appIcon.png"
     },
     "logo": {
       "type": "custom",
-      "image": "project://settings/kelepai.png"
-    }
+      "image": "project://settings/appIcon.png"
+    },
+    "displayRatio": 0.7
   },
   "bundleConfig": {
     "custom": {
