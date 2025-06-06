@@ -11,7 +11,7 @@ export class RadiaGraph extends Component {
     private readonly lineWidth: number = 8;
     private values:number[]=[];
     start() {
-      this.setValues([1,5,5,5,5]);
+    //   this.setValues([1,5,5,5,5]);
      
     }
     setValues(values:number[]){

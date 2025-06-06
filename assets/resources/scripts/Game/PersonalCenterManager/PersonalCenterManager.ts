@@ -13,6 +13,7 @@ export enum ReportAblity {
     COMPREHENSION = "理解力"
 }
 
+
 export class PersonalCenterManager {
     private static _instance: PersonalCenterManager;
 

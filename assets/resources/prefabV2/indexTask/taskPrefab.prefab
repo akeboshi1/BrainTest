@@ -29,10 +29,13 @@
     "_components": [
       {
         "__id__": 52
+      },
+      {
+        "__id__": 54
       }
     ],
     "_prefab": {
-      "__id__": 54
+      "__id__": 56
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -919,8 +922,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -158.126,
-      "y": -42.46,
+      "x": -122.856,
+      "y": 81.053,
       "z": 0
     },
     "_lrot": {
@@ -960,8 +963,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 84.51171875,
-      "height": 50.4
+      "width": 260.6278280709945,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -996,20 +999,20 @@
       "b": 0,
       "a": 255
     },
-    "_string": "label",
+    "_string": "今日份游戏",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
-    "_isItalic": false,
-    "_isBold": false,
+    "_isItalic": true,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -1078,8 +1081,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -163.982,
-      "y": 71.742,
+      "x": -104.183,
+      "y": -42.821,
       "z": 0
     },
     "_lrot": {
@@ -1119,8 +1122,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 84.51171875,
-      "height": 50.4
+      "width": 300,
+      "height": 130.39999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1155,14 +1158,14 @@
       "b": 0,
       "a": 255
     },
-    "_string": "label",
-    "_horizontalAlign": 1,
+    "_string": "专为老年人设计的脑力训练\n游戏，通过认知挑战延缓\n阿尔茨海默症。",
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 25,
+    "_fontSize": 25,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
-    "_overflow": 0,
+    "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
@@ -1327,6 +1330,39 @@
   {
     "__type__": "cc.CompPrefabInfo",
     "fileId": "23g0BsLZVOPaOzwRpnNBzU"
+  },
+  {
+    "__type__": "08894Twm2hHFbRkmUvYsyKk",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 55
+    },
+    "taskTitle": {
+      "__id__": 38
+    },
+    "taskContent": {
+      "__id__": 44
+    },
+    "taskBg": {
+      "__id__": 31
+    },
+    "taskIcon": {
+      "__id__": 6
+    },
+    "buttonText": {
+      "__id__": 13
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "7aVDHFp+lGTbie4E62yoV1"
   },
   {
     "__type__": "cc.PrefabInfo",
