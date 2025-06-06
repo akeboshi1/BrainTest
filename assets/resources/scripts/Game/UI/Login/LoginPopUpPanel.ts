@@ -1,15 +1,10 @@
-import { _decorator, Node, Label, Button, EditBox, Vec3 } from 'cc';
+import { _decorator, Node, Label, Button, EditBox, Vec3,Sprite,SpriteFrame,resources } from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { UIManager } from "../../../Core/Manager/UI/UIManager";
 import { LoginPanel } from "../../../Game/UI/Login/LoginPanel";
-import { LoginErrorCode, LoginManager } from "../../../Core/Manager/LoginManager/LoginManager";
-import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
-import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
-import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
-import { TimeUtil } from '../../../Core/Util/TimeUtil';
-import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
+import { LoginManager } from "../../../Core/Manager/LoginManager/LoginManager";
 import { TimerCommonComponent } from '../Common/TimerCommonComponent';
 
 
@@ -17,35 +12,13 @@ const { ccclass, property } = _decorator;
 
 @ccclass('LoginPopUpPanel')
 export class LoginPopUpPanel extends BasePanel {
-    //==== XieyiView
-    @property(Node)
-    XieyiView: Node;
-
-    @property(Label)
-    XieyiTitleTxt: Label;
-
-    @property(Label)
-    XieyiDescTxt: Label;
-
-    @property(Button)
-    AgreeButton: Button;
-
-    @property(Button)
-    CancelButton: Button;
-
-    //==== PhoneView
-
-    @property(Node)
-    PhoneView: Node;
-
     @property(Label)
     PhoneViewTitle: Label;
 
-    @property(Label)
-    PhoneNumberTxt: Label;
+    private unPhoneStr:string = "未注册的手机号再接收协议并填入我们发送的验证码后将自动创建可乐派账号";
 
     @property(Label)
-    PhoneDescTxt: Label;
+    phoneDesTxt:Label;
 
     @property(Node)
     num0: Node;
@@ -63,11 +36,14 @@ export class LoginPopUpPanel extends BasePanel {
     editBox: EditBox;
 
 
-    @property(Label)
-    enterTxt: Label;
-
     @property(Node)
     labelNode: Node;
+
+    @property(Button)
+    loginBtn:Button;
+
+    @property(Label)
+    loginBtnLabel:Label;
 
     @property(TimerCommonComponent)
     private timerCommonComponent: TimerCommonComponent;
@@ -101,21 +77,18 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     start() {
-        this.PhoneDescTxt.string = "发送>>";
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.startEditbox();
-        this.timerCommonComponent.startTimer(60);
+        this.textChange(0);
+        // this.timerCommonComponent.startTimer(60);
 
     }
     onTimerEnd() {
-        this.PhoneDescTxt.node.active = true;
-        this.PhoneDescTxt.string = "重新发送>>";
         this.timerCommonComponent.node.active = false;
     }
 
     reSendCode() {
         this.timerCommonComponent.startTimer(60);
-        this.PhoneDescTxt.node.active = false;
         this.timerCommonComponent.node.active = true;
         this.startEditbox();
         EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this, true);
@@ -135,17 +108,11 @@ export class LoginPopUpPanel extends BasePanel {
     }
 
     restore(data: any): void {
-        if (data != null && data.switchView) {
-            this.switchView();
-        } else {
-            this.showVerifyCodeAlert();
-        }
+        this.showVerifyCodeAlert();
     }
 
     private showVerifyCodeAlert() {
         this.phoneNumber = LoginManager.getInstance().phoneNum;
-        this.PhoneDescTxt.node.active = false;
-        this.enterTxt.node.active = true;
         this.updateView(true);
     }
 
@@ -159,9 +126,6 @@ export class LoginPopUpPanel extends BasePanel {
             UIManager.getInstance().hidePanel(LoginPopUpPanel.NAME);
             return;
         }
-
-        this.PhoneDescTxt.node.active = false;
-        this.enterTxt.node.active = true;
         this.phoneNumber = data['data']['mp_no'];
         this.updateView(true);
     }
@@ -173,50 +137,36 @@ export class LoginPopUpPanel extends BasePanel {
         this.hidePanel();
     }
 
-    public switchView(isPhoneView: boolean = false) {
-        this.XieyiView.active = !isPhoneView;
-        this.PhoneView.active = false;
-        if (isPhoneView) {
-            this._initPhoneView();
-        } else {
-            this._initXieyiView();
-        }
-    }
 
     public updateView(isPhoneView: boolean = false) {
-        this.XieyiView.active = !isPhoneView;
-        this.PhoneView.active = isPhoneView;
-        if (isPhoneView) {
-            this._updatePhoneView();
-        } else {
-            this._updateXieyiView();
-        }
-    }
-
-    private _initPhoneView() {
-        this.agreeClick();
+        this._updatePhoneView();
     }
 
     private _updatePhoneView() {
-        this.PhoneNumberTxt.string = this.phoneNumber;
+        this.phoneDesTxt.string = `请输入${this.phoneNumber}收到的验证码`;
     }
-
-    private _initXieyiView() {
-
-    }
-
-    private _updateXieyiView() { }
-
 
     private requestLoginCallBack(data, context) {
         if (data['status'] == 0) {
-            this.PhoneDescTxt.string = "重新发送>>";
+            // this.loginBtnLabel.string = "重新发送";
+            this.textChange(0);
+            this.clearEditBox();
+            this.editBox.string = "";
+            this.editBox.setFocus(); // 重新获取焦点
+            this.timerCommonComponent.startTimer(60);
             return;
         }
     }
 
-    public requestEnter() {
+    requestEnter() {
         let len = this.numNodes.length;
+        var str = this.editBox.string;
+        let characters = str.split('');
+        if(characters.length!=4){
+            DebugLog.instance.error("请正确输入验证码");
+
+            return;
+        }
         let codeStr = "";
         for (let i = 0; i < len; i++) {
             let editBox = this.numNodes[i];
@@ -271,7 +221,31 @@ export class LoginPopUpPanel extends BasePanel {
         if (len == 4) {
             this.editBox.node.active = false;
             this.labelNode.active = true;
-            this.requestEnter();
+            this.textChange(len);
+            // this.requestEnter();
         }
+
+    }
+
+    private clearEditBox() {
+        this.editBox.string = "";
+        this.editBoxValue(null);
+    }
+
+    public textChange(len:number) {
+        let btnSprite = this.loginBtn.getComponent(Sprite);
+        let url = "";
+        if (len > 0) {
+            url = "textureV2/component/componentnormalbg/spriteFrame";
+        } else {
+            url = "textureV2/component/componentbg/spriteFrame";
+        }
+        resources.load(url, SpriteFrame,(err,sp)=>{
+            if(err){
+                DebugLog.instance.error(err);
+                return;
+            }
+            btnSprite.spriteFrame  = sp;
+        });
     }
 }

@@ -2,7 +2,6 @@ import { _decorator, Button, EditBox, Node, Sprite } from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { EventManager } from "../../..//Core/Manager/Event/EventManager";
 import { LoginManager } from "../../../Core/Manager/LoginManager/LoginManager";
-import { Global } from "../../../Core/Manager/Config/Global";
 import { UIManager } from "../../../Core/Manager/UI/UIManager";
 import { ColorUtil } from "db://assets/resources/scripts/Core/Util/ColorUtil";
 import { LoginPopUpPanel } from './LoginPopUpPanel';

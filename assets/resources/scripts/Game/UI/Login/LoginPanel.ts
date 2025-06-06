@@ -19,6 +19,9 @@ export class LoginPanel extends BasePanel {
     @property(Toggle)
     toggle:Toggle;
 
+    @property(Node)
+    tips:Node;
+
     // @property(Node)
     // roleContainer:Node;
 
@@ -121,6 +124,11 @@ export class LoginPanel extends BasePanel {
         //todo
         DebugLog.instance.log("请点击确认协议");
         this.toggle.isChecked = true;
+        this.tips.active = false;
+    }
+
+    private toggleClickHandler(){
+        this.tips.active = this.toggle.isChecked;
     }
 
     /**
