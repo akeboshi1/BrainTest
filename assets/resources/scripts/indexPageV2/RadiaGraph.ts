@@ -7,8 +7,8 @@ const { ccclass, property } = _decorator;
 @ccclass('RadiaGraph')
 export class RadiaGraph extends Component {
 
-    @property([Label])
-     labels:Label[]=[];
+    @property([Node])
+     labelsNode:Node[]=[];
 
     private graphics: Graphics = null;
     private centerPos: Vec2 = new Vec2(0, 0);
@@ -16,25 +16,41 @@ export class RadiaGraph extends Component {
     private readonly minRadius: number = 20;
     private readonly circleRadius: number = 15;
     private readonly lineWidth: number = 8;
-    private values:number[]=[];
-    onEnable() {
+    private values:number[]=[];   
+    // 开始函数
+    start() {
+        // TODO: 添加开始函数的具体实现
+       let data = ReportManager.getInstance().reportDataList;
+       this.updateView(data);
+    }
+
+    onEnable(){
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
     }
-    onDisable() {
+    onDisable(){
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
-         
-    start() {
-    //   this.setValues([1,5,5,5,5]);
-     ReportManager.getInstance().getPersonalReport();
+
+    updateView(data:ReportData[]){
+        if(data.length==0) {
+            console.log(data.length);
+            this.labelsNode.forEach(item=>{
+                item.active=false;
+            })
+            return;
+        }
+        data.forEach((item,index)=>{
+            this.labelsNode[index].active=true;
+            this.labelsNode[index].getChildByName('titleLable').getComponent(Label).string=item.cog_ability_desc
+            this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string=`超过${item.tier*10}%同龄人`
+        })  
     }
     
     getBrainTrainingTiersCallback(){
         let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
-        reportDataList.forEach((item,index)=>{
-            this.labels[index].string=item.cog_ability_desc
-        })  
+        this.updateView(reportDataList);
     }
+
     setValues(values:number[]){
         this.values=values;
         this.initGraphics();
