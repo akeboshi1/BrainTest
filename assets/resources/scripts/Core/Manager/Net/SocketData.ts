@@ -1,7 +1,7 @@
 import {TimeUtil} from "../../../Core/Util/TimeUtil";
 import {Global} from "../../../Core/Manager/Config/Global";
 import {SocketManager} from "db://assets/resources/scripts/Core/Manager/Net/SocketManager";
-import AlertManager, { AlertData } from "../../../Core/Manager/Alert/AlertManager";
+import {AlertManager, AlertData } from "../../../Core/Manager/Alert/AlertManager";
 import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 
 export enum SocketDataStatus{

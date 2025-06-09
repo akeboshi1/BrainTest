@@ -8,7 +8,7 @@ import {SocketManager} from "../../Core/Manager/Net/SocketManager";
 import {NotificationData, TaskData, TaskStatus, TaskType} from "../../Game/Task/TaskData";
 import {DebugLog} from "../../Core/Util/DebugLog";
 import {SceneManager} from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
-import AlertManager, {AlertData} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import {AlertManager,AlertData} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import {BaseManager} from "../../Core/Manager/BaseManager";
 

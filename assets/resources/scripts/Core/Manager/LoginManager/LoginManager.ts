@@ -7,7 +7,7 @@ import { TimeUtil } from "../../Util/TimeUtil";
 import { LocalStorageKeyEnum, LocalStorageUtil } from "../../Util/LocalStorageUtil";
 import { EventManager } from "../Event/EventManager";
 import { SceneManager } from "../Scene/SceneManager";
-import AlertManager, { AlertData } from "../Alert/AlertManager";
+import {AlertManager, AlertData } from "../Alert/AlertManager";
 import { VerifyPanel } from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
 import { BundleName } from "../Load/BundleName";
 import { DebugLog } from "../../Util/DebugLog";
@@ -112,9 +112,10 @@ export class LoginManager {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
-            const alertData: AlertData = new AlertData();
-            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            AlertManager.getInstance().showAlert(alertData);
+            AlertManager.getInstance().showSocketAlert(data.message);
+            // const alertData: AlertData = new AlertData();
+            // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
+            // AlertManager.getInstance().showAlert(alertData);
             return;
         }
         this._phoneNum = data['data']['mp_no'];
@@ -125,17 +126,19 @@ export class LoginManager {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
-            const alertData: AlertData = new AlertData();
-            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            AlertManager.getInstance().showAlert(alertData);
+            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);
+            // const alertData: AlertData = new AlertData();
+            // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
+            // AlertManager.getInstance().showAlert(alertData);
             return;
         }
 
         if (data['data']['mp_no'] != this.phoneNum) {
             DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
-            const alertData: AlertData = new AlertData();
-            alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;
-            AlertManager.getInstance().showAlert(alertData);
+            AlertManager.getInstance().showSocketAlert(`${data['data']['mp_no']} 手机号不匹配`);
+            // const alertData: AlertData = new AlertData();
+            // alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;
+            // AlertManager.getInstance().showAlert(alertData);
             return;
         }
 

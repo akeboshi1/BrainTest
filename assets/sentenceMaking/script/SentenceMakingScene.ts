@@ -1,6 +1,6 @@
 import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, Label, Node, Prefab, Rect, RichText, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
-import AlertManager, { AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import {AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
 import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';

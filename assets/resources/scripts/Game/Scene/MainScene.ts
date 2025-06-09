@@ -7,7 +7,7 @@ import { TimeUtil } from "../../Core/Util/TimeUtil";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { SceneManager } from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
 import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import AlertManager, { AlertData } from '../../Core/Manager/Alert/AlertManager';
+import  {AlertManager, AlertData } from '../../Core/Manager/Alert/AlertManager';
 import { LocalStorageUtil } from '../../Core/Util/LocalStorageUtil';
 
 import { BundlePreloadEvent, BundlePreloadManager } from '../../Core/Manager/Load/BundlePreloadManager';

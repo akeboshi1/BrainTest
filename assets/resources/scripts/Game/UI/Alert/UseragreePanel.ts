@@ -2,7 +2,7 @@ import { _decorator, Component, Node } from 'cc';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { XieYiPanel } from '../Login/XieYiPanel';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
-import AlertManager from '../../../Core/Manager/Alert/AlertManager';
+import {AlertManager} from '../../../Core/Manager/Alert/AlertManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('UseragreePanel')
