@@ -1,6 +1,7 @@
 import { _decorator, Component, Label, Node, Sprite, SpriteFrame, resources } from 'cc';
-import { TaskContainerConfig } from './TaskContainerConfig';
+
 import { DebugLog } from '../Core/Util/DebugLog';
+import { TaskContainerConfig } from './TaskContainerConfig';
 const { ccclass, property } = _decorator;
 
 @ccclass('TaskItemController')

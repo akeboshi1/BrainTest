@@ -4,8 +4,8 @@ import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
 import { TaskItemController } from './TaskItemController';
-import { ReportManage } from '../ManageV2/ReportManage';
 import { RadiaGraph } from './RadiaGraph';
+import { ReportManager } from '../ManagerV2/ReportManager';
 
 const { ccclass, property } = _decorator;
 
@@ -29,19 +29,19 @@ export class IndexPageController extends Component {
 
     async start() {
         await this.generateTask();
-        ReportManage.getInstance().getPersonalReport();
+        ReportManager.getInstance().getPersonalReport();
         PersonalCenterManager.getInstance().requestUserInfo();
     }
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-        EventManager.getInstance().on(ReportManage.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
+        EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
     }
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
-        EventManager.getInstance().off(ReportManage.getBrainTrainingTiersCallback, this);
+        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
     getBrainTrainingTiersCallback(){
-       let reportDataList: ReportData[] = ReportManage.getInstance().reportDataList;
+       let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
        const values = reportDataList.map(item => item.tier);
        this.radarMap.getComponent(RadiaGraph).setValues(values);
     }

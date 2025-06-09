@@ -10,16 +10,16 @@ interface ReportData {
     tier : number
 }
 
-export class ReportManage {
+export class ReportManager {
 
     public static getBrainTrainingTiersCallback: string = "getBrainTrainingTiersCallback";
-    private static _instance: ReportManage;
+    private static _instance: ReportManager;
 
-    public static getInstance(): ReportManage {
-        if (ReportManage._instance == null) {
-            ReportManage._instance = new ReportManage();
+    public static getInstance(): ReportManager {
+        if (ReportManager._instance == null) {
+            ReportManager._instance = new ReportManager();
         }
-        return ReportManage._instance;
+        return ReportManager._instance;
     }
     private get_brain_training_tiers: string = "user.get_brain_training_tiers";
     private _reportDataList = [];
@@ -44,11 +44,11 @@ export class ReportManage {
             console.log(result);
             if (result.length == 0) {
                 // DebugLog.instance.log('暂无个人报告');
-                EventManager.getInstance().emit(ReportManage.getBrainTrainingTiersCallback, {});
+                EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
                 return;
             }
             this._reportDataList = result;
-            EventManager.getInstance().emit(ReportManage.getBrainTrainingTiersCallback, {});
+            EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
         }
     }
 
