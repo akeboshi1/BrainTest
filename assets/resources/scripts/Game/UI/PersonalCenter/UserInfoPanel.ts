@@ -4,7 +4,7 @@ import { Selector } from '../../PersonalCenterManager/Selector';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
-import AlertManager, { AlertData } from '../../../Core/Manager/Alert/AlertManager';
+import {AlertManager, AlertData } from '../../../Core/Manager/Alert/AlertManager';
 import { DebugLog } from '../../../Core/Util/DebugLog';
 
 

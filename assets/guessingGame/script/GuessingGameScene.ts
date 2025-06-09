@@ -4,7 +4,7 @@ import {FrameComponent} from '../../resources/scripts/Core/Component/FrameCompon
 import {EventManager} from '../../resources/scripts/Core/Manager/Event/EventManager';
 import {GuessingQuestion} from './GuessingGameConfig';
 import {RollingSubtitleComponent} from './RollingSubtitleComponent';
-import AlertManager, {AlertData} from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import {AlertManager,AlertData} from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import {TimeUtil} from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import {TimerCommonComponent} from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
