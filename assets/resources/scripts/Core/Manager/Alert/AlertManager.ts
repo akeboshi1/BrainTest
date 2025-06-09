@@ -1,17 +1,22 @@
-import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3} from "cc";
+import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3, _decorator, Component, director, tween } from "cc";
 import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { SceneManager } from "../Scene/SceneManager";
+const { ccclass, property } = _decorator;
 
-export default class AlertManager extends BaseManager {
+@ccclass('AlertManager')
+export class AlertManager extends BaseManager {
     private static _instance: AlertManager;
+    private _alertNode: Node = null;
+    private _socketAlertPrefab: Prefab = null;
 
     public static getInstance(): AlertManager {
-        if (!this._instance) {
-            this._instance = new AlertManager();
+        if (!AlertManager._instance) {
+            AlertManager._instance = new AlertManager();
+            AlertManager._instance.init();
         }
-        return this._instance;
+        return AlertManager._instance;
     }
 
     private commonAlertPrefab: Prefab = null;
@@ -51,7 +56,17 @@ export default class AlertManager extends BaseManager {
                 resolve();
             });
         });
+    }
 
+
+    private initSocketAlertPrefab() {
+        resources.load("prefab/alert_socket", Prefab, (err, prefab) => {
+            if (err) {
+                DebugLog.instance.error(err);
+                return;
+            }
+            this._socketAlertPrefab = prefab;
+        });
     }
 
     public showAlert(alertData: AlertData) {
@@ -235,6 +250,47 @@ export default class AlertManager extends BaseManager {
         this.alertQueue = [];
         this.closeCurrentAlert();
     }
+
+    public showSocketAlert(message: string) {
+        if (!this._socketAlertPrefab) {
+            DebugLog.instance.error("Socket Alert prefab not loaded!");
+            return;
+        }
+
+        // 实例化预制体
+        let alertNode = instantiate(this._socketAlertPrefab);
+
+        // 如果找不到弹窗层，则输出错误信息
+        let rootNode: Node = LayerUtil.getAlertLayer();
+        if (!rootNode) {
+            DebugLog.instance.error("Can not find alert layer!");
+            return;
+        }
+
+        rootNode.addChild(alertNode);
+        this.currentAlert = alertNode;
+
+        // 设置提示内容
+        const messageLabel = alertNode.getComponentInChildren(Label);
+        if (messageLabel) {
+            messageLabel.string = message;
+        }
+
+        // 创建渐隐动画
+        tween(alertNode)
+            .delay(2) // 延迟2秒
+            .to(0.5, { scale: new Vec3(0.8, 0.8, 1) }) // 先缩小
+            .to(0.3, { scale: new Vec3(0, 0, 1) }) // 再完全消失
+            .call(() => {
+                // 动画结束后销毁节点
+                if (this.currentAlert === alertNode) {
+                    this.currentAlert = null;
+                }
+                alertNode.destroy();
+            })
+            .start();
+    }
+
 }
 
 export class AlertData {
@@ -252,5 +308,4 @@ export class AlertData {
     public confirmButtonText: string = "确认";
     public x: number = 0; // 弹窗x坐标，默认为0表示使用默认位置
     public y: number = 0; // 弹窗y坐标，默认为0表示使用默认位置
-
 }

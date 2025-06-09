@@ -1,7 +1,7 @@
 import { _decorator, Toggle, Node, Vec3,Label,EditBox,Button,Sprite,resources,SpriteFrame} from 'cc';
 import {BasePanel} from "../../../Core/UI/BasePanel";
 import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
-import AlertManager, {AlertData} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import {AlertManager, AlertData} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { XieYiPanel } from './XieYiPanel';
@@ -148,6 +148,7 @@ export class LoginPanel extends BasePanel {
             EventManager.getInstance().on('login.send_mp_code', (data) => {
                 if (data['status'] == 0) {
                     // 请求失败，不进行操作
+                    AlertManager.getInstance().showSocketAlert('请求失败重新再试');
                     return;
                 }
                 // 请求成功，显示验证码面板
@@ -306,6 +307,7 @@ export class LoginPanel extends BasePanel {
             this.editBox.string = "";
             this.editBox.setFocus(); // 重新获取焦点
             this.timerCommonComponent.startTimer(60);
+            AlertManager.getInstance().showSocketAlert("验证码错误");
             return;
         }
     }
@@ -328,7 +330,9 @@ export class LoginPanel extends BasePanel {
 
     private requestCodeCallBack(data, context) {
         if (data['status'] == 0) {
-            DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
+            let errStr = `请求${data['action']}失败，${data.message}`;
+            DebugLog.instance.error(errStr);
+            AlertManager.getInstance().showSocketAlert(errStr);
             this.phoneView.active = true;
             this.yanzhengView.active = false;
             return;

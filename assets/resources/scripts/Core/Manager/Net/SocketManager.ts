@@ -6,7 +6,7 @@ import { UIManager } from "../UI/UIManager";
 import { LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
-import AlertManager, { AlertData } from "../Alert/AlertManager";
+import { AlertManager, AlertData } from "../Alert/AlertManager";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
@@ -196,6 +196,8 @@ export class SocketManager extends BaseManager {
 
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.warn('onSocketError !');
+        // 显示 Socket 错误提示
+        AlertManager.getInstance().showSocketAlert('网络连接错误，请检查网络设置');
     }
 
     //重连成功返回true
