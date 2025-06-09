@@ -8,7 +8,7 @@ import {ColorUtil} from '../../../Core/Util/ColorUtil';
 import {DebugLog} from '../../../Core/Util/DebugLog';
 import {BasePanel} from '../../../Core/UI/BasePanel';
 import {UIManager} from '../../../Core/Manager/UI/UIManager';
-import AlertManager, {AlertData} from '../../../Core/Manager/Alert/AlertManager';
+import  {AlertManager,AlertData} from '../../../Core/Manager/Alert/AlertManager';
 import {BrainTrain} from '../BrainTrain/BrainTrain';
 import {BundleName} from '../../../Core/Manager/Load/BundleName';
 import {Global} from '../../../Core/Manager/Config/Global';

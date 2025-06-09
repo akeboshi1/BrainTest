@@ -9,7 +9,7 @@ import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { AlertType, GameAlert } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
 import { Canvas, director, instantiate, Node, Prefab, resources, UITransform, Vec3 } from "cc";
 import { TaskStatus } from "db://assets/resources/scripts/Game/Task/TaskData";
-import AlertManager, { AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import {AlertManager,  AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "db://assets/resources/scripts/Core/Manager/Load/BundlePreloadManager";
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { UIManager } from "../../../Core/Manager/UI/UIManager";

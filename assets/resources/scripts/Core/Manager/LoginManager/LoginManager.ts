@@ -7,7 +7,7 @@ import { TimeUtil } from "../../Util/TimeUtil";
 import { LocalStorageKeyEnum, LocalStorageUtil } from "../../Util/LocalStorageUtil";
 import { EventManager } from "../Event/EventManager";
 import { SceneManager } from "../Scene/SceneManager";
-import AlertManager, { AlertData } from "../Alert/AlertManager";
+import {AlertManager, AlertData } from "../Alert/AlertManager";
 import { VerifyPanel } from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
 import { BundleName } from "../Load/BundleName";
 import { DebugLog } from "../../Util/DebugLog";
