@@ -3,7 +3,7 @@ import { SocketData } from "../Core/Manager/Net/SocketData";
 import { SocketManager } from "../Core/Manager/Net/SocketManager";
 import { DebugLog } from "../Core/Util/DebugLog";
 
-interface ReportData {
+ export interface ReportData {
     cog_ability: string,
     cog_ability_desc : string,
     last_tier : number,

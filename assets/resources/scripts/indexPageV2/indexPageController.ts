@@ -5,16 +5,10 @@ import { DebugLog } from '../Core/Util/DebugLog';
 import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
 import { TaskItemController } from './TaskItemController';
 import { RadiaGraph } from './RadiaGraph';
-import { ReportManager } from '../ManagerV2/ReportManager';
+import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 
 const { ccclass, property } = _decorator;
 
-interface ReportData {
-    cog_ability: string,
-    cog_ability_desc: string,
-    last_tier: number,
-    tier: number
-}
 
 @ccclass('IndexPageController')
 export class IndexPageController extends Component {
