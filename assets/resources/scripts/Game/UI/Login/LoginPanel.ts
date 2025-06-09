@@ -127,7 +127,7 @@ export class LoginPanel extends BasePanel {
      * 点击协议显示协议面板
      */
 
-    public async loginClick() {
+    public loginClick() {
         if (!this.toggle.isChecked) {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
@@ -154,11 +154,13 @@ export class LoginPanel extends BasePanel {
                 }
                 // 请求成功，显示验证码面板
 
+                self.timerCommonComponent.startTimer(30);
                 self.switchView(false);
                 self.startEditbox();
-                self.textChange();
+                self.textChange1();
                 self.phoneNumber = LoginManager.getInstance().phoneNum;
                 self.updateYanzhengView();
+
                 // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME, { switchView: false });
             }, this, true);
 
@@ -169,14 +171,15 @@ export class LoginPanel extends BasePanel {
             var str = this.editBox.string;
             let characters = str.split('');
             this.loginBtn.active = true;
-            if (characters.length != 4) {
-                DebugLog.instance.error("请正确输入验证码");
-                AlertManager.getInstance().showSocketAlert('请正确输入验证码');
-                return;
-            }
+
             if (this.isTimeOver) {
                 this.reSendCode();
             } else {
+                if (characters.length != 4) {
+                    DebugLog.instance.error("请正确输入验证码");
+                    AlertManager.getInstance().showSocketAlert('请正确输入验证码');
+                    return;
+                }
                 let codeStr = "";
                 for (let i = 0; i < len; i++) {
                     let editBox = this.numNodes[i];
@@ -261,8 +264,22 @@ export class LoginPanel extends BasePanel {
             len = characters.length;
         }
 
-        btn.enabled = len >= maxLen;
-        await this.changeBtnFrame(len >= maxLen ? 1 : 0);
+        await this.btnEnableChange(len>=maxLen);
+    }
+
+    private textChange1(){
+        let btn = this.loginBtn.getComponent(Button);
+        let len = 0;
+        let maxLen = 4;
+        if (this.phoneView.active) {
+            maxLen = 11;
+            len = this.phoneNumberEdit.string.length;
+        } else {
+            var str = this.editBox.string;
+            let characters = str.split('');
+            len = characters.length;
+        }
+        btn.enabled = len>=maxLen;
     }
 
     public async btnEnableChange(boo: boolean = false) {
@@ -273,7 +290,7 @@ export class LoginPanel extends BasePanel {
 
     public cleanNumber() {
         this.phoneNumberEdit.string = "";
-        this.textChange();
+        // this.textChange();
     }
 
     // ============ 验证码界面
@@ -320,21 +337,26 @@ export class LoginPanel extends BasePanel {
         if (len == 4) {
             this.editBox.node.active = false;
             this.labelNode.active = true;
-            this.textChange();
+            // this.textChange();
             this.loginClick();
         }
 
     }
 
+    /**
+     * 请求登录返回
+     * @param data
+     * @param context
+     * @private
+     */
     private requestLoginCallBack(data, context) {
         if (data['status'] == 0) {
-            this.textChange();
             // this.clearEditBox();
             // this.editBox.string = "";
             this.editBox.setFocus(); // 重新获取焦点
-            this.timerCommonComponent.startTimer(60);
+            // this.timerCommonComponent.startTimer(30);
             this.btnEnableChange(false);
-            AlertManager.getInstance().showSocketAlert("登录失败");
+            AlertManager.getInstance().showSocketAlert(this.errorYanZhenStr);
             return;
         }
     }
@@ -347,17 +369,27 @@ export class LoginPanel extends BasePanel {
     onTimerEnd() {
         this.isTimeOver = true;
         this.btnEnableChange(true);
-        this.setLoginBtnMessage("重新获取");
+        this.setLoginBtnMessage(this.retryStr);
     }
 
 
+    /**
+     * 请求验证码
+     */
     reSendCode() {
         this.startEditbox();
         EventManager.getInstance().on(this.login_send_mp_code, this.requestCodeCallBack, this, true);
         LoginManager.getInstance().requestSendMpCode(this.phoneNumber);
     }
 
+    /**
+     * 请求验证码返回
+     * @param data
+     * @param context
+     * @private
+     */
     private requestCodeCallBack(data, context) {
+        this.isTimeOver = false;
         if (data['status'] == 0) {
             let errStr = `请求${data['action']}失败，${data.message}`;
             DebugLog.instance.error(errStr);
@@ -366,7 +398,7 @@ export class LoginPanel extends BasePanel {
             this.yanzhengView.active = false;
             return;
         }
-        this.timerCommonComponent.startTimer(60);
+        this.timerCommonComponent.startTimer(30);
         this.timerCommonComponent.node.active = true;
         this.phoneNumber = data['data']['mp_no'];
         this.updateYanzhengView();
@@ -377,18 +409,28 @@ export class LoginPanel extends BasePanel {
         this.phoneDesTxt.string = `请输入${this.phoneNumber}收到的验证码`;
     }
 
+    private loginStr = "立即登录";
+    private yanzhengStr= "获取验证码";
+    private retryStr = "重新获取";
+    private errorYanZhenStr = "验证码错误";
     switchView(phoneViewBoo: boolean) {
         this.phoneView.active = phoneViewBoo;
         this.yanzhengView.active = !phoneViewBoo;
+        let btn = this.loginBtn.getComponent(Button);
         let str = "";
         if (phoneViewBoo) {
+            this.toggle.node.active = true;
             if (this.timerCommonComponent) this.timerCommonComponent.resetTimer();
-            str = "获取验证码";
+            str = this.yanzhengStr;
             this.clearEditBox();
             this.loginBtn.active = true;
+            this.btnEnableChange(true);
+            btn.enabled = true;
         } else {
-            str = "立即登录";
-            this.loginBtn.active = false;
+            this.toggle.node.active = false;
+            str = this.loginStr;
+            this.loginBtn.active = true;
+            this.btnEnableChange(false);
         }
        this.setLoginBtnMessage(str);
     }
