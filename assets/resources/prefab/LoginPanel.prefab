@@ -2938,9 +2938,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 200,
-      "g": 201,
-      "b": 204,
+      "r": 0,
+      "g": 0,
+      "b": 0,
       "a": 255
     },
     "_string": "",
@@ -3157,8 +3157,6 @@
       "__id__": 0
     },
     "fileId": "0ferfQTZJOaLbTNdByi4yR",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
