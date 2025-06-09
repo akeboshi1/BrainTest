@@ -10,6 +10,9 @@ export class TimerCommonComponent extends Component {
     @property({ type: Number, tooltip: "显示类型，1表示 00:00 格式，2表示只显示秒数" })
     displayType: number = 1;
 
+    @property({ type: String, tooltip: "自定义显示字符串模板，使用 {time} 作为倒计时占位符" })
+    updateStr: string = "";
+
     private startTime: number;
     private duration: number = 10;
     private isRunning: boolean = false;
@@ -39,8 +42,14 @@ export class TimerCommonComponent extends Component {
                     const seconds = Math.ceil(remainingTime);
                     timeStr = seconds.toString();
                 }
+
                 if (this.timeLabel) {
-                    this.timeLabel.string = timeStr;
+                    if (this.updateStr && this.updateStr.length > 0) {
+                        // 使用模板字符串替换倒计时值
+                        this.timeLabel.string = this.updateStr.replace("{time}", timeStr);
+                    } else {
+                        this.timeLabel.string = timeStr;
+                    }
                 }
             } else {
                 this.isRunning = false;
@@ -48,6 +57,7 @@ export class TimerCommonComponent extends Component {
             }
         }
     }
+
 
     // 开始计时的方法，可传入计时总时长
     public startTimer(duration: number = this.duration) {

@@ -1,10 +1,8 @@
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { LoginPanel } from "db://assets/resources/scripts/Game/UI/Login/LoginPanel";
-import { LoginPopUpPanel } from "db://assets/resources/scripts/Game/UI/Login/LoginPopUpPanel";
 import { SocketData } from "db://assets/resources/scripts/Core/Manager/Net/SocketData";
 import { SocketManager } from "db://assets/resources/scripts/Core/Manager/Net/SocketManager";
-import { PhoneLoginPanel } from "db://assets/resources/scripts/Game/UI/Login/PhoneLoginPanel";
 import { TimeUtil } from "../../Util/TimeUtil";
 import { LocalStorageKeyEnum, LocalStorageUtil } from "../../Util/LocalStorageUtil";
 import { EventManager } from "../Event/EventManager";
@@ -48,8 +46,6 @@ export class LoginManager {
 
     init() {
         UIManager.getInstance().registerPanel(LoginPanel.NAME, BundleName.RESOURCES, "prefab/LoginPanel", LoginPanel);
-        UIManager.getInstance().registerPanel(PhoneLoginPanel.NAME, BundleName.RESOURCES, "prefab/PhoneLoginPanel", PhoneLoginPanel);
-        UIManager.getInstance().registerPanel(LoginPopUpPanel.NAME, BundleName.RESOURCES, "prefab/LoginPopUpPanel", LoginPopUpPanel);
         UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
         UIManager.getInstance().registerPanel(GenerateReport.NAME, BundleName.RESOURCES, "prefab/personalCenter/GenerateReport", GenerateReport);
     }
