@@ -1,5 +1,5 @@
 import { _decorator, Component, Node } from 'cc';
-import { PageController } from '../MainV2/PageController';
+import { PageController } from './PageController';
 
 
 const { ccclass, property } = _decorator;

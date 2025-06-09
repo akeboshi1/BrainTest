@@ -130,7 +130,7 @@ export class SceneManager extends BaseManager {
     async backToHall(): Promise<void> {
         return new Promise((resolve, reject) => {
             let url = Global.RES_Root + GameSceneConst.Hall;
-            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then(() => {
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2", BundleName.RESOURCES).then(() => {
                 DebugLog.instance.log('返回大厅');
                 resolve();
             }).catch(err => {
@@ -142,7 +142,7 @@ export class SceneManager extends BaseManager {
     async backToGameCenter(): Promise<void> {
         return new Promise((resolve, reject) => {
             let url = Global.RES_Root + GameSceneConst.Hall;
-            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2", BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回游戏大厅');
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");
@@ -158,7 +158,7 @@ export class SceneManager extends BaseManager {
     async backToSkewersGameCenter(): Promise<void> {
         return new Promise((resolve, reject) => {
             let url = Global.RES_Root + GameSceneConst.Hall;
-            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2", BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回串烧游戏大厅');
                 UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
                 UIManager.getInstance().showPanel(BrainTrain.NAME);
@@ -172,7 +172,7 @@ export class SceneManager extends BaseManager {
     async backToSkewersGameCenterByID(id: number): Promise<void> {
         return new Promise((resolve, reject) => {
             let url = Global.RES_Root + GameSceneConst.Hall;
-            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2", BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回串烧游戏大厅');
                 UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
                 UIManager.getInstance().showPanel(BrainTrain.NAME, id);
@@ -186,7 +186,7 @@ export class SceneManager extends BaseManager {
     async backToTaskProgress(): Promise<void> {
         return new Promise((resolve, reject) => {
             let url = Global.RES_Root + GameSceneConst.Hall;
-            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2", BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回串烧游戏界面');
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");

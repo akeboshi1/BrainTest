@@ -1,0 +1,14 @@
+{
+    "task0": {
+        "title":"今日份游戏",
+        "txt":"专为老年人设计的脑力训练游戏，通过认知挑战延缓阿尔茨海默症。",
+        "icon":"textureV2/gameEnter/add/spriteFrame",
+        "icon_bg":"textureV2/gameEnter/rect/spriteFrame"
+    },
+    "task1": {
+        "title":"益脑手指操",
+        "txt":"视频引导手指操，训练手部运动协同锻炼，科学延缓认知衰退。",
+        "icon":"textureV2/gameEnter/video/spriteFrame",
+        "icon_bg":"textureV2/gameEnter/video_bg/spriteFrame"
+    }
+}

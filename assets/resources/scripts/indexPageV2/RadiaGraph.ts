@@ -1,18 +1,39 @@
-import { _decorator, Component, Node, Graphics, Color, Vec2 } from 'cc';
+import { _decorator, Component, Node, Graphics, Color, Vec2, Label } from 'cc';
+import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
+import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
+import { EventManager } from '../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('RadiaGraph')
 export class RadiaGraph extends Component {
+
+    @property([Label])
+     labels:Label[]=[];
+
     private graphics: Graphics = null;
     private centerPos: Vec2 = new Vec2(0, 0);
-    private readonly maxRadius: number = 400;
-    private readonly minRadius: number = 40;
+    private readonly maxRadius: number = 200;
+    private readonly minRadius: number = 20;
     private readonly circleRadius: number = 15;
     private readonly lineWidth: number = 8;
     private values:number[]=[];
+    onEnable() {
+        EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
+    }
+    onDisable() {
+        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
+    }
+         
     start() {
-      this.setValues([1,5,5,5,5]);
-     
+    //   this.setValues([1,5,5,5,5]);
+     ReportManager.getInstance().getPersonalReport();
+    }
+    
+    getBrainTrainingTiersCallback(){
+        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
+        reportDataList.forEach((item,index)=>{
+            this.labels[index].string=item.cog_ability_desc
+        })  
     }
     setValues(values:number[]){
         this.values=values;
