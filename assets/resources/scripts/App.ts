@@ -11,7 +11,7 @@ import { Global } from "./Core/Manager/Config/Global";
 import { TaskManager } from "db://assets/resources/scripts/Game/Task/TaskManager";
 import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
-import AlertManager, { AlertData } from './Core/Manager/Alert/AlertManager';
+import  {AlertManager, AlertData } from './Core/Manager/Alert/AlertManager';
 import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
 import { AudioManager } from './Core/Manager/Audio/AudioManager';
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
@@ -161,6 +161,7 @@ export class App extends BaseObejct {
         } else {
             await AlertManager.getInstance().init();
             await AlertManager.getInstance().initUserAgreeAlert();
+            await AlertManager.getInstance().initSocketAlertPrefab();
 
             // 初始化socket
             SocketManager.getInstance().initSocket(this.publishSetting.currentApiUrl).then(() => {
