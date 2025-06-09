@@ -1,50 +1,50 @@
-import { _decorator, Toggle, Node, Vec3,Label,EditBox,Button,Sprite,resources,SpriteFrame} from 'cc';
-import {BasePanel} from "../../../Core/UI/BasePanel";
-import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
-import {AlertManager, AlertData} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
-import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { _decorator, Toggle, Node, Vec3, Label, EditBox, Button, Sprite, resources, SpriteFrame } from 'cc';
+import { BasePanel } from "../../../Core/UI/BasePanel";
+import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import { AlertManager, AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { XieYiPanel } from './XieYiPanel';
-import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
-import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
-import {TimerCommonComponent} from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
+import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
 export class LoginPanel extends BasePanel {
 
     @property(Node)
-    loginBtn:Node;
+    loginBtn: Node;
 
     @property(Toggle)
-    toggle:Toggle;
+    toggle: Toggle;
 
     @property(Node)
-    tips:Node;
+    tips: Node;
 
     @property(Label)
-    phoneDesTxt:Label;
+    phoneDesTxt: Label;
 
     @property(Label)
-    loginBtnLabel:Label;
+    loginBtnLabel: Label;
 
     @property(TimerCommonComponent)
     private timerCommonComponent: TimerCommonComponent;
 
     // ===== 手机号输入
     @property(Node)
-    phoneView:Node;
+    phoneView: Node;
 
     @property(EditBox)
     phoneNumberEdit: EditBox;
 
     @property(Button)
-    cleanNumberBtn:Button;
+    cleanNumberBtn: Button;
 
 
     // ===== 验证码
     @property(Node)
-    yanzhengView:Node;
+    yanzhengView: Node;
 
     @property(Node)
     num0: Node;
@@ -65,7 +65,7 @@ export class LoginPanel extends BasePanel {
     labelNode: Node;
 
     private numNodes: Node[];
-    
+
     public static NAME: string = "LoginPanel";
 
 
@@ -84,7 +84,7 @@ export class LoginPanel extends BasePanel {
     private phoneNumber: string = "";
     private phoneCode: string = "";
 
-    private isTimeOver:boolean =false;
+    private isTimeOver: boolean = false;
 
 
     constructor() {
@@ -96,6 +96,7 @@ export class LoginPanel extends BasePanel {
         if (this.phoneNumberEdit.node) {
             this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END, this.checkBoxHandler, this);
         }
+        this.textChange();
 
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
     }
@@ -115,7 +116,7 @@ export class LoginPanel extends BasePanel {
 
 
     onDestroy() {
-      super.onDestroy();
+        super.onDestroy();
     }
 
     private checkBoxHandler(evt: Event) {
@@ -126,20 +127,20 @@ export class LoginPanel extends BasePanel {
      * 点击协议显示协议面板
      */
 
-    public loginClick(){
-        if(!this.toggle.isChecked){
-            let ad:AlertData = new AlertData();
+    public async loginClick() {
+        if (!this.toggle.isChecked) {
+            let ad: AlertData = new AlertData();
             ad.title = "提示";
-            ad.cancelButtonVisible=true;
-            ad.cancelButtonText="不接受"
-            ad.confirmButtonText="接受"
+            ad.cancelButtonVisible = true;
+            ad.cancelButtonText = "不接受"
+            ad.confirmButtonText = "接受"
             ad.contentClickCb = this.showXieYi.bind(this);
             AlertManager.getInstance().showUserAgreeAlert(ad);
             ad.confirmCb = this.confirmHandler.bind(this);
-            ad.cancelCb=this.cancelHandler.bind(this);
+            ad.cancelCb = this.cancelHandler.bind(this);
             return;
         }
-        if(this.phoneView.active){
+        if (this.phoneView.active) {
             const phoneNum = this.phoneNumberEdit.string;
             LoginManager.getInstance().phoneNum = phoneNum;
 
@@ -163,17 +164,19 @@ export class LoginPanel extends BasePanel {
 
             // 发送验证码请求
             LoginManager.getInstance().requestSendMpCode(phoneNum);
-        }else{
+        } else {
             let len = this.numNodes.length;
             var str = this.editBox.string;
             let characters = str.split('');
-            if(characters.length!=4){
+            this.loginBtn.active = true;
+            if (characters.length != 4) {
                 DebugLog.instance.error("请正确输入验证码");
+                AlertManager.getInstance().showSocketAlert('请正确输入验证码');
                 return;
             }
-            if(this.isTimeOver){
+            if (this.isTimeOver) {
                 this.reSendCode();
-            }else{
+            } else {
                 let codeStr = "";
                 for (let i = 0; i < len; i++) {
                     let editBox = this.numNodes[i];
@@ -187,22 +190,47 @@ export class LoginPanel extends BasePanel {
         }
     }
 
-    cancelHandler(){
+    private async changeBtnFrame(index: number = 0): Promise<void> {
+        let btnSprite = this.loginBtn.getComponent(Sprite);
+        let url: string = "";
+        switch (index) {
+            case 0:
+                url = "textureV2/component/componentbg/spriteFrame"
+                break
+            case 1:
+                url = "textureV2/component/componentnormalbg/spriteFrame"
+                break;
+        }
+        
+        return new Promise<void>((resolve, reject) => {
+            resources.load(url, SpriteFrame, (err, sp) => {
+                if (err) {
+                    DebugLog.instance.error(err);
+                    reject(err);
+                    return;
+                }
+                btnSprite.spriteFrame = sp;
+                resolve();
+            });
+        });
+    }
+
+    cancelHandler() {
         AlertManager.getInstance().closeCurrentAlert();
     }
     // 显示协议
-    showXieYi(){
-        let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
+    showXieYi() {
+        let xieyiFlagUrl = "https://colapai.xinjiaxianglao.com/xieyi.html"
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
-            url:xieyiFlagUrl
+        UIManager.getInstance().showPanel(XieYiPanel.NAME, {
+            url: xieyiFlagUrl
         });
     }
-    showPrivacy(){
-        let privacyUrl="https://colapai.xinjiaxianglao.com/privacy.html"
+    showPrivacy() {
+        let privacyUrl = "https://colapai.xinjiaxianglao.com/privacy.html"
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
-            url:privacyUrl
+        UIManager.getInstance().showPanel(XieYiPanel.NAME, {
+            url: privacyUrl
         });
     }
 
@@ -213,36 +241,34 @@ export class LoginPanel extends BasePanel {
         this.tips.active = false;
     }
 
-    private toggleClickHandler(){
+    private toggleClickHandler() {
         this.tips.active = this.toggle.isChecked;
     }
 
     /**
      * editbox change
      */
-    public textChange() {
-        let btnSprite = this.loginBtn.getComponent(Sprite);
-        let url = "";
+    public async textChange() {
+        let btn = this.loginBtn.getComponent(Button);
         let len = 0;
-        if(this.phoneView.active){
+        let maxLen = 4;
+        if (this.phoneView.active) {
+            maxLen = 11;
             len = this.phoneNumberEdit.string.length;
-        }else{
+        } else {
             var str = this.editBox.string;
             let characters = str.split('');
             len = characters.length;
         }
-        if (len > 0) {
-           url = "textureV2/component/componentnormalbg/spriteFrame";
-        } else {
-            url = "textureV2/component/componentbg/spriteFrame";
-        }
-        resources.load(url, SpriteFrame,(err,sp)=>{
-            if(err){
-                DebugLog.instance.error(err);
-                return;
-            }
-            btnSprite.spriteFrame  = sp;
-        });
+
+        btn.enabled = len >= maxLen;
+        await this.changeBtnFrame(len >= maxLen ? 1 : 0);
+    }
+
+    public async btnEnableChange(boo: boolean = false) {
+        let btn = this.loginBtn.getComponent(Button);
+        btn.enabled = boo;
+        await this.changeBtnFrame(Number(boo));
     }
 
     public cleanNumber() {
@@ -295,7 +321,7 @@ export class LoginPanel extends BasePanel {
             this.editBox.node.active = false;
             this.labelNode.active = true;
             this.textChange();
-            // this.requestEnter();
+            this.loginClick();
         }
 
     }
@@ -303,11 +329,12 @@ export class LoginPanel extends BasePanel {
     private requestLoginCallBack(data, context) {
         if (data['status'] == 0) {
             this.textChange();
-            this.clearEditBox();
-            this.editBox.string = "";
+            // this.clearEditBox();
+            // this.editBox.string = "";
             this.editBox.setFocus(); // 重新获取焦点
             this.timerCommonComponent.startTimer(60);
-            AlertManager.getInstance().showSocketAlert("验证码错误");
+            this.btnEnableChange(false);
+            AlertManager.getInstance().showSocketAlert("登录失败");
             return;
         }
     }
@@ -319,6 +346,8 @@ export class LoginPanel extends BasePanel {
 
     onTimerEnd() {
         this.isTimeOver = true;
+        this.btnEnableChange(true);
+        this.setLoginBtnMessage("重新获取");
     }
 
 
@@ -332,7 +361,7 @@ export class LoginPanel extends BasePanel {
         if (data['status'] == 0) {
             let errStr = `请求${data['action']}失败，${data.message}`;
             DebugLog.instance.error(errStr);
-            AlertManager.getInstance().showSocketAlert(errStr);
+            AlertManager.getInstance().showSocketAlert("请求验证码失败");
             this.phoneView.active = true;
             this.yanzhengView.active = false;
             return;
@@ -341,22 +370,30 @@ export class LoginPanel extends BasePanel {
         this.timerCommonComponent.node.active = true;
         this.phoneNumber = data['data']['mp_no'];
         this.updateYanzhengView();
+        this.btnEnableChange(false);
     }
 
-    private updateYanzhengView(){
+    private updateYanzhengView() {
         this.phoneDesTxt.string = `请输入${this.phoneNumber}收到的验证码`;
     }
 
-    switchView(phoneViewBoo:boolean) {
-       this.phoneView.active = phoneViewBoo;
-       this.yanzhengView.active = !phoneViewBoo;
-       let str = "";
-       if(phoneViewBoo){
-           if(this.timerCommonComponent)this.timerCommonComponent.resetTimer();
-          str = "获取验证码";
-       }else{
-           str = "立即登录";
-       }
+    switchView(phoneViewBoo: boolean) {
+        this.phoneView.active = phoneViewBoo;
+        this.yanzhengView.active = !phoneViewBoo;
+        let str = "";
+        if (phoneViewBoo) {
+            if (this.timerCommonComponent) this.timerCommonComponent.resetTimer();
+            str = "获取验证码";
+            this.clearEditBox();
+            this.loginBtn.active = true;
+        } else {
+            str = "立即登录";
+            this.loginBtn.active = false;
+        }
+       this.setLoginBtnMessage(str);
+    }
+
+    private setLoginBtnMessage(str:string){
         this.loginBtnLabel.string = str;
     }
 
