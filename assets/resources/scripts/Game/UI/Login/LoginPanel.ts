@@ -1,4 +1,4 @@
-import { _decorator, Toggle, Node, Vec3, Label, EditBox, Button, Sprite, resources, SpriteFrame } from 'cc';
+import { _decorator, Toggle, Node, Vec3, Label, EditBox, Button, Sprite, resources, SpriteFrame, Color } from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { AlertManager, AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
@@ -213,6 +213,11 @@ export class LoginPanel extends BasePanel {
                     return;
                 }
                 btnSprite.spriteFrame = sp;
+                if (index === 0) {
+                    btnSprite.color = new Color(200, 201, 204, 255); // c8c9cc
+                } else {
+                    btnSprite.color = new Color(255, 255, 255, 255); // white
+                }
                 resolve();
             });
         });
