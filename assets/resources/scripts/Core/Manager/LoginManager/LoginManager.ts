@@ -95,16 +95,12 @@ export class LoginManager {
 
     private setInviteCodeCallBack(data: any) {
         if (data.status == 0) {
-            const alertData: AlertData = new AlertData();
-            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            alertData.confirmCb = function () {
-                // this.showVerifryView();
-            }.bind(this);
-            AlertManager.getInstance().showAlert(alertData);
+            AlertManager.getInstance().showSocketAlert("无效验证码");
             return;
         }
 
         Global.userData.inviteCode = data.data['invite_code'];
+        SceneManager.getInstance().backToHall();
     }
 
     private requestSendMpCodeHandler(data: any) {

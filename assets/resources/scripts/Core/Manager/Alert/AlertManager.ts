@@ -278,9 +278,9 @@ export class AlertManager extends BaseManager {
 
         // 创建渐隐动画
         tween(alertNode)
-            .delay(2) // 延迟2秒
-            .to(0.5, { scale: new Vec3(0.8, 0.8, 0.8) }) // 先缩小
-            .to(0.3, { scale: new Vec3(0, 0, 0) }) // 再完全消失
+            .delay(1.8) // 延迟2秒
+            .to(0.3, { scale: new Vec3(0.8, 0.8, 0.8) }) // 先缩小
+            .to(0.1, { scale: new Vec3(0, 0, 0) }) // 再完全消失
             .call(() => {
                 // 动画结束后销毁节点
                 if (this.currentAlert === alertNode) {

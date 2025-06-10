@@ -35,13 +35,9 @@ export class NativeEventManager extends BaseManager {
             this.initFlag = true;
 
             console.log(`初始化NativeEventManager`);
-            // this.on(NativeEvent.DEVICEInfo, (data:any) => {
-            //     this._deviceID = data.deviceId;
-            //     console.log(`获取设备信息: ${this._deviceID}`);
-            // },this);
-            this.on(NativeEvent.QRCODEResult, (data:any) => {
-               EventManager.getInstance().emit(NativeEvent.QRCODEResult,data);
-               console.log(`获取二维码信息: ${data}`);
+            this.on(NativeEvent.DEVICEInfo, (data:any) => {
+                this._deviceID = data.deviceId;
+                console.log(`获取设备信息: ${this._deviceID}`);
             },this);
         }
     }

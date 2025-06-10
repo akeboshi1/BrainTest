@@ -5,7 +5,6 @@ import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 import { NativeEventManager } from "db://assets/resources/scripts/Core/Manager/Event/NativeEventManager";
 import {NativeEvent} from "db://assets/resources/scripts/Core/Manager/Event/NativeEvent";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
-import { EventManager } from '../../../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('VerifyPanel')
@@ -47,8 +46,14 @@ export class VerifyPanel extends BasePanel {
 
         // test
         this.editBox.string = this._inviteCode;
+
     }
 
+
+    private onTextChanged() {
+        const text = this.editBox.string;
+        this.btnEnableChange(text.length >= 4);
+    }
 
     // 停止Tween的函数
     stopTween() {
@@ -59,8 +64,7 @@ export class VerifyPanel extends BasePanel {
     }
 
     submit() {
-        this.verifyNode.active = false;
-
+        
         this._inviteCode = this.editBox.string;
         //     .start();
         LoginManager.getInstance().setInviteCode(this._inviteCode);
@@ -74,14 +78,15 @@ export class VerifyPanel extends BasePanel {
         // todo use camera
         if(sys.platform === sys.Platform.ANDROID){
             DebugLog.instance.error(`使用摄像头`);
-            EventManager.getInstance().on(NativeEvent.QRCODEResult,this.scanCallBack,this,true);
+            NativeEventManager.getInstance().on(NativeEvent.QRCODEResult,this.scanCallBack,this);
             native.bridge.sendToNative(NativeEvent.QRCODE, 'scan');
         }
     }
 
     private scanCallBack(data){
         DebugLog.instance.error(`获取native消息回调`);
-        this.editBox.string = data;
+        NativeEventManager.getInstance().off(NativeEvent.QRCODEResult,this);
+        this.editBox.string = data.code;
         this.btnEnableChange(true);
     }
 
