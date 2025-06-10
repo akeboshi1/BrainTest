@@ -10,6 +10,7 @@ export class RadiaGraph extends Component {
     @property([Node])
      labelsNode:Node[]=[];
 
+
     private graphics: Graphics = null;
     private centerPos: Vec2 = new Vec2(0, 0);
     private readonly maxRadius: number = 200;
@@ -17,6 +18,7 @@ export class RadiaGraph extends Component {
     private readonly circleRadius: number = 15;
     private readonly lineWidth: number = 8;
     private values:number[]=[];   
+    private secondValues:number[]=[]; // 添加第二个数据数组
     // 开始函数
     start() {
         // TODO: 添加开始函数的具体实现
@@ -30,6 +32,7 @@ export class RadiaGraph extends Component {
     onDisable(){
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
+
 
     updateView(data:ReportData[]){
         if(data.length==0) {
@@ -54,7 +57,93 @@ export class RadiaGraph extends Component {
     setValues(values:number[]){
         this.values=values;
         this.initGraphics();
-        this.drawRadarChart();
+        this.drawBothCharts();
+    }
+
+    setSecondValues(values:number[]){
+        this.secondValues = values;
+        this.initGraphics();
+        this.drawBothCharts();
+    }
+
+    private drawBothCharts() {
+        if (!this.graphics) return;
+        this.graphics.clear();
+
+        // 如果有第二个数据，先画第二个图
+        if (this.secondValues && this.secondValues.length > 0) {
+            const secondPoints: Vec2[] = this.calculatePentagonPoints(this.secondValues);
+            
+            // 绘制填充区域（使用正蓝色，设置适当的透明度）
+            this.graphics.fillColor = new Color(0, 0, 255, 100);
+            
+            this.graphics.moveTo(secondPoints[0].x, secondPoints[0].y);
+            for (let i = 1; i < secondPoints.length; i++) {
+                this.graphics.lineTo(secondPoints[i].x, secondPoints[i].y);
+            }
+            this.graphics.close();
+            this.graphics.fill();
+            
+            // 绘制边线
+            this.graphics.strokeColor = new Color(0, 0, 255, 255);
+            this.graphics.lineWidth = this.lineWidth;
+
+            for (let i = 0; i < secondPoints.length; i++) {
+                const currentPoint = secondPoints[i];
+                const nextPoint = secondPoints[(i + 1) % secondPoints.length];
+                
+                const linePoints = this.calculateLineFromCircleToCircle(currentPoint, nextPoint);
+                
+                this.graphics.moveTo(linePoints.start.x, linePoints.start.y);
+                this.graphics.lineTo(linePoints.end.x, linePoints.end.y);
+                this.graphics.stroke();
+            }
+            
+            // 绘制角上的实心圆
+            this.graphics.fillColor = new Color(0, 0, 255, 255);
+            for (const point of secondPoints) {
+                this.graphics.circle(point.x, point.y, this.circleRadius);
+                this.graphics.fill();
+            }
+        }
+
+        // 如果有第一个数据，再画第一个图
+        if (this.values && this.values.length > 0) {
+            const points: Vec2[] = this.calculatePentagonPoints(this.values);
+            
+            // 绘制填充区域
+            this.graphics.fillColor = new Color(173, 216, 230, 128);
+            
+            this.graphics.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                this.graphics.lineTo(points[i].x, points[i].y);
+            }
+            this.graphics.close();
+            this.graphics.fill();
+            
+            // 绘制边线
+            this.graphics.strokeColor = new Color(0, 0, 255, 255);
+            this.graphics.lineWidth = this.lineWidth;
+
+            for (let i = 0; i < points.length; i++) {
+                const currentPoint = points[i];
+                const nextPoint = points[(i + 1) % points.length];
+                
+                const linePoints = this.calculateLineFromCircleToCircle(currentPoint, nextPoint);
+                
+                this.graphics.moveTo(linePoints.start.x, linePoints.start.y);
+                this.graphics.lineTo(linePoints.end.x, linePoints.end.y);
+                this.graphics.stroke();
+            }
+            
+            // 绘制角上的空心圆
+            this.graphics.strokeColor = new Color(0, 0, 255, 255);
+            this.graphics.lineWidth = 8;
+            for (const point of points) {
+                this.graphics.circle(point.x, point.y, this.circleRadius);
+                this.graphics.stroke();
+            }
+        }
     }
 
     update(deltaTime: number) {
