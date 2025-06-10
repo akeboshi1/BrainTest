@@ -34,6 +34,7 @@ export class IndexPageController extends Component {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
+    // 获取大脑训练等级回调函数
     getBrainTrainingTiersCallback(){
        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
        const values = reportDataList.map(item => item.tier);
