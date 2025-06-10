@@ -1,27 +1,37 @@
-import { _decorator, Component, instantiate, Node, Prefab, resources } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color } from 'cc';
 import { DebugLog } from '../Core/Util/DebugLog';
+import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
 const { ccclass, property } = _decorator;
 
 export const TopNavBarConfig = {
-    otherChartItem:'/prefabV2/personReport/otherChartItem',
-    otherSumDataPrefab:'/prefabV2/personReport/otherSumDataPrefab',
-    sumDataPrefab:'/prefabV2/personReport/sumDataPrefab',
-    sumReportPrefab:'/prefabV2/personReport/sumReportPrefab'
+    otherChartItem: '/prefabV2/personReport/otherChartItem',
+    otherSumDataPrefab: '/prefabV2/personReport/otherSumDataPrefab',
+    sumDataPrefab: '/prefabV2/personReport/sumDataPrefab',
+    sumReportPrefab: '/prefabV2/personReport/sumReportPrefab'
 }
 @ccclass('TopNavBarController')
 export class TopNavBarController extends Component {
+    @property([Node])
+    labelsNode: Node[] = [];
 
-    private parentNode_top: Node = null;
-    private parentNode_bottom: Node = null;
+    @property(Node)
+    parentNode_top: Node = null;
+    @property(Node)
+    parentNode_bottom: Node = null;
+    onLoad(): void {
+        // this.scheduleOnce(() => {
+        //     if (this.parentNode_top && this.parentNode_bottom) {
+        //         this.init(this.parentNode_top, this.parentNode_bottom);
+        //         this.loadSumReport();
+        //     }
+        // }, 0);
+    }
     start() {
 
     }
-    init(pageNode: Node,pageNode_bottom: Node){
-        this.parentNode_top = pageNode;
-        this.parentNode_bottom = pageNode_bottom;
-    }
+
     public async loadPage(pageName: string) {
-        if (!this.parentNode_top&&!this.parentNode_bottom) {
+        if (!this.parentNode_top && !this.parentNode_bottom) {
             DebugLog.instance.error('Page node not initialized!');
             return;
         }
@@ -50,36 +60,56 @@ export class TopNavBarController extends Component {
                 });
             });
             const page = instantiate(prefab);
-            if(!pageName.includes('Data')){
+            if (!pageName.includes('Data')) {
                 this.parentNode_top.addChild(page);
-            }else{
+            } else {
                 this.parentNode_bottom.addChild(page);
             }
-            
+
             DebugLog.instance.log(`Page ${pageName} loaded successfully`);
         } catch (error) {
             DebugLog.instance.error(`Failed to load page ${pageName}: ${error}`);
         }
     }
-    clickSumLable(){
-
+    selectedColor(i: number) {
+        // 先将所有标签设置为未选中颜色
+        this.labelsNode.forEach((node, index) => {
+            const label = node.getChildByName('text').getComponent(Label);
+            const line = node.getChildByName('line');
+            if (label) {
+                if (index === i) {
+                    line.active = true;
+                    label.color = new Color(0, 89, 247); // 选中颜色（蓝色）
+                } else {
+                    line.active = false;
+                    label.color = new Color(98, 99, 102); // 未选中颜色（灰色）
+                }
+            }
+        });
     }
-    async loadSumReport(){
-       await this.loadPage('sumReportPrefab');
-        await this.loadPage('sumDataPrefab');
-    }
-    loadOtherChartItem(){
-        this.loadPage('otherChartItem');
-    }
-    loadOtherSumData(){
-        this.loadPage('otherSumDataPrefab');
-    }
-    loadSumData(){
+    loadSumReport() {
+        this.selectedColor(0);
+        this.loadPage('sumReportPrefab');
         this.loadPage('sumDataPrefab');
     }
+    clickOtherNavLable(type: SkewersGameType) {
+        this.loadPage('otherChartItem');
+        this.loadPage('otherSumDataPrefab');
+    }
+    // clickCalulationLable(){
 
+    // }
+    // clickLanguageLable(){
+
+    // }
+    // clickJudegmentLable(){
+
+    // }
+    // clickExecutionLable(){
+
+    // }
     update(deltaTime: number) {
-        
+
     }
 }
 
