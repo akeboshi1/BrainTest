@@ -2,6 +2,7 @@ import { native, sys } from "cc";
 import { BaseManager } from "../BaseManager";
 import { NativeEvent } from "./NativeEvent";
 import { DebugLog } from "../../Util/DebugLog";
+import { EventManager } from "./EventManager";
 
 export class NativeEventManager extends BaseManager {
 
@@ -10,7 +11,6 @@ export class NativeEventManager extends BaseManager {
     public static getInstance(): NativeEventManager {
         if (!NativeEventManager._instance) {
             NativeEventManager._instance = new NativeEventManager();
-            NativeEventManager._instance.init();
         }
         return NativeEventManager._instance;
     }
@@ -43,7 +43,7 @@ export class NativeEventManager extends BaseManager {
     }
 
     private nativeEventHandle(arg0: string, arg1: string) {
-        DebugLog.instance.log("Get Native Message ------- arg0 = " + arg0 + " , arg1 = " + arg1);
+        DebugLog.instance.error("Get Native Message ------- arg0 = " + arg0 + " , arg1 = " + arg1);
 
         const event: NativeEvent = this.stringToEnum(arg0);
         if (event) {
@@ -59,6 +59,9 @@ export class NativeEventManager extends BaseManager {
     }
 
     public on(eventName: NativeEvent, callback: (data: any) => void, context: any) {
+        DebugLog.instance.error("ON",eventName);
+        const eventInfo = Object.keys(this.events).map(key => `${key}:${this.events[key].length}`);
+        DebugLog.instance.error("ON", "{" + eventInfo.join(",") + "}");
         if (!this.events[eventName]) {
             this.events[eventName] = [];
         }
@@ -77,7 +80,9 @@ export class NativeEventManager extends BaseManager {
     }
 
     private emit(eventName, data = null) {
-        DebugLog.instance.log("Emit Native Message ------- eventName = " + eventName + " , data = " + data);
+        DebugLog.instance.error("Emit Native Message ------- eventName = " + eventName + " , data = " + data);
+        const eventInfo = Object.keys(this.events).map(key => `${key}:${this.events[key].length}`);
+        DebugLog.instance.error("ON", "{" + eventInfo.join(",") + "}");
         if (this.events[eventName]) {
             this.events[eventName].forEach(item => {
                 item.callback(data);

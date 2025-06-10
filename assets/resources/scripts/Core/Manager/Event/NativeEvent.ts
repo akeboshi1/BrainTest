@@ -10,4 +10,6 @@ export enum NativeEvent {
     FSRResult = 'FSRResult',
     Device = 'DEVICE',
     DEVICEInfo = 'DEVICEInfo',
+    QRCODE = 'QRCODE',
+    QRCODEResult = 'QRCODEResult',
 }
