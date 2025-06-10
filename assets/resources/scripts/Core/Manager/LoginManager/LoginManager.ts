@@ -154,9 +154,10 @@ export class LoginManager {
         let isNew = data.data["is_new"];
         if (isNew) {
             // 主动弹出邀请码界面
-            // UIManager.getInstance().showPanel(VerifyPanel.NAME);
+            UIManager.getInstance().showPanel(VerifyPanel.NAME);
+            UIManager.getInstance().hidePanel(LoginPanel.NAME);
             // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME);
-            SceneManager.getInstance().backToHall();
+            // SceneManager.getInstance().backToHall();
         } else {
             SceneManager.getInstance().backToHall();
         }

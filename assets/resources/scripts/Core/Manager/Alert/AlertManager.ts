@@ -59,7 +59,7 @@ export class AlertManager extends BaseManager {
     }
 
 
-    private initSocketAlertPrefab() {
+    public initSocketAlertPrefab() {
         resources.load("prefab/alert_socket", Prefab, (err, prefab) => {
             if (err) {
                 DebugLog.instance.error(err);
