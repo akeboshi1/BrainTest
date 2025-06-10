@@ -1,4 +1,4 @@
-import { _decorator, Component, ProgressBar, Node, SpriteFrame, Vec3, Label, EditBox, lerp,Button,Sprite,resources, native,sys } from 'cc';
+import { _decorator, Component, Color, Node, SpriteFrame, Vec3, Label, EditBox, lerp,Button,Sprite,resources, native,sys } from 'cc';
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
@@ -30,6 +30,9 @@ export class VerifyPanel extends BasePanel {
 
     @property(Node)
     loginBtn:Node;
+
+    @property(Node)
+    cancelBtn:Node;
 
 
     private _tween;
@@ -154,6 +157,11 @@ export class VerifyPanel extends BasePanel {
                     return;
                 }
                 btnSprite.spriteFrame = sp;
+                if (index === 0) {
+                    btnSprite.color = new Color(200, 201, 204, 255); // c8c9cc
+                } else {
+                    btnSprite.color = new Color(255, 255, 255, 255); // white
+                }
                 resolve();
             });
         });
