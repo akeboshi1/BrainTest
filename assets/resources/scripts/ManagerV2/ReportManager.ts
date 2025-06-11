@@ -13,7 +13,13 @@ import { DebugLog } from "../Core/Util/DebugLog";
 export class ReportManager {
 
     public static getBrainTrainingTiersCallback: string = "getBrainTrainingTiersCallback";
+    public static getUserSumReportCallback: string = "getUserSumReportCallback";
+
     private static _instance: ReportManager;
+    private get_brain_training_tiers: string = "user.get_brain_training_tiers";
+    private get_user_report: string = "user.get_user_report";
+    private _reportDataList = [];
+
 
     public static getInstance(): ReportManager {
         if (ReportManager._instance == null) {
@@ -21,9 +27,7 @@ export class ReportManager {
         }
         return ReportManager._instance;
     }
-    private get_brain_training_tiers: string = "user.get_brain_training_tiers";
-    private _reportDataList = [];
-    public get reportDataList(): ReportData[] {
+      public get reportDataList(): ReportData[] {
         return this._reportDataList;
     }
 
@@ -52,6 +56,23 @@ export class ReportManager {
         }
     }
 
+    public getUserSumReport() {
+        EventManager.getInstance().on(this.get_user_report, this.requestUserSumReportCallback, this, true);
+        let requestUserSumReportSocket: SocketData = new SocketData({
+            action: this.get_user_report
+        });
+        SocketManager.getInstance().send(requestUserSumReportSocket);
+    }
+
+    requestUserSumReportCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.get_user_report, context);
+        if (data.status == 0) {
+            DebugLog.instance.error(data.message);
+        } else {
+            let result = data.data;
+            EventManager.getInstance().emit(ReportManager.getUserSumReportCallback, result);
+        }
+    }
 
 
     update(deltaTime: number) {
