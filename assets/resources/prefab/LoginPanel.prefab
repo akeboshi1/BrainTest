@@ -3097,9 +3097,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 200,
-      "g": 201,
-      "b": 204,
+      "r": 148,
+      "g": 149,
+      "b": 153,
       "a": 255
     },
     "_string": "请输入手机号",
@@ -3549,9 +3549,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 200,
+      "g": 201,
+      "b": 204,
       "a": 255
     },
     "_spriteFrame": {
@@ -4618,9 +4618,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 200,
+      "g": 201,
+      "b": 204,
       "a": 255
     },
     "_spriteFrame": {
@@ -4917,9 +4917,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 200,
+      "g": 201,
+      "b": 204,
       "a": 255
     },
     "_spriteFrame": {
@@ -5216,9 +5216,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 200,
+      "g": 201,
+      "b": 204,
       "a": 255
     },
     "_spriteFrame": {
@@ -5515,9 +5515,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 200,
+      "g": 201,
+      "b": 204,
       "a": 255
     },
     "_spriteFrame": {

@@ -2693,9 +2693,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 200,
+      "g": 201,
+      "b": 204,
       "a": 255
     },
     "_spriteFrame": {
@@ -3026,6 +3026,9 @@
     },
     "loginBtn": {
       "__id__": 79
+    },
+    "cancelBtn": {
+      "__id__": 94
     },
     "_id": ""
   },
