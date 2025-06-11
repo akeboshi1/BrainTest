@@ -6,6 +6,9 @@ import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
 import { TaskItemController } from './TaskItemController';
 import { RadiaGraph } from './RadiaGraph';
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
+import { UIManager } from '../Core/Manager/UI/UIManager';
+import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+import { BundleName } from '../Core/Manager/Load/BundleName';
 
 const { ccclass, property } = _decorator;
 
@@ -60,10 +63,29 @@ export class IndexPageController extends Component {
             if (taskController) {
                 await taskController.initTaskData(`task${i}`);
             }
+            if (i === 0) {
+                task.on(Node.EventType.TOUCH_END, () => {
+                    this.onFirstTaskClick(taskController);
+                }, this);
+            } else {
+                task.on(Node.EventType.TOUCH_END, () => {
+                    this.onOtherTaskClick(i, taskController);
+                }, this);
+            }
+            
             this.taskContainer.addChild(task);
             task.setPosition(0, -i*(350+80), 0);
         }
     }
+    private onFirstTaskClick(taskController: TaskItemController) {
+        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
+    }
+
+    private onOtherTaskClick(index: number, taskController: TaskItemController) {
+        console.log(`Task ${index} clicked`);
+    }
+
     setTaskItem() {
         // this.taskItem.setTaskTitle(title);
     }
