@@ -148,7 +148,7 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            let result = data.data['result'];
+            let result = data.data;
             this._cogAbilityWeeklyScoresData = result;
         }
     }
