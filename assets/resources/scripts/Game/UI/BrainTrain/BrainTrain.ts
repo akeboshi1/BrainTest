@@ -59,25 +59,32 @@ export class BrainTrain extends BasePanel {
             if (_gameData) {
                 gameItem.active = true;
                 let label = gameItem.getChildByName("label").getComponent(Label);
+                let descLabel = gameItem.getChildByName("desclabel").getComponent(Label);
                 let type = _gameData.type;
                 switch (type) {
                     case SkewersGameType.Memory:
                         label.string = "记忆力";
+                        descLabel.string = "增强你的记忆能力。";
                         break;
                     case SkewersGameType.Judgment:
                         label.string = "判断力";
+                        descLabel.string = "增强你的判断能力。";
                         break;
                     case SkewersGameType.Calculator:
                         label.string = "计算力";
+                        descLabel.string = "增强你的计算能力。";
                         break;
                     case SkewersGameType.Executionability:
                         label.string = "执行力";
+                        descLabel.string = "增强你的执行能力。";
                         break;
                     case SkewersGameType.Language:
                         label.string = "语言力";
+                        descLabel.string = "增强你的语言能力。";
                         break;
                     case SkewersGameType.Comprehension:
                         label.string = "理解力";
+                        descLabel.string = "增强你的理解能力。";
                         break;
                 }
                 let progressBar = gameItem.getChildByName("ProgressBar").getComponent(ProgressBar);

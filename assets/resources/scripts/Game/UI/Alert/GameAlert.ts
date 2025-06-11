@@ -486,16 +486,16 @@ export class GameAlert extends Component {
         // 获取当前位置
         const position = this.alert.position.clone();
         
-        // 判断是否是否需要调整位置
-        const changePos = this.changePos() && this.isInGameScene();
+        // // 判断是否是否需要调整位置
+        // const changePos = this.changePos() && this.isInGameScene();
         
-        // 设置Y坐标
-        position.y = changePos ? 350 : 0;
+        // // 设置Y坐标
+        // position.y = changePos ? 350 : 0;
         
         // 应用新位置
         this.alert.setPosition(position);
 
-        DebugLog.instance.log(`Alert position adjusted: ${position.x}, ${position.y}, ${position.z}, changePos: ${changePos}`);
+       // DebugLog.instance.log(`Alert position adjusted: ${position.x}, ${position.y}, ${position.z}, changePos: ${changePos}`);
     }
     
     /**
