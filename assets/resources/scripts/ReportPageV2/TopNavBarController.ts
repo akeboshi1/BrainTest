@@ -1,6 +1,7 @@
 import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color } from 'cc';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
+import { ReportManager } from '../ManagerV2/ReportManager';
 const { ccclass, property } = _decorator;
 
 export const TopNavBarConfig = {
@@ -29,6 +30,7 @@ export class TopNavBarController extends Component {
     start() {
 
     }
+
 
     public async loadPage(pageName: string) {
         if (!this.parentNode_top && !this.parentNode_bottom) {
@@ -92,9 +94,14 @@ export class TopNavBarController extends Component {
         this.loadPage('sumReportPrefab');
         this.loadPage('sumDataPrefab');
     }
-    clickOtherNavLable(type: SkewersGameType) {
-        this.loadPage('otherChartItem');
-        this.loadPage('otherSumDataPrefab');
+    async clickOtherNavLable(event, data) {
+        if (data) {
+            ReportManager.getInstance().getCogAbilityBrief(data);
+            ReportManager.getInstance().getCogAbilityWeeklyScores(data,0);
+        }
+        
+        await this.loadPage('otherChartItem');
+        await this.loadPage('otherSumDataPrefab');
     }
     // clickCalulationLable(){
 
