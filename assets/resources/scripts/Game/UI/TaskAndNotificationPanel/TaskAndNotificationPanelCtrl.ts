@@ -131,10 +131,12 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
             taskItem.active = true;
             if (task.status == TaskStatus.Completed) {
                 complete.active = true;
+                btn.node.active = false;
                 //arrow.active = false;
                 //(btnBG as Sprite).color = ColorUtil.hexToColor(context.completeColor);
                 count++;
             } else {
+                btn.node.active = true;
                 // if (task.status == TaskStatus.Expired) {
                 //     (btnBG as Sprite).color = ColorUtil.hexToColor(context.expireColor);
                 // }
