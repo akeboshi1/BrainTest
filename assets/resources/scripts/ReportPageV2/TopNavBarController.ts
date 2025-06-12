@@ -94,8 +94,10 @@ export class TopNavBarController extends Component {
         this.loadPage('sumReportPrefab');
         this.loadPage('sumDataPrefab');
     }
-    async clickOtherNavLable(event, data) {
+    async clickOtherNavLable(event, customData) {
+        const { data, index } = JSON.parse(customData);
         if (data) {
+            this.selectedColor(index);
             ReportManager.getInstance().getCogAbilityBrief(data);
             ReportManager.getInstance().getCogAbilityWeeklyScores(data,0);
         }

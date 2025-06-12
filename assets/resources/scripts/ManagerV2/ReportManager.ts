@@ -35,6 +35,7 @@ export class ReportManager {
 
     public static getBrainTrainingTiersCallback: string = "getBrainTrainingTiersCallback";
     public static getUserSumReportCallback: string = "getUserSumReportCallback";
+    public static getCogAbilityWeeklyScoresCallback: string = "getCogAbilityWeeklyScoresCallback";
 
     private static _instance: ReportManager;
     private get_brain_training_tiers: string = "user.get_brain_training_tiers";
@@ -46,6 +47,7 @@ export class ReportManager {
 
     private _cogAbilityBriefData: CogAbilityBriefData = null;
     private _cogAbilityWeeklyScoresData: CogAbilityWeeklyScoresData = null;
+    private cog_ability:string = "";
     public static getInstance(): ReportManager {
         if (ReportManager._instance == null) {
             ReportManager._instance = new ReportManager();
@@ -132,6 +134,11 @@ export class ReportManager {
     }
 
     public getCogAbilityWeeklyScores(cog_ability: string, index: number) {
+        if(cog_ability == null) {
+            cog_ability = this.cog_ability;
+        }else{
+            this.cog_ability = cog_ability;
+        }
         EventManager.getInstance().on(this.get_cog_ability_weekly_scores, this.requestCogAbilityWeeklyScoresCallback, this, true);
         let requestCogAbilityWeeklyScoresSocket: SocketData = new SocketData({
             action: this.get_cog_ability_weekly_scores,
@@ -148,13 +155,46 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
+            if(!data.data){
+                DebugLog.instance.log('数据为空')
+                return;
+            }
             let result = data.data;
+            // let isExist = false;
+            // for(let i=0;i<this._cogAbilityWeeklyScoresDataList.length;i++) {
+            //     if(this._cogAbilityWeeklyScoresDataList[i].index == result.index) {
+            //         isExist = true;
+            //         break;
+            //     }
+            // }
+            // if(!isExist) {
+            //     this._cogAbilityWeeklyScoresDataList.push(result);
+            //     console.log('this._cogAbilityWeeklyScoresDataList',this._cogAbilityWeeklyScoresDataList);
+            // }
             this._cogAbilityWeeklyScoresData = result;
+            EventManager.getInstance().emit(ReportManager.getCogAbilityWeeklyScoresCallback, {});
+            // 只有在收到第一个数据包（index为0）时，才请求所有数据
+            // if (result.index === 0 && result.total > 1) {
+            //     this.requestAllCogAbilityWeeklyScores(result);
+            // }
         }
     }
-
-    update(deltaTime: number) {
-
+    // requestAllCogAbilityWeeklyScores(data: CogAbilityWeeklyScoresData) {
+    //     for(let i = 1; i < data.total; i++) {
+    //         this.getCogAbilityWeeklyScores(this.cog_ability, i);
+    //     }
+    // }
+    getCogAbilityWeeklyScoresDataByIndex(index: number) {
+        return this._cogAbilityWeeklyScoresData.result;
+    }
+    getCogAbilityWeeklyFirstDayAndLastDayByIndex(index: number) {
+        return {
+            first_day: this._cogAbilityWeeklyScoresData.first_day,
+            last_day: this._cogAbilityWeeklyScoresData.last_day
+        };
+    }
+    getCogAbilityWeeklyTotalByIndex(index: number) {
+       return this._cogAbilityWeeklyScoresData.total;
     }
 }
 

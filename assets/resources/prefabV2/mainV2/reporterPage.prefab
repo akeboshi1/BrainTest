@@ -1551,7 +1551,7 @@
     "component": "",
     "_componentId": "82ff9yy6NVInZagyGbh7tpf",
     "handler": "clickOtherNavLable",
-    "customEventData": "MEMORY"
+    "customEventData": "{\"data\": \"MEMORY\", \"index\": 1}"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -2016,7 +2016,7 @@
     "component": "",
     "_componentId": "82ff9yy6NVInZagyGbh7tpf",
     "handler": "clickOtherNavLable",
-    "customEventData": "JUDGMENT "
+    "customEventData": "{\"data\": \"JUDGMENT\", \"index\": 2}"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -2481,7 +2481,7 @@
     "component": "",
     "_componentId": "82ff9yy6NVInZagyGbh7tpf",
     "handler": "clickOtherNavLable",
-    "customEventData": "CALCULATION "
+    "customEventData": "{\"data\": \"CALCULATION \", \"index\": 3}"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -2946,7 +2946,7 @@
     "component": "",
     "_componentId": "82ff9yy6NVInZagyGbh7tpf",
     "handler": "clickOtherNavLable",
-    "customEventData": "LANGUAGE "
+    "customEventData": "{\"data\": \"LANGUAGE \", \"index\": 4}"
   },
   {
     "__type__": "cc.PrefabInfo",
