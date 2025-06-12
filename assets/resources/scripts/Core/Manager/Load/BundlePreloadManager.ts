@@ -162,8 +162,23 @@ export class BundlePreloadManager extends BaseManager {
         if (this.loadedBundle.indexOf(bundleName) < 0) {
             this.loadedBundle.push(bundleName);
         }
-        // 触发预加载完成事件，通知外部预加载操作已成功完成
-        EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+        
+        // 显示倒计时动画，等倒计时完成后再派发FINISH事件
+        const loadPanelInfo = UIManager.getInstance().getActivePanel(LoadPanel.NAME);
+        if (loadPanelInfo && loadPanelInfo.comp) {
+            const loadPanel = loadPanelInfo.comp as LoadPanel;
+            // 监听倒计时完成事件
+            EventManager.getInstance().on(BundlePreloadEvent.COUNTDOWN_FINISH, () => {
+                // 倒计时完成后派发FINISH事件
+                EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+            }, this, true); // 使用once确保只监听一次
+            
+            // 开始倒计时动画
+            loadPanel.showTimeNode();
+        } else {
+            // 如果没有LoadPanel，直接派发FINISH事件
+            EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+        }
     }
 
     // 释放指定资源包及其相关资源的方法，释放资源包中的所有资源，并从相关缓存等机制中移除对应的资源记录
@@ -196,4 +211,5 @@ export enum BundlePreloadEvent {
     FINISH = "BundlePreloadEvent.finish",
     PROGRESS = "BundlePreloadEvent.progress",
     FAILED = "BundlePreloadEvent.failed",
+    COUNTDOWN_FINISH = "BundlePreloadEvent.countdownFinish",
 }
