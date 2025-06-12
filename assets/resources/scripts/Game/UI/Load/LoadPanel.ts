@@ -25,6 +25,9 @@ export class LoadPanel extends BasePanel {
 
       //==== timeNode
 
+      @property(Label)
+      timeTimeTickLabel:Label;
+
       @property(Node)
       timeTickNode:Node =null;
 
@@ -114,7 +117,8 @@ export class LoadPanel extends BasePanel {
       private startCountdown() {
             // 只使用timeLabel0做倒计时
             this.timeLabel0.string = "3";
-            this.timeLabel0.node.eulerAngles = new Vec3(0, 0, 0);
+            this.timeTimeTickLabel.node.active =true;
+            // this.timeLabel0.node.eulerAngles = new Vec3(0, 0, 0);
             
  
             // 确保timeLabel0有UIOpacity组件
@@ -142,35 +146,44 @@ export class LoadPanel extends BasePanel {
                 // 设置当前倒计时数字
                 this.timeLabel0.string = currentValue.toString();
                 
-                // 计算目标角度（顺时针旋转360度）
-                let targetAngle = -(currentCircle + 1) * 360;
+                // 计算当前圈的起始角度和中间角度、结束角度
+                let startAngle = -currentCircle * 360;
+                let middleAngle = startAngle - 270;  // 中间180度
+                let endAngle = startAngle - 450;     // 结束360度
                 
-                // 执行1秒的顺时针旋转360度
-                let rotateTween = tween(this.timeTickNode)
-                    .to(1.0, { eulerAngles: new Vec3(0, 0, targetAngle) }, { easing: 'linear' })
+                // 第一部分：0到180度，0.2秒，alpha保持0
+                let firstPartTween = tween(this.timeTickNode)
+                    .to(0, { eulerAngles: new Vec3(0, 0, middleAngle) }, { easing: 'linear' })
                     .call(() => {
-                        // 一圈完成，准备下一圈
-                        currentCircle++;
+                        // 第二部分：180到360度，0.8秒，alpha从0→1→0
+                        let secondPartTween = tween(this.timeTickNode)
+                            .to(1, { eulerAngles: new Vec3(0, 0, endAngle) }, { easing: 'linear' })
+                            .call(() => {
+                                // 一圈完成，准备下一圈
+                                currentCircle++;
+                                currentValue--;
+                                
+                                // 继续下一圈或结束
+                                doOneCircle();
+                            });
                         
-                        // 继续下一圈或结束
-                        doOneCircle();
+                        // 第二部分的透明度变化：0→1→0（0.8秒）
+                        let secondOpacityTween = tween(uiOpacity0)
+                            .to(0.5, { opacity: 255 })  // 前0.4秒：alpha从0到255
+                            .to(0.5, { opacity: 0 });   // 后0.4秒：alpha从255到0
+                        
+                        // 启动第二部分动画
+                        secondPartTween.start();
+                        secondOpacityTween.start();
                     });
                 
-                // 执行透明度变化动画（总共1秒）
-                let opacityTween = tween(uiOpacity0)
-                    // 前0.25秒：alpha从255到0
-                    .to(0.4, { opacity: 0 })
-                    // 中间0.5秒：alpha保持0
-                    .to(0.2, { opacity: 0 }).call(()=>{
-                        currentValue--;
-                        this.timeLabel0.string = currentValue.toString();
-                    })
-                    // 后0.25秒：alpha从0到255
-                    .to(0.4, { opacity: 255 });
+                // 第一部分的透明度：保持0（0.2秒）
+                let firstOpacityTween = tween(uiOpacity0)
+                    .to(0, { opacity: 0 });
                 
-                // 同时启动旋转和透明度动画
-                rotateTween.start();
-                opacityTween.start();
+                // 启动第一部分动画
+                firstPartTween.start();
+                firstOpacityTween.start();
             };
             
             // 开始第一圈
@@ -180,8 +193,13 @@ export class LoadPanel extends BasePanel {
       private onCountdownFinish() {
             // 倒计时结束后的处理
             DebugLog.instance.log("倒计时结束");
-            // 派发倒计时完成事件，通知BundlePreloadManager继续派发FINISH事件
-            EventManager.getInstance().emit(BundlePreloadEvent.COUNTDOWN_FINISH);
+            this.timeTickNode.eulerAngles = new Vec3(0, 0, 0);
+            this.timeTimeTickLabel.node.active =false;
+            this.timeDescLabel.node.active = true;
+            // 延迟1秒后派发倒计时完成事件
+            setTimeout(() => {
+                EventManager.getInstance().emit(BundlePreloadEvent.COUNTDOWN_FINISH);
+            }, 1000);
       }
 
       async showPanel(): Promise<void> {
