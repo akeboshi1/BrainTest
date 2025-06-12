@@ -111,10 +111,6 @@ export default class HomeView extends LayerPanel {
       
         let custom = GameConfig.level_order[loopLevel - 1];
         let imageName = GameConfig.image_name.get(custom);
-        DebugLog.instance.error("CacheMgr.checkpoint",CacheMgr.checkpoint);
-        DebugLog.instance.error("loopLevel",loopLevel);
-        DebugLog.instance.error("custom",custom);
-        DebugLog.instance.error("imageName",imageName);
         let way = () => {
             let url = "level" + custom+"/image/"+imageName+"_1_32/spriteFrame";
 

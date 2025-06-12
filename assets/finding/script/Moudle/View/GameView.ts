@@ -12,7 +12,8 @@ import {
     assetManager,
     Color,
     director,
-    ImageAsset,
+    Graphics,
+    ProgressBar,
     instantiate,
     Label,
     Node,
@@ -40,9 +41,9 @@ import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/Bund
 import { AbortablePromise } from "db://assets/resources/scripts/Core/StateMachine/AbortablePromise";
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
-import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
 import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
+
 
 const { ccclass, property } = _decorator;
 
@@ -82,9 +83,9 @@ export default class GameView extends LayerPanel {
 
     private countDown = null;
 
-    private progress: Node = null;
-
-    private progressSprite: Sprite = null;
+    private progress: ProgressBar = null;
+    //
+    // private progressSprite: Sprite = null;
 
     private hintData = null;
 
@@ -100,7 +101,8 @@ export default class GameView extends LayerPanel {
 
     private reminderNode: Node = null;
 
-    private customsNode: Node = null;
+    private guankaLabel: Node = null;
+    
 
     private victory: Node = null;
 
@@ -152,9 +154,9 @@ export default class GameView extends LayerPanel {
             this.countDown = this.countDownLabel.getComponent(Label);
             this.countDownTime = GameConfig.customTime;
             this.tempCountDown = GameConfig.allTime;
-            this.progress = this.getNode("countDown/progress");
-            this.progressSprite = this.progress.getComponent(Sprite);
-            this.customsNode = this.getNode("customs/Label");
+            this.progress = this.getNode("ProgressBar").getComponent(ProgressBar);
+            // this.progressSprite = this.progress.getComponent(Sprite);
+            this.guankaLabel = this.getNode("guankaLabel");
             this.victory = this.getNode("victory");
             this.victory.active = false;
 
@@ -173,7 +175,8 @@ export default class GameView extends LayerPanel {
                 // test code
                 loopLevel = FindingGlobal.curSkewersGameIndex;
                 this._checkPoint = loopLevel % GameConfig.allCheckPoint;
-                this.customsNode.getComponent(Label).string = "第" + skewersGameData.seq + "关";
+                this.guankaLabel.getComponent(Label).string = "第" + skewersGameData.progressStr + "关";
+                this.progress.progress = skewersGameData.progress;
                 this.tempCountDown = skewersGameData.timeLimit;
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
@@ -196,13 +199,14 @@ export default class GameView extends LayerPanel {
 
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
                 if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
+                this.progress.progress = loopLevel/GameConfig.allCheckPoint;
                 let customCount;
                 if (loopLevel == GameConfig.allCheckPoint) {
                     customCount = 1;
                 } else {
                     customCount = loopLevel;
                 }
-                this.customsNode.getComponent(Label).string = "第" + loopLevel + "关";
+                this.guankaLabel.getComponent(Label).string = "第" + loopLevel+"/"+GameConfig.allCheckPoint + "关";
             }
             this._curCount = 0;
             this._maxCount = this._counts[this._curHard - 1];
@@ -214,10 +218,6 @@ export default class GameView extends LayerPanel {
             let pictureSprite1 = this.picture1.getComponent(Sprite);
             let pictureSprite2 = this.picture2.getComponent(Sprite);
             let self = this;
-            DebugLog.instance.error("CacheMgr.checkpoint",CacheMgr.checkpoint);
-            DebugLog.instance.error("loopLevel",loopLevel);
-            DebugLog.instance.error("level",_level);
-            DebugLog.instance.error("imageName",imageName);
             const bundle = assetManager.getBundle(BundleName.FINGING);
             let spriteFrame1 = null;
             let spriteFrame2 = null;
@@ -261,9 +261,24 @@ export default class GameView extends LayerPanel {
                     // 左上角
                     nodeUITransform.width = Number(tempData[2]);
                     nodeUITransform.height = Number(tempData[3]);
-                    node.setPosition(Number(tempData[0]) * 1.5, uitransform.height - Number(tempData[1]) * 1.5);
+                    // 资源尺寸 696*436
+                    // 必须按照资源尺寸的比例来设计ui上的图片容器尺寸，否则将对不上配置上的交互点
+                    // 按照1.3的比例来设计ui上的图片容器尺寸，显示尺寸 904.8*566.8
+                    node.setPosition(Number(tempData[0]) * 1.3, uitransform.height - Number(tempData[1]) * 1.3);
                     nodeUITransform.setAnchorPoint(0, 1);
                     node.setScale(1.4, 1.4);
+
+                    // 添加红色背景用于显示不同点区域
+                    // let graphics = node.addComponent(Graphics);
+                    // let graphicsUITransform = graphics.getComponent(UITransform);
+                    // if (!graphicsUITransform) {
+                    //     graphicsUITransform = graphics.addComponent(UITransform);
+                    // }
+                    // graphicsUITransform.setAnchorPoint(0, 1);
+                    // graphics.fillColor = new Color(255, 0, 0, 128); // 红色半透明
+                    // graphics.rect(-nodeUITransform.width/2, -nodeUITransform.height/2, nodeUITransform.width, nodeUITransform.height);
+                    // graphics.fill();
+                    
                     nodeUITransform.convertToWorldSpaceAR(node.position);
                     self.framePostions.push(node.position);
                     self.picture1.addChild(node);
@@ -327,7 +342,7 @@ export default class GameView extends LayerPanel {
     public newHandHint() {
         return;
         // 暂时不需要点击类型的引导
-        console.log("进入新手提示");
+        DebugLog.instance.log("进入新手提示");
         // this.monitorEvent();
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_EMIT, this.guideClick.bind(this), this);
         EventManager.getInstance().on(FindingGuide.GUIDE_FIND_END, this.guideEND.bind(this), this);
@@ -367,8 +382,8 @@ export default class GameView extends LayerPanel {
         if (this.pause) return;
         if (this.gameOver) return;
         if (Math.ceil(this.countDownTime) <= 0) {
-            this.countDown.string = "0";
-            this.progressSprite.fillRange = 0;
+            this.countDown.string = "0秒";
+            // this.progressSprite.fillRange = 0;
             this.closeGame(false);
             this.gameOver = true;
             this.canAddTime = false;
@@ -376,9 +391,9 @@ export default class GameView extends LayerPanel {
             return;
         }
         this.countDownTime -= dt;
-        this.countDown.string = Math.ceil(this.countDownTime) + "";
+        this.countDown.string = Math.ceil(this.countDownTime) + "秒";
         let plan = this.countDownTime / this.tempCountDown;
-        this.progressSprite.fillRange = plan;
+        // this.progressSprite.fillRange = plan;
     }
 
     hintCountDown(dt) {

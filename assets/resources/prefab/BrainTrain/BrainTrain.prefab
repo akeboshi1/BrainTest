@@ -1338,7 +1338,7 @@
       "__id__": 23
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 51
@@ -2679,7 +2679,7 @@
       "__id__": 79
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 107
@@ -3978,7 +3978,7 @@
       "__id__": 133
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 161
@@ -5277,7 +5277,7 @@
       "__id__": 187
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 215
@@ -6576,7 +6576,7 @@
       "__id__": 241
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 269
@@ -7872,7 +7872,7 @@
       "__id__": 295
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 323
@@ -9538,7 +9538,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 324,
-      "height": 63
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9579,7 +9579,7 @@
     "_actualFontSize": 54,
     "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 50,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
