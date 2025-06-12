@@ -359,6 +359,7 @@ export class TaskManager extends BaseManager {
                 case TaskType.Review:
                 case TaskType.Brains:
                 case TaskType.Revise:
+                    task.status = TaskStatus.Processing;
                     SkewersManager.getInstance().start(id);
                     break;
                 case TaskType.Interavtive:
