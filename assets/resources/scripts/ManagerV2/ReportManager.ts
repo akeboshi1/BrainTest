@@ -103,6 +103,7 @@ export class ReportManager {
             DebugLog.instance.error(data.message);
         } else {
             if (!data.data) {
+                console.log('数据总结没有数据')
                 return;
             }
             let result = data.data;
@@ -139,6 +140,7 @@ export class ReportManager {
         }else{
             this.cog_ability = cog_ability;
         }
+        this.clearCogAbilityWeeklyScoresData();
         EventManager.getInstance().on(this.get_cog_ability_weekly_scores, this.requestCogAbilityWeeklyScoresCallback, this, true);
         let requestCogAbilityWeeklyScoresSocket: SocketData = new SocketData({
             action: this.get_cog_ability_weekly_scores,
@@ -184,6 +186,9 @@ export class ReportManager {
     //         this.getCogAbilityWeeklyScores(this.cog_ability, i);
     //     }
     // }
+    clearCogAbilityWeeklyScoresData(){
+        this._cogAbilityWeeklyScoresData = null;
+    }
     getCogAbilityWeeklyScoresDataByIndex(index: number) {
         return this._cogAbilityWeeklyScoresData.result;
     }

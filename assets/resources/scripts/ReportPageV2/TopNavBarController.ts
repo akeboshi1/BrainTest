@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView } from 'cc';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
 import { ReportManager } from '../ManagerV2/ReportManager';
@@ -19,6 +19,8 @@ export class TopNavBarController extends Component {
     parentNode_top: Node = null;
     @property(Node)
     parentNode_bottom: Node = null;
+    @property(ScrollView)
+    scrollViewNode: ScrollView = null;
     onLoad(): void {
         // this.scheduleOnce(() => {
         //     if (this.parentNode_top && this.parentNode_bottom) {
@@ -93,6 +95,13 @@ export class TopNavBarController extends Component {
         this.selectedColor(0);
         this.loadPage('sumReportPrefab');
         this.loadPage('sumDataPrefab');
+        // 滚动到最上方
+        if (this.scrollViewNode) {
+            const scrollView = this.scrollViewNode.getComponent(ScrollView);
+            if (scrollView) {
+                scrollView.scrollTo(new Vec2(0, 1), 0.1); // 0.1秒内滚动到顶部
+            }
+        }
     }
     async clickOtherNavLable(event, customData) {
         const { data, index } = JSON.parse(customData);
@@ -104,6 +113,13 @@ export class TopNavBarController extends Component {
         
         await this.loadPage('otherChartItem');
         await this.loadPage('otherSumDataPrefab');
+        // 滚动到最上方
+        if (this.scrollViewNode) {
+            const scrollView = this.scrollViewNode.getComponent(ScrollView);
+            if (scrollView) {
+                scrollView.scrollTo(new Vec2(0, 1), 0.1); // 0.1秒内滚动到顶部
+            }
+        }
     }
     // clickCalulationLable(){
 

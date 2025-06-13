@@ -35,9 +35,16 @@ export class OtherChartView extends Component {
         this.height = this.lineChart.getComponent(UITransform).height;
         let cogAbilityBriefData = ReportManager.getInstance().cogAbilityWeeklyScoresData;
         this.scoreData = cogAbilityBriefData.result.map(item => item.score);
+        this.initLeftArrow();
         this.total = ReportManager.getInstance().getCogAbilityWeeklyTotalByIndex(this.currentIndex);
         this.showTitleContentByIndex(this.currentIndex);
         this.drawLineChart();
+    }
+    initLeftArrow(){
+        if(this.total <= 1){
+            const leftArrowSprite = this.leftArrow.getComponent(Sprite);
+            leftArrowSprite.color = new Color(0, 0, 0, 50);
+        }
     }
     drawLineChart() {
         let g = this.lineChart.getComponent(Graphics);
@@ -87,39 +94,56 @@ export class OtherChartView extends Component {
         }
         this.drawXAxisLabel();
     }
-    clickLeftArrow() {
-        this.currentIndex++;
-        if (this.currentIndex > this.total - 1) {
-            //更新leftArrow sprite
-            this.loadSprite("textureV2/userReport/left_disClick/spriteFrame", this.leftArrow.getComponent(Sprite));
-            console.log('超出索引值范围')
-            return;
-        }
-        ReportManager.getInstance().getCogAbilityWeeklyScores(null, this.currentIndex);
-       
-    }
     private loadSprite(path: string, sprite: Sprite): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            resources.load(path, SpriteFrame, (err, spriteFrame) => {
+            // 确保路径正确
+            const resourcePath = path.startsWith('/') ? path.slice(1) : path;
+            console.log('Loading sprite from path:', resourcePath);
+            
+            resources.load(resourcePath, SpriteFrame, (err, spriteFrame) => {
                 if (err) {
+                    console.error(`Failed to load sprite from path: ${resourcePath}`, err);
                     reject(err);
                     return;
                 }
                 if (!spriteFrame) {
+                    console.error(`Loaded sprite frame is null for path: ${resourcePath}`);
                     reject(new Error('Loaded sprite frame is null'));
                     return;
                 }
+                console.log('Successfully loaded sprite frame');
                 sprite.spriteFrame = spriteFrame;
                 resolve();
             });
         });
     }
-    clickRightArrow() {
-        this.currentIndex--;
-        if (this.currentIndex == 0) {
-            this.loadSprite("textureV2/userReport/right_disClick/spriteFrame", this.rightArrow.getComponent(Sprite));
+    //.png
+    clickLeftArrow() {
+        this.currentIndex++;
+        if (this.currentIndex >= this.total - 1) {
+            //更新leftArrow sprite
+            // this.loadSprite("textureV2/userReport/left_disClick/spriteFrame", this.leftArrow.getComponent(Sprite))
+            //     .catch(err => console.error('Failed to load left arrow sprite:', err));
+            //拿到rightArrow的sprite，将颜色改为（0，0，0，50）
+            const leftArrowSprite = this.leftArrow.getComponent(Sprite);
+            leftArrowSprite.color = new Color(0, 0, 0, 50);
+            
+            console.log('超出索引值范围')
             return;
         }
+        const rightArrowSprite = this.rightArrow.getComponent(Sprite);
+        rightArrowSprite.color = new Color(0, 0, 0);
+        ReportManager.getInstance().getCogAbilityWeeklyScores(null, this.currentIndex);
+    }
+    clickRightArrow() {
+        this.currentIndex--;
+        if (this.currentIndex <=-this.total) {
+            const rightArrowSprite = this.rightArrow.getComponent(Sprite);
+            rightArrowSprite.color = new Color(0, 0, 0,50);
+            return;
+        }
+        const leftArrowSprite = this.leftArrow.getComponent(Sprite);
+        leftArrowSprite.color = new Color(0, 0, 0);
         ReportManager.getInstance().getCogAbilityWeeklyScores(null, this.currentIndex);
     }
     getCogAbilityWeeklyScoresCallback() {
