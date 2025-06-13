@@ -3,19 +3,22 @@ import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCen
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
-import { TaskItemController } from './TaskItemController';
-import { RadiaGraph } from './RadiaGraph';
+
+
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { BundleName } from '../Core/Manager/Load/BundleName';
+
+import { RadiaGraph } from './RadiaGraph';
+import { TaskItemController } from './TaskItemController';
 import { TaskContainerConfig } from './TaskContainerConfig';
 
 const { ccclass, property } = _decorator;
 
 
-@ccclass('IndexPageController')
-export class IndexPageController extends Component {
+@ccclass('IndexPageView')
+export class IndexPageView extends Component {
     @property(Prefab)
     private taskPrefab: Prefab = null;
     @property(Node)
