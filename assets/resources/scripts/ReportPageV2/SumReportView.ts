@@ -1,6 +1,8 @@
 import { _decorator, Component, Label, Node } from 'cc';
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
-import {RadiaGraph} from "db://assets/resources/scripts/indexPageV2/RadiaGraph";
+import { RadiaGraph } from '../IndexPageV2/RadiaGraph';
+    
+
 const { ccclass, property } = _decorator;
 
 @ccclass('SumReportView')
