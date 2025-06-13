@@ -147,7 +147,7 @@ export class SceneManager extends BaseManager {
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");
                 let mainScene = scriptNode.getComponent("MainScene");
-                mainScene['setCurrentIndex'](MainSceneView.GameCenter);
+                // mainScene['setCurrentIndex'](MainSceneView.GameCenter);
                 resolve();
             }).catch(err => {
                 reject(err);
@@ -191,7 +191,7 @@ export class SceneManager extends BaseManager {
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");
                 let mainScene = scriptNode.getComponent("MainScene");
-                mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                // mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
                 resolve();
             }).catch(err => {
                 reject(err);
@@ -207,7 +207,7 @@ export class SceneManager extends BaseManager {
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");
                 let mainScene = scriptNode.getComponent("MainScene");
-                mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                // mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
                 UIManager.getInstance().showPanel(GenerateReport.NAME);
                 resolve();
             }).catch(err => {
