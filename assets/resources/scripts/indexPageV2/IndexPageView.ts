@@ -75,8 +75,7 @@ export class IndexPageView extends Component {
             let taskItem = instantiate(this.taskPrefab);
             // taskItem.setPosition(0, -i*350, 0);
             let taskController = taskItem.getComponent(TaskItemController);
-            taskController.onFirstTaskClick = this.onFirstTaskClick.bind(this);
-            taskController.onOtherTaskClick = this.onOtherTaskClick.bind(this);
+            taskController.setTaskIndex(i);
             taskController.setTaskTitle(taskdata[i].title); 
             taskController.setTaskContent(taskdata[i].txt);
             await taskController.setTaskBg(taskdata[i].icon_bg);
@@ -85,33 +84,6 @@ export class IndexPageView extends Component {
             taskController.node.parent = this.taskContainer;      
                   
         }   
-    }
-
-    // async initTaskData(taskId: string) {
-    //     try {
-    //         await this.taskConfig.loadConfig();
-
-    //         // // 设置文本内容
-    //         // this.taskTitle.string = taskData.title;
-    //         // this.taskContent.string = taskData.txt;
-
-    //         // 加载精灵图片
-    //         await Promise.all([
-    //             this.loadSprite(taskData.icon_bg, this.taskBg),
-    //             this.loadSprite(taskData.icon, this.taskIcon)
-    //         ]);
-    //     } catch (err) {
-    //         DebugLog.instance.error(`初始化任务数据失败: ${err}`);
-    //     }
-    // }
-
-    private onFirstTaskClick(taskController: TaskItemController) {
-        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
-        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
-    }
-
-    private onOtherTaskClick(index: number, taskController: TaskItemController) {
-        console.log(`Task ${index} clicked`);
     }
 
     setTaskItem() {
