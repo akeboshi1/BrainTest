@@ -15,7 +15,7 @@ export class RadiaGraph extends Component {
     private centerPos: Vec2 = new Vec2(0, 0);
     private readonly maxRadius: number = 200;
     private readonly minRadius: number = 20;
-    private readonly circleRadius: number = 15;
+    private readonly circleRadius: number = 8;
     private readonly lineWidth: number = 8;
     private values:number[]=[];   
     private secondValues:number[]=[]; // 添加第二个数据数组
@@ -75,7 +75,7 @@ export class RadiaGraph extends Component {
             const secondPoints: Vec2[] = this.calculatePentagonPoints(this.secondValues);
             
             // 绘制填充区域（使用正蓝色，设置适当的透明度）
-            this.graphics.fillColor = new Color(0, 0, 255, 100);
+            this.graphics.fillColor = new Color(0, 89, 247, 100);
             
             this.graphics.moveTo(secondPoints[0].x, secondPoints[0].y);
             for (let i = 1; i < secondPoints.length; i++) {
@@ -85,7 +85,7 @@ export class RadiaGraph extends Component {
             this.graphics.fill();
             
             // 绘制边线
-            this.graphics.strokeColor = new Color(0, 0, 255, 255);
+            this.graphics.strokeColor = new Color(0, 89, 247, 255);
             this.graphics.lineWidth = this.lineWidth;
 
             for (let i = 0; i < secondPoints.length; i++) {
@@ -100,7 +100,7 @@ export class RadiaGraph extends Component {
             }
             
             // 绘制角上的实心圆
-            this.graphics.fillColor = new Color(0, 0, 255, 255);
+            this.graphics.fillColor = new Color(0, 89, 247, 255);
             for (const point of secondPoints) {
                 this.graphics.circle(point.x, point.y, this.circleRadius);
                 this.graphics.fill();
@@ -122,7 +122,7 @@ export class RadiaGraph extends Component {
             this.graphics.fill();
             
             // 绘制边线
-            this.graphics.strokeColor = new Color(0, 0, 255, 255);
+            this.graphics.strokeColor = new Color(0, 89, 247, 255);
             this.graphics.lineWidth = this.lineWidth;
 
             for (let i = 0; i < points.length; i++) {
@@ -137,7 +137,7 @@ export class RadiaGraph extends Component {
             }
             
             // 绘制角上的空心圆
-            this.graphics.strokeColor = new Color(0, 0, 255, 255);
+            this.graphics.strokeColor = new Color(0, 89, 247, 255);
             this.graphics.lineWidth = 8;
             for (const point of points) {
                 this.graphics.circle(point.x, point.y, this.circleRadius);
@@ -224,7 +224,7 @@ export class RadiaGraph extends Component {
      * 绘制五边形边线
      */
     private drawLines(points: Vec2[]) {
-        this.graphics.strokeColor = new Color(0, 0, 255, 255); // 正蓝色
+        this.graphics.strokeColor = new Color(0, 89, 247, 255); // 正蓝色
         this.graphics.lineWidth = this.lineWidth;
 
         // 绘制每条边，从圆边缘到圆边缘
@@ -271,7 +271,7 @@ export class RadiaGraph extends Component {
      * 绘制角上的空心圆
      */
     private drawCornerCircles(points: Vec2[]) {
-        this.graphics.strokeColor = new Color(0, 0, 255, 255); // 正蓝色
+        this.graphics.strokeColor = new Color(0, 89, 247, 255); // 正蓝色
         this.graphics.lineWidth = 8; // 圆的线宽改为8像素
 
         for (const point of points) {

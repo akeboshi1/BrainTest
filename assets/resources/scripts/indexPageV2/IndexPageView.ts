@@ -25,6 +25,8 @@ export class IndexPageView extends Component {
     private taskContainer: Node = null;
     @property(Label)
     private userName: Label = null;
+    @property(Label)
+    private dayLabel: Label = null;
     @property(Node)
     private radarMap: Node = null;
 
@@ -53,10 +55,14 @@ export class IndexPageView extends Component {
         const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
         DebugLog.instance.log("用户信息", userData);
         this.setUserName(userData.full_name);
+        this.setDayLabel(userData.trained_days);
     }
 
     setUserName(name) {
         this.userName.string = name;
+    }
+    setDayLabel(day: number) {
+        this.dayLabel.string = `${day}天`;
     }
     update(deltaTime: number) {
 
@@ -67,7 +73,7 @@ export class IndexPageView extends Component {
         let taskdata = this.taskConfig.taskData;
         for (let i = 0; i < taskdata.length; i++) {
             let taskItem = instantiate(this.taskPrefab);
-            taskItem.setPosition(0, -i*(350+80), 0);
+            // taskItem.setPosition(0, -i*350, 0);
             let taskController = taskItem.getComponent(TaskItemController);
             taskController.onFirstTaskClick = this.onFirstTaskClick.bind(this);
             taskController.onOtherTaskClick = this.onOtherTaskClick.bind(this);
