@@ -3,25 +3,30 @@ import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCen
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
-import { TaskItemController } from './TaskItemController';
-import { RadiaGraph } from './RadiaGraph';
+
+
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { BundleName } from '../Core/Manager/Load/BundleName';
+
+import { RadiaGraph } from './RadiaGraph';
+import { TaskItemController } from './TaskItemController';
 import { TaskContainerConfig } from './TaskContainerConfig';
 
 const { ccclass, property } = _decorator;
 
 
-@ccclass('IndexPageController')
-export class IndexPageController extends Component {
+@ccclass('IndexPageView')
+export class IndexPageView extends Component {
     @property(Prefab)
     private taskPrefab: Prefab = null;
     @property(Node)
     private taskContainer: Node = null;
     @property(Label)
     private userName: Label = null;
+    @property(Label)
+    private dayLabel: Label = null;
     @property(Node)
     private radarMap: Node = null;
 
@@ -50,10 +55,14 @@ export class IndexPageController extends Component {
         const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
         DebugLog.instance.log("用户信息", userData);
         this.setUserName(userData.full_name);
+        this.setDayLabel(userData.trained_days);
     }
 
     setUserName(name) {
         this.userName.string = name;
+    }
+    setDayLabel(day: number) {
+        this.dayLabel.string = `${day}天`;
     }
     update(deltaTime: number) {
 
@@ -64,7 +73,7 @@ export class IndexPageController extends Component {
         let taskdata = this.taskConfig.taskData;
         for (let i = 0; i < taskdata.length; i++) {
             let taskItem = instantiate(this.taskPrefab);
-            taskItem.setPosition(0, -i*(350+80), 0);
+            // taskItem.setPosition(0, -i*350, 0);
             let taskController = taskItem.getComponent(TaskItemController);
             taskController.onFirstTaskClick = this.onFirstTaskClick.bind(this);
             taskController.onOtherTaskClick = this.onOtherTaskClick.bind(this);

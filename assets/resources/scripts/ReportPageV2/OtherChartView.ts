@@ -56,8 +56,8 @@ export class OtherChartView extends Component {
         this.lineChart.removeAllChildren();
 
         // 先绘制主线条
-        g.strokeColor = this.color;
-        g.lineWidth = 4;
+        g.strokeColor =new Color(0, 89, 247);
+        g.lineWidth = 6;
 
         // 刻度高
         let _h = this.height / 100;
@@ -94,37 +94,9 @@ export class OtherChartView extends Component {
         }
         this.drawXAxisLabel();
     }
-    private loadSprite(path: string, sprite: Sprite): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            // 确保路径正确
-            const resourcePath = path.startsWith('/') ? path.slice(1) : path;
-            console.log('Loading sprite from path:', resourcePath);
-            
-            resources.load(resourcePath, SpriteFrame, (err, spriteFrame) => {
-                if (err) {
-                    console.error(`Failed to load sprite from path: ${resourcePath}`, err);
-                    reject(err);
-                    return;
-                }
-                if (!spriteFrame) {
-                    console.error(`Loaded sprite frame is null for path: ${resourcePath}`);
-                    reject(new Error('Loaded sprite frame is null'));
-                    return;
-                }
-                console.log('Successfully loaded sprite frame');
-                sprite.spriteFrame = spriteFrame;
-                resolve();
-            });
-        });
-    }
-    //.png
     clickLeftArrow() {
         this.currentIndex++;
         if (this.currentIndex >= this.total - 1) {
-            //更新leftArrow sprite
-            // this.loadSprite("textureV2/userReport/left_disClick/spriteFrame", this.leftArrow.getComponent(Sprite))
-            //     .catch(err => console.error('Failed to load left arrow sprite:', err));
-            //拿到rightArrow的sprite，将颜色改为（0，0，0，50）
             const leftArrowSprite = this.leftArrow.getComponent(Sprite);
             leftArrowSprite.color = new Color(0, 0, 0, 50);
             
@@ -171,9 +143,8 @@ export class OtherChartView extends Component {
         let centerY = this.height / 2;
 
         for (let i = 0; i < textArr.length; i++) {
-            this.drawLabel(i * this.width / (textArr.length - 1) - centerX, -centerY - 30, textArr[i]);
+            this.drawLabel(i * this.width / (textArr.length - 1) - centerX, -centerY - 30, textArr[i], new Color(0, 0, 0));
         }
-
     }
 
     drawGridLine(g: Graphics) {
@@ -194,17 +165,16 @@ export class OtherChartView extends Component {
         }
     }
 
-    drawLabel(x: number, y: number, text: string) {
+    drawLabel(x: number, y: number, text: string, color: Color = new Color(148, 149, 153)) {
         const labelNode = new Node();
         const label = labelNode.addComponent(Label);
         label.string = text;
-        label.color = this.color;
+        label.color = color;
         const width = labelNode.getComponent(UITransform).width;
         labelNode.setPosition(x - width / 2, y);
         label.fontSize = 36;
         labelNode.getComponent(UITransform).setAnchorPoint(0, 0);
         this.lineChart.addChild(labelNode);
-
     }
 
 }

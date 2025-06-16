@@ -788,7 +788,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -420.529,
-      "y": 280.608,
+      "y": 290,
       "z": 0
     },
     "_lrot": {
@@ -1027,7 +1027,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 80.597,
+      "x": 75.718,
       "y": 0,
       "z": 0
     },
@@ -1068,7 +1068,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
+      "width": 140,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1099,16 +1099,16 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 98,
+      "g": 99,
+      "b": 102,
       "a": 255
     },
     "_string": "本周数据",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 35,
+    "_fontSize": 35,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -1458,7 +1458,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
+      "width": 140,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1489,16 +1489,16 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 98,
+      "g": 99,
+      "b": 102,
       "a": 255
     },
-    "_string": "上周数据",
+    "_string": "初始数据",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 35,
+    "_fontSize": 35,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -1964,7 +1964,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 33.369140625,
+      "width": 27.8076171875,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -1995,16 +1995,16 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 48,
+      "g": 49,
+      "b": 51,
       "a": 255
     },
     "_string": "1",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 0,
@@ -2193,9 +2193,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 48,
-      "g": 49,
-      "b": 51,
+      "r": 148,
+      "g": 149,
+      "b": 153,
       "a": 255
     },
     "_string": "超过80%同龄",
@@ -2455,7 +2455,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 33.369140625,
+      "width": 27.8076171875,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -2486,16 +2486,16 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 48,
+      "g": 49,
+      "b": 51,
       "a": 255
     },
     "_string": "1",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 0,
@@ -2681,9 +2681,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 48,
-      "g": 49,
-      "b": 51,
+      "r": 148,
+      "g": 149,
+      "b": 153,
       "a": 255
     },
     "_string": "超过80%同龄",
@@ -2907,7 +2907,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 33.369140625,
+      "width": 27.8076171875,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -2938,16 +2938,16 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 48,
+      "g": 49,
+      "b": 51,
       "a": 255
     },
     "_string": "1",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 0,
@@ -3133,9 +3133,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 48,
-      "g": 49,
-      "b": 51,
+      "r": 148,
+      "g": 149,
+      "b": 153,
       "a": 255
     },
     "_string": "超过80%同龄",
@@ -3359,7 +3359,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 33.369140625,
+      "width": 27.8076171875,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -3390,16 +3390,16 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 48,
+      "g": 49,
+      "b": 51,
       "a": 255
     },
     "_string": "1",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 0,
@@ -3585,9 +3585,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 48,
-      "g": 49,
-      "b": 51,
+      "r": 148,
+      "g": 149,
+      "b": 153,
       "a": 255
     },
     "_string": "超过80%同龄",
@@ -3811,7 +3811,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 33.369140625,
+      "width": 27.8076171875,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -3842,16 +3842,16 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 48,
+      "g": 49,
+      "b": 51,
       "a": 255
     },
     "_string": "1",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 0,
@@ -4037,9 +4037,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 48,
-      "g": 49,
-      "b": 51,
+      "r": 148,
+      "g": 149,
+      "b": 153,
       "a": 255
     },
     "_string": "超过80%同龄",

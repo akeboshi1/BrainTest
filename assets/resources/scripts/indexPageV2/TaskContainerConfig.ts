@@ -3,7 +3,7 @@ import { DebugLog } from "../Core/Util/DebugLog";
 
 
 export class TaskContainerConfig {
-    private jsonFilePath: string = "scripts/IndexPageV2/taskContainer";  // 不需要.json后缀
+    private jsonFilePath: string = "scripts/indexPageV2/taskContainer";  // 不需要.json后缀
     private _taskData = [];  // 修改为数组类型
 
     get taskData() {   

@@ -1,6 +1,6 @@
 import { _decorator, Component, Label, Node } from 'cc';
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
-import { RadiaGraph } from '../IndexPageV2/RadiaGraph';
+import { RadiaGraph } from '../indexPageV2/RadiaGraph';
     
 
 const { ccclass, property } = _decorator;

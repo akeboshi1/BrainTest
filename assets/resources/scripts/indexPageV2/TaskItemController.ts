@@ -1,7 +1,6 @@
 import { _decorator, Component, Label, Node, Sprite, SpriteFrame, resources } from 'cc';
 
 import { DebugLog } from '../Core/Util/DebugLog';
-import { TaskContainerConfig } from './TaskContainerConfig';
 const { ccclass, property } = _decorator;
 
 @ccclass('TaskItemController')
@@ -19,15 +18,6 @@ export class TaskItemController extends Component {
 
     public onFirstTaskClick: (taskController: TaskItemController) => void;
     public onOtherTaskClick: (index: number, taskController: TaskItemController) => void;
-
-    // private static _instance: TaskContainerConfig = null;
-    
-    // public get taskContainerConfig(): TaskContainerConfig {
-    //     if (!TaskItemController._instance) {
-    //         TaskItemController._instance = new TaskContainerConfig();
-    //     }
-    //     return TaskItemController._instance;
-    // }
 
 
     setTaskTitle(title: string) {
