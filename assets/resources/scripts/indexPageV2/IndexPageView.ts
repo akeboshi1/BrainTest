@@ -6,9 +6,7 @@ import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
 
 
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
-import { UIManager } from '../Core/Manager/UI/UIManager';
-import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
-import { BundleName } from '../Core/Manager/Load/BundleName';
+
 
 import { RadiaGraph } from './RadiaGraph';
 import { TaskItemController } from './TaskItemController';
