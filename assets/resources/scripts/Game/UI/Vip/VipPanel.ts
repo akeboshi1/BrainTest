@@ -1,6 +1,6 @@
 import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import {_decorator, Label,Node } from "cc";
+import {_decorator, Label,Node, ScrollView } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 const { ccclass, property } = _decorator;
 
@@ -26,6 +26,12 @@ export class VipPanel extends BasePanel {
 
     @property(Label)
     renewalBtnLabel:Label;
+
+    @property(Node)
+    childNode:Node;
+
+    @property(ScrollView)
+    scrollView:ScrollView;
 
     //===== 会员类型
     @property(Node)

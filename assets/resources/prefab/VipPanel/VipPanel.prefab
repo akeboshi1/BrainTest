@@ -3238,6 +3238,8 @@
       "__id__": 0
     },
     "fileId": "0fQcgnyGRONq/+lwCiryiX",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3325,7 +3327,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 344.7,
+      "y": 350,
       "z": 0
     },
     "_lrot": {
@@ -3715,7 +3717,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -644.9800000000001,
+      "y": -531,
       "z": 0
     },
     "_lrot": {
@@ -4352,7 +4354,7 @@
       "__id__": 174
     },
     "_resizeMode": 0,
-    "_layoutType": 0,
+    "_layoutType": 2,
     "_cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -4427,6 +4429,8 @@
       "__id__": 0
     },
     "fileId": "12xrM6MxhP/qgIfhyi9W6i",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -4582,6 +4586,12 @@
     },
     "renewalBtnLabel": {
       "__id__": 157
+    },
+    "childNode": {
+      "__id__": 129
+    },
+    "scrollView": {
+      "__id__": 39
     },
     "typeNode": {
       "__id__": 57
