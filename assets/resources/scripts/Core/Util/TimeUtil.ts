@@ -130,6 +130,15 @@ export class TimeUtil {
         }
     }
 
+    /**
+     * 将固定格式的字符串转换成Date
+     * @param timeStr 年份-月份-日期
+     * @returns 
+     */
+    static changeStrToTime(timeStr:string):Date{
+        return new Date(timeStr);
+    }
+
 
     /**
      * 自定义延迟方法
