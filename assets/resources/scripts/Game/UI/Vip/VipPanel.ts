@@ -1,7 +1,8 @@
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import { _decorator, Label, Node, ScrollView } from "cc";
+import { _decorator, Label, Node, ScrollView,Sprite,resources,SpriteFrame } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
+import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
 
 
@@ -97,6 +98,65 @@ export class VipPanel extends BasePanel {
 
     buyHandler() {
         this.quanyiNode.active = !this.quanyiNode.active;
+    }
+
+    private _select = 0;
+
+    cardClick(event,index:number){
+        this._select = Number(index);
+        this.selectLabel.string = this._select == 0 ? "已选择月卡" : "已选择年卡";
+        let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
+        this.changeBtnFrame(mouthBtnSprite, this._select == 0 ? 1 : 0).then();
+        let yearBtnSprite = this.yearBtn.getComponent(Sprite);
+        this.changeBtnFrame(yearBtnSprite,this._select == 0 ? 0 : 1).then();
+
+    }
+    // mouthCardClick(){
+    //     this._select = 0;
+    //     this.selectLabel.string = "已选择月卡";
+    //     let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
+    //     this.changeBtnFrame(mouthBtnSprite,1);
+    //     let yearBtnSprite = this.yearBtn.getComponent(Sprite);
+    //     this.changeBtnFrame(yearBtnSprite,0);
+    // }
+    //
+    // yearCardClick(){
+    //     this._select = 1;
+    //     this.selectLabel.string = "已选择年卡";
+    //     let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
+    //     this.changeBtnFrame(mouthBtnSprite,0);
+    //     let yearBtnSprite = this.yearBtn.getComponent(Sprite);
+    //     this.changeBtnFrame(yearBtnSprite,1);
+    // }
+
+
+    renewalHandler() {
+
+    }
+
+
+    private async changeBtnFrame(btnSprite:Sprite,index: number = 0): Promise<void> {
+        let url: string = "";
+        switch (index) {
+            case 0:
+                url = "textureV2/vip/rect_white/spriteFrame"
+                break
+            case 1:
+                url = "textureV2/vip/rect_orange/spriteFrame"
+                break;
+        }
+
+        return new Promise<void>((resolve, reject) => {
+            resources.load(url, SpriteFrame, (err, sp) => {
+                if (err) {
+                    DebugLog.instance.error(err);
+                    reject(err);
+                    return;
+                }
+                btnSprite.spriteFrame = sp;
+                resolve();
+            });
+        });
     }
 
  
