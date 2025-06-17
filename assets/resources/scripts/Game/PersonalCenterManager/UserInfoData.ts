@@ -9,6 +9,7 @@ export class UserInfoData {
     public birthday: String = "";
     public education: String = "";
     public trained_days: number = 0;
+    public has_initial_tier:boolean = false;
     constructor(data) {
         this.id = data["id"];
         this.nickname = data["nickname"];
@@ -19,6 +20,7 @@ export class UserInfoData {
         this.birthday = data["birthday"];
         this.education = data["education"];
         this.trained_days = data["trained_days"];
+        this.has_initial_tier = data["has_initial_tier"];
     }
 }
 

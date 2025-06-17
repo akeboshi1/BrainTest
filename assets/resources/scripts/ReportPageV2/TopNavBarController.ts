@@ -2,13 +2,15 @@ import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Col
 import { DebugLog } from '../Core/Util/DebugLog';
 import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
 import { ReportManager } from '../ManagerV2/ReportManager';
+import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 const { ccclass, property } = _decorator;
 
 export const TopNavBarConfig = {
     otherChartItem: '/prefabV2/personReport/otherChartItem',
     otherSumDataPrefab: '/prefabV2/personReport/otherSumDataPrefab',
     sumDataPrefab: '/prefabV2/personReport/sumDataPrefab',
-    sumReportPrefab: '/prefabV2/personReport/sumReportPrefab'
+    sumReportPrefab: '/prefabV2/personReport/sumReportPrefab',
+    initDataPrefab:'/prefabV2/personReport/initDataPrefab'
 }
 @ccclass('TopNavBarController')
 export class TopNavBarController extends Component {
@@ -91,10 +93,16 @@ export class TopNavBarController extends Component {
             }
         });
     }
-    loadSumReport() {
+   async loadSumReport() {
         this.selectedColor(0);
-        this.loadPage('sumReportPrefab');
-        this.loadPage('sumDataPrefab');
+        await this.loadPage('sumReportPrefab');
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        if(!userData.has_initial_tier){
+            await this.loadPage('initDataPrefab');
+        }else{
+            await this.loadPage('sumDataPrefab');
+        }
+      
         // 滚动到最上方
         if (this.scrollViewNode) {
             const scrollView = this.scrollViewNode.getComponent(ScrollView);
@@ -121,18 +129,6 @@ export class TopNavBarController extends Component {
             }
         }
     }
-    // clickCalulationLable(){
-
-    // }
-    // clickLanguageLable(){
-
-    // }
-    // clickJudegmentLable(){
-
-    // }
-    // clickExecutionLable(){
-
-    // }
     update(deltaTime: number) {
 
     }
