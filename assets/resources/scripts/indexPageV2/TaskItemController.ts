@@ -1,7 +1,9 @@
 import { _decorator, Component, Label, Node, Sprite, SpriteFrame, resources } from 'cc';
 
 import { DebugLog } from '../Core/Util/DebugLog';
-import { TaskContainerConfig } from './TaskContainerConfig';
+import { UIManager } from '../Core/Manager/UI/UIManager';
+import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+import { BundleName } from '../Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
 @ccclass('TaskItemController')
@@ -16,70 +18,40 @@ export class TaskItemController extends Component {
     private taskIcon: Sprite = null;
     @property(Label)
     private buttonText: Label = null;
+    @property(Node)
+    private button: Node = null;
+    private taskIndex: number = -1;
 
-    private static _instance: TaskContainerConfig = null;
-    
-    public get taskContainerConfig(): TaskContainerConfig {
-        if (!TaskItemController._instance) {
-            TaskItemController._instance = new TaskContainerConfig();
+    onEnable() {
+        // 添加按钮点击事件监听
+        if (this.button) {
+            this.button.on(Node.EventType.TOUCH_END, this.onButtonClick, this);
         }
-        return TaskItemController._instance;
     }
-
-    async initTaskData(taskId: string) {
-        try {
-            await this.taskContainerConfig.loadConfig();
-            const taskData = this.taskContainerConfig.getTaskData(taskId);
-            if (!taskData) {
-                DebugLog.instance.warn(`无法初始化任务数据，taskId: ${taskId} 未找到`);
-                return;
-            }
-
-            // 设置文本内容
-            this.taskTitle.string = taskData.title;
-            this.taskContent.string = taskData.txt;
-            
-            // 加载精灵图片
-            await Promise.all([
-                this.loadSprite(taskData.icon_bg, this.taskBg),
-                this.loadSprite(taskData.icon, this.taskIcon)
-            ]);
-        } catch (err) {
-            DebugLog.instance.error(`初始化任务数据失败: ${err}`);
+    onDisable() {
+        // 移除事件监听
+        if (this.button) {
+            this.button.off(Node.EventType.TOUCH_END, this.onButtonClick, this);
         }
     }
 
-    private loadSprite(path: string, sprite: Sprite): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (!path) {
-                DebugLog.instance.error('Sprite path is empty or invalid');
-                reject(new Error('Invalid sprite path'));
-                return;
-            }
+    private onButtonClick() {
+        if (this.taskIndex==0) {
+            this.onFirstTaskClick();
+        } else if (this.taskIndex==1) {
+            this.onOtherTaskClick();
+        }
+    }
+    onFirstTaskClick() {
+        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
+    }
+    onOtherTaskClick() {
+        console.log(`Task ${this.taskIndex} clicked`);
+    }
 
-            if (!sprite) {
-                DebugLog.instance.error('Sprite component is null');
-                reject(new Error('Invalid sprite component'));
-                return;
-            }
-
-            resources.load(path, SpriteFrame, (err, spriteFrame) => {
-                if (err) {
-                    DebugLog.instance.error(`Failed to load sprite: ${path}`, err);
-                    reject(err);
-                    return;
-                }
-                
-                if (!spriteFrame) {
-                    DebugLog.instance.error(`Loaded sprite frame is null: ${path}`);
-                    reject(new Error('Loaded sprite frame is null'));
-                    return;
-                }
-
-                sprite.spriteFrame = spriteFrame;
-                resolve();
-            });
-        });
+    setTaskIndex(index: number) {
+        this.taskIndex = index;
     }
 
     setTaskTitle(title: string) {
@@ -90,12 +62,32 @@ export class TaskItemController extends Component {
         this.taskContent.string = content;
     }
 
-    setTaskBg(spriteFrame: SpriteFrame) {
+    async setTaskBg(spritePath) {
+        let spriteFrame = await this.loadTaskSprite(spritePath);
         this.taskBg.spriteFrame = spriteFrame;
     }
 
-    setTaskIcon(spriteFrame: SpriteFrame) {
+    async setTaskIcon(spritePath) {
+        let spriteFrame = await this.loadTaskSprite(spritePath);
         this.taskIcon.spriteFrame = spriteFrame;
+    }
+    async loadTaskSprite(path: string): Promise<SpriteFrame> {
+        return new Promise((resolve, reject) => {
+            resources.load(path, SpriteFrame, (err, spriteFrame) => {
+                if (err) {
+                    DebugLog.instance.error(`Failed to load sprite: ${path}`, err);
+                    reject(err);
+                    return;
+                }
+
+                if (!spriteFrame) {
+                    DebugLog.instance.error(`Loaded sprite frame is null: ${path}`);
+                    reject(new Error('Loaded sprite frame is null'));
+                    return;
+                }
+                resolve(spriteFrame);
+            });
+        })
     }
 
     setIsComplete(isComplete: boolean) {

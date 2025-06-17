@@ -1,41 +1,50 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label } from 'cc';
+import { _decorator, Component, Node, Prefab, instantiate, Label, resources, SpriteFrame, Sprite } from 'cc';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
-import { TaskItemController } from './TaskItemController';
-import { RadiaGraph } from './RadiaGraph';
+
+
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 
+import { RadiaGraph } from './RadiaGraph';
+import { TaskItemController } from './TaskItemController';
+import { TaskContainerConfig } from './TaskContainerConfig';
+
 const { ccclass, property } = _decorator;
 
 
-@ccclass('IndexPageController')
-export class IndexPageController extends Component {
+@ccclass('IndexPageView')
+export class IndexPageView extends Component {
     @property(Prefab)
     private taskPrefab: Prefab = null;
     @property(Node)
     private taskContainer: Node = null;
     @property(Label)
     private userName: Label = null;
+    @property(Label)
+    private dayLabel: Label = null;
     @property(Node)
     private radarMap: Node = null;
+    @property(Prefab)
+    private initDataPrefab: Prefab=null;
+    @property(Node)
+    private initDataParent: Node=null;
 
+    private taskConfig: TaskContainerConfig = new TaskContainerConfig();
 
     @property(Node)
     vipNode: Node = null;
 
-
-    async start() {
-        await this.generateTask();
+    start() {
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
-
         ReportManager.getInstance().getPersonalReport();
         PersonalCenterManager.getInstance().requestUserInfo();
+
     }
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
@@ -46,15 +55,23 @@ export class IndexPageController extends Component {
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
     // 获取大脑训练等级回调函数
-    getBrainTrainingTiersCallback(){
-       let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
-       const values = reportDataList.map(item => item.tier);
-       this.radarMap.getComponent(RadiaGraph).setValues(values);
+    getBrainTrainingTiersCallback() {
+        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
+        const values = reportDataList.map(item => item.tier);
+        this.radarMap.getComponent(RadiaGraph).setValues(values);
     }
     getUserInfoCallBack(data: any) {
-        const userData:UserInfoData = PersonalCenterManager.getInstance().userInfoData;
+        const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
         DebugLog.instance.log("用户信息", userData);
         this.setUserName(userData.full_name);
+        this.setDayLabel(userData.trained_days);
+        if(!userData.has_initial_tier){
+           let initDataPanel= instantiate(this.initDataPrefab);
+           initDataPanel.parent=this.initDataParent;
+           initDataPanel.setPosition(0,0);
+        }else{
+          this.generateTask();
+        }
 
         // 当会员时间还剩余1天，显示续费入口
         if (PersonalCenterManager.getInstance().userInfoData.getMemberRemainingDays() == 1) {
@@ -63,9 +80,12 @@ export class IndexPageController extends Component {
             this.vipNode.active = false;
         }
     }
-  
+
     setUserName(name) {
         this.userName.string = name;
+    }
+    setDayLabel(day: number) {
+        this.dayLabel.string = `${day}天`;
     }
     update(deltaTime: number) {
         
@@ -78,40 +98,28 @@ export class IndexPageController extends Component {
 
 
     async generateTask() {
-        for (let i = 0; i < 2; i++) {
-            const task = instantiate(this.taskPrefab);
-            const taskController = task.getComponent(TaskItemController);
-            if (taskController) {
-                await taskController.initTaskData(`task${i}`);
-            }
-            if (i === 0) {
-                task.on(Node.EventType.TOUCH_END, () => {
-                    this.onFirstTaskClick(taskController);
-                }, this);
-            } else {
-                task.on(Node.EventType.TOUCH_END, () => {
-                    this.onOtherTaskClick(i, taskController);
-                }, this);
-            }
-            
-            this.taskContainer.addChild(task);
-            task.setPosition(0, -i*(350+80), 0);
-        }
-    }
-    private onFirstTaskClick(taskController: TaskItemController) {
-        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
-        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
-    }
+        await this.taskConfig.loadConfig();
+        let taskdata = this.taskConfig.taskData;
+        for (let i = 0; i < taskdata.length; i++) {
+            let taskItem = instantiate(this.taskPrefab);
+            // taskItem.setPosition(0, -i*350, 0);
+            let taskController = taskItem.getComponent(TaskItemController);
+            taskController.setTaskIndex(i);
+            taskController.setTaskTitle(taskdata[i].title);
+            taskController.setTaskContent(taskdata[i].txt);
+            await taskController.setTaskBg(taskdata[i].icon_bg);
+            await taskController.setTaskIcon(taskdata[i].icon);
+            taskController.setIsComplete(taskdata[i].is_complete);
+            taskController.node.parent = this.taskContainer;
 
-    private onOtherTaskClick(index: number, taskController: TaskItemController) {
-        console.log(`Task ${index} clicked`);
+        }
     }
 
     setTaskItem() {
         // this.taskItem.setTaskTitle(title);
     }
-    showUserInfo(){
-       PersonalCenterManager.getInstance().requestUserInfo();
+    showUserInfo() {
+        PersonalCenterManager.getInstance().requestUserInfo();
     }
 }
 

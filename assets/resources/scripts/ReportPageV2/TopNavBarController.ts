@@ -1,13 +1,16 @@
-import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView } from 'cc';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
+import { ReportManager } from '../ManagerV2/ReportManager';
+import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 const { ccclass, property } = _decorator;
 
 export const TopNavBarConfig = {
     otherChartItem: '/prefabV2/personReport/otherChartItem',
     otherSumDataPrefab: '/prefabV2/personReport/otherSumDataPrefab',
     sumDataPrefab: '/prefabV2/personReport/sumDataPrefab',
-    sumReportPrefab: '/prefabV2/personReport/sumReportPrefab'
+    sumReportPrefab: '/prefabV2/personReport/sumReportPrefab',
+    initDataPrefab:'/prefabV2/personReport/initDataPrefab'
 }
 @ccclass('TopNavBarController')
 export class TopNavBarController extends Component {
@@ -18,6 +21,8 @@ export class TopNavBarController extends Component {
     parentNode_top: Node = null;
     @property(Node)
     parentNode_bottom: Node = null;
+    @property(ScrollView)
+    scrollViewNode: ScrollView = null;
     onLoad(): void {
         // this.scheduleOnce(() => {
         //     if (this.parentNode_top && this.parentNode_bottom) {
@@ -29,6 +34,7 @@ export class TopNavBarController extends Component {
     start() {
 
     }
+
 
     public async loadPage(pageName: string) {
         if (!this.parentNode_top && !this.parentNode_bottom) {
@@ -87,27 +93,42 @@ export class TopNavBarController extends Component {
             }
         });
     }
-    loadSumReport() {
+   async loadSumReport() {
         this.selectedColor(0);
-        this.loadPage('sumReportPrefab');
-        this.loadPage('sumDataPrefab');
+        await this.loadPage('sumReportPrefab');
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        if(!userData.has_initial_tier){
+            await this.loadPage('initDataPrefab');
+        }else{
+            await this.loadPage('sumDataPrefab');
+        }
+      
+        // 滚动到最上方
+        if (this.scrollViewNode) {
+            const scrollView = this.scrollViewNode.getComponent(ScrollView);
+            if (scrollView) {
+                scrollView.scrollTo(new Vec2(0, 1), 0.1); // 0.1秒内滚动到顶部
+            }
+        }
     }
-    clickOtherNavLable(type: SkewersGameType) {
-        this.loadPage('otherChartItem');
-        this.loadPage('otherSumDataPrefab');
+    async clickOtherNavLable(event, customData) {
+        const { data, index } = JSON.parse(customData);
+        if (data) {
+            this.selectedColor(index);
+            ReportManager.getInstance().getCogAbilityBrief(data);
+            ReportManager.getInstance().getCogAbilityWeeklyScores(data,0);
+        }
+        
+        await this.loadPage('otherChartItem');
+        await this.loadPage('otherSumDataPrefab');
+        // 滚动到最上方
+        if (this.scrollViewNode) {
+            const scrollView = this.scrollViewNode.getComponent(ScrollView);
+            if (scrollView) {
+                scrollView.scrollTo(new Vec2(0, 1), 0.1); // 0.1秒内滚动到顶部
+            }
+        }
     }
-    // clickCalulationLable(){
-
-    // }
-    // clickLanguageLable(){
-
-    // }
-    // clickJudegmentLable(){
-
-    // }
-    // clickExecutionLable(){
-
-    // }
     update(deltaTime: number) {
 
     }
