@@ -1,6 +1,6 @@
-import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
+import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import {_decorator, Label,Node, ScrollView } from "cc";
+import { _decorator, Label, Node, ScrollView } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 const { ccclass, property } = _decorator;
 
@@ -13,54 +13,57 @@ export class VipPanel extends BasePanel {
     backBtn: Node;
 
     @property(Label)
-    titleLable:Label;
+    titleLable: Label;
 
     @property(Label)
-    descLabel:Label;
+    descLabel: Label;
 
     @property(Label)
-    detailLabel:Label;
-    
-    @property(Node)
-    renewalBtn:Node;
-
-    @property(Label)
-    renewalBtnLabel:Label;
+    detailLabel: Label;
 
     @property(Node)
-    childNode:Node;
+    renewalBtn: Node;
+
+    @property(Label)
+    renewalBtnLabel: Label;
+
+    @property(Node)
+    childNode: Node;
 
     @property(ScrollView)
-    scrollView:ScrollView;
+    scrollView: ScrollView;
+
+    @property(Node)
+    containerNode: Node;
 
     //===== 会员类型
     @property(Node)
-    typeNode:Node;
+    typeNode: Node;
 
     @property(Node)
-    mouthBtn:Node
+    mouthBtn: Node
 
     @property(Label)
-    mouthNameLabel:Label;
+    mouthNameLabel: Label;
 
     @property(Label)
-    mouthPriceLabel:Label;
+    mouthPriceLabel: Label;
 
     @property(Node)
-    yearBtn:Node;
+    yearBtn: Node;
 
     @property(Label)
-    yearNameLabel:Label;
+    yearNameLabel: Label;
 
     @property(Label)
-    yearPriceLabel:Label;
+    yearPriceLabel: Label;
 
     @property(Label)
-    selectLabel:Label;
+    selectLabel: Label;
 
     //===== 权益
     @property(Node)
-    quanyiNode:Node;
+    quanyiNode: Node;
 
 
     public static NAME: string = "VipPanel";
@@ -71,12 +74,15 @@ export class VipPanel extends BasePanel {
     }
 
     onLoad(): void {
+
     }
 
-    start(){
+    start() {
+
     }
 
     onEnable(): void {
+
     }
 
     onDisable(): void {
@@ -85,10 +91,14 @@ export class VipPanel extends BasePanel {
     onDestroy(): void {
     }
 
-    backHandler(){
+    backHandler() {
         SceneManager.getInstance().backToHall();
     }
 
+    buyHandler() {
+        this.quanyiNode.active = !this.quanyiNode.active;
+    }
 
+ 
 
 }
