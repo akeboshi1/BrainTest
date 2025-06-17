@@ -29,13 +29,17 @@ export class IndexPageView extends Component {
     private dayLabel: Label = null;
     @property(Node)
     private radarMap: Node = null;
+    @property(Prefab)
+    private initDataPrefab: Prefab=null;
+    @property(Node)
+    private initDataParent: Node=null;
 
     private taskConfig: TaskContainerConfig = new TaskContainerConfig();
 
-    async start() {
-        await this.generateTask();
+    start() {
         ReportManager.getInstance().getPersonalReport();
         PersonalCenterManager.getInstance().requestUserInfo();
+        
     }
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
@@ -56,6 +60,13 @@ export class IndexPageView extends Component {
         DebugLog.instance.log("用户信息", userData);
         this.setUserName(userData.full_name);
         this.setDayLabel(userData.trained_days);
+        if(!userData.has_initial_tier){
+           let initDataPanel= instantiate(this.initDataPrefab);
+           initDataPanel.parent=this.initDataParent;
+           initDataPanel.setPosition(0,0);
+        }else{           
+          this.generateTask();
+        }
     }
 
     setUserName(name) {
