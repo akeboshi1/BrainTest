@@ -1047,7 +1047,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -554.7,
+      "y": 846,
       "z": 0
     },
     "_lrot": {
@@ -1263,7 +1263,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 1302.9,
+      "y": -100.8,
       "z": 0
     },
     "_lrot": {
@@ -1432,7 +1432,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 842.92,
+      "y": -561.6,
       "z": 0
     },
     "_lrot": {
@@ -1778,7 +1778,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "0702be02-26fe-4f5e-86cb-e9202f0d3ca4@f9941",
+      "__uuid__": "fe90e245-612d-4387-b224-49d9ab0469a8@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -2492,7 +2492,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "0702be02-26fe-4f5e-86cb-e9202f0d3ca4@f9941",
+      "__uuid__": "fe90e245-612d-4387-b224-49d9ab0469a8@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -3276,7 +3276,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 480.6,
+      "y": -921.6,
       "z": 0
     },
     "_lrot": {
@@ -3457,7 +3457,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "73dcf240-6e8d-4b86-a8fb-9f3c0b530ab6@f9941",
+      "__uuid__": "3a373e5d-5368-486e-afbe-6d249f6b3ec1@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -4412,12 +4412,12 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 2800
+      "height": 2821.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
       "x": 0.5,
-      "y": 0.5
+      "y": 1
     },
     "_id": ""
   },
@@ -4437,8 +4437,8 @@
     "__prefab": {
       "__id__": 179
     },
-    "_resizeMode": 0,
-    "_layoutType": 0,
+    "_resizeMode": 1,
+    "_layoutType": 2,
     "_cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -4539,10 +4539,7 @@
       "b": 255,
       "a": 255
     },
-    "_spriteFrame": {
-      "__uuid__": "6022be34-f6da-4b23-83e2-cfa4872f3bc5@f9941",
-      "__expectedType__": "cc.SpriteFrame"
-    },
+    "_spriteFrame": null,
     "_type": 1,
     "_fillType": 0,
     "_sizeMode": 0,
