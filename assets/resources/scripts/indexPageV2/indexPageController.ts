@@ -9,6 +9,7 @@ import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { BundleName } from '../Core/Manager/Load/BundleName';
+import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 
 const { ccclass, property } = _decorator;
 
@@ -24,8 +25,15 @@ export class IndexPageController extends Component {
     @property(Node)
     private radarMap: Node = null;
 
+
+    @property(Node)
+    vipNode: Node = null;
+
+
     async start() {
         await this.generateTask();
+        UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
+
         ReportManager.getInstance().getPersonalReport();
         PersonalCenterManager.getInstance().requestUserInfo();
     }
@@ -47,6 +55,13 @@ export class IndexPageController extends Component {
         const userData:UserInfoData = PersonalCenterManager.getInstance().userInfoData;
         DebugLog.instance.log("用户信息", userData);
         this.setUserName(userData.full_name);
+
+        // 当会员时间还剩余1天，显示续费入口
+        if (PersonalCenterManager.getInstance().userInfoData.getMemberRemainingDays() == 1) {
+            this.vipNode.active = true;
+        } else {
+            this.vipNode.active = false;
+        }
     }
   
     setUserName(name) {
@@ -55,7 +70,13 @@ export class IndexPageController extends Component {
     update(deltaTime: number) {
         
     }
-    
+
+
+    renewalHandler(){
+        UIManager.getInstance().showPanel(VipPanel.NAME);
+    }
+
+
     async generateTask() {
         for (let i = 0; i < 2; i++) {
             const task = instantiate(this.taskPrefab);
