@@ -63,6 +63,9 @@ export class ReportManager {
     public get reportDataList(): ReportData[] {
         return this._reportDataList;
     }
+    private clearReportList(){
+        this._reportDataList=[];
+    }
 
     public getPersonalReport() {
         EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingTiersCallback, this, true);
@@ -73,6 +76,7 @@ export class ReportManager {
     }
     requestBrainTrainingTiersCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_brain_training_tiers, context);
+        this.clearReportList();
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
