@@ -6,7 +6,10 @@ import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
 
 
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
-
+import { UIManager } from '../Core/Manager/UI/UIManager';
+import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+import { BundleName } from '../Core/Manager/Load/BundleName';
+import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 
 import { RadiaGraph } from './RadiaGraph';
 import { TaskItemController } from './TaskItemController';
@@ -34,10 +37,14 @@ export class IndexPageView extends Component {
 
     private taskConfig: TaskContainerConfig = new TaskContainerConfig();
 
+    @property(Node)
+    vipNode: Node = null;
+
     start() {
+        UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         ReportManager.getInstance().getPersonalReport();
         PersonalCenterManager.getInstance().requestUserInfo();
-        
+
     }
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
@@ -62,8 +69,15 @@ export class IndexPageView extends Component {
            let initDataPanel= instantiate(this.initDataPrefab);
            initDataPanel.parent=this.initDataParent;
            initDataPanel.setPosition(0,0);
-        }else{           
+        }else{
           this.generateTask();
+        }
+
+        // 当会员时间还剩余1天，显示续费入口
+        if (PersonalCenterManager.getInstance().userInfoData.getMemberRemainingDays() == 1) {
+            this.vipNode.active = true;
+        } else {
+            this.vipNode.active = false;
         }
     }
 
@@ -74,8 +88,14 @@ export class IndexPageView extends Component {
         this.dayLabel.string = `${day}天`;
     }
     update(deltaTime: number) {
-
+        
     }
+
+
+    renewalHandler(){
+        UIManager.getInstance().showPanel(VipPanel.NAME);
+    }
+
 
     async generateTask() {
         await this.taskConfig.loadConfig();
@@ -85,14 +105,14 @@ export class IndexPageView extends Component {
             // taskItem.setPosition(0, -i*350, 0);
             let taskController = taskItem.getComponent(TaskItemController);
             taskController.setTaskIndex(i);
-            taskController.setTaskTitle(taskdata[i].title); 
+            taskController.setTaskTitle(taskdata[i].title);
             taskController.setTaskContent(taskdata[i].txt);
             await taskController.setTaskBg(taskdata[i].icon_bg);
             await taskController.setTaskIcon(taskdata[i].icon);
             taskController.setIsComplete(taskdata[i].is_complete);
-            taskController.node.parent = this.taskContainer;      
-                  
-        }   
+            taskController.node.parent = this.taskContainer;
+
+        }
     }
 
     setTaskItem() {
