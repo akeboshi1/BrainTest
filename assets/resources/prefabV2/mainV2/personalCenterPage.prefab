@@ -2695,12 +2695,12 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "db3a0b7d-71d9-4846-9918-4398b54b95da@f9941",
+      "__uuid__": "d8812ef7-a0fb-4e01-a3da-44387cfc7e1f@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
     "_fillType": 0,
-    "_sizeMode": 1,
+    "_sizeMode": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",
       "x": 0,
@@ -2830,7 +2830,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "修改资料",
+    "_string": "填邀请码",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
