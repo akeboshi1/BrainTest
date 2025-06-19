@@ -1,5 +1,7 @@
 import { _decorator, Component, Node, find } from 'cc';
 import { ScrollViewExt } from './ScrollViewExt';
+import { UIManager } from '../../../Core/Manager/UI/UIManager';
+import { VipPanel } from './VipPanel';
 const { ccclass, property } = _decorator;
 
 // 城市数据定义
@@ -67,7 +69,8 @@ export class SelectDate extends Component {
 
         if (this._nodes.nodeMask) {
             this._nodes.nodeMask.on(Node.EventType.TOUCH_END, () => {
-                this.onClose();
+                // 调用VipPanel的okClick方法
+                this.callVipPanelOkClick();
             })
         }
     }
@@ -182,6 +185,17 @@ export class SelectDate extends Component {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 调用VipPanel的okClick方法
+     */
+    private callVipPanelOkClick() {
+        // 获取VipPanel实例并调用okClick方法
+        let vipPanelCache = UIManager.getInstance().getActivePanel(VipPanel.NAME);
+        if (vipPanelCache && vipPanelCache.comp) {
+            (vipPanelCache.comp as VipPanel).okClick();
         }
     }
 }
