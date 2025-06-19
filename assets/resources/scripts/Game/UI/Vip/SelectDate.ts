@@ -139,6 +139,26 @@ export class SelectDate extends Component {
         this.node.active = false;
     }
 
+    /**
+     * 获取当前选择的地址信息
+     * @returns 拼接后的地址字符串
+     */
+    getCurrentAddress(): string {
+        return `${this._province} ${this._city} ${this._district}`;
+    }
+
+    /**
+     * 获取当前选择的详细信息
+     * @returns 包含省市区信息的对象
+     */
+    getCurrentSelection(): { province: string, city: string, district: string } {
+        return {
+            province: this._province,
+            city: this._city,
+            district: this._district
+        };
+    }
+
     scrollToSelection(option: string) {
         const parts = option.split("-");
         if (parts.length >= 3) {

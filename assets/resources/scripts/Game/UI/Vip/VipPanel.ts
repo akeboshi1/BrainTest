@@ -3,6 +3,7 @@ import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 import { _decorator, Label, Node, ScrollView,Sprite,resources,SpriteFrame, tween, UIOpacity, Vec3 } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { SelectDate } from "./SelectDate";
 const { ccclass, property } = _decorator;
 
 
@@ -66,12 +67,31 @@ export class VipPanel extends BasePanel {
     @property(Node)
     quanyiNode: Node;
 
+    //===== address
+    @property(Node)
+    addressNode:Node;
+
+    @property(Label)
+    addressLabel:Label;
+
+    @property(Node)
+    addressBtn:Node;
+
+    @property(Node)
+    addressInput:Node;
+
+
     //===== select
     @property(Node)
     selectNode:Node;
 
     @property(Node)
     selectBGNode:Node;
+
+    @property(SelectDate)
+    selectDateComponent:SelectDate;
+
+
 
 
     public static NAME: string = "VipPanel";
@@ -122,15 +142,29 @@ export class VipPanel extends BasePanel {
 
     openSelect(){
         this.selectNode.active = true;
+        
+        // 设置SelectDate组件的回调（可选，用于实时预览）
+        if (this.selectDateComponent) {
+            this.selectDateComponent.callback = (province: string, city: string, district: string) => {
+                // 这里可以添加实时预览逻辑，目前留空
+            };
+        }
+        
         this.playSelectOpenAnimation();
     }
 
     okClick(){
+        // 获取选择的地址数据
+        if (this.selectDateComponent) {
+            const selectedAddress = this.selectDateComponent.getCurrentAddress();
+            if (this.addressLabel) {
+                this.addressLabel.string = selectedAddress;
+            }
+        }
+        
         this.playSelectCloseAnimation(() => {
             this.selectNode.active = false;
         });
-        
-        //todo 提取选择数据
     }
 
     cancelClick(){
@@ -141,6 +175,30 @@ export class VipPanel extends BasePanel {
 
     renewalHandler() {
 
+    }
+
+    /**
+     * 设置地址显示文本
+     * @param address 地址字符串
+     */
+    setAddressText(address: string) {
+        if (this.addressLabel) {
+            this.addressLabel.string = address;
+        }
+    }
+
+    /**
+     * 根据地址字符串设置SelectDate组件的选择状态
+     * @param address 格式为 "省份 城市 区县" 的地址字符串
+     */
+    setSelectDateFromAddress(address: string) {
+        if (this.selectDateComponent && address) {
+            const parts = address.split(' ');
+            if (parts.length >= 3) {
+                const addressString = `${parts[0]}-${parts[1]}-${parts[2]}`;
+                this.selectDateComponent.scrollToSelection(addressString);
+            }
+        }
     }
 
     /**
