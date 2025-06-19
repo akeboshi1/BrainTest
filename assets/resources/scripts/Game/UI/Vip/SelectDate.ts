@@ -108,7 +108,7 @@ export class SelectDate extends Component {
         
         // 确保城市选择器有回调函数
         if (this.citySelect) {
-            this.citySelect.dataList = cities.slice();
+        this.citySelect.dataList = cities.slice();
             this.citySelect.callback = (idx: number, data: Array<string>) => { this.onCityChanged(idx, data); };
         }
         
@@ -125,7 +125,7 @@ export class SelectDate extends Component {
         
         // 确保区县选择器有回调函数
         if (this.districtSelect) {
-            this.districtSelect.dataList = districts.slice();
+        this.districtSelect.dataList = districts.slice();
             this.districtSelect.callback = (idx: number, data: Array<string>) => { this.onDistrictChanged(idx, data); };
         }
         

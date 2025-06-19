@@ -1,10 +1,11 @@
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import { _decorator, Label, Node, ScrollView,Sprite,resources,SpriteFrame, tween, UIOpacity, Vec3,EditBox } from "cc";
+import { _decorator,Prefab,instantiate, Label, Node, ScrollView,Sprite,resources,SpriteFrame, tween, UIOpacity, Vec3,EditBox } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { SelectDate } from "./SelectDate";
 import { AlertManager } from "../../../Core/Manager/Alert/AlertManager";
+import {AlertType} from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
 const { ccclass, property } = _decorator;
 
 
@@ -76,6 +77,9 @@ export class VipPanel extends BasePanel {
     addressScrollView:ScrollView;
 
     @property(Node)
+    addressScrollViewContent:Node;
+
+    @property(Node)
     newAddressNode:Node;
 
     @property(Node)
@@ -116,6 +120,7 @@ export class VipPanel extends BasePanel {
     
 
 
+    private _addressItemPrefab:Prefab;
 
     public static NAME: string = "VipPanel";
 
@@ -125,7 +130,14 @@ export class VipPanel extends BasePanel {
     }
 
     onLoad(): void {
-
+        let self = this;
+        resources.load("prefab/VipPanel/addressItem",Prefab,(err,prefab)=>{
+            if(err){
+                DebugLog.instance.error(err);
+                return;
+            }
+            self._addressItemPrefab = prefab;
+        });
     }
 
     start() {
@@ -235,6 +247,43 @@ export class VipPanel extends BasePanel {
                 AlertManager.getInstance().showSocketAlert('请输入详细收货地址');
                 return;
             }
+            
+
+            // 实例化地址条目预制体
+            let node = instantiate(this._addressItemPrefab);
+            this.addressScrollViewContent.addChild(node);
+            node.active = true;
+
+            // 获取节点中的组件
+            let nameLabel = node.getChildByName("nameLabel")?.getComponent(Label);
+            let addressLabel = node.getChildByName("addressLabel")?.getComponent(Label);
+            let changeBtn = node.getChildByName("changeBtn")?.getComponent(Sprite);
+            let selectBtn = node.getChildByName("selectBtn")?.getComponent(Sprite);
+
+            // 设置文本内容
+            if (nameLabel) {
+                nameLabel.string = this.nameInput.string;
+            }
+            if (addressLabel) {
+                addressLabel.string = this.addressLabel.string + " " + this.addressInput.string;
+            }
+
+            // 为按钮添加点击事件
+            let changeBtnNode = node.getChildByName("changeBtn");
+            let selectBtnNode = node.getChildByName("selectBtn");
+
+            if (changeBtnNode) {
+                changeBtnNode.on(Node.EventType.TOUCH_END, () => {
+                    this.onChangeBtnClick(node);
+                }, this);
+            }
+
+            if (selectBtnNode) {
+                selectBtnNode.on(Node.EventType.TOUCH_END, () => {
+                    this.onSelectBtnClick(node);
+                }, this);
+            }
+
             this.backHandler();
             return;
         }
@@ -352,6 +401,78 @@ export class VipPanel extends BasePanel {
                 resolve();
             });
         });
+    }
+
+    /**
+     * 修改按钮点击事件处理
+     * @param addressNode 地址条目节点
+     */
+    private onChangeBtnClick(addressNode: Node) {
+        // 获取当前地址信息
+        let nameLabel = addressNode.getChildByName("nameLabel")?.getComponent(Label);
+        let addressLabel = addressNode.getChildByName("addressLabel")?.getComponent(Label);
+        
+        // 填充到编辑表单中
+        if (nameLabel) {
+            this.nameInput.string = nameLabel.string;
+        }
+        if (addressLabel) {
+            // 解析地址信息，可能需要根据实际格式调整
+            let addressText = addressLabel.string;
+            // 这里可以根据实际地址格式进行解析
+            // 例如：将完整地址分解为省市区和详细地址
+        }
+        
+        // 切换到编辑模式
+        this.addressScrollView.node.active = false;
+        this.addAddressBtn.active = false;
+        this.newAddressNode.active = true;
+        this.bigaddAddressBtn.getChildByName("label").getComponent(Label).string = "修改";
+        
+        // 移除原节点
+        addressNode.removeFromParent();
+        addressNode.destroy();
+    }
+
+    /**
+     * 选择按钮点击事件处理
+     * @param addressNode 地址条目节点
+     */
+    private onSelectBtnClick(addressNode: Node) {
+        // 获取当前地址信息
+        let nameLabel = addressNode.getChildByName("nameLabel")?.getComponent(Label);
+        let addressLabel = addressNode.getChildByName("addressLabel")?.getComponent(Label);
+        
+        // 设置为默认地址
+        if (nameLabel && addressLabel) {
+            // 可以在这里保存选中的地址信息
+            DebugLog.instance.log(`选中地址: ${nameLabel.string} - ${addressLabel.string}`);
+            
+            // 更新UI显示，例如高亮显示选中的地址
+            this.updateSelectedAddress(addressNode);
+        }
+    }
+
+    /**
+     * 更新选中地址的显示状态
+     * @param selectedNode 选中的地址节点
+     */
+    private updateSelectedAddress(selectedNode: Node) {
+        // 遍历所有地址条目，重置选中状态
+        let children = this.addressScrollViewContent.children;
+        for (let child of children) {
+            let selectBtn = child.getChildByName("selectBtn")?.getComponent(Sprite);
+            if (selectBtn) {
+                // 重置为未选中状态
+                this.changeBtnFrame(selectBtn, "textureV2/vip/selectBG/spriteFrame").then();
+            }
+        }
+        
+        // 设置当前节点为选中状态
+        let currentSelectBtn = selectedNode.getChildByName("selectBtn")?.getComponent(Sprite);
+        if (currentSelectBtn) {
+            this.changeBtnFrame(currentSelectBtn, "textureV2/vip/completeIcon/spriteFrame").then();
+        }
     }
 
  
