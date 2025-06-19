@@ -1,6 +1,6 @@
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import { _decorator, Label, Node, ScrollView,Sprite,resources,SpriteFrame } from "cc";
+import { _decorator, Label, Node, ScrollView,Sprite,resources,SpriteFrame, tween, UIOpacity, Vec3 } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 const { ccclass, property } = _decorator;
@@ -70,6 +70,9 @@ export class VipPanel extends BasePanel {
     @property(Node)
     selectNode:Node;
 
+    @property(Node)
+    selectBGNode:Node;
+
 
     public static NAME: string = "VipPanel";
 
@@ -119,19 +122,75 @@ export class VipPanel extends BasePanel {
 
     openSelect(){
         this.selectNode.active = true;
+        this.playSelectOpenAnimation();
     }
 
     okClick(){
-       this.selectNode.active = false;
-       //todo 提取选择数据
+        this.playSelectCloseAnimation(() => {
+            this.selectNode.active = false;
+        });
+        
+        //todo 提取选择数据
     }
 
     cancelClick(){
-        this.selectNode.active = false;
+        this.playSelectCloseAnimation(() => {
+            this.selectNode.active = false;
+        });
     }
 
     renewalHandler() {
 
+    }
+
+    /**
+     * 播放选择面板打开动画
+     */
+    private playSelectOpenAnimation() {
+        // 设置初始状态
+        this.selectBGNode.setPosition(this.selectBGNode.position.x, -1444, this.selectBGNode.position.z);
+        const uiOpacity = this.selectBGNode.getComponent(UIOpacity);
+        if (uiOpacity) {
+            uiOpacity.opacity = 0;
+        }
+        
+        // 执行打开动画
+        tween(this.selectBGNode)
+            .to(0.3, { 
+                position: new Vec3(this.selectBGNode.position.x, -478, this.selectBGNode.position.z)
+            })
+            .start();
+            
+        if (uiOpacity) {
+            tween(uiOpacity)
+                .to(0.3, { opacity: 255 })
+                .start();
+        }
+    }
+
+    /**
+     * 播放选择面板关闭动画
+     * @param callback 动画完成后的回调
+     */
+    private playSelectCloseAnimation(callback?: () => void) {
+        const uiOpacity = this.selectBGNode.getComponent(UIOpacity);
+        
+        tween(this.selectBGNode)
+            .to(0.3, { 
+                position: new Vec3(this.selectBGNode.position.x, -1444, this.selectBGNode.position.z)
+            })
+            .call(() => {
+                if (callback) {
+                    callback();
+                }
+            })
+            .start();
+            
+        if (uiOpacity) {
+            tween(uiOpacity)
+                .to(0.3, { opacity: 0 })
+                .start();
+        }
     }
 
 

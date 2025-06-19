@@ -12263,7 +12263,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -148,
-      "y": 34.02,
+      "y": 34,
       "z": 0
     },
     "_lrot": {
@@ -12303,8 +12303,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 288,
-      "height": 60.480000000000004
+      "width": 298,
+      "height": 68
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -12340,13 +12340,13 @@
       "a": 255
     },
     "_string": "请输入收货人",
-    "_horizontalAlign": 0,
+    "_horizontalAlign": 2,
     "_verticalAlign": 0,
     "_actualFontSize": 48,
     "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 48,
-    "_overflow": 0,
+    "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
@@ -12422,7 +12422,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -148,
-      "y": 34.02,
+      "y": 34,
       "z": 0
     },
     "_lrot": {
@@ -12463,7 +12463,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 298,
-      "height": 68.04
+      "height": 68
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -12499,13 +12499,13 @@
       "a": 255
     },
     "_string": "",
-    "_horizontalAlign": 0,
+    "_horizontalAlign": 2,
     "_verticalAlign": 0,
     "_actualFontSize": 48,
     "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 48,
-    "_overflow": 0,
+    "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
@@ -12572,7 +12572,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 300,
-      "height": 68.04
+      "height": 68
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -13668,7 +13668,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -9.194,
+      "y": -9,
       "z": 0
     },
     "_lrot": {
@@ -14068,7 +14068,7 @@
     "_backgroundImage": null,
     "_inputFlag": 5,
     "_inputMode": 0,
-    "_maxLength": 20,
+    "_maxLength": 100,
     "_id": ""
   },
   {
@@ -14956,7 +14956,7 @@
         "__id__": 619
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 797
@@ -15261,7 +15261,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -478,
+      "y": -1444,
       "z": 0
     },
     "_lrot": {
@@ -19267,6 +19267,9 @@
     },
     "selectNode": {
       "__id__": 606
+    },
+    "selectBGNode": {
+      "__id__": 619
     },
     "_id": ""
   },
