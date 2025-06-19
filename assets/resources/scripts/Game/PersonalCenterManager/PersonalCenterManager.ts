@@ -70,17 +70,19 @@ export class PersonalCenterManager {
         DebugLog.instance.log("请求个人中心数据", data);
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
+            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {data});
         } else {
             this._userInfoData = new UserInfoData(data.data);
-            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
+            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack);
         }
     }
     //更新个人中心数据
-    public updateUserInfo(full_name: string, gender: number, birthday: string, education: number) {
+    public updateUserInfo(nick_name: string, full_name: string, gender: number, birthday: string, education: number) {
         EventManager.getInstance().on(this.user_update_info, this.requestUpdateInfoCallback, this, true);
         let requestUpdateUserInfoSocket: SocketData = new SocketData({
             "action": this.user_update_info,
             "data": {
+                nickname: nick_name,
                 full_name: full_name,
                 gender: gender,
                 birthday: birthday,
@@ -100,7 +102,7 @@ export class PersonalCenterManager {
             this._userInfoData.birthday = data.data.birthday;
             this._userInfoData.education = data.data.education;
             // DebugLog.instance.log("更新个人中心数据", this._userInfoData);
-            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {});
+            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack );
         }
     }
     //获取个人报告

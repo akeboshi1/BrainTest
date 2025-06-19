@@ -8,8 +8,9 @@ export class Selector extends Component {
     @property(ScrollViewExt)
     svExt: ScrollViewExt = null;
 
-    @property([String])
-    options: String[] = [];
+    // @property([String])
+    // options: String[] = [];
+    private options: string[] = [];
 
     callback: (sex: string) => void;
 
@@ -19,6 +20,14 @@ export class Selector extends Component {
     private _index: number;
 
     onLoad(): void {
+
+    }
+    setOptions(options: string[]) {
+        this.options = options;
+        this.startOptionsShow();
+    }
+    startOptionsShow(){
+        
         try {
             this._nodes = new Nodes(this.node);
 
@@ -45,7 +54,6 @@ export class Selector extends Component {
             console.error(error);
 
         }
-
     }
 
     private initMember() {
