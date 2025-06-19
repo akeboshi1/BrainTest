@@ -66,6 +66,10 @@ export class VipPanel extends BasePanel {
     @property(Node)
     quanyiNode: Node;
 
+    //===== select
+    @property(Node)
+    selectNode:Node;
+
 
     public static NAME: string = "VipPanel";
 
@@ -111,24 +115,20 @@ export class VipPanel extends BasePanel {
         this.changeBtnFrame(yearBtnSprite,this._select == 0 ? 0 : 1).then();
 
     }
-    // mouthCardClick(){
-    //     this._select = 0;
-    //     this.selectLabel.string = "已选择月卡";
-    //     let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
-    //     this.changeBtnFrame(mouthBtnSprite,1);
-    //     let yearBtnSprite = this.yearBtn.getComponent(Sprite);
-    //     this.changeBtnFrame(yearBtnSprite,0);
-    // }
-    //
-    // yearCardClick(){
-    //     this._select = 1;
-    //     this.selectLabel.string = "已选择年卡";
-    //     let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
-    //     this.changeBtnFrame(mouthBtnSprite,0);
-    //     let yearBtnSprite = this.yearBtn.getComponent(Sprite);
-    //     this.changeBtnFrame(yearBtnSprite,1);
-    // }
 
+
+    openSelect(){
+        this.selectNode.active = true;
+    }
+
+    okClick(){
+       this.selectNode.active = false;
+       //todo 提取选择数据
+    }
+
+    cancelClick(){
+        this.selectNode.active = false;
+    }
 
     renewalHandler() {
 
