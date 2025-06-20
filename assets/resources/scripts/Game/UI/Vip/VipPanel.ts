@@ -9,6 +9,7 @@ import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert
 import { VipEvent, VipModel, VipType } from "./VipModel";
 import { Global } from "../../../Core/Manager/Config/Global";
 import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
+import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 const { ccclass, property } = _decorator;
 
 
@@ -239,7 +240,9 @@ export class VipPanel extends BasePanel {
             }
             return;
         }
-        SceneManager.getInstance().backToHall();
+
+        // 移除VIP面板节点
+        UIManager.getInstance().hidePanel(VipPanel.NAME);
     }
 
     buyHandler() {
