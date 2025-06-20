@@ -1399,7 +1399,7 @@
       "__id__": 48
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 58
@@ -1571,7 +1571,7 @@
         "__id__": 132
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 138
@@ -1583,7 +1583,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -360,
+      "y": -561.6,
       "z": 0
     },
     "_lrot": {
@@ -3563,7 +3563,7 @@
         "__id__": 168
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 372
@@ -3578,7 +3578,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 0,
+      "y": -921.6,
       "z": 0
     },
     "_lrot": {
@@ -4007,7 +4007,7 @@
         "__id__": 159
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 165
@@ -4264,7 +4264,7 @@
         "__id__": 271
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 365
@@ -4282,7 +4282,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 0,
+      "y": -300,
       "z": 0
     },
     "_lrot": {
@@ -9351,7 +9351,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 984,
-      "height": 1700
+      "height": 300
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9431,7 +9431,7 @@
         "__id__": 384
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 390
@@ -9446,7 +9446,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -150,
+      "y": -1371.6,
       "z": 0
     },
     "_lrot": {
@@ -9909,7 +9909,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -850,
+      "y": -2371.6,
       "z": 0
     },
     "_lrot": {
@@ -10449,7 +10449,7 @@
         "__id__": 600
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 615
@@ -15285,7 +15285,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1700
+      "height": 1521.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -19767,6 +19767,9 @@
     "selectLabel": {
       "__id__": 135
     },
+    "permanentNode": {
+      "__id__": 158
+    },
     "quanyiNode": {
       "__id__": 142
     },
@@ -19814,6 +19817,9 @@
     },
     "selectDateComponent": {
       "__id__": 822
+    },
+    "settlementNode": {
+      "__id__": 396
     },
     "_id": ""
   },

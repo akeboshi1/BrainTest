@@ -1,11 +1,14 @@
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import { _decorator,Prefab,instantiate, Label, Node, ScrollView,Sprite,resources,SpriteFrame, tween, UIOpacity, Vec3,EditBox } from "cc";
+import { _decorator, Prefab, instantiate, Label, Node, ScrollView, Sprite, resources, SpriteFrame, tween, UIOpacity, Vec3, EditBox } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
-import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { SelectDate } from "./SelectDate";
 import { AlertManager } from "../../../Core/Manager/Alert/AlertManager";
-import {AlertType} from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
+import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
+import { VipEvent, VipModel, VipType } from "./VipModel";
+import { Global } from "../../../Core/Manager/Config/Global";
+import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
 const { ccclass, property } = _decorator;
 
 
@@ -65,34 +68,37 @@ export class VipPanel extends BasePanel {
     @property(Label)
     selectLabel: Label;
 
+    @property(Node)
+    permanentNode:Node;
+
     //===== 权益
     @property(Node)
     quanyiNode: Node;
 
     //===== address
     @property(Node)
-    addressNode:Node;
+    addressNode: Node;
 
     @property(ScrollView)
-    addressScrollView:ScrollView;
+    addressScrollView: ScrollView;
 
     @property(Node)
-    addressScrollViewContent:Node;
+    addressScrollViewContent: Node;
 
     @property(Node)
-    newAddressNode:Node;
+    newAddressNode: Node;
 
     @property(Node)
-    bigaddAddressBtn:Node;
+    bigaddAddressBtn: Node;
 
     @property(Node)
-    addAddressBtn:Node;    
+    addAddressBtn: Node;
 
     @property(Label)
-    addressLabel:Label;
+    addressLabel: Label;
 
     @property(Node)
-    addressBtn:Node;
+    addressBtn: Node;
 
     @property(EditBox)
     addressInput: EditBox;
@@ -104,23 +110,27 @@ export class VipPanel extends BasePanel {
     nameInput: EditBox;
 
     @property(Node)
-    defaultBtn:Node;
+    defaultBtn: Node;
 
 
     //===== select
     @property(Node)
-    selectNode:Node;
+    selectNode: Node;
 
     @property(Node)
-    selectBGNode:Node;
+    selectBGNode: Node;
 
     @property(SelectDate)
-    selectDateComponent:SelectDate;
+    selectDateComponent: SelectDate;
 
-    
+    //===== 结算
+    @property(Node)
+    settlementNode:Node;
 
 
-    private _addressItemPrefab:Prefab;
+    private _vipModel: VipModel;
+
+    private _addressItemPrefab: Prefab;
 
     public static NAME: string = "VipPanel";
 
@@ -131,37 +141,100 @@ export class VipPanel extends BasePanel {
 
     onLoad(): void {
         let self = this;
-        resources.load("prefab/VipPanel/addressItem",Prefab,(err,prefab)=>{
-            if(err){
+        resources.load("prefab/VipPanel/addressItem", Prefab, (err, prefab) => {
+            if (err) {
                 DebugLog.instance.error(err);
                 return;
             }
             self._addressItemPrefab = prefab;
         });
+        this._vipModel = new VipModel();
+        this._vipModel.init();
+
+
     }
 
     start() {
-
+       this._vipModel.requestVipData();
+       let userInfoData = PersonalCenterManager.getInstance().userInfoData;
+       if (userInfoData.member) {
+           // 会员
+           this.typeNode.active = true;
+           this.quanyiNode.active = false;
+           if (userInfoData.getMemberRemainingDays() <= 3) {
+               this.descLabel.node.active = true;
+               this.descLabel.string = "您的会员将在" + userInfoData.getMemberRemainingDays() + "天后到期";
+           }else{
+               this.descLabel.node.active = false;
+           }
+           this.renewalBtnLabel.string = "点击续费";
+       } else {
+           // 非会员
+           this.typeNode.active = true;
+           this.quanyiNode.active = true;
+           this.renewalBtnLabel.string = "确认协议并开通";
+       }
     }
 
     onEnable(): void {
-
+       
+        this._vipModel.on(VipEvent.VIP_DATA_UPDATED, this.onVipDataUpdated.bind(this), this,true);
+        // this._vipModel.on(VipEvent.ADDRESS_ADDED,this.onAddAddress.bind(this),this);
+        // this._vipModel.on(VipEvent.ADDRESS_DELETED,this.onDeletedAddress.bind(this),this);
     }
 
     onDisable(): void {
+        this._vipModel.offAllByContext(this);
     }
+
+    private onVipDataUpdated(data: any) {
+        let vipDatas = data.vipDatas;
+        let len = vipDatas.length;
+        for (let i: number = 0; i < len; i++) {
+            let vipData = vipDatas[i];
+            if (vipData.type == VipType.Day) {
+                this.mouthBtn.active = true;
+            } else if (vipData.type == VipType.Mouth) {
+                this.yearBtn.active = true;
+            }
+        }
+        
+        // 默认选择月卡
+        this._select = 0;
+        this.selectLabel.string = "已选择月卡";
+        
+        // 设置按钮颜色：月卡橙色，年卡白色
+        let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
+        let yearBtnSprite = this.yearBtn.getComponent(Sprite);
+        
+        if (mouthBtnSprite) {
+            this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
+        }
+        if (yearBtnSprite) {
+            this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
+        }
+    }
+
+    private onAddAddress() {
+
+    }
+
+    private onDeletedAddress() {
+
+    }
+
 
     onDestroy(): void {
     }
 
     backHandler() {
-        if(this.addressNode.active){
-            if(this.newAddressNode.active){
+        if (this.addressNode.active) {
+            if (this.newAddressNode.active) {
                 this.newAddressNode.active = false;
                 this.addressScrollView.node.active = true;
                 this.addAddressBtn.active = true;
                 this.bigaddAddressBtn.getChildByName("label").getComponent(Label).string = "新建收货地址";
-            }else{
+            } else {
                 this.addressNode.active = false;
             }
             return;
@@ -170,37 +243,48 @@ export class VipPanel extends BasePanel {
     }
 
     buyHandler() {
-        this.quanyiNode.active = !this.quanyiNode.active;
+        this.typeNode.active = false;
+        this.renewalBtn.active = false;
+        this.descLabel.node.active = false;
+        this.childNode.active = false;
+        this.settlementNode.active = true;
     }
 
     private _select = 0;
 
-    cardClick(event,index:number){
+    cardClick(event, index: number) {
         this._select = Number(index);
-        this.selectLabel.string = this._select == 0 ? "已选择月卡" : "已选择年卡";
+        this.selectLabel.string = this._select == 0 ? "已选择月卡" : "已选择日卡";
+        
         let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
-        let url = this._select == 0 ? "textureV2/vip/rect_orange/spriteFrame" : "textureV2/vip/rect_white/spriteFrame";
-        this.changeBtnFrame(mouthBtnSprite, url).then();
         let yearBtnSprite = this.yearBtn.getComponent(Sprite);
-        this.changeBtnFrame(yearBtnSprite,url).then();
-
+        
+        if (this._select == 0) {
+            // 选择月卡：月卡显示橙色，年卡显示白色
+            this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
+            this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
+        } else {
+            // 选择年卡：月卡显示白色，年卡显示橙色
+            this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
+            this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
+        }
     }
 
 
-    openSelect(){
+    openSelect() {
         this.selectNode.active = true;
-        
+
         // 设置SelectDate组件的回调（可选，用于实时预览）
         if (this.selectDateComponent) {
             this.selectDateComponent.callback = (province: string, city: string, district: string) => {
                 // 这里可以添加实时预览逻辑，目前留空
             };
         }
-        
+
         this.playSelectOpenAnimation();
     }
 
-    okClick(){
+    okClick() {
         // 获取选择的地址数据
         if (this.selectDateComponent) {
             const selectedAddress = this.selectDateComponent.getCurrentAddress();
@@ -208,46 +292,46 @@ export class VipPanel extends BasePanel {
                 this.addressLabel.string = selectedAddress;
             }
         }
-        
+
         this.playSelectCloseAnimation(() => {
             this.selectNode.active = false;
         });
     }
 
-    cancelClick(){
+    cancelClick() {
         this.playSelectCloseAnimation(() => {
             this.selectNode.active = false;
         });
     }
 
     private _defaultBoo = false;
-    selectDefaultHandler(){
-       // 设置默认地址
+    selectDefaultHandler() {
+        // 设置默认地址
 
-       this._defaultBoo = !this._defaultBoo;
-       let url = this._defaultBoo ? "textureV2/vip/completeIcon/spriteFrame" : "textureV2/vip/selectBG/spriteFrame";
-       this.changeBtnFrame(this.defaultBtn.getComponent(Sprite),url).then();
+        this._defaultBoo = !this._defaultBoo;
+        let url = this._defaultBoo ? "textureV2/vip/completeIcon/spriteFrame" : "textureV2/vip/selectBG/spriteFrame";
+        this.changeBtnFrame(this.defaultBtn.getComponent(Sprite), url).then();
     }
 
-    addNewAddressHandler(){
-        if(this.newAddressNode.active){
-            if(this.nameInput.string == ""||this.nameInput.string == "请输入收货人姓名"){
+    addNewAddressHandler() {
+        if (this.newAddressNode.active) {
+            if (this.nameInput.string == "" || this.nameInput.string == "请输入收货人姓名") {
                 AlertManager.getInstance().showSocketAlert('请输入收货人姓名');
                 return;
             }
-            if(this.PhoneInput.string == ""||this.PhoneInput.string == "请输入收货人手机号码"){
+            if (this.PhoneInput.string == "" || this.PhoneInput.string == "请输入收货人手机号码") {
                 AlertManager.getInstance().showSocketAlert('请输入收货人电话');
                 return;
             }
-            if(this.addressLabel.string == ""||this.addressLabel.string == "请选择"){
+            if (this.addressLabel.string == "" || this.addressLabel.string == "请选择") {
                 AlertManager.getInstance().showSocketAlert('请输入收货地址');
                 return;
             }
-            if(this.addressInput.string == ""||this.addressInput.string == "请输入道路，门牌号，小区，楼栋号，单元室等"){
+            if (this.addressInput.string == "" || this.addressInput.string == "请输入道路，门牌号，小区，楼栋号，单元室等") {
                 AlertManager.getInstance().showSocketAlert('请输入详细收货地址');
                 return;
             }
-            
+
 
             // 实例化地址条目预制体
             let node = instantiate(this._addressItemPrefab);
@@ -287,7 +371,7 @@ export class VipPanel extends BasePanel {
             this.backHandler();
             return;
         }
-       
+
         this.addressScrollView.node.active = false;
         this.addAddressBtn.active = false;
         this.newAddressNode.active = true;
@@ -338,14 +422,14 @@ export class VipPanel extends BasePanel {
         if (uiOpacity) {
             uiOpacity.opacity = 0;
         }
-        
+
         // 执行打开动画
         tween(this.selectBGNode)
-            .to(0.3, { 
+            .to(0.3, {
                 position: new Vec3(this.selectBGNode.position.x, -478, this.selectBGNode.position.z)
             })
             .start();
-            
+
         if (uiOpacity) {
             tween(uiOpacity)
                 .to(0.3, { opacity: 255 })
@@ -359,9 +443,9 @@ export class VipPanel extends BasePanel {
      */
     private playSelectCloseAnimation(callback?: () => void) {
         const uiOpacity = this.selectBGNode.getComponent(UIOpacity);
-        
+
         tween(this.selectBGNode)
-            .to(0.3, { 
+            .to(0.3, {
                 position: new Vec3(this.selectBGNode.position.x, -1444, this.selectBGNode.position.z)
             })
             .call(() => {
@@ -370,7 +454,7 @@ export class VipPanel extends BasePanel {
                 }
             })
             .start();
-            
+
         if (uiOpacity) {
             tween(uiOpacity)
                 .to(0.3, { opacity: 0 })
@@ -379,7 +463,7 @@ export class VipPanel extends BasePanel {
     }
 
 
-    private async changeBtnFrame(btnSprite:Sprite,url): Promise<void> {
+    private async changeBtnFrame(btnSprite: Sprite, url): Promise<void> {
         // let url: string = "";
         // switch (index) {
         //     case 0:
@@ -411,7 +495,7 @@ export class VipPanel extends BasePanel {
         // 获取当前地址信息
         let nameLabel = addressNode.getChildByName("nameLabel")?.getComponent(Label);
         let addressLabel = addressNode.getChildByName("addressLabel")?.getComponent(Label);
-        
+
         // 填充到编辑表单中
         if (nameLabel) {
             this.nameInput.string = nameLabel.string;
@@ -422,13 +506,13 @@ export class VipPanel extends BasePanel {
             // 这里可以根据实际地址格式进行解析
             // 例如：将完整地址分解为省市区和详细地址
         }
-        
+
         // 切换到编辑模式
         this.addressScrollView.node.active = false;
         this.addAddressBtn.active = false;
         this.newAddressNode.active = true;
         this.bigaddAddressBtn.getChildByName("label").getComponent(Label).string = "修改";
-        
+
         // 移除原节点
         addressNode.removeFromParent();
         addressNode.destroy();
@@ -442,12 +526,12 @@ export class VipPanel extends BasePanel {
         // 获取当前地址信息
         let nameLabel = addressNode.getChildByName("nameLabel")?.getComponent(Label);
         let addressLabel = addressNode.getChildByName("addressLabel")?.getComponent(Label);
-        
+
         // 设置为默认地址
         if (nameLabel && addressLabel) {
             // 可以在这里保存选中的地址信息
             DebugLog.instance.log(`选中地址: ${nameLabel.string} - ${addressLabel.string}`);
-            
+
             // 更新UI显示，例如高亮显示选中的地址
             this.updateSelectedAddress(addressNode);
         }
@@ -467,7 +551,7 @@ export class VipPanel extends BasePanel {
                 this.changeBtnFrame(selectBtn, "textureV2/vip/selectBG/spriteFrame").then();
             }
         }
-        
+
         // 设置当前节点为选中状态
         let currentSelectBtn = selectedNode.getChildByName("selectBtn")?.getComponent(Sprite);
         if (currentSelectBtn) {
@@ -475,6 +559,6 @@ export class VipPanel extends BasePanel {
         }
     }
 
- 
+
 
 }
