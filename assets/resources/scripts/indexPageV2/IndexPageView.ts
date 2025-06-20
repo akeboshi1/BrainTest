@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label, resources, SpriteFrame, Sprite } from 'cc';
+import { _decorator, Component, Node, Prefab, instantiate, Label, resources, SpriteFrame, Sprite, Button, UITransform } from 'cc';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
@@ -7,13 +7,14 @@ import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
 
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
-import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 
 import { RadiaGraph } from './RadiaGraph';
 import { TaskItemController } from './TaskItemController';
 import { TaskContainerConfig } from './TaskContainerConfig';
+import { TaskManager } from '../Game/Task/TaskManager';
+import { BrainTrain } from '../Game/UI/BrainTrain/BrainTrain';
 
 const { ccclass, property } = _decorator;
 
@@ -34,6 +35,8 @@ export class IndexPageView extends Component {
     private initDataPrefab: Prefab=null;
     @property(Node)
     private initDataParent: Node=null;
+    @property(Node)
+    private trendEntery:Node=null;
 
     private taskConfig: TaskContainerConfig = new TaskContainerConfig();
 
@@ -44,15 +47,17 @@ export class IndexPageView extends Component {
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         ReportManager.getInstance().getPersonalReport();
         PersonalCenterManager.getInstance().requestUserInfo();
-
+   
     }
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
+        EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, this.requestInitTaskCallback, this);
     }
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
+        EventManager.getInstance().off(TaskManager.RequestInitTaskCallback, this);
     }
     // 获取大脑训练等级回调函数
     getBrainTrainingTiersCallback() {
@@ -66,11 +71,18 @@ export class IndexPageView extends Component {
         this.setUserName(userData.full_name);
         this.setDayLabel(userData.trained_days);
         if(!userData.has_initial_tier){
+            this.initDataParent.active=true;
+            TaskManager.getInstance().start();
            let initDataPanel= instantiate(this.initDataPrefab);
+           const button=initDataPanel.getChildByName("btn");
+           if (button) {
+               button.on(Button.EventType.CLICK, this.onButtonClick, this);
+           } 
            initDataPanel.parent=this.initDataParent;
            initDataPanel.setPosition(0,0);
         }else{
-          this.generateTask();
+            this.trendEntery.active=true;
+            this.generateTask();
         }
 
         // 当会员时间还剩余1天，显示续费入口
@@ -79,6 +91,17 @@ export class IndexPageView extends Component {
         } else {
             this.vipNode.active = false;
         }
+    }
+    requestInitTaskCallback(data: any){
+        console.log('initData',data)
+        // this.generateTask();
+        TaskManager.getInstance().setCurTaskId(data.id);
+    }
+    onButtonClick(){
+        // console.log('点击按钮')
+        UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
+        UIManager.getInstance().showPanel(BrainTrain.NAME);
+        TaskManager.getInstance().requestInitLevalTask();
     }
 
     setUserName(name) {
