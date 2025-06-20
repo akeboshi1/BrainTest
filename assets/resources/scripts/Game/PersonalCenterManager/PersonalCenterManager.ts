@@ -97,6 +97,7 @@ export class PersonalCenterManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
+            this._userInfoData.nickname=data.data.nickname;
             this._userInfoData.gender = data.data.gender;
             this._userInfoData.full_name = data.data.full_name;
             this._userInfoData.birthday = data.data.birthday;
