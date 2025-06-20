@@ -30,6 +30,7 @@ export class TaskManager extends BaseManager {
     public static TaskListRequestCallBack: string = "TaskListRequestCallBack";
     public static NotificationListRequestCallBack: string = "NotificationListRequestCallBack";
     public static PushEvetCallBack: string = "PushEvetCallBack";
+    public static RequestInitTaskCallback:string = "RequestInitTaskCallback";
     // public static infoAlertEvent: string = "infoAlertEvent";
 
     //===== 串烧任务
@@ -44,6 +45,8 @@ export class TaskManager extends BaseManager {
      * @private
      */
     private task_start_task: string = "task.start_task";
+
+    private get_initial_eval_task: string = "task.get_initial_eval_task";
 
     private _taskDic: Map<number, TaskData>;
 
@@ -103,7 +106,7 @@ export class TaskManager extends BaseManager {
     // start 生命周期
     start() {
         this.clearData();
-        this.requestTaskList();
+        // this.requestTaskList();
     }
 
     clearData() {
@@ -189,6 +192,26 @@ export class TaskManager extends BaseManager {
         return task && task.isCorrection;
     }
 
+    public requestInitLevalTask(){
+        EventManager.getInstance().on(this.get_initial_eval_task, this.requestInitLevalCallback, this, true);
+        let requestTaskSocket: SocketData = new SocketData({
+            action: this.get_initial_eval_task,
+        });
+
+        SocketManager.getInstance().send(requestTaskSocket);        
+    }
+
+    public requestInitLevalCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.get_initial_eval_task, context);
+        if (data.status == 0) {
+            DebugLog.instance.error(data.message);
+        } else {
+            this._curTaskId = data.data.id;
+            this._taskDic.set(data.data.id, data.data);
+            DebugLog.instance.log("获取初始评测任务", data.data);
+        }
+        EventManager.getInstance().emit(TaskManager.RequestInitTaskCallback,data.data);
+    }
 
     /**
      * 请求每日任务列表
