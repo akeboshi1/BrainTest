@@ -5,6 +5,7 @@ import { AlterUserInfoView } from './AlterUserInfoView';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
+import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('UserCenterPanel')
@@ -41,6 +42,11 @@ export class UserCenterPanel extends Component {
    onClickAlterUserInfo() {
       UIManager.getInstance().registerPanel(AlterUserInfoView.NAME, BundleName.RESOURCES, "/prefabV2/personalCenter/alterUserInfo", AlterUserInfoView);
       UIManager.getInstance().showPanel(AlterUserInfoView.NAME);
+   }
+
+
+   onClickShowVip(){
+      UIManager.getInstance().showPanel(VipPanel.NAME);
    }
 }
 
