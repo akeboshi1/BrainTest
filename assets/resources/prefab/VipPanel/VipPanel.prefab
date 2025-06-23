@@ -9909,7 +9909,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -2371.6,
+      "y": -850,
       "z": 0
     },
     "_lrot": {
@@ -10239,7 +10239,7 @@
       "__id__": 396
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 410
@@ -19820,6 +19820,15 @@
     },
     "settlementNode": {
       "__id__": 396
+    },
+    "iconNode": {
+      "__id__": 397
+    },
+    "label0": {
+      "__id__": 406
+    },
+    "label1": {
+      "__id__": 412
     },
     "_id": ""
   },
