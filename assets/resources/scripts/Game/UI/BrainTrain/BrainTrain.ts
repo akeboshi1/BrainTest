@@ -45,7 +45,7 @@ export class BrainTrain extends BasePanel {
 
     }
     private requestBranisTraining_listCallBack(data, context) {
-        // EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
+        EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
         if(!this._curTask){
             this._curTask = TaskManager.getInstance().taskDic.get(this.curTaskId);
         }
