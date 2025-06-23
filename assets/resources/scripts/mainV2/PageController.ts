@@ -21,7 +21,7 @@ export class PageController extends Component {
     private _currentPage: string = 'index';
     private _pageNode: Node = null;
     private _selectedColor: Color = ColorUtil.hexToColor("#0059F7");
-    private _unselectedColor: Color = ColorUtil.hexToColor("#000000");
+    private _unselectedColor: Color = ColorUtil.hexToColor("#949599");
   
 
     public init(pageNode: Node) {
