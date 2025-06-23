@@ -210,7 +210,7 @@ export class TaskManager extends BaseManager {
             this._taskDic.set(data.data.id, data.data);
             DebugLog.instance.log("获取初始评测任务", data.data);
         }
-        EventManager.getInstance().emit(TaskManager.RequestInitTaskCallback,data.data);
+        EventManager.getInstance().emit(TaskManager.RequestInitTaskCallback);
     }
 
     /**
@@ -378,7 +378,6 @@ export class TaskManager extends BaseManager {
             let type = task.type;
             switch (type) {
                 case TaskType.Remind:
-                    break;
                 case TaskType.Review:
                 case TaskType.Brains:
                 case TaskType.Revise:

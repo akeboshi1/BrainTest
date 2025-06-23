@@ -92,16 +92,13 @@ export class IndexPageView extends Component {
             this.vipNode.active = false;
         }
     }
-    requestInitTaskCallback(data: any){
-        console.log('initData',data)
-        // this.generateTask();
-        TaskManager.getInstance().setCurTaskId(data.id);
+    requestInitTaskCallback(){
+        UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
+        UIManager.getInstance().showPanel(BrainTrain.NAME);
     }
     onButtonClick(){
         // console.log('点击按钮')
-        UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
-        UIManager.getInstance().showPanel(BrainTrain.NAME);
-        TaskManager.getInstance().requestInitLevalTask();
+        TaskManager.getInstance().requestInitLevalTask();       
     }
 
     setUserName(name) {
