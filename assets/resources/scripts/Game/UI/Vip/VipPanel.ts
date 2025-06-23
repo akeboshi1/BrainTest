@@ -9,7 +9,7 @@ import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert
 import { VipEvent, VipModel, VipType } from "./VipModel";
 import { Global } from "../../../Core/Manager/Config/Global";
 import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
-import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 const { ccclass, property } = _decorator;
 
 
@@ -70,7 +70,7 @@ export class VipPanel extends BasePanel {
     selectLabel: Label;
 
     @property(Node)
-    permanentNode:Node;
+    permanentNode: Node;
 
     //===== 权益
     @property(Node)
@@ -126,7 +126,16 @@ export class VipPanel extends BasePanel {
 
     //===== 结算
     @property(Node)
-    settlementNode:Node;
+    settlementNode: Node;
+
+    @property(Node)
+    iconNode: Node;
+
+    @property(Label)
+    label0: Label;
+
+    @property(Label)
+    label1: Label;
 
 
     private _vipModel: VipModel;
@@ -134,6 +143,10 @@ export class VipPanel extends BasePanel {
     private _addressItemPrefab: Prefab;
 
     public static NAME: string = "VipPanel";
+
+    private _waveNodes: Node[] = [];
+    private _waveTime: number = 0;
+    private _isWaveAnimating: boolean = false;
 
     constructor() {
         super();
@@ -156,30 +169,30 @@ export class VipPanel extends BasePanel {
     }
 
     start() {
-       this._vipModel.requestVipData();
-       let userInfoData = PersonalCenterManager.getInstance().userInfoData;
-       if (userInfoData.member) {
-           // 会员
-           this.typeNode.active = true;
-           this.quanyiNode.active = false;
-           if (userInfoData.getMemberRemainingDays() <= 3) {
-               this.descLabel.node.active = true;
-               this.descLabel.string = "您的会员将在" + userInfoData.getMemberRemainingDays() + "天后到期";
-           }else{
-               this.descLabel.node.active = false;
-           }
-           this.renewalBtnLabel.string = "点击续费";
-       } else {
-           // 非会员
-           this.typeNode.active = true;
-           this.quanyiNode.active = true;
-           this.renewalBtnLabel.string = "确认协议并开通";
-       }
+        this._vipModel.requestVipData();
+        let userInfoData = PersonalCenterManager.getInstance().userInfoData;
+        if (userInfoData.member) {
+            // 会员
+            this.typeNode.active = true;
+            this.quanyiNode.active = false;
+            if (userInfoData.getMemberRemainingDays() <= 3) {
+                this.descLabel.node.active = true;
+                this.descLabel.string = "您的会员将在" + userInfoData.getMemberRemainingDays() + "天后到期";
+            } else {
+                this.descLabel.node.active = false;
+            }
+            this.renewalBtnLabel.string = "点击续费";
+        } else {
+            // 非会员
+            this.typeNode.active = true;
+            this.quanyiNode.active = true;
+            this.renewalBtnLabel.string = "确认协议并开通";
+        }
     }
 
     onEnable(): void {
-       
-        this._vipModel.on(VipEvent.VIP_DATA_UPDATED, this.onVipDataUpdated.bind(this), this,true);
+
+        this._vipModel.on(VipEvent.VIP_DATA_UPDATED, this.onVipDataUpdated.bind(this), this, true);
         // this._vipModel.on(VipEvent.ADDRESS_ADDED,this.onAddAddress.bind(this),this);
         // this._vipModel.on(VipEvent.ADDRESS_DELETED,this.onDeletedAddress.bind(this),this);
     }
@@ -199,15 +212,15 @@ export class VipPanel extends BasePanel {
                 this.yearBtn.active = true;
             }
         }
-        
+
         // 默认选择月卡
         this._select = 0;
         this.selectLabel.string = "已选择月卡";
-        
+
         // 设置按钮颜色：月卡橙色，年卡白色
         let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
         let yearBtnSprite = this.yearBtn.getComponent(Sprite);
-        
+
         if (mouthBtnSprite) {
             this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
         }
@@ -251,6 +264,22 @@ export class VipPanel extends BasePanel {
         this.descLabel.node.active = false;
         this.childNode.active = false;
         this.settlementNode.active = true;
+        this.createWaveTextAnimation("正在确认支付结果...", this.label0);
+        let icon = this.iconNode.getComponent(Sprite);
+        // 5秒后更新支付状态
+        this.scheduleOnce(() => {
+            this.createWaveTextAnimation("支付成功", this.label0);
+            this.label1.node.active = true;
+            this.createWaveTextAnimation("正在为您返回首页", this.label1);
+            if (icon) this.changeBtnFrame(icon, "textureV2/vip/completeIcon/spriteFrame").then(() => {
+                // 再过5秒跳转到首页
+                this.scheduleOnce(() => {
+                    SceneManager.getInstance().backToHall();
+                }, 5);
+            });
+
+
+        }, 5);
     }
 
     private _select = 0;
@@ -258,10 +287,10 @@ export class VipPanel extends BasePanel {
     cardClick(event, index: number) {
         this._select = Number(index);
         this.selectLabel.string = this._select == 0 ? "已选择月卡" : "已选择日卡";
-        
+
         let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
         let yearBtnSprite = this.yearBtn.getComponent(Sprite);
-        
+
         if (this._select == 0) {
             // 选择月卡：月卡显示橙色，年卡显示白色
             this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
@@ -562,6 +591,96 @@ export class VipPanel extends BasePanel {
         }
     }
 
+    private createWaveTextAnimation(text: string, targetLabel?: Label) {
+        // 如果没有传入targetLabel，默认使用label0
+        const label = targetLabel || this.label0;
+        
+        DebugLog.instance.log(`开始创建波浪动画: ${text}`);
+        
+        // 先停止之前的波浪动画
+        this._isWaveAnimating = false;
+        this._waveNodes = [];
+        
+        // 清空label节点下的所有子节点
+        label.node.removeAllChildren();
+        
+        // 隐藏原始label组件，但保持节点可见
+        label.enabled = false;
+        
+        // 为每个字符创建独立的Label节点
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            
+            // 创建字符节点
+            const charNode = new Node(`char_${i}`);
+            label.node.addChild(charNode);
+            
+            // 添加Label组件
+            const charLabel = charNode.addComponent(Label);
+            charLabel.string = char;
+            
+            // 复制原始label的属性
+            charLabel.fontSize = label.fontSize;
+            charLabel.fontFamily = label.fontFamily;
+            charLabel.color = label.color;
+            charLabel.horizontalAlign = label.horizontalAlign;
+            charLabel.verticalAlign = label.verticalAlign;
+            
+            // 设置位置（水平排列，居中显示）
+            const charWidth = charLabel.fontSize * 1.2; // 增加字符间距
+            const totalWidth = text.length * charWidth;
+            const startX = -totalWidth / 2 + charWidth / 2;
+            charNode.setPosition(startX + i * charWidth, 0, 0);
+            
+            // 保存到波浪节点数组
+            this._waveNodes.push(charNode);
+            
+            DebugLog.instance.log(`创建字符节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
+        }
+        
+        // 开始波浪动画
+        this._waveTime = 0;
+        this._isWaveAnimating = true;
+    }
+    
+    update(deltaTime: number) {
+        if (this._isWaveAnimating && this._waveNodes.length > 0) {
+            this._waveTime += deltaTime;
+            
+            for (let i = 0; i < this._waveNodes.length; i++) {
+                const charNode = this._waveNodes[i];
+                const originalY = 0;
+                const waveHeight = 15;
+                const waveSpeed = 5.0; // 波浪速度
+                const delay = i * 0.3; // 每个字符的延迟
+                
+                // 计算波浪位置
+                const time = this._waveTime - delay;
+                if (time > 0) {
+                    const waveY = originalY + Math.sin(time * waveSpeed) * waveHeight;
+                    charNode.setPosition(charNode.position.x, waveY, charNode.position.z);
+                }
+            }
+        }
+    }
 
+    private stopWaveTextAnimation(targetLabel?: Label) {
+        // 如果没有传入targetLabel，默认使用label0
+        const label = targetLabel || this.label0;
+        
+        DebugLog.instance.log(`停止波浪动画`);
+        
+        // 停止波浪动画
+        this._isWaveAnimating = false;
+        
+        // 清空波浪节点数组
+        this._waveNodes = [];
+        
+        // 清空label节点下的所有子节点
+        label.node.removeAllChildren();
+        
+        // 恢复原始label组件
+        label.enabled = true;
+    }
 
 }

@@ -10,6 +10,7 @@ import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 import FeatureTogglesSetting, { FeatureToggle } from '../../../FeatureTogglesSetting';
 import { NativeEventManager } from '../../../Core/Manager/Event/NativeEventManager';
 import { XieYiPanel } from '../Login/XieYiPanel';
+import { VerifyPanel } from '../Login/VerifyPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -105,6 +106,11 @@ export class PersonalCenterPanel extends BasePanel {
 
         UIManager.getInstance().registerPanel(GenerateReport.NAME, BundleName.RESOURCES, "prefab/personalCenter/GenerateReport", GenerateReport);
         UIManager.getInstance().showPanel(GenerateReport.NAME);
+    }
+
+    showScanPanel(){
+        UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
+        UIManager.getInstance().showPanel(VerifyPanel.NAME);
     }
 
     onClickLogOut() {

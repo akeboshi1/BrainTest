@@ -5,6 +5,8 @@ import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 import { NativeEventManager } from "db://assets/resources/scripts/Core/Manager/Event/NativeEventManager";
 import {NativeEvent} from "db://assets/resources/scripts/Core/Manager/Event/NativeEvent";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { UIManager } from '../../../Core/Manager/UI/UIManager';
+import { EventManager } from '../../../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('VerifyPanel')
@@ -70,14 +72,23 @@ export class VerifyPanel extends BasePanel {
         
         this._inviteCode = this.editBox.string;
         //     .start();
+        EventManager.getInstance().on(LoginManager.InviteCodeResult, this.invitecodeCallBack, this,true);
         LoginManager.getInstance().setInviteCode(this._inviteCode);
     }
 
+    private invitecodeCallBack(data){
+        this.close();
+    }
+
+    public static CloseVerifyPanel: string = "CloseVerifyPanel";
     close() {
-        SceneManager.getInstance().backToHall();
+        UIManager.getInstance().hidePanel(VerifyPanel.NAME);
+        EventManager.getInstance().emit(VerifyPanel.CloseVerifyPanel);
+        // SceneManager.getInstance().backToHall();
     }
 
     useCamera() {
+        DebugLog.instance.error(`使用摄像头`);
         // todo use camera
         if(sys.platform === sys.Platform.ANDROID){
             DebugLog.instance.error(`使用摄像头`);
