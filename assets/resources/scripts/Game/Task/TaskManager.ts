@@ -48,14 +48,14 @@ export class TaskManager extends BaseManager {
 
     private get_initial_eval_task: string = "task.get_initial_eval_task";
 
-    private _taskDic: Map<number, TaskData>;
+    private _taskDic: Map<number, TaskData> = new Map();
 
-    private _taskList: TaskData[];
+    private _taskList: TaskData[] = [];
 
     private _curTaskId: number = 0;
     // 通知
     private notification_start_notifications: string = "notification.get_notifications";
-    private _notificationList: NotificationData[];
+    private _notificationList: NotificationData[] = [];
     private notification_read: string = "notification.read";
     public static pushEvet: string = "event";
 
@@ -105,7 +105,6 @@ export class TaskManager extends BaseManager {
 
     // start 生命周期
     start() {
-        this.clearData();
         // this.requestTaskList();
     }
 
