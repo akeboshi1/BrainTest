@@ -270,7 +270,7 @@ export class VipPanel extends BasePanel {
         this.scheduleOnce(() => {
             this.createWaveTextAnimation("支付成功", this.label0);
             this.label1.node.active = true;
-            this.createWaveTextAnimation("正在为您返回首页", this.label1);
+            this.createWaveTextAnimation("正在为您返回首页...", this.label1);
             if (icon) this.changeBtnFrame(icon, "textureV2/vip/completeIcon/spriteFrame").then(() => {
                 // 再过5秒跳转到首页
                 this.scheduleOnce(() => {
