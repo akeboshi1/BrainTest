@@ -207,7 +207,9 @@ export class TaskManager extends BaseManager {
             DebugLog.instance.error(data.message);
         } else {
             this._curTaskId = data.data.id;
-            this._taskDic.set(data.data.id, data.data);
+            let task = new TaskData();
+            task.refrehData(data.data);
+            this._taskDic.set(data.data.id, task);
             DebugLog.instance.log("获取初始评测任务", data.data);
         }
         EventManager.getInstance().emit(TaskManager.RequestInitTaskCallback);

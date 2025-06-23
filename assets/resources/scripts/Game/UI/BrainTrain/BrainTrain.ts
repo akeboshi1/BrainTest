@@ -34,7 +34,7 @@ export class BrainTrain extends BasePanel {
     async showPanel(){
         super.showPanel();
 
-        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack, this,true);
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack.bind(this), this,true);
         SkewersManager.getInstance().requestBranisTraining_list(this.curTaskId);
     }
 
@@ -46,12 +46,13 @@ export class BrainTrain extends BasePanel {
     }
     private requestBranisTraining_listCallBack(data, context) {
         // EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
-        this.node.active = true;
-        let gameDatas = data;
         if(!this._curTask){
             this._curTask = TaskManager.getInstance().taskDic.get(this.curTaskId);
         }
+        if(!this._curTask)return;
         this.label.string = this._curTask.name;
+        this.node.active = true;
+        let gameDatas = data;
         let len = this.skewersGameItems.length;
         for (let i = 0; i < len; i++) {
             let gameItem = this.skewersGameItems[i];
