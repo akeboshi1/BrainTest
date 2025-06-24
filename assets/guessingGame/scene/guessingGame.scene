@@ -176,7 +176,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 959.9999999999999,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -532,7 +532,7 @@
         "__id__": 24
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 32
@@ -1919,6 +1919,7 @@
       "__id__": 47
     },
     "displayType": 2,
+    "updateStr": "",
     "_id": "fdOdgeGrJJ5KiYh2M+InKP"
   },
   {
@@ -2292,7 +2293,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Label",
+    "_name": "text",
     "_objFlags": 512,
     "__editorExtras__": {},
     "_parent": {
@@ -2350,8 +2351,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 200,
-      "height": 100
+      "width": 250,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2380,14 +2381,14 @@
       "b": 255,
       "a": 255
     },
-    "_string": "重听题目",
+    "_string": "重听题题 2",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 50,
     "_fontSize": 50,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
-    "_overflow": 1,
+    "_overflow": 2,
     "_enableWrapText": false,
     "_font": null,
     "_isSystemFontUsed": true,
@@ -2434,7 +2435,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 280,
+      "width": 300,
       "height": 100
     },
     "_anchorPoint": {
@@ -4266,6 +4267,7 @@
       "__id__": 108
     },
     "displayType": 2,
+    "updateStr": "",
     "_id": "6ar2LE7U9K96y1zuVid5zY"
   },
   {
@@ -6273,7 +6275,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1919.9999999999998
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6359,9 +6361,6 @@
     "optionsNode": {
       "__id__": 67
     },
-    "replayNode": {
-      "__id__": 13
-    },
     "frameComponent": {
       "__id__": 12
     },
@@ -6382,6 +6381,9 @@
     },
     "analysisLabel": {
       "__id__": 132
+    },
+    "replayButtonNode": {
+      "__id__": 58
     },
     "_id": "d0wXQSrktIJJJd0709L7Hh"
   },
