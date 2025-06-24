@@ -346,6 +346,8 @@
       "__id__": 0
     },
     "fileId": "d6p+kR6mVB24WqkTpFp4U2",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -2133,9 +2135,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 76,
+      "g": 64,
+      "b": 52,
       "a": 255
     },
     "_string": "月卡",
@@ -2330,9 +2332,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 76,
+      "g": 64,
+      "b": 52,
       "a": 255
     },
     "_string": "￥",
@@ -2492,9 +2494,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 76,
+      "g": 64,
+      "b": 52,
       "a": 255
     },
     "_string": "89",
@@ -3001,9 +3003,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 76,
+      "g": 64,
+      "b": 52,
       "a": 255
     },
     "_string": "日卡",
@@ -3160,9 +3162,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 76,
+      "g": 64,
+      "b": 52,
       "a": 255
     },
     "_string": "￥",
@@ -3319,9 +3321,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 76,
+      "g": 64,
+      "b": 52,
       "a": 255
     },
     "_string": "9.9",
