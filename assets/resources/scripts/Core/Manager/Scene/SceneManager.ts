@@ -146,7 +146,8 @@ export class SceneManager extends BaseManager {
                 DebugLog.instance.log('返回游戏大厅');
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");
-                let mainScene = scriptNode.getComponent("MainScene");
+                let mainScene = scriptNode.getComponent("MainSceneController");
+                 mainScene["showGameCenter"]();
                 // mainScene['setCurrentIndex'](MainSceneView.GameCenter);
                 resolve();
             }).catch(err => {
@@ -202,13 +203,12 @@ export class SceneManager extends BaseManager {
     async showPingcePanel(): Promise<void> {
         return new Promise((resolve, reject) => {
             let url = Global.RES_Root + GameSceneConst.Hall;
-            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "main").then((scene) => {
+            SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2",BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回串烧游戏界面');
                 let node = find("Canvas");
                 let scriptNode = node.getChildByName("scriptNode");
-                let mainScene = scriptNode.getComponent("MainScene");
-                // mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
-                UIManager.getInstance().showPanel(GenerateReport.NAME);
+                let mainScene = scriptNode.getComponent("MainSceneController");
+                mainScene["showReport"]();
                 resolve();
             }).catch(err => {
                 reject(err);
