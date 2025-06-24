@@ -76,6 +76,10 @@ export class VipPanel extends BasePanel {
     @property(Node)
     quanyiNode: Node;
 
+    // ===== buy
+    @property(Node)
+    buyNode: Node;
+
     //===== address
     @property(Node)
     addressNode: Node;
@@ -259,6 +263,41 @@ export class VipPanel extends BasePanel {
     }
 
     buyHandler() {
+        this.typeNode.active = false;
+        this.renewalBtn.active = true;
+        this.descLabel.node.active = false;
+        this.childNode.active = true;
+        this.permanentNode.active = false;
+        this.quanyiNode.active = false;
+        this.addressNode.active = false;
+        this.buyNode.active = true;
+        this.settlementNode.active = false;
+    }
+
+    showAddress() {
+        this.typeNode.active = false;
+        this.renewalBtn.active = false;
+        this.descLabel.node.active = false;
+        this.childNode.active = true;
+        this.permanentNode.active = false;
+        this.quanyiNode.active = false;
+        this.addressNode.active = true;
+        this.buyNode.active = false;
+        this.settlementNode.active = false;
+    }
+
+    selectBuyType(evetn, data) {
+        switch (data) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+        }
+    }
+
+    private showSettleMent() {
         this.typeNode.active = false;
         this.renewalBtn.active = false;
         this.descLabel.node.active = false;
@@ -594,66 +633,66 @@ export class VipPanel extends BasePanel {
     private createWaveTextAnimation(text: string, targetLabel?: Label) {
         // 如果没有传入targetLabel，默认使用label0
         const label = targetLabel || this.label0;
-        
+
         DebugLog.instance.log(`开始创建波浪动画: ${text}`);
-        
+
         // 先停止之前的波浪动画
         this._isWaveAnimating = false;
         this._waveNodes = [];
-        
+
         // 清空label节点下的所有子节点
         label.node.removeAllChildren();
-        
+
         // 隐藏原始label组件，但保持节点可见
         label.enabled = false;
-        
+
         // 为每个字符创建独立的Label节点
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
-            
+
             // 创建字符节点
             const charNode = new Node(`char_${i}`);
             label.node.addChild(charNode);
-            
+
             // 添加Label组件
             const charLabel = charNode.addComponent(Label);
             charLabel.string = char;
-            
+
             // 复制原始label的属性
             charLabel.fontSize = label.fontSize;
             charLabel.fontFamily = label.fontFamily;
             charLabel.color = label.color;
             charLabel.horizontalAlign = label.horizontalAlign;
             charLabel.verticalAlign = label.verticalAlign;
-            
+
             // 设置位置（水平排列，居中显示）
             const charWidth = charLabel.fontSize * 1.2; // 增加字符间距
             const totalWidth = text.length * charWidth;
             const startX = -totalWidth / 2 + charWidth / 2;
             charNode.setPosition(startX + i * charWidth, 0, 0);
-            
+
             // 保存到波浪节点数组
             this._waveNodes.push(charNode);
-            
+
             DebugLog.instance.log(`创建字符节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
         }
-        
+
         // 开始波浪动画
         this._waveTime = 0;
         this._isWaveAnimating = true;
     }
-    
+
     update(deltaTime: number) {
         if (this._isWaveAnimating && this._waveNodes.length > 0) {
             this._waveTime += deltaTime;
-            
+
             for (let i = 0; i < this._waveNodes.length; i++) {
                 const charNode = this._waveNodes[i];
                 const originalY = 0;
                 const waveHeight = 15;
                 const waveSpeed = 5.0; // 波浪速度
                 const delay = i * 0.3; // 每个字符的延迟
-                
+
                 // 计算波浪位置
                 const time = this._waveTime - delay;
                 if (time > 0) {
@@ -667,18 +706,18 @@ export class VipPanel extends BasePanel {
     private stopWaveTextAnimation(targetLabel?: Label) {
         // 如果没有传入targetLabel，默认使用label0
         const label = targetLabel || this.label0;
-        
+
         DebugLog.instance.log(`停止波浪动画`);
-        
+
         // 停止波浪动画
         this._isWaveAnimating = false;
-        
+
         // 清空波浪节点数组
         this._waveNodes = [];
-        
+
         // 清空label节点下的所有子节点
         label.node.removeAllChildren();
-        
+
         // 恢复原始label组件
         label.enabled = true;
     }
