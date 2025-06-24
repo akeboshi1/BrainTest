@@ -112,13 +112,16 @@ export class PageController extends Component {
 
     loadReporterPage(){
         this.loadPage('reporter');
+        this.updateButtonColors(null,"2");
     }
 
     loadPersonalCenterPage(){
         this.loadPage('personalCenter');
+        this.updateButtonColors(null,"3");
     }
 
     loadGameCenterPage(){
         this.loadPage('gameCenter');
+        this.updateButtonColors(null,"1");
     }
 } 
