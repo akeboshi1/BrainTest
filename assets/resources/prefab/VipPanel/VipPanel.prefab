@@ -4609,7 +4609,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -230,
+      "x": -30,
       "y": 47.653,
       "z": 0
     },
@@ -4650,8 +4650,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 447.421875,
-      "height": 60.480000000000004
+      "width": 850,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4768,7 +4768,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -156,
+      "x": -10,
       "y": -63.372,
       "z": 0
     },
@@ -4809,8 +4809,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 600,
-      "height": 52.92
+      "width": 900,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6720,7 +6720,7 @@
       "b": 247,
       "a": 255
     },
-    "_string": "￥9999",
+    "_string": "￥89",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -9584,7 +9584,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -150,
+      "y": -1850,
       "z": 0
     },
     "_lrot": {
@@ -15423,7 +15423,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 300
+      "height": 2000
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -19913,6 +19913,21 @@
     },
     "buyNode": {
       "__id__": 172
+    },
+    "buyNodeAddressLabel": {
+      "__id__": 189
+    },
+    "buyNodeNameLabel": {
+      "__id__": 183
+    },
+    "alipayNode": {
+      "__id__": 303
+    },
+    "wechatNode": {
+      "__id__": 328
+    },
+    "scanNode": {
+      "__id__": 353
     },
     "addressNode": {
       "__id__": 426
