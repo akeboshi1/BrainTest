@@ -36,6 +36,7 @@ export class ReportManager {
     public static getBrainTrainingTiersCallback: string = "getBrainTrainingTiersCallback";
     public static getUserSumReportCallback: string = "getUserSumReportCallback";
     public static getCogAbilityWeeklyScoresCallback: string = "getCogAbilityWeeklyScoresCallback";
+    public static getBrainTrainingInitialTiersCallback: string = "getBrainTrainingInitialTiersCallback";
 
     private static _instance: ReportManager;
     private get_brain_training_tiers: string = "user.get_brain_training_tiers";
@@ -43,6 +44,7 @@ export class ReportManager {
     private get_cog_ability_brief: string = "user.get_cog_ability_brief";
     private get_cog_ability_weekly_scores: string = "user.get_cog_ability_weekly_scores";
     private _reportDataList = [];
+    private _reportDataListInitial = [];
     private _cogAbilityWeeklyScoresDataList:CogAbilityWeeklyScoresData[] = [];
 
     private _cogAbilityBriefData: CogAbilityBriefData = null;
@@ -63,8 +65,14 @@ export class ReportManager {
     public get reportDataList(): ReportData[] {
         return this._reportDataList;
     }
+    public get reportDataListInitial(): ReportData[] {
+        return this._reportDataListInitial;
+    }
     private clearReportList(){
         this._reportDataList=[];
+    }
+    private clearReportListInitial(){
+        this._reportDataListInitial=[];
     }
 
     public getPersonalReport() {
@@ -74,6 +82,7 @@ export class ReportManager {
         });
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
+   
     requestBrainTrainingTiersCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_brain_training_tiers, context);
         this.clearReportList();
@@ -90,6 +99,32 @@ export class ReportManager {
             }
             this._reportDataList = result;
             EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
+        }
+    }
+    public getPersonalInitialReport(){
+        EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingInitialCallback, this, true);
+        let requestBrainTrainingTiersSocket: SocketData = new SocketData({
+            action: this.get_brain_training_tiers,
+            data:{
+                "initial": true 
+            }
+        });
+        SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
+    }
+    requestBrainTrainingInitialCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.get_brain_training_tiers, context);
+        this.clearReportListInitial();
+        if (data.status == 0) {
+            DebugLog.instance.error(data.message);
+        } else {
+            let result = data.data['result'];
+            console.log(result);
+            if (result.length == 0) {
+                return;
+            }
+            this._reportDataListInitial = result;
+            EventManager.getInstance().emit(ReportManager.getBrainTrainingInitialTiersCallback, {});
+          
         }
     }
 

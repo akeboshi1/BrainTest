@@ -1,12 +1,12 @@
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Component, Label, Node, RichText } from 'cc';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { ReportManager } from '../ManagerV2/ReportManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('SumDataView')
 export class SumDataView extends Component {
-    @property(Label)
-    reportSummary: Label = null;
+    @property(RichText)
+    reportSummary: RichText = null;
     @property(Label)
     reportSummaryData:Label=null;
     onEnable() {
