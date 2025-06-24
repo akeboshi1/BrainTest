@@ -205,6 +205,7 @@ export class TaskManager extends BaseManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
+            if(!data.data)return;
             this._curTaskId = data.data.id;
             let task = new TaskData();
             task.refrehData(data.data);
