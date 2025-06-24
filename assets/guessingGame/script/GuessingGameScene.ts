@@ -53,9 +53,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     @property(Node)
     private optionsNode: Node = null;
 
-    @property(Node)
-    private replayNode: Node = null;
-
     @property(FrameComponent)
     private frameComponent: FrameComponent = null;
 
@@ -76,6 +73,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     @property(Label)
     analysisLabel: Label = null;
+
+    @property(Node)
+    replayButtonNode:Node = null;
+    
+    private replayCount:number = 2;
 
     private timeLimit = 30;
 
@@ -176,9 +178,13 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private onAudioStart() {
         this.frameComponent.playAnimation("speak", 24, true, true);
+        if(this.currentQuestion!=null){
+            this.questionLabel.string = this.currentQuestion.questionText;
+        }
     }
 
     private onAudioFinish() {
+        this.questionLabel.string=''
         this.frameComponent.playAnimation("idle", 16, true, true);
     }
 
@@ -196,9 +202,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             }
             this.timerRT.startTimer(this.timeLimit);
         }
-
-
-        this.replayNode.active = true;
 
         this.rollingSubtitleCom.resetString(this.currentQuestion.questionText);
     }
@@ -324,8 +327,19 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     onClickReplay() {
+        if(this.replayCount<=0){ return; }
+        this.replayCount--;
+        if(this.replayCount==0){
+            this.replayButtonNode.getComponent(Sprite).color = new Color(187, 189, 193, 255);
+        }
+        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `重听题目${this.replayCount}`;
         this._replay = true;
         this.guessingGameModel.replayQuestionAudio();
+    }
+    reSetButton(){
+        this.replayCount = 2;
+        this.replayButtonNode.getComponent(Sprite).color = new Color(8, 105, 0);
+        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `重听题目${this.replayCount}`;
     }
 
     onChooseOption(event: EventTouch, p: string) {
@@ -350,10 +364,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     onClickRetryGame() {
+        
         Global.isAgain = true;
         this.resetPanel();
         this.guessingGameModel.startQuestionFlow();
         this.resultPanel.active = false;
+        
     }
 
     quitGame() {
@@ -392,13 +408,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.timerStartGame.node.active = false;
 
         this.resultPanel.active = false;
-
-        this.replayNode.active = false;
         this.optionsNode.active = this.questionNode.active = false;
 
         this.frameComponent.playAnimation("idle", 16, true, true);
 
         this.analysisNode.active = false;
+        this.reSetButton();
 
         for(let i = 0; i < this.options.length; i++){
             let op: string = this.options[i];
