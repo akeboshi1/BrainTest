@@ -3,6 +3,7 @@ import { _decorator, Label, Node, tween, Vec3, UIOpacity, easing } from "cc";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "../../../Core/Manager/Load/BundlePreloadManager";
+import { AudioManager } from "../../../Core/Manager/Audio/AudioManager";
 
 const { ccclass, property } = _decorator;
 
@@ -118,6 +119,8 @@ export class LoadPanel extends BasePanel {
             // 只使用timeLabel0做倒计时
             this.timeLabel0.string = "3";
             this.timeTimeTickLabel.node.active =true;
+
+            AudioManager.getInstance().playOneShot('music/tick',0.5);
             // this.timeLabel0.node.eulerAngles = new Vec3(0, 0, 0);
             
  
