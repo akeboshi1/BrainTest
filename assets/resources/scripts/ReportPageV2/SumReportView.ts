@@ -12,15 +12,10 @@ export class SumReportView extends Component {
     dataLable:Label = null;
     @property(RadiaGraph)
     radarMap:RadiaGraph = null;
-    onEnable(){
-        EventManager.getInstance().on(ReportManager.getBrainTrainingInitialTiersCallback, this.requestInitialReportCallback, this);
-    }
-    onDisable(){
-        EventManager.getInstance().off(ReportManager.getBrainTrainingInitialTiersCallback, this);
-    }
+   
     start() {
         this.showTwoWeekGraph();
-        ReportManager.getInstance().getPersonalInitialReport();
+        this.getInitialReport();
         
     }
     showTwoWeekGraph(){
@@ -30,7 +25,7 @@ export class SumReportView extends Component {
         const values = reportDataList.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setValues(values);
     }
-    requestInitialReportCallback(){
+    getInitialReport(){
         let reportDataListInitial: ReportData[] = ReportManager.getInstance().reportDataListInitial;
         const valuesInitial = reportDataListInitial.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setSecondValues(valuesInitial);

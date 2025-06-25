@@ -45,18 +45,17 @@ export class IndexPageView extends Component {
     start() {
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         ReportManager.getInstance().getPersonalReport();
+        ReportManager.getInstance().getPersonalInitialReport();
         PersonalCenterManager.getInstance().requestUserInfo();
-   
     }
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-        EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
-  
+        EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this); 
+
     }
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
-        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
-      
+        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);      
     }
     // 获取大脑训练等级回调函数
     getBrainTrainingTiersCallback() {
