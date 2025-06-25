@@ -14,7 +14,6 @@ import { RadiaGraph } from './RadiaGraph';
 import { TaskItemController } from './TaskItemController';
 import { TaskContainerConfig } from './TaskContainerConfig';
 import { TaskManager } from '../Game/Task/TaskManager';
-import { BrainTrain } from '../Game/UI/BrainTrain/BrainTrain';
 
 const { ccclass, property } = _decorator;
 
@@ -52,12 +51,12 @@ export class IndexPageView extends Component {
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
-        EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, this.requestInitTaskCallback, this);
+  
     }
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
-        EventManager.getInstance().off(TaskManager.RequestInitTaskCallback, this);
+      
     }
     // 获取大脑训练等级回调函数
     getBrainTrainingTiersCallback() {
@@ -74,10 +73,6 @@ export class IndexPageView extends Component {
             this.initDataParent.active=true;
             TaskManager.getInstance().start();
            let initDataPanel= instantiate(this.initDataPrefab);
-           const button=initDataPanel.getChildByName("btn");
-           if (button) {
-               button.on(Button.EventType.CLICK, this.onButtonClick, this);
-           } 
            initDataPanel.parent=this.initDataParent;
            initDataPanel.setPosition(0,0);
         }else{
@@ -92,14 +87,7 @@ export class IndexPageView extends Component {
             this.vipNode.active = false;
         }
     }
-    requestInitTaskCallback(){
-        UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
-        UIManager.getInstance().showPanel(BrainTrain.NAME);
-    }
-    onButtonClick(){
-        // console.log('点击按钮')
-        TaskManager.getInstance().requestInitLevalTask();       
-    }
+   
 
     setUserName(name) {
         this.userName.string = name;
