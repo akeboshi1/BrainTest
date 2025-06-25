@@ -784,10 +784,13 @@ export class VipPanel extends BasePanel {
             const startX = -totalWidth / 2 + charWidth / 2;
             charNode.setPosition(startX + i * charWidth, 0, 0);
 
-            // 保存到波浪节点数组
-            this._waveNodes.push(charNode);
-
-            DebugLog.instance.log(`创建字符节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
+            // 只有省略号才添加到波浪节点数组中进行动画
+            if (char === '.') {
+                this._waveNodes.push(charNode);
+                DebugLog.instance.log(`创建省略号节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
+            } else {
+                DebugLog.instance.log(`创建文字节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
+            }
         }
 
         // 开始波浪动画
