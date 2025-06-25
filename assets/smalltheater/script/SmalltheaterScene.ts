@@ -114,7 +114,7 @@ export class SmalltheaterScene extends Component {
 
         this.stateMachine.enterState(SmalltheaterState.LoadConfig, { id: 1 });
 
-        AudioManager.getInstance().onAudioEnd(this.onAudioEnd, this);
+        AudioManager.getInstance().onLongAudioEnd(this.onAudioEnd, this);
 
         EventManager.getInstance().on(ChatFlowModel.ASRResult, this.onAsrResult, this);
         EventManager.getInstance().on(ChatFlowModel.ASRFlowStartEvent, this.onAsrContected, this);
@@ -130,9 +130,9 @@ export class SmalltheaterScene extends Component {
 
         ChatFlowModel.getInstance().onCloseASR();
 
-        AudioManager.getInstance().offAudioEnd(this.onAudioEnd, this);
+        AudioManager.getInstance().offLongAudioEnd(this.onAudioEnd, this);
 
-        AudioManager.getInstance().stop();
+        AudioManager.getInstance().stopLongSound();
 
         this.cleanFlowCache();
 
@@ -223,7 +223,7 @@ export class SmalltheaterScene extends Component {
                 let ctrl = inst.getComponent(CharacterCtrl);
                 ctrl.setMaskOpacity(i == data.characterid ? 0 : 125);
             }
-            AudioManager.getInstance().play(data.audioClip);
+            AudioManager.getInstance().playLongSound(data.audioClip);
         }
     }
 
@@ -416,7 +416,7 @@ export class SmalltheaterScene extends Component {
     onClickBtnStopReplay() {
         this.btnStopReplay.active = false;
         this.stagelineLabel.node.active = false;
-        AudioManager.getInstance().stop();
+        AudioManager.getInstance().stopLongSound();
         let parallelFlow = new ParallelFlow();
         parallelFlow.addFlow(this.timeCountLabelAnim("演出结束"));
         parallelFlow.addFlow(this.closeMubuFlow());
@@ -541,14 +541,14 @@ export class SmalltheaterScene extends Component {
     }
 
     private delayFlow(delay: number): AbortablePromise<any> {
-        let timeout: Number = null;
+        let timeout: any = null;
         return new AbortablePromise((resolve, reject) => {
             timeout = setTimeout(() => {
                 resolve(1);
             }, delay);
         }).onAbort(() => {
             if (timeout) {
-                clearTimeout(timeout.valueOf());
+                clearTimeout(timeout);
             }
         });
     }

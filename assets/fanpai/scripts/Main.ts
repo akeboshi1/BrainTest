@@ -452,7 +452,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerTick();
         this.closeFailView();
         this.previewCard();
-        this.playAudio("music/bgMusic",false,true);
+        this.playBgmAudio("music/bgMusic",true);
     }
 
     closeFailView() {
@@ -475,7 +475,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.previewCard();
 
-        this.playAudio("music/bgMusic",false,true);
+        this.playBgmAudio("music/bgMusic",true);
     }
     // 初始化待显示的卡片主题
     initCardTheme() {

@@ -38,8 +38,8 @@ export class GuessingGameModel {
         this.currentQuestionIndex = this.config.formartQuestionID(this.currentQuestionIndex);
         DebugLog.instance.log("current question index : " + this.currentQuestionIndex);
 
-        AudioManager.getInstance().onAudioStart(this.onAudioStart, this);
-        AudioManager.getInstance().onAudioEnd(this.onAudioFinished, this);
+        AudioManager.getInstance().onLongAudioStart(this.onAudioStart, this);
+        AudioManager.getInstance().onLongAudioEnd(this.onAudioFinished, this);
 
         EventManager.getInstance().emit(GuessingGameEvent.INIT_COMPLETE, {});
     }
@@ -109,7 +109,7 @@ export class GuessingGameModel {
                 if (audioRes && audioRes.isValid && audioRes._nativeAsset) {
                     this.cacheAudioClip = audioRes;
                     DebugLog.instance.log(`音频资源有效，准备播放`);
-                    AudioManager.getInstance().play(audioRes);
+                    AudioManager.getInstance().playLongSound(audioRes);
                     succeeded = true;
                 } else {
                     DebugLog.instance.error(`加载的音频资源无效，重试次数: ${retryCount + 1}/${maxRetries}`);
@@ -135,24 +135,24 @@ export class GuessingGameModel {
             this.config = null;
         }
 
-        AudioManager.getInstance().offAudioStart(this.onAudioStart, this);
-        AudioManager.getInstance().offAudioEnd(this.onAudioFinished, this);
+        AudioManager.getInstance().offLongAudioStart(this.onAudioStart, this);
+        AudioManager.getInstance().offLongAudioEnd(this.onAudioFinished, this);
 
         this.cacheAudioClip = null;
     }
 
     replayQuestionAudio() {
         if (this.cacheAudioClip) {
-            AudioManager.getInstance().play(this.cacheAudioClip);
+            AudioManager.getInstance().playLongSound(this.cacheAudioClip);
         }
     }
 
     stopAudio() {
-        AudioManager.getInstance().stop();
+        AudioManager.getInstance().stopLongSound();
     }
 
     resumeAudio() {
-        AudioManager.getInstance().resume();
+        AudioManager.getInstance().resumeLongSound();
     }
 
     goNextQuestion() {
