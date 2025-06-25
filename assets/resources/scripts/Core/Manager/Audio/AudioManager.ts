@@ -233,6 +233,7 @@ export class AudioManager extends BaseManager {
      */
     playBgm(sound: AudioClip | string, loop:boolean = true, volume: number = 0.8) {
         if (sound instanceof AudioClip) {
+            if(this._bgmAudioSource.playing)return;
             this._bgmAudioSource.stop();
             this._bgmAudioSource.clip = sound;
             this._bgmAudioSource.loop = loop;
@@ -245,6 +246,7 @@ export class AudioManager extends BaseManager {
                     DebugLog.instance.log(err);
                 }
                 else {
+                    if(this._bgmAudioSource.playing)return;
                     this._bgmAudioSource.stop();
                     this._bgmAudioSource.clip = clip;
                     this._bgmAudioSource.loop = loop;

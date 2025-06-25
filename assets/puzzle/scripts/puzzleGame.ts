@@ -148,7 +148,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onLoad() {
         this.loadAudio().then(()=>{
-            if(!this.bgmClip)this.bgmClip = this.playBgmAudio("music/puzzleBG",true);
+           this.playBgmAudio("music/puzzleBG",true);
         });
     }
 
@@ -405,7 +405,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onClickDisturbPuzzleButton();
         this.bgNode.active = false;
         this.startGameMask.active = false;
-        if(!this.bgmClip)this.bgmClip = this.playBgmAudio("music/puzzleBG",true);
+       this.playBgmAudio("music/puzzleBG",true);
     }
     
     goonHandler() {
