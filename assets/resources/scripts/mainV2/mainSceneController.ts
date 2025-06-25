@@ -1,6 +1,7 @@
 import { _decorator, Component, Node } from 'cc';
 import { PageController } from './PageController';
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { ReportManager } from '../ManagerV2/ReportManager';
 
 
 const { ccclass, property } = _decorator;

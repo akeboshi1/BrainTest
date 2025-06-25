@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView, Button } from 'cc';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
 import { ReportManager } from '../ManagerV2/ReportManager';
@@ -36,7 +36,7 @@ export class TopNavBarController extends Component {
     }
 
 
-    public async loadPage(pageName: string) {
+    public async loadPage(pageName: string): Promise<Node> {
         if (!this.parentNode_top && !this.parentNode_bottom) {
             DebugLog.instance.error('Page node not initialized!');
             return;
@@ -65,16 +65,18 @@ export class TopNavBarController extends Component {
                     resolve(prefab);
                 });
             });
+            
             const page = instantiate(prefab);
             if (!pageName.includes('Data')) {
                 this.parentNode_top.addChild(page);
+                return this.parentNode_top;
             } else {
                 this.parentNode_bottom.addChild(page);
+                return this.parentNode_bottom;
             }
-
-            DebugLog.instance.log(`Page ${pageName} loaded successfully`);
         } catch (error) {
             DebugLog.instance.error(`Failed to load page ${pageName}: ${error}`);
+            return null;
         }
     }
     selectedColor(i: number) {
@@ -98,7 +100,7 @@ export class TopNavBarController extends Component {
         await this.loadPage('sumReportPrefab');
         const userData = PersonalCenterManager.getInstance().userInfoData;
         if(!userData.has_initial_tier){
-            await this.loadPage('initDataPrefab');
+           await this.loadPage('initDataPrefab');
         }else{
             await this.loadPage('sumDataPrefab');
         }
@@ -111,6 +113,7 @@ export class TopNavBarController extends Component {
             }
         }
     }
+    
     async clickOtherNavLable(event, customData) {
         const { data, index } = JSON.parse(customData);
         if (data) {

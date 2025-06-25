@@ -36,6 +36,7 @@ export class ReportManager {
     public static getBrainTrainingTiersCallback: string = "getBrainTrainingTiersCallback";
     public static getUserSumReportCallback: string = "getUserSumReportCallback";
     public static getCogAbilityWeeklyScoresCallback: string = "getCogAbilityWeeklyScoresCallback";
+    public static getBrainTrainingInitialTiersCallback: string = "getBrainTrainingInitialTiersCallback";
 
     private static _instance: ReportManager;
     private get_brain_training_tiers: string = "user.get_brain_training_tiers";
@@ -43,11 +44,12 @@ export class ReportManager {
     private get_cog_ability_brief: string = "user.get_cog_ability_brief";
     private get_cog_ability_weekly_scores: string = "user.get_cog_ability_weekly_scores";
     private _reportDataList = [];
-    private _cogAbilityWeeklyScoresDataList:CogAbilityWeeklyScoresData[] = [];
+    private _reportDataListInitial = [];
+    private _cogAbilityWeeklyScoresDataList: CogAbilityWeeklyScoresData[] = [];
 
     private _cogAbilityBriefData: CogAbilityBriefData = null;
     private _cogAbilityWeeklyScoresData: CogAbilityWeeklyScoresData = null;
-    private cog_ability:string = "";
+    private cog_ability: string = "";
     public static getInstance(): ReportManager {
         if (ReportManager._instance == null) {
             ReportManager._instance = new ReportManager();
@@ -63,8 +65,14 @@ export class ReportManager {
     public get reportDataList(): ReportData[] {
         return this._reportDataList;
     }
-    private clearReportList(){
-        this._reportDataList=[];
+    public get reportDataListInitial(): ReportData[] {
+        return this._reportDataListInitial;
+    }
+    private clearReportList() {
+        this._reportDataList = [];
+    }
+    private clearReportListInitial() {
+        this._reportDataListInitial = [];
     }
 
     public getPersonalReport() {
@@ -74,6 +82,7 @@ export class ReportManager {
         });
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
+
     requestBrainTrainingTiersCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_brain_training_tiers, context);
         this.clearReportList();
@@ -89,7 +98,47 @@ export class ReportManager {
                 return;
             }
             this._reportDataList = result;
+            this.processReportData(this._reportDataList);
             EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
+        }
+    }
+    processReportData(reportDataList: ReportData[]) {
+        // console.log('processReportData1', reportDataList);
+        // 期望的顺序
+        const expectedOrder = ['LANGUAGE', 'JUDGMENT', 'MEMORY', 'EXECUTION', 'CALCULATION'];
+        const sortedReportDataList = expectedOrder.map(ability => {
+            return reportDataList.find(item => item.cog_ability === ability);
+        }).filter(item => item !== undefined);
+        reportDataList.length = 0;
+        reportDataList.push(...sortedReportDataList);
+        // console.log('processReportData2', reportDataList);
+    }
+
+    public getPersonalInitialReport() {
+        EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingInitialCallback, this, true);
+        let requestBrainTrainingTiersSocket: SocketData = new SocketData({
+            action: this.get_brain_training_tiers,
+            data: {
+                "initial": true
+            }
+        });
+        SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
+    }
+    requestBrainTrainingInitialCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.get_brain_training_tiers, context);
+        this.clearReportListInitial();
+        if (data.status == 0) {
+            DebugLog.instance.error(data.message);
+        } else {
+            let result = data.data['result'];
+            console.log(result);
+            if (result.length == 0) {
+                return;
+            }
+            this._reportDataListInitial = result;
+            this.processReportData(this._reportDataListInitial);
+            EventManager.getInstance().emit(ReportManager.getBrainTrainingInitialTiersCallback, {});
+
         }
     }
 
@@ -133,15 +182,15 @@ export class ReportManager {
         } else {
             if (!data.data) {
                 return;
-            }    
-        this._cogAbilityBriefData =data.data['result'];
+            }
+            this._cogAbilityBriefData = data.data['result'];
         }
     }
 
     public getCogAbilityWeeklyScores(cog_ability: string, index: number) {
-        if(cog_ability == null) {
+        if (cog_ability == null) {
             cog_ability = this.cog_ability;
-        }else{
+        } else {
             this.cog_ability = cog_ability;
         }
         this.clearCogAbilityWeeklyScoresData();
@@ -161,7 +210,7 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            if(!data.data){
+            if (!data.data) {
                 DebugLog.instance.log('数据为空')
                 return;
             }
@@ -190,7 +239,7 @@ export class ReportManager {
     //         this.getCogAbilityWeeklyScores(this.cog_ability, i);
     //     }
     // }
-    clearCogAbilityWeeklyScoresData(){
+    clearCogAbilityWeeklyScoresData() {
         this._cogAbilityWeeklyScoresData = null;
     }
     getCogAbilityWeeklyScoresDataByIndex(index: number) {
@@ -203,7 +252,7 @@ export class ReportManager {
         };
     }
     getCogAbilityWeeklyTotalByIndex(index: number) {
-       return this._cogAbilityWeeklyScoresData.total;
+        return this._cogAbilityWeeklyScoresData.total;
     }
 }
 

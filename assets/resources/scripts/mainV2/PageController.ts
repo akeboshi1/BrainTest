@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, Color, Sprite, instantiate, Prefab, resources, Label } from 'cc';
 import { ColorUtil } from '../Core/Util/ColorUtil';
 import { DebugLog } from '../Core/Util/DebugLog'; 
+import { ReportManager } from '../ManagerV2/ReportManager';
 
 const { ccclass, property } = _decorator;
 
@@ -70,6 +71,7 @@ export class PageController extends Component {
         if (this._pageNode.children.length > 0) {
             this._pageNode.removeAllChildren();
         }
+    // 清空报告列表初始数据
 
         // Load new page
         const pagePath = PageConfig[pageName];
@@ -111,6 +113,8 @@ export class PageController extends Component {
     }
 
     loadReporterPage(){
+        ReportManager.getInstance().getPersonalReport();
+        ReportManager.getInstance().getUserSumReport();
         this.loadPage('reporter');
         this.updateButtonColors(null,"2");
     }
