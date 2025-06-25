@@ -14,32 +14,42 @@ export class AudioManager extends BaseManager {
         return this._inst;
     }
 
-    // 主音频源，用于音效和普通音频
-    private _audioSource: AudioSource;
+    // 短音效音频源，用于播放短音频如打击音效、爆炸音效等
+    private _shortAudioSource: AudioSource;
 
-    // 第二音频源，主要用于背景音乐
+    // 长音效音频源，用于播放长音频如语音、长音效等
+    private _longAudioSource: AudioSource;
+
+    // 背景音乐音频源，主要用于背景音乐
     private _bgmAudioSource: AudioSource;
 
     // 创建一个事件目标对象，用于触发和监听自定义事件
     private eventTarget: EventTarget = new EventTarget();
 
-    private audioUrls=["music/win","music/fail","music/cheer"];
+    private audioUrls=["music/win","music/fail","music/cheer",'music/tick'];
     private audioMap:Map<string,AudioClip> = new Map();
     
     // 保存绑定后的函数引用
-    private boundOnAudioStarted: Function;
-    private boundOnAudioEnded: Function;
+    private boundOnShortAudioStarted: Function;
+    private boundOnShortAudioEnded: Function;
+    private boundOnLongAudioStarted: Function;
+    private boundOnLongAudioEnded: Function;
     private boundOnBgmAudioStarted: Function;
     private boundOnBgmAudioEnded: Function;
 
     constructor() {
         super();
-       
+
         let audioMgr = new Node();
         audioMgr.name = '__audioMgr__';
         director.getScene().addChild(audioMgr);
         director.addPersistRootNode(audioMgr);
-        this._audioSource = audioMgr.addComponent(AudioSource);
+        
+        // 初始化短音效音频源
+        this._shortAudioSource = audioMgr.addComponent(AudioSource);
+        
+        // 初始化长音效音频源
+        this._longAudioSource = audioMgr.addComponent(AudioSource);
         
         // 初始化背景音乐音频源
         this._bgmAudioSource = audioMgr.addComponent(AudioSource);
@@ -50,14 +60,20 @@ export class AudioManager extends BaseManager {
         this.loadAudio().then();
         
         // 创建绑定函数并保存引用
-        this.boundOnAudioStarted = this.onAudioStarted.bind(this);
-        this.boundOnAudioEnded = this.onAudioEnded.bind(this);
+        this.boundOnShortAudioStarted = this.onShortAudioStarted.bind(this);
+        this.boundOnShortAudioEnded = this.onShortAudioEnded.bind(this);
+        this.boundOnLongAudioStarted = this.onLongAudioStarted.bind(this);
+        this.boundOnLongAudioEnded = this.onLongAudioEnded.bind(this);
         this.boundOnBgmAudioStarted = this.onBgmAudioStarted.bind(this);
         this.boundOnBgmAudioEnded = this.onBgmAudioEnded.bind(this);
         
-        // 监听音频源的事件，使用保存的绑定函数
-        this._audioSource.node.on(AudioSource.EventType.STARTED, this.boundOnAudioStarted);
-        this._audioSource.node.on(AudioSource.EventType.ENDED, this.boundOnAudioEnded);
+        // 监听短音效音频源的事件
+        this._shortAudioSource.node.on(AudioSource.EventType.STARTED, this.boundOnShortAudioStarted);
+        this._shortAudioSource.node.on(AudioSource.EventType.ENDED, this.boundOnShortAudioEnded);
+        
+        // 监听长音效音频源的事件
+        this._longAudioSource.node.on(AudioSource.EventType.STARTED, this.boundOnLongAudioStarted);
+        this._longAudioSource.node.on(AudioSource.EventType.ENDED, this.boundOnLongAudioEnded);
         
         // 监听背景音乐音频源的事件
         this._bgmAudioSource.node.on(AudioSource.EventType.STARTED, this.boundOnBgmAudioStarted);
@@ -87,19 +103,23 @@ export class AudioManager extends BaseManager {
     }
 
     public playWin(){
-        this.playOneShot("music/win");
+        this.playShortSound("music/win");
     }
 
     public playFail(){
-        this.playOneShot("music/fail");
+        this.playShortSound("music/fail");
     }
 
     public playCheer(){
-        this.playOneShot("music/cheer");
+        this.playShortSound("music/cheer");
     }
 
-    public get audioSource() {
-        return this._audioSource;
+    public get shortAudioSource() {
+        return this._shortAudioSource;
+    }
+
+    public get longAudioSource() {
+        return this._longAudioSource;
     }
 
     public get bgmAudioSource() {
@@ -107,17 +127,31 @@ export class AudioManager extends BaseManager {
     }
 
     /**
-     * 当主音频源播放开始时触发的回调函数
+     * 当短音效播放开始时触发的回调函数
      */
-    private onAudioStarted() {
-        this.eventTarget.emit('audio-started');
+    private onShortAudioStarted() {
+        this.eventTarget.emit('short-audio-started');
     }
 
     /**
-     * 当主音频源播放结束时触发的回调函数
+     * 当短音效播放结束时触发的回调函数
      */
-    private onAudioEnded() {
-        this.eventTarget.emit('audio-ended');
+    private onShortAudioEnded() {
+        this.eventTarget.emit('short-audio-ended');
+    }
+
+    /**
+     * 当长音效播放开始时触发的回调函数
+     */
+    private onLongAudioStarted() {
+        this.eventTarget.emit('long-audio-started');
+    }
+
+    /**
+     * 当长音效播放结束时触发的回调函数
+     */
+    private onLongAudioEnded() {
+        this.eventTarget.emit('long-audio-ended');
     }
 
     /**
@@ -142,9 +176,9 @@ export class AudioManager extends BaseManager {
      * @param sound clip or url for the audio
      * @param volume
      */
-    playOneShot(sound: AudioClip | string, volume: number = 1.0) {
+    playShortSound(sound: AudioClip | string, volume: number = 1.0) {
         if (sound instanceof AudioClip) {
-            this._audioSource.playOneShot(sound, volume);
+            this._shortAudioSource.playOneShot(sound, volume);
         }
         else {
             resources.load(sound, (err, clip: AudioClip) => {
@@ -152,7 +186,7 @@ export class AudioManager extends BaseManager {
                     DebugLog.instance.log(err);
                 }
                 else {
-                    this._audioSource.playOneShot(clip, volume);
+                    this._shortAudioSource.playOneShot(clip, volume);
                 }
             });
         }
@@ -160,19 +194,20 @@ export class AudioManager extends BaseManager {
 
     /**
      * @en
-     * play long audio, such as the bg music
+     * play long audio, such as voice, long sound effects
      * @zh
-     * 播放长音频，比如 背景音乐
+     * 播放长音频，比如 语音、长音效等
      * @param sound clip or url for the sound
-     * @param volume
+     * @param loop 是否循环播放
+     * @param volume 音量
      */
-    play(sound: AudioClip | string, loop:boolean = false, volume: number = 1.0) {
+    playLongSound(sound: AudioClip | string, loop:boolean = false, volume: number = 1.0) {
         if (sound instanceof AudioClip) {
-            this._audioSource.stop();
-            this._audioSource.clip = sound;
-            this._audioSource.loop = loop;
-            this._audioSource.play();
-            this._audioSource.volume = volume;
+            this._longAudioSource.stop();
+            this._longAudioSource.clip = sound;
+            this._longAudioSource.loop = loop;
+            this._longAudioSource.volume = volume;
+            this._longAudioSource.play();
         }
         else {
             resources.load(sound, (err, clip: AudioClip) => {
@@ -180,11 +215,11 @@ export class AudioManager extends BaseManager {
                     DebugLog.instance.log(err);
                 }
                 else {
-                    this._audioSource.stop();
-                    this._audioSource.clip = clip;
-                    this._audioSource.loop = loop;
-                    this._audioSource.play();
-                    this._audioSource.volume = volume;
+                    this._longAudioSource.stop();
+                    this._longAudioSource.clip = clip;
+                    this._longAudioSource.loop = loop;
+                    this._longAudioSource.volume = volume;
+                    this._longAudioSource.play();
                 }
             });
         }
@@ -221,10 +256,27 @@ export class AudioManager extends BaseManager {
     }
 
     /**
+     * 检查长音效是否在播放
+     */
+    isLongSoundPlaying(): boolean {
+        return this._longAudioSource && this._longAudioSource.playing;
+    }
+
+    /**
      * 检查背景音乐是否在播放
      */
     isBgmPlaying(): boolean {
         return this._bgmAudioSource && this._bgmAudioSource.playing;
+    }
+
+    /**
+     * 停止长音效
+     */
+    stopLongSound() {
+        if (this._longAudioSource) {
+            this._longAudioSource.stop();
+            this._longAudioSource.clip = null;
+        }
     }
 
     /**
@@ -238,11 +290,29 @@ export class AudioManager extends BaseManager {
     }
 
     /**
+     * 暂停长音效
+     */
+    pauseLongSound() {
+        if (this._longAudioSource) {
+            this._longAudioSource.pause();
+        }
+    }
+
+    /**
      * 暂停背景音乐
      */
     pauseBgm() {
         if (this._bgmAudioSource) {
             this._bgmAudioSource.pause();
+        }
+    }
+
+    /**
+     * 恢复长音效播放
+     */
+    resumeLongSound() {
+        if (this._longAudioSource && this._longAudioSource.clip) {
+            this._longAudioSource.play();
         }
     }
 
@@ -256,6 +326,15 @@ export class AudioManager extends BaseManager {
     }
 
     /**
+     * 设置长音效音量
+     */
+    setLongSoundVolume(volume: number) {
+        if (this._longAudioSource) {
+            this._longAudioSource.volume = Math.max(0, Math.min(1, volume));
+        }
+    }
+
+    /**
      * 设置背景音乐音量
      */
     setBgmVolume(volume: number) {
@@ -265,51 +344,48 @@ export class AudioManager extends BaseManager {
     }
 
     /**
-     * stop the audio play
-     */
-    stop() {
-        this._audioSource.stop();
-        this._audioSource.clip = null;
-    }
-
-    /**
-     * pause the audio play
-     */
-    pause() {
-        this._audioSource.pause();
-    }
-
-    /**
-     * resume the audio play
-     */
-    resume() {
-        this._audioSource.play();
-    }
-
-    /**
-     * 停止所有音频（包括背景音乐和音效）
+     * 停止所有音频（包括长音效和背景音乐）
      */
     stopAll() {
-        this.stop();
+        this.stopLongSound();
         this.stopBgm();
     }
 
-    onAudioEnd(callback: () => void , context) {
-        this.eventTarget.on('audio-ended', callback, context);
+    // 短音效事件监听
+    onShortAudioEnd(callback: () => void , context) {
+        this.eventTarget.on('short-audio-ended', callback, context);
     }
 
-    offAudioEnd(callback: () => void, context) {
-        this.eventTarget.off('audio-ended', callback, context);
+    offShortAudioEnd(callback: () => void, context) {
+        this.eventTarget.off('short-audio-ended', callback, context);
     }
 
-    onAudioStart(callback: () => void, context) {
-        this.eventTarget.on('audio-started', callback, context);
+    onShortAudioStart(callback: () => void, context) {
+        this.eventTarget.on('short-audio-started', callback, context);
     }
 
-    offAudioStart(callback: () => void, context) {
-        this.eventTarget.off('audio-started', callback, context);
+    offShortAudioStart(callback: () => void, context) {
+        this.eventTarget.off('short-audio-started', callback, context);
     }
 
+    // 长音效事件监听
+    onLongAudioEnd(callback: () => void , context) {
+        this.eventTarget.on('long-audio-ended', callback, context);
+    }
+
+    offLongAudioEnd(callback: () => void, context) {
+        this.eventTarget.off('long-audio-ended', callback, context);
+    }
+
+    onLongAudioStart(callback: () => void, context) {
+        this.eventTarget.on('long-audio-started', callback, context);
+    }
+
+    offLongAudioStart(callback: () => void, context) {
+        this.eventTarget.off('long-audio-started', callback, context);
+    }
+
+    // 背景音乐事件监听
     onBgmEnd(callback: () => void, context) {
         this.eventTarget.on('bgm-ended', callback, context);
     }
@@ -327,12 +403,20 @@ export class AudioManager extends BaseManager {
     }
 
     destory() {
-        if (this._audioSource) {
-            this._audioSource.stop();
-            this._audioSource.clip = null;
+        if (this._shortAudioSource) {
+            this._shortAudioSource.stop();
+            this._shortAudioSource.clip = null;
             // 使用保存的绑定函数移除监听器
-            this._audioSource.node.off(AudioSource.EventType.STARTED, this.boundOnAudioStarted);
-            this._audioSource.node.off(AudioSource.EventType.ENDED, this.boundOnAudioEnded);
+            this._shortAudioSource.node.off(AudioSource.EventType.STARTED, this.boundOnShortAudioStarted);
+            this._shortAudioSource.node.off(AudioSource.EventType.ENDED, this.boundOnShortAudioEnded);
+        }
+        
+        if (this._longAudioSource) {
+            this._longAudioSource.stop();
+            this._longAudioSource.clip = null;
+            // 使用保存的绑定函数移除监听器
+            this._longAudioSource.node.off(AudioSource.EventType.STARTED, this.boundOnLongAudioStarted);
+            this._longAudioSource.node.off(AudioSource.EventType.ENDED, this.boundOnLongAudioEnded);
         }
         
         if (this._bgmAudioSource) {

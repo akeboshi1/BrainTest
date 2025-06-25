@@ -76,6 +76,25 @@ export class VipPanel extends BasePanel {
     @property(Node)
     quanyiNode: Node;
 
+    // ===== buy
+    @property(Node)
+    buyNode: Node;
+
+    @property(Label)
+    buyNodeAddressLabel: Label;
+
+    @property(Label)
+    buyNodeNameLabel: Label;
+
+    @property(Node)
+    alipayNode: Node;
+
+    @property(Node)
+    wechatNode: Node;
+
+    @property(Node)
+    scanNode:Node;
+
     //===== address
     @property(Node)
     addressNode: Node;
@@ -147,6 +166,17 @@ export class VipPanel extends BasePanel {
     private _waveNodes: Node[] = [];
     private _waveTime: number = 0;
     private _isWaveAnimating: boolean = false;
+
+    // 默认地址相关变量
+    private _defaultAddress: string = "";
+    private _defaultAddressName: string = "";
+    private _defaultPhone: string = "";
+    // 当前正在编辑的地址信息，用于跟踪是否为默认地址
+    private _currentEditingAddress: string = "";
+    private _currentEditingName: string = "";
+
+    // 支付方式选择相关变量
+    private _selectedPaymentType: number = -1; // -1表示未选择，0=支付宝，1=微信，2=扫码
 
     constructor() {
         super();
@@ -259,6 +289,66 @@ export class VipPanel extends BasePanel {
     }
 
     buyHandler() {
+        // 如果buyNode已经激活，直接调用showSettleMent
+        if (this.buyNode.active) {
+            this.showSettleMent();
+            return;
+        }
+
+        this.typeNode.active = false;
+        this.renewalBtn.active = true;
+        this.descLabel.node.active = false;
+        this.childNode.active = true;
+        this.permanentNode.active = false;
+        this.backBtn.active = false;
+        this.quanyiNode.active = false;
+        this.addressNode.active = false;
+        this.buyNode.active = true;
+        this.settlementNode.active = false;
+    }
+
+    showAddress() {
+        this.typeNode.active = false;
+        this.renewalBtn.active = false;
+        this.descLabel.node.active = false;
+        this.childNode.active = true;
+        this.permanentNode.active = false;
+        this.backBtn.active = false;
+        this.quanyiNode.active = false;
+        this.addressNode.active = true;
+        this.buyNode.active = false;
+        this.settlementNode.active = false;
+    }
+
+    selectBuyType(evetn, data) {
+        // 如果点击的是当前已选中的支付方式，则不做任何操作
+        if (this._selectedPaymentType === Number(data)) {
+            return;
+        }
+
+        // 更新选中的支付方式
+        this._selectedPaymentType = Number(data);
+
+        // 重置所有支付方式按钮的选中状态
+        this.resetPaymentButtons();
+
+        // 根据选择的支付方式设置对应的按钮为选中状态
+        switch (this._selectedPaymentType) {
+            case 0: // 支付宝
+                this.setPaymentButtonSelected(this.alipayNode, true);
+                break;
+            case 1: // 微信
+                this.setPaymentButtonSelected(this.wechatNode, true);
+                break;
+            case 2: // 扫码
+                this.setPaymentButtonSelected(this.scanNode, true);
+                break;
+        }
+
+        DebugLog.instance.log(`选择支付方式: ${this._selectedPaymentType}`);
+    }
+
+    private showSettleMent() {
         this.typeNode.active = false;
         this.renewalBtn.active = false;
         this.descLabel.node.active = false;
@@ -339,10 +429,16 @@ export class VipPanel extends BasePanel {
     private _defaultBoo = false;
     selectDefaultHandler() {
         // 设置默认地址
-
         this._defaultBoo = !this._defaultBoo;
         let url = this._defaultBoo ? "textureV2/vip/completeIcon/spriteFrame" : "textureV2/vip/selectBG/spriteFrame";
         this.changeBtnFrame(this.defaultBtn.getComponent(Sprite), url).then();
+        
+        // 如果设置为默认地址，保存当前正在编辑的地址信息
+        if (this._defaultBoo) {
+            this._currentEditingAddress = this.addressLabel.string + " " + this.addressInput.string;
+            this._currentEditingName = this.nameInput.string;
+            this._defaultPhone = this.PhoneInput.string;
+        }
     }
 
     addNewAddressHandler() {
@@ -381,7 +477,17 @@ export class VipPanel extends BasePanel {
                 nameLabel.string = this.nameInput.string;
             }
             if (addressLabel) {
-                addressLabel.string = this.addressLabel.string + " " + this.addressInput.string;
+                // 将手机号信息包含在地址文本中，格式：地址 + 手机号
+                addressLabel.string = this.addressLabel.string + " " + this.addressInput.string + " " + this.PhoneInput.string;
+            }
+
+            // 检查是否为默认地址，如果是则设置selectIcon为completeIcon
+            let currentAddress = this.addressLabel.string + " " + this.addressInput.string + " " + this.PhoneInput.string;
+            let currentName = this.nameInput.string;
+            if (this.isDefaultAddress(currentName, currentAddress)) {
+                if (selectBtn) {
+                    this.changeBtnFrame(selectBtn, "textureV2/vip/completeIcon/spriteFrame").then();
+                }
             }
 
             // 为按钮添加点击事件
@@ -533,10 +639,34 @@ export class VipPanel extends BasePanel {
             this.nameInput.string = nameLabel.string;
         }
         if (addressLabel) {
-            // 解析地址信息，可能需要根据实际格式调整
+            // 解析地址信息，包括手机号
             let addressText = addressLabel.string;
-            // 这里可以根据实际地址格式进行解析
-            // 例如：将完整地址分解为省市区和详细地址
+            let parts = addressText.split(' ');
+            if (parts.length >= 4) {
+                // 假设格式为：省 市 区 详细地址 手机号
+                let phoneNumber = parts[parts.length - 1]; // 最后一个部分为手机号
+                this.PhoneInput.string = phoneNumber;
+                
+                // 重新组合地址部分（省 市 区 详细地址）
+                let addressParts = parts.slice(0, parts.length - 1);
+                if (addressParts.length >= 3) {
+                    // 前三个部分为省市区
+                    this.addressLabel.string = addressParts.slice(0, 3).join(' ');
+                    // 剩余部分为详细地址
+                    this.addressInput.string = addressParts.slice(3).join(' ');
+                }
+            }
+        }
+
+        // 检查当前地址是否为默认地址
+        if (nameLabel && addressLabel) {
+            let currentName = nameLabel.string;
+            let currentAddress = addressLabel.string;
+            this._defaultBoo = this.isDefaultAddress(currentName, currentAddress);
+            
+            // 更新defaultBtn的图标
+            let url = this._defaultBoo ? "textureV2/vip/completeIcon/spriteFrame" : "textureV2/vip/selectBG/spriteFrame";
+            this.changeBtnFrame(this.defaultBtn.getComponent(Sprite), url).then();
         }
 
         // 切换到编辑模式
@@ -561,11 +691,33 @@ export class VipPanel extends BasePanel {
 
         // 设置为默认地址
         if (nameLabel && addressLabel) {
-            // 可以在这里保存选中的地址信息
-            DebugLog.instance.log(`选中地址: ${nameLabel.string} - ${addressLabel.string}`);
+            // 清除之前的默认地址状态
+            this._defaultBoo = false;
+            this._currentEditingAddress = "";
+            this._currentEditingName = "";
+            
+            // 保存默认地址信息
+            this._defaultAddressName = nameLabel.string;
+            this._defaultAddress = addressLabel.string;
+            
+            // 解析地址文本中的手机号信息
+            let addressText = addressLabel.string;
+            let parts = addressText.split(' ');
+            if (parts.length >= 4) {
+                // 假设格式为：省 市 区 详细地址 手机号
+                this._defaultPhone = parts[parts.length - 1]; // 最后一个部分为手机号
+            }
+            
+            // 更新 buyNode 上的地址显示
+            this.updateBuyNodeAddressDisplay();
+            
+            DebugLog.instance.log(`设置默认地址: ${nameLabel.string} - ${addressLabel.string}`);
 
             // 更新UI显示，例如高亮显示选中的地址
             this.updateSelectedAddress(addressNode);
+            
+            // 返回 buyNode
+            this.backToBuyNode();
         }
     }
 
@@ -594,66 +746,69 @@ export class VipPanel extends BasePanel {
     private createWaveTextAnimation(text: string, targetLabel?: Label) {
         // 如果没有传入targetLabel，默认使用label0
         const label = targetLabel || this.label0;
-        
+
         DebugLog.instance.log(`开始创建波浪动画: ${text}`);
-        
+
         // 先停止之前的波浪动画
         this._isWaveAnimating = false;
         this._waveNodes = [];
-        
+
         // 清空label节点下的所有子节点
         label.node.removeAllChildren();
-        
+
         // 隐藏原始label组件，但保持节点可见
         label.enabled = false;
-        
+
         // 为每个字符创建独立的Label节点
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
-            
+
             // 创建字符节点
             const charNode = new Node(`char_${i}`);
             label.node.addChild(charNode);
-            
+
             // 添加Label组件
             const charLabel = charNode.addComponent(Label);
             charLabel.string = char;
-            
+
             // 复制原始label的属性
             charLabel.fontSize = label.fontSize;
             charLabel.fontFamily = label.fontFamily;
             charLabel.color = label.color;
             charLabel.horizontalAlign = label.horizontalAlign;
             charLabel.verticalAlign = label.verticalAlign;
-            
+
             // 设置位置（水平排列，居中显示）
             const charWidth = charLabel.fontSize * 1.2; // 增加字符间距
             const totalWidth = text.length * charWidth;
             const startX = -totalWidth / 2 + charWidth / 2;
             charNode.setPosition(startX + i * charWidth, 0, 0);
-            
-            // 保存到波浪节点数组
-            this._waveNodes.push(charNode);
-            
-            DebugLog.instance.log(`创建字符节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
+
+            // 只有省略号才添加到波浪节点数组中进行动画
+            if (char === '.') {
+                this._waveNodes.push(charNode);
+                DebugLog.instance.log(`创建省略号节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
+            } else {
+                DebugLog.instance.log(`创建文字节点: ${char}, 位置: ${charNode.position.x}, ${charNode.position.y}`);
+            }
         }
-        
+
         // 开始波浪动画
         this._waveTime = 0;
         this._isWaveAnimating = true;
     }
-    
+
     update(deltaTime: number) {
         if (this._isWaveAnimating && this._waveNodes.length > 0) {
             this._waveTime += deltaTime;
-            
+
             for (let i = 0; i < this._waveNodes.length; i++) {
                 const charNode = this._waveNodes[i];
                 const originalY = 0;
                 const waveHeight = 15;
                 const waveSpeed = 5.0; // 波浪速度
                 const delay = i * 0.3; // 每个字符的延迟
-                
+
                 // 计算波浪位置
                 const time = this._waveTime - delay;
                 if (time > 0) {
@@ -667,20 +822,128 @@ export class VipPanel extends BasePanel {
     private stopWaveTextAnimation(targetLabel?: Label) {
         // 如果没有传入targetLabel，默认使用label0
         const label = targetLabel || this.label0;
-        
+
         DebugLog.instance.log(`停止波浪动画`);
-        
+
         // 停止波浪动画
         this._isWaveAnimating = false;
-        
+
         // 清空波浪节点数组
         this._waveNodes = [];
-        
+
         // 清空label节点下的所有子节点
         label.node.removeAllChildren();
-        
+
         // 恢复原始label组件
         label.enabled = true;
+    }
+
+    /**
+     * 更新 buyNode 上的地址显示
+     */
+    private updateBuyNodeAddressDisplay() {
+        if (this.buyNodeAddressLabel) {
+            if (this._defaultAddress && this._defaultAddressName) {
+                this.buyNodeAddressLabel.string = `${this._defaultAddressName} ${this._defaultAddress}`;
+            } else {
+                this.buyNodeAddressLabel.string = "请选择收货地址";
+            }
+        }
+    }
+
+    /**
+     * 返回到 buyNode
+     */
+    private backToBuyNode() {
+        this.typeNode.active = false;
+        this.renewalBtn.active = true;
+        this.descLabel.node.active = false;
+        this.childNode.active = true;
+        this.permanentNode.active = false;
+        this.quanyiNode.active = false;
+        this.addressNode.active = false;
+        this.buyNode.active = true;
+        this.settlementNode.active = false;
+        
+        // 更新 buyNode 上的显示信息
+        this.updateBuyNodeDisplay();
+    }
+
+    /**
+     * 更新 buyNode 上的显示信息
+     */
+    private updateBuyNodeDisplay() {
+        // 更新姓名和手机号显示
+        if (this.buyNodeNameLabel) {
+            if (this._defaultAddressName && this._defaultPhone) {
+                this.buyNodeNameLabel.string = `${this._defaultAddressName}   ${this._defaultPhone}`;
+            } else {
+                this.buyNodeNameLabel.string = "请选择收货人信息";
+            }
+        }
+        
+        // 更新地址显示
+        if (this.buyNodeAddressLabel) {
+            if (this._defaultAddress) {
+                // 移除手机号，只显示地址部分
+                let addressParts = this._defaultAddress.split(' ');
+                if (addressParts.length > 1) {
+                    // 移除最后一个部分（手机号）
+                    addressParts.pop();
+                    this.buyNodeAddressLabel.string = addressParts.join(' ');
+                } else {
+                    this.buyNodeAddressLabel.string = this._defaultAddress;
+                }
+            } else {
+                this.buyNodeAddressLabel.string = "请选择收货地址";
+            }
+        }
+    }
+
+    /**
+     * 判断给定的地址是否为默认地址
+     * @param name 收货人姓名
+     * @param address 完整地址
+     * @returns 是否为默认地址
+     */
+    private isDefaultAddress(name: string, address: string): boolean {
+        // 检查是否与保存的默认地址信息匹配
+        return this._defaultAddressName === name && this._defaultAddress === address;
+    }
+
+    /**
+     * 重置所有支付方式按钮的选中状态
+     */
+    private resetPaymentButtons() {
+        this.setPaymentButtonSelected(this.alipayNode, false);
+        this.setPaymentButtonSelected(this.wechatNode, false);
+        this.setPaymentButtonSelected(this.scanNode, false);
+    }
+
+    /**
+     * 设置支付方式按钮的选中状态
+     * @param buttonNode 按钮节点
+     * @param isSelected 是否选中
+     */
+    private setPaymentButtonSelected(buttonNode: Node, isSelected: boolean) {
+        if (!buttonNode) {
+            DebugLog.instance.error(`支付方式按钮节点不存在`);
+            return;
+        }
+
+        let buttonSprite = buttonNode.getComponent(Sprite);
+        if (!buttonSprite) {
+            DebugLog.instance.error(`支付方式按钮 ${buttonNode.name} 未找到 Sprite 组件`);
+            return;
+        }
+
+        // 根据选中状态设置不同的图标
+        let iconUrl = isSelected ? "textureV2/vip/completeIcon/spriteFrame" : "textureV2/vip/selectBG/spriteFrame";
+        this.changeBtnFrame(buttonSprite, iconUrl).then(() => {
+            DebugLog.instance.log(`设置支付方式按钮 ${buttonNode.name} 选中状态: ${isSelected}`);
+        }).catch((err) => {
+            DebugLog.instance.error(`设置支付方式按钮图标失败: ${err}`);
+        });
     }
 
 }

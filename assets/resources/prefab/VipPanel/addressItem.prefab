@@ -645,7 +645,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -442,
-      "y": -47.485,
+      "y": -63.485,
       "z": 0
     },
     "_lrot": {
@@ -685,8 +685,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 700,
-      "height": 60.480000000000004
+      "width": 900,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -723,7 +723,7 @@
     },
     "_string": "李阿姨 18888888888",
     "_horizontalAlign": 0,
-    "_verticalAlign": 1,
+    "_verticalAlign": 0,
     "_actualFontSize": 42,
     "_fontSize": 42,
     "_fontFamily": "Arial",

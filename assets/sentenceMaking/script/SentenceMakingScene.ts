@@ -111,7 +111,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         let self = this;
         this.loadAudio().then(()=>{
             if(!self.bgmClip){
-                self.bgmClip = self.playAudio("audio/majiangbgm",false,true);
+                self.bgmClip = self.playBgmAudio("audio/majiangbgm",true);
             }
         });
     }
@@ -275,7 +275,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
         await this.initCardsInstance(question);
         if(!this.bgmClip){
-            this.bgmClip = this.playAudio("audio/majiangbgm",false,true);
+            this.bgmClip = this.playBgmAudio("audio/majiangbgm",true);
         }
     }
 
@@ -843,6 +843,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     onTimerEnd() {
+        this.playFail();
         if (this.sceneModel.gameType != GameType.SKEWERS) {
             let ad: AlertData = new AlertData();
             ad.cancelButtonVisible = false;

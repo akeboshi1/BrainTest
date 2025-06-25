@@ -13,7 +13,8 @@ import {
     tween,
     UITransform,
     Vec2,
-    Vec3
+    Vec3,
+    AudioClip
 } from 'cc';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
@@ -119,6 +120,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // 添加一个新属性来控制是否允许拖拽
     private isDragEnabled: boolean = true;
 
+    protected audioUrls = ['music/puzzleBG',"music/drag", "music/win"];
+
+    private bgmClip:AudioClip;
+
     private async loadPuzzleTexture(id: number): Promise<Texture2D> {
         const bundle = assetManager.getBundle(this.bundleName);
         return new Promise<Texture2D>((resolve, reject) => {
@@ -142,8 +147,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     onLoad() {
-        this.audioUrls = ["music/drag", "music/win"];
-        this.loadAudio().then();
+        this.loadAudio().then(()=>{
+            if(!this.bgmClip)this.bgmClip = this.playBgmAudio("music/puzzleBG",true);
+        });
     }
 
     start() {
@@ -399,6 +405,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onClickDisturbPuzzleButton();
         this.bgNode.active = false;
         this.startGameMask.active = false;
+        if(!this.bgmClip)this.bgmClip = this.playBgmAudio("music/puzzleBG",true);
     }
     
     goonHandler() {

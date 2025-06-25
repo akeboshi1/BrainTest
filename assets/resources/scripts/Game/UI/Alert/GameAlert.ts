@@ -125,7 +125,7 @@ export class GameAlert extends Component {
     }
 
     showView(type: AlertType) {
-        AudioManager.getInstance().pause();
+        AudioManager.getInstance().pauseLongSound();
         this._type = type;
         let startBtnUITransform = this.startBtn.node.getComponent(UITransform);
         this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
@@ -427,7 +427,7 @@ export class GameAlert extends Component {
 
     exitHandler() {
         // DebugLog.instance.error("exitCallBack",this.context)
-        AudioManager.getInstance().stop();
+        AudioManager.getInstance().stopLongSound();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
         this.node.removeFromParent();
         if (this.exitCallBack) {
@@ -443,7 +443,7 @@ export class GameAlert extends Component {
      */
     goHandler() {
         //DebugLog.instance.error("goonCallBack",this.context)
-        AudioManager.getInstance().resume();
+        AudioManager.getInstance().resumeLongSound();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();
         if (this.goonCallBack) {
