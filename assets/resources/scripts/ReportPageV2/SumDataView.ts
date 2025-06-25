@@ -9,22 +9,19 @@ export class SumDataView extends Component {
     reportSummary: RichText = null;
     @property(Label)
     reportSummaryData:Label=null;
-    onEnable() {
-        EventManager.getInstance().on(ReportManager.getUserSumReportCallback, this.getUserSumReportCallback, this);
-    }
-    onDisable() {
-        EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
-    }
+    // onEnable() {
+    //     EventManager.getInstance().on(ReportManager.getUserSumReportCallback, this.getUserSumReportCallback, this);
+    // }
+    // onDisable() {
+    //     EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
+    // }
     start() {
-        ReportManager.getInstance().getUserSumReport();
+        let summaryData= ReportManager.getInstance().userSumReport;
+        this.showReportSummary(summaryData);
     }
     showReportSummary(data: any) {
         this.reportSummary.string = data.report;
         this.reportSummaryData.string=`报告生成日期:${data.report_date}`
-    }
-    getUserSumReportCallback(data: any) {
-        console.log(data);
-        this.showReportSummary(data);
     }
 
     update(deltaTime: number) {

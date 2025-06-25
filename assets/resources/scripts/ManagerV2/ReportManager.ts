@@ -36,7 +36,6 @@ export class ReportManager {
     public static getBrainTrainingTiersCallback: string = "getBrainTrainingTiersCallback";
     public static getUserSumReportCallback: string = "getUserSumReportCallback";
     public static getCogAbilityWeeklyScoresCallback: string = "getCogAbilityWeeklyScoresCallback";
-    public static getBrainTrainingInitialTiersCallback: string = "getBrainTrainingInitialTiersCallback";
 
     private static _instance: ReportManager;
     private get_brain_training_tiers: string = "user.get_brain_training_tiers";
@@ -45,7 +44,7 @@ export class ReportManager {
     private get_cog_ability_weekly_scores: string = "user.get_cog_ability_weekly_scores";
     private _reportDataList = [];
     private _reportDataListInitial = [];
-    private _cogAbilityWeeklyScoresDataList: CogAbilityWeeklyScoresData[] = [];
+    private _userSumReport = ''
 
     private _cogAbilityBriefData: CogAbilityBriefData = null;
     private _cogAbilityWeeklyScoresData: CogAbilityWeeklyScoresData = null;
@@ -68,6 +67,10 @@ export class ReportManager {
     public get reportDataListInitial(): ReportData[] {
         return this._reportDataListInitial;
     }
+    public get userSumReport():string{
+        return this._userSumReport;
+    }
+
     private clearReportList() {
         this._reportDataList = [];
     }
@@ -136,8 +139,7 @@ export class ReportManager {
                 return;
             }
             this._reportDataListInitial = result;
-            this.processReportData(this._reportDataListInitial);
-            EventManager.getInstance().emit(ReportManager.getBrainTrainingInitialTiersCallback, {});
+            this.processReportData(this._reportDataListInitial);  
 
         }
     }
@@ -160,7 +162,8 @@ export class ReportManager {
                 return;
             }
             let result = data.data;
-            EventManager.getInstance().emit(ReportManager.getUserSumReportCallback, result);
+            this._userSumReport=data.data;
+            EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
         }
     }
 

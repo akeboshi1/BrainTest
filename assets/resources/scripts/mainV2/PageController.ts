@@ -113,8 +113,6 @@ export class PageController extends Component {
     }
 
     loadReporterPage(){
-        ReportManager.getInstance().getPersonalReport();
-        ReportManager.getInstance().getUserSumReport();
         this.loadPage('reporter');
         this.updateButtonColors(null,"2");
     }
