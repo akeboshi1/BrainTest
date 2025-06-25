@@ -27,7 +27,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     viewNode: Node;
 
     @property(Node)
-
     successView: Node;
 
     @property(Node)
@@ -115,7 +114,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         super();
     }
     onLoad(): void {
-        this.loadAudio().then();
+       
     }
 
     start() {
@@ -147,9 +146,16 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardView();
         // this.timerInit();
 
+       
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.successView.active = false;
-            this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
+            this.loadAudio().then(
+                () => {
+                    this.startGameByAlert();
+                }
+            );
+           
+           // this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
         } else {
             this.successView.active = true;
             this.titleLabel.string = `看牌结束后开始挑战`;
@@ -158,7 +164,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.updateSuccessPopupTitle(1);
             this.successStartButton.node.active = true;
             this.successNextButton.node.active = false;
-
+            this.loadAudio().then();
         }
     }
     clickCardHandler(event, data) {
@@ -409,11 +415,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.gameStartInit();
     }
 
-    startGameByAlert(context) {
-        context.isAbleClick = true;
-        context.curHard = context.hards[context.hardIndex];
-        context.cardTotalCount = context.calculCardTotalCount(context.hardIndex);
-        context.gameStartInit();
+    startGameByAlert() {
+        this.isAbleClick = true;
+        this.curHard = this.hards[this.hardIndex];
+        this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
+        this.gameStartInit();
     }
     private _gamecenterNextGame() {
         Global.isAgain = false;

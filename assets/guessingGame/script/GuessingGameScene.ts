@@ -140,15 +140,20 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     private onModelInitComplete() {
-        //打开介绍界面；
-        let alertData: AlertData = new AlertData();
-        alertData.title = "提示";
-        alertData.message = "请认真聆听\"可乐派\"给出的题目，然后在选项中选出正确答案！";
-        alertData.confirmButtonText = "开始游戏";
-        alertData.cancelButtonVisible = false;
-        alertData.confirmCb = this.startGameFlow.bind(this);
+        // 如果是串烧任务，直接开始游戏流程，不显示提示
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.startGameFlow();
+        } else {
+            // 非串烧任务时，显示介绍界面
+            let alertData: AlertData = new AlertData();
+            alertData.title = "提示";
+            alertData.message = "请认真聆听\"可乐派\"给出的题目，然后在选项中选出正确答案！";
+            alertData.confirmButtonText = "开始游戏";
+            alertData.cancelButtonVisible = false;
+            alertData.confirmCb = this.startGameFlow.bind(this);
 
-        AlertManager.getInstance().showAlert(alertData);
+            AlertManager.getInstance().showAlert(alertData);
+        }
     }
 
     private startGameFlow() {
