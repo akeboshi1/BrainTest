@@ -11,6 +11,7 @@ import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global
 import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import AudioMgr from "../../Common/manage/AudioMgr";
 
 const {ccclass} = _decorator;
 @ccclass
@@ -86,6 +87,7 @@ export default class HomeView extends LayerPanel {
 
 
     show(param: any): void {
+        AudioMgr.backMusic()
         let pictureSprite = this.pictureNode.getComponent(Sprite);
         pictureSprite.sizeMode = Sprite.SizeMode.CUSTOM;
         this.pictureBGNode.active = false;

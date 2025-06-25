@@ -22,7 +22,6 @@ export class Game extends BaseScene<IBaseGameChild> {
     protected curView: BaseScene<IBaseGameChild> = null;
 
     onLoad() {
-        AudioMgr.backMusic()
         Emit.instance().on(EventCode.PanelMgrInitOK, this.do_after_panelMgr_initOK, this)
     }
 
