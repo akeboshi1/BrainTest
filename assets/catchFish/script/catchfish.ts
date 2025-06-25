@@ -162,7 +162,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             .start();
         this.loadAudio().then(()=>{
             if(!self.bgmClip){
-                self.bgmClip = self.playAudio("music/fishBG",false,true);
+                self.bgmClip = self.playBgmAudio("music/fishBG",true);
             }
         });
 
@@ -405,7 +405,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.createFish();
 
         if(!this.bgmClip){
-            this.bgmClip = this.playAudio("music/fishBG",false,true);
+            this.bgmClip = this.playBgmAudio("music/fishBG",true);
         }
     }
     private bgmClip:AudioClip;
@@ -963,7 +963,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         this.createFish();
         if(!this.bgmClip){
-            this.bgmClip = this.playAudio("music/fishBG",false,true);
+            this.bgmClip = this.playBgmAudio("music/fishBG",true);
         }
     }
 

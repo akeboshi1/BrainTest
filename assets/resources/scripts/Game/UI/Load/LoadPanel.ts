@@ -132,7 +132,7 @@ export class LoadPanel extends BasePanel {
       }
 
       private startActualCountdown() {
-            AudioManager.getInstance().playOneShot('music/tick', 0.5);
+            AudioManager.getInstance().playShortSound('music/tick', 0.5);
             
             // 确保timeLabel0有UIOpacity组件
             let uiOpacity0 = this.timeLabel0.node.getComponent(UIOpacity);
