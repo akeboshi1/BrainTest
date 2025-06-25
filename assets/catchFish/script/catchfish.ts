@@ -135,6 +135,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _fishTweens: Tween<Node>[] = [];
     private _isPaused = false;
     private _clearBoo = false;
+    private _gameEnded = false; // 添加游戏结束标志
     // 在类中添加边界属性和初始化方法
     private _sceneWidth: number = 1080; // 根据实际场景宽度设置
     private _moveSpeed: number = 200; // 像素/秒
@@ -288,6 +289,11 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     onTimerEnd() {
+        // 如果游戏已经结束，不再执行倒计时逻辑
+        if (this._gameEnded) {
+            return;
+        }
+        
         super.onTimerEnd();
         this.playFail();
         // 保存错题
@@ -360,6 +366,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     startGame(win: number = 1) {
         this.customsSendDataState = false;
         this._clearBoo = false;
+        this._gameEnded = false; // 重置游戏结束标志
 
         // 确保鱼群动画重置并启动
         this.resetAndStartFishMovement();
@@ -947,6 +954,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     rePlayGame() {
         this.bgmClip = null;
         this.customsSendDataState = true;
+        this._gameEnded = false; // 重置游戏结束标志
         Global.isAgain = true;
         this.clearGameView();
         this._clearBoo = false;
@@ -1120,6 +1128,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         });
     }
     private endCurHardGame() {
+        this._gameEnded = true; // 设置游戏结束标志
+        this.pauseTime(); // 停止倒计时
         this.clearGameView();
         this.playAudio("music/win",true);
         // 保存错题
