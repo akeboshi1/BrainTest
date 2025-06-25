@@ -47,8 +47,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     @property(Node)
     quitBtn: Node;
 
-    @property(RollingSubtitleComponent)
-    private rollingSubtitleCom: RollingSubtitleComponent = null;
+    // @property(RollingSubtitleComponent)
+    // private rollingSubtitleCom: RollingSubtitleComponent = null;
 
     @property(Node)
     private optionsNode: Node = null;
@@ -192,7 +192,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private startAnswer() {
         this.questionNode.active = false;
         this.optionsNode.active = true;
-        if (!this._replay) {
+        // if (!this._replay) {
             this._startTime = TimeUtil.getNow();
             this.timerRT.node.active = true;
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -201,9 +201,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 this.timeLimit = 30;
             }
             this.timerRT.startTimer(this.timeLimit);
-        }
+        // }
 
-        this.rollingSubtitleCom.resetString(this.currentQuestion.questionText);
+        // this.rollingSubtitleCom.resetString(this.currentQuestion.questionText);
     }
 
     private answerOutOfTime() {

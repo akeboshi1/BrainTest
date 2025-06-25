@@ -960,7 +960,7 @@
         "__id__": 25
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 28
@@ -6354,9 +6354,6 @@
     },
     "quitBtn": {
       "__id__": 111
-    },
-    "rollingSubtitleCom": {
-      "__id__": 31
     },
     "optionsNode": {
       "__id__": 67
