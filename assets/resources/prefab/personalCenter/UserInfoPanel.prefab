@@ -44,13 +44,10 @@
       },
       {
         "__id__": 551
-      },
-      {
-        "__id__": 553
       }
     ],
     "_prefab": {
-      "__id__": 555
+      "__id__": 553
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -12222,57 +12219,6 @@
     "fileId": "f10bGYqEJKDrCO4XAuiyAK"
   },
   {
-    "__type__": "63fe3oQvCpAQr5mtGkj5aY/",
-    "_name": "",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "__prefab": {
-      "__id__": 552
-    },
-    "comDateSelect": {
-      "__id__": 363
-    },
-    "comSexSelect": {
-      "__id__": 453
-    },
-    "comEducatSelect": {
-      "__id__": 543
-    },
-    "nameNode": {
-      "__id__": 71
-    },
-    "selectorSex": {
-      "__id__": 366
-    },
-    "selectorBirthday": {
-      "__id__": 194
-    },
-    "selectorEducation": {
-      "__id__": 456
-    },
-    "sexContentNode": {
-      "__id__": 103
-    },
-    "birthdayContentNode": {
-      "__id__": 128
-    },
-    "educationContentNode": {
-      "__id__": 153
-    },
-    "editBox": {
-      "__id__": 81
-    },
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "20DoCMTONPnoexw65C6tMB"
-  },
-  {
     "__type__": "cc.BlockInputEvents",
     "_name": "",
     "_objFlags": 0,
@@ -12282,7 +12228,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 554
+      "__id__": 552
     },
     "_id": ""
   },

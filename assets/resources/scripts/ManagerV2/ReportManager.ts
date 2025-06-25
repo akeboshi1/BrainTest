@@ -93,8 +93,6 @@ export class ReportManager {
             DebugLog.instance.error(data.message);
         } else {
             let result = data.data['result'];
-
-            console.log(result);
             if (result.length == 0) {
                 // DebugLog.instance.log('暂无个人报告');
                 EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
@@ -134,7 +132,6 @@ export class ReportManager {
             DebugLog.instance.error(data.message);
         } else {
             let result = data.data['result'];
-            console.log(result);
             if (result.length == 0) {
                 return;
             }
@@ -157,10 +154,10 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            if (!data.data) {
-                console.log('数据总结没有数据')
-                return;
-            }
+            // if (!data.data) {
+            //     console.log('数据总结没有数据')
+            //     return;
+            // }
             let result = data.data;
             this._userSumReport=data.data;
             EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
