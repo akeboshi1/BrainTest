@@ -843,6 +843,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     onTimerEnd() {
+        this.playFail();
         if (this.sceneModel.gameType != GameType.SKEWERS) {
             let ad: AlertData = new AlertData();
             ad.cancelButtonVisible = false;

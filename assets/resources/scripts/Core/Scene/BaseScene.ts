@@ -197,6 +197,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     public requestGameComplete(config: any) {
         this.complete = config.complete;
         this.duration = config.duration;
+        AudioManager.getInstance().pauseBgm();
         if (this.sceneModel) {
             this.sceneModel.requestGameComplete(config);
         }
