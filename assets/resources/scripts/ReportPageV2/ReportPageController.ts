@@ -20,6 +20,7 @@ export class ReportPageController extends Component {
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this); 
+        EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
     }
     start() {
         ReportManager.getInstance().getPersonalReport();
