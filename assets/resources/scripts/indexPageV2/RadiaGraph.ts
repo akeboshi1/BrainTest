@@ -78,11 +78,11 @@ export class RadiaGraph extends Component {
             this.labelsNode[index].active = true;
             let spriteNode = this.labelsNode[index].getChildByName('icon');
             if (item.tier == 1 || item.tier == 2 || item.tier == 3 || item.tier == 4 || item.tier == 5) {
-                spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.green);
+                spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.red);
             } else if (item.tier == 6 || item.tier == 7) {
                 spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.orange);
             } else {
-                spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.red);
+                spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.green);
             }
             this.labelsNode[index].getChildByName('titleLable').getComponent(Label).string = item.cog_ability_desc
             if (item.tier > 1) {
