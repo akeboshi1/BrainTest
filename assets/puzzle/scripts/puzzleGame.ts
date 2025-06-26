@@ -148,7 +148,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onLoad() {
         this.loadAudio().then(()=>{
-            if(!this.bgmClip)this.bgmClip = this.playBgmAudio("music/puzzleBG",true);
+           this.playBgmAudio("music/puzzleBG",true);
         });
     }
 
@@ -166,19 +166,29 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.gameLength = game.timeLimit;
             this.bgNode.active = false;
             this.textureIndex =  (game.level - 1) % this.randomPlayIndex.length;
+            
+            // 串烧游戏时，直接开始游戏，不显示开始提示
+            let textureID = this.randomPlayIndex[this.textureIndex];
+            this.loadPuzzleTexture(textureID).then((texture) => {
+                this.currentTexture2d = texture;
+                this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+                this.updatePreviewSprite(this.currentTexture2d);
+                // 直接调用开始游戏
+                this.onClickStartGame();
+            });
         } else {
             this.bgNode.active = true;
             this.textureIndex = ((this.sceneModel as any).level - 1) % this.randomPlayIndex.length;
-        
-
+            
+            // 非串烧游戏时，显示开始提示
+            this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
+            let textureID = this.randomPlayIndex[this.textureIndex];
+            this.loadPuzzleTexture(textureID).then((texture) => {
+                this.currentTexture2d = texture;
+                this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+                this.updatePreviewSprite(this.currentTexture2d);
+            });
         }
-        this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
-        let textureID = this.randomPlayIndex[this.textureIndex];
-        this.loadPuzzleTexture(textureID).then((texture) => {
-            this.currentTexture2d = texture;
-            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
-            this.updatePreviewSprite(this.currentTexture2d);
-        });
     }
 
     onEnable() {
@@ -405,7 +415,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onClickDisturbPuzzleButton();
         this.bgNode.active = false;
         this.startGameMask.active = false;
-        if(!this.bgmClip)this.bgmClip = this.playBgmAudio("music/puzzleBG",true);
+       this.playBgmAudio("music/puzzleBG",true);
     }
     
     goonHandler() {

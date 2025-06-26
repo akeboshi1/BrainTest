@@ -127,7 +127,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.viewNode = LayerUtil.getPanelLayer();
 
         this.model.init(this).then(() => {
-            this.showGameTipAlert()
+            // 如果是串烧任务，直接开始游戏流程，不显示提示
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                this.startGameFlow();
+            } else {
+                this.showGameTipAlert();
+            }
         }).catch((error) => {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
