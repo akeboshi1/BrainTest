@@ -54,19 +54,16 @@ export class ReportPageController extends Component {
     private sumReportResolve: Function;
 
     getUserInfoCallBack(){
-        console.log("更新初测数据",PersonalCenterManager.getInstance().userInfoData);
         if (this.userInfoResolve) {
             this.userInfoResolve();
         }
     }
     getBrainTrainingTiersCallback(){
-        console.log("更新雷达图",ReportManager.getInstance().reportDataList);
         if (this.brainTrainingResolve) {
             this.brainTrainingResolve();
         }
     }
     getUserSumReportCallback(){
-        console.log("更新报告总结",ReportManager.getInstance().userSumReport);
         if (this.sumReportResolve) {
             this.sumReportResolve();
         }
