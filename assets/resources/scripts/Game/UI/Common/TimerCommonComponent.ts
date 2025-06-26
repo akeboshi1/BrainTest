@@ -52,6 +52,7 @@ export class TimerCommonComponent extends Component {
                     }
                 }
             } else {
+                this.timeLabel.string = "0";
                 this.isRunning = false;
                 this.eventTarget.emit('timer-end'); // 计时结束时发送'timer-end'自定义事件
             }
