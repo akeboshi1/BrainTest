@@ -1,14 +1,20 @@
-import { _decorator, Component, Node, Graphics, Color, Vec2, Label } from 'cc';
+import { _decorator, Component, Node, Graphics, Color, Vec2, Label, resources, SpriteFrame, Sprite } from 'cc';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
-
+const iconPath = {
+    green: 'textureV2/userReport/green/spriteFrame',
+    orange: 'textureV2/userReport/orange/spriteFrame',
+    red: 'textureV2/userReport/red/spriteFrame',
+};
 @ccclass('RadiaGraph')
 export class RadiaGraph extends Component {
 
     @property([Node])
-     labelsNode:Node[]=[];
+    labelsNode: Node[] = [];
+    @property(Label)
+    private noDataLabel: Label = null;
 
 
     private graphics: Graphics = null;
@@ -17,50 +23,88 @@ export class RadiaGraph extends Component {
     private readonly minRadius: number = 20;
     private readonly circleRadius: number = 8;
     private readonly lineWidth: number = 8;
-    private values:number[]=[];   
-    private secondValues:number[]=[]; // 添加第二个数据数组
+    private values: number[] = [];
+    private secondValues: number[] = []; // 添加第二个数据数组
+
     // 开始函数
     start() {
         // TODO: 添加开始函数的具体实现
-       let data = ReportManager.getInstance().reportDataList;
-       this.updateView(data);
+        let data = ReportManager.getInstance().reportDataList;
+        this.updateView(data);
     }
 
-    onEnable(){
+    onEnable() {
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
     }
-    onDisable(){
+    onDisable() {
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
 
+    async loadTaskSprite(path: string): Promise<SpriteFrame> {
+        return new Promise((resolve, reject) => {
+            resources.load(path, SpriteFrame, (err, spriteFrame) => {
+                if (err) {
+                    // DebugLog.instance.error(`Failed to load sprite: ${path}`, err);
+                    reject(err);
+                    return;
+                }
 
-    updateView(data:ReportData[]){
-        if(data.length==0) {
+                if (!spriteFrame) {
+                    // DebugLog.instance.error(`Loaded sprite frame is null: ${path}`);
+                    reject(new Error('Loaded sprite frame is null'));
+                    return;
+                }
+                resolve(spriteFrame);
+            });
+        })
+    }
+
+
+    async updateView(data: ReportData[]) {
+        let labels = ['语言力', '观察力', '记忆力', '执行力', '计算力'];
+        if (data.length == 0) {
             console.log(data.length);
-            this.labelsNode.forEach(item=>{
-                item.active=false;
+            this.labelsNode.forEach((item, index) => {
+                item.getChildByName('titleLable').getComponent(Label).string = labels[index];
+                item.getChildByName('detailLable').getComponent(Label).string = '';
             })
+            this.noDataLabel.node.active = true;
+            this.noDataLabel.string = '暂无数据';
             return;
         }
-        data.forEach((item,index)=>{
-            this.labelsNode[index].active=true;
-            this.labelsNode[index].getChildByName('titleLable').getComponent(Label).string=item.cog_ability_desc
-            this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string=`超过${item.tier*10}%同龄人`
-        })  
-    }
-    
-    getBrainTrainingTiersCallback(){
-        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
-        this.updateView(reportDataList);
+        this.noDataLabel.node.active = false;
+        for (let index = 0; index < data.length; index++) {
+            const item = data[index];
+            this.labelsNode[index].active = true;
+            let spriteNode = this.labelsNode[index].getChildByName('icon');
+            if (item.tier == 1 || item.tier == 2 || item.tier == 3 || item.tier == 4 || item.tier == 5) {
+                spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.green);
+            } else if (item.tier == 6 || item.tier == 7) {
+                spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.orange);
+            } else {
+                spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.red);
+            }
+            this.labelsNode[index].getChildByName('titleLable').getComponent(Label).string = item.cog_ability_desc
+            if (item.tier > 1) {
+                this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string = `优于${(item.tier-1) * 10}%同龄人`;
+            } else {
+                this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string = `同龄组末位的10%`;
+            }
+        }
     }
 
-    setValues(values:number[]){
-        this.values=values;
+    async getBrainTrainingTiersCallback() {
+        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
+        await this.updateView(reportDataList);
+    }
+
+    setValues(values: number[]) {
+        this.values = values;
         this.initGraphics();
         this.drawBothCharts();
     }
 
-    setSecondValues(values:number[]){
+    setSecondValues(values: number[]) {
         this.secondValues = values;
         this.initGraphics();
         this.drawBothCharts();
@@ -73,17 +117,17 @@ export class RadiaGraph extends Component {
         // 如果有第二个数据，先画第二个图
         if (this.secondValues && this.secondValues.length > 0) {
             const secondPoints: Vec2[] = this.calculatePentagonPoints(this.secondValues);
-            
+
             // 绘制填充区域（使用正蓝色，设置适当的透明度）
             this.graphics.fillColor = new Color(0, 89, 247, 100);
-            
+
             this.graphics.moveTo(secondPoints[0].x, secondPoints[0].y);
             for (let i = 1; i < secondPoints.length; i++) {
                 this.graphics.lineTo(secondPoints[i].x, secondPoints[i].y);
             }
             this.graphics.close();
             this.graphics.fill();
-            
+
             // 绘制边线
             this.graphics.strokeColor = new Color(0, 89, 247, 255);
             this.graphics.lineWidth = this.lineWidth;
@@ -91,14 +135,14 @@ export class RadiaGraph extends Component {
             for (let i = 0; i < secondPoints.length; i++) {
                 const currentPoint = secondPoints[i];
                 const nextPoint = secondPoints[(i + 1) % secondPoints.length];
-                
+
                 const linePoints = this.calculateLineFromCircleToCircle(currentPoint, nextPoint);
-                
+
                 this.graphics.moveTo(linePoints.start.x, linePoints.start.y);
                 this.graphics.lineTo(linePoints.end.x, linePoints.end.y);
                 this.graphics.stroke();
             }
-            
+
             // 绘制角上的实心圆
             this.graphics.fillColor = new Color(0, 89, 247, 255);
             for (const point of secondPoints) {
@@ -110,17 +154,17 @@ export class RadiaGraph extends Component {
         // 如果有第一个数据，再画第一个图
         if (this.values && this.values.length > 0) {
             const points: Vec2[] = this.calculatePentagonPoints(this.values);
-            
+
             // 绘制填充区域
             this.graphics.fillColor = new Color(173, 216, 230, 128);
-            
+
             this.graphics.moveTo(points[0].x, points[0].y);
             for (let i = 1; i < points.length; i++) {
                 this.graphics.lineTo(points[i].x, points[i].y);
             }
             this.graphics.close();
             this.graphics.fill();
-            
+
             // 绘制边线
             this.graphics.strokeColor = new Color(0, 89, 247, 255);
             this.graphics.lineWidth = this.lineWidth;
@@ -128,14 +172,14 @@ export class RadiaGraph extends Component {
             for (let i = 0; i < points.length; i++) {
                 const currentPoint = points[i];
                 const nextPoint = points[(i + 1) % points.length];
-                
+
                 const linePoints = this.calculateLineFromCircleToCircle(currentPoint, nextPoint);
-                
+
                 this.graphics.moveTo(linePoints.start.x, linePoints.start.y);
                 this.graphics.lineTo(linePoints.end.x, linePoints.end.y);
                 this.graphics.stroke();
             }
-            
+
             // 绘制角上的空心圆
             this.graphics.strokeColor = new Color(0, 89, 247, 255);
             this.graphics.lineWidth = 8;
@@ -147,7 +191,7 @@ export class RadiaGraph extends Component {
     }
 
     update(deltaTime: number) {
-        
+
     }
 
     private initGraphics() {
@@ -165,16 +209,16 @@ export class RadiaGraph extends Component {
         if (!this.graphics) return;
 
         this.graphics.clear();
-        
+
         // 计算五个角的坐标
         const points: Vec2[] = this.calculatePentagonPoints(this.values);
 
         // 绘制填充区域
         this.drawFillArea(points);
-        
+
         // 绘制边线
         this.drawLines(points);
-        
+
         // 绘制角上的空心圆
         this.drawCornerCircles(points);
     }
@@ -211,7 +255,7 @@ export class RadiaGraph extends Component {
      */
     private drawFillArea(points: Vec2[]) {
         this.graphics.fillColor = new Color(173, 216, 230, 128); // 半透明浅蓝色 (LightBlue with alpha)
-        
+
         this.graphics.moveTo(points[0].x, points[0].y);
         for (let i = 1; i < points.length; i++) {
             this.graphics.lineTo(points[i].x, points[i].y);
@@ -231,10 +275,10 @@ export class RadiaGraph extends Component {
         for (let i = 0; i < points.length; i++) {
             const currentPoint = points[i];
             const nextPoint = points[(i + 1) % points.length]; // 最后一个点连接到第一个点
-            
+
             // 计算从当前圆边缘到下一个圆边缘的线段
             const linePoints = this.calculateLineFromCircleToCircle(currentPoint, nextPoint);
-            
+
             this.graphics.moveTo(linePoints.start.x, linePoints.start.y);
             this.graphics.lineTo(linePoints.end.x, linePoints.end.y);
             this.graphics.stroke();
@@ -248,22 +292,22 @@ export class RadiaGraph extends Component {
         // 计算两点之间的方向向量
         const direction = new Vec2(point2.x - point1.x, point2.y - point1.y);
         const distance = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
-        
+
         // 单位化方向向量
         const unitDirection = new Vec2(direction.x / distance, direction.y / distance);
-        
+
         // 计算起点：从point1向point2方向移动圆半径的距离
         const startPoint = new Vec2(
             point1.x + unitDirection.x * this.circleRadius,
             point1.y + unitDirection.y * this.circleRadius
         );
-        
+
         // 计算终点：从point2向point1方向移动圆半径的距离
         const endPoint = new Vec2(
             point2.x - unitDirection.x * this.circleRadius,
             point2.y - unitDirection.y * this.circleRadius
         );
-        
+
         return { start: startPoint, end: endPoint };
     }
 
@@ -289,7 +333,7 @@ export class RadiaGraph extends Component {
         this.values[2] = Math.max(1, Math.min(10, v3));
         this.values[3] = Math.max(1, Math.min(10, v4));
         this.values[4] = Math.max(1, Math.min(10, v5));
-        
+
         this.drawRadarChart();
     }
 }
