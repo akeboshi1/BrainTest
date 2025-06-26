@@ -81,7 +81,8 @@ export class ReportManager {
     public getPersonalReport() {
         EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingTiersCallback, this, true);
         let requestBrainTrainingTiersSocket: SocketData = new SocketData({
-            action: this.get_brain_training_tiers
+            action: this.get_brain_training_tiers,
+            skipDebounce:true
         });
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
@@ -121,7 +122,8 @@ export class ReportManager {
             action: this.get_brain_training_tiers,
             data: {
                 "initial": true
-            }
+            },
+            skipDebounce:true
         });
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
@@ -144,7 +146,8 @@ export class ReportManager {
     public getUserSumReport() {
         EventManager.getInstance().on(this.get_user_report, this.requestUserSumReportCallback, this, true);
         let requestUserSumReportSocket: SocketData = new SocketData({
-            action: this.get_user_report
+            action: this.get_user_report,
+            skipDebounce:true
         });
         SocketManager.getInstance().send(requestUserSumReportSocket);
     }
@@ -170,7 +173,8 @@ export class ReportManager {
             action: this.get_cog_ability_brief,
             data: {
                 cog_ability: cog_ability
-            }
+            },
+            skipDebounce:true
         });
         SocketManager.getInstance().send(requestCogAbilityBriefSocket);
     }
@@ -200,7 +204,8 @@ export class ReportManager {
             data: {
                 cog_ability: cog_ability,
                 index: index
-            }
+            },
+            skipDebounce:true
         });
         SocketManager.getInstance().send(requestCogAbilityWeeklyScoresSocket);
     }
