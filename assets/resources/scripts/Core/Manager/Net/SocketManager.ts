@@ -282,11 +282,14 @@ export class SocketManager extends BaseManager {
             _tmpDatas = [];
         }
 
-        for (let i = 0; i < _tmpDatas.length; i++) {
-            let _tmpData: SocketData = _tmpDatas[i];
-            if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= this._reSendTime) {
-                DebugLog.instance.error(`${data.action},已经发送过了，请等待回复`);
-                return;
+        // 如果设置了跳过防抖，则不进行防抖检查
+        if (!data.skipDebounce) {
+            for (let i = 0; i < _tmpDatas.length; i++) {
+                let _tmpData: SocketData = _tmpDatas[i];
+                if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= this._reSendTime) {
+                    DebugLog.instance.error(`${data.action},已经发送过了，请等待回复`);
+                    return;
+                }
             }
         }
 
