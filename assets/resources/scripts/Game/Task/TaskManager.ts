@@ -30,6 +30,7 @@ export class TaskManager extends BaseManager {
     public static TaskListRequestCallBack: string = "TaskListRequestCallBack";
     public static NotificationListRequestCallBack: string = "NotificationListRequestCallBack";
     public static PushEvetCallBack: string = "PushEvetCallBack";
+    public static RequestInitTaskCallback:string = "RequestInitTaskCallback";
     // public static infoAlertEvent: string = "infoAlertEvent";
 
     //===== 串烧任务
@@ -45,14 +46,16 @@ export class TaskManager extends BaseManager {
      */
     private task_start_task: string = "task.start_task";
 
-    private _taskDic: Map<number, TaskData>;
+    private get_initial_eval_task: string = "task.get_initial_eval_task";
 
-    private _taskList: TaskData[];
+    private _taskDic: Map<number, TaskData> = new Map();
+
+    private _taskList: TaskData[] = [];
 
     private _curTaskId: number = 0;
     // 通知
     private notification_start_notifications: string = "notification.get_notifications";
-    private _notificationList: NotificationData[];
+    private _notificationList: NotificationData[] = [];
     private notification_read: string = "notification.read";
     public static pushEvet: string = "event";
 
@@ -102,8 +105,7 @@ export class TaskManager extends BaseManager {
 
     // start 生命周期
     start() {
-        this.clearData();
-        this.requestTaskList();
+        // this.requestTaskList();
     }
 
     clearData() {
@@ -189,6 +191,29 @@ export class TaskManager extends BaseManager {
         return task && task.isCorrection;
     }
 
+    public requestInitLevalTask(){
+        EventManager.getInstance().on(this.get_initial_eval_task, this.requestInitLevalCallback, this, true);
+        let requestTaskSocket: SocketData = new SocketData({
+            action: this.get_initial_eval_task,
+        });
+
+        SocketManager.getInstance().send(requestTaskSocket);        
+    }
+
+    public requestInitLevalCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.get_initial_eval_task, context);
+        if (data.status == 0) {
+            DebugLog.instance.error(data.message);
+        } else {
+            if(!data.data)return;
+            this._curTaskId = data.data.id;
+            let task = new TaskData();
+            task.refrehData(data.data);
+            this._taskDic.set(data.data.id, task);
+            DebugLog.instance.log("获取初始评测任务", data.data);
+        }
+        EventManager.getInstance().emit(TaskManager.RequestInitTaskCallback);
+    }
 
     /**
      * 请求每日任务列表
@@ -355,7 +380,6 @@ export class TaskManager extends BaseManager {
             let type = task.type;
             switch (type) {
                 case TaskType.Remind:
-                    break;
                 case TaskType.Review:
                 case TaskType.Brains:
                 case TaskType.Revise:

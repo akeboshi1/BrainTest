@@ -47,14 +47,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     @property(Node)
     quitBtn: Node;
 
-    @property(RollingSubtitleComponent)
-    private rollingSubtitleCom: RollingSubtitleComponent = null;
+    // @property(RollingSubtitleComponent)
+    // private rollingSubtitleCom: RollingSubtitleComponent = null;
 
     @property(Node)
     private optionsNode: Node = null;
-
-    @property(Node)
-    private replayNode: Node = null;
 
     @property(FrameComponent)
     private frameComponent: FrameComponent = null;
@@ -76,6 +73,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     @property(Label)
     analysisLabel: Label = null;
+
+    @property(Node)
+    replayButtonNode:Node = null;
+    
+    private replayCount:number = 2;
 
     private timeLimit = 30;
 
@@ -138,15 +140,20 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     private onModelInitComplete() {
-        //打开介绍界面；
-        let alertData: AlertData = new AlertData();
-        alertData.title = "提示";
-        alertData.message = "请认真聆听\"可乐派\"给出的题目，然后在选项中选出正确答案！";
-        alertData.confirmButtonText = "开始游戏";
-        alertData.cancelButtonVisible = false;
-        alertData.confirmCb = this.startGameFlow.bind(this);
+        // 如果是串烧任务，直接开始游戏流程，不显示提示
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.startGameFlow();
+        } else {
+            // 非串烧任务时，显示介绍界面
+            let alertData: AlertData = new AlertData();
+            alertData.title = "提示";
+            alertData.message = "请认真聆听\"可乐派\"给出的题目，然后在选项中选出正确答案！";
+            alertData.confirmButtonText = "开始游戏";
+            alertData.cancelButtonVisible = false;
+            alertData.confirmCb = this.startGameFlow.bind(this);
 
-        AlertManager.getInstance().showAlert(alertData);
+            AlertManager.getInstance().showAlert(alertData);
+        }
     }
 
     private startGameFlow() {
@@ -176,9 +183,13 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private onAudioStart() {
         this.frameComponent.playAnimation("speak", 24, true, true);
+        if(this.currentQuestion!=null){
+            this.questionLabel.string = this.currentQuestion.questionText;
+        }
     }
 
     private onAudioFinish() {
+        this.questionLabel.string=''
         this.frameComponent.playAnimation("idle", 16, true, true);
     }
 
@@ -186,7 +197,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private startAnswer() {
         this.questionNode.active = false;
         this.optionsNode.active = true;
-        if (!this._replay) {
+        // if (!this._replay) {
             this._startTime = TimeUtil.getNow();
             this.timerRT.node.active = true;
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -195,12 +206,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 this.timeLimit = 30;
             }
             this.timerRT.startTimer(this.timeLimit);
-        }
+        // }
 
-
-        this.replayNode.active = true;
-
-        this.rollingSubtitleCom.resetString(this.currentQuestion.questionText);
+        // this.rollingSubtitleCom.resetString(this.currentQuestion.questionText);
     }
 
     private answerOutOfTime() {
@@ -324,8 +332,19 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     onClickReplay() {
+        if(this.replayCount<=0){ return; }
+        this.replayCount--;
+        if(this.replayCount==0){
+            this.replayButtonNode.getComponent(Sprite).color = new Color(187, 189, 193, 255);
+        }
+        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `重听题目${this.replayCount}`;
         this._replay = true;
         this.guessingGameModel.replayQuestionAudio();
+    }
+    reSetButton(){
+        this.replayCount = 2;
+        this.replayButtonNode.getComponent(Sprite).color = new Color(8, 105, 0);
+        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `重听题目${this.replayCount}`;
     }
 
     onChooseOption(event: EventTouch, p: string) {
@@ -350,10 +369,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     onClickRetryGame() {
+        
         Global.isAgain = true;
         this.resetPanel();
         this.guessingGameModel.startQuestionFlow();
         this.resultPanel.active = false;
+        
     }
 
     quitGame() {
@@ -392,13 +413,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.timerStartGame.node.active = false;
 
         this.resultPanel.active = false;
-
-        this.replayNode.active = false;
         this.optionsNode.active = this.questionNode.active = false;
 
         this.frameComponent.playAnimation("idle", 16, true, true);
 
         this.analysisNode.active = false;
+        this.reSetButton();
 
         for(let i = 0; i < this.options.length; i++){
             let op: string = this.options[i];

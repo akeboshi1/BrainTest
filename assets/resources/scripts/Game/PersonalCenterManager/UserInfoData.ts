@@ -2,19 +2,19 @@ import { StringUtil } from "../../Core/Util/StringUtil";
 import { TimeUtil } from "../../Core/Util/TimeUtil";
 
 export class UserInfoData {
-    public id: String = "";
-    public nickname: String = "";
-    public gender: Number = 0;
-    public full_name: String = "";
-    public mp_no: String = "";
-    public is_invited: Boolean;
-    public birthday: String = "";
-    public education: String = "";
+    public id: string = "";
+    public nickname: string = "";
+    public gender: number = 0;
+    public full_name: string = "";
+    public mp_no: string = "";
+    public is_invited: boolean;
+    public birthday: string = "";
+    public education: string = "";
     public trained_days: number = 0;
     public has_initial_tier:boolean = false;
-    public member: Boolean;
-    public member_startTime: String = "";
-    public member_endTime: String = "";
+    public member: boolean;
+    public member_startTime: string = "";
+    public member_endTime: string = "";
     public member_Expired: boolean = false;
 
     constructor(data) {

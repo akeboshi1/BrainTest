@@ -57,7 +57,7 @@ export class UserInfoPanel extends BasePanel {
         this.editBox.node.off('editing-did-ended');
     }
     start() {
-        this.initUserInfoPanel();
+        this.initUserInfoPanel(); 
         this.editBox.node.on('editing-did-began', this.onInputStarted, this);
         this.editBox.node.on('editing-did-ended', this.onInputFinished, this);
 
@@ -82,8 +82,7 @@ export class UserInfoPanel extends BasePanel {
         this.setName(userData.full_name);
         this.setSex(userData.gender == 1 ? "男" : "女");
         this.setBirthday(userData.birthday);
-        this.setEducationById(userData.education);
-
+        this.setEducationById(userData.education); 
     }
     setName(data) {
         this.user_name = data;
@@ -210,7 +209,7 @@ export class UserInfoPanel extends BasePanel {
     }
 
     cofirmUpdateUserInfo() {
-        PersonalCenterManager.getInstance().updateUserInfo(this.user_name, this.user_sex, this.user_birthday, this.user_education);
+        PersonalCenterManager.getInstance().updateUserInfo(null, this.user_name, this.user_sex, this.user_birthday, this.user_education);
         this.backToParent();
     }
 }

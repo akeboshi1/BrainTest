@@ -111,7 +111,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         let self = this;
         this.loadAudio().then(()=>{
             if(!self.bgmClip){
-                self.bgmClip = self.playAudio("audio/majiangbgm",false,true);
+                self.bgmClip = self.playBgmAudio("audio/majiangbgm",true);
             }
         });
     }
@@ -127,7 +127,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.viewNode = LayerUtil.getPanelLayer();
 
         this.model.init(this).then(() => {
-            this.showGameTipAlert()
+            // 如果是串烧任务，直接开始游戏流程，不显示提示
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                this.startGameFlow();
+            } else {
+                this.showGameTipAlert();
+            }
         }).catch((error) => {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
@@ -275,7 +280,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
         await this.initCardsInstance(question);
         if(!this.bgmClip){
-            this.bgmClip = this.playAudio("audio/majiangbgm",false,true);
+            this.bgmClip = this.playBgmAudio("audio/majiangbgm",true);
         }
     }
 
@@ -843,6 +848,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
     onTimerEnd() {
+        this.playFail();
         if (this.sceneModel.gameType != GameType.SKEWERS) {
             let ad: AlertData = new AlertData();
             ad.cancelButtonVisible = false;

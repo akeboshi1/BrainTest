@@ -768,6 +768,7 @@ export default class GameView extends LayerPanel {
         }
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
+        AudioMgr.audioSource.stop();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             FindingGlobal.skewersGameLevel = 0;
             this._requestSkewersGameComplete();

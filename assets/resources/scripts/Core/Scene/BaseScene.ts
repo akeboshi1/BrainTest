@@ -197,6 +197,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
     public requestGameComplete(config: any) {
         this.complete = config.complete;
         this.duration = config.duration;
+        AudioManager.getInstance().pauseBgm();
         if (this.sceneModel) {
             this.sceneModel.requestGameComplete(config);
         }
@@ -309,7 +310,7 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // ========= 清理场景 ===========
     public clearGameView() {
-        AudioManager.getInstance().stop();
+        AudioManager.getInstance().stopLongSound();
         AudioManager.getInstance().stopBgm();
     }
 
@@ -318,9 +319,9 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
         let audioRes = this.audioMap.get(url);
         if (audioRes != null) {
             if (isShot) {
-                AudioManager.getInstance().playOneShot(audioRes);
+                AudioManager.getInstance().playShortSound(audioRes);
             } else {
-                AudioManager.getInstance().play(audioRes, isLoop);
+                AudioManager.getInstance().playLongSound(audioRes, isLoop);
             }
             return audioRes;
         }else{

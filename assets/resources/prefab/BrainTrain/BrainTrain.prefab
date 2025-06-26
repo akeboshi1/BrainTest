@@ -594,7 +594,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 416,
-      "y": 814,
+      "y": 827.8,
       "z": 0
     },
     "_lrot": {
@@ -955,7 +955,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 20,
+      "x": 0,
       "y": 437.95000000000005,
       "z": 0
     },
@@ -1005,8 +1005,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -186,
-      "y": 30,
+      "x": -164,
+      "y": 12,
       "z": 0
     },
     "_lrot": {
@@ -1085,8 +1085,8 @@
     "_string": "观察力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 34,
+    "_fontSize": 34,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -1766,7 +1766,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -354,
+      "x": -330,
       "y": 0,
       "z": 0
     },
@@ -1807,8 +1807,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 150,
-      "height": 150
+      "width": 180,
+      "height": 180
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1943,7 +1943,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 830,
+      "width": 800,
       "height": 1
     },
     "_anchorPoint": {
@@ -2011,8 +2011,6 @@
       "__id__": 0
     },
     "fileId": "dd0WyrK6dLBrIV8L0xwxr4",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -2038,8 +2036,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -32,
-      "y": -33.692,
+      "x": 2,
+      "y": -36,
       "z": 0
     },
     "_lrot": {
@@ -2118,8 +2116,8 @@
     "_string": "一共有十个字的词语语。",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -2296,7 +2294,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 20,
+      "x": 0,
       "y": 242.95000000000005,
       "z": 0
     },
@@ -2346,8 +2344,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -186,
-      "y": 30,
+      "x": -164,
+      "y": 8,
       "z": 0
     },
     "_lrot": {
@@ -2426,8 +2424,8 @@
     "_string": "记忆力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 34,
+    "_fontSize": 34,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -3107,7 +3105,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -354,
+      "x": -330,
       "y": 0,
       "z": 0
     },
@@ -3148,8 +3146,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 150,
-      "height": 150
+      "width": 180,
+      "height": 180
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3379,8 +3377,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -32,
-      "y": -33.692,
+      "x": 2,
+      "y": -36,
       "z": 0
     },
     "_lrot": {
@@ -3459,8 +3457,8 @@
     "_string": "一共有十个字的词语语。",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -3595,7 +3593,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 20,
+      "x": 0,
       "y": 47.950000000000045,
       "z": 0
     },
@@ -3645,8 +3643,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -186,
-      "y": 30,
+      "x": -164,
+      "y": 8,
       "z": 0
     },
     "_lrot": {
@@ -3725,8 +3723,8 @@
     "_string": "执行力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 34,
+    "_fontSize": 34,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -4406,7 +4404,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -354,
+      "x": -330,
       "y": 0,
       "z": 0
     },
@@ -4447,8 +4445,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 150,
-      "height": 150
+      "width": 180,
+      "height": 180
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4678,8 +4676,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -32,
-      "y": -33.692,
+      "x": 2,
+      "y": -36,
       "z": 0
     },
     "_lrot": {
@@ -4758,8 +4756,8 @@
     "_string": "一共有十个字的词语语。",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -4894,7 +4892,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 20,
+      "x": 0,
       "y": -147.04999999999995,
       "z": 0
     },
@@ -4944,8 +4942,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -186,
-      "y": 30,
+      "x": -164,
+      "y": 8,
       "z": 0
     },
     "_lrot": {
@@ -5024,8 +5022,8 @@
     "_string": "计算力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 34,
+    "_fontSize": 34,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
@@ -5705,7 +5703,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -354,
+      "x": -330,
       "y": 0,
       "z": 0
     },
@@ -5746,8 +5744,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 150,
-      "height": 150
+      "width": 180,
+      "height": 180
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5977,8 +5975,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -32,
-      "y": -33.692,
+      "x": 2,
+      "y": -36,
       "z": 0
     },
     "_lrot": {
@@ -6057,8 +6055,8 @@
     "_string": "一共有十个字的词语语",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -6193,7 +6191,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 20,
+      "x": 0,
       "y": -342.04999999999995,
       "z": 0
     },
@@ -6243,8 +6241,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -186,
-      "y": 30,
+      "x": -164,
+      "y": 8,
       "z": 0
     },
     "_lrot": {
@@ -6323,8 +6321,8 @@
     "_string": "理解力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 34,
+    "_fontSize": 34,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -7004,7 +7002,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -354,
+      "x": -330,
       "y": 0,
       "z": 0
     },
@@ -7045,8 +7043,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 150,
-      "height": 150
+      "width": 180,
+      "height": 180
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -7276,8 +7274,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -32,
-      "y": -33.692,
+      "x": 2,
+      "y": -36,
       "z": 0
     },
     "_lrot": {
@@ -7356,8 +7354,8 @@
     "_string": "一共有十个字的词语语。",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -7489,7 +7487,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 20,
+      "x": 0,
       "y": -537.05,
       "z": 0
     },
@@ -7539,8 +7537,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -186,
-      "y": 30.449,
+      "x": -164,
+      "y": 8,
       "z": 0
     },
     "_lrot": {
@@ -7619,8 +7617,8 @@
     "_string": "记忆力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 34,
+    "_fontSize": 34,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -8300,7 +8298,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -354,
+      "x": -330,
       "y": 0,
       "z": 0
     },
@@ -8341,8 +8339,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 150,
-      "height": 150
+      "width": 180,
+      "height": 180
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8436,8 +8434,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -32,
-      "y": -33.692,
+      "x": 2,
+      "y": -36,
       "z": 0
     },
     "_lrot": {
@@ -8516,8 +8514,8 @@
     "_string": "一共有十个字的词语语。",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 28,
+    "_fontSize": 28,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -8855,7 +8853,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 884,
+      "width": 832,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -8894,8 +8892,8 @@
     "_string": "根据您以往的表现和测试，为您安排了如下健康锻炼任务。",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 34,
-    "_fontSize": 34,
+    "_actualFontSize": 32,
+    "_fontSize": 32,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 0,
@@ -9063,8 +9061,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -331,
-      "y": 893.9,
+      "x": -369,
+      "y": 857.4,
       "z": 0
     },
     "_lrot": {
@@ -9154,7 +9152,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
+      "width": 128,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -9193,8 +9191,8 @@
     "_string": "六大维度",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 32,
+    "_fontSize": 32,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -9263,8 +9261,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 219.1,
-      "height": 75
+      "width": 170,
+      "height": 60
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9331,8 +9329,6 @@
       "__id__": 0
     },
     "fileId": "72+HqjsUtNfIQ50J0LsiGn",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -9358,8 +9354,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -446.2,
-      "y": 770.5,
+      "x": -453.6,
+      "y": 768.9,
       "z": 0
     },
     "_lrot": {
@@ -9438,8 +9434,8 @@
     "_string": "锻炼你的大脑",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 70,
-    "_fontSize": 70,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
     "_lineHeight": 70,
     "_overflow": 1,
@@ -9517,7 +9513,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -146,
+      "x": -160,
       "y": 500,
       "z": 0
     },
@@ -9597,10 +9593,10 @@
     "_string": "本次训练设计内容",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 60,
+    "_lineHeight": 40,
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,

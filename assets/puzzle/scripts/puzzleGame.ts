@@ -13,7 +13,8 @@ import {
     tween,
     UITransform,
     Vec2,
-    Vec3
+    Vec3,
+    AudioClip
 } from 'cc';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
@@ -119,6 +120,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // 添加一个新属性来控制是否允许拖拽
     private isDragEnabled: boolean = true;
 
+    protected audioUrls = ['music/puzzleBG',"music/drag", "music/win"];
+
+    private bgmClip:AudioClip;
+
     private async loadPuzzleTexture(id: number): Promise<Texture2D> {
         const bundle = assetManager.getBundle(this.bundleName);
         return new Promise<Texture2D>((resolve, reject) => {
@@ -142,8 +147,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     onLoad() {
-        this.audioUrls = ["music/drag", "music/win"];
-        this.loadAudio().then();
+        this.loadAudio().then(()=>{
+           this.playBgmAudio("music/puzzleBG",true);
+        });
     }
 
     start() {
@@ -160,19 +166,29 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.gameLength = game.timeLimit;
             this.bgNode.active = false;
             this.textureIndex =  (game.level - 1) % this.randomPlayIndex.length;
+            
+            // 串烧游戏时，直接开始游戏，不显示开始提示
+            let textureID = this.randomPlayIndex[this.textureIndex];
+            this.loadPuzzleTexture(textureID).then((texture) => {
+                this.currentTexture2d = texture;
+                this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+                this.updatePreviewSprite(this.currentTexture2d);
+                // 直接调用开始游戏
+                this.onClickStartGame();
+            });
         } else {
             this.bgNode.active = true;
             this.textureIndex = ((this.sceneModel as any).level - 1) % this.randomPlayIndex.length;
-        
-
+            
+            // 非串烧游戏时，显示开始提示
+            this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
+            let textureID = this.randomPlayIndex[this.textureIndex];
+            this.loadPuzzleTexture(textureID).then((texture) => {
+                this.currentTexture2d = texture;
+                this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+                this.updatePreviewSprite(this.currentTexture2d);
+            });
         }
-        this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
-        let textureID = this.randomPlayIndex[this.textureIndex];
-        this.loadPuzzleTexture(textureID).then((texture) => {
-            this.currentTexture2d = texture;
-            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
-            this.updatePreviewSprite(this.currentTexture2d);
-        });
     }
 
     onEnable() {
@@ -399,6 +415,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onClickDisturbPuzzleButton();
         this.bgNode.active = false;
         this.startGameMask.active = false;
+       this.playBgmAudio("music/puzzleBG",true);
     }
     
     goonHandler() {

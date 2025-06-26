@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D, Vec3, tween, assetManager } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -27,7 +27,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     viewNode: Node;
 
     @property(Node)
-
     successView: Node;
 
     @property(Node)
@@ -35,9 +34,6 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     @property(Node)
     bigWin: Node;
-
-    @property(Node)
-    timeNode: Node;
 
     @property(Node)
     cardPool: Node;
@@ -68,6 +64,14 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     @property(Label)
     failViewProgressLabel: Label;
+
+    @property(ProgressBar)
+    progressBar: ProgressBar;
+
+
+    @property(Label)
+    guankaLabel: Label;
+
 
     @property(Label)
     titleLabel: Label;
@@ -115,7 +119,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         super();
     }
     onLoad(): void {
-        this.loadAudio().then();
+       
     }
 
     start() {
@@ -131,10 +135,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.level = (this.sceneModel as any).level;
+            let skewersGameData = (this.sceneModel as any).game;
+            this.progressBar.node.active = true;
+            this.guankaLabel.node.active = true;
+            this.progressBar.progress = skewersGameData.progress;
+            this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
+
+
         } else {
 
             this.level = (this.sceneModel as any).level;
             this.hardIndex = 0;//((this.level % 3) == 0?3:(this.level % 3))-1;
+            this.progressBar.node.active = false;
+            this.guankaLabel.node.active = false;
+            // this.progressBar.progress = this.level/;
         }
         // this.hardIndex = (this.sceneModel as any).difficulty - 1;
         // this.level = (this.sceneModel as any).level;
@@ -147,9 +161,16 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardView();
         // this.timerInit();
 
+       
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.successView.active = false;
-            this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
+            this.loadAudio().then(
+                () => {
+                    this.startGameByAlert();
+                }
+            );
+           
+           // this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
         } else {
             this.successView.active = true;
             this.titleLabel.string = `看牌结束后开始挑战`;
@@ -158,7 +179,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.updateSuccessPopupTitle(1);
             this.successStartButton.node.active = true;
             this.successNextButton.node.active = false;
-
+            this.loadAudio().then();
         }
     }
     clickCardHandler(event, data) {
@@ -382,11 +403,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (this.curHard == this.hards[0]) {
                 this.updateSuccessPopupTitle(2);
                 this.updateSuccessPopupToptxt(this.curHard);
-                this.updateSuccessPopupStar(this.curHard);
+                // this.updateSuccessPopupStar(this.curHard);
             } else if (this.curHard == this.hards[1]) {
                 this.updateSuccessPopupTitle(2);
                 this.updateSuccessPopupToptxt(this.curHard);
-                this.updateSuccessPopupStar(this.curHard);
+                // this.updateSuccessPopupStar(this.curHard);
             } else if (this.curHard == this.hards[2]) {
 
                 this.successView.active = false;
@@ -409,11 +430,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.gameStartInit();
     }
 
-    startGameByAlert(context) {
-        context.isAbleClick = true;
-        context.curHard = context.hards[context.hardIndex];
-        context.cardTotalCount = context.calculCardTotalCount(context.hardIndex);
-        context.gameStartInit();
+    startGameByAlert() {
+        this.isAbleClick = true;
+        this.curHard = this.hards[this.hardIndex];
+        this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
+        this.gameStartInit();
     }
     private _gamecenterNextGame() {
         Global.isAgain = false;
@@ -452,7 +473,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerTick();
         this.closeFailView();
         this.previewCard();
-        this.playAudio("music/bgMusic",false,true);
+        this.playBgmAudio("music/bgMusic",true);
     }
 
     closeFailView() {
@@ -475,7 +496,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.previewCard();
 
-        this.playAudio("music/bgMusic",false,true);
+        this.playBgmAudio("music/bgMusic",true);
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
@@ -711,6 +732,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
         this.playFail();
         // clearInterval(this.timerId);
+        AudioManager.getInstance().stopBgm();
         this.isAbleClick = false
         let { complete, duration } = this.requestGameResult();
         // 倒计时结束，游戏结束

@@ -93,6 +93,7 @@ export class LoginManager {
         GlobalConfigManager.getInstance().init();
     }
 
+    public static InviteCodeResult: string = "InviteCodeResult";
     private setInviteCodeCallBack(data: any) {
         if (data.status == 0) {
             AlertManager.getInstance().showSocketAlert("无效验证码");
@@ -100,7 +101,8 @@ export class LoginManager {
         }
 
         Global.userData.inviteCode = data.data['invite_code'];
-        SceneManager.getInstance().backToHall();
+        EventManager.getInstance().emit(LoginManager.InviteCodeResult, data.data['invite_code']);
+        // SceneManager.getInstance().backToHall();
     }
 
     private requestSendMpCodeHandler(data: any) {
@@ -151,6 +153,7 @@ export class LoginManager {
         if (isNew) {
             // 主动弹出邀请码界面
             UIManager.getInstance().showPanel(VerifyPanel.NAME);
+            EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
             UIManager.getInstance().hidePanel(LoginPanel.NAME);
             // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME);
             // SceneManager.getInstance().backToHall();
@@ -159,6 +162,10 @@ export class LoginManager {
         }
 
         GlobalConfigManager.getInstance().init();
+    }
+
+    private onCloseVerifyPanel(){
+        SceneManager.getInstance().backToHall();
     }
 
     public requestTokenVerification(cb: (result: boolean) => void = null) {

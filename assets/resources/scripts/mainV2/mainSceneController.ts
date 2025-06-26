@@ -1,5 +1,7 @@
 import { _decorator, Component, Node } from 'cc';
 import { PageController } from './PageController';
+import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { ReportManager } from '../ManagerV2/ReportManager';
 
 
 const { ccclass, property } = _decorator;
@@ -10,18 +12,33 @@ export class MainSceneController extends Component {
    pageContainer: Node = null;
    @property(PageController)
    pageController: PageController = null;
-   
 
-    start() {
+    onLoad(){
         // 初始化 PageController
         // this.pageController = this.getComponent(PageController);
         this.pageController.init(this.pageContainer);
         this.pageController.loadIndexPage();
+    }
+
+    start() {
+        DebugLog.instance.log("MainSceneController start");
         
     } 
 
     update(deltaTime: number) {
         
+    }
+
+    showGameCenter(){
+        this.pageController.loadGameCenterPage();
+    }
+
+    showReport(){
+        this.pageController.loadReporterPage();
+    }
+
+    showPersonalCenter(){
+        this.pageController.loadPersonalCenterPage();
     }
 
 

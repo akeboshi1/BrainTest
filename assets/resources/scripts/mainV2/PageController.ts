@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, Color, Sprite, instantiate, Prefab, resources, Label } from 'cc';
 import { ColorUtil } from '../Core/Util/ColorUtil';
 import { DebugLog } from '../Core/Util/DebugLog'; 
+import { ReportManager } from '../ManagerV2/ReportManager';
 
 const { ccclass, property } = _decorator;
 
@@ -21,7 +22,7 @@ export class PageController extends Component {
     private _currentPage: string = 'index';
     private _pageNode: Node = null;
     private _selectedColor: Color = ColorUtil.hexToColor("#0059F7");
-    private _unselectedColor: Color = ColorUtil.hexToColor("#000000");
+    private _unselectedColor: Color = ColorUtil.hexToColor("#949599");
   
 
     public init(pageNode: Node) {
@@ -29,8 +30,6 @@ export class PageController extends Component {
     }
 
     private updateButtonColors(event,index) {
-        
-        console.log("index",index);
         // Reset all buttons to unselected color
         this.navigationButtons.forEach(button => {
            const iconComp = button.getChildByName("icon");
@@ -70,6 +69,7 @@ export class PageController extends Component {
         if (this._pageNode.children.length > 0) {
             this._pageNode.removeAllChildren();
         }
+    // 清空报告列表初始数据
 
         // Load new page
         const pagePath = PageConfig[pageName];
@@ -112,13 +112,16 @@ export class PageController extends Component {
 
     loadReporterPage(){
         this.loadPage('reporter');
+        this.updateButtonColors(null,"2");
     }
 
     loadPersonalCenterPage(){
         this.loadPage('personalCenter');
+        this.updateButtonColors(null,"3");
     }
 
     loadGameCenterPage(){
         this.loadPage('gameCenter');
+        this.updateButtonColors(null,"1");
     }
 } 
