@@ -4,6 +4,26 @@ import {SocketManager} from "db://assets/resources/scripts/Core/Manager/Net/Sock
 import {AlertManager, AlertData } from "../../../Core/Manager/Alert/AlertManager";
 import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 
+/**
+ * SocketData使用示例：
+ * 
+ * // 普通请求（会进行防抖处理）
+ * const normalData = new SocketData({
+ *     action: "login",
+ *     data: { username: "test", password: "123456" }
+ * });
+ * 
+ * // 跳过防抖的请求（不会进行防抖处理）
+ * const skipDebounceData = new SocketData({
+ *     action: "heartbeat",
+ *     data: { timestamp: Date.now() },
+ *     skipDebounce: true
+ * });
+ * 
+ * SocketManager.getInstance().send(normalData);
+ * SocketManager.getInstance().send(skipDebounceData);
+ */
+
 export enum SocketDataStatus{
     None,
     request,
@@ -41,6 +61,11 @@ export class SocketData {
     public netStatus:number = SocketDataStatus.None;
 
     /**
+     * 是否跳过防抖处理
+     */
+    public skipDebounce:boolean = false;
+
+    /**
      * 最大重试次数
      */
     private readonly MAX_RETRY_COUNT: number = 3;
@@ -71,6 +96,7 @@ export class SocketData {
         //==== 通用数据默认处理
         this.uid = data.uid||TimeUtil.getNow();
         this.token = Global.userData.token;
+        this.skipDebounce = data.skipDebounce || false;
     }
 
     /**
@@ -145,6 +171,9 @@ export class SocketData {
 
         // 从SocketManager中移除这个数据
         SocketManager.getInstance().removeSocketData(this);
+
+        // 重置skipDebounce
+        this.skipDebounce = false;
     }
 
     /**
