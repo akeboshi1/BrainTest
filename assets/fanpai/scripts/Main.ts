@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D, Vec3, tween, assetManager } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -36,9 +36,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     bigWin: Node;
 
     @property(Node)
-    timeNode: Node;
-
-    @property(Node)
     cardPool: Node;
 
     @property(Node)
@@ -67,6 +64,14 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     @property(Label)
     failViewProgressLabel: Label;
+
+    @property(ProgressBar)
+    progressBar: ProgressBar;
+
+
+    @property(Label)
+    guankaLabel: Label;
+
 
     @property(Label)
     titleLabel: Label;
@@ -130,10 +135,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.level = (this.sceneModel as any).level;
+            let skewersGameData = (this.sceneModel as any).game;
+            this.progressBar.node.active = true;
+            this.guankaLabel.node.active = true;
+            this.progressBar.progress = skewersGameData.progress;
+            this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
+
+
         } else {
 
             this.level = (this.sceneModel as any).level;
             this.hardIndex = 0;//((this.level % 3) == 0?3:(this.level % 3))-1;
+            this.progressBar.node.active = false;
+            this.guankaLabel.node.active = false;
+            // this.progressBar.progress = this.level/;
         }
         // this.hardIndex = (this.sceneModel as any).difficulty - 1;
         // this.level = (this.sceneModel as any).level;
@@ -388,11 +403,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (this.curHard == this.hards[0]) {
                 this.updateSuccessPopupTitle(2);
                 this.updateSuccessPopupToptxt(this.curHard);
-                this.updateSuccessPopupStar(this.curHard);
+                // this.updateSuccessPopupStar(this.curHard);
             } else if (this.curHard == this.hards[1]) {
                 this.updateSuccessPopupTitle(2);
                 this.updateSuccessPopupToptxt(this.curHard);
-                this.updateSuccessPopupStar(this.curHard);
+                // this.updateSuccessPopupStar(this.curHard);
             } else if (this.curHard == this.hards[2]) {
 
                 this.successView.active = false;
@@ -717,6 +732,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
         this.playFail();
         // clearInterval(this.timerId);
+        AudioManager.getInstance().stopBgm();
         this.isAbleClick = false
         let { complete, duration } = this.requestGameResult();
         // 倒计时结束，游戏结束
