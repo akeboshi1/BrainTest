@@ -30,8 +30,6 @@ export class PageController extends Component {
     }
 
     private updateButtonColors(event,index) {
-        
-        console.log("index",index);
         // Reset all buttons to unselected color
         this.navigationButtons.forEach(button => {
            const iconComp = button.getChildByName("icon");

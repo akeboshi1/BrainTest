@@ -108,80 +108,80 @@ export class PersonalCenterManager {
         }
     }
     //获取个人报告
-    // public getPersonalReport() {
-    //     EventManager.getInstance().on(this.user_get_report, this.requestPersonalReportCallback, this, true);
-    //     let requestPersonalReportSocket: SocketData = new SocketData({
-    //         action: this.user_get_report
-    //     });
-    //     SocketManager.getInstance().send(requestPersonalReportSocket);
-    // }
+    public getPersonalReport() {
+        EventManager.getInstance().on(this.user_get_report, this.requestPersonalReportCallback, this, true);
+        let requestPersonalReportSocket: SocketData = new SocketData({
+            action: this.user_get_report
+        });
+        SocketManager.getInstance().send(requestPersonalReportSocket);
+    }
 
-    // public requestPersonalReportCallback(data: SocketData, context: any) {
-    //     EventManager.getInstance().off(this.user_get_report,context);
-    //     if (data.status == 0) {
-    //         DebugLog.instance.error(data.message);
-    //     } else {
-    //         let result = data.data['result'];
-    //         if (result.length == 0) {
-    //             // DebugLog.instance.log('暂无个人报告');
-    //             EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
-    //             return;
-    //         }
-    //     // DebugLog.instance.log("个人报告数据", result);
-    //       this._reportDataList=  this.proccess(result);
-    //       EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
-    //     }
-    // }
+    public requestPersonalReportCallback(data: SocketData, context: any) {
+        EventManager.getInstance().off(this.user_get_report,context);
+        if (data.status == 0) {
+            DebugLog.instance.error(data.message);
+        } else {
+            let result = data.data['result'];
+            if (result.length == 0) {
+                // DebugLog.instance.log('暂无个人报告');
+                EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
+                return;
+            }
+        // DebugLog.instance.log("个人报告数据", result);
+          this._reportDataList=  this.proccess(result);
+          EventManager.getInstance().emit(PersonalCenterManager.personalReportCallback, {});
+        }
+    }
 
-    // proccess(data: any[]) { 
-    //     const ablityList = Object.keys(ReportAblity);
+    proccess(data: any[]) { 
+        const ablityList = Object.keys(ReportAblity);
     
-    //     const rs = []
+        const rs = []
     
-    //     ablityList.forEach(ab => {
-    //         const element = {
-    //             abilityEnum: ReportAblity[ab],
-    //             lastlastWeek: 0,
-    //             lastWeek: 0,
-    //             currentWeek: 0,
-    //             latestScore:0,
-    //             age_group_percentile: 0,
-    //         }
-    //         data.forEach(e => {
-    //             const abilityScore = e.scores.find(s => s.cog_ability == ab);
-    //             if (abilityScore) {
-    //                 const dateKey = this.judgeTimePeriod(e.report_date);
-    //                 element[dateKey] = abilityScore.score;
+        ablityList.forEach(ab => {
+            const element = {
+                abilityEnum: ReportAblity[ab],
+                lastlastWeek: 0,
+                lastWeek: 0,
+                currentWeek: 0,
+                latestScore:0,
+                age_group_percentile: 0,
+            }
+            data.forEach(e => {
+                const abilityScore = e.scores.find(s => s.cog_ability == ab);
+                if (abilityScore) {
+                    const dateKey = this.judgeTimePeriod(e.report_date);
+                    element[dateKey] = abilityScore.score;
         
-    //                 if (e.is_latest) {
-    //                     element.latestScore = abilityScore.score;
-    //                     element.age_group_percentile = abilityScore.age_group_percentile;
-    //                 }
-    //             }
-    //         })
+                    if (e.is_latest) {
+                        element.latestScore = abilityScore.score;
+                        element.age_group_percentile = abilityScore.age_group_percentile;
+                    }
+                }
+            })
     
-    //         rs.push(element)
-    //     })
+            rs.push(element)
+        })
      
-    //     return rs
-    // }
-    // judgeTimePeriod(ts) {
-    //     const targetDate = new Date(ts);
-    //     const today = new Date();
-    //     const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        return rs
+    }
+    judgeTimePeriod(ts) {
+        const targetDate = new Date(ts);
+        const today = new Date();
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
     
-    //     const twoWeeksAgo = new Date(startOfWeek.getTime() - 14 * 24 * 60 * 60 * 1000);
-    //     const oneWeekAgo = new Date(startOfWeek.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const twoWeeksAgo = new Date(startOfWeek.getTime() - 14 * 24 * 60 * 60 * 1000);
+        const oneWeekAgo = new Date(startOfWeek.getTime() - 7 * 24 * 60 * 60 * 1000);
     
-    //     if (targetDate >= twoWeeksAgo && targetDate < oneWeekAgo) {
-    //         return "lastlastWeek";
-    //     } else if (targetDate >= oneWeekAgo && targetDate < startOfWeek) {
-    //         return "lastWeek";
-    //     } else if (targetDate >= startOfWeek && targetDate < new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000)) {
-    //         return "currentWeek";
-    //     }
-    //     return "";
-    // }
+        if (targetDate >= twoWeeksAgo && targetDate < oneWeekAgo) {
+            return "lastlastWeek";
+        } else if (targetDate >= oneWeekAgo && targetDate < startOfWeek) {
+            return "lastWeek";
+        } else if (targetDate >= startOfWeek && targetDate < new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000)) {
+            return "currentWeek";
+        }
+        return "";
+    }
 }
 
 

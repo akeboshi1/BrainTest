@@ -105,7 +105,6 @@ export class ReportManager {
         }
     }
     processReportData(reportDataList: ReportData[]) {
-        // console.log('processReportData1', reportDataList);
         // 期望的顺序
         const expectedOrder = ['LANGUAGE', 'JUDGMENT', 'MEMORY', 'EXECUTION', 'CALCULATION'];
         const sortedReportDataList = expectedOrder.map(ability => {
@@ -113,7 +112,6 @@ export class ReportManager {
         }).filter(item => item !== undefined);
         reportDataList.length = 0;
         reportDataList.push(...sortedReportDataList);
-        // console.log('processReportData2', reportDataList);
     }
 
     public getPersonalInitialReport() {
