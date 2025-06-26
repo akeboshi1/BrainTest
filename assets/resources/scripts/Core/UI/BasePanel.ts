@@ -1,4 +1,4 @@
-import { _decorator, Node, tween, UITransform, Vec3 } from 'cc';
+import { _decorator, Node, tween, UITransform, Vec3, screen } from 'cc';
 import { BaseObejct } from "../../../scripts/Core/Object/BaseObject";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { LayerUtil } from '../Util/LayerUtil';
@@ -61,7 +61,7 @@ export class BasePanel extends BaseObejct {
             return;
         }
         await new Promise<void>((resolve, reject) => {
-            const screenWidth = LayerUtil.getPanelLayer().getComponent(UITransform).width;
+            const screenWidth = screen.windowSize.width;
             const startPos = new Vec3(screenWidth, 0, 0);
             this.node.setPosition(startPos);
             tween(this.node)
@@ -81,7 +81,7 @@ export class BasePanel extends BaseObejct {
             return;
         }
         await new Promise<void>((resolve, reject) => {
-            const screenWidth = LayerUtil.getPanelLayer().getComponent(UITransform).width;
+            const screenWidth = screen.windowSize.width;
             tween(this.node)
                 .to(0.3, { position: new Vec3(screenWidth, 0, 0) }, { easing: 'quartIn' })
                 .call(() => {
