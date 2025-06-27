@@ -414,7 +414,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 420,
+      "width": 480,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -450,7 +450,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "欢迎登录可乐派",
+    "_string": "欢迎登录派派智护",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -609,7 +609,7 @@
       "b": 204,
       "a": 255
     },
-    "_string": "未注册的手机号再接收协议并填入我们发送的验证码后将自动创建可乐派账号",
+    "_string": "未注册的手机号再接收协议并填入我们发送的验证码后将自动创建派派智护账号",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 35,

@@ -147,7 +147,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             // 非串烧任务时，显示介绍界面
             let alertData: AlertData = new AlertData();
             alertData.title = "提示";
-            alertData.message = "请认真聆听\"可乐派\"给出的题目，然后在选项中选出正确答案！";
+            alertData.message = "请认真聆听\"派派智护\"给出的题目，然后在选项中选出正确答案！";
             alertData.confirmButtonText = "开始游戏";
             alertData.cancelButtonVisible = false;
             alertData.confirmCb = this.startGameFlow.bind(this);
