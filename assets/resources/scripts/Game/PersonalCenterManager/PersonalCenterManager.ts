@@ -182,6 +182,15 @@ export class PersonalCenterManager {
         }
         return "";
     }
+    clean(){
+        if(this._userInfoData){
+            this._userInfoData = null;
+        }
+        if(this._reportDataList){
+            this._reportDataList = null;
+        }
+    }
 }
+
 
 
