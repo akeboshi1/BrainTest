@@ -5,38 +5,116 @@
 export interface VideoConfig {
     path: string;    // 视频路径
     duration: number; // 视频时长（秒）
-    loopCount: number; // 视频循环次数
+}
+
+export interface SectionConfig {
+    previewVideo: VideoConfig;  // 预览视频
+    demoVideo: VideoConfig;     // 演示视频
+    name: string;              // 节的名称
+}
+
+export interface SetConfig {
+    name: string;              // 这套手指操的名称
+    sections: SectionConfig[]; // 该套手指操包含的所有节
+    description?: string;      // 这套手指操的描述（可选）
+    icon?: string;             // 这套手指操的图标（可选）
 }
 
 export interface FingerGameConfig {
-    warmUpVideo: VideoConfig;  // 热身视频配置
-    fingerVideos: VideoConfig[]; // 手指操视频配置列表
+    fingerSets: SetConfig[];    // 所有手指操套装
 }
 
 export const fingerGameConfig: FingerGameConfig = {
-    // 热身视频配置
-    warmUpVideo: {
-        path: "video/warmup",
-        duration: 5,
-        loopCount: -1
-    },
-    
-    // 手指操视频配置
-    fingerVideos: [
+    // 手指操套装配置
+    fingerSets: [
         {
-            path: "video/finger_exercise_1",
-            duration: 3,
-            loopCount: 8
+            name: "第一套手指操",
+            description: "基础入门手指操",
+            icon: "image/setsImage/set_1/spriteFrame",
+            sections: [
+                {
+                    name: "第一节",
+                    previewVideo: {
+                        path: "video/set1/1_preview",
+                        duration: 55
+                    },
+                    demoVideo: {
+                        path: "video/set1/1_demo",
+                        duration: 25
+                    }
+                },
+                {
+                    name: "第二节",
+                    previewVideo: {
+                        path: "video/set1/1_preview",
+                        duration: 55
+                    },
+                    demoVideo: {
+                        path: "video/set1/1_demo",
+                        duration: 25
+                    }
+                },
+                {
+                    name: "第三节",
+                    previewVideo: {
+                        path: "video/set1/1_preview",
+                        duration: 55
+                    },
+                    demoVideo: {
+                        path: "video/set1/1_demo",
+                        duration: 25
+                    }
+                },  
+                {
+                    name: "第四节",
+                    previewVideo: {
+                        path: "video/set1/1_preview",
+                        duration: 55
+                    },
+                    demoVideo: {
+                        path: "video/set1/1_demo",
+                        duration: 25
+                    }
+                },
+                {
+                    name: "第五节",
+                    previewVideo: {
+                        path: "video/set1/1_preview",
+                        duration: 55
+                    },
+                    demoVideo: {
+                        path: "video/set1/1_demo",
+                        duration: 25
+                    }
+                },  
+                {
+                    name: "第六节",
+                    previewVideo: {
+                        path: "video/set1/1_preview",
+                        duration: 55
+                    },
+                    demoVideo: {
+                        path: "video/set1/1_demo",
+                        duration: 25
+                    }
+                }
+            ]
         },
         {
-            path: "video/finger_exercise_2",
-            duration: 3,
-            loopCount: 8
+            name: "第二套手指操",
+            description: "进阶手指操",
+            icon: "image/setsImage/set_1/spriteFrame",
+            sections: [
+                
+            ]
         },
         {
-            path: "video/finger_exercise_3",
-            duration: 3,
-            loopCount: 8
+            name: "第三套手指操",
+            description: "高难度手指操",
+            icon: "image/setsImage/set_1/spriteFrame",
+            sections: [
+                
+            ]
         }
     ]
 }; 
