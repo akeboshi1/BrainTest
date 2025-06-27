@@ -1206,7 +1206,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 59.2,
+      "x": 82.5,
       "y": -733,
       "z": 0
     },
@@ -1245,7 +1245,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 210,
+      "width": 280,
       "height": 88.2
     },
     "_anchorPoint": {
@@ -1275,7 +1275,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "可乐派",
+    "_string": "派派智护",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 70,

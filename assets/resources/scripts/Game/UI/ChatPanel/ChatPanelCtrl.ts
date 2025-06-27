@@ -44,7 +44,7 @@ export class ChatPanelCtrl extends BasePanel {
 
     private chatMessageCachesMap: Map<string, string> = new Map();
 
-    private speakerTitle: string[] = ["可乐派：", "你："];
+    private speakerTitle: string[] = ["派派智护：", "你："];
 
     private ttsClosedHandler: ()=>void = null;
 
