@@ -53,6 +53,7 @@ export class IndexPageView extends Component {
         PersonalCenterManager.getInstance().requestUserInfo();
     }
     onEnable() {
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this); 
 
