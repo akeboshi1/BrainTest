@@ -17,6 +17,7 @@ import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/Aud
 import { NativeEvent } from "../Event/NativeEvent";
 import { native, sys } from "cc";
 import {AlterUserInfoView} from "db://assets/resources/scripts/UserCenterV2/AlterUserInfoView";
+import {PersonalCenterManager} from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -225,6 +226,7 @@ export class LoginManager {
         EventManager.getInstance().destory();
         AudioManager.getInstance().destory();
         SocketManager.getInstance().cleanSocketDatas();
+        PersonalCenterManager.getInstance().clean();
         SceneManager.getInstance().changeScene(BundleName.RESOURCES, "start", BundleName.RESOURCES).then(() => {
             DebugLog.instance.log(`start场景切换成功`);
         });

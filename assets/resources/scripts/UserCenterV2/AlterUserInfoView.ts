@@ -7,6 +7,7 @@ import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import {VerifyPanel} from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
+import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('AlterUserInfoView')
@@ -34,6 +35,11 @@ export class AlterUserInfoView extends BasePanel {
     nickNameEditBox: EditBox = null;
     @property(EditBox)
     nameEditBox:EditBox =null;
+    @property(Node)
+    backBtnNode:Node = null;
+    @property(Label)
+    title:Label = null;
+
     private user_birthday='';
     private user_sex=0;
     private user_nick_name='';
@@ -46,6 +52,7 @@ export class AlterUserInfoView extends BasePanel {
         this.nameEditBox.node.off('editing-did-begin');
         this.nameEditBox.node.off('editing-did-ended');
     }
+
     onEnable(): void {
         this.nickNameEditBox.node.on('editing-did-began', this.onInputStarted, this);
         this.nickNameEditBox.node.on('editing-did-ended', this.nickNameInputFinished, this);
@@ -56,6 +63,8 @@ export class AlterUserInfoView extends BasePanel {
     private loginEmitboo = false;
     restore(data){
         if(data !=null)this.loginEmitboo = data;
+        this.backBtnNode.active = !this.loginEmitboo;
+        this.title.string = this.loginEmitboo ? "完善信息" : "修改信息";
     }
     onInputStarted() {
         DebugLog.instance.log("onInputStarted", this.nickNameEditBox.string)
@@ -70,7 +79,8 @@ export class AlterUserInfoView extends BasePanel {
         DebugLog.instance.log("onInputFinished", this.user_name)
     }
     start() {
-        this.initUserInfoPanel();
+        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.initUserInfoPanel, this,true);
+        PersonalCenterManager.getInstance().requestUserInfo();
     }
     initUserInfoPanel() {
         let userData = PersonalCenterManager.getInstance().userInfoData;
@@ -131,8 +141,8 @@ export class AlterUserInfoView extends BasePanel {
         this.commonSelector.scrollToSelection(sexStr);
     }
     clickEducation(){
-        this.commonSelector.setOptions(["初中及以下","高中","大专","本科","硕士及以上"]);
-        this.commonSelector.callback = this.onEducationChanged.bind(this);
+        this.comEducationSelect.setOptions(["初中及以下","高中","大专","本科","硕士及以上"]);
+        this.comEducationSelect.callback = this.onEducationChanged.bind(this);
         this.comEducationNode.active = true;
         let educationStr = this.educationLabel.string;
         this.comEducationSelect.scrollToSelection(educationStr);
