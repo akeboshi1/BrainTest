@@ -22,6 +22,7 @@ export class TaskItemController extends Component {
     private button: Node = null;
     private taskIndex: number = -1;
 
+    private _clickCallBack:()=>void = null;
     onEnable() {
         // 添加按钮点击事件监听
         if (this.button) {
@@ -36,20 +37,16 @@ export class TaskItemController extends Component {
     }
 
     private onButtonClick() {
-        if (this.taskIndex==0) {
-            this.onFirstTaskClick();
-        } else if (this.taskIndex==1) {
-            this.onOtherTaskClick();
+        if(this._clickCallBack){
+            this._clickCallBack();
         }
     }
-    onFirstTaskClick() {
-        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
-        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
-    }
-    onOtherTaskClick() {
-        console.log(`Task ${this.taskIndex} clicked`);
+
+    setClickCallback(clickCallBack:()=>void){
+        this._clickCallBack = clickCallBack;
     }
 
+    // 设置任务索引
     setTaskIndex(index: number) {
         this.taskIndex = index;
     }

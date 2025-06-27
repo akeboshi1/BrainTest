@@ -14,6 +14,7 @@ import { RadiaGraph } from './RadiaGraph';
 import { TaskItemController } from './TaskItemController';
 import { TaskContainerConfig } from './TaskContainerConfig';
 import { TaskManager } from '../Game/Task/TaskManager';
+import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 
 const { ccclass, property } = _decorator;
 
@@ -117,9 +118,18 @@ export class IndexPageView extends Component {
             await taskController.setTaskBg(taskdata[i].icon_bg);
             await taskController.setTaskIcon(taskdata[i].icon);
             taskController.setIsComplete(taskdata[i].is_complete);
+            taskController.setClickCallback(this[taskdata[i].click_function_name].bind(this))
             taskController.node.parent = this.taskContainer;
-
         }
+    }
+
+    showBrainTrainingPanel(){
+        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME); 
+    }
+
+    navigatetoFingerGame(){
+        console.log("go to fingergame");
     }
 
     setTaskItem() {
