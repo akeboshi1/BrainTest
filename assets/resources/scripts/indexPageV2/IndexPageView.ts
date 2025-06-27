@@ -53,7 +53,7 @@ export class IndexPageView extends Component {
         PersonalCenterManager.getInstance().requestUserInfo();
     }
     onEnable() {
-        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
+       
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this); 
 
@@ -61,6 +61,7 @@ export class IndexPageView extends Component {
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);      
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
     }
     // 获取大脑训练等级回调函数
     getBrainTrainingTiersCallback() {
