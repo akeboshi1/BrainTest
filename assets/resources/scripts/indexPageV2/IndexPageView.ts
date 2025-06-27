@@ -15,6 +15,9 @@ import { TaskItemController } from './TaskItemController';
 import { TaskContainerConfig } from './TaskContainerConfig';
 import { TaskManager } from '../Game/Task/TaskManager';
 import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
+import { Global } from '../Core/Manager/Config/Global';
+import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/BundlePreloadManager';
+import { SceneManager } from '../Core/Manager/Scene/SceneManager';
 
 const { ccclass, property } = _decorator;
 
@@ -127,9 +130,23 @@ export class IndexPageView extends Component {
         UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
         UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME); 
     }
-
+    private _clickBoo = false;
     navigatetoFingerGame(){
         console.log("go to fingergame");
+        if (this._clickBoo) {
+            return;
+        }
+        this._clickBoo = true;
+        let url = Global.RES_Root + BundleName.FINGERGAME;
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.FINGERGAME), this, true);
+        BundlePreloadManager.getInstance().preload(BundleName.FINGERGAME);
+    }
+    private onPreloadFinish(url: string, sceneName: string, data: any) {
+        let self = this;
+        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+            self._clickBoo = false;
+            DebugLog.instance.log(`${sceneName} 场景切换成功`);
+        });
     }
 
     setTaskItem() {
