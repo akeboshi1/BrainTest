@@ -8,6 +8,7 @@ import { EventManager } from '../Core/Manager/Event/EventManager';
 import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 import { VerifyPanel } from '../Game/UI/Login/VerifyPanel';
 import { MySetView } from './MySetView';
+import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('UserCenterPanel')
@@ -39,7 +40,19 @@ export class UserCenterPanel extends Component {
       this.userName.string = title;
    }
    onClickLogOut() {
-      LoginManager.getInstance().loginout();
+      const alertData: AlertData = new AlertData();
+      alertData.title = "确定要退出登录吗？";
+      alertData.message = "退出后将返回登录界面";
+      alertData.cancelButtonVisible = true;
+      alertData.cancelButtonText = "取消";
+      alertData.confirmButtonText = "确定";
+      alertData.confirmCb = () => {
+         LoginManager.getInstance().loginout();
+      };
+      alertData.cancelCb = () => {
+         // 取消操作，不需要做任何处理
+      };
+      AlertManager.getInstance().showAlert(alertData);
    }
    onClickAlterUserInfo() {
       UIManager.getInstance().registerPanel(AlterUserInfoView.NAME, BundleName.RESOURCES, "/prefabV2/personalCenter/alterUserInfo", AlterUserInfoView);

@@ -16,6 +16,7 @@ import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { NativeEvent } from "../Event/NativeEvent";
 import { native, sys } from "cc";
+import {AlterUserInfoView} from "db://assets/resources/scripts/UserCenterV2/AlterUserInfoView";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -45,6 +46,7 @@ export class LoginManager {
 
     init() {
         UIManager.getInstance().registerPanel(LoginPanel.NAME, BundleName.RESOURCES, "prefab/LoginPanel", LoginPanel);
+        UIManager.getInstance().registerPanel(AlterUserInfoView.NAME, BundleName.RESOURCES, "/prefabV2/personalCenter/alterUserInfo", AlterUserInfoView);
         UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
         UIManager.getInstance().registerPanel(GenerateReport.NAME, BundleName.RESOURCES, "prefab/personalCenter/GenerateReport", GenerateReport);
     }
@@ -94,6 +96,8 @@ export class LoginManager {
     }
 
     public static InviteCodeResult: string = "InviteCodeResult";
+    public static LoginByTokenResult: string = "LoginByTokenResult";
+
     private setInviteCodeCallBack(data: any) {
         if (data.status == 0) {
             AlertManager.getInstance().showSocketAlert("无效验证码");
@@ -101,7 +105,7 @@ export class LoginManager {
         }
 
         Global.userData.inviteCode = data.data['invite_code'];
-        EventManager.getInstance().emit(LoginManager.InviteCodeResult, data.data['invite_code']);
+        EventManager.getInstance().emit(LoginManager.LoginByTokenResult, data.data['invite_code']);
         // SceneManager.getInstance().backToHall();
     }
 
@@ -151,10 +155,12 @@ export class LoginManager {
         // 根据是否是新用户来调整ui显示逻辑
         let isNew = data.data["is_new"];
         if (isNew) {
-            // 主动弹出邀请码界面
-            UIManager.getInstance().showPanel(VerifyPanel.NAME);
-            EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
+
+            UIManager.getInstance().showPanel(AlterUserInfoView.NAME,true);
             UIManager.getInstance().hidePanel(LoginPanel.NAME);
+
+            // 主动弹出邀请码界面
+            EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
             // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME);
             // SceneManager.getInstance().backToHall();
         } else {
