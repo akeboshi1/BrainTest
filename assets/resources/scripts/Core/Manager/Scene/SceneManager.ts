@@ -9,6 +9,9 @@ import { BundleName } from '../Load/BundleName';
 import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';
 import { GenerateReport } from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { EventManager } from '../Event/EventManager';
+import {
+    TaskAndNotificationPanelCtrl
+} from "db://assets/resources/scripts/Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl";
 
 export class SceneManager extends BaseManager {
 
@@ -189,10 +192,8 @@ export class SceneManager extends BaseManager {
             let url = Global.RES_Root + GameSceneConst.Hall;
             SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2", BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回串烧游戏界面');
-                let node = find("Canvas");
-                let scriptNode = node.getChildByName("scriptNode");
-                let mainScene = scriptNode.getComponent("MainScene");
-                // mainScene['setCurrentIndex'](MainSceneView.TaskProgressView);
+                UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+                UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
                 resolve();
             }).catch(err => {
                 reject(err);
