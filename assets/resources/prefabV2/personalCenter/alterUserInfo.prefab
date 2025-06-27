@@ -3433,7 +3433,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 204.609375,
+      "width": 210,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -3472,11 +3472,11 @@
     "_string": "1990-00-00",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
+    "_actualFontSize": 41,
     "_fontSize": 40,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
-    "_overflow": 1,
+    "_overflow": 2,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
@@ -4111,7 +4111,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -184.422,
+      "x": -180,
       "y": 0,
       "z": 0
     },
@@ -4152,7 +4152,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 200,
+      "width": 210,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -4191,11 +4191,11 @@
     "_string": "请选择学历",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
+    "_actualFontSize": 41,
     "_fontSize": 40,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
-    "_overflow": 1,
+    "_overflow": 2,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
