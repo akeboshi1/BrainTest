@@ -11,6 +11,7 @@ import FeatureTogglesSetting, { FeatureToggle } from '../../../FeatureTogglesSet
 import { NativeEventManager } from '../../../Core/Manager/Event/NativeEventManager';
 import { XieYiPanel } from '../Login/XieYiPanel';
 import { VerifyPanel } from '../Login/VerifyPanel';
+import { AlertManager, AlertData } from '../../../Core/Manager/Alert/AlertManager';
 
 const { ccclass, property } = _decorator;
 
@@ -114,7 +115,19 @@ export class PersonalCenterPanel extends BasePanel {
     }
 
     onClickLogOut() {
-       LoginManager.getInstance().loginout();
+        const alertData: AlertData = new AlertData();
+        alertData.title = "确定要退出登录吗？";
+        alertData.message = "退出后将返回登录界面";
+        alertData.cancelButtonVisible = true;
+        alertData.cancelButtonText = "取消";
+        alertData.confirmButtonText = "确定";
+        alertData.confirmCb = () => {
+            LoginManager.getInstance().loginout();
+        };
+        alertData.cancelCb = () => {
+            // 取消操作，不需要做任何处理
+        };
+        AlertManager.getInstance().showAlert(alertData);
     }
 }
 

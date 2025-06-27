@@ -6,6 +6,7 @@ import { DebugLog } from '../Core/Util/DebugLog';
 import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
+import {VerifyPanel} from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('AlterUserInfoView')
@@ -50,6 +51,11 @@ export class AlterUserInfoView extends BasePanel {
         this.nickNameEditBox.node.on('editing-did-ended', this.nickNameInputFinished, this);
         this.nameEditBox.node.on('editing-did-began', this.onInputStarted, this);
         this.nameEditBox.node.on('editing-did-ended', this.nameInputFinished, this);
+    }
+
+    private loginEmitboo = false;
+    restore(data){
+        if(data !=null)this.loginEmitboo = data;
     }
     onInputStarted() {
         DebugLog.instance.log("onInputStarted", this.nickNameEditBox.string)
@@ -186,6 +192,10 @@ export class AlterUserInfoView extends BasePanel {
     }
     backToParent() {
         UIManager.getInstance().hidePanel(AlterUserInfoView.NAME);
+        if(this.loginEmitboo) {
+            // 主动弹出邀请码界面
+            UIManager.getInstance().showPanel(VerifyPanel.NAME);
+        }
     }
 }
 
