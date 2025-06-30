@@ -181,7 +181,7 @@ export default class GameView extends LayerPanel {
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
                 let _hard = CacheMgr.hard;
-                this._checkPoint = FindingGlobal.gameCenterGameLevel;
+                this._checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
                 if(Global.isAgain){
                     CacheMgr.hard --;
                     _hard = _hard<0?0:_hard-1;
@@ -819,10 +819,12 @@ export default class GameView extends LayerPanel {
         let isWin = Boolean(this.resultList.length / this._maxCount >= 1);
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
+        // 使用正确的关卡值，优先使用FindingGlobal.gameCenterGameLevel
+        let currentLevel = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: this.resultList.length,
-            level: CacheMgr.checkpoint,
+            level: currentLevel,
             complete: this.resultList.length / this._maxCount,
             duration,
             timelimit: GameConfig.customTime,

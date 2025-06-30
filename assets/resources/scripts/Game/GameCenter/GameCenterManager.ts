@@ -285,6 +285,12 @@ export class GameCenterManager {
             this._curGame.difficulty = data.data.difficulty == 3?3 : data.data.difficulty % 3 + 1;
         }
 
+        // 通过事件机制通知子包更新进度，避免主包和子包的循环依赖
+        EventManager.getInstance().emit("GAME_CENTER_LEVEL_UPDATE", {
+            level: Number(data.data.level),
+            difficulty: data.data.difficulty,
+            levelMode: data.data.level_mode
+        });
 
         EventManager.getInstance().off(GameCenterManager.GAMEPASSLEVEL, context);
         let gsData = this._callbackDic.get(GameCenterManager.GAMEPASSLEVEL);

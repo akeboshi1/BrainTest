@@ -1,19 +1,20 @@
-import PanelMgr, { Layer, View } from "../Common/manage/PanelMgr";
+import { _decorator, Component, director } from "cc";
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import PanelMgr, { Layer } from "../Common/manage/PanelMgr";
+import HomeView from "../Moudle/View/HomeView";
+import GameView from "../Moudle/View/GameView";
+import { GameType } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import FindingGlobal from "../Common/FindingGlobal";
 import Emit from "../Common/manage/Emit/Emit";
 import { EventCode } from "../Common/manage/Emit/EmitData";
-import HomeView from "../Moudle/View/HomeView";
-import { _decorator, director, JsonAsset, Node } from "cc";
 import AudioMgr from "../Common/manage/AudioMgr";
-import GameView from "../Moudle/View/GameView";
-import {IBaseGameChild, GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import CacheMgr from "db://assets/finding/script/Common/manage/CacheMgr";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
-import FindingGlobal from "../Common/FindingGlobal";
 import GameConfig from "../Moudle/Game/GameConfig";
+import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 //
 // macro.CLEANUP_IMAGE_CACHE = false;
 // dynamicAtlasManager.enabled = true;
+
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -28,9 +29,16 @@ export class Game extends BaseScene<IBaseGameChild> {
         Emit.instance().on(EventCode.PanelMgrInitOK, this.do_after_panelMgr_initOK, this)
     }
 
-    start(): void {
+    start() {
         super.start();
         Game.Ins = this;
+        // 初始化FindingGlobal的事件监听器
+        FindingGlobal.initEventListeners();
+        
+        // 监听PanelMgr初始化完成事件
+        Emit.instance().on(EventCode.PanelMgrInitOK, () => {
+            this.do_after_panelMgr_initOK();
+        }, this);
     }
 
     setGameViewRef(view: GameView) {
@@ -85,6 +93,13 @@ export class Game extends BaseScene<IBaseGameChild> {
             })
         } else {
             // 如果不是串烧游戏，走正常流程打开HomeView
+            // 确保非串烧游戏使用正确的进度
+            let checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : (this.sceneModel as any).level;
+            if (checkPoint == 0) {
+                checkPoint = 1;
+            }
+            FindingGlobal.gameCenterGameLevel = checkPoint;
+            
             PanelMgr.INS.openPanel({
                 layer: Layer.gameLayer,
                 panel: HomeView,
