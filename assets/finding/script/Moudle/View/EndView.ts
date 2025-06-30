@@ -28,17 +28,14 @@ export default class EndView extends LayerPanel {
     private btn1Node: Node = null;
     private btn2Node: Node = null;
 
-    private effectNode: Node = null;
-
     private getOver: boolean = false;
 
     private loseTitle: Node = null;
 
     private winTitle:Node = null;
 
-    private winImage:Node = null;
+    private titlelabel:Label = null;
 
-    private loseImage:Node = null;
 
     hide() {
     }
@@ -49,12 +46,7 @@ export default class EndView extends LayerPanel {
             this.btn2Node = this.getNode("result/btnGroup/btn2");
             this.loseTitle = this.getNode("result/title");
             this.winTitle = this.getNode("result/titleImage");
-            this.winImage = this.getNode("result/success");
-            this.loseImage = this.getNode("result/lose");
-            this.winTitle.active = this.winImage.active = false;
-            this.loseTitle.active =this.loseImage.active =  false;
-            this.effectNode = this.getNode("result/particle");
-            this.effectNode.active = false;
+            this.titlelabel = this.getNode("result/top_txt1").getComponent(Label);
             resolve();
         })
     }
@@ -68,14 +60,20 @@ export default class EndView extends LayerPanel {
 
     public initEnd() {
         if (this.result) {
-            this.winTitle.active = this.winImage.active = true;
-            this.loseTitle.active =this.loseImage.active =  false;
             this.btn1Node.active = false;
+            this.loseTitle.active = false;
+            this.winTitle.active = true;
+            this.winTitle.setPosition(-200, 0, 0);
+            EndView.bezierTo(this.winTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
+            this.titlelabel.string = "恭喜通关";
+            this.titlelabel.node.setPosition(-200, 0, 0);
+            EndView.bezierTo(this.titlelabel.node, 0.5, v3(-200, 0, 0), v3(-100, 200, 0), v3(0, 0, 0), {}).start();
             AudioMgr.play("sub/audio/view/game/win", 1, false).then();
         } else {
-            this.winTitle.active = this.winImage.active = false;
-            this.loseTitle.active =this.loseImage.active =  true;
             this.btn1Node.active = true;
+            this.loseTitle.active = true;
+            this.winTitle.active = false;
+            this.titlelabel.string = "请再接再厉";
             AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
         }
     }

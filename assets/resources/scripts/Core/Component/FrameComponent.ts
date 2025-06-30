@@ -12,6 +12,16 @@ export class FrameComponent extends Component {
     @property({ type: SpriteAtlas })
     spriteAtlas: SpriteAtlas = null;
 
+    @property({
+        tooltip: "当非循环动画播放完毕后，是否自动隐藏节点"
+    })
+    hideOnComplete: boolean = true;
+
+    @property({
+        tooltip: "是否自动调整Sprite大小以适应节点大小"
+    })
+    autoResize: boolean = true;
+
     // 用于存储不同动画名对应的SpriteFrame数组，即动画序列帧
     private animationFrames: { [key: string]: SpriteFrame[] } = {};
 
@@ -102,12 +112,19 @@ export class FrameComponent extends Component {
                         } else {
                             this.isPlaying = false;
                             this.currentFrameIndex = frames.length - 1;
+                            if (this.hideOnComplete) {
+                                this.sprite.spriteFrame = null;
+                                return;
+                            }
                         }
                     }
+                    
                 }
                 const frameIndex = Math.floor(this.currentFrameIndex);
                 this.sprite.spriteFrame = frames[frameIndex];
-                this.resizeSpriteFrameToNodeSize();
+                if (this.autoResize) {
+                    this.resizeSpriteFrameToNodeSize();
+                }
             }
         }
     }
