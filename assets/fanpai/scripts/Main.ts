@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager, game } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager, game,Game, ParticleAsset } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -10,6 +10,8 @@ import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/Aud
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
+
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -203,8 +205,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         let self = this;
         // 获取当前卡片
         const currentCard = this.cardPool.children[0].children[index];
-        const sprite = currentCard.getComponent(Sprite);
-        this.flipCardAnimation(currentCard, () => {
+        const card = currentCard.getChildByName("card")
+        const sprite = card.getComponent(Sprite);
+        this.flipCardAnimation(card, () => {
             // 翻转到中间点时加载卡片图片
             const bundle = assetManager.getBundle(self.bundleName);
             bundle.load(this.cardList[index].imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
@@ -221,10 +224,21 @@ export class Main extends BaseScene<IBaseGameChild> {
         let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
+
+            // 获取当前和上一个配对的卡片节点
+            const currentFrameComp = currentCard.getComponent(FrameComponent);
+            const lastCardIndex = isBackedCards[0].index === index ? isBackedCards[1].index : isBackedCards[0].index;
+            const lastCardNode = this.cardPool.children[0].children[lastCardIndex];
+            const lastCard = lastCardNode.getChildByName("card");
+            const lastFrameComp = lastCardNode.getComponent(FrameComponent);
+
+            // 播放star特效
+            currentFrameComp.playAnimation("star",48,false,false);
+            lastFrameComp.playAnimation("star",48,false,false);
+
             if (this.sceneModel.gameType != GameType.SKEWERS) {
                 if (!this.customsSendDataState) {
                     this.sceneModel.gameMatch();
-                    //GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
                 }
             }
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
@@ -242,7 +256,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                     const cardNode = this.cardPool.children[0].children[card.index];
                     // 添加翻转动画
                     this.flipCardAnimation(cardNode, () => {
-                        const sprite = cardNode.getComponent(Sprite);
+
+                        const sprite = cardNode.getChildByName("card").getComponent(Sprite);
 
                         const bundle = assetManager.getBundle(self.bundleName);
                         bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
@@ -386,10 +401,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     }
     updateSuccessPopupStar(num) {
-        const lights = ['light1', 'light2', 'light3'];
-        lights.forEach((lightName, index) => {
-            this.successView.getChildByName(lightName).active = index < num;
-        });
+        // const lights = ['light1', 'light2', 'light3'];
+        // lights.forEach((lightName, index) => {
+        //     this.successView.getChildByName(lightName).active = index < num;
+        // });
     }
 
     private _startTime: number = 0
@@ -584,18 +599,19 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     async showAllCard() {
         let self = this;
-        this.cardList.forEach((card, index) => {
+        this.cardList.forEach((cardItem, index) => {
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
+                const card = cardNode.getChildByName("card");
                 // 确保卡片处于正确的初始状态
-                cardNode.setScale(1, 1, 1);
+                card.setScale(1, 1, 1);
 
-                const sprite = cardNode.getComponent(Sprite);
+                const sprite = card.getComponent(Sprite);
                 sprite.spriteFrame = null;
                 // 直接添加翻转动画，移除延迟
                 this.flipCardAnimation(cardNode, () => {
                     const bundle = assetManager.getBundle(self.bundleName);
-                    bundle.load(card.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
+                    bundle.load(cardItem.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
                         if (err) {
                             DebugLog.instance.error(err);
                             return;
@@ -616,12 +632,13 @@ export class Main extends BaseScene<IBaseGameChild> {
             card.isDeleted = false;
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
+                const card = cardNode.getChildByName("card");
                 // 确保卡片处于正确的初始状态
-                cardNode.setScale(1, 1, 1);
+                card.setScale(1, 1, 1);
 
                 // 直接添加翻转动画，移除延迟
                 this.flipCardAnimation(cardNode, () => {
-                    const sprite = cardNode.getComponent(Sprite);
+                    const sprite = card.getComponent(Sprite);
 
                     const bundle = assetManager.getBundle(self.bundleName);
                     bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
@@ -642,8 +659,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.intervalId);
         
         // 移除应用状态监听
-        game.off('game-hide', this.onAppHide, this);
-        game.off('game-show', this.onAppShow, this);
+        game.off(Game.EVENT_HIDE, this.onAppHide, this);
+        game.off(Game.EVENT_SHOW, this.onAppShow, this);
         
         super.onDestroy();
     }
@@ -885,9 +902,9 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
     private addAppStateListener() {
         // 监听应用进入后台
-        game.on('game-hide', this.onAppHide, this);
+        game.on(Game.EVENT_HIDE, this.onAppHide, this);
         // 监听应用回到前台
-        game.on('game-show', this.onAppShow, this);
+        game.on(Game.EVENT_SHOW, this.onAppShow, this);
     }
     
     /**

@@ -93,6 +93,10 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
+            if(!data.data||!data.data['result']){
+                DebugLog.instance.log('暂无个人报告');
+                return;
+            }
             let result = data.data['result'];
             if (result.length == 0) {
                 // DebugLog.instance.log('暂无个人报告');
@@ -131,6 +135,10 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
+            if(!data.data||!data.data['result']){
+                DebugLog.instance.log('暂无个人报告');
+                return;
+            }
             let result = data.data['result'];
             if (result.length == 0) {
                 return;
