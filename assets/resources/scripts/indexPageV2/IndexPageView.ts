@@ -52,6 +52,10 @@ export class IndexPageView extends Component {
         ReportManager.getInstance().getPersonalInitialReport();
         PersonalCenterManager.getInstance().requestUserInfo();
     }
+    clickNavBar(event,data){  
+        console.log('clickNavBar',data);
+        EventManager.getInstance().emit('onBottomNavBarClick', data);
+    }
     onEnable() {
        
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);

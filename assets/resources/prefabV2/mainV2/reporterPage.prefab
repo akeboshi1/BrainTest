@@ -2484,7 +2484,7 @@
     "component": "",
     "_componentId": "82ff9yy6NVInZagyGbh7tpf",
     "handler": "clickOtherNavLable",
-    "customEventData": "{\"data\": \"LANGUAGE\", \"index\": 3}"
+    "customEventData": "{\"data\": \"CALCULATION\", \"index\": 3}"
   },
   {
     "__type__": "cc.PrefabInfo",

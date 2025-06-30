@@ -60,9 +60,9 @@ export class RadiaGraph extends Component {
     }
 
 
-    async updateView(data: ReportData[]) {
-        let labels = ['语言力', '观察力', '记忆力', '执行力', '计算力'];
+    async updateView(data: ReportData[]) {  
         if (data.length == 0) {
+            let labels = ['语言力', '判断力', '记忆力', '执行力', '计算力'];
             console.log(data.length);
             this.labelsNode.forEach((item, index) => {
                 item.getChildByName('titleLable').getComponent(Label).string = labels[index];

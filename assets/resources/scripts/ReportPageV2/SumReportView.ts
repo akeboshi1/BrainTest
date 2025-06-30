@@ -18,6 +18,10 @@ export class SumReportView extends Component {
         this.getInitialReport();
         
     }
+    clickNavBar(event,data){  
+        console.log('clickNavBar',data);
+        EventManager.getInstance().emit('onNavBarClick', data);
+    }
     showTwoWeekGraph(){
         let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
         // const lastValues=reportDataList.map(item => item.last_tier);
@@ -30,6 +34,8 @@ export class SumReportView extends Component {
         const valuesInitial = reportDataListInitial.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setSecondValues(valuesInitial);
     }
+
+
 
     update(deltaTime: number) {
         
