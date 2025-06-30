@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager, game } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -107,6 +107,12 @@ export class Main extends BaseScene<IBaseGameChild> {
     private customsSendDataState: boolean;
     private isAbleClick: boolean = true;
 
+    // 倒计时暂停相关变量
+    private isCountdownPaused: boolean = false;
+    private pauseStartTime: number = 0;
+    private remainingTimeBeforePause: number = 0;
+    private isInPreviewMode: boolean = false; // 是否在预览模式
+
     @property(Sprite)
     private showSprite: Sprite;
 
@@ -129,6 +135,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.dataInit();
         // ui初始化
         this.sceneInit();
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
     }
     dataInit() {
         //数据初始化
@@ -631,6 +640,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
         clearInterval(this.intervalId);
+        
+        // 移除应用状态监听
+        game.off('game-hide', this.onAppHide, this);
+        game.off('game-show', this.onAppShow, this);
+        
         super.onDestroy();
     }
 
@@ -642,6 +656,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         let self = this;
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
+
+        // 设置预览模式标志
+        this.isInPreviewMode = true;
+        this.isCountdownPaused = false;
 
         await this.showAllCard();
         this.countDownLabel.node.active = true;
@@ -860,6 +878,164 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     public onClickRetryGame(){
         this.replayGame();
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on('game-hide', this.onAppHide, this);
+        // 监听应用回到前台
+        game.on('game-show', this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        DebugLog.instance.error("应用进入后台，暂停倒计时");
+        this.pauseCountdown();
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        DebugLog.instance.error("应用回到前台，恢复倒计时");
+        this.resumeCountdown();
+    }
+    
+    /**
+     * 暂停倒计时
+     */
+    private pauseCountdown() {
+        if (this.isInPreviewMode && !this.isCountdownPaused) {
+            this.isCountdownPaused = true;
+            this.pauseStartTime = Date.now();
+            
+            // 计算剩余时间
+            if (this._setTimeOutId) {
+                // 清除当前的倒计时
+                clearTimeout(this._setTimeOutId);
+                this._setTimeOutId = null;
+            }
+            if (this.intervalId) {
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
+            
+            DebugLog.instance.log("倒计时已暂停");
+        }
+    }
+    
+    /**
+     * 恢复倒计时
+     */
+    private resumeCountdown() {
+        if (this.isCountdownPaused && this.isInPreviewMode) {
+            this.isCountdownPaused = false;
+            
+            // 计算暂停的时长
+            const pauseDuration = Date.now() - this.pauseStartTime;
+            const pauseDurationSeconds = pauseDuration / 1000;
+            
+            // 重新计算剩余时间
+            const currentRemainingTime = this.seconds[this.hardIndex] - pauseDurationSeconds;
+            
+            if (currentRemainingTime > 0) {
+                // 重新开始倒计时
+                this.restartCountdown(currentRemainingTime);
+                DebugLog.instance.log(`倒计时已恢复，剩余时间: ${currentRemainingTime.toFixed(1)}秒`);
+            } else {
+                // 时间已到，直接结束预览
+                this.endPreview();
+                DebugLog.instance.log("倒计时时间已到，直接结束预览");
+            }
+        }
+    }
+    
+    /**
+     * 重新开始倒计时
+     */
+    private restartCountdown(remainingTime: number) {
+        this.countDownLabel.node.active = true;
+        this.countDownLabel.string = `${remainingTime.toFixed(1)}s`;
+        this.countDownLabel.node.setScale(1, 1, 1);
+        
+        let remainTime = remainingTime;
+        
+        const updateDisplay = (time) => {
+            this.countDownLabel.string = `${time.toFixed(1)}s`;
+            tween(this.countDownLabel.node)
+                .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
+                .to(0.25, { scale: new Vec3(1, 1, 1) })
+                .start();
+        };
+        
+        // 先处理整数秒
+        if (remainTime >= 1) {
+            const fullSeconds = Math.floor(remainTime);
+            const decimalPart = remainTime - fullSeconds;
+            
+            this.intervalId = setInterval(() => {
+                if (remainTime >= 1) {
+                    remainTime -= 1;
+                    updateDisplay(remainTime);
+                } else {
+                    clearInterval(this.intervalId);
+                    if (decimalPart > 0) {
+                        remainTime = decimalPart;
+                        updateDisplay(remainTime);
+                        // 创建新的0.5秒定时器
+                        this.intervalId = setInterval(() => {
+                            if (remainTime > 0) {
+                                remainTime -= 0.5;
+                                updateDisplay(remainTime);
+                            }
+                        }, 500);
+                    }
+                }
+            }, 1000);
+        } else {
+            // 处理小数秒
+            this.intervalId = setInterval(() => {
+                if (remainTime > 0) {
+                    remainTime -= 0.5;
+                    updateDisplay(remainTime);
+                }
+            }, 500);
+        }
+        
+        // 设置结束定时器
+        this._setTimeOutId = setTimeout(() => {
+            this.endPreview();
+        }, remainingTime * 1000);
+    }
+    
+    /**
+     * 结束预览
+     */
+    private endPreview() {
+        if (this._setTimeOutId) {
+            clearTimeout(this._setTimeOutId);
+            this._setTimeOutId = null;
+        }
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        
+        // 检查并修复可能存在的问题
+        this.checkAndFixCardScales();
+        
+        this.closeAllCard();
+        this.countDownLabel.node.active = false;
+        this.timerTick();
+        
+        // 重置预览模式标志
+        this.isInPreviewMode = false;
+        this.isCountdownPaused = false;
     }
 }
 
