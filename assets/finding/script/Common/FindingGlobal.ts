@@ -1,3 +1,6 @@
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import CacheMgr from "./manage/CacheMgr";
+
 /**
  * 全局变量
  */
@@ -9,8 +12,23 @@ export default class FindingGlobal {
 
     public static reset(){
         FindingGlobal.curSkewersGameIndex = 0;
+        FindingGlobal.gameCenterGameLevel = 0;
         FindingGlobal.skewersGameList = [];
     }
+
+    /**
+     * 初始化事件监听器，监听游戏大厅进度更新事件
+     */
+    public static initEventListeners() {
+        // 监听游戏大厅进度更新事件
+        EventManager.getInstance().on("GAME_CENTER_LEVEL_UPDATE", (data) => {
+            // 更新本地进度变量
+            CacheMgr.checkpoint = data.level;
+            FindingGlobal.gameCenterGameLevel = data.level;
+            console.log("游戏大厅进度已更新:", data.level);
+        }, FindingGlobal);
+    }
+
     public static config: any =
         {
             isReportAction: false, //是否上报用户行为   //一旦上线  ，设置为true

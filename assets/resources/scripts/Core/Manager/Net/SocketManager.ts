@@ -198,6 +198,7 @@ export class SocketManager extends BaseManager {
         DebugLog.instance.warn('onSocketError !');
         // 显示 Socket 错误提示
         AlertManager.getInstance().showSocketAlert('网络连接错误，请检查网络设置');
+        this.processReconnectFlow();
     }
 
     //重连成功返回true

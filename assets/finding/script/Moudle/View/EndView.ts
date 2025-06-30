@@ -107,7 +107,6 @@ export default class EndView extends LayerPanel {
     }
 
     public onClickNext() {
-        FindingGlobal.gameCenterGameLevel ++;
         Global.isAgain = false;
         this.closeEnd();
     }
@@ -133,7 +132,7 @@ export default class EndView extends LayerPanel {
         this.offTouch(this.btn2Node);
         if (this.residueTime > 0) {
             if (!this.result && !Global.isAgain) {
-                // CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
+                CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
             }
         }
         PanelMgr.INS.openPanel({
