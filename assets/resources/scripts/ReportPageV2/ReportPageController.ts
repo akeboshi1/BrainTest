@@ -9,17 +9,22 @@ const { ccclass, property } = _decorator;
 export class ReportPageController extends Component {
     @property(TopNavBarController)
     topNavBarController: TopNavBarController = null;
-    
-    private callbackPromises: { [key: string]: Promise<any> } = {};
 
-    onEnable(){
+    private callbackPromises: { [key: string]: Promise<any> } = {};
+    private pageParams: any = null;
+
+    public initWithParams(params: any) {
+        this.pageParams = params;
+    }
+
+    onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
         EventManager.getInstance().on(ReportManager.getUserSumReportCallback, this.getUserSumReportCallback, this);
     }
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
-        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this); 
+        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
         EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
     }
     start() {
@@ -44,8 +49,12 @@ export class ReportPageController extends Component {
             this.callbackPromises.userInfo,
             this.callbackPromises.brainTraining,
             this.callbackPromises.sumReport
-        ]).then(() => {
-            this.topNavBarController.loadSumReport();
+        ]).then(async () => {
+            await this.topNavBarController.loadSumReport();
+            if (this.pageParams) {
+                EventManager.getInstance().emit('onNavBarClick', this.pageParams);
+            }
+
         });
     }
 
@@ -53,24 +62,24 @@ export class ReportPageController extends Component {
     private brainTrainingResolve: Function;
     private sumReportResolve: Function;
 
-    getUserInfoCallBack(){
+    getUserInfoCallBack() {
         if (this.userInfoResolve) {
             this.userInfoResolve();
         }
     }
-    getBrainTrainingTiersCallback(){
+    getBrainTrainingTiersCallback() {
         if (this.brainTrainingResolve) {
             this.brainTrainingResolve();
         }
     }
-    getUserSumReportCallback(){
+    getUserSumReportCallback() {
         if (this.sumReportResolve) {
             this.sumReportResolve();
         }
     }
 
     update(deltaTime: number) {
-        
+
     }
 
 }

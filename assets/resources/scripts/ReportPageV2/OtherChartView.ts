@@ -30,6 +30,7 @@ export class OtherChartView extends Component {
         EventManager.getInstance().off(ReportManager.getCogAbilityWeeklyScoresCallback, this);
     }
   
+  
     start() {
         this.width = this.lineChart.getComponent(UITransform).width - this.leftPadding;
         this.height = this.lineChart.getComponent(UITransform).height;
