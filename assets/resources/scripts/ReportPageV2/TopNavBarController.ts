@@ -36,14 +36,14 @@ export class TopNavBarController extends Component {
 
     }
     onEnable(){     
-        EventManager.getInstance().on('onNavBarClick', this.onNavBarClick, this);
+        EventManager.getInstance().on('onTopNavBarClick', this.onTopNavBarClick, this);
     }
 
     onDisable() {
-        EventManager.getInstance().off('onNavBarClick', this);
+        EventManager.getInstance().off('onTopNavBarClick', this);
     }
 
-    private onNavBarClick( customData) {
+    private onTopNavBarClick( customData) {
         this.clickOtherNavLable(null, customData);
     }
 

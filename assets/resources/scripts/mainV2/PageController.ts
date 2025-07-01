@@ -120,12 +120,8 @@ export class PageController extends Component {
         this.updateButtonColors(null,"0");
     }
 
-    async loadReporterPage(params?: any,data?:any){
-        if(data){
-            await this.loadPage('reporter', data);
-        }else{
-            await this.loadPage('reporter');
-        }
+    async loadReporterPage(params: any = null, data: any = null){
+        await this.loadPage('reporter', data);
         this.updateButtonColors(null,"2");
     }
 
