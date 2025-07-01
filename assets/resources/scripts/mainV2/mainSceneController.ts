@@ -21,15 +21,15 @@ export class MainSceneController extends Component {
         this.pageController.loadIndexPage();
     }
     onEnable(){
-        EventManager.getInstance().on('onBottomNavBarClick', this.onBottomNavBarClick, this);
+        EventManager.getInstance().on('onShowReport', this.onShowReport, this);
         EventManager.getInstance().on('onShowGameCenter', this.onShowGameCenter, this);
     }
     onDisable(){
-        EventManager.getInstance().off('onBottomNavBarClick', this);
+        EventManager.getInstance().off('onShowReport', this);
         EventManager.getInstance().off('onShowGameCenter', this);
     }
-    onBottomNavBarClick(data){
-       this.showReport(null,data);
+    onShowReport(data){
+        this.pageController.loadReporterPage(null,data);
     }
     onShowGameCenter(){
         this.showGameCenter();
@@ -48,13 +48,8 @@ export class MainSceneController extends Component {
         this.pageController.loadGameCenterPage();
     }
 
-     showReport(params?:any,data?:any){
-        if(data){
-         this.pageController.loadReporterPage(params,data);
-        }else{
+     showReport(){
          this.pageController.loadReporterPage();
-        }
-      
     }
 
     showPersonalCenter(){

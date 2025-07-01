@@ -55,7 +55,11 @@ export class IndexPageView extends Component {
         PersonalCenterManager.getInstance().requestUserInfo();
     }
     clickNavBar(event, data) {
-        EventManager.getInstance().emit('onBottomNavBarClick', data);
+        const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
+        if(!userData.has_initial_tier){
+            return;
+        }
+        EventManager.getInstance().emit('onShowReport', data);
     }
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);

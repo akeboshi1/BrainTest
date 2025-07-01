@@ -51,7 +51,7 @@ export class ReportPageController extends Component {
             this.callbackPromises.sumReport
         ]).then(() => {
             if (this.pageParams) {
-                EventManager.getInstance().emit('onNavBarClick', this.pageParams);
+                EventManager.getInstance().emit('onTopNavBarClick', this.pageParams);
             }else{  
                 this.topNavBarController.loadSumReport();
             }
