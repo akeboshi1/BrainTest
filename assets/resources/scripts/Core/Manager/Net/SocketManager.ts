@@ -197,7 +197,9 @@ export class SocketManager extends BaseManager {
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.warn('onSocketError !');
         // 显示 Socket 错误提示
-        AlertManager.getInstance().showSocketAlert('网络连接错误，请检查网络设置');
+        AlertManager.getInstance().showSocketAlert('网络连接错误');
+        this._isReconnecting = false;
+        this.processReconnectFlow();
     }
 
     //重连成功返回true
@@ -215,7 +217,7 @@ export class SocketManager extends BaseManager {
             EventManager.getInstance().emit(eventName);
             try {
                 await this.initSocket();
-                DebugLog.instance.log('Reconnected successfully.');
+                DebugLog.instance.error('Reconnected successfully.');
 
                 await new Promise<void>((resolve) => {
                     LoginManager.getInstance().requestTokenVerification((result) => {

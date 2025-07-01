@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager, game,Game, ParticleAsset } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -10,6 +10,8 @@ import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/Aud
 import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
+
 const { ccclass, property } = _decorator;
 
 interface CardItem {
@@ -107,6 +109,12 @@ export class Main extends BaseScene<IBaseGameChild> {
     private customsSendDataState: boolean;
     private isAbleClick: boolean = true;
 
+    // 倒计时暂停相关变量
+    private isCountdownPaused: boolean = false;
+    private pauseStartTime: number = 0;
+    private remainingTimeBeforePause: number = 0;
+    private isInPreviewMode: boolean = false; // 是否在预览模式
+
     @property(Sprite)
     private showSprite: Sprite;
 
@@ -129,6 +137,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.dataInit();
         // ui初始化
         this.sceneInit();
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
     }
     dataInit() {
         //数据初始化
@@ -194,8 +205,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         let self = this;
         // 获取当前卡片
         const currentCard = this.cardPool.children[0].children[index];
-        const sprite = currentCard.getComponent(Sprite);
-        this.flipCardAnimation(currentCard, () => {
+        const card = currentCard.getChildByName("card")
+        const sprite = card.getComponent(Sprite);
+        this.flipCardAnimation(card, () => {
             // 翻转到中间点时加载卡片图片
             const bundle = assetManager.getBundle(self.bundleName);
             bundle.load(this.cardList[index].imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
@@ -212,10 +224,21 @@ export class Main extends BaseScene<IBaseGameChild> {
         let isBackedCards = this.cardList.filter(card => (card.isBacked && !card.isDeleted));
         if (isBackedCards.length === 2 && isBackedCards[0].imgUrl === isBackedCards[1].imgUrl) {
             isBackedCards[0].isDeleted = isBackedCards[1].isDeleted = true;
+
+            // 获取当前和上一个配对的卡片节点
+            const currentFrameComp = currentCard.getComponent(FrameComponent);
+            const lastCardIndex = isBackedCards[0].index === index ? isBackedCards[1].index : isBackedCards[0].index;
+            const lastCardNode = this.cardPool.children[0].children[lastCardIndex];
+            const lastCard = lastCardNode.getChildByName("card");
+            const lastFrameComp = lastCardNode.getComponent(FrameComponent);
+
+            // 播放star特效
+            currentFrameComp.playAnimation("star",48,false,false);
+            lastFrameComp.playAnimation("star",48,false,false);
+
             if (this.sceneModel.gameType != GameType.SKEWERS) {
                 if (!this.customsSendDataState) {
                     this.sceneModel.gameMatch();
-                    //GameCenterManager.getInstance().gameMatch(GameCenterManager.getInstance().currentGame.sessionid, () => { })
                 }
             }
             const isDeletedCardCount = this.cardList.filter(c => c.isDeleted).length;
@@ -233,7 +256,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                     const cardNode = this.cardPool.children[0].children[card.index];
                     // 添加翻转动画
                     this.flipCardAnimation(cardNode, () => {
-                        const sprite = cardNode.getComponent(Sprite);
+
+                        const sprite = cardNode.getChildByName("card").getComponent(Sprite);
 
                         const bundle = assetManager.getBundle(self.bundleName);
                         bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
@@ -377,10 +401,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     }
     updateSuccessPopupStar(num) {
-        const lights = ['light1', 'light2', 'light3'];
-        lights.forEach((lightName, index) => {
-            this.successView.getChildByName(lightName).active = index < num;
-        });
+        // const lights = ['light1', 'light2', 'light3'];
+        // lights.forEach((lightName, index) => {
+        //     this.successView.getChildByName(lightName).active = index < num;
+        // });
     }
 
     private _startTime: number = 0
@@ -575,18 +599,19 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     async showAllCard() {
         let self = this;
-        this.cardList.forEach((card, index) => {
+        this.cardList.forEach((cardItem, index) => {
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
+                const card = cardNode.getChildByName("card");
                 // 确保卡片处于正确的初始状态
-                cardNode.setScale(1, 1, 1);
+                card.setScale(1, 1, 1);
 
-                const sprite = cardNode.getComponent(Sprite);
+                const sprite = card.getComponent(Sprite);
                 sprite.spriteFrame = null;
                 // 直接添加翻转动画，移除延迟
                 this.flipCardAnimation(cardNode, () => {
                     const bundle = assetManager.getBundle(self.bundleName);
-                    bundle.load(card.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
+                    bundle.load(cardItem.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
                         if (err) {
                             DebugLog.instance.error(err);
                             return;
@@ -607,12 +632,13 @@ export class Main extends BaseScene<IBaseGameChild> {
             card.isDeleted = false;
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
+                const card = cardNode.getChildByName("card");
                 // 确保卡片处于正确的初始状态
-                cardNode.setScale(1, 1, 1);
+                card.setScale(1, 1, 1);
 
                 // 直接添加翻转动画，移除延迟
                 this.flipCardAnimation(cardNode, () => {
-                    const sprite = cardNode.getComponent(Sprite);
+                    const sprite = card.getComponent(Sprite);
 
                     const bundle = assetManager.getBundle(self.bundleName);
                     bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
@@ -631,6 +657,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
         clearInterval(this.intervalId);
+        
+        // 移除应用状态监听
+        game.off(Game.EVENT_HIDE, this.onAppHide, this);
+        game.off(Game.EVENT_SHOW, this.onAppShow, this);
+        
         super.onDestroy();
     }
 
@@ -642,6 +673,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         let self = this;
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
+
+        // 设置预览模式标志
+        this.isInPreviewMode = true;
+        this.isCountdownPaused = false;
 
         await this.showAllCard();
         this.countDownLabel.node.active = true;
@@ -860,6 +895,164 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     public onClickRetryGame(){
         this.replayGame();
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on(Game.EVENT_HIDE, this.onAppHide, this);
+        // 监听应用回到前台
+        game.on(Game.EVENT_SHOW, this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        DebugLog.instance.error("应用进入后台，暂停倒计时");
+        this.pauseCountdown();
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        DebugLog.instance.error("应用回到前台，恢复倒计时");
+        this.resumeCountdown();
+    }
+    
+    /**
+     * 暂停倒计时
+     */
+    private pauseCountdown() {
+        if (this.isInPreviewMode && !this.isCountdownPaused) {
+            this.isCountdownPaused = true;
+            this.pauseStartTime = Date.now();
+            
+            // 计算剩余时间
+            if (this._setTimeOutId) {
+                // 清除当前的倒计时
+                clearTimeout(this._setTimeOutId);
+                this._setTimeOutId = null;
+            }
+            if (this.intervalId) {
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
+            
+            DebugLog.instance.log("倒计时已暂停");
+        }
+    }
+    
+    /**
+     * 恢复倒计时
+     */
+    private resumeCountdown() {
+        if (this.isCountdownPaused && this.isInPreviewMode) {
+            this.isCountdownPaused = false;
+            
+            // 计算暂停的时长
+            const pauseDuration = Date.now() - this.pauseStartTime;
+            const pauseDurationSeconds = pauseDuration / 1000;
+            
+            // 重新计算剩余时间
+            const currentRemainingTime = this.seconds[this.hardIndex] - pauseDurationSeconds;
+            
+            if (currentRemainingTime > 0) {
+                // 重新开始倒计时
+                this.restartCountdown(currentRemainingTime);
+                DebugLog.instance.log(`倒计时已恢复，剩余时间: ${currentRemainingTime.toFixed(1)}秒`);
+            } else {
+                // 时间已到，直接结束预览
+                this.endPreview();
+                DebugLog.instance.log("倒计时时间已到，直接结束预览");
+            }
+        }
+    }
+    
+    /**
+     * 重新开始倒计时
+     */
+    private restartCountdown(remainingTime: number) {
+        this.countDownLabel.node.active = true;
+        this.countDownLabel.string = `${remainingTime.toFixed(1)}s`;
+        this.countDownLabel.node.setScale(1, 1, 1);
+        
+        let remainTime = remainingTime;
+        
+        const updateDisplay = (time) => {
+            this.countDownLabel.string = `${time.toFixed(1)}s`;
+            tween(this.countDownLabel.node)
+                .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
+                .to(0.25, { scale: new Vec3(1, 1, 1) })
+                .start();
+        };
+        
+        // 先处理整数秒
+        if (remainTime >= 1) {
+            const fullSeconds = Math.floor(remainTime);
+            const decimalPart = remainTime - fullSeconds;
+            
+            this.intervalId = setInterval(() => {
+                if (remainTime >= 1) {
+                    remainTime -= 1;
+                    updateDisplay(remainTime);
+                } else {
+                    clearInterval(this.intervalId);
+                    if (decimalPart > 0) {
+                        remainTime = decimalPart;
+                        updateDisplay(remainTime);
+                        // 创建新的0.5秒定时器
+                        this.intervalId = setInterval(() => {
+                            if (remainTime > 0) {
+                                remainTime -= 0.5;
+                                updateDisplay(remainTime);
+                            }
+                        }, 500);
+                    }
+                }
+            }, 1000);
+        } else {
+            // 处理小数秒
+            this.intervalId = setInterval(() => {
+                if (remainTime > 0) {
+                    remainTime -= 0.5;
+                    updateDisplay(remainTime);
+                }
+            }, 500);
+        }
+        
+        // 设置结束定时器
+        this._setTimeOutId = setTimeout(() => {
+            this.endPreview();
+        }, remainingTime * 1000);
+    }
+    
+    /**
+     * 结束预览
+     */
+    private endPreview() {
+        if (this._setTimeOutId) {
+            clearTimeout(this._setTimeOutId);
+            this._setTimeOutId = null;
+        }
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        
+        // 检查并修复可能存在的问题
+        this.checkAndFixCardScales();
+        
+        this.closeAllCard();
+        this.countDownLabel.node.active = false;
+        this.timerTick();
+        
+        // 重置预览模式标志
+        this.isInPreviewMode = false;
+        this.isCountdownPaused = false;
     }
 }
 
