@@ -18,6 +18,8 @@ import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPane
 import { Global } from '../Core/Manager/Config/Global';
 import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/BundlePreloadManager';
 import { SceneManager } from '../Core/Manager/Scene/SceneManager';
+import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
+import { VerifyPanel } from '../Game/UI/Login/VerifyPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -53,7 +55,7 @@ export class IndexPageView extends Component {
         PersonalCenterManager.getInstance().requestUserInfo();
     }
     clickNavBar(event,data){  
-        console.log('clickNavBar',data);
+        // console.log('clickNavBar',data);
         EventManager.getInstance().emit('onBottomNavBarClick', data);
     }
     onEnable() {
@@ -138,25 +140,20 @@ export class IndexPageView extends Component {
     }
     private _clickBoo = false;
     navigatetoFingerGame(){
-        console.log("go to fingergame");
-        if (this._clickBoo) {
-            return;
+        let is_member= PersonalCenterManager.getInstance().userInfoData.is_member;
+        if(is_member){
+            EventManager.getInstance().emit('onShowGameCenter');
+        }else{
+            const alertData: AlertData = new AlertData();
+            alertData.title = "去解锁会员,畅玩更多功能";
+            alertData.confirmCb = function () {
+                this.cofirmGoToCameCenter();
+            }.bind(this);
+            AlertManager.getInstance().showAlert(alertData);
         }
-        this._clickBoo = true;
-        let url = Global.RES_Root + BundleName.FINGERGAME;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.FINGERGAME), this, true);
-        BundlePreloadManager.getInstance().preload(BundleName.FINGERGAME);
     }
-    private onPreloadFinish(url: string, sceneName: string, data: any) {
-        let self = this;
-        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
-            self._clickBoo = false;
-            DebugLog.instance.log(`${sceneName} 场景切换成功`);
-        });
-    }
-
-    setTaskItem() {
-        // this.taskItem.setTaskTitle(title);
+    cofirmGoToCameCenter(){
+        UIManager.getInstance().showPanel(VipPanel.NAME);
     }
     showUserInfo() {
         PersonalCenterManager.getInstance().requestUserInfo();

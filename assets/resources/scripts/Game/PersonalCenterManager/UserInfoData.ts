@@ -12,7 +12,7 @@ export class UserInfoData {
     public education: string = "";
     public trained_days: number = 0;
     public has_initial_tier:boolean = false;
-    public member: boolean;
+    public is_member: boolean;
     public member_startTime: string = "";
     public member_endTime: string = "";
     public member_Expired: boolean = false;
@@ -28,7 +28,7 @@ export class UserInfoData {
         this.education = data["education"];
         this.trained_days = data["trained_days"];
         this.has_initial_tier = data["has_initial_tier"];
-        this.member = data["is_member"];
+        this.is_member = data["is_member"];
         this.member_startTime = data["member_startTime"]||undefined;
         this.member_endTime = data["member_endTime"]||undefined;
 
@@ -41,7 +41,7 @@ export class UserInfoData {
      * 判断当前时间是否在 member_startTime 和 member_endTime 之间
      */
     private checkMemberExpired(): void {
-        if (!this.member || !this.member_startTime || !this.member_endTime) {
+        if (!this.is_member || !this.member_startTime || !this.member_endTime) {
             this.member_Expired = true;
             return;
         }
@@ -70,7 +70,7 @@ export class UserInfoData {
      * 获取会员剩余天数
      */
     public getMemberRemainingDays(): number {
-        if (!this.member || this.member_Expired || !this.member_endTime) {
+        if (!this.is_member || this.member_Expired || !this.member_endTime) {
             return 0;
         }
 

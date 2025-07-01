@@ -22,12 +22,17 @@ export class MainSceneController extends Component {
     }
     onEnable(){
         EventManager.getInstance().on('onBottomNavBarClick', this.onBottomNavBarClick, this);
+        EventManager.getInstance().on('onShowGameCenter', this.onShowGameCenter, this);
     }
     onDisable(){
         EventManager.getInstance().off('onBottomNavBarClick', this);
+        EventManager.getInstance().off('onShowGameCenter', this);
     }
     onBottomNavBarClick(data){
        this.showReport(null,data);
+    }
+    onShowGameCenter(){
+        this.showGameCenter();
     }
 
     start() {
