@@ -49,10 +49,11 @@ export class ReportPageController extends Component {
             this.callbackPromises.userInfo,
             this.callbackPromises.brainTraining,
             this.callbackPromises.sumReport
-        ]).then(async () => {
-            await this.topNavBarController.loadSumReport();
+        ]).then(() => {
             if (this.pageParams) {
                 EventManager.getInstance().emit('onNavBarClick', this.pageParams);
+            }else{  
+                this.topNavBarController.loadSumReport();
             }
 
         });
