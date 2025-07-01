@@ -464,10 +464,7 @@
       "b": 255,
       "a": 255
     },
-    "_spriteFrame": {
-      "__uuid__": "fc27d55f-be0a-45fd-80b1-41957a55f434@f9941",
-      "__expectedType__": "cc.SpriteFrame"
-    },
+    "_spriteFrame": null,
     "_type": 0,
     "_fillType": 0,
     "_sizeMode": 0,
@@ -1963,6 +1960,9 @@
     },
     "userName": {
       "__id__": 21
+    },
+    "userIcon": {
+      "__id__": 15
     },
     "dayLabel": {
       "__id__": 37
