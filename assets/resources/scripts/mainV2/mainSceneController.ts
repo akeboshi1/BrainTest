@@ -26,9 +26,8 @@ export class MainSceneController extends Component {
     onDisable(){
         EventManager.getInstance().off('onBottomNavBarClick', this);
     }
-    async onBottomNavBarClick(data){
-       await this.showReport();
-       EventManager.getInstance().emit('onNavBarClick', data);
+    onBottomNavBarClick(data){
+       this.showReport(null,data);
     }
 
     start() {
@@ -44,8 +43,13 @@ export class MainSceneController extends Component {
         this.pageController.loadGameCenterPage();
     }
 
-    async showReport(){
-      await this.pageController.loadReporterPage();
+     showReport(params?:any,data?:any){
+        if(data){
+         this.pageController.loadReporterPage(params,data);
+        }else{
+         this.pageController.loadReporterPage();
+        }
+      
     }
 
     showPersonalCenter(){

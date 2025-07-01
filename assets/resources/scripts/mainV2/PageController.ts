@@ -59,7 +59,7 @@ export class PageController extends Component {
         }
     }
 
-    public async loadPage(pageName: string) {
+    public async loadPage(pageName: string, params?: any) {
         if (!this._pageNode) {
             DebugLog.instance.error('Page node not initialized!');
             return;
@@ -69,7 +69,6 @@ export class PageController extends Component {
         if (this._pageNode.children.length > 0) {
             this._pageNode.removeAllChildren();
         }
-    // 清空报告列表初始数据
 
         // Load new page
         const pagePath = PageConfig[pageName];
@@ -90,12 +89,23 @@ export class PageController extends Component {
             });
 
             const page = instantiate(prefab);
+            
+            // 如果有传入参数，遍历所有组件并设置参数
+            if (params) {
+                const components = page.getComponents(Component);
+                components.forEach(component => {
+                    if (typeof component['initWithParams'] === 'function') {
+                        component['initWithParams'](params);
+                    }
+                });
+            }
+            
             this._pageNode.addChild(page);
             this._currentPage = pageName;
             
-            // Update button colors when page is loaded
-            
             DebugLog.instance.log(`Page ${pageName} loaded successfully`);
+            
+            return page;
         } catch (error) {
             DebugLog.instance.error(`Failed to load page ${pageName}: ${error}`);
         }
@@ -110,8 +120,12 @@ export class PageController extends Component {
         this.updateButtonColors(null,"0");
     }
 
-    async loadReporterPage(){
-      await this.loadPage('reporter');
+    async loadReporterPage(params?: any,data?:any){
+        if(data){
+            await this.loadPage('reporter', data);
+        }else{
+            await this.loadPage('reporter');
+        }
         this.updateButtonColors(null,"2");
     }
 
