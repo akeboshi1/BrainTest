@@ -167,6 +167,10 @@ export class GuessingGameModel {
 
         this.startQuestionFlow();
     }
+    
+    getMaxQuestionCount(): number {
+        return this.config.getMaxQuestionNum();
+    }
 }
 
 export enum GuessingGameEvent {

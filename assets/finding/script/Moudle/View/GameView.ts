@@ -44,7 +44,6 @@ import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/S
 import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
 import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
 
-
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -492,6 +491,108 @@ export default class GameView extends LayerPanel {
         }
     }
 
+    refreshGame(): void {
+        // 重新初始化关卡数据
+        this.initUI();
+
+        // 重置计时、分数、标记等状态
+        this._startTime = TimeUtil.getNow();
+        this._curCount = 0;
+        this._maxCount = this._counts[this._curHard - 1];
+        this.gameOver = false;
+        this.resultList = [];
+        this.tempList = [];
+        this.hintIndex = 0;
+        this.isStartCount = false;
+        this.interval = 0;
+        this.pause = false;
+        this.canAddTime = true;
+        this._pauseStartTime = 0;
+        this._pauseDurTime = 0;
+        this.victory.active = false;
+        this.goonBtn.active = false;
+        this.plistNode.active = false;
+        // 清理不同点节点
+        this.framePostions = [];
+        this.frameList = [];
+        if (this.picture1) {
+            this.picture1.removeAllChildren();
+        }
+        if (this.picture2) {
+            this.picture2.removeAllChildren();
+        }
+        // 重新生成不同点区域和图片
+        let _level = GameConfig.level_order[this._checkPoint - 1];
+        let bundleName = "level" + _level;
+        let imageName = GameConfig.image_name.get(_level);
+        const bundle = assetManager.getBundle(BundleName.FINGING);
+        // 刷新两张图片
+        bundle.load(bundleName + `/image/${imageName}_1_32/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            if (!err && this.picture1) {
+                this.picture1.getComponent(Sprite).spriteFrame = spriteFrame;
+            }
+        });
+        bundle.load(bundleName + `/image/${imageName}_2_32/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            if (!err && this.picture2) {
+                this.picture2.getComponent(Sprite).spriteFrame = spriteFrame;
+            }
+        });
+        // 重新生成不同点区域
+        let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
+        let tmpDataList = tmpDatas.split("|");
+        let len = tmpDataList.length;
+        let uitransform = this.picture1.getComponent(UITransform);
+        for (let i = 0; i < len; i++) {
+            let node: Node = new Node();
+            let nodeUITransform = node.addComponent(UITransform);
+            let tempData = tmpDataList[i].split(",");
+            nodeUITransform.width = Number(tempData[2]);
+            nodeUITransform.height = Number(tempData[3]);
+            node.setPosition(Number(tempData[0]) * 1.3, uitransform.height - Number(tempData[1]) * 1.3);
+            nodeUITransform.setAnchorPoint(0, 1);
+            node.setScale(1.4, 1.4);
+            nodeUITransform.convertToWorldSpaceAR(node.position);
+            this.framePostions.push(node.position);
+            this.picture1.addChild(node);
+            this.frameList.push(nodeUITransform.getBoundingBox());
+            this.frameList[i].id = i + 1;
+        }
+        // 重置结果节点
+        for (let j = 0; j < this.resultNode.children.length; j++) {
+            let children = this.resultNode.children[j].getChildByName("right");
+            children.active = false;
+            if (j >= this._maxCount) {
+                this.resultNode.children[j].active = false;
+            } else {
+                this.resultNode.children[j].active = true;
+            }
+        }
+        // 重置倒计时
+        this.countDownTime = GameConfig.customTime;
+        this.tempCountDown = GameConfig.allTime;
+        this.countDown.string = Math.ceil(this.countDownTime) + "秒";
+        // 关卡标签
+        this.guankaLabel.getComponent(Label).string = `第${this._checkPoint}/${GameConfig.allCheckPoint}关`;
+
+        // 重新绑定点击事件，恢复音效
+        this.monitorEvent();
+        AudioMgr.backMusic();
+    }
+
+    onSuccessNextLevel(): void {
+        CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
+        this.refreshGame();
+    }
+    
+    onFailNextLevel(): void {
+        CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
+        this.refreshGame();
+    }
+
+    onAgain(): void {
+        this.refreshGame();
+    }
+
     public onDisable() {
         super.onDisable();
         if (this.picture1) this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
@@ -815,7 +916,7 @@ export default class GameView extends LayerPanel {
     }
 
     private _requestGameCenterComplete() {
-        CacheMgr.hard++;
+        // CacheMgr.hard++;
         let isWin = Boolean(this.resultList.length / this._maxCount >= 1);
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
@@ -835,17 +936,11 @@ export default class GameView extends LayerPanel {
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
 
         this._endTimeoutId = setTimeout(() => {
-            PanelMgr.INS.openPanel({
-                layer: Layer.gameLayer,
-                panel: EndView,
-                param: {
-                    residue: 1,
-                    isWin: isWin,
-                    residueTime: this.countDownTime
-                }
-            }).then(() => {
-                PanelMgr.INS.closePanel(GameView);
-            })
+            if (isWin) {
+                (this.sceneModel as any).showSuccessView();
+            } else {
+                (this.sceneModel as any).showFailView();
+            }
         }, 1500);
     }
 

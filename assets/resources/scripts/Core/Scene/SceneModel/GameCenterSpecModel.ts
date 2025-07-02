@@ -1,6 +1,7 @@
 import {BaseGameModel, GameType, IBaseGameChild, IQuitGameConfig, IStartConfig} from "./BaseGameModel";
 import { GameCenterData, GameCenterManager } from "../../../Game/GameCenter/GameCenterManager";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 
 // 游戏大厅进入上报参数
 interface IGameCenterStartConfig {
@@ -21,6 +22,12 @@ interface IGameCenterEndConfig {
     callback?: Function;
 }
 
+// 游戏难度选择参数
+interface IGameDifficultyConfig {
+    difficulty: number;  // 难度等级 1-简单 2-中等 3-困难
+    callback?: Function; // 选择难度后的回调
+}
+
 // 游戏大厅特性
 interface IGameCenterSpecific extends IBaseGameChild {
     sessionid: string;
@@ -31,6 +38,9 @@ interface IGameCenterSpecific extends IBaseGameChild {
 
 
 export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
+    // 默认难度等级
+    private currentDifficulty: number = 1;
+
     constructor() {
         super();
         this.gameType = GameType.GAME_CENTER;
@@ -80,12 +90,78 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
         GameCenterManager.getInstance().gameMatch(this.sessionid);
     }
 
+    get settleMentHasShow():boolean{
+        return GameCenterManager.getInstance().settleMentPanelShow;
+    }
+
+    showSuccessView(){
+        GameCenterManager.getInstance().showSuccessView();
+    }
+
+    showFailView(){
+        GameCenterManager.getInstance().showFailView();
+    }
+
+    /**
+     * 选择游戏难度
+     * @param config 难度配置参数
+     */
+    selectDifficulty(config: IGameDifficultyConfig) {
+        if (config.difficulty < 1 || config.difficulty > 3) {
+            DebugLog.instance.warn("Invalid difficulty level. Must be between 1 and 3.");
+            return;
+        }
+
+        this.currentDifficulty = config.difficulty;
+        
+        // 通知游戏中心管理器难度变更
+        GameCenterManager.getInstance().setDifficulty(this.currentDifficulty);
+
+        // 如果有回调函数，执行回调
+        if (config.callback) {
+            config.callback();
+        }
+
+        // 发送难度变更事件
+        EventManager.getInstance().emit("GAME_DIFFICULTY_CHANGED", this.currentDifficulty);
+    }
+
+    /**
+     * 获取当前难度等级
+     */
+    getCurrentDifficulty(): number {
+        return this.currentDifficulty;
+    }
+
+    /**
+     * 重写 requestGameComplete 方法，使用当前选择的难度
+     */
     requestGameComplete(config?: IGameCenterEndConfig) {
-        EventManager.getInstance().on(GameCenterManager.GAMEPASSLEVEL, this.requestGameCompleteCallBack, this,true);
-        // 大厅游戏难度越界处理
-        config.difficulty = config.difficulty % 3 == 0?3:config.difficulty;
-        GameCenterManager.getInstance().gamePassLevel(this.sessionid, config.count, config.level + 1,
-            config.complete, config.duration, config.timelimit, config.difficulty, config.levelMode, config.callback);
+        EventManager.getInstance().on(GameCenterManager.GAMEPASSLEVEL, this.requestGameCompleteCallBack, this, true);
+        
+        // 使用当前选择的难度，如果没有设置则使用配置中的难度
+        const difficulty = this.currentDifficulty || config.difficulty;
+        
+        GameCenterManager.getInstance().gamePassLevel(
+            this.sessionid, 
+            config.count, 
+            config.level + 1,
+            config.complete, 
+            config.duration, 
+            config.timelimit, 
+            difficulty, 
+            config.levelMode, 
+            config.callback
+        );
+    }
+
+    /**
+     * 重置难度到默认值
+     */
+    resetDifficulty() {
+        this.currentDifficulty = 1;
+        GameCenterManager.getInstance().setDifficulty(this.currentDifficulty);
+        EventManager.getInstance().emit("GAME_DIFFICULTY_CHANGED", this.currentDifficulty);
     }
 
     exitCallBack(): void {
@@ -146,6 +222,7 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     }
 
     destory() {
+        this.resetDifficulty(); // 销毁时重置难度
         EventManager.getInstance().disableContext(this);
     }
 

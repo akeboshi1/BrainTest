@@ -9,9 +9,11 @@ import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "../../Core/Manager/Load/BundlePreloadManager";
 import { BundleName } from "../../Core/Manager/Load/BundleName";
-import {GameDataFactory} from "db://assets/resources/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
-import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {GameCenterSpecModel} from "db://assets/resources/scripts/Core/Scene/SceneModel/GameCenterSpecModel";
+import { GameDataFactory } from "db://assets/resources/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
+import { GameType } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { GameCenterSpecModel } from "db://assets/resources/scripts/Core/Scene/SceneModel/GameCenterSpecModel";
+import { SettlementPanel } from "db://assets/resources/scripts/Core/UI/SettlementPanel";
+import { UIManager } from "../../Core/Manager/UI/UIManager";
 
 /**
  * 游戏大厅通信数据
@@ -46,10 +48,10 @@ export class GameCenterData {
         let count = this.result.length;
         for (let i: number = 0; i < count; i++) {
             let obj = this.result[i];
-            let level = Number(obj['level'])==0?1:Number(obj['level']);
+            let level = Number(obj['level']) == 0 ? 1 : Number(obj['level']);
             let difficult = Number(obj['difficulty']);
             this._difficultDic.set(difficult, level);
-            // 不管levelmode是否为1，默认所有游戏大厅游戏进度从难度1开始
+            // 不管levelmode是否为1，默认所有游戏大厅游戏进度都是难度1,但是进入游戏后所有游戏的难度都可以自己选择
             if (i == 0) {
                 this._level = level;
                 this._difficulty = difficult;
@@ -58,6 +60,9 @@ export class GameCenterData {
     }
 
 
+    /**
+     * 游戏大厅选择的难度系数
+     */
     public get difficulty(): number {
         return this._difficulty;
     }
@@ -67,9 +72,9 @@ export class GameCenterData {
     }
 
     public get level() {
-        if(this.levelMode == 1){
+        if (this.levelMode == 1) {
             return this._level;
-        }else{
+        } else {
             return this.getLevelByDifficult(this.difficulty);
         }
     }
@@ -97,6 +102,7 @@ export class GameCenterData {
  */
 export class GameCenterManager {
     private static _instance: GameCenterManager;
+
     public static getInstance() {
         if (!GameCenterManager._instance) {
             GameCenterManager._instance = new GameCenterManager();
@@ -119,9 +125,12 @@ export class GameCenterManager {
 
     private _curGameSpecData: GameCenterSpecModel;
 
+    private static _settlementPanel: SettlementPanel = null;
+
     constructor() {
         GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecModel);
-
+        UIManager.getInstance().registerPanel(SettlementPanel.NAME,BundleName.RESOURCES,"prefab/settlementPanel/settlementPanel",SettlementPanel);
+        GameCenterManager._settlementPanel = new SettlementPanel();
     }
 
     perload(url, sceneName) {
@@ -141,7 +150,7 @@ export class GameCenterManager {
     }
 
     public get gameSpecData(): GameCenterSpecModel {
-        return  GameDataFactory.create(GameType.GAME_CENTER);
+        return GameDataFactory.create(GameType.GAME_CENTER);
     }
 
     public enterGameCenter() {
@@ -154,6 +163,57 @@ export class GameCenterManager {
 
     public get currentGame(): GameCenterData {
         return this._curGame;
+    }
+
+    /**
+     * 设置当前游戏难度
+     * @param difficulty 难度等级 1-简单 2-中等 3-困难
+     */
+    public setDifficulty(difficulty: number): void {
+        if (difficulty < 1 || difficulty > 3) {
+            DebugLog.instance.warn("Invalid difficulty level. Must be between 1 and 3.");
+            return;
+        }
+
+        if (this._curGame) {
+            this._curGame.difficulty = difficulty;
+            DebugLog.instance.log(`Game difficulty set to: ${difficulty}`);
+        } else {
+            DebugLog.instance.warn("Cannot set difficulty: no current game");
+        }
+    }
+
+    public settleMentPanelShow:boolean = false;
+
+    showSuccessView(){
+        let self= this;
+        this.settleMentPanelShow = true;
+        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+            result: true,
+            nextHandler: () => {
+                self.settleMentPanelShow = false;
+                Global.isAgain = false;
+                EventManager.getInstance().emit("GAME_SUCCESS_NEXT_LEVEL");
+            }
+        });
+    }
+
+    showFailView(){
+        let self= this;
+        this.settleMentPanelShow = true;
+        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+            result: false,
+            againHandler: () => {
+                self.settleMentPanelShow = false;
+                Global.isAgain = true;
+                EventManager.getInstance().emit("GAME_AGAIN");
+            },
+            nextHandler: () => {
+                self.settleMentPanelShow = false;
+                Global.isAgain = false;
+                EventManager.getInstance().emit("GAME_FAIL_NEXT_LEVEL");
+            }
+        });
     }
 
 
@@ -248,7 +308,7 @@ export class GameCenterManager {
      * @param timelimit 游戏限时（秒）
      * @param difficulty 游戏难度1，2，3
      */
-    public gamePassLevel(sessionid: string, count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number,levelMode:number, callback: Function = null) {
+    public gamePassLevel(sessionid: string, count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number, levelMode: number, callback: Function = null) {
         if (Global.isAgain) {
             return;
         }
@@ -262,7 +322,7 @@ export class GameCenterManager {
                 duration: duration,
                 time_limit: timelimit,
                 difficulty: difficulty,
-                level_mode:levelMode
+                level_mode: levelMode
             }
         })
         this._callbackDic.set(GameCenterManager.GAMEPASSLEVEL, new GameSocketData(socketData, callback));
@@ -278,11 +338,11 @@ export class GameCenterManager {
         }
         this._curGame.sessionid = data.data.session_id;
         let levelMode = data.data.level_mode;
-        if(levelMode == 2){
+        if (levelMode == 2) {
             this._curGame.setLevelByDifficult(data.data.difficulty, data.data.level);
-        }else {
+        } else {
             this._curGame.level = Number(data.data.level);
-            this._curGame.difficulty = data.data.difficulty == 3?3 : data.data.difficulty % 3 + 1;
+            this._curGame.difficulty = data.data.difficulty;
         }
 
         // 通过事件机制通知子包更新进度，避免主包和子包的循环依赖
@@ -309,8 +369,8 @@ export class GameCenterManager {
      * @param context
      */
     public quitGame(parentNode: Node, goon_callback: Function, exit_callback: Function, context) {
-        resources.load("prefab/BrainTrainAlert",Prefab,(err,prefab)=>{
-            if(err){
+        resources.load("prefab/BrainTrainAlert", Prefab, (err, prefab) => {
+            if (err) {
                 DebugLog.instance.error(err);
                 return;
             }
@@ -339,5 +399,8 @@ export class GameCenterManager {
         SceneManager.getInstance().backToGameCenter();
     }
 
+    public static get settlementPanel(): SettlementPanel {
+        return this._settlementPanel;
+    }
 
 }

@@ -7,13 +7,6 @@
         "preloadScene": "fanpai",
         "preloadAssets": []
     },
-    "finding": {
-        "preloadScene": "finding",
-        "preloadAssets": [ {
-            "path": "View/homeView/prefab/homeView",
-            "type": "Prefab"
-        }]
-    },
     "guessingGame": {
         "preloadScene": "guessingGame",
         "preloadAssets": [
