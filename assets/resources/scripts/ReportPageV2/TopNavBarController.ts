@@ -3,6 +3,7 @@ import { DebugLog } from '../Core/Util/DebugLog';
 import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
 import { ReportManager } from '../ManagerV2/ReportManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
+import { EventManager } from '../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 export const TopNavBarConfig = {
@@ -34,7 +35,17 @@ export class TopNavBarController extends Component {
     start() {
 
     }
+    onEnable(){     
+        EventManager.getInstance().on('onTopNavBarClick', this.onTopNavBarClick, this);
+    }
 
+    onDisable() {
+        EventManager.getInstance().off('onTopNavBarClick', this);
+    }
+
+    private onTopNavBarClick( customData) {
+        this.clickOtherNavLable(null, customData);
+    }
 
     public async loadPage(pageName: string): Promise<Node> {
         if (!this.parentNode_top && !this.parentNode_bottom) {

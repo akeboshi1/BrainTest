@@ -67,7 +67,7 @@ export class ReportManager {
     public get reportDataListInitial(): ReportData[] {
         return this._reportDataListInitial;
     }
-    public get userSumReport():string{
+    public get userSumReport(): string {
         return this._userSumReport;
     }
 
@@ -82,7 +82,7 @@ export class ReportManager {
         EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingTiersCallback, this, true);
         let requestBrainTrainingTiersSocket: SocketData = new SocketData({
             action: this.get_brain_training_tiers,
-            skipDebounce:true
+            skipDebounce: true
         });
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
@@ -93,19 +93,18 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            if(!data.data||!data.data['result']){
-                DebugLog.instance.log('暂无个人报告');
-                return;
-            }
-            let result = data.data['result'];
-            if (result.length == 0) {
-                // DebugLog.instance.log('暂无个人报告');
+            if (data.data) {
+                let result = data.data['result'];
+                if (result.length == 0) {
+                    // DebugLog.instance.log('暂无个人报告');
+                    EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
+                    return;
+                }
+                this._reportDataList = result;
+                this.processReportData(this._reportDataList);
                 EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
-                return;
+
             }
-            this._reportDataList = result;
-            this.processReportData(this._reportDataList);
-            EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
         }
     }
     processReportData(reportDataList: ReportData[]) {
@@ -125,7 +124,7 @@ export class ReportManager {
             data: {
                 "initial": true
             },
-            skipDebounce:true
+            skipDebounce: true
         });
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
@@ -135,42 +134,39 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            if(!data.data||!data.data['result']){
-                DebugLog.instance.log('暂无个人报告');
-                return;
+            if(data.data){
+                let result = data.data['result'];
+                if (result.length == 0) {
+                    return;
+                }
+                this._reportDataListInitial = result;
+                this.processReportData(this._reportDataListInitial);
             }
-            let result = data.data['result'];
-            if (result.length == 0) {
-                return;
-            }
-            this._reportDataListInitial = result;
-            this.processReportData(this._reportDataListInitial);  
-
         }
     }
 
+    clearUserSumReport() {
+        this._userSumReport = '';
+    }
     public getUserSumReport() {
+        this.clearUserSumReport();
         EventManager.getInstance().on(this.get_user_report, this.requestUserSumReportCallback, this, true);
         let requestUserSumReportSocket: SocketData = new SocketData({
             action: this.get_user_report,
-            skipDebounce:true
+            skipDebounce: true
         });
         SocketManager.getInstance().send(requestUserSumReportSocket);
     }
-
+   
     requestUserSumReportCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_user_report, context);
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            // if (!data.data) {
-            //     console.log('数据总结没有数据')
-            //     return;
-            // }
-            let result = data.data;
-            this._userSumReport=data.data;
-            EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
+            // let result = data.data;
+            this._userSumReport = data.data;  
         }
+        EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
     }
 
     public getCogAbilityBrief(cog_ability: string) {
@@ -180,7 +176,7 @@ export class ReportManager {
             data: {
                 cog_ability: cog_ability
             },
-            skipDebounce:true
+            skipDebounce: true
         });
         SocketManager.getInstance().send(requestCogAbilityBriefSocket);
     }
@@ -211,7 +207,7 @@ export class ReportManager {
                 cog_ability: cog_ability,
                 index: index
             },
-            skipDebounce:true
+            skipDebounce: true
         });
         SocketManager.getInstance().send(requestCogAbilityWeeklyScoresSocket);
     }

@@ -201,7 +201,7 @@ export class VipPanel extends BasePanel {
     start() {
         this._vipModel.requestVipData();
         let userInfoData = PersonalCenterManager.getInstance().userInfoData;
-        if (userInfoData.member) {
+        if (userInfoData.is_member) {
             // 会员
             this.typeNode.active = true;
             this.quanyiNode.active = false;

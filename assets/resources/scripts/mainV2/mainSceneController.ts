@@ -2,6 +2,7 @@ import { _decorator, Component, Node } from 'cc';
 import { PageController } from './PageController';
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { ReportManager } from '../ManagerV2/ReportManager';
+import { EventManager } from '../Core/Manager/Event/EventManager';
 
 
 const { ccclass, property } = _decorator;
@@ -19,6 +20,20 @@ export class MainSceneController extends Component {
         this.pageController.init(this.pageContainer);
         this.pageController.loadIndexPage();
     }
+    onEnable(){
+        EventManager.getInstance().on('onShowReport', this.onShowReport, this);
+        EventManager.getInstance().on('onShowGameCenter', this.onShowGameCenter, this);
+    }
+    onDisable(){
+        EventManager.getInstance().off('onShowReport', this);
+        EventManager.getInstance().off('onShowGameCenter', this);
+    }
+    onShowReport(data){
+        this.pageController.loadReporterPage(null,data);
+    }
+    onShowGameCenter(){
+        this.showGameCenter();
+    }
 
     start() {
         DebugLog.instance.log("MainSceneController start");
@@ -33,8 +48,8 @@ export class MainSceneController extends Component {
         this.pageController.loadGameCenterPage();
     }
 
-    showReport(){
-        this.pageController.loadReporterPage();
+     showReport(){
+         this.pageController.loadReporterPage();
     }
 
     showPersonalCenter(){

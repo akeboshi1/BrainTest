@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Component, Label, Node, resources, Sprite, SpriteFrame } from 'cc';
 import { LoginManager } from '../Core/Manager/LoginManager/LoginManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { AlterUserInfoView } from './AlterUserInfoView';
@@ -15,11 +15,8 @@ const { ccclass, property } = _decorator;
 export class UserCenterPanel extends Component {
    @property(Label)
    userName: Label = null;
-
-
-   start() {
-
-   }
+   @property(Sprite)
+   userIcon: Sprite = null;
    onEnable() {
       EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
       PersonalCenterManager.getInstance().requestUserInfo();
@@ -28,14 +25,37 @@ export class UserCenterPanel extends Component {
       EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
    }
 
-   getUserInfoCallBack() {
+   async getUserInfoCallBack() {
       let userData = PersonalCenterManager.getInstance().userInfoData;
+      if(userData.gender==1){
+         const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
+         this.userIcon.spriteFrame = spriteFrame;
+      }else{
+         const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/female/spriteFrame');
+         this.userIcon.spriteFrame = spriteFrame;
+      }
       if (userData.full_name) {
          this.setPersonalCenterTitle(userData.full_name.toString());
       } else {
          this.setPersonalCenterTitle("未设置昵称");
       }
    }
+   async loadTaskSprite(path: string): Promise<SpriteFrame> {
+      return new Promise((resolve, reject) => {
+          resources.load(path, SpriteFrame, (err, spriteFrame) => {
+              if (err) {
+                  reject(err);
+                  return;
+              }
+
+              if (!spriteFrame) {
+                  reject(new Error('Loaded sprite frame is null'));
+                  return;
+              }
+              resolve(spriteFrame);
+          });
+      })
+  }
    setPersonalCenterTitle(title: string) {
       this.userName.string = title;
    }
