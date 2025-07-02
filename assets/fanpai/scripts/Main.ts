@@ -29,12 +29,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     viewNode: Node;
 
     @property(Node)
-    successView: Node;
-
-    @property(Node)
-    failView: Node;
-
-    @property(Node)
     bigWin: Node;
 
     @property(Node)
@@ -48,24 +42,6 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     @property(Button)
     startButton: Button;
-
-    @property(Button)
-    successNextButton: Button;
-
-    @property(Button)
-    successStartButton: Button;
-
-    @property(Button)
-    failNextButton: Button;
-
-    @property(Button)
-    failRetryButton: Button;
-
-    @property(Label)
-    successViewProgressLabel: Label;
-
-    @property(Label)
-    failViewProgressLabel: Label;
 
     @property(ProgressBar)
     progressBar: ProgressBar;
@@ -130,6 +106,7 @@ export class Main extends BaseScene<IBaseGameChild> {
        
     }
 
+
     start() {
         super.start();
         this.showSprite.node.parent.active = false;
@@ -147,8 +124,6 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.level = (this.sceneModel as any).level;
             let skewersGameData = (this.sceneModel as any).game;
-            this.progressBar.node.active = true;
-            this.guankaLabel.node.active = true;
             this.progressBar.progress = skewersGameData.progress;
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
 
@@ -156,41 +131,30 @@ export class Main extends BaseScene<IBaseGameChild> {
         } else {
 
             this.level = (this.sceneModel as any).level;
-            this.hardIndex = 0;//((this.level % 3) == 0?3:(this.level % 3))-1;
-            this.progressBar.node.active = false;
-            this.guankaLabel.node.active = false;
-            // this.progressBar.progress = this.level/;
+            this.hardIndex = (this.sceneModel as any).difficulty - 1;
+            this.progressBar.progress = 1;
+            this.guankaLabel.string = "第" + this.level + "关";
         }
-        // this.hardIndex = (this.sceneModel as any).difficulty - 1;
-        // this.level = (this.sceneModel as any).level;
-        // DebugLog.instance.log("1111111111111111111111111",  this.hardIndex, this.level);
     }
 
     sceneInit() {
         super.sceneInit();
         // 独有初始化
         this.initCardView();
-        // this.timerInit();
 
        
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-            this.successView.active = false;
+            // this.successView.active = false;
             this.loadAudio().then(
                 () => {
                     this.startGameByAlert();
                 }
             );
-           
-           // this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
+
         } else {
-            this.successView.active = true;
-            this.titleLabel.string = `看牌结束后开始挑战`;
-            this.successViewProgressLabel.node.active = true;
-            this.successViewProgressLabel.string = `看牌倒计时${this.seconds[this.hardIndex]}秒`;
-            this.updateSuccessPopupTitle(1);
-            this.successStartButton.node.active = true;
-            this.successNextButton.node.active = false;
-            this.loadAudio().then();
+            this.loadAudio().then(() => {
+                this.startGameByAlert();
+            });
         }
     }
     clickCardHandler(event, data) {
@@ -369,44 +333,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    updateSuccessPopupTitle(num) {
-        if (num == 1) {
-            this.successView.getChildByName('top_Title1').active = true;
-            this.successView.getChildByName('top_Title2').active = false;
-        }
-        if (num == 2) {
-            this.successView.getChildByName('top_Title1').active = false;
-            this.successView.getChildByName('top_Title2').active = true;
-        }
-
-    }
-    updateSuccessPopupToptxt(num) {
-        if (num == 0) {
-            this.successView.getChildByName('top_txt1').active = true;
-            this.successView.getChildByName('top_txt2').active = false;
-        } else {
-            this.successView.getChildByName('top_txt1').active = false;
-            this.successView.getChildByName('top_txt2').active = true;
-            const topTxt = this.successView.getChildByName('top_txt2')
-            if (num == 1) {
-                topTxt.getChildByName('count').getComponent(Label).string = '1';
-            }
-            if (num == 2) {
-                topTxt.getChildByName('count').getComponent(Label).string = '2';
-            }
-            if (num == 3) {
-                topTxt.getChildByName('count').getComponent(Label).string = '3';
-            }
-        }
-
-    }
-    updateSuccessPopupStar(num) {
-        // const lights = ['light1', 'light2', 'light3'];
-        // lights.forEach((lightName, index) => {
-        //     this.successView.getChildByName(lightName).active = index < num;
-        // });
-    }
-
     private _startTime: number = 0
     private _endTime: number = 0;
     currentCustomsSuccess() {
@@ -419,31 +345,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         let obj = this.requestGameResult();
         // 非串烧游戏
         if (this.sceneModel.gameType !== GameType.SKEWERS) {
-            this.successView.active = true;
-            this.successStartButton.node.active = false;
-            this.successNextButton.node.active = true;
-            this.successViewProgressLabel.node.active = true;
-            this.successViewProgressLabel.string = `看牌倒计时${this.seconds[this.hardIndex + 1]}秒`;
-            if (this.curHard == this.hards[0]) {
-                this.updateSuccessPopupTitle(2);
-                this.updateSuccessPopupToptxt(this.curHard);
-                // this.updateSuccessPopupStar(this.curHard);
-            } else if (this.curHard == this.hards[1]) {
-                this.updateSuccessPopupTitle(2);
-                this.updateSuccessPopupToptxt(this.curHard);
-                // this.updateSuccessPopupStar(this.curHard);
-            } else if (this.curHard == this.hards[2]) {
-
-                this.successView.active = false;
-                this.bigWin.active = true;
-            }
+            (this.sceneModel as any).showSuccessView();
             if (!this.customsSendDataState) {
                 this._requestGameCenterComplete(obj.complete, obj.duration);
             }
         } else {
             this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
-            // this.sceneModel.showNextSuccessHandler(this)
-
         }
     }
 
@@ -462,23 +369,12 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     private _gamecenterNextGame() {
         Global.isAgain = false;
-        if (this.hardIndex >= this.hards.length - 1) {
-            this.hardIndex = 0;
-            this.bigWin.active = false;
-            this.updateSuccessPopupTitle(1);
-            this.updateSuccessPopupToptxt(0);
-            this.updateSuccessPopupStar(this.curHard);
-
-        } else {
-            this.hardIndex++;
-        }
         this.level++;
 
         this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
         this.initCardView();
         this.gameStartInit();
-        this.closeFailView();
     }
     playNextCustoms() {
         this.isAbleClick = true;
@@ -495,20 +391,28 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.closeAllCard();
         this.timerInit();
         this.timerTick();
-        this.closeFailView();
         this.previewCard();
         this.playBgmAudio("music/bgMusic",true);
     }
 
-    closeFailView() {
-        this.failView.active = false;
+    onSuccessNextLevel(){
+        this.playNextCustoms();
     }
+
+    onFailNextLevel(): void {
+        
+        this.playNextCustoms();
+    }
+    onAgain(){
+        this.replayGame();
+    }
+
     private calculCardTotalCount(index: number): number {
         return (index + 2) * 4;
     }
 
     gameStartInit() {
-        this.successView.active = false;
+        // this.successView.active = false;
         this.customsSendDataState = false;
         this.initCardView();
 
@@ -773,16 +677,13 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 倒计时结束，游戏结束
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             //上报数据
-            // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
         } else {
             if (!this.customsSendDataState) {
                 this.customsSendDataState = true;
                 this._requestGameCenterComplete(complete, duration);
             }
-            this.failView.active = true;
-            this.failViewProgressLabel.node.active = false;
-            this.failRetryButton.node.active = true;
+            (this.sceneModel as any).showFailView();
         }
     }
 

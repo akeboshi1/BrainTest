@@ -6291,7 +6291,7 @@
     "component": "",
     "_componentId": "bde1fnAzOdI54VmLXzMpc1/",
     "handler": "gameItemClick",
-    "customEventData": "3"
+    "customEventData": "2"
   },
   {
     "__type__": "cc.Sprite",
@@ -8015,7 +8015,7 @@
     "component": "",
     "_componentId": "bde1fnAzOdI54VmLXzMpc1/",
     "handler": "gameItemClick",
-    "customEventData": "4"
+    "customEventData": "3"
   },
   {
     "__type__": "cc.Sprite",
@@ -9739,7 +9739,7 @@
     "component": "",
     "_componentId": "bde1fnAzOdI54VmLXzMpc1/",
     "handler": "gameItemClick",
-    "customEventData": "5"
+    "customEventData": "4"
   },
   {
     "__type__": "cc.Sprite",
@@ -11324,7 +11324,7 @@
     "component": "",
     "_componentId": "bde1fnAzOdI54VmLXzMpc1/",
     "handler": "gameItemClick",
-    "customEventData": "6"
+    "customEventData": "5"
   },
   {
     "__type__": "cc.Sprite",

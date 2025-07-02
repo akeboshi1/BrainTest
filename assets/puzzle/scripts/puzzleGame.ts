@@ -21,12 +21,12 @@ import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
-import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+
+import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -41,9 +41,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     @property(Node)
     private chipParentNode: Node;
-
-    @property(Node)
-    private introduceBtn: Node;
 
     @property(Node)
     quitBtn: Node;
@@ -63,23 +60,19 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     @property(TimerCommonComponent)
     timerComponent: TimerCommonComponent;
 
-    @property(Node)
-    private buttonStartGame: Node;
 
     @property(Node)
     private startGameMask: Node;
 
-    @property(puzzleSummaryAlert)
-    private summaryAlert: puzzleSummaryAlert;
+    // @property(puzzleSummaryAlert)
+    // private summaryAlert: puzzleSummaryAlert;
 
-    @property(Node)
-    private bgNode: Node = null;
 
     @property(Sprite)
     private showSprite: Sprite;
 
     @property(Node)
-    guideView:Node;
+    guideView: Node;
 
     @property(Node)
     private showResultContinueButton: Node;
@@ -120,9 +113,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // 添加一个新属性来控制是否允许拖拽
     private isDragEnabled: boolean = true;
 
-    protected audioUrls = ['music/puzzleBG',"music/drag", "music/win"];
+    protected audioUrls = ['music/puzzleBG', "music/drag", "music/win"];
 
-    private bgmClip:AudioClip;
+    private bgmClip: AudioClip;
 
     private async loadPuzzleTexture(id: number): Promise<Texture2D> {
         const bundle = assetManager.getBundle(this.bundleName);
@@ -147,8 +140,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     onLoad() {
-        this.loadAudio().then(()=>{
-           this.playBgmAudio("music/puzzleBG",true);
+        this.loadAudio().then(() => {
+            this.playBgmAudio("music/puzzleBG", true);
         });
     }
 
@@ -157,16 +150,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         for (let i = 1; i < 201; i++) {
             this.randomPlayIndex.push(i);
         }
-        this.summaryAlert.node.active = false;
         this.showSprite.node.active = false;
         this.cleanChipsCache();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             let game = (this.sceneModel as any).game;
             this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.gameLength = game.timeLimit;
-            this.bgNode.active = false;
-            this.textureIndex =  (game.level - 1) % this.randomPlayIndex.length;
-            
+            this.textureIndex = (game.level - 1) % this.randomPlayIndex.length;
+
             // 串烧游戏时，直接开始游戏，不显示开始提示
             let textureID = this.randomPlayIndex[this.textureIndex];
             this.loadPuzzleTexture(textureID).then((texture) => {
@@ -177,16 +168,17 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 this.onClickStartGame();
             });
         } else {
-            this.bgNode.active = true;
+            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.textureIndex = ((this.sceneModel as any).level - 1) % this.randomPlayIndex.length;
-            
+
             // 非串烧游戏时，显示开始提示
-            this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
+            // this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
             let textureID = this.randomPlayIndex[this.textureIndex];
             this.loadPuzzleTexture(textureID).then((texture) => {
                 this.currentTexture2d = texture;
                 this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
                 this.updatePreviewSprite(this.currentTexture2d);
+                this.onClickStartGame();
             });
         }
     }
@@ -276,13 +268,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     onTouchStart(event: EventTouch) {
         // 拖拽被禁用或已有拖拽实例时直接返回
         if (!this.isDragEnabled || this.dragInstance != null || this.dragStartFlag) return;
-        
+
         this.dragStartFlag = true;
         let currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
         const startpos = new Vec2(vec3.x, vec3.y);
         let selectedObjectIndex = this.checkTouchedObjectIndex(startpos);
-        
+
         if (selectedObjectIndex != -1) {
             this.dragInstance = this.chipsInstances[selectedObjectIndex];
             this.dragObjectStartPos = this.getChipDataByPuzzlePos(selectedObjectIndex)["objectPos"];
@@ -304,15 +296,15 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onTouchEnd(event: EventTouch) {
         if (!this.isDragEnabled || this.dragInstance == null || !this.dragStartFlag) return;
-        
+
         this.playAudio("music/drag", true);
         this.dragStartFlag = false;
-        
+
         const currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
         const endpos = new Vec2(vec3.x, vec3.y);
         const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
-        
+
         if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
             this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
             if (this.checkPuzzleResult()) {
@@ -321,12 +313,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         } else {
             this.processTouchCancel();
         }
-        
+
         this.dragInstance = null;
         DebugLog.instance.log("当前数量：" + this.getCorrentCounts());
-        DebugLog.instance.log('总数',this.chipsInstances.length);
-        
-        
+        DebugLog.instance.log('总数', this.chipsInstances.length);
+
+
     }
 
     onTouchCancel(event: EventTouch) {
@@ -336,7 +328,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.processTouchCancel();
         this.dragInstance = null;
     }
-    
+
     // 重置拖拽状态
     private resetDragState() {
         this.dragStartFlag = false;
@@ -345,7 +337,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     quitGame() {
         this.resetDragState();
-        
+
         super.quitGame({ parentNode: this.viewNode, context: this });
         if (this._timeID) {
             clearTimeout(this._timeID);
@@ -354,7 +346,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     private processTouchCancel() {
         if (!this.dragInstance) return;
-        
+
         tween(this.dragInstance)
             .to(0.3, { position: this.dragObjectStartPos })
             .start();
@@ -365,15 +357,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     processGameSuccess() {
         this.isDragEnabled = false;
-        
+
         if (this._timeID) {
             clearTimeout(this._timeID);
         }
-        
-        this.playAudio("music/win", true);
+
         this.timerComponent.pauseTimer();
         this.showSprite.node.active = true;
-        
+
         // 设置缩放动画（循环2次后完成）
         let _tween = tween(this.showSprite.node)
             .to(2, { scale: new Vec3(1.1, 1.1, 1.1) }, { easing: 'cubicOut' })
@@ -384,28 +375,27 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 // 动画完成回调，在指定次数的动画全部完成后执行
                 this.showSprite.node.setScale(new Vec3(1, 1, 1));
                 this.showSprite.node.active = false;
-                
+                this.playAudio("music/win", true);
                 // 处理游戏结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
                     this.requestGameResult();
                 } else {
                     this._requestGameCenterComplete(1);
-                    this.summaryAlert.node.active = true;
-                    this.summaryAlert.initByResult(true);
-                    this.summaryAlert.fadeIn();
+                    (this.sceneModel as any).showSuccessView();
                 }
             })
             .start();
+
     }
-    
+
     // 启用拖拽功能和重置游戏状态
     private enableDragAndResetGame() {
         this.isDragEnabled = true;
     }
-    
+
     onClickStartGame() {
         this.enableDragAndResetGame();
-        
+
         this._startTime = TimeUtil.getNow();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
@@ -413,26 +403,25 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.timerComponent.startTimer(this.gameLength.valueOf());
         }
         this.onClickDisturbPuzzleButton();
-        this.bgNode.active = false;
         this.startGameMask.active = false;
-       this.playBgmAudio("music/puzzleBG",true);
+        this.playBgmAudio("music/puzzleBG", true);
     }
-    
+
     goonHandler() {
         this.enableDragAndResetGame();
-        
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             (this.sceneModel as any).goonHandler(this);
             return;
         }
 
-        this.onClickChangeLevel();
-        this.startGameMask.active = true;
-        this.bgNode.active = true;
-        this.timerComponent.resetTimer();
+        this.onClickChangeLevel().then(() => {
+            this.startGameMask.active = true;
+            this.timerComponent.resetTimer();
+        });
     }
 
-    dzgoonHandler(resuleBoo:boolean = true) {
+    dzgoonHandler(resuleBoo: boolean = true) {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -441,13 +430,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Executionability;
-                if(!_boo){
+                if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
-                }else{
+                } else {
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -456,12 +445,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onClickRetryCurrentLevel() {
         this.enableDragAndResetGame();
-        
+
         this.cleanChipsCache();
-        Global.isAgain = true;
-        
+
         this.startGameMask.active = true;
-        this.bgNode.active = true;
         this.timerComponent.resetTimer();
 
         let textureID = this.randomPlayIndex[this.textureIndex];
@@ -475,7 +462,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private requestGameResult() {
         // 上报数据
         let endTime = TimeUtil.getNow();
-        let complete = this.getCorrentCounts()/this.chipsInstances.length;
+        let complete = this.getCorrentCounts() / this.chipsInstances.length;
         if (this._startTime == 0) {
             this._startTime = endTime;
         }
@@ -607,24 +594,27 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.randomSwapPuzzleChipsNTimes(this.selectedLevel.x * this.selectedLevel.y);
     }
 
-    onClickChangeLevel() {
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
-        } else {
-            this.selectedLevelIndex = (this.selectedLevelIndex + 1) % this.levelList.length;
-        }
+    onClickChangeLevel(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
+            } else {
+                this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
+            }
 
-        this.selectedLevel = this.levelList[this.selectedLevelIndex];
-        this.textureIndex = (this.textureIndex + 1) % this.randomPlayIndex.length;
-        Global.isAgain = false;
-        this.cleanChipsCache();
+            this.selectedLevel = this.levelList[this.selectedLevelIndex];
+            this.textureIndex = (this.textureIndex + 1) % this.randomPlayIndex.length;
+            this.cleanChipsCache();
 
-        let textureID = this.randomPlayIndex[this.textureIndex];
-        this.loadPuzzleTexture(textureID).then((texture) => {
-            this.currentTexture2d = texture;
-            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
-            this.updatePreviewSprite(this.currentTexture2d);
+            let textureID = this.randomPlayIndex[this.textureIndex];
+            this.loadPuzzleTexture(textureID).then((texture) => {
+                this.currentTexture2d = texture;
+                this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+                this.updatePreviewSprite(this.currentTexture2d);
+                resolve();
+            });
         });
+
     }
 
     private updatePreviewSprite(texture: Texture2D) {
@@ -647,16 +637,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     processGameFail() {
         DebugLog.instance.log("失败");
-        this.playFail();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult();
         } else {
             this._requestGameCenterComplete(0);
-            this.summaryAlert.node.active = true;
-            this.summaryAlert.initByResult(false);
-            this.summaryAlert.fadeIn();
+            (this.sceneModel as any).showFailView();
         }
+        this.playFail();
     }
 
 
@@ -666,8 +654,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         let level = curGame.level;
         let difficulty = curGame.difficulty;//level % 3 == 0?3:level % 3;
         let duration = (this._endTime - this._startTime) / 1000;
-        let complete = this.getCorrentCounts()/this.chipsInstances.length;
-   
+        let complete = this.getCorrentCounts() / this.chipsInstances.length;
+
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: win,
@@ -676,7 +664,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             duration,
             timelimit: this.gameLength,
             difficulty,
-            levelMode:curGame.levelMode
+            levelMode: curGame.levelMode
         });
     }
 
@@ -693,7 +681,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         for (let [key, value] of this.chipsDataMap.entries()) {
             const currentPos = value["puzzlePos"];
             const correctPos = key;
-            
+
             // 如果当前位置不是正确位置，则交换
             if (currentPos !== correctPos) {
                 // 找到当前在正确位置的拼图块
@@ -714,6 +702,46 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.touchMask.active = false;
         this.showResultContinueButton.active = false;
         (this.sceneModel as any).dzanswerHandler(this);
+    }
+
+
+
+    private async gameCenterGoonHandler() {
+        this.enableDragAndResetGame();
+        this.onClickChangeLevel().then(() => {
+            this.startGameMask.active = true;
+            this.timerComponent.resetTimer();
+            this.onClickStartGame();
+        })
+    }
+
+    private gameCenterRetryCurrentLevel() {
+        this.enableDragAndResetGame();
+
+        this.cleanChipsCache();
+
+        this.startGameMask.active = true;
+        this.timerComponent.resetTimer();
+
+        let textureID = this.randomPlayIndex[this.textureIndex];
+        this.loadPuzzleTexture(textureID).then((texture) => {
+            this.currentTexture2d = texture;
+            this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
+            this.updatePreviewSprite(this.currentTexture2d);
+            this.onClickStartGame();
+        });
+    }
+
+    onAgain(): void {
+        this.gameCenterRetryCurrentLevel();
+    }
+
+    onFailNextLevel(): void {
+        this.gameCenterGoonHandler();
+    }
+
+    onSuccessNextLevel(): void {
+        this.gameCenterGoonHandler();
     }
 
 }

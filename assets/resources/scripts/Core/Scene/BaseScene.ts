@@ -76,11 +76,29 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     onEnable() {
         if (this.timerComponent) this.timerComponent.on('timer-end', this.onTimerEnd, this);
+        EventManager.getInstance().on("GAME_SUCCESS_NEXT_LEVEL", this.onSuccessNextLevel, this);
+        EventManager.getInstance().on("GAME_FAIL_NEXT_LEVEL", this.onFailNextLevel, this);
+        EventManager.getInstance().on("GAME_AGAIN", this.onAgain, this);
     }
 
     onDisable() {
         if (this.timerComponent) this.timerComponent.off('timer-end', this.onTimerEnd, this);
+        EventManager.getInstance().off("GAME_FAIL_NEXT_LEVEL",  this);
+        EventManager.getInstance().off("GAME_SUCCESS_NEXT_LEVEL",  this);
+        EventManager.getInstance().off("GAME_AGAIN",  this);
     }
+
+    onSuccessNextLevel(){
+
+    }
+
+    onFailNextLevel(){
+        
+    }
+
+    onAgain(){
+    }
+
 
     // ========== 资源加载 ==========
     protected async loadAudio() {

@@ -86,7 +86,7 @@ export class SentenceMakingModel {
             }
 
         } else {
-            this.setQuestionDifficult((this.selectedDifficult + 1) % 3 == 0 ? 3 : (this.selectedDifficult + 1) % 3);//最多3个难度1,2,3
+            this.setQuestionDifficult((this._view.sceneModel as any).difficulty)//((this.selectedDifficult + 1) % 3 == 0 ? 3 : (this.selectedDifficult + 1) % 3);//最多3个难度1,2,3
             this.currentQuestionLevel = (this._view.sceneModel as any).game.getLevelByDifficult(this.selectedDifficult);
         }
     }
