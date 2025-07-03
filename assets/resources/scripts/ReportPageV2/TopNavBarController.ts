@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView, Button } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView, Button, tween, Vec3 } from 'cc';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
 import { ReportManager } from '../ManagerV2/ReportManager';
@@ -95,10 +95,12 @@ export class TopNavBarController extends Component {
         this.labelsNode.forEach((node, index) => {
             const label = node.getChildByName('text').getComponent(Label);
             const line = node.getChildByName('line');
+            node.scale = new Vec3(1, 1, 1);
             if (label) {
                 if (index === i) {
                     line.active = true;
                     label.color = new Color(0, 89, 247); // 选中颜色（蓝色）
+                    tween(node).to(0.1, {scale: new Vec3(1.1, 1.1, 1.1)}).start();
                 } else {
                     line.active = false;
                     label.color = new Color(98, 99, 102); // 未选中颜色（灰色）

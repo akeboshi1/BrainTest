@@ -161,7 +161,7 @@ export class IndexPageView extends Component {
             alertData.title = "去解锁会员,畅玩更多功能";
             alertData.cancelButtonVisible=true;
             alertData.confirmCb = function () {
-                this.cofirmGoToCameCenter();
+                this.cofirmGoToVip();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
         }
@@ -176,7 +176,7 @@ export class IndexPageView extends Component {
             alertData.title = "去解锁会员,畅玩更多功能";
             alertData.cancelButtonVisible=true;
             alertData.confirmCb = function () {
-                this.cofirmGoToCameCenter();
+                this.cofirmGoToVip();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
         }
@@ -198,7 +198,7 @@ export class IndexPageView extends Component {
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
     }
-    cofirmGoToCameCenter() {
+    cofirmGoToVip() {
         UIManager.getInstance().showPanel(VipPanel.NAME);
     }
     showUserInfo() {
