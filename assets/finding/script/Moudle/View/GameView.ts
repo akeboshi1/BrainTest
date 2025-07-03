@@ -5,20 +5,16 @@ import GameConfig from "../Game/GameConfig";
 import Tools from "../../Common/Tools";
 import AudioMgr from "../../Common/manage/AudioMgr";
 import HintPrefab from "../Game/HintPrefab";
-import EndView from "./EndView";
 import Constant from "../../Common/Constant";
 import {
     _decorator,
     assetManager,
     Color,
     director,
-    Graphics,
     ProgressBar,
     instantiate,
     Label,
     Node,
-    ParticleAsset,
-    ParticleSystem2D,
     Prefab,
     Rect,
     Sprite,
@@ -26,7 +22,9 @@ import {
     tween,
     UIOpacity,
     UITransform,
-    Vec3
+    Vec3,
+    ParticleSystem2D,
+    ParticleAsset
 } from "cc";
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
@@ -776,8 +774,57 @@ export default class GameView extends LayerPanel {
     public clearGameView() {
         super.clearGameView();
         AudioMgr.stop();
+        
+        // 安全清理：禁用所有相关节点而不是直接设置spriteFrame为null
+        this.safeClearAllNodes();
     }
 
+    /**
+     * 安全清理所有节点，通过禁用节点来避免引擎渲染错误
+     */
+    private safeClearAllNodes() {
+        // 禁用主视图节点
+        if (this.viewNode && this.viewNode.isValid) {
+            this.viewNode.active = false;
+        }
+        
+        // 禁用错误节点
+        if (this.errNode && this.errNode.isValid) {
+            this.errNode.active = false;
+        }
+        
+        // 禁用提示节点
+        if (this.reminderNode && this.reminderNode.isValid) {
+            this.reminderNode.active = false;
+        }
+        
+        // 禁用胜利节点
+        if (this.victory && this.victory.isValid) {
+            this.victory.active = false;
+        }
+        
+        // 禁用彩带节点
+        if (this.plistNode && this.plistNode.isValid) {
+            this.plistNode.active = false;
+        }
+        
+        // 禁用所有图片节点
+        if (this.pictureList && this.pictureList.length > 0) {
+            this.pictureList.forEach(picture => {
+                if (picture && picture.isValid) {
+                    picture.active = false;
+                }
+            });
+        }
+        
+        // 禁用提示圆圈节点
+        if (this.hintRoundNode1 && this.hintRoundNode1.isValid) {
+            this.hintRoundNode1.active = false;
+        }
+        if (this.hintRoundNode2 && this.hintRoundNode2.isValid) {
+            this.hintRoundNode2.active = false;
+        }
+    }
 
     private _pauseStartTime: number = 0;
     private _pauseDurTime: number = 0;
@@ -852,6 +899,10 @@ export default class GameView extends LayerPanel {
     exitCallBack(context) {
         context.pause = false;
         AudioMgr.audioSource.stop();
+        
+        // 安全清理：禁用所有相关节点
+        this.safeClearAllNodes();
+        
         PanelMgr.INS.closePanel(GameView);
         FindingGlobal.reset();
         context.totalCompete(context);
@@ -866,11 +917,12 @@ export default class GameView extends LayerPanel {
             this.victory.active = true;
             AudioMgr.play("sub/audio/view/game/win", 1, false).then();
         } else {
-            AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
+            AudioMgr.play("sub/audio/view/game/lose", 1, false).then();
         }
+        AudioMgr.audioSource.stop();
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
-        AudioMgr.audioSource.stop();
+       
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             FindingGlobal.skewersGameLevel = 0;
             this._requestSkewersGameComplete();
@@ -942,7 +994,7 @@ export default class GameView extends LayerPanel {
             } else {
                 (this.sceneModel as any).showFailView();
             }
-        }, 1500);
+        }, 1000);
     }
 
     public createHintPrefab() {
