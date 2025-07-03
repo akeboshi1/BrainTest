@@ -21,7 +21,6 @@ const { ccclass, property } = _decorator;
 export class Game extends BaseScene<IBaseGameChild> {
     //Game实例
     public static Ins: Game = null;
-    private BannerInit: boolean = false;
     // 添加GameView引用
     protected curView: BaseScene<IBaseGameChild> = null;
 

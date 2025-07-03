@@ -1,4 +1,4 @@
-import { Component, _decorator,Button,Node,Color,Label,Sprite } from "cc";
+import {  _decorator,Button,Node,Color,Label,Sprite } from "cc";
 import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
 import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import {GameCenterManager} from "db://assets/resources/scripts/Game/GameCenter/GameCenterManager";
@@ -21,9 +21,7 @@ const OptionButtonColorMap = {//rgb(209, 95, 128)
  */
 @ccclass('GuidePanel')
 export class GuidePanel extends BasePanel {
-    
-    @property(Node)
-    backGround:Node = null;
+
     
     @property(Button)
     btn:Button = null;
