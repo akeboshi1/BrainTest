@@ -22,17 +22,12 @@ export class MainSceneController extends Component {
     }
     onEnable(){
         EventManager.getInstance().on('onShowReport', this.onShowReport, this);
-        EventManager.getInstance().on('onShowGameCenter', this.onShowGameCenter, this);
     }
     onDisable(){
         EventManager.getInstance().off('onShowReport', this);
-        EventManager.getInstance().off('onShowGameCenter', this);
     }
     onShowReport(data){
         this.pageController.loadReporterPage(null,data);
-    }
-    onShowGameCenter(){
-        this.showGameCenter();
     }
 
     start() {
