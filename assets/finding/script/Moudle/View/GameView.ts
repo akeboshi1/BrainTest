@@ -179,7 +179,7 @@ export default class GameView extends LayerPanel {
             } else {
                 let _hard =(this.sceneModel as any).game.difficulty;
                 this._curHard = _hard;
-                this._checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
+                if(!Global.isAgain)this._checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
                 // if(Global.isAgain){
                 //     CacheMgr.hard --;
                 //     _hard = _hard<0?0:_hard-1;
