@@ -239,7 +239,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -390.688,
-      "y": 409.14,
+      "y": 418.983,
       "z": 0
     },
     "_lrot": {
@@ -424,7 +424,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 167.068,
+      "x": 151.564,
       "y": -5.245,
       "z": 0
     },
@@ -465,8 +465,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 240,
-      "height": 75.6
+      "width": 199.199951171875,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -504,10 +504,10 @@
     "_string": "用户诊断",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 49.8,
+    "_fontSize": 49.8,
     "_fontFamily": "Arial",
-    "_lineHeight": 60,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -625,7 +625,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 256.086,
-      "y": 397.922,
+      "y": 408.923,
       "z": 0
     },
     "_lrot": {

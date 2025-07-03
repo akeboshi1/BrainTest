@@ -280,7 +280,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 0,
+      "y": -20,
       "z": 0
     },
     "_lrot": {
@@ -320,8 +320,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 240,
-      "height": 75.726
+      "width": 220,
+      "height": 69.3
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -358,11 +358,11 @@
     },
     "_string": "报告解读",
     "_horizontalAlign": 1,
-    "_verticalAlign": 1,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_verticalAlign": 2,
+    "_actualFontSize": 55,
+    "_fontSize": 55,
     "_fontFamily": "Arial",
-    "_lineHeight": 60.1,
+    "_lineHeight": 55,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -760,8 +760,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 80,
-      "height": 50.4
+      "width": 90,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -799,10 +799,10 @@
     "_string": "总结",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1225,8 +1225,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 50.4
+      "width": 135,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1264,10 +1264,10 @@
     "_string": "记忆力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1690,8 +1690,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 50.4
+      "width": 135,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1729,10 +1729,10 @@
     "_string": "判断力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -2155,8 +2155,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 50.4
+      "width": 135,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2194,10 +2194,10 @@
     "_string": "计算力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -2620,8 +2620,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 50.4
+      "width": 135,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2659,10 +2659,10 @@
     "_string": "语言力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -3085,8 +3085,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 50.4
+      "width": 135,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3124,10 +3124,10 @@
     "_string": "执行力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
