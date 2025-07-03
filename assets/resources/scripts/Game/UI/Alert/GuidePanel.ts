@@ -60,22 +60,22 @@ export class GuidePanel extends BasePanel {
             let descStr = "";
             switch(this.gameName){
                 case BundleName.FINGING:
-                    descStr = "找茬游戏"
+                    descStr = "找茬游戏:对比两幅高度相似的图片，找出细微差异（如颜色、形状、数量），锻炼细节观察力与专注度"
                     break;
                 case BundleName.FANPAI:
-                    descStr = "翻牌游戏"
+                    descStr = "翻牌游戏:玩家通过记忆卡牌位置寻找相同图案或数字的配对牌，考验短期记忆力与空间定位能力"
                     break;
                 case BundleName.PUZZLE:
-                    descStr = "拼图游戏"
+                    descStr = "拼图游戏:将碎片拼接为完整图案，训练空间想象力与耐心，锻炼人的执行力"
                     break;
                 case BundleName.CATCHFISH:
-                    descStr = "捕鱼游戏"
+                    descStr = "捕鱼游戏:将数学运算（加减法）融入捕鱼情境，玩家通过计算捕获目标鱼群，兼具趣味性与知识性，锻炼人的计算能力"
                     break;
                 case BundleName.GUESSINGGAME:
-                    descStr = "猜谜游戏"
+                    descStr = "猜谜游戏:通过线索推断答案，涵盖文字谜、动作谜、逻辑谜等多种形式，锻炼人的推理能力"
                     break;
                 case BundleName.SENTENCEMAKING:
-                    descStr = "造句游戏"
+                    descStr = "组词造句:以麻将牌形式的文字游戏，牌面上是单个汉字或词语，玩家通过组合这些牌来形成词语或句子，锻炼人的语言能力"
                     break;
                 case BundleName.SMALLTHEATER:
                     descStr = "小剧场"
