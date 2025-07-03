@@ -162,9 +162,12 @@ export class GameCenterManager {
     }
 
     public get currentGame(): GameCenterData {
+        this._curGame.difficulty = this._selectDifficulty;
         return this._curGame;
     }
 
+
+    private _selectDifficulty:number = 1;
     /**
      * 设置当前游戏难度
      * @param difficulty 难度等级 1-简单 2-中等 3-困难
@@ -176,6 +179,7 @@ export class GameCenterManager {
         }
 
         if (this._curGame) {
+            this._selectDifficulty = difficulty;
             this._curGame.difficulty = difficulty;
             DebugLog.instance.log(`Game difficulty set to: ${difficulty}`);
         } else {
