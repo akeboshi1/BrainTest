@@ -285,7 +285,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 135.918,
+      "x": 154.038,
       "y": 0,
       "z": 0
     },
@@ -326,8 +326,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 196,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -365,10 +365,10 @@
     "_string": "任务概览",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 49,
+    "_fontSize": 49,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
