@@ -17,6 +17,8 @@ import { TaskManager } from '../Game/Task/TaskManager';
 import { TaskAndNotificationPanelCtrl } from '../Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { SceneManager } from '../Core/Manager/Scene/SceneManager';
 import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
+import { Global } from '../Core/Manager/Config/Global';
+import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/BundlePreloadManager';
 
 
 const { ccclass, property } = _decorator;
@@ -66,6 +68,7 @@ export class IndexPageView extends Component {
         EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
     }
     onDisable() {
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
         EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
@@ -149,22 +152,51 @@ export class IndexPageView extends Component {
         }
     }
     showBrainTrainingPanel() {
-        UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
-        UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
-    }
-    private _clickBoo = false;
-    navigatetoFingerGame() {
         let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
         if (is_member) {
-            EventManager.getInstance().emit('onShowGameCenter');
+            UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+            UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
         } else {
             const alertData: AlertData = new AlertData();
             alertData.title = "去解锁会员,畅玩更多功能";
+            alertData.cancelButtonVisible=true;
             alertData.confirmCb = function () {
                 this.cofirmGoToCameCenter();
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
         }
+    }
+
+    navigatetoFingerGame() {
+        let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
+        if (is_member) {
+            this.goToFingerCame();
+        } else {
+            const alertData: AlertData = new AlertData();
+            alertData.title = "去解锁会员,畅玩更多功能";
+            alertData.cancelButtonVisible=true;
+            alertData.confirmCb = function () {
+                this.cofirmGoToCameCenter();
+            }.bind(this);
+            AlertManager.getInstance().showAlert(alertData);
+        }
+    }
+    private _clickBoo = false;
+    goToFingerCame(){
+        if (this._clickBoo) {
+            return;
+        }
+        this._clickBoo = true;
+        let url = Global.RES_Root + BundleName.FINGERGAME;
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.FINGERGAME), this, true);
+        BundlePreloadManager.getInstance().preload(BundleName.FINGERGAME); 
+    }
+    private onPreloadFinish(url: string, sceneName: string, data: any) {
+        let self = this;
+        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+            self._clickBoo = false;
+            DebugLog.instance.log(`${sceneName} 场景切换成功`);
+        });
     }
     cofirmGoToCameCenter() {
         UIManager.getInstance().showPanel(VipPanel.NAME);
