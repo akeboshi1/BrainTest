@@ -34,7 +34,7 @@ export class SettlementPanel extends BasePanel{
 
     public nextHandler: Function = null;
 
-    public static NAME: string = 'GuidePanel';
+    public static NAME: string = 'SettlementPanel';
 
     constructor(){
         super();
