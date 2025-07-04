@@ -390,7 +390,6 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     replayGame() {
         this.isAbleClick = true;
-        Global.isAgain = true;
         this.closeAllCard();
         this.timerInit();
         this.timerTick();
