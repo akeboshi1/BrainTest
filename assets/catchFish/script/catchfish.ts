@@ -979,8 +979,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.bgmClip = null;
         this.customsSendDataState = true;
         this._gameEnded = false; // 重置游戏结束标志
+        this._clearBoo = false;
+        this._pause = false; // 重置暂停状态
+        this.hasGuide = false; // 重置引导状态
+        this.isGuide = false; // 重置引导状态
+        this.hasWangClick = false; // 重置网点击状态
         Global.isAgain = true;
         this.clearGameView();
+        // 重新设置游戏状态，因为clearGameView会设置_gameEnded为true
+        this._gameEnded = false;
         this._clearBoo = false;
         this._startTime = TimeUtil.getNow();
         this.wangCount = 0;
