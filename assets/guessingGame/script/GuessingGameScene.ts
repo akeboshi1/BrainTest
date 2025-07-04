@@ -90,6 +90,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     
     // 添加状态标记，用于跟踪是否已经进入答题阶段
     private _isInAnswerPhase: boolean = false;
+    private _isAudioFinished: boolean = false; // 添加语音播放完成状态
 
     protected bundleName: string = 'guessingGame';
 
@@ -164,15 +165,17 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     private onShowQuestion(data: any) {
-
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            let skewersGameData = (this.sceneModel as any).game;
-            this.progresslabel.string = "第" + skewersGameData.progressStr + "关";
-            this.progress.progress = skewersGameData.progress;
-        } else {
-            let level = (this.sceneModel as any).level;
-            this.progress.progress = level/this.guessingGameModel.getMaxQuestionCount();
-            this.progresslabel.string = "第" + level + "关";
+        // 只有在非重玩模式下才更新关卡标签
+        if (!this._replay) {
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                let skewersGameData = (this.sceneModel as any).game;
+                this.progresslabel.string = "第" + skewersGameData.progressStr + "关";
+                this.progress.progress = skewersGameData.progress;
+            } else {
+                let level = (this.sceneModel as any).level;
+                this.progress.progress = level/this.guessingGameModel.getMaxQuestionCount();
+                this.progresslabel.string = "第" + level + "关";
+            }
         }
 
         // this.questionNode.active = true;
@@ -199,9 +202,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.questionLabel.string = this.currentQuestion.questionText;
         }
         
-        // 播放语音时隐藏重听按钮
+        // 语音开始播放时设置状态
+        this._isAudioFinished = false;
+        
+        // 播放语音时显示重听按钮（语音未播放完毕时）
         if (this.questionReplayNode) {
-            this.questionReplayNode.active = false;
+            this.questionReplayNode.active = true;
         }
         
         // 语音开始播放时显示开始按钮
@@ -228,9 +234,15 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             }
         }
 
-        // 语音播放完毕后，隐藏开始按钮
+        // 语音播放完毕时设置状态
+        this._isAudioFinished = true;
+
+        // 语音播放完毕后，隐藏重听按钮
         if (this.questionReplayNode) {
             this.questionReplayNode.active = false;
+        }
+        if (this.replayButtonNode) {
+            this.replayButtonNode.active = false;
         }
         
         // 语音播放完毕后，隐藏开始按钮
@@ -265,9 +277,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 标记进入答题阶段
         this._isInAnswerPhase = true;
 
-        // 开始答题时显示重听按钮
+        // 开始答题时隐藏重听按钮（语音已播放完毕）
         if (this.questionReplayNode) {
-            this.questionReplayNode.active = true;
+            this.questionReplayNode.active = false;
         }
 
         // this.rollingSubtitleCom.resetString(this.currentQuestion.questionText);
@@ -406,7 +418,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
     reSetButton(){
         this.replayCount = 2;
-        this.replayButtonNode.active = true;
+        // 只有在语音未播放完毕时才显示重听按钮
+        this.replayButtonNode.active = !this._isAudioFinished;
         this.replayButtonNode.getChildByName("text").getComponent(Label).string = `重听题目${this.replayCount}`;
     }
 
@@ -432,6 +445,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     onClickRetryGame() {
         this.resetPanel();
+        // 设置重玩标志，避免更新关卡标签
+        this._replay = true;
         this.guessingGameModel.startQuestionFlow(); 
     }
 
@@ -482,6 +497,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 重置答题阶段标记
         this._isInAnswerPhase = false;
         this._replay = false;
+        this._isAudioFinished = false; // 重置语音播放状态
         
         // this.timerRT.node.active = false;
         // this.timerStartGame.node.active = false;
@@ -491,12 +507,17 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.frameComponent.playAnimation("idle", 16, true, true);
 
         this.analysisNode.active = false;
-        this.reSetButton();
         
-        // 重置时隐藏重听按钮
+        // 重置时隐藏重听按钮（因为语音还未开始播放）
         if (this.questionReplayNode) {
             this.questionReplayNode.active = false;
         }
+        if (this.replayButtonNode) {
+            this.replayButtonNode.active = false;
+        }
+        
+        // 重置重听按钮状态
+        this.reSetButton();
         
         // 重置时隐藏开始按钮
         if (this.startBtn) {
@@ -531,6 +552,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.guessingGameModel.stopAudio();
         this.frameComponent.playAnimation("idle", 16, true, true);
         
+        // 直接答题时设置语音播放完毕状态
+        this._isAudioFinished = true;
+        
         // 点击开始按钮后隐藏开始按钮
         if (this.startBtn) {
             this.startBtn.getComponent(Button).interactable = true;
@@ -545,6 +569,14 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                     opnode.getChildByName("Label").getComponent(Label).string = this.currentQuestion.options[op];
                 }
             }
+        }
+        
+        // 直接答题时隐藏重听按钮
+        if (this.questionReplayNode) {
+            this.questionReplayNode.active = false;
+        }
+        if (this.replayButtonNode) {
+            this.replayButtonNode.active = false;
         }
         
         // 点击开始按钮后启用选项按钮
