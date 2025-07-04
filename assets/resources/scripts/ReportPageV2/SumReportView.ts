@@ -13,10 +13,16 @@ export class SumReportView extends Component {
     dataLable: Label = null;
     @property(RadiaGraph)
     radarMap: RadiaGraph = null;
+    @property(Label)
+    weekStatistics: Label = null;
 
     start() {
-        this.showTwoWeekGraph();
-        this.getInitialReport();
+        this.showWeekStatistics();
+        this.showInitialWeekGraph();
+        this.showCurrentWeekGraph();
+
+    }
+    showWeekStatistics(){
 
     }
     clickNavBar(event, data) {
@@ -26,14 +32,14 @@ export class SumReportView extends Component {
         }
         EventManager.getInstance().emit('onTopNavBarClick', data);
     }
-    showTwoWeekGraph() {
+    showCurrentWeekGraph() {
         let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
         // const lastValues=reportDataList.map(item => item.last_tier);
         // this.radarMap.getComponent(RadiaGraph).setSecondValues(lastValues);
         const values = reportDataList.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setValues(values);
     }
-    getInitialReport() {
+    showInitialWeekGraph() {
         let reportDataListInitial: ReportData[] = ReportManager.getInstance().reportDataListInitial;
         const valuesInitial = reportDataListInitial.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setSecondValues(valuesInitial);

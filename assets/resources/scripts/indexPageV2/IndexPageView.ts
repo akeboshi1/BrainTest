@@ -87,7 +87,12 @@ export class IndexPageView extends Component {
             const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/female/spriteFrame');
             this.userIcon.spriteFrame = spriteFrame;
          }
-        this.setUserName(userData.full_name);
+         if(userData.full_name){
+            this.setUserName(userData.nickname);
+         }else{
+            this.setUserName("未设置昵称");
+         }
+      
         this.setDayLabel(userData.trained_days);
         if (!userData.has_initial_tier) {
             this.initDataParent.active = true;

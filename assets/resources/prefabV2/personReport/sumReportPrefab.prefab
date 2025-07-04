@@ -5520,6 +5520,9 @@
     "radarMap": {
       "__id__": 220
     },
+    "weekStatistics": {
+      "__id__": 27
+    },
     "_id": ""
   },
   {
