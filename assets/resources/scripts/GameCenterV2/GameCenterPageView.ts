@@ -52,15 +52,16 @@ export class GameCenterPageView extends Component {
         }
         this._clickBoo = true;
         let index = Number(data);
-        // if(index== 6){
-        //     let url = Global.RES_Root + BundleName.MATH24;
-        //     DebugLog.instance.log(`${BundleName.MATH24} click perload`);
-        //     EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-        //     GameCenterManager.getInstance().perload(url,BundleName.MATH24);
-        //     return;
-        // }
+        if(index== 6){
+            let url = Global.RES_Root + BundleName.FINGERGAME;
+            DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.FINGERGAME);
+            return;
+        }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
+                this._clickBoo = false;
                 DebugLog.instance.error(data.message);
                 return;
             }

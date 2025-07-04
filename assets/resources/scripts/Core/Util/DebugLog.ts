@@ -1,3 +1,5 @@
+import {AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+
 export class DebugLog {
 
     private static _instance: DebugLog;
@@ -28,8 +30,8 @@ export class DebugLog {
     public warn(...data: any[]){
         if(this.debugBoo)console.warn(...data);
     }
-
     public error(...data: any[]){
+        AlertManager.getInstance().showSocketAlert(data.join(' '));
         console.error(...data);
     }
 }
