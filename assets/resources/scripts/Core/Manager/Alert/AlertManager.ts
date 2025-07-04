@@ -261,9 +261,9 @@ export class AlertManager extends BaseManager {
         let alertNode = instantiate(this._socketAlertPrefab);
 
         // 如果找不到弹窗层，则输出错误信息
-        let rootNode: Node = LayerUtil.getAlertLayer();
+        let rootNode: Node = LayerUtil.createTopLayer('AlertLayer');
         if (!rootNode) {
-            DebugLog.instance.error("Can not find alert layer!");
+            DebugLog.instance.error("Can not create top layer for alert!");
             return;
         }
 

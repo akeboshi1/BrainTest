@@ -195,9 +195,7 @@ export class SocketManager extends BaseManager {
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
-        DebugLog.instance.warn('onSocketError !');
-        // 显示 Socket 错误提示
-        AlertManager.getInstance().showSocketAlert('网络连接错误');
+        DebugLog.instance.error('onSocketError !');
         this._isReconnecting = false;
         this.processReconnectFlow();
     }

@@ -236,14 +236,18 @@ export class GameCenterManager {
 
     private startGameCallBack(data, context) {
         DebugLog.instance.log("startGameCallBack", data);
+        let gsData = this._callbackDic.get(GameCenterManager.GAMESTART);
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
+            if (gsData && gsData.callback) {
+                gsData.socketData.data = data.data;
+                gsData.callback(data);
+            }
             return;
         }
         EventManager.getInstance().off(GameCenterManager.GAMESTART, context);
         this._curGame = new GameCenterData(data.data);
-        let gsData = this._callbackDic.get(GameCenterManager.GAMESTART);
         if (gsData && gsData.callback) {
             gsData.socketData.data = data.data;
             gsData.callback(data);
