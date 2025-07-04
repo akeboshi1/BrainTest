@@ -784,7 +784,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "fc27d55f-be0a-45fd-80b1-41957a55f434@f9941",
+      "__uuid__": "24801635-f1c8-4f7e-b2a9-9a6387393c15@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -12431,6 +12431,9 @@
     },
     "title": {
       "__id__": 21
+    },
+    "touXiangIcon": {
+      "__id__": 30
     },
     "_id": ""
   },

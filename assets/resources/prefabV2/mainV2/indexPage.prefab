@@ -464,7 +464,10 @@
       "b": 255,
       "a": 255
     },
-    "_spriteFrame": null,
+    "_spriteFrame": {
+      "__uuid__": "24801635-f1c8-4f7e-b2a9-9a6387393c15@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "_type": 0,
     "_fillType": 0,
     "_sizeMode": 0,
@@ -520,7 +523,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 300,
+      "x": 205.077,
       "y": 0,
       "z": 0
     },
@@ -566,7 +569,7 @@
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""

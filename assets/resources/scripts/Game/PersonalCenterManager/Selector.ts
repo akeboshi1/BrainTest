@@ -12,7 +12,7 @@ export class Selector extends Component {
     // options: String[] = [];
     private options: string[] = [];
 
-    callback: (sex: string) => void;
+    callback: (data: string) => void;
 
     private _nodes: Nodes = null;
 

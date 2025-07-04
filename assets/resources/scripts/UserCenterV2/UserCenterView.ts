@@ -35,7 +35,7 @@ export class UserCenterPanel extends Component {
          this.userIcon.spriteFrame = spriteFrame;
       }
       if (userData.full_name) {
-         this.setPersonalCenterTitle(userData.full_name.toString());
+         this.setPersonalCenterTitle(userData.nickname);
       } else {
          this.setPersonalCenterTitle("未设置昵称");
       }
