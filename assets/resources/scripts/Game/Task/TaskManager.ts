@@ -153,10 +153,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            const ad: AlertData = new AlertData();
-            ad.title = "提示";
-            ad.message = data.message;
-            AlertManager.getInstance().showAlert(ad);
+            AlertManager.getInstance().showSocketAlert(data.message);
             return;
         } else {
             let results = data.data['result'];
@@ -244,10 +241,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            const ad: AlertData = new AlertData();
-            ad.title = "提示";
-            ad.message = data.message;
-            AlertManager.getInstance().showAlert(ad);
+            AlertManager.getInstance().showSocketAlert(data.message);
             return;
         } else {
             let results = data.data['result'];
@@ -365,10 +359,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            const ad: AlertData = new AlertData();
-            ad.title = "提示";
-            ad.message = data.message;
-            AlertManager.getInstance().showAlert(ad);
+            AlertManager.getInstance().showSocketAlert(data.message);
             return;
         } else {
             let id = data.data['task_id'];
@@ -410,10 +401,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            const ad: AlertData = new AlertData();
-            ad.title = "提示";
-            ad.message = data['error'];
-            AlertManager.getInstance().showAlert(ad);
+            AlertManager.getInstance().showSocketAlert(data.message);
             return;
         } else {
             // DebugLog.instance.log(`获取通知成功`);

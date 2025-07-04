@@ -127,6 +127,7 @@ export class LoginManager {
     private requestLoginByMpHandler(data: any) {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
+            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
             // const alertData: AlertData = new AlertData();
             // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;

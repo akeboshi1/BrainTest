@@ -158,10 +158,7 @@ export class SkewersManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            const ad: AlertData = new AlertData();
-            ad.title = "";
-            ad.message = data.message;
-            AlertManager.getInstance().showAlert(ad);
+            AlertManager.getInstance().showAlert(data.message);
             return;
         } else {
             let result = data.data['result'];
@@ -373,10 +370,7 @@ export class SkewersManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            const ad: AlertData = new AlertData();
-            ad.title = "";
-            ad.message = data.message;
-            AlertManager.getInstance().showAlert(ad);
+            AlertManager.getInstance().showAlert(data.message);
             return;
         } else {
             if (!this._gameDatas || this._gameDatas.length <= 0) {

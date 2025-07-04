@@ -14,6 +14,7 @@ import { GameType } from "db://assets/resources/scripts/Core/Scene/SceneModel/Ba
 import { GameCenterSpecModel } from "db://assets/resources/scripts/Core/Scene/SceneModel/GameCenterSpecModel";
 import { SettlementPanel } from "db://assets/resources/scripts/Core/UI/SettlementPanel";
 import { UIManager } from "../../Core/Manager/UI/UIManager";
+import { AlertManager } from "../../Core/Manager/Alert/AlertManager";
 
 /**
  * 游戏大厅通信数据
@@ -239,6 +240,7 @@ export class GameCenterManager {
         let gsData = this._callbackDic.get(GameCenterManager.GAMESTART);
         let status = data.status;
         if (status == 0) {
+            AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
             if (gsData && gsData.callback) {
                 gsData.socketData.data = data.data;
@@ -341,6 +343,7 @@ export class GameCenterManager {
     private gamePassLevelCallBack(data, context) {
         let status = data.status;
         if (status == 0) {
+            AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
             return;
         }
