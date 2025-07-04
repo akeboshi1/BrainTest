@@ -371,6 +371,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         Global.isAgain = false;
         this.level++;
 
+        // 更新关卡标签显示
+        this.guankaLabel.string = "第" + this.level + "关";
+
         this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
         this.initCardView();
