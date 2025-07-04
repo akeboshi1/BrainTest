@@ -2,7 +2,7 @@
   "ver": "1.0.27",
   "importer": "image",
   "imported": true,
-  "uuid": "d052dbda-910e-4962-abda-230bb7ba4a88",
+  "uuid": "24801635-f1c8-4f7e-b2a9-9a6387393c15",
   "files": [
     ".json",
     ".png"
@@ -10,14 +10,14 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "d052dbda-910e-4962-abda-230bb7ba4a88@6c48a",
-      "displayName": "touxiang",
+      "uuid": "24801635-f1c8-4f7e-b2a9-9a6387393c15@6c48a",
+      "displayName": "touXiang",
       "id": "6c48a",
       "name": "texture",
       "userData": {
         "wrapModeS": "clamp-to-edge",
         "wrapModeT": "clamp-to-edge",
-        "imageUuidOrDatabaseUri": "d052dbda-910e-4962-abda-230bb7ba4a88",
+        "imageUuidOrDatabaseUri": "24801635-f1c8-4f7e-b2a9-9a6387393c15",
         "isUuid": true,
         "visible": false,
         "minfilter": "linear",
@@ -34,8 +34,8 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "d052dbda-910e-4962-abda-230bb7ba4a88@f9941",
-      "displayName": "touxiang",
+      "uuid": "24801635-f1c8-4f7e-b2a9-9a6387393c15@f9941",
+      "displayName": "touXiang",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
@@ -114,7 +114,7 @@
           ]
         },
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "d052dbda-910e-4962-abda-230bb7ba4a88@6c48a",
+        "imageUuidOrDatabaseUri": "24801635-f1c8-4f7e-b2a9-9a6387393c15@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.12",
@@ -129,6 +129,6 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "fixAlphaTransparencyArtifacts": false,
-    "redirect": "d052dbda-910e-4962-abda-230bb7ba4a88@6c48a"
+    "redirect": "24801635-f1c8-4f7e-b2a9-9a6387393c15@6c48a"
   }
 }
