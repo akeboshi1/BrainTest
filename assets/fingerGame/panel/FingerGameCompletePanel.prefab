@@ -347,7 +347,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Label-001",
+    "_name": "title",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1225,6 +1225,9 @@
     },
     "detailContainer": {
       "__id__": 16
+    },
+    "titleLabel": {
+      "__id__": 13
     },
     "_id": ""
   },

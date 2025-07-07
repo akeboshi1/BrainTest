@@ -1,6 +1,7 @@
 import { _decorator, Component, instantiate, Label, Node, Prefab } from 'cc';
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
+import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
 const { ccclass, property } = _decorator;
 
 /**
@@ -31,11 +32,43 @@ export class FingerGameCompletePanel extends BasePanel {
     @property(Node)
     private detailContainer:Node = null;
 
+    @property(Label)
+    private titleLabel:Label = null;
+
+    private _data:DataProvider<IFingerGameCompleteData[]> = null;
+
     start() {
 
     }
 
-    restore(data: IFingerGameCompleteData[]): void {
+    restore(data:DataProvider<IFingerGameCompleteData[]>): void {
+        this.startWaittingAnim();
+        this._data = data;
+        data.addListener(this.onDataChange.bind(this));
+    }
+
+    onDestroy(){
+        if(this._data){
+            this._data.removeAllListeners();
+            this._data = null;
+        }
+    }
+
+    private startWaittingAnim(){
+        this.titleLabel.string = "正在统计总分...";
+        let count = 1;
+        this.unscheduleAllCallbacks();
+        this.schedule(() => {
+            let dots = '.'.repeat(count);
+            this.titleLabel.string = "正在统计总分" + dots;
+            count = (count % 3) + 1;
+        }, 0.5);
+    }
+
+    private onDataChange(data:IFingerGameCompleteData[]){
+        this.unscheduleAllCallbacks();
+
+        this.titleLabel.string = "恭喜完成练习";
         // 清空容器
         this.detailContainer.removeAllChildren();
 
