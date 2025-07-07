@@ -52,7 +52,7 @@ export class TimerCommonComponent extends Component {
                     }
                 }
             } else {
-                this.timeLabel.string = "0";
+                this.timeLabel.string = "";
                 this.isRunning = false;
                 this.eventTarget.emit('timer-end'); // 计时结束时发送'timer-end'自定义事件
             }
@@ -84,7 +84,7 @@ export class TimerCommonComponent extends Component {
 
     // 暂停计时的方法
     public resumeTimer() {
-        if (!this.isRunning) {
+        if (!this.isRunning && this.startTime > 0) {
             this.startTime = Date.now()-this.elapsedTime;
             this.isRunning = true;
             this._pauseTime = 0;
@@ -100,7 +100,7 @@ export class TimerCommonComponent extends Component {
             if (this.displayType === 1) {
                 this.timeLabel.string = '00:00';
             } else if (this.displayType === 2) {
-                this.timeLabel.string = '0';
+                this.timeLabel.string = '';
             }
         }
     }

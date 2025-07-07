@@ -5,20 +5,16 @@ import GameConfig from "../Game/GameConfig";
 import Tools from "../../Common/Tools";
 import AudioMgr from "../../Common/manage/AudioMgr";
 import HintPrefab from "../Game/HintPrefab";
-import EndView from "./EndView";
 import Constant from "../../Common/Constant";
 import {
     _decorator,
     assetManager,
     Color,
     director,
-    Graphics,
     ProgressBar,
     instantiate,
     Label,
     Node,
-    ParticleAsset,
-    ParticleSystem2D,
     Prefab,
     Rect,
     Sprite,
@@ -26,7 +22,9 @@ import {
     tween,
     UIOpacity,
     UITransform,
-    Vec3
+    Vec3,
+    ParticleSystem2D,
+    ParticleAsset
 } from "cc";
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
@@ -43,7 +41,6 @@ import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/Sk
 import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
 import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
-
 
 const { ccclass, property } = _decorator;
 
@@ -180,22 +177,23 @@ export default class GameView extends LayerPanel {
                 this.tempCountDown = skewersGameData.timeLimit;
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
-                let _hard = CacheMgr.hard;
-                this._checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
-                if(Global.isAgain){
-                    CacheMgr.hard --;
-                    _hard = _hard<0?0:_hard-1;
-                }
-
-                if (_hard % 3 == 0) {
-                    if (_hard == 0) {
-                        this._curHard = 1;
-                    } else {
-                        this._curHard = 3;
-                    }
-                } else {
-                    this._curHard = _hard % 3;
-                }
+                let _hard =(this.sceneModel as any).game.difficulty;
+                this._curHard = _hard;
+                if(!Global.isAgain)this._checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
+                // if(Global.isAgain){
+                //     CacheMgr.hard --;
+                //     _hard = _hard<0?0:_hard-1;
+                // }
+                //
+                // if (_hard % 3 == 0) {
+                //     if (_hard == 0) {
+                //         this._curHard = 1;
+                //     } else {
+                //         this._curHard = 3;
+                //     }
+                // } else {
+                //     this._curHard = _hard % 3;
+                // }
 
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
                 if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
@@ -492,6 +490,108 @@ export default class GameView extends LayerPanel {
         }
     }
 
+    refreshGame(): void {
+        // 重新初始化关卡数据
+        this.initUI();
+
+        // 重置计时、分数、标记等状态
+        this._startTime = TimeUtil.getNow();
+        this._curCount = 0;
+        this._maxCount = this._counts[this._curHard - 1];
+        this.gameOver = false;
+        this.resultList = [];
+        this.tempList = [];
+        this.hintIndex = 0;
+        this.isStartCount = false;
+        this.interval = 0;
+        this.pause = false;
+        this.canAddTime = true;
+        this._pauseStartTime = 0;
+        this._pauseDurTime = 0;
+        this.victory.active = false;
+        this.goonBtn.active = false;
+        this.plistNode.active = false;
+        // 清理不同点节点
+        this.framePostions = [];
+        this.frameList = [];
+        if (this.picture1) {
+            this.picture1.removeAllChildren();
+        }
+        if (this.picture2) {
+            this.picture2.removeAllChildren();
+        }
+        // 重新生成不同点区域和图片
+        let _level = GameConfig.level_order[this._checkPoint - 1];
+        let bundleName = "level" + _level;
+        let imageName = GameConfig.image_name.get(_level);
+        const bundle = assetManager.getBundle(BundleName.FINGING);
+        // 刷新两张图片
+        bundle.load(bundleName + `/image/${imageName}_1_32/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            if (!err && this.picture1) {
+                this.picture1.getComponent(Sprite).spriteFrame = spriteFrame;
+            }
+        });
+        bundle.load(bundleName + `/image/${imageName}_2_32/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            if (!err && this.picture2) {
+                this.picture2.getComponent(Sprite).spriteFrame = spriteFrame;
+            }
+        });
+        // 重新生成不同点区域
+        let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
+        let tmpDataList = tmpDatas.split("|");
+        let len = tmpDataList.length;
+        let uitransform = this.picture1.getComponent(UITransform);
+        for (let i = 0; i < len; i++) {
+            let node: Node = new Node();
+            let nodeUITransform = node.addComponent(UITransform);
+            let tempData = tmpDataList[i].split(",");
+            nodeUITransform.width = Number(tempData[2]);
+            nodeUITransform.height = Number(tempData[3]);
+            node.setPosition(Number(tempData[0]) * 1.3, uitransform.height - Number(tempData[1]) * 1.3);
+            nodeUITransform.setAnchorPoint(0, 1);
+            node.setScale(1.4, 1.4);
+            nodeUITransform.convertToWorldSpaceAR(node.position);
+            this.framePostions.push(node.position);
+            this.picture1.addChild(node);
+            this.frameList.push(nodeUITransform.getBoundingBox());
+            this.frameList[i].id = i + 1;
+        }
+        // 重置结果节点
+        for (let j = 0; j < this.resultNode.children.length; j++) {
+            let children = this.resultNode.children[j].getChildByName("right");
+            children.active = false;
+            if (j >= this._maxCount) {
+                this.resultNode.children[j].active = false;
+            } else {
+                this.resultNode.children[j].active = true;
+            }
+        }
+        // 重置倒计时
+        this.countDownTime = GameConfig.customTime;
+        this.tempCountDown = GameConfig.allTime;
+        this.countDown.string = Math.ceil(this.countDownTime) + "秒";
+        // 关卡标签
+        this.guankaLabel.getComponent(Label).string = `第${this._checkPoint}/${GameConfig.allCheckPoint}关`;
+
+        // 重新绑定点击事件，恢复音效
+        this.monitorEvent();
+        AudioMgr.backMusic();
+    }
+
+    onSuccessNextLevel(): void {
+        CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
+        this.refreshGame();
+    }
+    
+    onFailNextLevel(): void {
+        CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
+        this.refreshGame();
+    }
+
+    onAgain(): void {
+        this.refreshGame();
+    }
+
     public onDisable() {
         super.onDisable();
         if (this.picture1) this.picture1.off(Node.EventType.TOUCH_START, this.onTouchDown, this);
@@ -674,8 +774,57 @@ export default class GameView extends LayerPanel {
     public clearGameView() {
         super.clearGameView();
         AudioMgr.stop();
+        
+        // 安全清理：禁用所有相关节点而不是直接设置spriteFrame为null
+        this.safeClearAllNodes();
     }
 
+    /**
+     * 安全清理所有节点，通过禁用节点来避免引擎渲染错误
+     */
+    private safeClearAllNodes() {
+        // 禁用主视图节点
+        if (this.viewNode && this.viewNode.isValid) {
+            this.viewNode.active = false;
+        }
+        
+        // 禁用错误节点
+        if (this.errNode && this.errNode.isValid) {
+            this.errNode.active = false;
+        }
+        
+        // 禁用提示节点
+        if (this.reminderNode && this.reminderNode.isValid) {
+            this.reminderNode.active = false;
+        }
+        
+        // 禁用胜利节点
+        if (this.victory && this.victory.isValid) {
+            this.victory.active = false;
+        }
+        
+        // 禁用彩带节点
+        if (this.plistNode && this.plistNode.isValid) {
+            this.plistNode.active = false;
+        }
+        
+        // 禁用所有图片节点
+        if (this.pictureList && this.pictureList.length > 0) {
+            this.pictureList.forEach(picture => {
+                if (picture && picture.isValid) {
+                    picture.active = false;
+                }
+            });
+        }
+        
+        // 禁用提示圆圈节点
+        if (this.hintRoundNode1 && this.hintRoundNode1.isValid) {
+            this.hintRoundNode1.active = false;
+        }
+        if (this.hintRoundNode2 && this.hintRoundNode2.isValid) {
+            this.hintRoundNode2.active = false;
+        }
+    }
 
     private _pauseStartTime: number = 0;
     private _pauseDurTime: number = 0;
@@ -750,6 +899,10 @@ export default class GameView extends LayerPanel {
     exitCallBack(context) {
         context.pause = false;
         AudioMgr.audioSource.stop();
+        
+        // 安全清理：禁用所有相关节点
+        this.safeClearAllNodes();
+        
         PanelMgr.INS.closePanel(GameView);
         FindingGlobal.reset();
         context.totalCompete(context);
@@ -764,11 +917,12 @@ export default class GameView extends LayerPanel {
             this.victory.active = true;
             AudioMgr.play("sub/audio/view/game/win", 1, false).then();
         } else {
-            AudioMgr.play("sub/audio/view/game/lose", 1, false).then()
+            AudioMgr.play("sub/audio/view/game/lose", 1, false).then();
         }
+        AudioMgr.audioSource.stop();
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
-        AudioMgr.audioSource.stop();
+       
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             FindingGlobal.skewersGameLevel = 0;
             this._requestSkewersGameComplete();
@@ -815,7 +969,7 @@ export default class GameView extends LayerPanel {
     }
 
     private _requestGameCenterComplete() {
-        CacheMgr.hard++;
+        // CacheMgr.hard++;
         let isWin = Boolean(this.resultList.length / this._maxCount >= 1);
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
@@ -835,18 +989,12 @@ export default class GameView extends LayerPanel {
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
 
         this._endTimeoutId = setTimeout(() => {
-            PanelMgr.INS.openPanel({
-                layer: Layer.gameLayer,
-                panel: EndView,
-                param: {
-                    residue: 1,
-                    isWin: isWin,
-                    residueTime: this.countDownTime
-                }
-            }).then(() => {
-                PanelMgr.INS.closePanel(GameView);
-            })
-        }, 1500);
+            if (isWin) {
+                (this.sceneModel as any).showSuccessView();
+            } else {
+                (this.sceneModel as any).showFailView();
+            }
+        }, 1000);
     }
 
     public createHintPrefab() {

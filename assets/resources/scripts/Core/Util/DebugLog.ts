@@ -1,3 +1,4 @@
+
 export class DebugLog {
 
     private static _instance: DebugLog;
@@ -28,7 +29,6 @@ export class DebugLog {
     public warn(...data: any[]){
         if(this.debugBoo)console.warn(...data);
     }
-
     public error(...data: any[]){
         console.error(...data);
     }

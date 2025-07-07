@@ -80,4 +80,8 @@ export class GuessingGameConfig {
             return v;
         }
     }
+
+    getMaxQuestionNum():number{
+        return this.questionNums[this.questionNums.length - 1];
+    }
 }

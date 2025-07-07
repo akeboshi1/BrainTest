@@ -6,9 +6,6 @@ import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
-import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
-import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
-import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -167,7 +164,7 @@ export class GameAlert extends Component {
             case AlertType.Next:
                 this.titleLabel.node.active = true;
                 this.exitBtn.node.active = true;
-                this.guideBtn.node.active = true;
+                this.guideBtn.node.active = false;
                 this.startBtn.node.active = true;
                 this.iconConNode.active = true;
                 this.decLabel.node.active = false;
@@ -411,11 +408,11 @@ export class GameAlert extends Component {
         });
     }
 
-    showGuide(){
-        let trainData = SkewersManager.getInstance().getUnCompleteGameData();
-        if(!trainData)return;
-       UIManager.getInstance().showPanel(GuidePanel.NAME,trainData.type);
-    }
+    // showGuide(){
+    //     let trainData = SkewersManager.getInstance().getUnCompleteGameData();
+    //     if(!trainData)return;
+    //    UIManager.getInstance().showPanel(GuidePanel.NAME,trainData.type);
+    // }
 
     start() {
 

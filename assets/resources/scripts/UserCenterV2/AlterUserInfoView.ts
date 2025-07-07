@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, EditBox, Label, Node } from 'cc';
+import { _decorator, Color, Component, EditBox, Label, Node, resources, Sprite, SpriteFrame } from 'cc';
 import { SelectDate } from '../Game/PersonalCenterManager/SelectDate';
 import { BasePanel } from '../Core/UI/BasePanel';
 import { Selector } from '../Game/PersonalCenterManager/Selector';
@@ -39,6 +39,8 @@ export class AlterUserInfoView extends BasePanel {
     backBtnNode:Node = null;
     @property(Label)
     title:Label = null;
+    @property(Sprite)
+    touXiangIcon:Sprite = null;
 
     private user_birthday='';
     private user_sex=0;
@@ -90,6 +92,7 @@ export class AlterUserInfoView extends BasePanel {
         this.nameEditBox.string=userData.full_name;
         this.user_name=userData.full_name.toString();
         this.setSex(userData.gender == 1 ? "男" : "女");
+        this.updateTouXiangIcon(userData.gender == 1 ? "男" : "女");
         this.setBirthday(userData.birthday);
         this.setEducationById(userData.education); 
     }
@@ -117,6 +120,28 @@ export class AlterUserInfoView extends BasePanel {
     }
     onSexChanged(sex: string): void {
         this.setSex(sex);
+        this.updateTouXiangIcon(sex);
+    }
+    async updateTouXiangIcon(sex){
+        this.touXiangIcon.spriteFrame = await (sex == "男" ? this.loadTaskSprite('textureV2/indexPage/male/spriteFrame') : this.loadTaskSprite('textureV2/indexPage/female/spriteFrame'));
+    }
+    async loadTaskSprite(path: string): Promise<SpriteFrame> {
+        return new Promise((resolve, reject) => {
+            resources.load(path, SpriteFrame, (err, spriteFrame) => {
+                if (err) {
+                    DebugLog.instance.error(`Failed to load sprite: ${path}`, err);
+                    reject(err);
+                    return;
+                }
+
+                if (!spriteFrame) {
+                    DebugLog.instance.error(`Loaded sprite frame is null: ${path}`);
+                    reject(new Error('Loaded sprite frame is null'));
+                    return;
+                }
+                resolve(spriteFrame);
+            });
+        })
     }
     setSex(data) {
         this.user_sex = data == "男" ? 1 : 2;

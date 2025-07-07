@@ -222,30 +222,11 @@ export class ReportManager {
                 return;
             }
             let result = data.data;
-            // let isExist = false;
-            // for(let i=0;i<this._cogAbilityWeeklyScoresDataList.length;i++) {
-            //     if(this._cogAbilityWeeklyScoresDataList[i].index == result.index) {
-            //         isExist = true;
-            //         break;
-            //     }
-            // }
-            // if(!isExist) {
-            //     this._cogAbilityWeeklyScoresDataList.push(result);
-            //     console.log('this._cogAbilityWeeklyScoresDataList',this._cogAbilityWeeklyScoresDataList);
-            // }
+        
             this._cogAbilityWeeklyScoresData = result;
-            EventManager.getInstance().emit(ReportManager.getCogAbilityWeeklyScoresCallback, {});
-            // 只有在收到第一个数据包（index为0）时，才请求所有数据
-            // if (result.index === 0 && result.total > 1) {
-            //     this.requestAllCogAbilityWeeklyScores(result);
-            // }
+            EventManager.getInstance().emit(ReportManager.getCogAbilityWeeklyScoresCallback, {});         
         }
     }
-    // requestAllCogAbilityWeeklyScores(data: CogAbilityWeeklyScoresData) {
-    //     for(let i = 1; i < data.total; i++) {
-    //         this.getCogAbilityWeeklyScores(this.cog_ability, i);
-    //     }
-    // }
     clearCogAbilityWeeklyScoresData() {
         this._cogAbilityWeeklyScoresData = null;
     }

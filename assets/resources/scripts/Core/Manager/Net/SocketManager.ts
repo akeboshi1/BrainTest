@@ -191,13 +191,13 @@ export class SocketManager extends BaseManager {
 
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
+        AlertManager.getInstance().showSocketAlert("网络关闭");
         this.processReconnectFlow();
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
-        DebugLog.instance.warn('onSocketError !');
-        // 显示 Socket 错误提示
-        AlertManager.getInstance().showSocketAlert('网络连接错误');
+        DebugLog.instance.error('onSocketError !');
+        AlertManager.getInstance().showSocketAlert("网络错误！");
         this._isReconnecting = false;
         this.processReconnectFlow();
     }
@@ -264,10 +264,7 @@ export class SocketManager extends BaseManager {
 
         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
 
-        const alertData: AlertData = new AlertData();
-        alertData.message = '重连失败，请检查设备的网络链接。';
-        AlertManager.getInstance().showAlert(alertData);
-
+        AlertManager.getInstance().showSocketAlert('重连失败，请检查设备的网络链接。');
         this._isReconnecting = false;
         return false;
     }
@@ -289,6 +286,7 @@ export class SocketManager extends BaseManager {
             for (let i = 0; i < _tmpDatas.length; i++) {
                 let _tmpData: SocketData = _tmpDatas[i];
                 if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= this._reSendTime) {
+                    AlertManager.getInstance().showSocketAlert('请勿频繁操作');
                     DebugLog.instance.error(`${data.action},已经发送过了，请等待回复`);
                     return;
                 }

@@ -6,6 +6,8 @@ import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { GameCenterManager } from '../Game/GameCenter/GameCenterManager';
 import { BundlePreloadEvent } from '../Core/Manager/Load/BundlePreloadManager';
+import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import { GuidePanel } from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameCenterPageView')
@@ -18,6 +20,11 @@ export class GameCenterPageView extends Component {
     gameList: Node[] = [];
 
     private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句'];
+
+
+    onLoad(){
+        UIManager.getInstance().registerPanel(GuidePanel.NAME, BundleName.RESOURCES, "prefab/GuidePanel/GuidePanel", GuidePanel);
+    }
 
 
     start() {
@@ -45,15 +52,16 @@ export class GameCenterPageView extends Component {
         }
         this._clickBoo = true;
         let index = Number(data);
-        // if(index== 6){
-        //     let url = Global.RES_Root + BundleName.MATH24;
-        //     DebugLog.instance.log(`${BundleName.MATH24} click perload`);
-        //     EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-        //     GameCenterManager.getInstance().perload(url,BundleName.MATH24);
-        //     return;
-        // }
+        if(index== 6){
+            let url = Global.RES_Root + BundleName.FINGERGAME;
+            DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.FINGERGAME);
+            return;
+        }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
+                this._clickBoo = false;
                 DebugLog.instance.error(data.message);
                 return;
             }
@@ -88,9 +96,17 @@ export class GameCenterPageView extends Component {
                     break;
             }
             let url = Global.RES_Root + sceneName;
-            DebugLog.instance.log(`${sceneName} click perload`);
-            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-            GameCenterManager.getInstance().perload(url,sceneName);
+            let self = this;
+            UIManager.getInstance().showPanel(GuidePanel.NAME, {
+                name: sceneName, callback: () => {
+                    DebugLog.instance.log(`${sceneName} click perload`);
+                    EventManager.getInstance().on(SceneManager.SCENE_ENTER, self.onSceneEnter.bind(self), self, true);
+                    GameCenterManager.getInstance().perload(url, sceneName);
+                },exitCallback:()=>{
+                    self._clickBoo = false;
+                }
+            });
+
             // BundlePreloadManager.getInstance().preload(sceneName as BundleName);
 
         })
