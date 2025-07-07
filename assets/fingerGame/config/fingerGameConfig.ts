@@ -38,21 +38,21 @@ export const fingerGameConfig: FingerGameConfig = {
                     icon: "image/setsImage/set_1/spriteFrame",
                     previewVideo: {
                         path: "video/set1/1_preview",
-                        duration: 55
+                        duration: 35
                     },
                     demoVideo: {
                         path: "video/set1/1_demo",
-                        duration: 25
+                        duration: 22
                     }
                 },
                 {
                     name: "第二节",
                     previewVideo: {
-                        path: "video/set1/1_preview",
+                        path: "video/set1/2_preview",
                         duration: 55
                     },
                     demoVideo: {
-                        path: "video/set1/1_demo",
+                        path: "video/set1/2_demo",
                         duration: 25
                     }
                 },
