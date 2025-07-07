@@ -4,6 +4,7 @@ import { FingerGameResult } from './FingerGameResultData';
 import { SetSummaryComponent } from './SetSummaryComponent';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
+import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
 const { ccclass, property } = _decorator;
 
 export interface IFingerGameSetFinishPanelData {
@@ -33,6 +34,14 @@ export class FingerGameSetFinishPanel extends BasePanel {
     @property(Node)
     private finishNode: Node = null;
 
+    @property(Label)
+    private waittingLabel: Label = null;
+
+    @property(Node)
+    private waittingNode: Node = null;
+
+    private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
+
     private _backHandler: () => void = null;
     private _nextHandler: () => void = null;
 
@@ -40,7 +49,28 @@ export class FingerGameSetFinishPanel extends BasePanel {
 
     }
 
-    restore(data: IFingerGameSetFinishPanelData) {
+    restore(data: DataProvider<IFingerGameSetFinishPanelData> | null) {
+        this._finishPanelData = data;
+        this.startWaittingAnim();
+
+        if(data){
+            data.addListener(this.onDataChange.bind(this));
+        }else{
+            this.waittingNode.active = false;
+            this.setSummaryComponent.node.active = false;
+            this.finishNode.active = true;
+        }
+    }
+
+    onDestroy(){
+        if(this._finishPanelData){
+            this._finishPanelData.removeAllListeners();
+            this._finishPanelData = null;
+        }
+    }
+
+    private onDataChange(data: IFingerGameSetFinishPanelData) {
+        this.waittingNode.active = false;
         if (data.result) {
             this.setSummaryComponent.restoreComponent(data.result);
             this.finishNode.active = false;
@@ -73,6 +103,18 @@ export class FingerGameSetFinishPanel extends BasePanel {
         if(data.goNext){
             this._nextHandler = data.goNext;
         }
+    }
+
+    private startWaittingAnim(){
+        this.waittingNode.active = true;
+        this.waittingLabel.string = "正在打分中...";
+        let count = 1;
+        this.unscheduleAllCallbacks();
+        this.schedule(() => {
+            let dots = '.'.repeat(count);
+            this.waittingLabel.string = "正在打分中" + dots;
+            count = (count % 3) + 1;
+        }, 0.5);
     }
 
     public onClickBack() {
