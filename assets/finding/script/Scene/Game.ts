@@ -70,7 +70,7 @@ export class Game extends BaseScene<IBaseGameChild> {
             FindingGlobal.skewersGameLevel = checkPoint;
         } else {
             // 非串烧游戏优先使用FindingGlobal.gameCenterGameLevel，如果没有则使用sceneModel的level
-            checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : (this.sceneModel as any).level;
+            checkPoint = (this.sceneModel as any).level;
             if (checkPoint == 0) {
                 checkPoint = 1;
             }

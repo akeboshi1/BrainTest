@@ -603,7 +603,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             }
 
             this.selectedLevel = this.levelList[this.selectedLevelIndex];
-            this.textureIndex = (this.textureIndex + 1) % this.randomPlayIndex.length;
+            this.textureIndex = ((this.sceneModel as any).level-1) % this.randomPlayIndex.length;
             this.cleanChipsCache();
 
             let textureID = this.randomPlayIndex[this.textureIndex];
