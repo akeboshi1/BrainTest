@@ -149,7 +149,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.progress.progress = skewersGameData.progress;
             this.startGameFlow();
         } else {
-            let level = (this.sceneModel as any).level;
+            let level = (this.sceneModel as any).game.level;
             this.progress.progress = level / this.guessingGameModel.getMaxQuestionCount();
             this.progresslabel.string = "第" + level + "关";
             this.startGameFlow();
@@ -172,7 +172,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 this.progresslabel.string = "第" + skewersGameData.progressStr + "关";
                 this.progress.progress = skewersGameData.progress;
             } else {
-                let level = (this.sceneModel as any).level;
+                let level = (this.sceneModel as any).game.level
                 this.progress.progress = level/this.guessingGameModel.getMaxQuestionCount();
                 this.progresslabel.string = "第" + level + "关";
             }
