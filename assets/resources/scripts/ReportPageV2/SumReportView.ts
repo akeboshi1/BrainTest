@@ -20,10 +20,10 @@ export class SumReportView extends Component {
         this.showWeekStatistics();
         this.showInitialWeekGraph();
         this.showCurrentWeekGraph();
-
     }
     showWeekStatistics(){
-
+        let weekStatistics = ReportManager.getInstance().weekStatistics;
+        this.weekStatistics.string = `统计周期${weekStatistics.start_date?weekStatistics.start_date:'——'}至${weekStatistics.end_date?weekStatistics.end_date:'——'}`;
     }
     clickNavBar(event, data) {
         let userData = PersonalCenterManager.getInstance().userInfoData;

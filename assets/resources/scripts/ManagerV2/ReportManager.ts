@@ -17,6 +17,10 @@ export interface CogAbilityBriefData {
     tier: number,  // 本周等级
     last_tier: number,  // 上周等级 0 不显示
 }
+export interface WeekStatisticsData {
+    start_date: string,
+    end_date: string,
+}
 
 export interface CogAbilityWeeklyScoresData {
     index: number,  // 索引
@@ -44,8 +48,11 @@ export class ReportManager {
     private get_cog_ability_weekly_scores: string = "user.get_cog_ability_weekly_scores";
     private _reportDataList = [];
     private _reportDataListInitial = [];
-    private _userSumReport = ''
-
+    private _userSumReport = '';
+    private _weekStatistics : WeekStatisticsData = {
+        start_date:'',
+        end_date:''
+    };
     private _cogAbilityBriefData: CogAbilityBriefData = null;
     private _cogAbilityWeeklyScoresData: CogAbilityWeeklyScoresData = null;
     private cog_ability: string = "";
@@ -64,6 +71,9 @@ export class ReportManager {
     public get reportDataList(): ReportData[] {
         return this._reportDataList;
     }
+    public get weekStatistics(): WeekStatisticsData {
+        return this._weekStatistics;
+    }
     public get reportDataListInitial(): ReportData[] {
         return this._reportDataListInitial;
     }
@@ -76,6 +86,12 @@ export class ReportManager {
     }
     private clearReportListInitial() {
         this._reportDataListInitial = [];
+    }
+    private clearWeekStatistics() {
+        this._weekStatistics = {
+            start_date: '',
+            end_date: ''
+        };
     }
 
     public getPersonalReport() {
@@ -90,10 +106,17 @@ export class ReportManager {
     requestBrainTrainingTiersCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_brain_training_tiers, context);
         this.clearReportList();
+        this.clearWeekStatistics();
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
             if (data.data) {
+                if(data.data['start_date']){
+                    this._weekStatistics.start_date = data.data['start_date'];
+                }
+                if(data.data['end_date']){
+                    this._weekStatistics.end_date = data.data['end_date'];
+                }
                 let result = data.data['result'];
                 if (result.length == 0) {
                     // DebugLog.instance.log('暂无个人报告');
