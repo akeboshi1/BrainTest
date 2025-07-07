@@ -1,25 +1,22 @@
 import { _decorator, Component, Label, Node, UITransform, VideoPlayer, ProgressBar, tween, Vec3, UIOpacity, VideoClip, native, sys, Texture2D } from 'cc';
-import { FingerGameModel } from './FingerGameModel';
+import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
 import { fingerGameConfig } from '../config/fingerGameConfig';
 import { SegmentProgressBar } from './SegmentProgressBar';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
-import { FingerGameSelectSetPanel } from './FingerGameSelectSetPanel';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
-import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 import { NativeEventManager } from '../../resources/scripts/Core/Manager/Event/NativeEventManager';
 import { NativeEvent } from '../../resources/scripts/Core/Manager/Event/NativeEvent';
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../resources/scripts/Core/Util/LocalStorageUtil';
-import { SocketManager } from '../../resources/scripts/Core/Manager/Net/SocketManager';
-import { SocketData } from '../../resources/scripts/Core/Manager/Net/SocketData';
 import { FingerGameResultData, FingerGameResult } from './FingerGameResultData';
-import { FingerGameSummaryPanel } from './FingerGameSummaryPanel';
+import { FingerGameSetFinishPanel, IFingerGameSetFinishPanelData } from './FingerGameSetFinishPanel';
+import { FingerGameCompletePanel, IFingerGameCompleteData } from './FingerGameCompletePanel';
+import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
+import { IFingerActivity, IFingerActivityResult, IFingerActivityScore } from './FingerGameProtocol';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameScene')
 export class FingerGameScene extends Component {
-    private static STARTTASK: string = "finger_exercise.start_task";
-
     @property(VideoPlayer)
     private videoPlayer: VideoPlayer = null;
 
@@ -38,9 +35,6 @@ export class FingerGameScene extends Component {
     @property(SegmentProgressBar)
     private segmentProgressBar: SegmentProgressBar = null;
 
-    @property(Texture2D)
-    private cameraOverlay: Texture2D = null;
-
     @property(Label)
     private recorderResultLabel: Label = null;
 
@@ -49,6 +43,9 @@ export class FingerGameScene extends Component {
 
     @property(Node)
     private noticeNode: Node = null;
+
+    @property(Label)
+    private debugLabel: Label = null;
 
     private _model: FingerGameModel = null;
     private _currentSetIndex: number = -1;
@@ -59,27 +56,16 @@ export class FingerGameScene extends Component {
     private _previewVideoTimer: any = null;
 
     private _absolutePath: string = '';
-    private _task_id: string = '';
     private _isRecording: boolean = false;
 
     start() {
         this._model = new FingerGameModel();
-
+        this._model.init();
         // 获取相机权限
         this.getCameraPremission();
 
-        // 注册选择面板，但不自动显示
-        UIManager.getInstance().registerPanel(FingerGameSelectSetPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSelectSetPanel", FingerGameSelectSetPanel);
-        UIManager.getInstance().registerPanel(FingerGameSummaryPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSummaryPanel", FingerGameSummaryPanel);
-
-        // 如果没有传入参数，则显示选择面板
-        if (this._currentSetIndex === -1 && this._currentSectionIndex === -1) {
-            UIManager.getInstance().showPanel(FingerGameSelectSetPanel.NAME);
-        }
-
-        // 监听FINGER_GAME_SECTION_SELECTED事件
-        EventManager.getInstance().on('FINGER_GAME_SECTION_SELECTED', this.onSectionSelected, this);
-        EventManager.getInstance().on(FingerGameScene.STARTTASK, this.onStartTaskResult, this);
+        UIManager.getInstance().registerPanel(FingerGameCompletePanel.NAME, BundleName.FINGERGAME, "panel/FingerGameCompletePanel", FingerGameCompletePanel);
+        UIManager.getInstance().registerPanel(FingerGameSetFinishPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSetFinishPanel", FingerGameSetFinishPanel);
 
         if (sys.platform === 'ANDROID') {
             NativeEventManager.getInstance().on(NativeEvent.CAMERARECORDERRESULT, this.onCameraRecorderResult, this);
@@ -87,8 +73,29 @@ export class FingerGameScene extends Component {
             NativeEventManager.getInstance().on(NativeEvent.POSTVIDEODATAERROR, this.onPostVideoDataError, this);
         }
 
-        this._task_id = Date.now().toString();
-        this.startTask();
+        this._model.on(FingerGameModelEvent.GET_LIST_FINISHED, this.onGetTaskListFinished, this);
+        this._model.on(FingerGameModelEvent.GET_ALL_TASK_ACTIVITIES_RESULT, this.onGetAllTaskActivitiesResult, this);
+        this._model.getTaskList();
+    }
+
+    onGetAllTaskActivitiesResult(data: IFingerActivityResult) {
+        let panelData: IFingerGameCompleteData[] = [];
+        for (let i = 0; i < data.activities.length; i++) {
+            panelData.push({
+                name: data.activities[i].name,
+                status: data.activities[i].rating
+            });
+        }
+
+        UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, panelData);
+    }
+
+    onGetTaskListFinished(data: IFingerActivity[]) {
+        let currentSectionIndex = this._model.currentSectionIndex;
+        const setIndex = 0; // 默认第一套
+        this._currentSetIndex = setIndex;
+        this._currentSectionIndex = currentSectionIndex;
+        this.noticeNode.active = true;
     }
 
     update(deltaTime: number) {
@@ -162,13 +169,13 @@ export class FingerGameScene extends Component {
         const endDuration = 5;
         this.seekToTime(this._currentVideoDuration - endDuration);
         this.skipButton.active = false;
-        
+
         // 停止预览视频计时器
         if (this._previewVideoTimer) {
             clearTimeout(this._previewVideoTimer);
             this._previewVideoTimer = null;
         }
-        
+
         // 启动5秒计时器
         this._previewVideoTimer = setTimeout(() => {
             this.onVideoCompleted();
@@ -191,13 +198,37 @@ export class FingerGameScene extends Component {
         this.videoPlayer.clip = demoClip;
         this.segmentProgressBar.setProgress(0);
         this.videoPlayer.play();
-        this.startRecorder();
+
+        // 如果当前是会员，则开始录制
+        if (this._model.isMember() && this._model.is_evaluable(this._currentSectionIndex)) {
+            this.startRecorder();
+        }
+
         this.hideImageOverlay();
         this.skipButton.active = false;
         // 用计时器控制播放完成
         const timer = setTimeout(() => {
             this.onVideoCompleted();
-            this.stopRecorder();
+
+            // 如果当前是会员，则停止录制
+            if (this._model.isMember() && this._model.is_evaluable(this._currentSectionIndex)) {
+                this.stopRecorder();
+            } else {
+                this.hideAllNativeNode();
+
+                let isLastSection = this._model.isLastSection;
+                let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].name;
+                let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].icon;
+
+                let panelData: IFingerGameSetFinishPanelData = {
+                    result: null,
+                    nextSectionName: nextSectionName,
+                    nextSectionIconUrl: nextSectionIconUrl,
+                    back: this.handleSummaryBack.bind(this),
+                    goNext: this.handleSummaryGoNext.bind(this)
+                }
+                UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, panelData);
+            }
         }, (this._currentVideoDuration + 0.1) * 1000);
         this._timers.push(timer);
     }
@@ -218,7 +249,8 @@ export class FingerGameScene extends Component {
 
     public onClickExit() {
         this.hideAllNativeNode();
-        UIManager.getInstance().showPanel(FingerGameSelectSetPanel.NAME);
+
+        SceneManager.getInstance().backToHall();
 
         // 清理所有定时器
         this._timers.forEach(timer => clearTimeout(timer));
@@ -245,28 +277,19 @@ export class FingerGameScene extends Component {
         // 释放模型资源
         this._model.dispose();
 
-        // 移除事件监听
-        EventManager.getInstance().off('FINGER_GAME_SECTION_SELECTED', this);
         if (sys.platform === 'ANDROID') {
             NativeEventManager.getInstance().off(NativeEvent.CAMERARECORDERRESULT, this);
             NativeEventManager.getInstance().off(NativeEvent.POSTVIDEODATAFINISHED, this);
             NativeEventManager.getInstance().off(NativeEvent.POSTVIDEODATAERROR, this);
         }
-        EventManager.getInstance().off(FingerGameScene.STARTTASK, this);
-    }
-
-    private onSectionSelected(data: any) {
-        // 处理FINGER_GAME_SECTION_SELECTED事件
-        const setIndex = data.setIndex;
-        const sectionIndex = data.sectionIndex;
-        this._currentSetIndex = setIndex;
-        this._currentSectionIndex = sectionIndex;
-
-        this.noticeNode.active = true;
     }
 
     onClickComfirmedNotice() {
         this.noticeNode.active = false;
+
+        if (this._model.isMember()) {
+            this._model.startTaskActivity();
+        } 
         this.restoreSceneData(this._currentSetIndex, this._currentSectionIndex);
     }
 
@@ -346,7 +369,7 @@ export class FingerGameScene extends Component {
             DebugLog.instance.log('PostVideoData =============');
 
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
-            let task_id = this._task_id;
+            let task_id = this._model.getTaskId();
             let group_size = 4;
             let post_data = {
                 token: token,
@@ -363,14 +386,13 @@ export class FingerGameScene extends Component {
 
     onPostVideoDataFinished(data: FingerGameResultData) {
         DebugLog.instance.log('onPostVideoDataFinished =============');
-        DebugLog.instance.log(data);
+        DebugLog.instance.log(JSON.stringify(data));
 
         // 使用新的数据类型处理结果
         const result = new FingerGameResult(data);
 
         if (result.isValid()) {
             this.recorderResultLabel.string = '上传成功';
-
             // 可以访问具体的得分数据
             DebugLog.instance.log(`任务ID: ${result.taskId}`);
             DebugLog.instance.log(`文件名: ${result.filename}`);
@@ -386,23 +408,122 @@ export class FingerGameScene extends Component {
             });
 
             this.hideAllNativeNode();
-            UIManager.getInstance().showPanel(FingerGameSummaryPanel.NAME, 
-                { 
-                    result: result, 
-                    back: this.handleSummaryBack.bind(this), 
-                    goNext: this.handleSummaryGoNext.bind(this) 
-                }
-            );
+
+            let postData: IFingerActivityScore = {
+                task_id: result.taskId,
+                activity_id: this._model.activity.id,
+                avg_left_score: result.avgLeftScore,
+                avg_right_score: result.avgRightScore,
+                groups: result.groups
+            }
+            this._model.completeTaskActivity(postData);
+
+            let isLastSection = this._model.isLastSection;
+            let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].name;
+            let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].icon;
+
+            let panelData: IFingerGameSetFinishPanelData = {
+                result: result,
+                nextSectionName: nextSectionName,
+                nextSectionIconUrl: nextSectionIconUrl,
+                back: this.handleSummaryBack.bind(this),
+                goNext: this.handleSummaryGoNext.bind(this)
+            }
+
+            UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, panelData);
         } else {
             this.recorderResultLabel.string = '上传失败';
         }
     }
 
+    onPostVideoDataError(data: any) {
+        DebugLog.instance.log('onPostVideoDataError =============');
+        DebugLog.instance.log(data);
+        this.recorderResultLabel.string = '上传出现错误';
+    }
+
+    private hideAllNativeNode() {
+        this.hideCameraPreview();
+        this.hideImageOverlay();
+        this.stopRecorder(false);
+        this.videoPlayer.node.active = false;
+    }
+
+    handleSummaryBack() {
+        SceneManager.getInstance().backToHall();
+    }
+
+    handleSummaryGoNext() {
+        let isLastSection = this._model.isLastSection;
+        if (isLastSection) {
+            if (this._model.isMember()) {
+                this._model.getAllTaskActivitiesResult();
+            } else {
+                let panelData: IFingerGameCompleteData[] = [];
+                for (let i = 0; i < this._model.activities.length; i++) {
+                    panelData.push({
+                        name: fingerGameConfig.fingerSets[i].name,
+                        status: 0
+                    });
+                }
+
+                UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, panelData);
+            }
+        } else {
+            this._currentSectionIndex++;
+            this._model.addSectionIndex();
+            this.restoreSceneData(this._currentSetIndex, this._currentSectionIndex);
+        }
+    }
+
+    /**
+     * 跳转到视频指定时间
+     * @param targetTime 目标时间（秒）
+     */
+    public seekToTime(targetTime: number) {
+        if (this.videoPlayer && this.videoPlayer.clip) {
+            // 确保时间在有效范围内
+            const duration = this._currentVideoDuration;
+            const clampedTime = Math.max(0, Math.min(targetTime, duration));
+
+            DebugLog.instance.log(`跳转到视频时间: ${clampedTime}秒`);
+            this.videoPlayer.currentTime = clampedTime;
+
+            // 更新进度条
+            const progress = clampedTime / duration;
+            this.segmentProgressBar.setProgress(progress);
+        } else {
+            DebugLog.instance.error('VideoPlayer 未初始化或没有视频剪辑');
+        }
+    }
+
+    //debug
+    debugCompletePanel() {
+        let panelData: IFingerGameCompleteData[] = [];
+        panelData.push({
+            name: '测试',
+            status: 1
+        });
+        panelData.push({
+            name: '测试2',
+            status: 2
+        });
+        panelData.push({
+            name: '测试3',
+            status: 3
+        });
+        panelData.push({
+            name: '测试4',
+            status: null
+        });
+        UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, panelData);
+    }
+
     debugPostVideoDataFinished() {
-        let data: FingerGameResultData = {
-            status: 1,
+        let data = new FingerGameResult({
+            status: 200,
             data: {
-                task_id: '1234567890',
+                task_id: 123,
                 filename: 'test.mp4',
                 avg_left_score: 100,
                 avg_right_score: 100,
@@ -422,69 +543,30 @@ export class FingerGameScene extends Component {
                     seq: 4,
                     left_score: 100,
                     right_score: 100,
-                }],
-            }
-        }
-        this.onPostVideoDataFinished(data);
-    }
-
-    onPostVideoDataError(data: any) {
-        DebugLog.instance.log('onPostVideoDataError =============');
-        DebugLog.instance.log(data);
-        this.recorderResultLabel.string = '上传出现错误';
-    }
-
-    private startTask() {
-        let socketData = new SocketData({
-            action: FingerGameScene.STARTTASK,
-            data: {
-                task_id: this._task_id,
+                }]
             }
         });
-        SocketManager.getInstance().send(socketData);
-    }
 
-    private onStartTaskResult(data: any) {
-        DebugLog.instance.log('onStartTaskResult =============');
-        DebugLog.instance.log(data);
-        this.recorderResultLabel.string = '任务开始';
-    }
+        let isLastSection = false;
+        let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].name;
+        let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].icon;
 
-    private hideAllNativeNode() {
-        this.hideCameraPreview();
-        this.hideImageOverlay();
-        this.stopRecorder(false);
-        this.videoPlayer.node.active = false;
-    }
-
-    handleSummaryBack() {
-        UIManager.getInstance().showPanel(FingerGameSelectSetPanel.NAME);
-    }
-
-    handleSummaryGoNext() {
-        this.restoreSceneData(this._currentSetIndex, this._currentSectionIndex);
-    }
-
-    /**
-     * 跳转到视频指定时间
-     * @param targetTime 目标时间（秒）
-     */
-    public seekToTime(targetTime: number) {
-        if (this.videoPlayer && this.videoPlayer.clip) {
-            // 确保时间在有效范围内
-            const duration = this._currentVideoDuration;
-            const clampedTime = Math.max(0, Math.min(targetTime, duration));
-            
-            DebugLog.instance.log(`跳转到视频时间: ${clampedTime}秒`);
-            this.videoPlayer.currentTime = clampedTime;
-            
-            // 更新进度条
-            const progress = clampedTime / duration;
-            this.segmentProgressBar.setProgress(progress);
-        } else {
-            DebugLog.instance.error('VideoPlayer 未初始化或没有视频剪辑');
+        let panelData: IFingerGameSetFinishPanelData = {
+            result: data,
+            nextSectionName: nextSectionName,
+            nextSectionIconUrl: nextSectionIconUrl,
+            back: this.handleSummaryBack.bind(this),
+            goNext: this.handleSummaryGoNext.bind(this)
         }
+
+        UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, panelData);
     }
+
+    debugMemberState(){
+        this._model._ismember = !this._model.isMember();
+        this.debugLabel.string = this._model.isMember()? "开":"关";
+    }
+
 }
 
 

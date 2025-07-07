@@ -7,7 +7,7 @@ export interface FingerGameResultData {
     /** 响应数据 */
     data: {
         /** 任务ID */
-        task_id: string;
+        task_id: number;
         /** 文件名 */
         filename: string;
         /** 左手平均分 */
@@ -44,7 +44,7 @@ export class FingerGameResult {
     /**
      * 获取任务ID
      */
-    get taskId(): string {
+    get taskId(): number {
         return this._data.data.task_id;
     }
 
@@ -124,10 +124,6 @@ export class FingerGameResult {
      * 检查数据是否有效
      */
     isValid(): boolean {
-        return this._data.status === 1 && 
-               this._data.data && 
-               this._data.data.task_id && 
-               this._data.data.groups && 
-               this._data.data.groups.length > 0;
+        return this._data.status === 1;
     }
 } 
