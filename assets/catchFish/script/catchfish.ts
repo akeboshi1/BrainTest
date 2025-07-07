@@ -109,6 +109,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     @property(Node)
     fishes2: Node = null;
 
+    @property(Node)
+    fishes3: Node = null;
+
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
     private unSelectColor = ColorUtil.hexToColor("#FFFFFF");
     private ErrorColor = ColorUtil.hexToColor("#FC0505");
@@ -150,6 +153,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _moveSpeeds = {
         leftToRight: 180, // fishes1速度
         rightToLeft: 220  // fishes2速度
+    };
+
+    // fishes3上下缓动配置
+    private _fishes3Config = {
+        amplitude: 40,    // 上下移动幅度
+        duration: 2.5,    // 一次上下移动的时长
+        easeType: 'sineInOut' as any // 缓动类型
     };
 
     // ====================== 继承basescene ===================
@@ -450,6 +460,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             if (this.fishes2 && this.fishes2.isValid) {
                 this.setupFishGroup(this.fishes2, false, this._moveSpeeds.rightToLeft);
             }
+
+            if (this.fishes3 && this.fishes3.isValid) {
+                this.setupFishes3Float();
+            }
         } catch (e) {
             console.error("启动鱼群动画时发生错误:", e);
         }
@@ -502,6 +516,41 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             .start();
 
         this._fishTweens.push(motionTween);
+    }
+
+    /**
+     * 设置fishes3的上下缓动动画
+     */
+    private setupFishes3Float() {
+        if (!this.fishes3 || !this.fishes3.isValid) {
+            return;
+        }
+
+        // 基准y坐标为200
+        const baseY = 200;
+        const upY = baseY + this._fishes3Config.amplitude;
+        const downY = baseY - this._fishes3Config.amplitude;
+
+        const floatTween = tween(this.fishes3)
+            .to(this._fishes3Config.duration, { 
+                position: new Vec3(this.fishes3.position.x, upY, this.fishes3.position.z) 
+            }, { 
+                easing: this._fishes3Config.easeType 
+            })
+            .to(this._fishes3Config.duration, { 
+                position: new Vec3(this.fishes3.position.x, downY, this.fishes3.position.z) 
+            }, { 
+                easing: this._fishes3Config.easeType 
+            })
+            .call(() => {
+                // 循环动画
+                if (!this._isPaused && !this._gameEnded) {
+                    this.setupFishes3Float();
+                }
+            })
+            .start();
+
+        this._fishTweens.push(floatTween);
     }
 
     // 暂停/恢复控制
@@ -1385,6 +1434,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
                 this.fishes2.setPosition(new Vec3(this._sceneWidth / 2, this.fishes2.position.y, this.fishes2.position.z));
                 this.fishes2.scale = new Vec3(-1, 1, 1);
+
+                // fishes3重置y坐标
+                if (this.fishes3 && this.fishes3.isValid) {
+                    // y坐标重置为200
+                    this.fishes3.setPosition(new Vec3(this.fishes3.position.x, 200, this.fishes3.position.z));
+                }
 
                 // 重新启动鱼群动画
                 this.startFishMovement();
