@@ -150,8 +150,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.startGameFlow();
         } else {
             let level = (this.sceneModel as any).game.level;
-            this.progress.progress = level / this.guessingGameModel.getMaxQuestionCount();
-            this.progresslabel.string = "第" + level + "关";
+            this.progress.progress = level / (this.sceneModel as any).levelLen;
+            this.progresslabel.string = "第" + level +'/'+ (this.sceneModel as any).levelLen + "关";
             this.startGameFlow();
         }
     }
@@ -173,8 +173,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 this.progress.progress = skewersGameData.progress;
             } else {
                 let level = (this.sceneModel as any).game.level
-                this.progress.progress = level/this.guessingGameModel.getMaxQuestionCount();
-                this.progresslabel.string = "第" + level + "关";
+                this.progress.progress = level/(this.sceneModel as any).levelLen;
+                this.progresslabel.string = "第" +  level +'/'+ (this.sceneModel as any).levelLen  + "关";
             }
         }
 
@@ -222,6 +222,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private onAudioFinish() {
         
         this.frameComponent.playAnimation("idle", 16, true, true);
+
+        // 语音播放结束后，隐藏问题标签
+        if (this.questionLabel) {
+            this.questionLabel.node.active = false;
+        }
 
         // 语音播放结束后，显示真实选项内容
         if (this.currentQuestion) {
@@ -291,6 +296,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this._replay = false;
         const result: boolean = ans && this.currentQuestion.answer == ans;
         this.setAnswerOptionsColor(ans);
+
+        // 答题完成后，显示问题标签
+        if (this.questionLabel) {
+            this.questionLabel.node.active = true;
+        }
 
         if (result) {
             // 播放成功音效，使用playOneShot
@@ -495,6 +505,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this._replay = false;
         this._hasClickedStartBtn = false; // 重置点击开始按钮的状态
         
+        // 重置时显示问题标签
+        if (this.questionLabel) {
+            this.questionLabel.node.active = true;
+        }
+        
         // this.timerRT.node.active = false;
         // this.timerStartGame.node.active = false;
 
@@ -547,6 +562,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         
         // 设置已点击开始按钮的状态
         this._hasClickedStartBtn = true;
+        
+        // 点击开始按钮后隐藏问题标签
+        if (this.questionLabel) {
+            this.questionLabel.node.active = false;
+        }
         
         // 点击开始按钮后隐藏重听按钮
         if (this.replayButtonNode) {

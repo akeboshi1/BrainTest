@@ -81,6 +81,7 @@ export class GuidePanel extends BasePanel {
 
             }
             this.descLabel.string = descStr;
+            this.btnNode2.active= this.btnNode3.active = this.gameName != BundleName.GUESSINGGAME;
             this.selectHard(null,"0");
         }
     }

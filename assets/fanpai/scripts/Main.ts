@@ -369,7 +369,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     private _gamecenterNextGame() {
         Global.isAgain = false;
-        this.level++;
+        this.level = (this.sceneModel as any).game.level;
 
         // 更新关卡标签显示
         this.guankaLabel.string = "第" + this.level + "关";
