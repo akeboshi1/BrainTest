@@ -536,8 +536,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 200,
-      "height": 63
+      "width": 600,
+      "height": 189
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -575,10 +575,10 @@
     "_string": "游戏开始",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 150,
+    "_fontSize": 150,
     "_fontFamily": "Arial",
-    "_lineHeight": 50,
+    "_lineHeight": 150,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
