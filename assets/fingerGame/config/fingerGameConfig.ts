@@ -11,6 +11,7 @@ export interface SectionConfig {
     previewVideo: VideoConfig;  // 预览视频
     demoVideo: VideoConfig;     // 演示视频
     name: string;              // 节的名称
+    icon?: string;             // 节的图标（可选）
 }
 
 export interface SetConfig {
@@ -34,6 +35,7 @@ export const fingerGameConfig: FingerGameConfig = {
             sections: [
                 {
                     name: "第一节",
+                    icon: "image/setsImage/set_1/spriteFrame",
                     previewVideo: {
                         path: "video/set1/1_preview",
                         duration: 55
