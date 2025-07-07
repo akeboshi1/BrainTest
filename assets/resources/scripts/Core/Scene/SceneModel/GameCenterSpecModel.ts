@@ -54,6 +54,10 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
         return GameCenterManager.getInstance().currentGame.level;
     }
 
+    get levelLen():number{
+        return GameCenterManager.getInstance().currentGame.levels.length;
+    }
+
     get difficulty(): number {
         return GameCenterManager.getInstance().currentGame.difficulty;
     }
@@ -140,7 +144,7 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
         EventManager.getInstance().on(GameCenterManager.GAMEPASSLEVEL, this.requestGameCompleteCallBack, this, true);
         
         // 使用当前选择的难度，如果没有设置则使用配置中的难度
-        const difficulty = this.currentDifficulty || config.difficulty;
+        const difficulty = config.difficulty;
         
         GameCenterManager.getInstance().gamePassLevel(
             this.sessionid, 
