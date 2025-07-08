@@ -179,7 +179,7 @@ export default class GameView extends LayerPanel {
             } else {
                 let _hard =(this.sceneModel as any).game.difficulty;
                 this._curHard = _hard;
-                if(!Global.isAgain)this._checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
+                if(!Global.isAgain)this._checkPoint = (this.sceneModel as any).level;
                 // if(Global.isAgain){
                 //     CacheMgr.hard --;
                 //     _hard = _hard<0?0:_hard-1;
@@ -197,14 +197,14 @@ export default class GameView extends LayerPanel {
 
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
                 if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
-                this.progress.progress = loopLevel/GameConfig.allCheckPoint;
+                this.progress.progress = loopLevel/(this.sceneModel as any).levelLen;
                 let customCount;
                 if (loopLevel == GameConfig.allCheckPoint) {
                     customCount = 1;
                 } else {
                     customCount = loopLevel;
                 }
-                this.guankaLabel.getComponent(Label).string = "第" + loopLevel+"/"+GameConfig.allCheckPoint + "关";
+                this.guankaLabel.getComponent(Label).string = "第" + loopLevel+"/"+(this.sceneModel as any).levelLen + "关";
             }
             this._curCount = 0;
             this._maxCount = this._counts[this._curHard - 1];
@@ -570,8 +570,9 @@ export default class GameView extends LayerPanel {
         this.countDownTime = GameConfig.customTime;
         this.tempCountDown = GameConfig.allTime;
         this.countDown.string = Math.ceil(this.countDownTime) + "秒";
+        let levels = (this.sceneModel as any).levelLen
         // 关卡标签
-        this.guankaLabel.getComponent(Label).string = `第${this._checkPoint}/${GameConfig.allCheckPoint}关`;
+        this.guankaLabel.getComponent(Label).string = `第${this._checkPoint}/${levels}关`;
 
         // 重新绑定点击事件，恢复音效
         this.monitorEvent();
@@ -974,7 +975,7 @@ export default class GameView extends LayerPanel {
         const curGame = (this.sceneModel as any).game;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         // 使用正确的关卡值，优先使用FindingGlobal.gameCenterGameLevel
-        let currentLevel = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : CacheMgr.checkpoint;
+        let currentLevel = curGame.level;
         this.requestGameComplete({
             sessionId: curGame.sessionid,
             count: this.resultList.length,

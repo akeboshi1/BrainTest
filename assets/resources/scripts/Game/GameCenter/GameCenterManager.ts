@@ -39,6 +39,9 @@ export class GameCenterData {
     // 当前gameData的游戏难度，关卡
     private _level: number = 0;
     private _difficulty: number = 1;
+    private _levels: number[];
+    // 当前在levels数组中的索引位置
+    private _levelIndex: number = 0;
 
     private _difficultDic: Map<number, number> = new Map();
     constructor(data) {
@@ -49,15 +52,96 @@ export class GameCenterData {
         let count = this.result.length;
         for (let i: number = 0; i < count; i++) {
             let obj = this.result[i];
+            this._levels = obj['levels'];
             let level = Number(obj['level']) == 0 ? 1 : Number(obj['level']);
             let difficult = Number(obj['difficulty']);
-            this._difficultDic.set(difficult, level);
-            // 不管levelmode是否为1，默认所有游戏大厅游戏进度都是难度1,但是进入游戏后所有游戏的难度都可以自己选择
-            if (i == 0) {
-                this._level = level;
-                this._difficulty = difficult;
+           
+            if(this.levelMode == 2){
+                this._difficultDic.set(difficult, level);
+                // 对于levelMode=2，也需要设置初始难度
+                if (i == 0) {
+                    this._difficulty = difficult;
+                }
+            }else{
+                if (i == 0) {
+                    this._level = level;
+                    this._difficulty = difficult;
+                    // 根据当前level找到在levels数组中的索引
+                    if (this._levels && this._levels.length > 0) {
+                        this._levelIndex = this._levels.indexOf(level);
+                        if (this._levelIndex === -1) {
+                            this._levelIndex = 0; // 如果找不到，默认从0开始
+                            this._level = this._levels[0];
+                        }
+                    }
+                }
             }
         }
+    }
+
+    public get levels(): number[] {
+        return this._levels;
+    }
+
+    public get levelIndex(): number {
+        return this._levelIndex;
+    }
+
+    /**
+     * 检查并获取下一关
+     * 每通关一次levels中的索引就+1，然后从levels中获取对应的level值
+     * 超过levels最大值，则重置到第0位
+     */
+    public get nextLevel(): number {
+        if (!this._levels || this._levels.length === 0) {
+            // 如果_levels为空，则正常返回level++
+            this._level++;
+            return this._level;
+        }
+        
+        // 索引+1
+        this._levelIndex++;
+        
+        // 如果超过levels最大值，则重置到第0位
+        if (this._levelIndex >= this._levels.length) {
+            this._levelIndex = 0;
+        }
+        
+        // 从levels中获取对应的level值
+        this._level = this._levels[this._levelIndex];
+        
+        return this._level;
+    }
+
+    /**
+     * 获取指定难度的下一关（用于levelMode=2）
+     * @param difficulty 难度等级
+     * @returns 下一关的关卡号
+     */
+    public getNextLevelByDifficulty(difficulty: number): number {
+        // 获取当前难度的关卡
+        let currentLevel = this.getLevelByDifficult(difficulty);
+        
+        if (!this._levels || this._levels.length === 0) {
+            // 如果_levels为空，则正常返回当前关卡+1
+            return currentLevel + 1;
+        }
+        
+        // 在levels数组中查找当前关卡的位置
+        let index = this._levels.indexOf(currentLevel);
+        if (index === -1) {
+            // 如果找不到，返回第一个关卡
+            return this._levels[0];
+        }
+        
+        // 获取下一个关卡
+        let nextIndex = index + 1;
+        if (nextIndex >= this._levels.length) {
+            // 如果超过范围，重置到第一个
+            nextIndex = 0;
+        }
+        
+        return this._levels[nextIndex];
     }
 
 
@@ -73,16 +157,27 @@ export class GameCenterData {
     }
 
     public get level() {
+        let currentLevel: number;
         if (this.levelMode == 1) {
-            return this._level;
+            currentLevel = this._level;
         } else {
-            return this.getLevelByDifficult(this.difficulty);
+            currentLevel = this.getLevelByDifficult(this.difficulty);
         }
+        
+        // 当level为0或undefined时，使用levels第1位数字为起始关卡
+        if (currentLevel === 0 || currentLevel === undefined || currentLevel === null) {
+            if (this._levels && this._levels.length > 0) {
+                return this._levels[0];
+            }
+        }
+        
+        return currentLevel;
     }
 
     public set level(value: number) {
         this._level = value;
         if (this.levelMode != 1) {
+
             this._difficultDic.set(this.difficulty, this._level);
         }
     }
@@ -130,7 +225,7 @@ export class GameCenterManager {
 
     constructor() {
         GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecModel);
-        UIManager.getInstance().registerPanel(SettlementPanel.NAME,BundleName.RESOURCES,"prefab/settlementPanel/settlementPanel",SettlementPanel);
+        UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
         GameCenterManager._settlementPanel = new SettlementPanel();
     }
 
@@ -168,7 +263,7 @@ export class GameCenterManager {
     }
 
 
-    private _selectDifficulty:number = 1;
+    private _selectDifficulty: number = 1;
     /**
      * 设置当前游戏难度
      * @param difficulty 难度等级 1-简单 2-中等 3-困难
@@ -188,10 +283,10 @@ export class GameCenterManager {
         }
     }
 
-    public settleMentPanelShow:boolean = false;
+    public settleMentPanelShow: boolean = false;
 
-    showSuccessView(){
-        let self= this;
+    showSuccessView() {
+        let self = this;
         this.settleMentPanelShow = true;
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: true,
@@ -203,8 +298,8 @@ export class GameCenterManager {
         });
     }
 
-    showFailView(){
-        let self= this;
+    showFailView() {
+        let self = this;
         this.settleMentPanelShow = true;
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: false,
@@ -336,7 +431,7 @@ export class GameCenterManager {
             }
         })
         this._callbackDic.set(GameCenterManager.GAMEPASSLEVEL, new GameSocketData(socketData, callback));
-        EventManager.getInstance().on(GameCenterManager.GAMEPASSLEVEL, this.gamePassLevelCallBack, this);
+        EventManager.getInstance().on(GameCenterManager.GAMEPASSLEVEL, this.gamePassLevelCallBack, this,true);
         SocketManager.getInstance().send(socketData);
     }
 
@@ -350,15 +445,25 @@ export class GameCenterManager {
         this._curGame.sessionid = data.data.session_id;
         let levelMode = data.data.level_mode;
         if (levelMode == 2) {
-            this._curGame.setLevelByDifficult(data.data.difficulty, data.data.level);
+            // levelMode=2时，根据难度管理关卡
+           
+            // 更新当前难度
+            this._curGame.difficulty = data.data.difficulty;
+            
+            // 获取该难度的下一关
+            let nextLevel = this._curGame.getNextLevelByDifficulty(data.data.difficulty);
+             // 设置当前难度的关卡
+             this._curGame.setLevelByDifficult(data.data.difficulty, nextLevel);
+            DebugLog.instance.log(`LevelMode=2: 当前难度${data.data.difficulty}，当前关卡${data.data.level}，下一关${nextLevel}`);
         } else {
-            this._curGame.level = Number(data.data.level);
+            // 使用新的关卡逻辑
+            this._curGame.nextLevel;
             this._curGame.difficulty = data.data.difficulty;
         }
 
         // 通过事件机制通知子包更新进度，避免主包和子包的循环依赖
         EventManager.getInstance().emit("GAME_CENTER_LEVEL_UPDATE", {
-            level: Number(data.data.level),
+            level: this._curGame.level,
             difficulty: data.data.difficulty,
             levelMode: data.data.level_mode
         });

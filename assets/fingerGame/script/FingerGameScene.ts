@@ -13,6 +13,7 @@ import { FingerGameSetFinishPanel, IFingerGameSetFinishPanelData } from './Finge
 import { FingerGameCompletePanel, IFingerGameCompleteData } from './FingerGameCompletePanel';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 import { IFingerActivity, IFingerActivityResult, IFingerActivityScore } from './FingerGameProtocol';
+import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameScene')
@@ -58,6 +59,9 @@ export class FingerGameScene extends Component {
     private _absolutePath: string = '';
     private _isRecording: boolean = false;
 
+    private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
+    private _completePanelData: DataProvider<IFingerGameCompleteData[]> = null;
+
     start() {
         this._model = new FingerGameModel();
         this._model.init();
@@ -87,7 +91,7 @@ export class FingerGameScene extends Component {
             });
         }
 
-        UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, panelData);
+        this._completePanelData.data = panelData;
     }
 
     onGetTaskListFinished(data: IFingerActivity[]) {
@@ -111,6 +115,8 @@ export class FingerGameScene extends Component {
      * @param sectionIndex 第几节
      */
     public async restoreSceneData(setIndex: number, sectionIndex: number) {
+        this._model.startTaskActivity();
+        
         this._currentSetIndex = setIndex;
         this._currentSectionIndex = sectionIndex;
 
@@ -210,10 +216,20 @@ export class FingerGameScene extends Component {
         const timer = setTimeout(() => {
             this.onVideoCompleted();
 
+            this._finishPanelData = new DataProvider<IFingerGameSetFinishPanelData>();
             // 如果当前是会员，则停止录制
             if (this._model.isMember() && this._model.is_evaluable(this._currentSectionIndex)) {
                 this.stopRecorder();
             } else {
+                let postData: IFingerActivityScore = {
+                    task_id: this._model.getTaskId(),
+                    activity_id: this._model.activity.id,
+                    avg_left_score: null,
+                    avg_right_score: null,
+                    groups: null
+                }
+                this._model.completeTaskActivity(postData);
+
                 this.hideAllNativeNode();
 
                 let isLastSection = this._model.isLastSection;
@@ -227,8 +243,10 @@ export class FingerGameScene extends Component {
                     back: this.handleSummaryBack.bind(this),
                     goNext: this.handleSummaryGoNext.bind(this)
                 }
-                UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, panelData);
+                this._finishPanelData.data = panelData;
             }
+
+            UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData);
         }, (this._currentVideoDuration + 0.1) * 1000);
         this._timers.push(timer);
     }
@@ -287,9 +305,6 @@ export class FingerGameScene extends Component {
     onClickComfirmedNotice() {
         this.noticeNode.active = false;
 
-        if (this._model.isMember()) {
-            this._model.startTaskActivity();
-        } 
         this.restoreSceneData(this._currentSetIndex, this._currentSectionIndex);
     }
 
@@ -430,7 +445,7 @@ export class FingerGameScene extends Component {
                 goNext: this.handleSummaryGoNext.bind(this)
             }
 
-            UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, panelData);
+            this._finishPanelData.data = panelData;
         } else {
             this.recorderResultLabel.string = '上传失败';
         }
@@ -456,6 +471,8 @@ export class FingerGameScene extends Component {
     handleSummaryGoNext() {
         let isLastSection = this._model.isLastSection;
         if (isLastSection) {
+            this._completePanelData = new DataProvider<IFingerGameCompleteData[]>();
+
             if (this._model.isMember()) {
                 this._model.getAllTaskActivitiesResult();
             } else {
@@ -467,8 +484,10 @@ export class FingerGameScene extends Component {
                     });
                 }
 
-                UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, panelData);
+                this._completePanelData.data = panelData;
             }
+
+            UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, this._completePanelData);
         } else {
             this._currentSectionIndex++;
             this._model.addSectionIndex();
