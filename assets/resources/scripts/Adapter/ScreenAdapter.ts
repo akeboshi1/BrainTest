@@ -1,5 +1,14 @@
-import { _decorator, Component, Node, UITransform, view, Widget, Vec3, Size, Label,math,sys } from 'cc';
+import { _decorator, Component, Node, UITransform, view, Widget, Vec3, Size, Label, math, sys, screen, Enum } from 'cc';
+import { ScreenSizeUtil } from './ScreenSizeUtil';
 const { ccclass, property } = _decorator;
+
+// 声明枚举
+enum AdaptMode {
+    FIT_HEIGHT,
+    FIT_WIDTH,
+    FIT_BOTH,
+    STRETCH
+}
 
 @ccclass('ScreenAdapter')
 export class ScreenAdapter extends Component {
@@ -8,6 +17,9 @@ export class ScreenAdapter extends Component {
 
     @property([Node])
     childNodes: Node[] = [];
+
+    @property({ type: AdaptMode, tooltip: '适配模式...' })
+    adaptMode: AdaptMode = AdaptMode.FIT_HEIGHT;
 
     private readonly designWidth: number = 1080;
     private readonly designHeight: number = 1920;
@@ -43,18 +55,101 @@ export class ScreenAdapter extends Component {
     }
 
     private adaptScreen() {
-        const safeArea = view.getVisibleSize();
-        const screenWidth = safeArea.width;
-        const screenHeight = safeArea.height;
+        // 获取适合UI适配的尺寸
+        const uiSize = ScreenSizeUtil.getUISize();
+        const screenWidth = uiSize.width;
+        const screenHeight = uiSize.height;
 
-        // 父节点适配安全区域
-        this.parentNode.setPosition(safeArea.x, safeArea.y);
+        // 父节点适配屏幕尺寸
+        this.parentNode.setPosition(0, 0);
         const parentTransform = this.parentNode.getComponent(UITransform);
         parentTransform?.setContentSize(screenWidth, screenHeight);
 
-        // 统一缩放比例（基于安全区域）
-        const scaleFactor = Math.min(screenWidth / this.designWidth, screenHeight / this.designHeight);
-        this.adaptChildNodes(scaleFactor);
+        // 只在宽度小于设计宽度时才进行缩放处理
+        if (screenWidth < this.designWidth) {
+            const scaleFactor = this.calculateScaleFactor(screenWidth, screenHeight);
+            this.adaptChildNodes(scaleFactor);
+            console.log(`[ScreenAdapter] 宽度不足，进行缩放处理: 实际宽度${screenWidth} < 设计宽度${this.designWidth}, 缩放比例${scaleFactor.toFixed(3)}`);
+        } else {
+            // 宽度足够时，更新 Widget 对齐到实际宽度，不进行缩放
+            this.updateWidgetAlignment(screenWidth, screenHeight);
+            console.log(`[ScreenAdapter] 宽度足够，更新Widget对齐到实际尺寸: 实际宽度${screenWidth} >= 设计宽度${this.designWidth}`);
+        }
+    }
+
+    /**
+     * 计算适配缩放比例
+     * 只在宽度小于设计宽度时调用，根据适配模式计算缩放比例
+     */
+    private calculateScaleFactor(screenWidth: number, screenHeight: number): number {
+        // 计算高度和宽度的缩放比例
+        const heightScale = screenHeight / this.designHeight;
+        const widthScale = screenWidth / this.designWidth;
+        
+        switch (this.adaptMode) {
+            case AdaptMode.FIT_HEIGHT:
+                // fitHeight 模式：使用宽度比例进行缩放（因为已经确定宽度不足）
+                console.log(`[fitHeight] 宽度不足处理: 设计${this.designWidth}x${this.designHeight}, 实际${screenWidth}x${screenHeight}, 使用宽度比例${widthScale.toFixed(3)}`);
+                return widthScale;
+                
+            case AdaptMode.FIT_WIDTH:
+                // fitWidth 模式：使用宽度比例进行缩放
+                console.log(`[fitWidth] 宽度不足处理: 设计${this.designWidth}x${this.designHeight}, 实际${screenWidth}x${screenHeight}, 使用宽度比例${widthScale.toFixed(3)}`);
+                return widthScale;
+                
+            case AdaptMode.FIT_BOTH:
+                // fitBoth 模式：取最小值，确保内容完全显示
+                const minScale = Math.min(widthScale, heightScale);
+                console.log(`[fitBoth] 宽度不足处理: 设计${this.designWidth}x${this.designHeight}, 实际${screenWidth}x${screenHeight}, 使用最小比例${minScale.toFixed(3)}`);
+                return minScale;
+                
+            case AdaptMode.STRETCH:
+                // stretch 模式：取最大值，可能裁剪内容但填满屏幕
+                const maxScale = Math.max(widthScale, heightScale);
+                console.log(`[stretch] 宽度不足处理: 设计${this.designWidth}x${this.designHeight}, 实际${screenWidth}x${screenHeight}, 使用最大比例${maxScale.toFixed(3)}`);
+                return maxScale;
+                
+            default:
+                // 默认使用宽度比例
+                return widthScale;
+        }
+    }
+
+    /**
+     * 更新所有子节点的 Widget 对齐
+     * 用于宽度足够时，更新对齐到实际尺寸而不进行缩放
+     */
+    private updateWidgetAlignment(actualWidth?: number, actualHeight?: number) {
+        const updateNodeWidget = (node: Node) => {
+            // 如果子节点有Widget组件，更新对齐
+            const childWidget = node.getComponent(Widget);
+            if (childWidget) {
+                // 如果有传入实际尺寸，先临时设置父节点尺寸，然后更新Widget对齐
+                if (actualWidth && actualHeight) {
+                    const parentTransform = this.parentNode.getComponent(UITransform);
+                    if (parentTransform) {
+                        // 临时设置父节点为实际尺寸，让Widget基于实际尺寸计算对齐
+                        const originalWidth = parentTransform.width;
+                        const originalHeight = parentTransform.height;
+                        
+                        parentTransform.setContentSize(actualWidth, actualHeight);
+                        childWidget.updateAlignment();
+                        
+                        // 恢复父节点原始尺寸
+                        parentTransform.setContentSize(originalWidth, originalHeight);
+                    } else {
+                        childWidget.updateAlignment();
+                    }
+                } else {
+                    childWidget.updateAlignment();
+                }
+            }
+
+            // 递归处理子节点
+            node.children.forEach(child => updateNodeWidget(child));
+        };
+
+        this.childNodes.forEach(child => updateNodeWidget(child));
     }
 
     private adaptChildNodes(scale: number) {
@@ -66,11 +161,7 @@ export class ScreenAdapter extends Component {
             const originalPos = this.originalChildPositions.get(node.uuid);
             if (!originalSize || !originalPos) return;
 
-            // 如果子节点有Widget组件，更新对齐
-            const childWidget = node.getComponent(Widget);
-            if (childWidget) {
-                childWidget.updateAlignment();
-            }
+            
 
             // 缩放尺寸和位置
             childTransform.width = originalSize.width * scale;
@@ -80,6 +171,12 @@ export class ScreenAdapter extends Component {
                 originalPos.y * scale,
                 originalPos.z
             );
+
+            // 如果子节点有Widget组件，更新对齐
+            const childWidget = node.getComponent(Widget);
+            if (childWidget) {
+                childWidget.updateAlignment();
+            }
 
             // ==== 特殊处理 Label 组件 ====
             const label = node.getComponent(Label);
