@@ -106,6 +106,10 @@ export class FingerGameModel {
         return this._activities[this._currentSectionIndex];
     }
 
+    public getNextActivity(): IFingerActivity {
+        return this._activities[this._currentSectionIndex + 1];
+    }
+
     public get currentSectionIndex(): number {
         return this._currentSectionIndex;
     }
