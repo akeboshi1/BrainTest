@@ -120,7 +120,8 @@ export class FingerGameScene extends Component {
         this._currentSetIndex = setIndex;
         this._currentSectionIndex = sectionIndex;
 
-        const config = fingerGameConfig.fingerSets[setIndex]?.sections[sectionIndex];
+        
+        const config = fingerGameConfig.fingerSets[setIndex]?.sections[this._model.activity.id - 1];
         DebugLog.instance.log('restoreSceneData ============= setIndex=' + setIndex + ' sectionIndex=' + sectionIndex);
         if (!config) {
             DebugLog.instance.error(`Invalid set or section index: set=${setIndex}, section=${sectionIndex}`);
@@ -145,7 +146,7 @@ export class FingerGameScene extends Component {
     }
 
     private playPreviewVideo() {
-        const config = fingerGameConfig.fingerSets[this._currentSetIndex]?.sections[this._currentSectionIndex];
+        const config = fingerGameConfig.fingerSets[this._currentSetIndex]?.sections[this._model.activity.id - 1];
         if (!config) return;
 
         const previewClip = this._model.getVideoClip(config.previewVideo.path);
@@ -190,7 +191,7 @@ export class FingerGameScene extends Component {
     }
 
     private playDemoVideo() {
-        const config = fingerGameConfig.fingerSets[this._currentSetIndex]?.sections[this._currentSectionIndex];
+        const config = fingerGameConfig.fingerSets[this._currentSetIndex]?.sections[this._model.activity.id - 1];
         if (!config) return;
 
         const demoClip = this._model.getVideoClip(config.demoVideo.path);
@@ -207,6 +208,7 @@ export class FingerGameScene extends Component {
 
         // 如果当前是会员，则开始录制
         if (this._model.isMember() && this._model.is_evaluable(this._currentSectionIndex)) {
+            DebugLog.instance.log('开始录制 ----- ');
             this.startRecorder();
         }
 
@@ -216,11 +218,13 @@ export class FingerGameScene extends Component {
         const timer = setTimeout(() => {
             this.onVideoCompleted();
 
+          
             this._finishPanelData = new DataProvider<IFingerGameSetFinishPanelData>();
-            // 如果当前是会员，则停止录制
             if (this._model.isMember() && this._model.is_evaluable(this._currentSectionIndex)) {
+                DebugLog.instance.log('停止录制 ----- ');
                 this.stopRecorder();
             } else {
+                DebugLog.instance.log('非会员，直接上传 ----- ');
                 let postData: IFingerActivityScore = {
                     task_id: this._model.getTaskId(),
                     activity_id: this._model.activity.id,
@@ -229,12 +233,11 @@ export class FingerGameScene extends Component {
                     groups: null
                 }
                 this._model.completeTaskActivity(postData);
-
                 this.hideAllNativeNode();
 
                 let isLastSection = this._model.isLastSection;
-                let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].name;
-                let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].icon;
+                let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].name;
+                let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].icon;
 
                 let panelData: IFingerGameSetFinishPanelData = {
                     result: null,
@@ -244,9 +247,8 @@ export class FingerGameScene extends Component {
                     goNext: this.handleSummaryGoNext.bind(this)
                 }
                 this._finishPanelData.data = panelData;
+                UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData);
             }
-
-            UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData);
         }, (this._currentVideoDuration + 0.1) * 1000);
         this._timers.push(timer);
     }
@@ -373,7 +375,11 @@ export class FingerGameScene extends Component {
             this.recorderResultLabel.string = this._absolutePath;
             DebugLog.instance.log('this._absolutePath =============');
             DebugLog.instance.log(this._absolutePath);
-            this.PostVideoData();
+            this.hideAllNativeNode();
+            
+            UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData).then((isShow: boolean) => {
+                this.PostVideoData();
+            });
         } else {
             this.recorderResultLabel.string = '保存失败';
         }
@@ -422,30 +428,53 @@ export class FingerGameScene extends Component {
                 DebugLog.instance.log(`第${group.seq}组 - 左手: ${group.left_score}, 右手: ${group.right_score}`);
             });
 
-            this.hideAllNativeNode();
+            try {
+                DebugLog.instance.log('准备创建postData =============');
+                let postData: IFingerActivityScore = {
+                    task_id: this._model.getTaskId(),
+                    activity_id: this._model.activity.id,
+                    avg_left_score: result.avgLeftScore,
+                    avg_right_score: result.avgRightScore,
+                    groups: result.groups
+                }
+                DebugLog.instance.log('postData创建完成 =============');
+                DebugLog.instance.log(JSON.stringify(postData));
+                
+                DebugLog.instance.log('准备调用completeTaskActivity =============');
+                this._model.completeTaskActivity(postData);
+                DebugLog.instance.log('completeTaskActivity调用完成 =============');
 
-            let postData: IFingerActivityScore = {
-                task_id: result.taskId,
-                activity_id: this._model.activity.id,
-                avg_left_score: result.avgLeftScore,
-                avg_right_score: result.avgRightScore,
-                groups: result.groups
+                DebugLog.instance.log('准备创建panelData =============');
+                let isLastSection = this._model.isLastSection;
+                let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].name;
+                let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].icon;
+
+                let panelData: IFingerGameSetFinishPanelData = {
+                    result: result,
+                    nextSectionName: nextSectionName,
+                    nextSectionIconUrl: nextSectionIconUrl,
+                    back: this.handleSummaryBack.bind(this),
+                    goNext: this.handleSummaryGoNext.bind(this)
+                }
+                DebugLog.instance.log('panelData创建完成 =============');
+                DebugLog.instance.log(JSON.stringify(panelData));
+
+                DebugLog.instance.log('this._finishPanelData =============');
+                DebugLog.instance.log(this._finishPanelData);
+                
+                // 检查_finishPanelData是否已初始化
+                if (!this._finishPanelData) {
+                    DebugLog.instance.log('_finishPanelData未初始化，正在初始化 =============');
+                    this._finishPanelData = new DataProvider<IFingerGameSetFinishPanelData>();
+                }
+                
+                DebugLog.instance.log('准备设置_finishPanelData.data =============');
+                this._finishPanelData.data = panelData;
+                DebugLog.instance.log('_finishPanelData.data设置完成 =============');
+            } catch (error) {
+                DebugLog.instance.error('onPostVideoDataFinished执行过程中出现异常:', error);
+                this.recorderResultLabel.string = '处理结果时出错';
             }
-            this._model.completeTaskActivity(postData);
-
-            let isLastSection = this._model.isLastSection;
-            let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].name;
-            let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].icon;
-
-            let panelData: IFingerGameSetFinishPanelData = {
-                result: result,
-                nextSectionName: nextSectionName,
-                nextSectionIconUrl: nextSectionIconUrl,
-                back: this.handleSummaryBack.bind(this),
-                goNext: this.handleSummaryGoNext.bind(this)
-            }
-
-            this._finishPanelData.data = panelData;
         } else {
             this.recorderResultLabel.string = '上传失败';
         }
@@ -567,8 +596,8 @@ export class FingerGameScene extends Component {
         });
 
         let isLastSection = false;
-        let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].name;
-        let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._currentSectionIndex + 1].icon;
+        let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].name;
+        let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].icon;
 
         let panelData: IFingerGameSetFinishPanelData = {
             result: data,
