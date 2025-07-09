@@ -155,7 +155,7 @@ export class ScreenAdapter {
         viewNode.setScale(scaleFactor, scaleFactor, 1);
         
         // 处理viewNode内的Label组件
-        this.scaleLabelsInNode(viewNode, scaleFactor);
+       // this.scaleLabelsInNode(viewNode, scaleFactor);
         
         DebugLog.instance.log(`[ScreenAdapter] viewNode缩放完成: 缩放比例${scaleFactor.toFixed(3)}`);
     }

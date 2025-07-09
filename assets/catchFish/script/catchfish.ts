@@ -41,7 +41,7 @@ const SHOOT_INTERVAL = 0.65;
 export class catchfish extends BaseScene<IBaseGameChild> {
 
     @property(Node)
-    viewNode: Node = null;
+    mainView: Node = null;
 
     @property(TimerCommonComponent)
     timerComponent: TimerCommonComponent = null;
@@ -55,12 +55,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // @property(Node)
     // gameBeforeView: Node;
-
-    @property(Node)
-    gameStartView: Node;
-
-    @property(Node)
-    guideView:Node;
 
     @property(Node)
     answerView:Node
@@ -283,7 +277,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             fish.curTween.stop();
             fish.curTween = null;
         });
-        super.quitGame({ parentNode: this.viewNode, context: this });
+        super.quitGame({ parentNode: this.mainView, context: this });
     }
 
     resumeCallBack(context) {
@@ -381,7 +375,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         this._startTime = TimeUtil.getNow();
         // this.gameBeforeView.active = false;
-        this.gameStartView.active = true;
+        // this.gameStartView.active = true;
         this.wangCount = 0;
         // 清空错题列表
         this.clearWrongQuestions();
@@ -1230,7 +1224,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._endTime = TimeUtil.getNow();
         let complete = this.wangCount / this.wangMaxCount;
         let duration = (this._endTime - this._startTime) / 1000;
-        this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration});
+        this.requestGameComplete({ context: this, parentNode: this.mainView, complete, duration});
     }
 
     private _requestGameCenterComplete() {
