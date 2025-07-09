@@ -182,7 +182,7 @@
       "__uuid__": "e6269844-8f84-4ae0-827f-5c99832a7311@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 1,
+    "_type": 0,
     "_fillType": 0,
     "_sizeMode": 0,
     "_fillCenter": {
@@ -270,9 +270,7 @@
       "__id__": 10
     },
     "_alignFlags": 45,
-    "_target": {
-      "__id__": 1
-    },
+    "_target": null,
     "_left": 0,
     "_right": 0,
     "_top": 0,
@@ -287,7 +285,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 1080,
     "_originalHeight": 1920,
-    "_alignMode": 2,
+    "_alignMode": 1,
     "_lockFlags": 0,
     "_id": ""
   },

@@ -2,6 +2,7 @@ import { _decorator, Component, Node, Color, Sprite, instantiate, Prefab, resour
 import { ColorUtil } from '../Core/Util/ColorUtil';
 import { DebugLog } from '../Core/Util/DebugLog'; 
 import { ReportManager } from '../ManagerV2/ReportManager';
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 
 const { ccclass, property } = _decorator;
 
@@ -14,7 +15,7 @@ export const PageConfig = {
 };
 
 @ccclass('PageController')
-export class PageController extends Component {
+export class PageController extends AdaptComponent {
 
     @property({type: [Node]})
      navigationButtons: Node[] = [];
@@ -27,6 +28,10 @@ export class PageController extends Component {
 
     public init(pageNode: Node) {
         this._pageNode = pageNode;
+    }
+
+    public start(){
+        super.start();
     }
 
     private updateButtonColors(event,index) {

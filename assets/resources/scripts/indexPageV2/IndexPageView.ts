@@ -19,13 +19,14 @@ import { SceneManager } from '../Core/Manager/Scene/SceneManager';
 import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
 import { Global } from '../Core/Manager/Config/Global';
 import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/BundlePreloadManager';
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 
 
 const { ccclass, property } = _decorator;
 
 
 @ccclass('IndexPageView')
-export class IndexPageView extends Component {
+export class IndexPageView extends AdaptComponent {
     @property(Prefab)
     private taskPrefab: Prefab = null;
     @property(Node)
@@ -51,6 +52,7 @@ export class IndexPageView extends Component {
     vipNode: Node = null;
 
     start() {
+        super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getPersonalInitialReport();

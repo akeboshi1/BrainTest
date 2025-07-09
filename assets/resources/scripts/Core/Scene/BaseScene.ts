@@ -11,11 +11,13 @@ import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import {ScreenAdapter} from "db://assets/resources/scripts/Adapter/ScreenAdapter";
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 
 /**
  * 基础场景
  */
-export class BaseScene<T extends IBaseGameChild> extends Component {
+export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
     sceneModel: BaseGameModel<T>;
     viewNode: Node;
     timerComponent: TimerCommonComponent;
@@ -38,8 +40,10 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
 
     // ========== component生命周期 ==========
     start() {
+        super.start();
         this.sceneModel = (director.getScene() as unknown as { sceneModel }).sceneModel;
     }
+
 
     protected onDestroy(){
         this.complete = 0;
@@ -155,6 +159,8 @@ export class BaseScene<T extends IBaseGameChild> extends Component {
             DebugLog.instance.error("quitGame: no sceneModel available, cannot quit game properly");
         }
     }
+
+
 
     // ========== 开始倒计时 ==========
     public startTime(time: number) {
