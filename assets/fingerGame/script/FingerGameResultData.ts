@@ -6,10 +6,10 @@ export interface FingerGameResultData {
     status: number;
     /** 响应数据 */
     data: {
-        /** 任务ID */
-        task_id: number;
-        /** 文件名 */
-        filename: string;
+        /** 任务ID（可选） */
+        task_id?: number;
+        /** 文件名（可选） */
+        filename?: string;
         /** 左手平均分 */
         avg_left_score: number;
         /** 右手平均分 */
@@ -45,14 +45,14 @@ export class FingerGameResult {
      * 获取任务ID
      */
     get taskId(): number {
-        return this._data.data.task_id;
+        return this._data.data.task_id || 0;
     }
 
     /**
      * 获取文件名
      */
     get filename(): string {
-        return this._data.data.filename;
+        return this._data.data.filename || '';
     }
 
     /**

@@ -5,6 +5,7 @@ import { SetSummaryComponent } from './SetSummaryComponent';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
+import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
 
 export interface IFingerGameSetFinishPanelData {
@@ -51,9 +52,13 @@ export class FingerGameSetFinishPanel extends BasePanel {
 
     restore(data: DataProvider<IFingerGameSetFinishPanelData> | null) {
         this._finishPanelData = data;
+        this.nextSectionNode.active = false;
+        this.setSummaryComponent.node.active = false;
+        this.finishNode.active = false;
         this.startWaittingAnim();
 
         if(data){
+            DebugLog.instance.log('Binding DataProvider FingerGameSetFinishPanel =============');
             data.addListener(this.onDataChange.bind(this));
         }else{
             this.waittingNode.active = false;
@@ -70,9 +75,12 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     private onDataChange(data: IFingerGameSetFinishPanelData) {
+        DebugLog.instance.log('onDataChange FingerGameSetFinishPanel ============');
         this.waittingNode.active = false;
+        this.unscheduleAllCallbacks();
         if (data.result) {
             this.setSummaryComponent.restoreComponent(data.result);
+            this.setSummaryComponent.node.active = true;
             this.finishNode.active = false;
         } else {
             this.setSummaryComponent.node.active = false;

@@ -24,7 +24,7 @@ export class FingerGameScoreDetail extends Component {
     }
 
     setTitle(index: number) {
-        this.title.string = "第" + index + "组";
+        this.title.string = "第" + (index + 1) + "组";
     }
 }
 
