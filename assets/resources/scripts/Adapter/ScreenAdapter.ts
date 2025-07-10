@@ -93,8 +93,8 @@ export class ScreenAdapter {
                             // 强制更新Widget对齐
                             widget.updateAlignment();
                             
-                            // 恢复父节点原始尺寸
-                            parentTransform.setContentSize(originalWidth, originalHeight);
+                            // // 恢复父节点原始尺寸
+                            // parentTransform.setContentSize(originalWidth, originalHeight);
                             
                             DebugLog.instance.log(`[ScreenAdapter] 强制Widget对齐更新: ${node.name}, 父节点尺寸: ${actualWidth}x${actualHeight}`);
                         } else {

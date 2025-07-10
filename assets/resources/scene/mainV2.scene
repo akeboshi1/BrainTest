@@ -2147,7 +2147,7 @@
     "_target": null,
     "_left": 0,
     "_right": 0,
-    "_top": 0,
+    "_top": 1720,
     "_bottom": 0,
     "_horizontalCenter": 0,
     "_verticalCenter": -860,
@@ -2158,7 +2158,7 @@
     "_isAbsHorizontalCenter": true,
     "_isAbsVerticalCenter": true,
     "_originalWidth": 1080,
-    "_originalHeight": 0,
+    "_originalHeight": 200,
     "_alignMode": 1,
     "_lockFlags": 0,
     "_id": "5b1X1CrZZPE4GtEkP31mak"

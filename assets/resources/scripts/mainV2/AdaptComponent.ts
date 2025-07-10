@@ -1,4 +1,4 @@
-import { Component,Node} from 'cc';
+import { Component,Node,profiler} from 'cc';
 import {ScreenAdapter} from "db://assets/resources/scripts/Adapter/ScreenAdapter";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 
@@ -7,6 +7,11 @@ export class AdaptComponent extends Component {
     protected viewNode:Node=null;
     constructor() {
         super();
+    }
+
+    onLoad(){
+       // 将调试信息隐藏
+       profiler.hideStats();
     }
 
     start() {

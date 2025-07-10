@@ -1,15 +1,18 @@
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import { _decorator, Prefab, instantiate, Label, Node, ScrollView, Sprite, resources, SpriteFrame, tween, UIOpacity, Vec3, EditBox } from "cc";
+import { _decorator, Prefab, instantiate, Label, Node, ScrollView, Sprite, resources, SpriteFrame, tween, UIOpacity, Vec3, EditBox ,sys } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { SelectDate } from "./SelectDate";
 import { AlertManager } from "../../../Core/Manager/Alert/AlertManager";
 import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
-import { VipEvent, VipModel, VipType } from "./VipModel";
+import { VipEvent, VipModel, VipOrder, VipType } from "./VipModel";
 import { Global } from "../../../Core/Manager/Config/Global";
 import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import { EventManager } from "../../../Core/Manager/Event/EventManager";
+import { TaskManager } from "../../Task/TaskManager";
+import { UserInfoData } from "../../PersonalCenterManager/UserInfoData";
 const { ccclass, property } = _decorator;
 
 
@@ -93,7 +96,7 @@ export class VipPanel extends BasePanel {
     wechatNode: Node;
 
     @property(Node)
-    scanNode:Node;
+    scanNode: Node;
 
     //===== address
     @property(Node)
@@ -156,6 +159,18 @@ export class VipPanel extends BasePanel {
     @property(Label)
     label1: Label;
 
+    @property(Label)
+    label2:Label;
+
+    @property(Node)
+    timeNode:Node;
+
+    @property(Label)
+    timeLabel:Label;
+
+    @property(Node)
+    gotoBtn:Node;
+
 
     private _vipModel: VipModel;
 
@@ -199,11 +214,16 @@ export class VipPanel extends BasePanel {
     }
 
     start() {
-        this._vipModel.requestVipData();
+        this.settlementNode.active = false;
+        this.buyNode.active = false;
+        this.addressNode.active = false;
+        this.typeNode.active = true;
+        this.renewalBtn.active = true;
+        this.childNode.active = true;
+        this._vipModel.requestGetVipData();
         let userInfoData = PersonalCenterManager.getInstance().userInfoData;
         if (userInfoData.is_member) {
             // 会员
-            this.typeNode.active = true;
             this.quanyiNode.active = false;
             if (userInfoData.getMemberRemainingDays() <= 3) {
                 this.descLabel.node.active = true;
@@ -211,41 +231,56 @@ export class VipPanel extends BasePanel {
             } else {
                 this.descLabel.node.active = false;
             }
+            this.permanentNode.active = false;
             this.renewalBtnLabel.string = "点击续费";
         } else {
             // 非会员
-            this.typeNode.active = true;
+            this.descLabel.node.active = false;
             this.quanyiNode.active = true;
+            this.permanentNode.active = true;
             this.renewalBtnLabel.string = "确认协议并开通";
+
+
         }
     }
 
     onEnable(): void {
-
-        this._vipModel.on(VipEvent.VIP_DATA_UPDATED, this.onVipDataUpdated.bind(this), this, true);
-        // this._vipModel.on(VipEvent.ADDRESS_ADDED,this.onAddAddress.bind(this),this);
-        // this._vipModel.on(VipEvent.ADDRESS_DELETED,this.onDeletedAddress.bind(this),this);
+        EventManager.getInstance().on(VipEvent.VIP_GET_DATA, this.onVipGetData.bind(this), this, true);
+        EventManager.getInstance().on(VipEvent.VIP_ORDER_CREATED, this.onVipOrderCreated.bind(this), this, true);
+        EventManager.getInstance().on(VipEvent.VIP_PAY_RESULT, this.onVipPayResult.bind(this), this, true);
+        EventManager.getInstance().on(VipEvent.VIP_GET_ORDER, this.onVipGetOrder.bind(this), this, true);
     }
 
     onDisable(): void {
-        this._vipModel.offAllByContext(this);
+        EventManager.getInstance().off(VipEvent.VIP_GET_DATA, this);
+        EventManager.getInstance().off(VipEvent.VIP_ORDER_CREATED, this);
+        EventManager.getInstance().off(VipEvent.VIP_PAY_RESULT, this);
+        EventManager.getInstance().off(VipEvent.VIP_GET_ORDER, this);
     }
 
-    private onVipDataUpdated(data: any) {
-        let vipDatas = data.vipDatas;
+    /**
+     * 获取vip数据
+     */
+    private onVipGetData() {
+        let vipDatas = this._vipModel.vipDatas;
         let len = vipDatas.length;
         for (let i: number = 0; i < len; i++) {
             let vipData = vipDatas[i];
             if (vipData.type == VipType.Day) {
                 this.mouthBtn.active = true;
+                this.mouthPriceLabel.string = vipData.price.toString();
+                this.mouthNameLabel.string = vipData.name;
             } else if (vipData.type == VipType.Mouth) {
                 this.yearBtn.active = true;
+                this.yearPriceLabel.string = vipData.price.toString();
+                this.yearNameLabel.string = vipData.name;
             }
         }
 
         // 默认选择月卡
-        this._select = 0;
-        this.selectLabel.string = "已选择月卡";
+        let _vipData = this._vipModel.vipDatas[0];
+        this._select = _vipData.id;
+        this.selectLabel.string = _vipData.name;
 
         // 设置按钮颜色：月卡橙色，年卡白色
         let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
@@ -259,13 +294,93 @@ export class VipPanel extends BasePanel {
         }
     }
 
-    private onAddAddress() {
+    /**
+     * 创建订单返回
+     */
+    private onVipOrderCreated(data) {
+        // 创建订单完成后，并拉起微信支付
+        this._vipModel.requestWxPay(data);
+    }
+
+    /**
+     * 支付返回
+     * @param orderId 
+     */
+    private onVipPayResult(orderId) {
+        // 支付完成后，查询订单
+        this.typeNode.active = false;
+        this.renewalBtn.active = false;
+        this.descLabel.node.active = false;
+        this.childNode.active = false;
+
+        this.settlementNode.active = true;
+        this.timeNode.active = false;
+        this.gotoBtn.active = false;
+        this.label0.node.active = true;
+        this.label1.node.active = false;
+        this.label2.node.active = false;
+        this.iconNode.active = true;
+
+        this.createWaveTextAnimation("正在查询订单...", this.label0);
+        this._vipModel.requestGetOrder(orderId);
+    }
+
+    /**
+     * 获取订单返回
+     */
+    private onVipGetOrder(vipOrder: VipOrder) {
+        this.gotoBtn.active = true;
+        let btnLabel = this.gotoBtn.getChildByName("label").getComponent(Label);
+        if (vipOrder.status == 1) {
+            
+            
+            this.label1.node.active = true;
+            this.label2.node.active = true;
+            this.timeNode.active = true;
+            const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
+            this.createWaveTextAnimation(`您的会员有效期:${vipOrder.validDays}天`, this.label0);
+            this.label1.string = `${vipOrder.validStartDate} 至 ${vipOrder.validEndDate}`;
+            this.timeLabel.string = `您的会员剩余:${vipOrder.validLostDays}天`;
+            if(userData.has_initial_tier){
+                btnLabel.string = "立即开始初次评测";
+            }else{
+                btnLabel.string = "立即开始今日训练";
+            }
+            let icon = this.iconNode.getComponent(Sprite);
+            if (icon) this.changeBtnFrame(icon, "textureV2/vip/completeIcon/spriteFrame").then(() => {
+                this.gotoBtn.on(Node.EventType.TOUCH_END, () => {
+                    if(TaskManager.getInstance().getCurTaskId == -1){
+                        if(!userData.has_initial_tier){  
+                            EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, ()=>{
+                                SceneManager.getInstance().backToSkewersGameCenter();
+                            }, this,true);
+                            TaskManager.getInstance().requestInitLevalTask();
+                        }else{
+                            EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, ()=>{
+                                SceneManager.getInstance().backToTaskProgress();
+                            }, this,true);
+                            TaskManager.getInstance().requestTaskList();
+                        }
+                    }else{
+                        SceneManager.getInstance().backToTaskProgress();
+                    }
+                }, this);
+            });
+        } else {
+            this.gotoBtn.active = true;
+            this.label1.node.active = false;
+            this.label2.node.active = false;
+            this.timeNode.active = false;
+           
+            btnLabel.string = "返回首页";
+            this.gotoBtn.on(Node.EventType.TOUCH_END, () => {
+                SceneManager.getInstance().backToHall();
+            }, this);
+            this.createWaveTextAnimation("未查询到订单状态", this.label0);
+        }
 
     }
 
-    private onDeletedAddress() {
-
-    }
 
 
     onDestroy(): void {
@@ -289,22 +404,28 @@ export class VipPanel extends BasePanel {
     }
 
     buyHandler() {
-        // 如果buyNode已经激活，直接调用showSettleMent
-        if (this.buyNode.active) {
-            this.showSettleMent();
-            return;
-        }
 
-        this.typeNode.active = false;
-        this.renewalBtn.active = true;
-        this.descLabel.node.active = false;
-        this.childNode.active = true;
-        this.permanentNode.active = false;
-        this.backBtn.active = false;
-        this.quanyiNode.active = false;
-        this.addressNode.active = false;
-        this.buyNode.active = true;
-        this.settlementNode.active = false;
+        // 先发起请求创建订单
+        this._vipModel.requestCreateOrder(this._select);
+
+
+
+        // // 如果buyNode已经激活，直接调用showSettleMent
+        // if (this.buyNode.active) {
+        //     this.showSettleMent();
+        //     return;
+        // }
+
+        // this.typeNode.active = false;
+        // this.renewalBtn.active = true;
+        // this.descLabel.node.active = false;
+        // this.childNode.active = true;
+        // this.permanentNode.active = false;
+        // this.backBtn.active = false;
+        // this.quanyiNode.active = false;
+        // this.addressNode.active = false;
+        // this.buyNode.active = true;
+        // this.settlementNode.active = false;
     }
 
     showAddress() {
@@ -348,40 +469,41 @@ export class VipPanel extends BasePanel {
         DebugLog.instance.log(`选择支付方式: ${this._selectedPaymentType}`);
     }
 
-    private showSettleMent() {
-        this.typeNode.active = false;
-        this.renewalBtn.active = false;
-        this.descLabel.node.active = false;
-        this.childNode.active = false;
-        this.settlementNode.active = true;
-        this.createWaveTextAnimation("正在确认支付结果...", this.label0);
-        let icon = this.iconNode.getComponent(Sprite);
-        // 5秒后更新支付状态
-        this.scheduleOnce(() => {
-            this.createWaveTextAnimation("支付成功", this.label0);
-            this.label1.node.active = true;
-            this.createWaveTextAnimation("正在为您返回首页...", this.label1);
-            if (icon) this.changeBtnFrame(icon, "textureV2/vip/completeIcon/spriteFrame").then(() => {
-                // 再过5秒跳转到首页
-                this.scheduleOnce(() => {
-                    SceneManager.getInstance().backToHall();
-                }, 5);
-            });
+    // private showSettleMent() {
+    //     this.typeNode.active = false;
+    //     this.renewalBtn.active = false;
+    //     this.descLabel.node.active = false;
+    //     this.childNode.active = false;
+    //     this.settlementNode.active = true;
+    //     this.createWaveTextAnimation("正在确认支付结果...", this.label0);
+    //     let icon = this.iconNode.getComponent(Sprite);
+    //     // 5秒后更新支付状态
+    //     this.scheduleOnce(() => {
+    //         this.createWaveTextAnimation("支付成功", this.label0);
+    //         this.label1.node.active = true;
+    //         this.createWaveTextAnimation("正在为您返回首页...", this.label1);
+    //         if (icon) this.changeBtnFrame(icon, "textureV2/vip/completeIcon/spriteFrame").then(() => {
+    //             // 再过5秒跳转到首页
+    //             this.scheduleOnce(() => {
+    //                 SceneManager.getInstance().backToHall();
+    //             }, 5);
+    //         });
 
 
-        }, 5);
-    }
+    //     }, 5);
+    // }
 
     private _select = 0;
 
     cardClick(event, index: number) {
-        this._select = Number(index);
-        this.selectLabel.string = this._select == 0 ? "已选择月卡" : "已选择日卡";
+        let vipData = this._vipModel.vipDatas[Number(index)];
+        this._select = vipData.id;
+        this.selectLabel.string = `已经选择${vipData.name}`;
 
         let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
         let yearBtnSprite = this.yearBtn.getComponent(Sprite);
 
-        if (this._select == 0) {
+        if (vipData.periodUnit != "month") {
             // 选择月卡：月卡显示橙色，年卡显示白色
             this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
             this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
@@ -432,7 +554,7 @@ export class VipPanel extends BasePanel {
         this._defaultBoo = !this._defaultBoo;
         let url = this._defaultBoo ? "textureV2/vip/completeIcon/spriteFrame" : "textureV2/vip/selectBG/spriteFrame";
         this.changeBtnFrame(this.defaultBtn.getComponent(Sprite), url).then();
-        
+
         // 如果设置为默认地址，保存当前正在编辑的地址信息
         if (this._defaultBoo) {
             this._currentEditingAddress = this.addressLabel.string + " " + this.addressInput.string;
@@ -646,7 +768,7 @@ export class VipPanel extends BasePanel {
                 // 假设格式为：省 市 区 详细地址 手机号
                 let phoneNumber = parts[parts.length - 1]; // 最后一个部分为手机号
                 this.PhoneInput.string = phoneNumber;
-                
+
                 // 重新组合地址部分（省 市 区 详细地址）
                 let addressParts = parts.slice(0, parts.length - 1);
                 if (addressParts.length >= 3) {
@@ -663,7 +785,7 @@ export class VipPanel extends BasePanel {
             let currentName = nameLabel.string;
             let currentAddress = addressLabel.string;
             this._defaultBoo = this.isDefaultAddress(currentName, currentAddress);
-            
+
             // 更新defaultBtn的图标
             let url = this._defaultBoo ? "textureV2/vip/completeIcon/spriteFrame" : "textureV2/vip/selectBG/spriteFrame";
             this.changeBtnFrame(this.defaultBtn.getComponent(Sprite), url).then();
@@ -695,11 +817,11 @@ export class VipPanel extends BasePanel {
             this._defaultBoo = false;
             this._currentEditingAddress = "";
             this._currentEditingName = "";
-            
+
             // 保存默认地址信息
             this._defaultAddressName = nameLabel.string;
             this._defaultAddress = addressLabel.string;
-            
+
             // 解析地址文本中的手机号信息
             let addressText = addressLabel.string;
             let parts = addressText.split(' ');
@@ -707,15 +829,15 @@ export class VipPanel extends BasePanel {
                 // 假设格式为：省 市 区 详细地址 手机号
                 this._defaultPhone = parts[parts.length - 1]; // 最后一个部分为手机号
             }
-            
+
             // 更新 buyNode 上的地址显示
             this.updateBuyNodeAddressDisplay();
-            
+
             DebugLog.instance.log(`设置默认地址: ${nameLabel.string} - ${addressLabel.string}`);
 
             // 更新UI显示，例如高亮显示选中的地址
             this.updateSelectedAddress(addressNode);
-            
+
             // 返回 buyNode
             this.backToBuyNode();
         }
@@ -864,7 +986,7 @@ export class VipPanel extends BasePanel {
         this.addressNode.active = false;
         this.buyNode.active = true;
         this.settlementNode.active = false;
-        
+
         // 更新 buyNode 上的显示信息
         this.updateBuyNodeDisplay();
     }
@@ -881,7 +1003,7 @@ export class VipPanel extends BasePanel {
                 this.buyNodeNameLabel.string = "请选择收货人信息";
             }
         }
-        
+
         // 更新地址显示
         if (this.buyNodeAddressLabel) {
             if (this._defaultAddress) {

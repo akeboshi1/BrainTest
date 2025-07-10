@@ -158,7 +158,7 @@ export class SkewersManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showAlert(data.message);
+            AlertManager.getInstance().showSocketAlert(data.message);
             return;
         } else {
             let result = data.data['result'];
@@ -370,7 +370,7 @@ export class SkewersManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showAlert(data.message);
+            AlertManager.getInstance().showSocketAlert(data.message);
             return;
         } else {
             if (!this._gameDatas || this._gameDatas.length <= 0) {

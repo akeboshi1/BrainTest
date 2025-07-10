@@ -2,12 +2,13 @@ import { BaseManager } from "../BaseManager";
 import { BasePanel } from "../../UI/BasePanel";
 import { DebugLog } from "../../Util/DebugLog";
 import { SceneManager } from "../Scene/SceneManager";
-import { Constructor, Label, Node, Prefab, assetManager, debug, instantiate, resources } from "cc";
+import { Constructor, Label, Node, Prefab, assetManager, debug, instantiate, resources, UITransform } from "cc";
 import { BundleName } from "../Load/BundleName";
 import { BundlePreloadManager } from "../Load/BundlePreloadManager";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { EventManager } from "../Event/EventManager";
 import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
+import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
 
 export interface PanelInfo {
     bundleName: BundleName;
@@ -206,6 +207,13 @@ export class UIManager extends BaseManager {
         }
 
         let sl = instantiate(this.screenLockerPrefab);
+
+        // 设置屏幕适配尺寸
+        const screenSize = ScreenSizeUtil.getUISize();
+        const slTransform = sl.getComponent(UITransform);
+        if (slTransform && screenSize) {
+            slTransform.setContentSize(screenSize.width, screenSize.height);
+        }
 
         let parent = LayerUtil.getLoaderLayer();
         if (!parent) {
