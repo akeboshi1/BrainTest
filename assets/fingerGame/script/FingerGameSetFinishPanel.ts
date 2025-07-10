@@ -44,6 +44,9 @@ export class FingerGameSetFinishPanel extends BasePanel {
     @property(Label)
     private nextBtnLabel: Label = null;
 
+    @property(Node)
+    private nextBtnMaskNode: Node = null;
+
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
 
     private _backHandler: () => void = null;
@@ -59,6 +62,7 @@ export class FingerGameSetFinishPanel extends BasePanel {
         this.setSummaryComponent.node.active = false;
         this.finishNode.active = false;
         this.startWaittingAnim();
+        this.nextBtnMaskNode.active = true;
 
         if(data){
             DebugLog.instance.log('Binding DataProvider FingerGameSetFinishPanel =============');
@@ -80,6 +84,7 @@ export class FingerGameSetFinishPanel extends BasePanel {
     private onDataChange(data: IFingerGameSetFinishPanelData) {
         DebugLog.instance.log('onDataChange FingerGameSetFinishPanel ============');
         this.waittingNode.active = false;
+        this.nextBtnMaskNode.active = false;
         this.unscheduleAllCallbacks();
         if (data.result) {
             this.setSummaryComponent.restoreComponent(data.result);
