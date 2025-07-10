@@ -2,7 +2,7 @@ import { _decorator, Component, instantiate, Node, Prefab } from 'cc';
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SectionConfig } from '../config/fingerGameConfig';
-import { FingerGameSectionItem } from './FingerGameSectionItem';
+import { SectionItem } from './SectionItem';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 const { ccclass, property } = _decorator;
 
@@ -26,7 +26,7 @@ export class FingerGameSectionsPanel extends BasePanel {
         for (let i = 0; i < data.length; i++) {
             const item = instantiate(this.itemPrefab);
             item.setParent(this.itemContainer);
-            item.getComponent(FingerGameSectionItem).setData(data[i]);
+            item.getComponent(SectionItem).setData(data[i]);
         }
     }
 
