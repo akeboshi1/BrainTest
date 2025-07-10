@@ -48,7 +48,7 @@ export class ReportManager {
     private get_cog_ability_weekly_scores: string = "user.get_cog_ability_weekly_scores";
     private _reportDataList = [];
     private _reportDataListInitial = [];
-    private _userSumReport = '';
+    private _userSumReport:any;
     private _weekStatistics : WeekStatisticsData = {
         start_date:'',
         end_date:''
@@ -77,7 +77,7 @@ export class ReportManager {
     public get reportDataListInitial(): ReportData[] {
         return this._reportDataListInitial;
     }
-    public get userSumReport(): string {
+    public get userSumReport(): any {
         return this._userSumReport;
     }
 
@@ -191,6 +191,10 @@ export class ReportManager {
         }
         EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
     }
+    getFirstAnalysisDataByIndex(index: number){
+        return this._userSumReport.report.analysis[index];
+    }
+ 
 
     public getCogAbilityBrief(cog_ability: string) {
         EventManager.getInstance().on(this.get_cog_ability_brief, this.requestCogAbilityBriefCallback, this, true);
