@@ -1,10 +1,10 @@
 import { _decorator, assetManager, Component, Label, Node, Sprite, SpriteFrame } from 'cc';
-import { SectionConfig, SetConfig } from '../config/fingerGameConfig';
+import { SectionConfig } from '../config/fingerGameConfig';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
-@ccclass('FingerGameSectionItem')
-export class FingerGameSectionItem extends Component {
+@ccclass('SectionItem')
+export class SectionItem extends Component {
     @property(Label)
     private sectionNameLabel: Label = null;
 
