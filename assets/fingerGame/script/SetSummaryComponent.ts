@@ -23,13 +23,16 @@ export class SetSummaryComponent extends Component {
     @property(Button)
     private ctrlBtn: Button = null;
 
-    private original_height: number = 400;
+    private original_height: number = 645;
 
     private _isExpanded: boolean = false;
 
     private _itemHeight: number = 112;
-    private _paddingY: number = 10;
+    private _paddingTop: number = 24
+    private _paddingY: number = 24;
     private _animDuration: number = 0.5;
+
+    private _clickShowScoreHandler: () => void = null;
 
     start() {
 
@@ -65,12 +68,20 @@ export class SetSummaryComponent extends Component {
         }
     }
 
+    setClickShowScoreHandler(handler: () => void) {
+        this._clickShowScoreHandler = handler;
+    }
+
     protected onDestroy(): void {
-        
+        this._clickShowScoreHandler = null;
     }
 
     showScoreDetail() {
-        let expendHeight = (this._itemHeight + this._paddingY) * this.scoreDetailContainer.children.length + 100;
+        if (this._clickShowScoreHandler) {
+            this._clickShowScoreHandler();
+        }
+
+        let expendHeight = (this._itemHeight + this._paddingY) * this.scoreDetailContainer.children.length + this._paddingTop;
 
         // 禁用按钮点击
         this.ctrlBtn.interactable = false;

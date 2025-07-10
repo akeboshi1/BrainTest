@@ -41,6 +41,9 @@ export class FingerGameSetFinishPanel extends BasePanel {
     @property(Node)
     private waittingNode: Node = null;
 
+    @property(Label)
+    private nextBtnLabel: Label = null;
+
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
 
     private _backHandler: () => void = null;
@@ -100,8 +103,12 @@ export class FingerGameSetFinishPanel extends BasePanel {
                     }
                 });
             }
+            this.startGoonTimer();
+
+            this.setSummaryComponent.setClickShowScoreHandler(this.onShowScoreHandler.bind(this));
         } else {
             this.nextSectionNode.active = false;
+            this.nextBtnLabel.string = "继续";
         }
 
         if(data.back){
@@ -111,6 +118,11 @@ export class FingerGameSetFinishPanel extends BasePanel {
         if(data.goNext){
             this._nextHandler = data.goNext;
         }
+    }
+
+    private onShowScoreHandler(){
+        this.unscheduleAllCallbacks();
+        this.nextBtnLabel.string = "下一节";
     }
 
     private startWaittingAnim(){
@@ -125,7 +137,22 @@ export class FingerGameSetFinishPanel extends BasePanel {
         }, 0.5);
     }
 
+    private startGoonTimer(){
+        let count = 5;
+        this.nextBtnLabel.string = `下一节(${count})`;
+        this.unscheduleAllCallbacks();
+        this.schedule(() => {
+            count--;
+            this.nextBtnLabel.string = `下一节(${count})`;
+            if(count <= 0) {
+                this.unscheduleAllCallbacks();
+                this.onClickNext();
+            }
+        }, 1);
+    }
+
     public onClickBack() {
+        this.unscheduleAllCallbacks();
         UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
         if (this._backHandler) {
             this._backHandler();
@@ -133,6 +160,7 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     public onClickNext() {
+        this.unscheduleAllCallbacks();
         UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
         if (this._nextHandler) {
             this._nextHandler();

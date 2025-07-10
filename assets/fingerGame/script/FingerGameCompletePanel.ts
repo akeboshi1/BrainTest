@@ -35,6 +35,9 @@ export class FingerGameCompletePanel extends BasePanel {
     @property(Label)
     private titleLabel:Label = null;
 
+    @property(Node)
+    private finishIconNode:Node = null;
+
     private _data:DataProvider<IFingerGameCompleteData[]> = null;
 
     start() {
@@ -56,6 +59,7 @@ export class FingerGameCompletePanel extends BasePanel {
 
     private startWaittingAnim(){
         this.titleLabel.string = "正在统计总分...";
+        this.finishIconNode.active = false;
         let count = 1;
         this.unscheduleAllCallbacks();
         this.schedule(() => {
@@ -68,20 +72,27 @@ export class FingerGameCompletePanel extends BasePanel {
     private onDataChange(data:IFingerGameCompleteData[]){
         this.unscheduleAllCallbacks();
 
-        this.titleLabel.string = "恭喜完成练习";
+        this.finishIconNode.active = true;
+        this.titleLabel.string = "恭喜完成练习!";
         // 清空容器
         this.detailContainer.removeAllChildren();
 
         // 遍历数据创建详情项
         data.forEach(item => {
             const detailNode = instantiate(this.detailPrefab);
-            
+            const finishNode = detailNode.getChildByName("finishNode");
+            const scoreNode = detailNode.getChildByName('scoreNode');
+
+            let bo = item.status == null || item.status == 0;
+            finishNode.active = bo;
+            scoreNode.active = !bo;
+
             // 设置名称
             const nameLabel = detailNode.getChildByName('name').getComponent(Label);
             nameLabel.string = item.name;
 
             // 设置状态
-            const statusLabel = detailNode.getChildByName('status').getComponent(Label);
+            const statusLabel = scoreNode.getChildByName('status').getComponent(Label);
             switch(item.status) {
                 case 1:
                     statusLabel.string = '优';
