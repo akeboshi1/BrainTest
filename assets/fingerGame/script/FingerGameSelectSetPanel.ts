@@ -2,8 +2,6 @@ import { _decorator, Component, Node, Prefab, instantiate, Button, Label, UITran
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 import { fingerGameConfig } from '../config/fingerGameConfig';
-import { FingerGameSetItem } from './FingerGameSetItem';
-import { FingerGameSectionItem } from './FingerGameSectionItem';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 const { ccclass, property } = _decorator;
@@ -74,10 +72,10 @@ export class FingerGameSelectSetPanel extends BasePanel {
         fingerGameConfig.fingerSets.forEach((setConfig, index) => {
             const setItemNode = instantiate(this.setItemPrefab);
             setItemNode.setParent(this.setsListContainer);
-            setItemNode.getComponent(FingerGameSetItem)?.setData(setConfig, index);
-            setItemNode.on(Button.EventType.CLICK, () => {
-                this.onClickSetItem(index);
-            });
+            // setItemNode.getComponent(FingerGameSetItem)?.setData(setConfig, index);
+            // setItemNode.on(Button.EventType.CLICK, () => {
+            //     this.onClickSetItem(index);
+            // });
         });
     }
 
@@ -111,7 +109,7 @@ export class FingerGameSelectSetPanel extends BasePanel {
         setConfig.sections.forEach((sectionConfig, sectionIndex) => {
             const sectionItemNode = instantiate(this.sectionItemPrefab);
             sectionItemNode.setParent(this.sectionListContainer);
-            sectionItemNode.getComponent(FingerGameSectionItem)?.setData(sectionConfig, sectionIndex);
+            // sectionItemNode.getComponent(FingerGameSectionItem)?.setData(sectionConfig, sectionIndex);
             sectionItemNode.setPosition(0, -sectionIndex * 246);
             heightCount += 246;
             
