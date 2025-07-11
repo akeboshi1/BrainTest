@@ -3,12 +3,13 @@ import { PageController } from './PageController';
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { ReportManager } from '../ManagerV2/ReportManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 
 
 const { ccclass, property } = _decorator;
 
 @ccclass('MainSceneController')
-export class MainSceneController extends Component {
+export class MainSceneController extends AdaptComponent {
    @property(Node)
    pageContainer: Node = null;
    @property(PageController)
@@ -31,8 +32,8 @@ export class MainSceneController extends Component {
     }
 
     start() {
+        super.start();
         DebugLog.instance.log("MainSceneController start");
-        
     } 
 
     update(deltaTime: number) {

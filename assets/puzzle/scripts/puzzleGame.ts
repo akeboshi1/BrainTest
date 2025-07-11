@@ -72,9 +72,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private showSprite: Sprite;
 
     @property(Node)
-    guideView: Node;
-
-    @property(Node)
     private showResultContinueButton: Node;
 
     @property(Node)
@@ -303,22 +300,38 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         const currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
         const endpos = new Vec2(vec3.x, vec3.y);
-        const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
-
-        if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
-            this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
-            if (this.checkPuzzleResult()) {
-                this.processGameSuccess();
+        
+        try {
+            const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
+            
+            // 检查getChipDataByPuzzlePos是否会报错
+            const dragInstanceIndex = this.chipsInstances.indexOf(this.dragInstance);
+            const dragChipData = this.getChipDataByPuzzlePos(dragInstanceIndex);
+            const targetChipData = selectedObjectIndex !== -1 ? this.getChipDataByPuzzlePos(selectedObjectIndex) : null;
+            
+            if (!dragChipData || (selectedObjectIndex !== -1 && !targetChipData)) {
+                DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 报错，拖拽图片返回原位置`);
+                this.processTouchCancel();
+                this.dragInstance = null;
+                return;
             }
-        } else {
+
+            if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
+                this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
+                if (this.checkPuzzleResult()) {
+                    this.processGameSuccess();
+                }
+            } else {
+                this.processTouchCancel();
+            }
+        } catch (error) {
+            DebugLog.instance.error(`[puzzleGame] onTouchEnd 发生错误: ${error}，拖拽图片返回原位置`);
             this.processTouchCancel();
         }
 
         this.dragInstance = null;
         DebugLog.instance.log("当前数量：" + this.getCorrentCounts());
         DebugLog.instance.log('总数', this.chipsInstances.length);
-
-
     }
 
     onTouchCancel(event: EventTouch) {
@@ -347,9 +360,21 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private processTouchCancel() {
         if (!this.dragInstance) return;
 
-        tween(this.dragInstance)
-            .to(0.3, { position: this.dragObjectStartPos })
-            .start();
+        try {
+            // 检查dragObjectStartPos是否有效
+            if (this.dragObjectStartPos && 
+                typeof this.dragObjectStartPos.x === 'number' && 
+                typeof this.dragObjectStartPos.y === 'number') {
+                
+                tween(this.dragInstance)
+                    .to(0.3, { position: this.dragObjectStartPos })
+                    .start();
+            } else {
+                DebugLog.instance.error(`[puzzleGame] dragObjectStartPos 无效，直接重置拖拽状态`);
+            }
+        } catch (error) {
+            DebugLog.instance.error(`[puzzleGame] processTouchCancel 发生错误: ${error}`);
+        }
 
         this.dragInstance.setSiblingIndex(0);
         this.resetDragState();
@@ -498,37 +523,58 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     private swapPuzzleChips(puzzlePos1: number, puzzlePos2: number) {
-        const chipData1 = this.getChipDataByPuzzlePos(puzzlePos1);
-        const chipData2 = this.getChipDataByPuzzlePos(puzzlePos2);
-        if (!chipData1 || !chipData2) {
-            DebugLog.instance.error(`1:${chipData1} 2:${chipData2} is null`)
-            return;
+        try {
+            const chipData1 = this.getChipDataByPuzzlePos(puzzlePos1);
+            const chipData2 = this.getChipDataByPuzzlePos(puzzlePos2);
+            if (!chipData1 || !chipData2) {
+                DebugLog.instance.error(`[puzzleGame] 交换失败: chipData1=${chipData1} chipData2=${chipData2}`);
+                return;
+            }
+
+            const chipLastPos1 = chipData1["puzzlePos"];
+            const chipLastPos2 = chipData2["puzzlePos"];
+
+            chipData1["puzzlePos"] = chipLastPos2;
+            chipData2["puzzlePos"] = chipLastPos1;
+
+            const duration = 0.3;
+            const targetPosition1 = chipData2["objectPos"];
+            tween(this.chipsInstances[puzzlePos1]).to(duration, { position: targetPosition1 }).start();
+
+            const targetPosition2 = chipData1["objectPos"];
+            tween(this.chipsInstances[puzzlePos2]).to(duration, { position: targetPosition2 }).start();
+
+            this.outputMapData();
+        } catch (error) {
+            DebugLog.instance.error(`[puzzleGame] swapPuzzleChips 发生错误: ${error}`);
+            // 如果交换过程中出现错误，尝试让拖拽的图片返回原位置
+            if (this.dragInstance) {
+                this.processTouchCancel();
+            }
         }
-
-        const chipLastPos1 = chipData1["puzzlePos"];
-        const chipLastPos2 = chipData2["puzzlePos"];
-
-        chipData1["puzzlePos"] = chipLastPos2;
-        chipData2["puzzlePos"] = chipLastPos1;
-
-        const duration = 0.3;
-        const targetPosition1 = chipData2["objectPos"];
-        tween(this.chipsInstances[puzzlePos1]).to(duration, { position: targetPosition1 }).start();
-
-        const targetPosition2 = chipData1["objectPos"];
-        tween(this.chipsInstances[puzzlePos2]).to(duration, { position: targetPosition2 }).start();
-
-        this.outputMapData();
     }
 
     private getChipDataByPuzzlePos(puzzlePos: number): Object {
-        for (let [key, value] of this.chipsDataMap.entries()) {
-            const pos: number = value["puzzlePos"];
-            if (pos == puzzlePos) {
-                return value;
+        try {
+            // 参数验证
+            if (puzzlePos < 0 || puzzlePos >= this.chipsInstances.length) {
+                DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 参数错误: puzzlePos=${puzzlePos}, chipsInstances.length=${this.chipsInstances.length}`);
+                return null;
             }
+            
+            for (let [key, value] of this.chipsDataMap.entries()) {
+                const pos: number = value["puzzlePos"];
+                if (pos == puzzlePos) {
+                    return value;
+                }
+            }
+            
+            DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 未找到数据: puzzlePos=${puzzlePos}`);
+            return null;
+        } catch (error) {
+            DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 发生错误: ${error}, puzzlePos=${puzzlePos}`);
+            return null;
         }
-        return null;
     }
 
     private outputMapData() {

@@ -148,8 +148,7 @@ export class SceneManager extends BaseManager {
             SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2", BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回游戏大厅');
                 let node = find("Canvas");
-                let scriptNode = node.getChildByName("scriptNode");
-                let mainScene = scriptNode.getComponent("MainSceneController");
+                let mainScene = node.getComponent("MainSceneController");
                  mainScene["showGameCenter"]();
                 // mainScene['setCurrentIndex'](MainSceneView.GameCenter);
                 resolve();
@@ -207,8 +206,7 @@ export class SceneManager extends BaseManager {
             SceneManager.getInstance().changeScene(GameSceneConst.Hall, "mainV2",BundleName.RESOURCES).then((scene) => {
                 DebugLog.instance.log('返回串烧游戏界面');
                 let node = find("Canvas");
-                let scriptNode = node.getChildByName("scriptNode");
-                let mainScene = scriptNode.getComponent("MainSceneController");
+                let mainScene = node.getComponent("MainSceneController");
                 mainScene["showReport"]();
                 resolve();
             }).catch(err => {
