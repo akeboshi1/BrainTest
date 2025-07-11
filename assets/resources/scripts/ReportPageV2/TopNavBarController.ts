@@ -9,7 +9,7 @@ const { ccclass, property } = _decorator;
 export const TopNavBarConfig = {
     otherChartItem: '/prefabV2/personReport/otherChartItem',
     otherSumDataPrefab: '/prefabV2/personReport/otherSumDataPrefab',
-    sumDataPrefab: '/prefabV2/personReport/sumDataPrefab',
+    sumDataAnalysisPrefab: '/prefabV2/personReport/sumAnalysisPrefab',
     sumReportPrefab: '/prefabV2/personReport/sumReportPrefab',
     initDataPrefab:'/prefabV2/personReport/initDataPrefab'
 }
@@ -115,7 +115,7 @@ export class TopNavBarController extends Component {
         if(!userData.has_initial_tier){
            await this.loadPage('initDataPrefab');
         }else{
-            await this.loadPage('sumDataPrefab');
+            await this.loadPage('sumDataAnalysisPrefab');
         }
       
         // 滚动到最上方
