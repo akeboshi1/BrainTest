@@ -177,9 +177,17 @@ export class SumAnalyseView extends Component {
                 script.setName(configItem.name);
                 let data = ReportManager.getInstance().getFirstAnalysisDataByIndex(index);
                 if (index == 0) {
-                    script.setText(data);
+                    if(data){
+                        script.setText(data);
+                    }else{
+                        script.setText('暂无数据');
+                    }
                 } else {
-                    script.setText(data);
+                    if(data){
+                        script.setText(data);
+                    }else{
+                        script.setText('暂无数据');
+                    }
                 }
             }
         } else {

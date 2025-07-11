@@ -28,11 +28,7 @@ export class UserCenterPanel extends AdaptComponent {
 
    onEnable() {
       EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-      if(!PersonalCenterManager.getInstance().userInfoData){
-          PersonalCenterManager.getInstance().requestUserInfo();
-      }else{
-          this.getUserInfoCallBack();
-      }
+      PersonalCenterManager.getInstance().requestUserInfo();
    }
    onDisable() {
       EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);

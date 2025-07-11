@@ -82,11 +82,7 @@ export class AlterUserInfoView extends BasePanel {
     }
     start() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.initUserInfoPanel, this,true);
-        if(!PersonalCenterManager.getInstance().userInfoData){
-            PersonalCenterManager.getInstance().requestUserInfo();
-        }else{
-            this.initUserInfoPanel();
-        }
+        PersonalCenterManager.getInstance().requestUserInfo();
     }
     initUserInfoPanel() {
         let userData = PersonalCenterManager.getInstance().userInfoData;
