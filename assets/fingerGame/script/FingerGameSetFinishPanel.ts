@@ -52,6 +52,8 @@ export class FingerGameSetFinishPanel extends BasePanel {
     private _backHandler: () => void = null;
     private _nextHandler: () => void = null;
 
+    private _clickedBool: boolean = false;
+
     start() {
 
     }
@@ -157,6 +159,10 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     public onClickBack() {
+        if(this._clickedBool){
+            return;
+        }
+        this._clickedBool = true;
         this.unscheduleAllCallbacks();
         UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
         if (this._backHandler) {
@@ -165,6 +171,10 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     public onClickNext() {
+        if(this._clickedBool){
+            return;
+        }
+        this._clickedBool = true;
         this.unscheduleAllCallbacks();
         UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
         if (this._nextHandler) {
