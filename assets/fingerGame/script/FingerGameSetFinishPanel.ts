@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Sprite, assetManager, SpriteFrame } from 'cc';
+import { _decorator, Component, Node, Label, Sprite, assetManager, SpriteFrame, Button } from 'cc';
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
 import { FingerGameResult } from './FingerGameResultData';
 import { SetSummaryComponent } from './SetSummaryComponent';
@@ -47,6 +47,9 @@ export class FingerGameSetFinishPanel extends BasePanel {
     @property(Node)
     private nextBtnMaskNode: Node = null;
 
+    @property(Button)
+    private nextBtn: Button = null;
+
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
 
     private _backHandler: () => void = null;
@@ -65,6 +68,7 @@ export class FingerGameSetFinishPanel extends BasePanel {
         this.finishNode.active = false;
         this.startWaittingAnim();
         this.nextBtnMaskNode.active = true;
+        this.nextBtn.interactable = false;
 
         if(data){
             DebugLog.instance.log('Binding DataProvider FingerGameSetFinishPanel =============');
@@ -86,8 +90,8 @@ export class FingerGameSetFinishPanel extends BasePanel {
     private onDataChange(data: IFingerGameSetFinishPanelData) {
         DebugLog.instance.log('onDataChange FingerGameSetFinishPanel ============');
         this.waittingNode.active = false;
-        this.nextBtnMaskNode.active = false;
         this.unscheduleAllCallbacks();
+        this.setTouchableDelay();
         if (data.result) {
             this.setSummaryComponent.restoreComponent(data.result);
             this.setSummaryComponent.node.active = true;
@@ -127,6 +131,13 @@ export class FingerGameSetFinishPanel extends BasePanel {
         }
     }
 
+    private setTouchableDelay(){
+        this.scheduleOnce(() => {
+            this.nextBtnMaskNode.active = false;
+            this.nextBtn.interactable = true;
+        }, 0.5);
+    }
+
     private onShowScoreHandler(){
         this.unscheduleAllCallbacks();
         this.nextBtnLabel.string = "下一节";
@@ -147,12 +158,11 @@ export class FingerGameSetFinishPanel extends BasePanel {
     private startGoonTimer(){
         let count = 5;
         this.nextBtnLabel.string = `下一节(${count})`;
-        this.unscheduleAllCallbacks();
+       
         this.schedule(() => {
             count--;
             this.nextBtnLabel.string = `下一节(${count})`;
             if(count <= 0) {
-                this.unscheduleAllCallbacks();
                 this.onClickNext();
             }
         }, 1);
