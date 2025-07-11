@@ -2649,10 +2649,7 @@
     "sectionListContainer": {
       "__id__": 85
     },
-    "sectionItemPrefab": {
-      "__uuid__": "c285f9bd-3ca8-4102-873b-fc1d20c39c01",
-      "__expectedType__": "cc.Prefab"
-    },
+    "sectionItemPrefab": null,
     "sectionNameLabel": {
       "__id__": 63
     },

@@ -5,6 +5,7 @@ import { SetSummaryComponent } from './SetSummaryComponent';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
+import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
 
 export interface IFingerGameSetFinishPanelData {
@@ -40,10 +41,18 @@ export class FingerGameSetFinishPanel extends BasePanel {
     @property(Node)
     private waittingNode: Node = null;
 
+    @property(Label)
+    private nextBtnLabel: Label = null;
+
+    @property(Node)
+    private nextBtnMaskNode: Node = null;
+
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
 
     private _backHandler: () => void = null;
     private _nextHandler: () => void = null;
+
+    private _clickedBool: boolean = false;
 
     start() {
 
@@ -51,9 +60,14 @@ export class FingerGameSetFinishPanel extends BasePanel {
 
     restore(data: DataProvider<IFingerGameSetFinishPanelData> | null) {
         this._finishPanelData = data;
+        this.nextSectionNode.active = false;
+        this.setSummaryComponent.node.active = false;
+        this.finishNode.active = false;
         this.startWaittingAnim();
+        this.nextBtnMaskNode.active = true;
 
         if(data){
+            DebugLog.instance.log('Binding DataProvider FingerGameSetFinishPanel =============');
             data.addListener(this.onDataChange.bind(this));
         }else{
             this.waittingNode.active = false;
@@ -70,9 +84,13 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     private onDataChange(data: IFingerGameSetFinishPanelData) {
+        DebugLog.instance.log('onDataChange FingerGameSetFinishPanel ============');
         this.waittingNode.active = false;
+        this.nextBtnMaskNode.active = false;
+        this.unscheduleAllCallbacks();
         if (data.result) {
             this.setSummaryComponent.restoreComponent(data.result);
+            this.setSummaryComponent.node.active = true;
             this.finishNode.active = false;
         } else {
             this.setSummaryComponent.node.active = false;
@@ -92,8 +110,12 @@ export class FingerGameSetFinishPanel extends BasePanel {
                     }
                 });
             }
+            this.startGoonTimer();
+
+            this.setSummaryComponent.setClickShowScoreHandler(this.onShowScoreHandler.bind(this));
         } else {
             this.nextSectionNode.active = false;
+            this.nextBtnLabel.string = "继续";
         }
 
         if(data.back){
@@ -103,6 +125,11 @@ export class FingerGameSetFinishPanel extends BasePanel {
         if(data.goNext){
             this._nextHandler = data.goNext;
         }
+    }
+
+    private onShowScoreHandler(){
+        this.unscheduleAllCallbacks();
+        this.nextBtnLabel.string = "下一节";
     }
 
     private startWaittingAnim(){
@@ -117,7 +144,26 @@ export class FingerGameSetFinishPanel extends BasePanel {
         }, 0.5);
     }
 
+    private startGoonTimer(){
+        let count = 5;
+        this.nextBtnLabel.string = `下一节(${count})`;
+        this.unscheduleAllCallbacks();
+        this.schedule(() => {
+            count--;
+            this.nextBtnLabel.string = `下一节(${count})`;
+            if(count <= 0) {
+                this.unscheduleAllCallbacks();
+                this.onClickNext();
+            }
+        }, 1);
+    }
+
     public onClickBack() {
+        if(this._clickedBool){
+            return;
+        }
+        this._clickedBool = true;
+        this.unscheduleAllCallbacks();
         UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
         if (this._backHandler) {
             this._backHandler();
@@ -125,6 +171,11 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     public onClickNext() {
+        if(this._clickedBool){
+            return;
+        }
+        this._clickedBool = true;
+        this.unscheduleAllCallbacks();
         UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
         if (this._nextHandler) {
             this._nextHandler();
