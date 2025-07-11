@@ -52,6 +52,12 @@ export class UserCenterPanel extends AdaptComponent {
       } else {
          this.setPersonalCenterTitle("未设置昵称");
       }
+       let label = this.memberNode.getChildByName("label").getComponent(Label);
+      if(userData.is_member){
+          label.string = "续费会员";
+      }else{
+          label.string = "开通会员";
+      }
    }
    async loadTaskSprite(path: string): Promise<SpriteFrame> {
       return new Promise((resolve, reject) => {
