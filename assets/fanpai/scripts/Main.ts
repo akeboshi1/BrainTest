@@ -26,22 +26,13 @@ interface CardItem {
 export class Main extends BaseScene<IBaseGameChild> {
 
     @property(Node)
-    viewNode: Node;
-
-    @property(Node)
-    bigWin: Node;
+    mainView: Node;
 
     @property(Node)
     cardPool: Node;
 
     @property(Node)
     quitBtn: Node;
-
-    @property(Button)
-    nextButton: Button;
-
-    @property(Button)
-    startButton: Button;
 
     @property(ProgressBar)
     progressBar: ProgressBar;
@@ -51,20 +42,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     guankaLabel: Label;
 
 
-    @property(Label)
-    titleLabel: Label;
-
     @property(TimerCommonComponent)
     timerComponent: TimerCommonComponent;
-
-    @property(Node)
-    guideView:Node;
 
     @property(Label)
     countDownLabel:Label;
 
-    @property(Node)
-    showResultContinueButton: Node;
+    @property(Sprite)
+    private showSprite: Sprite;
 
     private currentCard: Node;
     private buttonLableText: Label;
@@ -91,9 +76,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     private remainingTimeBeforePause: number = 0;
     private isInPreviewMode: boolean = false; // 是否在预览模式
 
-    @property(Sprite)
-    private showSprite: Sprite;
-
     protected bundleName: string = BundleName.FANPAI;
 
 
@@ -109,8 +91,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     start() {
         super.start();
-        this.showSprite.node.parent.active = false;
-        this.showSprite.node.active = false;
+        // this.showSprite.node.parent.active = false;
+        // this.showSprite.node.active = false;
         this.dataInit();
         // ui初始化
         this.sceneInit();
@@ -350,7 +332,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this._requestGameCenterComplete(obj.complete, obj.duration);
             }
         } else {
-            this.requestGameComplete({ context: this, parentNode: this.viewNode, complete: obj.complete, duration: obj.duration });
+            this.requestGameComplete({ context: this, parentNode: this.mainView, complete: obj.complete, duration: obj.duration });
         }
     }
 
@@ -679,7 +661,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 倒计时结束，游戏结束
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             //上报数据
-            this.sceneModel.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+            this.sceneModel.requestGameComplete({ context: this, parentNode: this.mainView, complete, duration });
         } else {
             if (!this.customsSendDataState) {
                 this.customsSendDataState = true;
@@ -741,7 +723,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     quitGame() {
-        super.quitGame({ parentNode: this.viewNode, context: this });
+        super.quitGame({ parentNode: this.mainView, context: this });
         clearInterval(this.timerId);
     }
 
@@ -772,12 +754,12 @@ export class Main extends BaseScene<IBaseGameChild> {
                         rightTween.stop();
                         rightTween = null;
                         self.showSprite.node.active = false;
-                        self.showSprite.node.parent.active = false;
+                        // self.showSprite.node.parent.active = false;
                         self.showSprite.node.scale = new Vec3(1, 1, 1);
                     })
                     .start();
                 self.showSprite.node.active = true;
-                self.showSprite.node.parent.active = true;
+                // self.showSprite.node.parent.active = true;
             } else {
                 DebugLog.instance.error("showSprite is null!");
             }
@@ -787,12 +769,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     public onClickShowAnswer() {
         this.isAbleClick = false;
         super.onClickShowAnswer();
-        this.showResultContinueButton.active = true;
         this.showAllCard();
 
     }
     public onclickContinue() {
-        this.showResultContinueButton.active = false;
         this.dzanswerHandler(this);
     }
 

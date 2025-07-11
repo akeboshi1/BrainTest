@@ -8396,7 +8396,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 400,
-      "height": 130.39999999999998
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8431,7 +8431,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": "1. 精细动作；\n2. 脑手协调；\n3. 专注力与灵活性；",
+    "_string": "训练手脑协调能力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
