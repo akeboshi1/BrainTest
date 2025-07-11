@@ -200,9 +200,13 @@ export class ReportManager {
         EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
     }
     getUserSumReportMonthData(){
+        let detail=this._userSumReport.report.detail;
+        if(!detail){
+            return null;
+        }
         const expectedOrder = ['LANGUAGE', 'JUDGMENT', 'MEMORY', 'EXECUTION', 'CALCULATION'];
         const sortedReportDataList = expectedOrder.map(ability => { 
-            return this._userSumReport.report.detail.find(item => item.cog_ability === ability);
+            return detail.find(item => item.cog_ability === ability);
         }).filter(item => item !== undefined);
         return sortedReportDataList;
     }
