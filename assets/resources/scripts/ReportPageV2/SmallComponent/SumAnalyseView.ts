@@ -2,28 +2,41 @@ import { _decorator, Component, instantiate, Label, Node, Prefab, resources, Spr
 import { ReportManager } from '../../ManagerV2/ReportManager';
 import { DimensionItemView } from './DimensionItemView';
 import { PersonalCenterManager } from '../../Game/PersonalCenterManager/PersonalCenterManager';
+import { UIManager } from '../../Core/Manager/UI/UIManager';
+import { StatePanel } from './StatePanel';
+import { BundleName } from '../../Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
-const SumAnalyseType =[
+const SumAnalyseType = [
     {
-        iconPath:'/textureV2/userReport/dimension_icon/texture/dime_5',
-        tier:1,
+        iconPath: '/textureV2/userReport/dimension_icon/texture/dime_5',
+        title: '',
+        monthTierUp: 0,
+        weekTier: 0,
     },
     {
-        iconPath:'/textureV2/userReport/dimension_icon/texture/dime_3',
-        tier:2,
+        iconPath: '/textureV2/userReport/dimension_icon/texture/dime_3',
+        title: '',
+        monthTierUp: 0,
+        weekTier: 0,
     },
     {
-        iconPath:'/textureV2/userReport/dimension_icon/texture/dime_1',
-        tier:4,
+        iconPath: '/textureV2/userReport/dimension_icon/texture/dime_1',
+        title: '',
+        monthTierUp: 0,
+        weekTier: 0,
     },
     {
-        iconPath:'/textureV2/userReport/dimension_icon/texture/dime_4',
-        tier:5,
+        iconPath: '/textureV2/userReport/dimension_icon/texture/dime_4',
+        title: '',
+        monthTierUp: 0,
+        weekTier: 0,
     },
     {
-        iconPath:'/textureV2/userReport/dimension_icon/texture/dime_2',
-        tier:6,
+        iconPath: '/textureV2/userReport/dimension_icon/texture/dime_2',
+        title: '',
+        monthTierUp: 0,
+        weekTier: 0,
     }
 ]
 const resultAnalysisConfig = [
@@ -49,23 +62,35 @@ const ComprehRecommendConfig = [
         text: '每日保持适度的有氧运动（如慢走、太极、八段锦）'
     },
     {
+    // 开始游戏
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_10',
+        // 创建游戏模型
         name: '饮食优化',
+        // 初始化游戏模型
         text: '每日健康饮食，适量摄入富含Omega-3（深海鱼油、坚果）、抗氧化物质（蓝莓、绿茶）'
     },
     {
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_11',
+        // 注册游戏完成面板
         name: '心里社交',
+        // 注册游戏设置完成面板
         text: '鼓励参与社交活动、维持积极情绪，多与亲友交流讨论时事或感兴趣的话题内容，有助激活多脑区联动'
     },
+        // 如果是安卓平台
     {
+            // 注册相机录制结果事件
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_12',
+            // 注册视频数据上传完成事件
         name: '评估复查',
+            // 注册视频数据上传错误事件
         text: '建议每半年进行一次认知评估，动态掌握认知功能实时状态'
     }
 
+        // 注册获取任务列表完成事件
 ];
+        // 注册获取所有任务活动结果事件
 const CognizeTipsConfig = [
+        // 获取任务列表
     {
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_1',
         name: '记忆力维护',
@@ -151,7 +176,7 @@ export class SumAnalyseView extends Component {
                 script.setIcon(spriteFrame);
                 script.setName(configItem.name);
                 let data = ReportManager.getInstance().getFirstAnalysisDataByIndex(index);
-                if (index === 0) {
+                if (index == 0) {
                     script.setText(data);
                 } else {
                     script.setText(data);
@@ -218,48 +243,46 @@ export class SumAnalyseView extends Component {
 
     async loadReportListData() {
         let reportList = ReportManager.getInstance().reportDataList;
-        let reportMonth = ReportManager.getInstance().userSumReport.report.detail;
+        let reportMonthList = ReportManager.getInstance().getUserSumReportMonthData();
         let reportPeriod = ReportManager.getInstance().userSumReport.report_period;
-
-        for (let item of reportList) {
+        for(let index=0;index<reportList.length;index++){
+            SumAnalyseType[index].title = reportList[index].cog_ability_desc;
+            SumAnalyseType[index].weekTier = reportList[index].tier;
+        }
+        for(let index=0;index<reportMonthList.length;index++){
+            SumAnalyseType[index].monthTierUp = reportMonthList[index].tier - reportMonthList[index].last_tier;
+        }
+        for (let item of SumAnalyseType) {
             let dimensionItemView = instantiate(this.dimensionItemPrefab);
             this.firstAnalysisNode.addChild(dimensionItemView);
             let script = dimensionItemView.getComponent(DimensionItemView);
-
-            // 检查并设置能力图标
-            let ability = Object.keys(SumAnalyseType).find(key => key === item.cog_ability);
-            if (ability) {
-                const spriteFrame = await this.loadSpriteFrame(SumAnalyseType[ability]);
-                script.setIcon(spriteFrame);
-            }
-
-            // 设置能力名称
-            script.setName(item.cog_ability_desc);
-
-            // 构建显示文本
+            const spriteFrame = await this.loadSpriteFrame(item.iconPath);
+            script.setIcon(spriteFrame);
+            script.setName(item.title);
             let displayText = '';
             if (reportPeriod == 'week') {
-                if (item.tier > 1) {
-                    displayText = `在同龄组中超过了${(item.tier - 1)*10}%的个体，高于平均水平`;
+                if (item.weekTier > 1) {
+                    displayText = `在同龄组中超过了${(item.weekTier - 1) * 10}%的个体，高于平均水平`;
                 } else {
                     displayText = `同龄组末位的10%`;
                 }
             } else {
-                // 月报告
-                const tierChange = reportMonth?.tier && reportMonth?.last_tier ?
-                    reportMonth.tier - reportMonth.last_tier : 0;
-
-                if (tierChange > 0) {
-                    displayText = `在同龄组中超过了${(item.tier-1)*10}%的个体，高于平均水平，档位提升了${tierChange}档`;
-                } else if (tierChange < 0) {
-                    displayText = `在同龄组中超过了${(item.tier-1)*10}%的个体，高于平均水平，档位下降了${Math.abs(tierChange)}档`;
-                } else {
-                    displayText = `在同龄组中超过了${(item.tier-1)*10}%的个体，高于平均水平，档位保持不变`;
+                if (item.monthTierUp >= 3) {
+                    displayText = `在同龄组中超过了${(item.weekTier - 1) * 10}%的个体，高于平均水平，较上月显著提升`;
+                } else if (item.monthTierUp >=2) {
+                    displayText = `在同龄组中超过了${(item.weekTier - 1) * 10}%的个体，高于平均水平，较上月明显提升`;
+                } else if(item.monthTierUp >= 1){
+                    displayText = `在同龄组中超过了${(item.weekTier - 1) * 10}%的个体，高于平均水平，较上月稳定提升`;
+                } else if(item.monthTierUp == 0){
+                    displayText = `位于同龄组末位的10%，与上周相同`;
                 }
             }
-
             script.setText(displayText);
         }
+    }
+    showStatePanel(){
+        UIManager.getInstance().registerPanel(StatePanel.NAME, BundleName.RESOURCES, "/prefabV2/personReport/smallComponent/statementPanel", StatePanel);
+        UIManager.getInstance().showPanel(StatePanel.NAME);
     }
 }
 

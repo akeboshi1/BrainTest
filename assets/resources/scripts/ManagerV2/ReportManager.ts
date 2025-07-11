@@ -9,6 +9,14 @@ export interface ReportData {
     last_tier: number,
     tier: number
 }
+export interface UserSumReport {
+    report: {
+        analysis: [],
+        detail: ReportData[],
+    },
+    report_period: string,
+    report_date: string,
+}
 export interface CogAbilityBriefData {
     cog_ability: string,
     definition_desc: string,// 定义说明
@@ -48,7 +56,7 @@ export class ReportManager {
     private get_cog_ability_weekly_scores: string = "user.get_cog_ability_weekly_scores";
     private _reportDataList = [];
     private _reportDataListInitial = [];
-    private _userSumReport:any;
+    private _userSumReport:UserSumReport;
     private _weekStatistics : WeekStatisticsData = {
         start_date:'',
         end_date:''
@@ -169,7 +177,7 @@ export class ReportManager {
     }
 
     clearUserSumReport() {
-        this._userSumReport = '';
+        this._userSumReport = null;
     }
     public getUserSumReport() {
         this.clearUserSumReport();
@@ -191,10 +199,17 @@ export class ReportManager {
         }
         EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
     }
-    getFirstAnalysisDataByIndex(index: number){
-        return this._userSumReport.report.analysis[index];
+    getUserSumReportMonthData(){
+        const expectedOrder = ['LANGUAGE', 'JUDGMENT', 'MEMORY', 'EXECUTION', 'CALCULATION'];
+        const sortedReportDataList = expectedOrder.map(ability => { 
+            return this._userSumReport.report.detail.find(item => item.cog_ability === ability);
+        }).filter(item => item !== undefined);
+        return sortedReportDataList;
     }
- 
+    getFirstAnalysisDataByIndex(index: number):string{
+       let array:string[] = this._userSumReport.report.analysis[index];
+       return array.join(' ; ');  
+    }
 
     public getCogAbilityBrief(cog_ability: string) {
         EventManager.getInstance().on(this.get_cog_ability_brief, this.requestCogAbilityBriefCallback, this, true);
