@@ -56,12 +56,7 @@ export class IndexPageView extends AdaptComponent {
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getPersonalInitialReport();
-        // 用缓存数据！！！
-        if(!PersonalCenterManager.getInstance().userInfoData){
-            PersonalCenterManager.getInstance().requestUserInfo();
-        }else{
-            this.getUserInfoCallBack();
-        }
+        PersonalCenterManager.getInstance().requestUserInfo();
     }
     clickNavBar(event, data) {
         const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
