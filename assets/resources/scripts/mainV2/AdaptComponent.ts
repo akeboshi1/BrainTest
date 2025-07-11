@@ -1,10 +1,14 @@
-import { Component,Node,profiler} from 'cc';
+import { Component,Node,profiler,_decorator} from 'cc';
 import {ScreenAdapter} from "db://assets/resources/scripts/Adapter/ScreenAdapter";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 
+const { ccclass, property } = _decorator;
+
+@ccclass('AdaptComponent')
 export class AdaptComponent extends Component {
 
     protected viewNode:Node=null;
+
     constructor() {
         super();
     }
@@ -16,6 +20,7 @@ export class AdaptComponent extends Component {
 
     start() {
         this.viewNode = this.node.getChildByName('viewNode');
+        
         // 执行屏幕适配
         this.performScreenAdaptation();
     }
