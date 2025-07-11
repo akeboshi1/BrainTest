@@ -32,13 +32,7 @@ export class ReportPageController extends AdaptComponent {
         super.start();
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getUserSumReport();
-        // 用缓存啊！！！
-        if(!PersonalCenterManager.getInstance().userInfoData){
-            PersonalCenterManager.getInstance().requestUserInfo();
-        }else{
-            this.getUserInfoCallBack();
-        }
-        // 创建三个 Promise 来跟踪回调执行
+        PersonalCenterManager.getInstance().requestUserInfo();
         this.callbackPromises = {
             userInfo: new Promise((resolve) => {
                 this.userInfoResolve = resolve;
@@ -50,8 +44,6 @@ export class ReportPageController extends AdaptComponent {
                 this.sumReportResolve = resolve;
             })
         };
-
-        // 等待所有回调完成后执行 loadSumReport
         Promise.all([
             this.callbackPromises.userInfo,
             this.callbackPromises.brainTraining,
