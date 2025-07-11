@@ -342,18 +342,18 @@ export class VipModel {
      */
     public requestWxPay(data) {
         this._preResultID = data.order_id;
-        if (sys.platform === sys.Platform.ANDROID) {
-            DebugLog.instance.error(`请求拉起微信支付`);
-            NativeEventManager.getInstance().on(NativeEvent.PAYMENTResult, this.payResultCallBack, this);
-            native.bridge.sendToNative(NativeEvent.WXPAY, JSON.stringify(data));
-        }else{
+        // if (sys.platform === sys.Platform.ANDROID) {
+        //     DebugLog.instance.error(`请求拉起微信支付`);
+        //     NativeEventManager.getInstance().on(NativeEvent.PAYMENTResult, this.payResultCallBack, this);
+        //     native.bridge.sendToNative(NativeEvent.WXPAY, JSON.stringify(data));
+        // }else{
             var testData = {
                 result:1,
                 order_id:data.order_id
             }
 
             this.payResultCallBack(JSON.stringify(testData));
-        }
+        // }
     }
 
 
