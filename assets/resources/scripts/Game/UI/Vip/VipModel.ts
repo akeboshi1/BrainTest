@@ -1,8 +1,13 @@
-import { AlertData, AlertManager } from "../../../Core/Manager/Alert/AlertManager";
+import { native, sys } from "cc";
+import { AlertManager } from "../../../Core/Manager/Alert/AlertManager";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { SocketData } from "../../../Core/Manager/Net/SocketData";
 import { SocketManager } from "../../../Core/Manager/Net/SocketManager";
 import { DebugLog } from "../../../Core/Util/DebugLog";
+import { NativeEvent } from "../../../Core/Manager/Event/NativeEvent";
+import { NativeEventManager } from "../../../Core/Manager/Event/NativeEventManager";
+import { UserInfoData } from "../../PersonalCenterManager/UserInfoData";
+import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
 
 export enum VipType {
     /**
@@ -29,34 +34,26 @@ export enum VipType {
 
 // VIP相关事件枚举
 export enum VipEvent {
+
     /**
-     * VIP数据更新
+     * 获取VIP数据
      */
-    VIP_DATA_UPDATED = "VIP_DATA_UPDATED",
+    VIP_GET_DATA = "VIP_GET_DATA",
+
     /**
-     * VIP开通成功
+     * 创建订单
      */
-    VIP_OPEN_SUCCESS = "VIP_OPEN_SUCCESS",
+    VIP_ORDER_CREATED = "VIP_ORDER_CREATED",
+
     /**
-     * VIP续费成功
+     * 查询订单
      */
-    VIP_RENEWAL_SUCCESS = "VIP_RENEWAL_SUCCESS",
+    VIP_GET_ORDER = "VIP_GET_ORDER",
+
     /**
-     * 地址添加成功
+     * 支付结果
      */
-    ADDRESS_ADDED = "ADDRESS_ADDED",
-    /**
-     * 地址删除成功
-     */
-    ADDRESS_DELETED = "ADDRESS_DELETED",
-    /**
-     * 默认地址变更
-     */
-    DEFAULT_ADDRESS_CHANGED = "DEFAULT_ADDRESS_CHANGED",
-    /**
-     * VIP权限变更
-     */
-    VIP_PERMISSION_CHANGED = "VIP_PERMISSION_CHANGED"
+    VIP_PAY_RESULT = "VIP_PAY_RESULT",
 }
 
 export class VipData {
@@ -100,6 +97,7 @@ export class VipData {
      * 周期数量
      */
     public periodCount: number = 0;
+
 
     constructor() {
     }
@@ -175,40 +173,78 @@ export class VipData {
             "month": "月",
             "year": "年"
         };
-        
+
         const unitText = unitMap[this.periodUnit] || this.periodUnit;
         return `${this.periodCount}${unitText}`;
     }
 }
 
-export class VipAddress {
-
-
-    public name: string = "";
-    public address: string = "";
-    public phone: string = "";
+export class VipOrder {
+    /**
+     * 订单id
+     */
+    public id: number = 0;
+    /**
+     * 订单金额
+     */
+    public amount: number = 0;
+    /**
+     * 订单描述
+     */
+    public desc: string = "";
+    /**
+     * 随机数字
+     */
+    public noncestr: string = "";
 
     /**
-     * 是否是默认地址
+     * 订单是否创建成功
      */
-    public isDefault: boolean = false;
+    public status: number = 0; // 0 未成功 1 成功
+    /**
+     * 订单创建时间
+     */
+    public created_at: string = ""; //"2025-07-09 12:42:03",
+    /**
+     * 订单完成时间
+     */
+    public finished_at: string = null  // 完成时间
+
+    /**
+     * 会员有效期(天)
+     */
+    public validDays:number = 0;
+
+    /**
+     * 会员开启时间
+     */
+    public validStartDate:string = "";
+
+    /**
+     * 会员结束时间
+     */
+    public validEndDate:string = "";
 
 
+    /**
+     * 会员剩余天数
+     */
+    public validLostDays:string = "";
 
-    constructor() {
-    }
 }
+
 
 export class VipModel {
 
-    public vipDatas: VipData[];
+    private _vipDatas: VipData[];
 
-    public vipAddresses: VipAddress[];
+    public get vipDatas(): VipData[] {
+        if (!this._vipDatas) {
+            this._vipDatas = [];
+        }
+        return this._vipDatas;
+    }
 
-    /**
-     * 默认地址
-     */
-    public defaultAddress: VipAddress;
 
     /**
      * 请求会员计划
@@ -216,7 +252,16 @@ export class VipModel {
     public static MemberShip_Get_Plans: string = "membership.get_plans";
 
 
-    public static MemberShip_Buy: string = "membership.buy";
+    /**
+     * 创建订单
+     */
+    public static MemberShip_Create_Order: string = "membership.create_order";
+
+
+    /**
+     * 查询订单
+     */
+    public static MemberShip_Get_Order: string = "membership.get_order";
 
 
     constructor() {
@@ -226,193 +271,157 @@ export class VipModel {
         this.clearData();
     }
 
-    addAddress(address: VipAddress) {
-        this.vipAddresses.push(address);
-        // 使用EventManager派发地址添加事件，将VipModel作为数据的一部分传递
-        EventManager.getInstance().emit(VipEvent.ADDRESS_ADDED, {
-            address: address,
-            vipModel: this
-        });
-    }
-
-    /**
-     * 删除地址
-     * @param address 要删除的地址
-     */
-    removeAddress(address: VipAddress) {
-        const index = this.vipAddresses.findIndex(addr => addr === address);
-        if (index !== -1) {
-            this.vipAddresses.splice(index, 1);
-            // 使用EventManager派发地址删除事件，将VipModel作为数据的一部分传递
-            EventManager.getInstance().emit(VipEvent.ADDRESS_DELETED, {
-                address: address,
-                vipModel: this
-            });
-        }
-    }
-
-    /**
-     * 设置默认地址
-     * @param address 要设置为默认的地址
-     */
-    setDefaultAddress(address: VipAddress) {
-        // 先取消其他地址的默认状态
-        this.vipAddresses.forEach(addr => {
-            addr.isDefault = false;
-        });
-
-        // 设置新的默认地址
-        address.isDefault = true;
-        this.defaultAddress = address;
-
-        // 使用EventManager派发默认地址变更事件，将VipModel作为数据的一部分传递
-        EventManager.getInstance().emit(VipEvent.DEFAULT_ADDRESS_CHANGED, {
-            address: address,
-            vipModel: this
-        });
-    }
-
-    /**
-     * 更新VIP数据
-     * @param vipDatas 新的VIP数据
-     */
-    updateVipData(vipDatas: VipData[]) {
-        this.vipDatas = vipDatas;
-        // 使用EventManager派发VIP数据更新事件，将VipModel作为数据的一部分传递
-        EventManager.getInstance().emit(VipEvent.VIP_DATA_UPDATED, {
-            vipDatas: vipDatas,
-            vipModel: this
-        });
-    }
-
-    //===== 事件监听便捷方法 =====
-
-    /**
-     * 添加事件监听
-     * @param eventName 事件名称
-     * @param callback 回调函数
-     * @param context 上下文对象
-     * @param isOnce 是否只触发一次
-     */
-    on(eventName: string, callback: Function, context: any, isOnce: boolean = false) {
-        EventManager.getInstance().on(eventName, callback, context, isOnce);
-    }
-
-    /**
-     * 添加只触发一次的事件监听
-     * @param eventName 事件名称
-     * @param callback 回调函数
-     * @param context 上下文对象
-     */
-    once(eventName: string, callback: Function, context: any) {
-        EventManager.getInstance().once(eventName, callback, context);
-    }
-
-    /**
-     * 移除事件监听
-     * @param eventName 事件名称
-     * @param context 上下文对象
-     */
-    off(eventName: string, context: any) {
-        EventManager.getInstance().off(eventName, context);
-    }
-
-    /**
-     * 移除指定上下文的所有事件监听
-     * @param context 上下文对象
-     */
-    offAllByContext(context: any) {
-        EventManager.getInstance().offAllByContext(context);
-    }
-
-    /**
-     * 获取指定事件的监听器数量
-     * @param eventName 事件名称
-     */
-    getListenerCount(eventName: string): number {
-        return EventManager.getInstance().getListenerCount(eventName);
-    }
-
-    /**
-     * 判断是否存在指定事件的监听器
-     * @param eventName 事件名称
-     */
-    hasListener(eventName: string): boolean {
-        return EventManager.getInstance().hasListener(eventName);
-    }
 
     //===== 请求协议
     /**
      * 请求会员权限等一些数据
      */
-    requestVipData() {
+    requestGetVipData() {
         let requestData: SocketData = new SocketData({
             action: VipModel.MemberShip_Get_Plans
         });
-        EventManager.getInstance().on(VipModel.MemberShip_Get_Plans, this.requestVipDataCallBack.bind(this), this, true);
+        EventManager.getInstance().on(VipModel.MemberShip_Get_Plans, this.requestGetVipDataCallBack.bind(this), this, true);
         SocketManager.getInstance().send(requestData);
     }
 
-    private requestVipDataCallBack(data:SocketData) {
+    private requestGetVipDataCallBack(data: SocketData) {
         let status = data.status;
-        if(status == 0){
-            DebugLog.instance.error(data.message);
-            const ad: AlertData = new AlertData();
-            ad.title = "提示";
-            ad.message = data.message;
-            AlertManager.getInstance().showAlert(ad);
+        if (status == 0) {
+            AlertManager.getInstance().showSocketAlert(data.message);
             return;
         }
 
         let results = data.data["result"];
         let len = results.length;
-        for(let i:number=0;i<len;i++){
-           let vipdata = new VipData();
-           vipdata.refrehData(results[i]);
-           this.vipDatas.push(vipdata);
+        for (let i: number = 0; i < len; i++) {
+            let vipdata = new VipData();
+            vipdata.refrehData(results[i]);
+            this.vipDatas.push(vipdata);
         }
-        EventManager.getInstance().emit(VipEvent.VIP_DATA_UPDATED, {
-            vipDatas: this.vipDatas,
-            vipModel: this
+        EventManager.getInstance().emit(VipEvent.VIP_GET_DATA);
+    }
+
+
+    /**
+     * 请求生成订单
+     */
+    requestCreateOrder(id: number) {
+        let requestData: SocketData = new SocketData({
+            action: VipModel.MemberShip_Create_Order,
+            data: {
+                plan_id: id
+            }
+        });
+        EventManager.getInstance().on(VipModel.MemberShip_Create_Order, this.requestCreateOrderCallBack.bind(this), this, true);
+        SocketManager.getInstance().send(requestData);
+    }
+
+    private requestCreateOrderCallBack(data: SocketData) {
+        let status = data.status;
+        if (status == 0) {
+            AlertManager.getInstance().showSocketAlert(data.message);
+            return;
+        }
+        let id = data.data["order_id"];
+        let amount = data.data["order_amount"];
+        let desc = data.data["order_desc"];
+        let noncestr = data.data["nonce_str"];
+        EventManager.getInstance().emit(VipEvent.VIP_ORDER_CREATED,{
+            order_id: id,
+            order_amount: amount,
+            order_desc: desc,
+            nonce_str: noncestr
         });
     }
 
+
+    private _preResultID:string = "";
     /**
-     * 开通会员
+     * 请求拉起微信支付
+     * @param data 
      */
-    requestOpenVip() {
-        // 模拟开通成功后派发事件
-        setTimeout(() => {
-            EventManager.getInstance().emit(VipEvent.VIP_OPEN_SUCCESS, {
-                success: true,
-                vipModel: this
-            });
-            EventManager.getInstance().emit(VipEvent.VIP_PERMISSION_CHANGED, {
-                hasVip: true,
-                vipModel: this
-            });
-        }, 100);
+    public requestWxPay(data) {
+        this._preResultID = data.order_id;
+        // if (sys.platform === sys.Platform.ANDROID) {
+        //     DebugLog.instance.error(`请求拉起微信支付`);
+        //     NativeEventManager.getInstance().on(NativeEvent.PAYMENTResult, this.payResultCallBack, this);
+        //     native.bridge.sendToNative(NativeEvent.WXPAY, JSON.stringify(data));
+        // }else{
+            var testData = {
+                result:1,
+                order_id:data.order_id
+            }
+
+            this.payResultCallBack(JSON.stringify(testData));
+        // }
     }
 
-    /**
-     * 续费会员
-     */
-    requestRenewalVip() {
-        // 模拟续费成功后派发事件
-        setTimeout(() => {
-            EventManager.getInstance().emit(VipEvent.VIP_RENEWAL_SUCCESS, {
-                success: true,
-                vipModel: this
-            });
-        }, 100);
+
+    private payResultCallBack(data) {
+        DebugLog.instance.error(`返回支付结果`);
+        if (sys.platform === sys.Platform.ANDROID) {
+            NativeEventManager.getInstance().off(NativeEvent.PAYMENTResult, this);
+        }
+        let payData = JSON.parse(data);
+        let status = payData.result;
+        if(status == 0){
+            AlertManager.getInstance().showSocketAlert("支付失败");
+            return;
+        }
+        let orderId = payData.order_id;
+        if(orderId == this._preResultID){
+            EventManager.getInstance().emit(VipEvent.VIP_PAY_RESULT, orderId);
+        }else{
+            AlertManager.getInstance().showSocketAlert("当前订单过期");
+        }
     }
+
+
+    /**
+     * 请求查询订单
+     * @param id 订单id
+     */
+    public requestGetOrder(id: number) {
+        let requestData: SocketData = new SocketData({
+            action: VipModel.MemberShip_Get_Order,
+            data: {
+                order_id: id
+            }
+        });
+        EventManager.getInstance().on(VipModel.MemberShip_Get_Order, this.requestGetOrderCallBack.bind(this), this, true);
+        SocketManager.getInstance().send(requestData);
+    }
+
+    private requestGetOrderCallBack(data: SocketData) {
+        let _status = data.status;
+        if (_status == 0) {
+            AlertManager.getInstance().showSocketAlert(data.message);
+            return;
+        }
+        let vipOrder = new VipOrder();
+        vipOrder.id = data.data["order_id"];
+        vipOrder.amount = data.data["order_amount"];
+        vipOrder.desc = data.data["order_desc"];
+        vipOrder.noncestr = data.data["nonce_str"];
+        vipOrder.status = data.data["status"];
+        vipOrder.created_at = data.data["created_at"];
+        vipOrder.finished_at = data.data["finished_at"];
+        if(data.data["detail"]){
+            vipOrder.validDays = data.data["detail"]["plan_valid_days"];
+            vipOrder.validStartDate = data.data["detail"]["start_date"];
+            vipOrder.validEndDate = data.data["detail"]["end_date"];
+            vipOrder.validLostDays = data.data["detail"]["membership_valid_days"];
+        }
+        //手动刷新下人物信息
+        PersonalCenterManager.getInstance().requestUserInfo();
+        EventManager.getInstance().emit(VipEvent.VIP_GET_ORDER,vipOrder);
+    }
+
 
     clearData() {
         // VipModel本身不需要清理事件，因为使用的是EventManager
         // 但可以在这里清理数据
-        this.vipDatas = [];
-        this.vipAddresses = [];
-        this.defaultAddress = null;
+        this._vipDatas = null;
     }
 
     /**
@@ -421,4 +430,5 @@ export class VipModel {
     destroy() {
         this.clearData();
     }
+
 }

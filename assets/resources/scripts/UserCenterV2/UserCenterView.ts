@@ -9,17 +9,30 @@ import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 import { VerifyPanel } from '../Game/UI/Login/VerifyPanel';
 import { MySetView } from './MySetView';
 import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 const { ccclass, property } = _decorator;
 
 @ccclass('UserCenterPanel')
-export class UserCenterPanel extends Component {
+export class UserCenterPanel extends AdaptComponent {
    @property(Label)
    userName: Label = null;
    @property(Sprite)
    userIcon: Sprite = null;
+
+   @property(Node)
+   memberNode:Node = null;
+
+   start(){
+       super.start();
+   }
+
    onEnable() {
       EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-      PersonalCenterManager.getInstance().requestUserInfo();
+      if(!PersonalCenterManager.getInstance().userInfoData){
+          PersonalCenterManager.getInstance().requestUserInfo();
+      }else{
+          this.getUserInfoCallBack();
+      }
    }
    onDisable() {
       EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);

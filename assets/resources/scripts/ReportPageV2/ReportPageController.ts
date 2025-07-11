@@ -3,10 +3,11 @@ import { TopNavBarController } from './TopNavBarController';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { ReportManager } from '../ManagerV2/ReportManager';
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 const { ccclass, property } = _decorator;
 
 @ccclass('ReportPageController')
-export class ReportPageController extends Component {
+export class ReportPageController extends AdaptComponent {
     @property(TopNavBarController)
     topNavBarController: TopNavBarController = null;
 
@@ -28,9 +29,15 @@ export class ReportPageController extends Component {
         EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
     }
     start() {
+        super.start();
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getUserSumReport();
-        PersonalCenterManager.getInstance().requestUserInfo();
+        // 用缓存啊！！！
+        if(!PersonalCenterManager.getInstance().userInfoData){
+            PersonalCenterManager.getInstance().requestUserInfo();
+        }else{
+            this.getUserInfoCallBack();
+        }
         // 创建三个 Promise 来跟踪回调执行
         this.callbackPromises = {
             userInfo: new Promise((resolve) => {

@@ -18,11 +18,12 @@ import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/G
 import { PublishSetting } from './PublishSetting';
 import FeatureTogglesSetting from './FeatureTogglesSetting';
 import { NativeEventManager } from './Core/Manager/Event/NativeEventManager';
+import { AdaptComponent } from './mainV2/AdaptComponent';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('App')
-export class App extends BaseObejct {
+export class App extends AdaptComponent {
 
     @property(Camera)
     camera: Camera;
@@ -111,6 +112,7 @@ export class App extends BaseObejct {
     }
 
     start() {
+        super.start();
         // Global.isSkewersGame = false;
         DebugLog.instance.log("常驻节点", director.isPersistRootNode(this.webView));
     }

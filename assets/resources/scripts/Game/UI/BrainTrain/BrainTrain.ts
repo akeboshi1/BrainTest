@@ -9,7 +9,6 @@ import { TaskManager } from '../../Task/TaskManager';
 import { AlertType } from '../Alert/GameAlert';
 import { TaskAndNotificationPanelCtrl } from '../TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import { Global } from '../../../Core/Manager/Config/Global';
-import {SceneManager} from "db://assets/resources/scripts/Core/Manager/Scene/SceneManager";
 import {TaskData, TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
 const { ccclass, property } = _decorator;
 
@@ -33,7 +32,6 @@ export class BrainTrain extends BasePanel {
     private _curTask:TaskData;
     async showPanel(){
         super.showPanel();
-
         EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack.bind(this), this,true);
         SkewersManager.getInstance().requestBranisTraining_list(this.curTaskId);
     }

@@ -1,221 +1,203 @@
-import { _decorator, Component, Node, UITransform, view, Widget, Vec3, Size, Label,math,sys } from 'cc';
-const { ccclass, property } = _decorator;
+import { Node, UITransform, Widget, Label } from "cc";
+import { DebugLog } from "../Core/Util/DebugLog";
+import { ScreenSizeUtil } from "./ScreenSizeUtil";
 
-@ccclass('ScreenAdapter')
-export class ScreenAdapter extends Component {
-    @property(Node)
-    parentNode: Node = null!;
-
-    @property([Node])
-    childNodes: Node[] = [];
-
-    private readonly designWidth: number = 1080;
-    private readonly designHeight: number = 1920;
-    private originalChildSizes: Map<string, Size> = new Map();
-    private originalChildPositions: Map<string, Vec3> = new Map();
-    private originalLabelFontSizes: Map<string, number> = new Map(); // 存储Label原始字体大小
-    private originalLabelLineHeights: Map<string, number> = new Map();// 保存原始行间距
-    onLoad() {
-        this.saveOriginalProperties();
-        this.adaptScreen();
-        view.on('canvas-resize', this.adaptScreen, this);
-        sys.getSafeAreaRect(); // 获取安全区域
+/**
+ * 屏幕适配器
+ * 负责处理UI面板的屏幕适配逻辑
+ */
+export class ScreenAdapter {
+    private static _instance: ScreenAdapter;
+    
+    public static getInstance(): ScreenAdapter {
+        if (!ScreenAdapter._instance) {
+            ScreenAdapter._instance = new ScreenAdapter();
+        }
+        return ScreenAdapter._instance;
     }
 
-    private saveOriginalProperties() {
-        const saveNodeProperties = (node: Node) => {
-            const childTransform = node.getComponent(UITransform);
-            if (childTransform) {
-                this.originalChildSizes.set(node.uuid, new Size(childTransform.width, childTransform.height));
-                this.originalChildPositions.set(node.uuid, new Vec3(node.position));
-            }
+    /**
+     * 对面板进行UI适配
+     * @param panel 面板根节点
+     */
+    public adaptPanelUI(panel: Node): void {
+        try {
+            // 获取适合UI适配的尺寸
+            const uiSize = ScreenSizeUtil.getUISize();
+            const screenWidth = uiSize.width;
+            const screenHeight = uiSize.height;
 
-            // 如果是Label，保存原始字体大小
-            const label = node.getComponent(Label);
-            if (label) {
-                this.originalLabelFontSizes.set(node.uuid, label.fontSize);
-                this.originalLabelLineHeights.set(node.uuid, label.lineHeight);
+            // 面板适配屏幕尺寸
+            panel.setPosition(0, 0);
+            const panelTransform = panel.getComponent(UITransform);
+            if (!panelTransform) {
+                DebugLog.instance.warn('Panel UITransform component not found');
+                return;
             }
+            panelTransform.setContentSize(screenWidth, screenHeight);
 
-            node.children.forEach(child => saveNodeProperties(child));
-        };
-        this.childNodes.forEach(child => saveNodeProperties(child));
+            // 只在宽度小于设计宽度时才进行缩放处理
+            if (screenWidth < 1080) { // 设计宽度
+                const scaleFactor = screenWidth / 1080;
+                
+                // 只对viewNode进行缩放
+                this.scaleViewNode(panel, scaleFactor);
+                this.updateWidgetAlignment(panel, screenWidth, screenHeight);
+                DebugLog.instance.log(`[ScreenAdapter] 宽度不足，只对viewNode进行缩放: 实际宽度${screenWidth} < 设计宽度1080, 缩放比例${scaleFactor.toFixed(3)}`);
+            } else {
+                // 宽度足够时，更新 Widget 对齐到实际宽度，不进行缩放
+                this.updateWidgetAlignment(panel, screenWidth, screenHeight);
+                DebugLog.instance.log(`[ScreenAdapter] 宽度足够，更新Widget对齐到实际尺寸: 实际宽度${screenWidth} >= 设计宽度1080`);
+            }
+        } catch (error) {
+            DebugLog.instance.error(`[ScreenAdapter] Panel UI adaptation failed: ${error}`);
+        }
     }
 
-    private adaptScreen() {
-        const safeArea = view.getVisibleSize();
-        const screenWidth = safeArea.width;
-        const screenHeight = safeArea.height;
-
-        // 父节点适配安全区域
-        this.parentNode.setPosition(safeArea.x, safeArea.y);
-        const parentTransform = this.parentNode.getComponent(UITransform);
-        parentTransform?.setContentSize(screenWidth, screenHeight);
-
-        // 统一缩放比例（基于安全区域）
-        const scaleFactor = Math.min(screenWidth / this.designWidth, screenHeight / this.designHeight);
-        this.adaptChildNodes(scaleFactor);
+    /**
+     * 更新Widget对齐
+     * @param panel 面板根节点
+     * @param actualWidth 实际宽度
+     * @param actualHeight 实际高度
+     */
+    private updateWidgetAlignment(panel: Node, actualWidth?: number, actualHeight?: number): void {
+        // 强制更新所有Widget的对齐
+        this.forceUpdateAllWidgets(panel, actualWidth, actualHeight);
     }
 
-    private adaptChildNodes(scale: number) {
-        const adaptNode = (node: Node) => {
-            const childTransform = node.getComponent(UITransform);
-            if (!childTransform) return;
-
-            const originalSize = this.originalChildSizes.get(node.uuid);
-            const originalPos = this.originalChildPositions.get(node.uuid);
-            if (!originalSize || !originalPos) return;
-
-            // 如果子节点有Widget组件，更新对齐
-            const childWidget = node.getComponent(Widget);
-            if (childWidget) {
-                childWidget.updateAlignment();
-            }
-
-            // 缩放尺寸和位置
-            childTransform.width = originalSize.width * scale;
-            childTransform.height = originalSize.height * scale;
-            node.setPosition(
-                originalPos.x * scale,
-                originalPos.y * scale,
-                originalPos.z
-            );
-
-            // ==== 特殊处理 Label 组件 ====
-            const label = node.getComponent(Label);
-            if (label) {
-                const originalFontSize = this.originalLabelFontSizes.get(node.uuid) || 24;
-                // 限制字体最小和最大大小
-                const minFontSize = 12;
-                const maxFontSize = 48;
-                label.fontSize = math.clamp(originalFontSize * scale, minFontSize, maxFontSize);
-                label.fontSize = originalFontSize * scale; // 缩放字体大小
-                const originalLineHeight = this.originalLabelLineHeights.get(node.uuid);
-                label.lineHeight = originalLineHeight * scale;
-                // 可选：处理行间距（如果设计中有行间距）
-                // label.lineHeight = originalLineHeight * scale;
+    /**
+     * 强制更新所有Widget的对齐
+     * @param panel 面板根节点
+     * @param actualWidth 实际宽度
+     * @param actualHeight 实际高度
+     */
+    private forceUpdateAllWidgets(panel: Node, actualWidth?: number, actualHeight?: number): void {
+        const updateNodeWidget = (node: Node) => {
+            // 如果节点有Widget组件，强制更新对齐
+            const widget = node.getComponent(Widget);
+            if (widget) {
+                // 获取Widget的实际父节点
+                const parentNode = node.parent;
+                if (parentNode) {
+                    const parentTransform = parentNode.getComponent(UITransform);
+                    if (parentTransform) {
+                        // 记录原始尺寸
+                        const originalWidth = parentTransform.width;
+                        const originalHeight = parentTransform.height;
+                        
+                        // 如果传入了实际尺寸，且父节点是面板根节点，则使用实际尺寸
+                        if (actualWidth && actualHeight && parentNode === panel) {
+                            // 设置父节点为实际尺寸
+                            parentTransform.setContentSize(actualWidth, actualHeight);
+                            
+                            // 强制更新Widget对齐
+                            widget.updateAlignment();
+                            
+                            // // 恢复父节点原始尺寸
+                            // parentTransform.setContentSize(originalWidth, originalHeight);
+                            
+                            DebugLog.instance.log(`[ScreenAdapter] 强制Widget对齐更新: ${node.name}, 父节点尺寸: ${actualWidth}x${actualHeight}`);
+                        } else {
+                            // 对于其他情况，也强制更新Widget对齐
+                            widget.updateAlignment();
+                            
+                            // 记录Widget的对齐信息
+                            if (widget.isAlignBottom || widget.isAlignTop || widget.isAlignLeft || widget.isAlignRight) {
+                                DebugLog.instance.log(`[ScreenAdapter] 强制Widget对齐更新: ${node.name}, 父节点: ${parentNode.name}, 对齐方式: ${this.getWidgetAlignmentInfo(widget)}`);
+                            }
+                        }
+                    } else {
+                        widget.updateAlignment();
+                    }
+                } else {
+                    widget.updateAlignment();
+                }
             }
 
             // 递归处理子节点
-            node.children.forEach(child => adaptNode(child));
+            node.children.forEach(child => updateNodeWidget(child));
         };
 
-        this.childNodes.forEach(child => adaptNode(child));
+        updateNodeWidget(panel);
+    }
+
+    /**
+     * 获取Widget对齐信息
+     * @param widget Widget组件
+     * @returns 对齐信息字符串
+     */
+    private getWidgetAlignmentInfo(widget: Widget): string {
+        const alignments = [];
+        if (widget.isAlignBottom) alignments.push('Bottom');
+        if (widget.isAlignTop) alignments.push('Top');
+        if (widget.isAlignLeft) alignments.push('Left');
+        if (widget.isAlignRight) alignments.push('Right');
+        if (widget.isAlignVerticalCenter) alignments.push('VerticalCenter');
+        if (widget.isAlignHorizontalCenter) alignments.push('HorizontalCenter');
+        
+        return alignments.join(', ') || 'None';
+    }
+
+    /**
+     * 只对viewNode进行缩放
+     * @param panel 面板根节点
+     * @param scaleFactor 缩放比例
+     */
+    private scaleViewNode(panel: Node, scaleFactor: number): void {
+        // 查找viewNode
+        const viewNode = panel.getChildByName('viewNode');
+        if (!viewNode) {
+            DebugLog.instance.warn('[ScreenAdapter] viewNode not found in panel');
+            return;
+        }
+
+        // 使用setScale对viewNode进行缩放
+        viewNode.setScale(scaleFactor, scaleFactor, 1);
+        
+        // 处理viewNode内的Label组件
+       // this.scaleLabelsInNode(viewNode, scaleFactor);
+        
+        DebugLog.instance.log(`[ScreenAdapter] viewNode缩放完成: 缩放比例${scaleFactor.toFixed(3)}`);
+    }
+
+    /**
+     * 递归缩放节点内的Label组件
+     * @param node 节点
+     * @param scaleFactor 缩放比例
+     */
+    private scaleLabelsInNode(node: Node, scaleFactor: number): void {
+        // 处理当前节点的Label
+        const label = node.getComponent(Label);
+        if (label) {
+            const originalFontSize = label.fontSize;
+            const minFontSize = 12;
+            const maxFontSize = 48;
+            label.fontSize = Math.max(minFontSize, Math.min(maxFontSize, originalFontSize * scaleFactor));
+            
+            const originalLineHeight = label.lineHeight;
+            label.lineHeight = originalLineHeight * scaleFactor;
+        }
+
+        // 递归处理子节点
+        node.children.forEach(child => this.scaleLabelsInNode(child, scaleFactor));
+    }
+
+    /**
+     * 更新面板内所有Widget组件的对齐
+     * @param panel 面板根节点
+     */
+    public updatePanelWidgets(panel: Node): void {
+        const updateNodeWidget = (node: Node) => {
+            // 如果节点有Widget组件，更新对齐
+            const widget = node.getComponent(Widget);
+            if (widget) {
+                widget.updateAlignment();
+            }
+
+            // 递归处理子节点
+            node.children.forEach(child => updateNodeWidget(child));
+        };
+
+        updateNodeWidget(panel);
     }
 }
-
-// import { _decorator, Component, Node, UITransform, sys, view, Label, Rect, Vec3, Size } from 'cc';
-// const { ccclass, property } = _decorator;
-
-// @ccclass('SafeAreaAdapter')
-// export class SafeAreaAdapter extends Component {
-//     @property(Node)
-//     rootNode: Node = null!; // 根节点（需适配安全区域的父节点）
-
-//     private designWidth: number = 1080;
-//     private designHeight: number = 1920;
-//     private originalSizes: Map<string, Size> = new Map();
-//     private originalPositions: Map<string, Vec3> = new Map();
-//     private originalFontSizes: Map<string, number> = new Map();
-
-//     onLoad() {
-//         this.captureOriginalProperties(this.rootNode);
-//         this.adaptSafeArea();
-//         view.on('canvas-resize', this.adaptSafeArea, this);
-//     }
-
-//     onDestroy() {
-//         view.off('canvas-resize', this.adaptSafeArea, this);
-//     }
-
-//     // 记录所有子节点的原始属性
-//     private captureOriginalProperties(node: Node) {
-//         const traverse = (currentNode: Node) => {
-//             const uiTransform = currentNode.getComponent(UITransform);
-//             if (uiTransform) {
-//                 this.originalSizes.set(currentNode.uuid, new Size(uiTransform.width, uiTransform.height));
-//                 this.originalPositions.set(currentNode.uuid, new Vec3(currentNode.position));
-//                 const label = currentNode.getComponent(Label);
-//                 if (label) this.originalFontSizes.set(currentNode.uuid, label.fontSize);
-//             }
-//             currentNode.children.forEach(child => traverse(child));
-//         };
-//         traverse(node);
-//     }
-
-//     // 核心适配逻辑
-//     private adaptSafeArea() {
-//         // 获取安全区域（关键修正：使用 sys 模块）
-//         const safeArea = sys.getSafeAreaRect();
-//         const screenWidth = view.getVisibleSize().width;
-//         const screenHeight = view.getVisibleSize().height;
-
-//         // Step 1: 调整根节点位置和尺寸
-//         this.adjustRootNode(safeArea);
-
-//         // Step 2: 计算安全区域内的缩放比例
-//         const scale = this.calculateScale(safeArea);
-
-//         // Step 3: 递归适配子节点
-//         this.adaptChildren(this.rootNode, scale, safeArea);
-//     }
-
-//     // 调整根节点到安全区域
-//     private adjustRootNode(safeArea: Rect) {
-//         const rootTransform = this.rootNode.getComponent(UITransform);
-//         if (!rootTransform) return;
-
-//         // 设置根节点锚点为左下角 (0,0)
-//         rootTransform.setAnchorPoint(0, 0);
-
-//         // 定位到安全区域起点，并设置尺寸
-//         this.rootNode.setPosition(safeArea.x, safeArea.y);
-//         rootTransform.width = safeArea.width;
-//         rootTransform.height = safeArea.height;
-//     }
-
-//     // 计算缩放比例（基于安全区域）
-//     private calculateScale(safeArea: Rect): number {
-//         const widthScale = safeArea.width / this.designWidth;
-//         const heightScale = safeArea.height / this.designHeight;
-//         return Math.min(widthScale, heightScale); // 保证内容完整显示
-//     }
-
-//     // 递归适配子节点
-//     // 根据缩放比例和安全区域，调整节点的子节点
-//     private adaptChildren(node: Node, scale: number, safeArea: Rect) {
-//         // 定义递归函数，用于遍历节点及其子节点
-//         const traverse = (currentNode: Node) => {
-//             // 获取当前节点的UITransform组件
-//             const uiTransform = currentNode.getComponent(UITransform);
-//             if (!uiTransform) return;
-
-//             // 获取原始属性
-//             const originalSize = this.originalSizes.get(currentNode.uuid);
-//             const originalPos = this.originalPositions.get(currentNode.uuid);
-//             if (!originalSize || !originalPos) return;
-
-//             // 缩放尺寸
-//             uiTransform.width = originalSize.width * scale;
-//             uiTransform.height = originalSize.height * scale;
-
-//             // 计算位置（相对安全区域）
-//             const posX = originalPos.x * scale;
-//             const posY = originalPos.y * scale;
-//             currentNode.setPosition(posX, posY);
-
-//             // 处理Label字体
-//             const label = currentNode.getComponent(Label);
-//             if (label) {
-//                 const originalFontSize = this.originalFontSizes.get(currentNode.uuid) || 24;
-//                 label.fontSize = originalFontSize * scale;
-//             }
-
-//             // 递归处理子节点
-//             currentNode.children.forEach(child => traverse(child));
-//         };
-
-//         // 从根节点开始遍历
-//         traverse(node);
-//     }
-// }
