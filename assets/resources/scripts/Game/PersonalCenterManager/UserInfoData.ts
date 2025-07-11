@@ -29,8 +29,11 @@ export class UserInfoData {
         this.trained_days = data["trained_days"];
         this.has_initial_tier = data["has_initial_tier"];
         this.is_member = data["is_member"];
-        this.member_startTime = data["member_startTime"]||undefined;
-        this.member_endTime = data["member_endTime"]||undefined;
+        if(data["member"]){
+            this.member_startTime = data["member"]["start_at"];
+            this.member_endTime = data["member"]["expired_at"];
+        }
+
 
         // 判断会员是否过期
         this.checkMemberExpired();

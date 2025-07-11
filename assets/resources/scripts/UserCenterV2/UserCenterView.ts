@@ -19,13 +19,20 @@ export class UserCenterPanel extends AdaptComponent {
    @property(Sprite)
    userIcon: Sprite = null;
 
+   @property(Node)
+   memberNode:Node = null;
+
    start(){
        super.start();
    }
 
    onEnable() {
       EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-      PersonalCenterManager.getInstance().requestUserInfo();
+      if(!PersonalCenterManager.getInstance().userInfoData){
+          PersonalCenterManager.getInstance().requestUserInfo();
+      }else{
+          this.getUserInfoCallBack();
+      }
    }
    onDisable() {
       EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);

@@ -412,6 +412,8 @@ export class VipModel {
             vipOrder.validEndDate = data.data["detail"]["end_date"];
             vipOrder.validLostDays = data.data["detail"]["membership_valid_days"];
         }
+        //手动刷新下人物信息
+        PersonalCenterManager.getInstance().requestUserInfo();
         EventManager.getInstance().emit(VipEvent.VIP_GET_ORDER,vipOrder);
     }
 

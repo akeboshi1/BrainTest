@@ -231,7 +231,7 @@ export class VipPanel extends BasePanel {
             } else {
                 this.descLabel.node.active = false;
             }
-            this.permanentNode.active = false;
+            this.permanentNode.active = true;
             this.renewalBtnLabel.string = "点击续费";
         } else {
             // 非会员

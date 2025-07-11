@@ -32,7 +32,12 @@ export class ReportPageController extends AdaptComponent {
         super.start();
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getUserSumReport();
-        PersonalCenterManager.getInstance().requestUserInfo();
+        // 用缓存啊！！！
+        if(!PersonalCenterManager.getInstance().userInfoData){
+            PersonalCenterManager.getInstance().requestUserInfo();
+        }else{
+            this.getUserInfoCallBack();
+        }
         // 创建三个 Promise 来跟踪回调执行
         this.callbackPromises = {
             userInfo: new Promise((resolve) => {

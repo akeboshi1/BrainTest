@@ -56,7 +56,12 @@ export class IndexPageView extends AdaptComponent {
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getPersonalInitialReport();
-        PersonalCenterManager.getInstance().requestUserInfo();
+        // 用缓存数据！！！
+        if(!PersonalCenterManager.getInstance().userInfoData){
+            PersonalCenterManager.getInstance().requestUserInfo();
+        }else{
+            this.getUserInfoCallBack();
+        }
     }
     clickNavBar(event, data) {
         const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
@@ -80,7 +85,7 @@ export class IndexPageView extends AdaptComponent {
         const values = reportDataList.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setValues(values);
     }
-    async getUserInfoCallBack(data: any) {
+    async getUserInfoCallBack() {
         const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
          if(userData.gender==1){
             const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
