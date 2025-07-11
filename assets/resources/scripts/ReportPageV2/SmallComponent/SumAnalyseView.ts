@@ -242,15 +242,17 @@ export class SumAnalyseView extends Component {
     }
 
     async loadReportListData() {
-        let reportList = ReportManager.getInstance().reportDataList;
-        let reportMonthList = ReportManager.getInstance().getUserSumReportMonthData();
         let reportPeriod = ReportManager.getInstance().userSumReport.report_period;
+        let reportList = ReportManager.getInstance().reportDataList;
         for(let index=0;index<reportList.length;index++){
             SumAnalyseType[index].title = reportList[index].cog_ability_desc;
             SumAnalyseType[index].weekTier = reportList[index].tier;
         }
-        for(let index=0;index<reportMonthList.length;index++){
-            SumAnalyseType[index].monthTierUp = reportMonthList[index].tier - reportMonthList[index].last_tier;
+        let reportMonthList = ReportManager.getInstance().getUserSumReportMonthData();
+        if(reportMonthList){
+            for(let index=0;index<reportMonthList.length;index++){
+                SumAnalyseType[index].monthTierUp = reportMonthList[index].tier - reportMonthList[index].last_tier;
+            }
         }
         for (let item of SumAnalyseType) {
             let dimensionItemView = instantiate(this.dimensionItemPrefab);
