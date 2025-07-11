@@ -52,7 +52,7 @@ export class TaskManager extends BaseManager {
 
     private _taskList: TaskData[] = [];
 
-    private _curTaskId: number = 0;
+    private _curTaskId: number = -1;
     // 通知
     private notification_start_notifications: string = "notification.get_notifications";
     private _notificationList: NotificationData[] = [];

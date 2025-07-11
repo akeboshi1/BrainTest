@@ -2,11 +2,13 @@ import { BaseManager } from "../BaseManager";
 import { BasePanel } from "../../UI/BasePanel";
 import { DebugLog } from "../../Util/DebugLog";
 import { SceneManager } from "../Scene/SceneManager";
-import { Constructor, Label, Node, Prefab, assetManager, debug, instantiate, resources } from "cc";
+import { Constructor, Label, Node, Prefab, assetManager, debug, instantiate, resources, UITransform } from "cc";
 import { BundleName } from "../Load/BundleName";
 import { BundlePreloadManager } from "../Load/BundlePreloadManager";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { EventManager } from "../Event/EventManager";
+import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
+import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
 
 export interface PanelInfo {
     bundleName: BundleName;
@@ -144,6 +146,11 @@ export class UIManager extends BaseManager {
             return false;
         }
 
+       
+
+        // 执行UI适配
+        this.adaptPanelUI(panel);
+
         parent.addChild(panel);
 
         let compNode = panel;
@@ -200,6 +207,13 @@ export class UIManager extends BaseManager {
         }
 
         let sl = instantiate(this.screenLockerPrefab);
+
+        // 设置屏幕适配尺寸
+        const screenSize = ScreenSizeUtil.getUISize();
+        const slTransform = sl.getComponent(UITransform);
+        if (slTransform && screenSize) {
+            slTransform.setContentSize(screenSize.width, screenSize.height);
+        }
 
         let parent = LayerUtil.getLoaderLayer();
         if (!parent) {
@@ -269,6 +283,19 @@ export class UIManager extends BaseManager {
 
     isPanelActive(name: string): boolean {
         return this.activePanelMap.has(name);
+    }
+
+    /**
+     * 对面板进行UI适配
+     * @param panel 面板根节点
+     */
+    private adaptPanelUI(panel: Node) {
+        try {
+            // 调用ScreenAdapter进行UI适配
+            ScreenAdapter.getInstance().adaptPanelUI(panel);
+        } catch (error) {
+            DebugLog.instance.error(`[UIManager] Panel UI adaptation failed: ${error}`);
+        }
     }
 
     destroy() {

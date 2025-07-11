@@ -100,17 +100,17 @@ export class AlertManager extends BaseManager {
         // 这里可以添加更多逻辑根据alertData设置弹窗内的文本内容、按钮显示及点击回调等
 
         // 假设弹窗内有对应的组件来设置标题、消息等内容，以下为示例代码（需根据实际预制体结构调整）
-        let titleLabel = alertNode.getChildByName('titleLabel').getComponent(Label);
+        let titleLabel = alertNode.getChildByName("viewNode").getChildByName('titleLabel').getComponent(Label);
         if (titleLabel) {
             titleLabel.string = alertData.title;
         }
 
-        let messageLabel = alertNode.getChildByName('messageLabel').getComponent(Label);
+        let messageLabel = alertNode.getChildByName("viewNode").getChildByName('messageLabel').getComponent(Label);
         if (messageLabel) {
             messageLabel.string = alertData.message;
         }
 
-        let guideButton = alertNode.getChildByName('guideButton').getComponent(Button);
+        let guideButton = alertNode.getChildByName("viewNode").getChildByName('guideButton').getComponent(Button);
         if(guideButton){
             guideButton.node.active = alertData.guideButtonVisible;
             guideButton.node.on('click', () => {
@@ -123,7 +123,7 @@ export class AlertManager extends BaseManager {
             guideButton.node.getChildByName("Label").getComponent(Label).string = alertData.guideButtonText;
         }
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）
-        let cancelButton = alertNode.getChildByName('cancelButton').getComponent(Button);
+        let cancelButton = alertNode.getChildByName("viewNode").getChildByName('cancelButton').getComponent(Button);
         if (cancelButton) {
             cancelButton.node.active = alertData.cancelButtonVisible;
             cancelButton.node.on('click', () => {
@@ -137,7 +137,7 @@ export class AlertManager extends BaseManager {
         }
 
         // 处理确认按钮相关逻辑，设置点击回调等（示例，需根据实际调整）
-        let confirmButton = alertNode.getChildByName('confirmButton').getComponent(Button);
+        let confirmButton = alertNode.getChildByName("viewNode").getChildByName('confirmButton').getComponent(Button);
         if (confirmButton) {
             confirmButton.node.on('click', () => {
                 if (alertData.confirmCb) {
@@ -184,7 +184,7 @@ export class AlertManager extends BaseManager {
         // 这里可以添加更多逻辑根据alertData设置弹窗内的文本内容、按钮显示及点击回调等
 
         // 假设弹窗内有对应的组件来设置标题、消息等内容，以下为示例代码（需根据实际预制体结构调整）
-        let titleLabel = alertNode.getChildByName('titleLabel').getComponent(Label);
+        let titleLabel = alertNode.getChildByName("viewNode").getChildByName('titleLabel').getComponent(Label);
         if (titleLabel) {
             titleLabel.string = alertData.title;
         }
@@ -204,7 +204,7 @@ export class AlertManager extends BaseManager {
         // }
 
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）
-        let cancelButton = alertNode.getChildByName('cancelButton').getComponent(Button);
+        let cancelButton = alertNode.getChildByName("viewNode").getChildByName('cancelButton').getComponent(Button);
         if (cancelButton) {
             cancelButton.node.active = alertData.cancelButtonVisible;
             cancelButton.node.on('click', () => {
@@ -218,7 +218,7 @@ export class AlertManager extends BaseManager {
         }
 
         // 处理确认按钮相关逻辑，设置点击回调等（示例，需根据实际调整）
-        let confirmButton = alertNode.getChildByName('confirmButton').getComponent(Button);
+        let confirmButton = alertNode.getChildByName("viewNode").getChildByName('confirmButton').getComponent(Button);
         if (confirmButton) {
             confirmButton.node.on('click', () => {
                 if (alertData.confirmCb) {
