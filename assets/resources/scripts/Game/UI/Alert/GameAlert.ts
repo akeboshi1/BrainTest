@@ -6,6 +6,7 @@ import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
+import { AdaptComponent } from "../../../mainV2/AdaptComponent";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -34,7 +35,7 @@ export enum AlertType {
  * 通用型alert
  */
 @ccclass('GameAlert')
-export class GameAlert extends Component {
+export class GameAlert extends AdaptComponent {
 
     @property(Node)
     alert: Node = null;
@@ -415,7 +416,7 @@ export class GameAlert extends Component {
     // }
 
     start() {
-
+        super.start();
     }
 
     onEnable(){

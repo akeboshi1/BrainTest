@@ -5,6 +5,7 @@ import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 export class AdaptComponent extends Component {
 
     protected viewNode:Node=null;
+    public scaleFactor:number = 1;
     constructor() {
         super();
     }
@@ -18,6 +19,7 @@ export class AdaptComponent extends Component {
         this.viewNode = this.node.getChildByName('viewNode');
         // 执行屏幕适配
         this.performScreenAdaptation();
+        this.scaleFactor = ScreenAdapter.getInstance().scaleFactor;
     }
 
     // ========== 屏幕适配 ==========
