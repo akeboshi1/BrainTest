@@ -518,7 +518,7 @@ export class FingerGameScene extends Component {
                 let panelData: IFingerGameCompleteData[] = [];
                 for (let i = 0; i < this._model.activities.length; i++) {
                     panelData.push({
-                        name: fingerGameConfig.fingerSets[i].name,
+                        name: fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.activities[i].id - 1].name,
                         status: 0
                     });
                 }
