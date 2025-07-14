@@ -34,37 +34,39 @@ export const fingerGameConfig: FingerGameConfig = {
             icon: "image/setsImage/set_1/spriteFrame",
             sections: [
                 {
-                    name: "第一节",
+                    name: "热身运动",
                     icon: "image/setsImage/set_1/spriteFrame",
                     previewVideo: {
                         path: "video/set1/1_preview",
-                        duration: 35
+                        duration: 46.3
                     },
                     demoVideo: {
                         path: "video/set1/1_demo",
-                        duration: 22
+                        duration: 11.7
                     }
                 },
                 {
-                    name: "第二节",
+                    name: "伸屈运动",
+                    icon: "image/setsImage/set_2/spriteFrame",
                     previewVideo: {
                         path: "video/set1/2_preview",
-                        duration: 55
+                        duration: 58.1
                     },
                     demoVideo: {
                         path: "video/set1/2_demo",
-                        duration: 25
+                        duration: 22.3
                     }
                 },
                 {
-                    name: "第三节",
+                    name: "敲五指",
+                    icon: "image/setsImage/set_2/spriteFrame",
                     previewVideo: {
-                        path: "video/set1/1_preview",
-                        duration: 55
+                        path: "video/set1/3_preview",
+                        duration: 55.6
                     },
                     demoVideo: {
-                        path: "video/set1/1_demo",
-                        duration: 25
+                        path: "video/set1/3_demo",
+                        duration: 21.8
                     }
                 },  
                 {
