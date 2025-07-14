@@ -72,6 +72,9 @@ export class UserCenterPanel extends AdaptComponent {
       })
   }
    setPersonalCenterTitle(title: string) {
+      if (title.length > 5) {
+         title = title.substring(0, 6) + '...';
+      }
       this.userName.string = title;
    }
    onClickLogOut() {
