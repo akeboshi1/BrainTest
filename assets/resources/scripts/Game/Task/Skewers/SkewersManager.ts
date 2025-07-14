@@ -247,6 +247,15 @@ export class SkewersManager {
         return null;
     }
 
+
+    private checkAlertScale(parentNode:Node,alertNode){
+        if(parentNode && parentNode.scale.x < 1||parentNode.scale.y < 1){
+            alertNode.setScale(1/parentNode.scale.x,1/parentNode.scale.y,1);
+        }else{
+            alertNode.setScale(1,1,1);
+        }
+    }
+
     /**
      * 中途退出串烧游戏接口
      * @param parentNode
@@ -261,6 +270,7 @@ export class SkewersManager {
                 return;
             }
             const alertNode = instantiate(resource);
+            this.checkAlertScale(parentNode,alertNode);
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0, 0, 0);
@@ -300,6 +310,7 @@ export class SkewersManager {
                 return;
             }
             const alertNode = instantiate(resource);
+            this.checkAlertScale(parentNode,alertNode);
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(position.x, position.y, position.z);

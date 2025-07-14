@@ -202,7 +202,11 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         const scene = director.getScene();
         const canvas = scene.getComponentInChildren(Canvas);
         const uitransform = canvas.getComponent(UITransform);
-        this._leftSceneX = -uitransform.width / 2 - 80;
+        if(uitransform.width < 1080){
+            this._leftSceneX = -uitransform.width / 2 - 80;
+        }else{
+            this._leftSceneX = -1080 / 2 - 80;
+        }
         this.fishs = [];
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // this.gameBeforeView.active = false;
