@@ -606,7 +606,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
         let spriteFramelen = this.spriteFrames.length;
 
-        let index = Math.floor(Math.random() * (spriteFramelen - 1));
+        let index = Math.floor(Math.random() * spriteFramelen);
 
         this._guideIndex = 1;
 
