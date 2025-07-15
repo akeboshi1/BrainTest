@@ -934,10 +934,10 @@
       "r": 255,
       "g": 255,
       "b": 255,
-      "a": 120
+      "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "ba66c23b-9a97-4b4d-9356-b640b3ed5697@f9941",
+      "__uuid__": "fda7620a-cfbf-42ca-b990-842a1dc570fc@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
