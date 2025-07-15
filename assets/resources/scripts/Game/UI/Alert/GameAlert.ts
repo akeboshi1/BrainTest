@@ -6,6 +6,8 @@ import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
+import { AdaptComponent } from "../../../mainV2/AdaptComponent";
+import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
 const { ccclass, property } = _decorator;
 interface CallBackFunction {
     boundCallback?: Function;
@@ -34,7 +36,7 @@ export enum AlertType {
  * 通用型alert
  */
 @ccclass('GameAlert')
-export class GameAlert extends Component {
+export class GameAlert extends AdaptComponent {
 
     @property(Node)
     alert: Node = null;
@@ -189,15 +191,20 @@ export class GameAlert extends Component {
                 startBtnUITransform.width = 300;
                 break;
             case AlertType.Sucess_Big:
-                this.startBtn.node.active = true;
                 this.decLabel.node.active = false;
                 this.guideBtn.node.active = false;
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = Global.userData.curTaskData.type == TaskType.Review;
-                this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
-                startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review ? 300 : 900;
+                if(!PersonalCenterManager.getInstance().userInfoData.has_initial_tier){
+                    this.startBtn.node.active = false;
+                    this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "查看初测";
+                }else{
+                    this.startBtn.node.active = true;
+                    this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
+                    startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review ? 300 : 900;
+                }
                 break;
             case AlertType.Failed:
                 // todo
@@ -415,7 +422,7 @@ export class GameAlert extends Component {
     // }
 
     start() {
-
+        super.start();
     }
 
     onEnable(){

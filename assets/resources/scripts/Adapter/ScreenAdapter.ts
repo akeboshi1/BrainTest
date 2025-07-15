@@ -16,6 +16,11 @@ export class ScreenAdapter {
         return ScreenAdapter._instance;
     }
 
+    private _scaleFactor:number = 1;
+    public get scaleFactor():number{
+        return this._scaleFactor
+    }
+
     /**
      * 对面板进行UI适配
      * @param panel 面板根节点
@@ -38,13 +43,14 @@ export class ScreenAdapter {
 
             // 只在宽度小于设计宽度时才进行缩放处理
             if (screenWidth < 1080) { // 设计宽度
-                const scaleFactor = screenWidth / 1080;
+                this._scaleFactor = screenWidth / 1080;
                 
                 // 只对viewNode进行缩放
-                this.scaleViewNode(panel, scaleFactor);
+                this.scaleViewNode(panel, this._scaleFactor);
                 this.updateWidgetAlignment(panel, screenWidth, screenHeight);
-                DebugLog.instance.log(`[ScreenAdapter] 宽度不足，只对viewNode进行缩放: 实际宽度${screenWidth} < 设计宽度1080, 缩放比例${scaleFactor.toFixed(3)}`);
+                DebugLog.instance.log(`[ScreenAdapter] 宽度不足，只对viewNode进行缩放: 实际宽度${screenWidth} < 设计宽度1080, 缩放比例${this._scaleFactor.toFixed(3)}`);
             } else {
+                this._scaleFactor = screenWidth / 1080;
                 // 宽度足够时，更新 Widget 对齐到实际宽度，不进行缩放
                 this.updateWidgetAlignment(panel, screenWidth, screenHeight);
                 DebugLog.instance.log(`[ScreenAdapter] 宽度足够，更新Widget对齐到实际尺寸: 实际宽度${screenWidth} >= 设计宽度1080`);

@@ -94,7 +94,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960.0000000000002,
+      "y": 960,
       "z": 0
     },
     "_lrot": {
@@ -275,7 +275,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -461,7 +461,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 224,
+      "y": 166.9,
       "z": 0
     },
     "_lrot": {
@@ -548,7 +548,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 600
+      "height": 800
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -712,7 +712,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 600
+      "height": 800
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -770,7 +770,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 890,
-      "height": 590
+      "height": 790
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -847,7 +847,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 600
+      "height": 800
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -894,7 +894,7 @@
     "_top": 660,
     "_bottom": 0,
     "_horizontalCenter": 0,
-    "_verticalCenter": 224,
+    "_verticalCenter": 166.9,
     "_isAbsLeft": true,
     "_isAbsRight": true,
     "_isAbsTop": true,
@@ -936,7 +936,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 230.63,
+      "y": 172,
       "z": 0
     },
     "_lrot": {
@@ -1026,7 +1026,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 600
+      "height": 800
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1808,7 +1808,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -495.6,
+      "y": -581.4,
       "z": 0
     },
     "_lrot": {
@@ -1856,7 +1856,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 396.5,
+      "y": 345.85,
       "z": 0
     },
     "_lrot": {
@@ -1895,7 +1895,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 213
+      "height": 191.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1927,10 +1927,10 @@
     "_string": "123123123123念你你您i啊实打实打算\n阿萨大大\n阿三大苏打\n啊实打实",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 50,
+    "_lineHeight": 45,
     "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
@@ -2001,7 +2001,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -26.5,
+      "y": -15.849999999999966,
       "z": 0
     },
     "_lrot": {
@@ -3360,7 +3360,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -316.5,
+      "y": -265.84999999999997,
       "z": 0
     },
     "_lrot": {
@@ -3658,7 +3658,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 793
+      "height": 691.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3690,7 +3690,7 @@
     "_paddingTop": 0,
     "_paddingBottom": 0,
     "_spacingX": 0,
-    "_spacingY": 60,
+    "_spacingY": 20,
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_constraint": 0,
@@ -5621,7 +5621,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

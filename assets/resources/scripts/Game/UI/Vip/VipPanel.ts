@@ -341,7 +341,7 @@ export class VipPanel extends BasePanel {
             this.createWaveTextAnimation(`您的会员有效期:${vipOrder.validDays}天`, this.label0);
             this.label1.string = `${vipOrder.validStartDate} 至 ${vipOrder.validEndDate}`;
             this.timeLabel.string = `您的会员剩余:${vipOrder.validLostDays}天`;
-            if(userData.has_initial_tier){
+            if(!userData.has_initial_tier){
                 btnLabel.string = "立即开始初次评测";
             }else{
                 btnLabel.string = "立即开始今日训练";

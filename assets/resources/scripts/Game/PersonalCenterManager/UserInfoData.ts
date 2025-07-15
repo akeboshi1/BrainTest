@@ -11,6 +11,9 @@ export class UserInfoData {
     public birthday: string = "";
     public education: string = "";
     public trained_days: number = 0;
+    /**
+     * 是否完成初测  false 没完成  true 完成
+     */
     public has_initial_tier:boolean = false;
     public is_member: boolean;
     public member_startTime: string = "";
