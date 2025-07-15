@@ -55,7 +55,7 @@ export class ReportPageController extends AdaptComponent {
             const userData = PersonalCenterManager.getInstance().userInfoData;
             if (userData && !userData.is_member) {
                 // 如果不是会员，同时打开vipAlert
-                UIManager.getInstance().showPanel(VipAlert.NAME);
+                UIManager.getInstance().showPanel(VipAlert.NAME,null,false,null,false);
             }
             
             if (this.pageParams) {
