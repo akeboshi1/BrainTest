@@ -87,9 +87,8 @@ export class ScreenAdapter {
                 if (parentNode) {
                     const parentTransform = parentNode.getComponent(UITransform);
                     if (parentTransform) {
-                        // 记录原始尺寸
-                        const originalWidth = parentTransform.width;
-                        const originalHeight = parentTransform.height;
+                        // 检查节点是否在viewNode内（需要考虑缩放）
+                        const isInViewNode = this.isNodeInViewNode(node, panel);
                         
                         // 如果传入了实际尺寸，且父节点是面板根节点，则使用实际尺寸
                         if (actualWidth && actualHeight && parentNode === panel) {
@@ -99,10 +98,10 @@ export class ScreenAdapter {
                             // 强制更新Widget对齐
                             widget.updateAlignment();
                             
-                            // // 恢复父节点原始尺寸
-                            // parentTransform.setContentSize(originalWidth, originalHeight);
-                            
                             DebugLog.instance.log(`[ScreenAdapter] 强制Widget对齐更新: ${node.name}, 父节点尺寸: ${actualWidth}x${actualHeight}`);
+                        } else if (isInViewNode && this._scaleFactor !== 1) {
+                            // 对于viewNode内的Widget，需要考虑缩放因素
+                            this.updateWidgetWithScale(widget, parentTransform, node);
                         } else {
                             // 对于其他情况，也强制更新Widget对齐
                             widget.updateAlignment();
@@ -125,6 +124,62 @@ export class ScreenAdapter {
         };
 
         updateNodeWidget(panel);
+    }
+
+    /**
+     * 检查节点是否在viewNode内
+     * @param node 要检查的节点
+     * @param panel 面板根节点
+     * @returns 是否在viewNode内
+     */
+    private isNodeInViewNode(node: Node, panel: Node): boolean {
+        let currentNode = node;
+        while (currentNode && currentNode !== panel) {
+            if (currentNode.name === 'viewNode') {
+                return true;
+            }
+            currentNode = currentNode.parent;
+        }
+        return false;
+    }
+
+    /**
+     * 考虑缩放因素更新Widget对齐
+     * @param widget Widget组件
+     * @param parentTransform 父节点的UITransform
+     * @param node 当前节点
+     */
+    private updateWidgetWithScale(widget: Widget, parentTransform: UITransform, node: Node): void {
+        // 记录原始的对齐参数
+        const originalTop = widget.top;
+        const originalBottom = widget.bottom;
+        const originalLeft = widget.left;
+        const originalRight = widget.right;
+        
+        // 根据缩放比例调整对齐参数
+        if (widget.isAlignTop && widget.top !== 0) {
+            widget.top = originalTop / this._scaleFactor;
+        }
+        if (widget.isAlignBottom && widget.bottom !== 0) {
+            widget.bottom = originalBottom / this._scaleFactor;
+        }
+        if (widget.isAlignLeft && widget.left !== 0) {
+            widget.left = originalLeft / this._scaleFactor;
+        }
+        if (widget.isAlignRight && widget.right !== 0) {
+            widget.right = originalRight / this._scaleFactor;
+        }
+        
+        // 更新Widget对齐
+        widget.updateAlignment();
+        
+        // 恢复原始对齐参数（避免影响后续的Widget更新）
+        widget.top = originalTop;
+        widget.bottom = originalBottom;
+        widget.left = originalLeft;
+        widget.right = originalRight;
+        
+        DebugLog.instance.log(`[ScreenAdapter] 缩放Widget对齐更新: ${node.name}, 缩放比例: ${this._scaleFactor.toFixed(3)}, 对齐方式: ${this.getWidgetAlignmentInfo(widget)}`);
     }
 
     /**
@@ -197,7 +252,25 @@ export class ScreenAdapter {
             // 如果节点有Widget组件，更新对齐
             const widget = node.getComponent(Widget);
             if (widget) {
-                widget.updateAlignment();
+                // 检查节点是否在viewNode内（需要考虑缩放）
+                const isInViewNode = this.isNodeInViewNode(node, panel);
+                
+                if (isInViewNode && this._scaleFactor !== 1) {
+                    // 对于viewNode内的Widget，需要考虑缩放因素
+                    const parentNode = node.parent;
+                    if (parentNode) {
+                        const parentTransform = parentNode.getComponent(UITransform);
+                        if (parentTransform) {
+                            this.updateWidgetWithScale(widget, parentTransform, node);
+                        } else {
+                            widget.updateAlignment();
+                        }
+                    } else {
+                        widget.updateAlignment();
+                    }
+                } else {
+                    widget.updateAlignment();
+                }
             }
 
             // 递归处理子节点

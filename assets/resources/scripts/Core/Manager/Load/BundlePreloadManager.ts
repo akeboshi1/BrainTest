@@ -164,20 +164,26 @@ export class BundlePreloadManager extends BaseManager {
         }
         
         // 显示倒计时动画，等倒计时完成后再派发FINISH事件
-        const loadPanelInfo = UIManager.getInstance().getActivePanel(LoadPanel.NAME);
-        if (loadPanelInfo && loadPanelInfo.comp) {
-            const loadPanel = loadPanelInfo.comp as LoadPanel;
-            // 监听倒计时完成事件
-            EventManager.getInstance().on(BundlePreloadEvent.COUNTDOWN_FINISH, () => {
-                // 倒计时完成后派发FINISH事件
-                EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
-            }, this, true); // 使用once确保只监听一次
-            
-            // 开始倒计时动画
-            loadPanel.showTimeNode();
-        } else {
-            // 如果没有LoadPanel，直接派发FINISH事件
+        // 当切入的场景是fingerGame时，不显示倒计时，直接派发finish事件
+        if (bundleName === BundleName.FINGERGAME) {
             EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+        } else {
+            const loadPanelInfo = UIManager.getInstance().getActivePanel(LoadPanel.NAME);
+            if (loadPanelInfo && loadPanelInfo.comp) {
+                const loadPanel = loadPanelInfo.comp as LoadPanel;
+                
+                // 监听倒计时完成事件
+                EventManager.getInstance().on(BundlePreloadEvent.COUNTDOWN_FINISH, () => {
+                    // 倒计时完成后派发FINISH事件
+                    EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+                }, this, true); // 使用once确保只监听一次
+                
+                // 开始倒计时动画
+                loadPanel.showTimeNode();
+            } else {
+                // 如果没有LoadPanel，直接派发FINISH事件
+                EventManager.getInstance().emit(BundlePreloadEvent.FINISH, { bundleName });
+            }
         }
     }
 

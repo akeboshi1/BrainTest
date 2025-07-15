@@ -387,7 +387,7 @@ export class GameCenterManager {
         if (Global.isAgain) {
             return;
         }
-        let socketData = new SocketData({ "action": GameCenterManager.GAMEMATCHITEM, "data": { session_id: sessionid } });
+        let socketData = new SocketData({ "action": GameCenterManager.GAMEMATCHITEM,skipDebounce:true, "data": { session_id: sessionid } });
         this._callbackDic.set(GameCenterManager.GAMEMATCHITEM, new GameSocketData(socketData, callback));
         EventManager.getInstance().on(GameCenterManager.GAMEMATCHITEM, this.gameMatchCallBack, this);
         SocketManager.getInstance().send(socketData);

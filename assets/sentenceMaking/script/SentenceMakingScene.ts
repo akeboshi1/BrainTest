@@ -1,4 +1,4 @@
-import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, Label, Node, Prefab, Rect, RichText, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, ProgressBar,Label, Node, Prefab, Rect, RichText, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3, view } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
 import {AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
@@ -10,7 +10,6 @@ import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
-import { TimeUtil } from '../../resources/scripts/Core/Util/TimeUtil';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
@@ -29,9 +28,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     @property(Prefab)
     emptyModel: Prefab = null;
-
-    @property(Node)
-    guideView: Node = null;
 
     @property(Node)
     cardContainer: Node;
@@ -66,6 +62,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     @property(AnimationComponent)
     animRotate: AnimationComponent;
 
+    @property(ProgressBar)
+    progressBar: ProgressBar;
+
+    @property(Label)
+    guankaLabel: Label;
+
     @property(Node)
     correctAnswerNode: Node;
 
@@ -74,7 +76,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     private rawMaxNum: number = 5;//一行最多放几个对象
     private lineMaxNum: number = 3;//最大行数
-    private leftOffset: number = 62.5;//左侧的留白像素
+    private leftOffset: number = 0;//左侧的留白像素，将在start方法中动态计算
     private topOffset: number = 10;//顶部的留白像素
     private paddingX: number = 10;//水平间距
     private paddingy: number = 10;//垂直间距
@@ -103,7 +105,15 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     private bgmClip:AudioClip;
 
-
+    /**
+     * 根据场景宽度动态计算左侧留白
+     */
+    private calculateLeftOffset(): void {
+        const screenWidth = view.getVisibleSize().width;
+        const totalItemsWidth = this.rawMaxNum * this.itemWidth + (this.rawMaxNum - 1) * this.paddingX;
+        this.leftOffset = (screenWidth - totalItemsWidth) / 2;
+        DebugLog.instance.log(`屏幕宽度: ${screenWidth}, 计算得到的leftOffset: ${this.leftOffset}`);
+    }
 
     onLoad() {
         this.audioUrls = ["audio/majiangbgm","audio/majiang"];
@@ -125,13 +135,17 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         this.viewNode = LayerUtil.getPanelLayer();
+        
+        // 动态计算左侧留白
+        this.calculateLeftOffset();
 
         this.model.init(this).then(() => {
             // 如果是串烧任务，直接开始游戏流程，不显示提示
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 this.startGameFlow();
             } else {
-                this.showGameTipAlert();
+                this.startGameFlow();
+                // this.showGameTipAlert();
             }
         }).catch((error) => {
             let ad: AlertData = new AlertData();
@@ -241,21 +255,21 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
 
-    private showGameTipAlert() {
-        let ad: AlertData = new AlertData();
-        ad.title = "提示";
-        ad.message = '将麻将按照正确语序，移动到地板上，组成句子，然后点击"胡"！';
-        ad.cancelButtonVisible = false;
-        ad.guideButtonVisible = this.sceneModel.gameType == GameType.GAME_CENTER;
-        ad.guideCallBack = () =>{
-           this.showGuide();
-        };
-        ad.confirmCb = () => {
-            this.startGameFlow();
-        };
-        // ad.y = 350; // 设置y坐标
-        AlertManager.getInstance().showAlert(ad);
-    }
+    // private showGameTipAlert() {
+    //     let ad: AlertData = new AlertData();
+    //     ad.title = "提示";
+    //     ad.message = '将麻将按照正确语序，移动到地板上，组成句子，然后点击"胡"！';
+    //     ad.cancelButtonVisible = false;
+    //     ad.guideButtonVisible = this.sceneModel.gameType == GameType.GAME_CENTER;
+    //     ad.guideCallBack = () =>{
+    //        this.showGuide();
+    //     };
+    //     ad.confirmCb = () => {
+    //         this.startGameFlow();
+    //     };
+    //     // ad.y = 350; // 设置y坐标
+    //     AlertManager.getInstance().showAlert(ad);
+    // }
 
     public hideGuide(){
         super.hideGuide();
@@ -275,6 +289,19 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.recyleCardModel();
         let question: SentenceMakingQuestion = this.model.getCurrentQuestion();
         if (!question) return;
+
+
+        if((this.sceneModel as any).gameType == GameType.SKEWERS){
+            let skewersGameData = (this.sceneModel as any).game;
+            this.progressBar.progress = skewersGameData.progress;
+            this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
+        }else{
+            let level = (this.sceneModel as any).level;
+            let maxNum = (this.sceneModel as any).levelLen;
+            this.progressBar.progress = level / maxNum;
+            this.guankaLabel.string = "第" + level + "/"+ maxNum + "关";
+        }
+
         this.currentQuestion = question;
         this.initRects(question);
 
@@ -664,9 +691,6 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         return xOverlap * yOverlap;
     }
 
-    public onClickBack() {
-        this.model.quitGame();
-    }
 
     private updateCommitButtonState() {
         let isActive = true;
