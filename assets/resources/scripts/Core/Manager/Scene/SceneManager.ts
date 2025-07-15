@@ -3,7 +3,6 @@ import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../../Core/Util/DebugLog";
 import { GameSceneConst } from "../../../Core/Data/GameSceneConst";
 import { Global } from "../../../Core/Manager/Config/Global";
-import { MainSceneView } from "db://assets/resources/scripts/Game/Scene/MainScene";
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { BundleName } from '../Load/BundleName';
 import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';

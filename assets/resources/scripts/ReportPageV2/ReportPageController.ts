@@ -4,6 +4,8 @@ import { EventManager } from '../Core/Manager/Event/EventManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { ReportManager } from '../ManagerV2/ReportManager';
 import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import { UIManager } from '../Core/Manager/UI/UIManager';
+import { VipAlert } from '../Game/UI/Vip/VipAlert';
 const { ccclass, property } = _decorator;
 
 @ccclass('ReportPageController')
@@ -49,6 +51,13 @@ export class ReportPageController extends AdaptComponent {
             this.callbackPromises.brainTraining,
             this.callbackPromises.sumReport
         ]).then(() => {
+            // 检查用户是否完成初测
+            const userData = PersonalCenterManager.getInstance().userInfoData;
+            if (userData && !userData.has_initial_tier) {
+                // 如果未完成初测，同时打开vipAlert
+                UIManager.getInstance().showPanel(VipAlert.NAME);
+            }
+            
             if (this.pageParams) {
                 EventManager.getInstance().emit('onTopNavBarClick', this.pageParams);
             }else{  
