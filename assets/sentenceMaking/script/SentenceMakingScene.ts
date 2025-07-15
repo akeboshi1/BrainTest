@@ -13,6 +13,7 @@ import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
 const { ccclass, property } = _decorator;
 
 @ccclass('SentenceMakingScene')
@@ -109,9 +110,10 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
      * 根据场景宽度动态计算左侧留白
      */
     private calculateLeftOffset(): void {
-        const screenWidth = view.getVisibleSize().width;
+        const uiSize = ScreenSizeUtil.getUISize();
+        const screenWidth = uiSize.width;
         const totalItemsWidth = this.rawMaxNum * this.itemWidth + (this.rawMaxNum - 1) * this.paddingX;
-        this.leftOffset = (screenWidth - totalItemsWidth) / 2;
+        this.leftOffset = (screenWidth - totalItemsWidth) / 2  - 50;
         DebugLog.instance.log(`屏幕宽度: ${screenWidth}, 计算得到的leftOffset: ${this.leftOffset}`);
     }
 
