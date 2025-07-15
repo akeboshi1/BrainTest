@@ -31,7 +31,7 @@ export class App extends AdaptComponent {
     @property(Node)
     panelContainer: Node
 
-    @property()
+    @property(String)
     sceneName = "";
 
     /**

@@ -7,7 +7,6 @@ import { MainSceneView } from "db://assets/resources/scripts/Game/Scene/MainScen
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { BundleName } from '../Load/BundleName';
 import { BrainTrain } from '../../../Game/UI/BrainTrain/BrainTrain';
-import { GenerateReport } from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { EventManager } from '../Event/EventManager';
 import {
     TaskAndNotificationPanelCtrl
