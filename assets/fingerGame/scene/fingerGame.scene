@@ -1005,7 +1005,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Label",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 22
@@ -1289,6 +1289,9 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "gameViewNode": {
+      "__id__": 5
+    },
     "videoPlayer": {
       "__id__": 31
     },
@@ -1610,7 +1613,7 @@
   {
     "__type__": "cc.Node",
     "_name": "countLabel",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 5
@@ -2210,7 +2213,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Label",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 56
@@ -2943,7 +2946,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Label",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 81
@@ -3184,8 +3187,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100,
-      "height": 100
+      "width": 1080,
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
