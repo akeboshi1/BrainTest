@@ -10,7 +10,6 @@ const { ccclass, property } = _decorator;
 
 
 @ccclass('GenerateReport')
-
 export class GenerateReport extends BasePanel {
 
     @property(Prefab)

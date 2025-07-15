@@ -11,7 +11,6 @@ import {AlertManager, AlertData } from "../Alert/AlertManager";
 import { VerifyPanel } from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
 import { BundleName } from "../Load/BundleName";
 import { DebugLog } from "../../Util/DebugLog";
-import { GenerateReport } from "db://assets/resources/scripts/Game/UI/PersonalCenter/GenerateReport";
 import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { NativeEvent } from "../Event/NativeEvent";
@@ -49,7 +48,6 @@ export class LoginManager {
         UIManager.getInstance().registerPanel(LoginPanel.NAME, BundleName.RESOURCES, "prefab/LoginPanel", LoginPanel);
         UIManager.getInstance().registerPanel(AlterUserInfoView.NAME, BundleName.RESOURCES, "/prefabV2/personalCenter/alterUserInfo", AlterUserInfoView);
         UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
-        UIManager.getInstance().registerPanel(GenerateReport.NAME, BundleName.RESOURCES, "prefab/personalCenter/GenerateReport", GenerateReport);
     }
 
     private tokenExpirationVerification(): boolean {

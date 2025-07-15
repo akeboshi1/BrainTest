@@ -54,6 +54,19 @@ export class SentenceMakingConfig {
         });
     }
 
+    /**
+     * 获取难度对应的关卡最大数量
+     * @param difficult 难度
+     * @returns 关卡最大数量
+     */
+    getQuestionMaxNum(difficult:number): number {
+        let fixedDifficult = difficult <= 0 ? 0 : difficult - 1;
+        if(this.levelQuestions["level_" + fixedDifficult]){
+            return this.levelQuestions["level_" + fixedDifficult].length;
+        }
+        return 0;
+    }
+
     getQuestionByDifficultAndLevel(difficult: number, level: number): SentenceMakingQuestion {
         let fixedDifficult = difficult <= 0 ? 0 : difficult - 1;
         const questions = this.levelQuestions["level_" + fixedDifficult];
