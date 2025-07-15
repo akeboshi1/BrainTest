@@ -133,6 +133,9 @@ export class IndexPageView extends AdaptComponent {
         })
     }
     setUserName(name) {
+        if (name.length > 5) {
+            name = name.substring(0, 6) + '...';
+        }
         this.userName.string = name;
     }
     setDayLabel(day: number) {

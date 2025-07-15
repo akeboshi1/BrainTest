@@ -135,7 +135,7 @@ export class OtherChartView extends Component {
         }
     }
 
-    drawXAxisLabel(textArr: string[] = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]) {
+    drawXAxisLabel(textArr: string[] = ["第1天", "第2天", "第3天", "第4天", "第5天", "第6天", "第7天"]) {
         let g = this.lineChart.getComponent(Graphics);
         g.strokeColor = this.color;
         g.lineWidth = 4;
