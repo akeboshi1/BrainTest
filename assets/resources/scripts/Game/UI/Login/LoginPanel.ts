@@ -4,10 +4,10 @@ import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManag
 import { AlertManager, AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
-import { XieYiPanel } from './XieYiPanel';
 import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
+import { TreatyView } from '../../../TreatyV2/TreatyView';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -228,17 +228,15 @@ export class LoginPanel extends BasePanel {
     }
     // 显示协议
     showXieYi() {
-        let xieyiFlagUrl = "https://colapai.xinjiaxianglao.com/xieyi.html"
-        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME, {
-            url: xieyiFlagUrl
+        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        UIManager.getInstance().showPanel(TreatyView.NAME,{
+            flag:"XieYi"
         });
     }
     showPrivacy() {
-        let privacyUrl = "https://colapai.xinjiaxianglao.com/privacy.html"
-        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME, {
-            url: privacyUrl
+        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        UIManager.getInstance().showPanel(TreatyView.NAME,{
+            flag:"Privacy"
         });
     }
 
