@@ -13,7 +13,7 @@ export class DebugLog {
     /**
      * debug开关
      */
-    public debugBoo:boolean = true;
+    public debugBoo:boolean = false;
     public constructor() {
 
     }
