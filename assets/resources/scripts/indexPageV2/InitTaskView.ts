@@ -4,7 +4,6 @@ import { UIManager } from '../Core/Manager/UI/UIManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { BrainTrain } from '../Game/UI/BrainTrain/BrainTrain';
 import { BundleName } from '../Core/Manager/Load/BundleName';
-import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptComponent";
 const { ccclass, property } = _decorator;
 
 @ccclass('InitTaskView')

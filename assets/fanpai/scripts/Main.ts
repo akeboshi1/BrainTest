@@ -642,34 +642,73 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.isCountdownPaused = false;
 
         await this.showAllCard();
-        this.countDownLabel.node.active = true;
-        this.countDownLabel.string = `${this.seconds[this.hardIndex].toFixed(1)}s`;
-        this.countDownLabel.node.setScale(1, 1, 1);
-        let remainTime = this.seconds[this.hardIndex];
-
-        const updateDisplay = (time) => {
-            // 确保时间不会显示负数
-            const displayTime = Math.max(0, time);
-            self.countDownLabel.string = `${displayTime.toFixed(1)}s`;
-            tween(self.countDownLabel.node)
-                .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
-                .to(0.25, { scale: new Vec3(1, 1, 1) })
-                .start();
-        };
-
-        // 使用更精确的倒计时逻辑
-        const startTime = Date.now();
-        const totalDuration = this.seconds[this.hardIndex] * 1000; // 转换为毫秒
         
-        this.intervalId = setInterval(() => {
-            const elapsedTime = Date.now() - startTime;
-            const remainingTime = Math.max(0, totalDuration - elapsedTime) / 1000; // 转换回秒
-            
-            if (remainingTime > 0) {
-                updateDisplay(remainingTime);
-            } else {
-                // 时间到0时显示"开始"并播放放大动画
+        const initialTime = this.seconds[this.hardIndex];
+        const decimalPart = initialTime - Math.floor(initialTime); // 小数部分
+        
+        // 如果有小数部分，先等待小数部分的时间过去（不显示倒计时）
+        if (decimalPart > 0) {
+            // 等待小数部分时间过去
+            await new Promise(resolve => {
+                setTimeout(resolve, decimalPart * 1000);
+            });
+        }
+        
+        // 现在开始显示倒计时，从整数秒开始
+        const integerTime = Math.floor(initialTime);
+        if (integerTime > 0) {
+            this.countDownLabel.node.active = true;
+            this.countDownLabel.string = `${integerTime}.0s`;
+            this.countDownLabel.node.setScale(1, 1, 1);
+
+            const updateDisplay = (time) => {
+                self.countDownLabel.string = `${Math.floor(time)}.0s`;
+                tween(self.countDownLabel.node)
+                    .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
+                    .to(0.25, { scale: new Vec3(1, 1, 1) })
+                    .start();
+            };
+
+            let remainTime = integerTime;
+
+            this.intervalId = setInterval(() => {
+                remainTime -= 1;
+                if (remainTime >= 0) {
+                    updateDisplay(remainTime);
+                }
+                
+                if (remainTime < 0) {
+                    clearInterval(this.intervalId);
+                    // 时间到0时显示"开始"并播放放大动画
+                    this.countDownLabel.string = "开始";
+                    this.countDownLabel.node.setScale(1, 1, 1);
+                    
+                    // 播放放大动画
+                    tween(this.countDownLabel.node)
+                        .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                        .to(0.2, { scale: new Vec3(1, 1, 1) })
+                        .call(() => {
+                            // 动画完成后停止定时器
+                            clearInterval(this.intervalId);
+                            this.intervalId = null;
+                        })
+                        .start();
+                }
+            }, 1000);
+
+            // 设置结束定时器
+            this._setTimeOutId = setTimeout(() => {
+                if (this._setTimeOutId) {
+                    clearTimeout(this._setTimeOutId);
+                }
+                if(this.intervalId){
+                    clearInterval(this.intervalId);
+                }
+                this._setTimeOutId = null;
+
+                // 确保显示"开始"并播放放大动画
                 this.countDownLabel.string = "开始";
+                this.countDownLabel.node.active = true;
                 this.countDownLabel.node.setScale(1, 1, 1);
                 
                 // 播放放大动画
@@ -677,27 +716,22 @@ export class Main extends BaseScene<IBaseGameChild> {
                     .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                     .to(0.2, { scale: new Vec3(1, 1, 1) })
                     .call(() => {
-                        // 动画完成后停止定时器
-                        clearInterval(this.intervalId);
-                        this.intervalId = null;
+                        // 动画完成后延迟一段时间再隐藏标签
+                        setTimeout(() => {
+                            // 检查并修复可能存在的问题
+                            this.checkAndFixCardScales();
+
+                            this.closeAllCard();
+                            this.countDownLabel.node.active = false;
+                            this.timerTick();
+                        }, 300); // 给用户时间看到"开始"文字
                     })
                     .start();
-            }
-        }, 100); // 每100毫秒更新一次，更平滑
-        this._startTime = TimeUtil.getNow();
-        if (this._setTimeOutId != null) {
-            clearTimeout(this._setTimeOutId);
-        }
-        this._setTimeOutId = setTimeout(() => {
-            if (this._setTimeOutId) {
-                clearTimeout(this._setTimeOutId);
-            }
-            if(this.intervalId){
-                clearInterval(this.intervalId);
-            }
-            this._setTimeOutId = null;
 
-            // 确保显示"开始"并播放放大动画
+            }, integerTime * 1000);
+        } else {
+            // 如果整数部分为0，直接显示"开始"
+            this.countDownLabel.node.active = true;
             this.countDownLabel.string = "开始";
             this.countDownLabel.node.setScale(1, 1, 1);
             
@@ -706,7 +740,6 @@ export class Main extends BaseScene<IBaseGameChild> {
                 .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                 .to(0.2, { scale: new Vec3(1, 1, 1) })
                 .call(() => {
-                    // 动画完成后延迟一段时间再隐藏标签
                     setTimeout(() => {
                         // 检查并修复可能存在的问题
                         this.checkAndFixCardScales();
@@ -714,11 +747,12 @@ export class Main extends BaseScene<IBaseGameChild> {
                         this.closeAllCard();
                         this.countDownLabel.node.active = false;
                         this.timerTick();
-                    }, 300); // 给用户时间看到"开始"文字
+                    }, 300);
                 })
                 .start();
+        }
 
-        }, this.seconds[this.hardIndex] * 1000);
+        this._startTime = TimeUtil.getNow();
     }
 
     // 定时器
@@ -964,45 +998,51 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.countDownLabel.node.active = true;
         this.countDownLabel.string = `${remainingTime.toFixed(1)}s`;
         this.countDownLabel.node.setScale(1, 1, 1);
-        
+
+        let remainTime = remainingTime;
+
         const updateDisplay = (time) => {
-            // 确保时间不会显示负数
-            const displayTime = Math.max(0, time);
-            this.countDownLabel.string = `${displayTime.toFixed(1)}s`;
+            this.countDownLabel.string = `${time.toFixed(1)}s`;
             tween(this.countDownLabel.node)
                 .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
                 .to(0.25, { scale: new Vec3(1, 1, 1) })
                 .start();
         };
-        
-        // 使用精确的倒计时逻辑
-        const startTime = Date.now();
-        const totalDuration = remainingTime * 1000; // 转换为毫秒
-        
-        this.intervalId = setInterval(() => {
-            const elapsedTime = Date.now() - startTime;
-            const currentRemainingTime = Math.max(0, totalDuration - elapsedTime) / 1000; // 转换回秒
-            
-            if (currentRemainingTime > 0) {
-                updateDisplay(currentRemainingTime);
-            } else {
-                // 时间到0时显示"开始"并播放放大动画
-                this.countDownLabel.string = "开始";
-                this.countDownLabel.node.setScale(1, 1, 1);
-                
-                // 播放放大动画
-                tween(this.countDownLabel.node)
-                    .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
-                    .to(0.2, { scale: new Vec3(1, 1, 1) })
-                    .call(() => {
-                        // 动画完成后停止定时器
-                        clearInterval(this.intervalId);
-                        this.intervalId = null;
-                    })
-                    .start();
-            }
-        }, 100); // 每100毫秒更新一次，更平滑
-        
+
+        // 先处理整数秒
+        if (remainTime >= 1) {
+            const fullSeconds = Math.floor(remainTime);
+            const decimalPart = remainTime - fullSeconds;
+
+            this.intervalId = setInterval(() => {
+                if (remainTime >= 1) {
+                    remainTime -= 1;
+                    updateDisplay(remainTime);
+                } else {
+                    clearInterval(this.intervalId);
+                    if (decimalPart > 0) {
+                        remainTime = decimalPart;
+                        updateDisplay(remainTime);
+                        // 创建新的0.5秒定时器
+                        this.intervalId = setInterval(() => {
+                            if (remainTime > 0) {
+                                remainTime -= 0.5;
+                                updateDisplay(remainTime);
+                            }
+                        }, 500);
+                    }
+                }
+            }, 1000);
+        } else {
+            // 处理小数秒
+            this.intervalId = setInterval(() => {
+                if (remainTime > 0) {
+                    remainTime -= 0.5;
+                    updateDisplay(remainTime);
+                }
+            }, 500);
+        }
+
         // 设置结束定时器
         this._setTimeOutId = setTimeout(() => {
             this.endPreview();
@@ -1021,31 +1061,17 @@ export class Main extends BaseScene<IBaseGameChild> {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
-        
-        // 确保显示"开始"并播放放大动画
-        this.countDownLabel.string = "开始";
-        this.countDownLabel.node.setScale(1, 1, 1);
-        
-        // 播放放大动画
-        tween(this.countDownLabel.node)
-            .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
-            .to(0.2, { scale: new Vec3(1, 1, 1) })
-            .call(() => {
-                // 动画完成后延迟一段时间再隐藏标签
-                setTimeout(() => {
-                    // 检查并修复可能存在的问题
-                    this.checkAndFixCardScales();
-                    
-                    this.closeAllCard();
-                    this.countDownLabel.node.active = false;
-                    this.timerTick();
-                    
-                    // 重置预览模式标志
-                    this.isInPreviewMode = false;
-                    this.isCountdownPaused = false;
-                }, 300); // 给用户时间看到"开始"文字
-            })
-            .start();
+
+        // 检查并修复可能存在的问题
+        this.checkAndFixCardScales();
+
+        this.closeAllCard();
+        this.countDownLabel.node.active = false;
+        this.timerTick();
+
+        // 重置预览模式标志
+        this.isInPreviewMode = false;
+        this.isCountdownPaused = false;
     }
 }
 
