@@ -202,13 +202,27 @@ export class LoginManager {
         if (this.tokenExpirationVerification()) {
             UIManager.getInstance().showPanel(LoginPanel.NAME);
         } else {
+            let self = this;
             this.requestTokenVerification((result) => {
                 if (result) {
-                    SceneManager.getInstance().backToHall();
+                    EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack,self.requestUserInfoCallback, self,true);
+                    PersonalCenterManager.getInstance().requestUserInfo();
                 }
             });
         }
+    }
 
+    private requestUserInfoCallback(){
+        let usetData = PersonalCenterManager.getInstance().userInfoData;
+        if(usetData.full_name == ""){
+            UIManager.getInstance().showPanel(AlterUserInfoView.NAME,true);
+            UIManager.getInstance().hidePanel(LoginPanel.NAME);
+
+            // 主动弹出邀请码界面
+            EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
+        }else{
+            SceneManager.getInstance().backToHall();
+        }
         if(sys.platform === 'ANDROID'){
             console.log(`发送设备信息到native`);
             native.bridge.sendToNative(NativeEvent.Device, 'info');
