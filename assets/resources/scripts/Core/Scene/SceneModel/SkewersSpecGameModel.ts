@@ -7,8 +7,6 @@ import {EventManager} from "../../Manager/Event/EventManager";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
 import {SceneManager} from "../../Manager/Scene/SceneManager";
 import {TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
-import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
-import {BrainTrain} from "db://assets/resources/scripts/Game/UI/BrainTrain/BrainTrain";
 
 // 添加类型定义确保desc存在
 interface AlertConfig {
