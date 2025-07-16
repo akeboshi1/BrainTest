@@ -1,0 +1,145 @@
+{
+  "name": "PaiPai",
+  "server": "",
+  "platform": "android",
+  "buildPath": "project://build",
+  "debug": false,
+  "md5Cache": true,
+  "skipCompressTexture": false,
+  "sourceMaps": false,
+  "overwriteProjectSettings": {
+    "macroConfig": {
+      "cleanupImageCache": "inherit-project-setting"
+    },
+    "includeModules": {
+      "physics": "inherit-project-setting",
+      "physics-2d": "inherit-project-setting",
+      "gfx-webgl2": "off"
+    }
+  },
+  "nativeCodeBundleMode": "wasm",
+  "polyfills": {
+    "asyncFunctions": false
+  },
+  "experimentalEraseModules": false,
+  "startSceneAssetBundle": false,
+  "bundleConfigs": [],
+  "useBuiltinServer": false,
+  "mainBundleIsRemote": false,
+  "mainBundleCompressionType": "none",
+  "useSplashScreen": true,
+  "bundleCommonChunk": false,
+  "packAutoAtlas": true,
+  "startScene": "f5e0a941-3994-4681-9360-f6c6b1e4ff2c",
+  "outputName": "android-001",
+  "taskName": "android-apk-full-package",
+  "scenes": [
+    {
+      "url": "db://assets/app/app.scene",
+      "uuid": "f5e0a941-3994-4681-9360-f6c6b1e4ff2c"
+    },
+    {
+      "url": "db://assets/resources/scene/main.scene",
+      "uuid": "50a89549-02aa-481b-8231-58dd51f9d707",
+      "bundle": "db://assets/resources"
+    },
+    {
+      "url": "db://assets/resources/scene/start.scene",
+      "uuid": "152b8b2d-530a-4f6f-afce-f85d7f0a328e",
+      "bundle": "db://assets/resources"
+    },
+    {
+      "url": "db://assets/catchFish/scene/catchFish.scene",
+      "uuid": "58f2dd66-cac1-4cfc-bc08-2b17b0dd73b0",
+      "bundle": "db://assets/catchFish"
+    },
+    {
+      "url": "db://assets/fanpai/scene/fanpai.scene",
+      "uuid": "7e9f5c70-53e7-42e8-9331-f76f39044e6d",
+      "bundle": "db://assets/fanpai"
+    },
+    {
+      "url": "db://assets/guessingGame/scene/guessingGame.scene",
+      "uuid": "69d8c34d-01ab-4218-a396-816bb659c064",
+      "bundle": "db://assets/guessingGame"
+    },
+    {
+      "url": "db://assets/puzzle/scene/puzzle.scene",
+      "uuid": "72b1db71-31c9-4ad7-a164-1c7c61e72d26",
+      "bundle": "db://assets/puzzle"
+    },
+    {
+      "url": "db://assets/sentenceMaking/scene/sentenceMaking.scene",
+      "uuid": "c03dd217-623e-41aa-81c0-74ffd02f3956",
+      "bundle": "db://assets/sentenceMaking"
+    },
+    {
+      "url": "db://assets/smalltheater/scene/smalltheater.scene",
+      "uuid": "217913e6-0e5f-4112-9fe2-fc63424298b1",
+      "bundle": "db://assets/smalltheater"
+    },
+    {
+      "url": "db://assets/finding/scene/game/Game.scene",
+      "uuid": "d76ce13c-2c91-435f-abdd-7cc8929c4508",
+      "bundle": "db://assets/finding"
+    },
+    {
+      "url": "db://assets/finding/scene/loading/finding.scene",
+      "uuid": "556e7a99-8f04-4454-a5ae-170809f726e1",
+      "bundle": "db://assets/finding"
+    }
+  ],
+  "wasmCompressionMode": false,
+  "buildMode": "normal",
+  "packages": {
+    "android": {
+      "packageName": "com.jujie.paipai",
+      "resizeableActivity": true,
+      "maxAspectRatio": "2.4",
+      "orientation": {
+        "portrait": true,
+        "upsideDown": false,
+        "landscapeRight": false,
+        "landscapeLeft": false
+      },
+      "apiLevel": 26,
+      "appABIs": [
+        "arm64-v8a"
+      ],
+      "useDebugKeystore": true,
+      "keystorePath": "",
+      "keystorePassword": "",
+      "keystoreAlias": "",
+      "keystoreAliasPassword": "",
+      "appBundle": false,
+      "androidInstant": false,
+      "inputSDK": false,
+      "remoteUrl": "",
+      "sdkPath": "",
+      "ndkPath": "",
+      "javaHome": "",
+      "javaPath": "",
+      "renderBackEnd": {
+        "vulkan": false,
+        "gles3": true,
+        "gles2": true
+      },
+      "swappy": false,
+      "__version__": "1.0.1"
+    },
+    "native": {
+      "encrypted": false,
+      "xxteaKey": "0djVGUsaBFl7bugq",
+      "compressZip": false,
+      "JobSystem": "none",
+      "__version__": "1.0.2"
+    },
+    "cocos-service": {
+      "configID": "9a4ca0",
+      "services": [],
+      "__version__": "3.0.7"
+    }
+  },
+  "__version__": "1.3.8",
+  "logDest": "project://temp/builder/log/android2025-3-3 13-58.log"
+}

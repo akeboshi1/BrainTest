@@ -3,12 +3,13 @@ import { join } from 'path';
 import packageJSON from '../package.json';
 import { generateBundleVersions } from './utils/generate-bundle-versions';
 import { checkExternalReferences } from './utils/check-external-references';
+import { BundleVersionManager } from './utils/bundle-version-manager';
 
 /**
  * @en Registration method for the main process of Extension
  * @zh 为扩展的主进程的注册方法
  */
-export const methods: { [key: string]: (...any: any) => any } = {
+export const methods: { [key: string]: (...args: any[]) => any } = { // 修正参数类型声明
     /**
      * @en A method that can be triggered by message
      * @zh 通过 message 触发的方法
@@ -16,6 +17,15 @@ export const methods: { [key: string]: (...any: any) => any } = {
     openPanel() {
         Editor.Panel.open(packageJSON.name);
     },
+
+    openPublishProcessPanel() {
+        Editor.Panel.open(`${packageJSON.name}.publish-process`); // 使用模板字符串
+    },
+
+    openTabsPanel() {
+        Editor.Panel.open(`${packageJSON.name}.open-tabspanel`); // 使用模板字符串
+    },
+
 
     async processPublishFlow() {
         console.log('开始执行发布流程');

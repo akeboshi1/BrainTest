@@ -17,12 +17,14 @@
         "echarts": "^5.6.0",
         "fs-extra": "^10.0.0",
         "opener": "^1.5.2",
+        "ssh2-sftp-client": "^12.0.0",
         "vue": "^3.1.4"
     },
     "devDependencies": {
         "@cocos/creator-types": "^3.8.3",
         "@types/fs-extra": "^9.0.5",
-        "@types/node": "^18.17.1"
+        "@types/node": "^18.17.1",
+        "@types/ssh2-sftp-client": "^9.0.4"
     },
     "panels": {
         "default": {
@@ -34,6 +36,28 @@
                 "min-height": 300,
                 "width": 1024,
                 "height": 600
+            }
+        },
+        "publish-process": {
+            "title": "vue3-dependency-graph Publish Process",
+            "type": "dockable",
+            "main": "dist/panels/publishProcess",
+            "size": {
+                "min-width": 600,
+                "min-height": 900,
+                "width": 900,
+                "height": 1300
+            }
+        },
+        "open-tabspanel": {
+            "title": "vue3-dependency-graph Open Tabs Panel",
+            "type": "dockable",
+            "main": "dist/panels/tabsDemo",
+            "size": {
+                "min-width": 600,
+                "min-height": 900,
+                "width": 900,
+                "height": 850
             }
         }
     },
@@ -50,15 +74,30 @@
                 "message": "process_PublishFlow"
             },
             {
+                "path": "publish-tools",
+                "label": "publish_process",
+                "message": "open-publish-process-panel"
+            },
+            {
                 "path": "dep-check",
                 "label": "dep-check",
                 "message": "process_depCheck"
+            },
+            {
+                "path": "publish-tools",
+                "label": "open_tabspanel",
+                "message": "open-tabspanel"
             }
         ],
         "messages": {
             "open-panel": {
                 "methods": [
                     "openPanel"
+                ]
+            },
+            "open-publish-process-panel": {
+                "methods": [
+                    "openPublishProcessPanel"
                 ]
             },
             "process_PublishFlow": {
@@ -69,6 +108,11 @@
             "process_depCheck": {
                 "methods": [
                     "processDepCheck"
+                ]
+            },
+            "open-tabspanel": {
+                "methods": [
+                    "openTabsPanel"
                 ]
             }
         }
