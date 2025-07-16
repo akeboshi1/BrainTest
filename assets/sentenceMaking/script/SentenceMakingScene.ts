@@ -299,9 +299,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
         }else{
             let level = (this.sceneModel as any).level;
-            let maxNum = (this.sceneModel as any).levelLen;
-            this.progressBar.progress = level / maxNum;
-            this.guankaLabel.string = "第" + level + "/"+ maxNum + "关";
+            if(!Global.isAgain){
+                let maxNum = (this.sceneModel as any).levelLen;
+                this.progressBar.progress = level / maxNum;
+                this.guankaLabel.string = "第" + level + "/"+ maxNum + "关";
+            }
         }
 
         this.currentQuestion = question;
@@ -821,6 +823,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     public clickNextLeve() {
         this.bgmClip = null;
+        Global.isAgain = false;
         this.model.goNextQuestion();
         this.startGameFlow();
     }
