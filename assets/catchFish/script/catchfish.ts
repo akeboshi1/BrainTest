@@ -115,7 +115,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private fishs: Fish[];
     private _curFish: Fish;
-    private wangMaxCount: number = 5;
+    private wangMaxCount: number = 6;
     private wangCount: number = 0;
 
     private curHard: number = 0;
