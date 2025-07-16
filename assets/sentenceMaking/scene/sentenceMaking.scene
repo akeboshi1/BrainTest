@@ -3851,9 +3851,6 @@
     "btn_commitresult": {
       "__id__": 19
     },
-    "btn_nextlevel": {
-      "__id__": 25
-    },
     "cardAudioClip": {
       "__uuid__": "40578eb9-f574-4934-bb24-a63bc00f3be3",
       "__expectedType__": "cc.AudioClip"

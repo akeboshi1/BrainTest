@@ -45,8 +45,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     @property(Button)
     btn_commitresult: Button;
 
-    @property(Button)
-    btn_nextlevel: Button;
+    // @property(Button)
+    // btn_nextlevel: Button;
 
     @property(AudioClip)
     cardAudioClip: AudioClip;
@@ -281,7 +281,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
 
     private async startGameFlow() {
-        this.btn_nextlevel.node.active = false;
+        // this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
         this.correctAnswerNode.active = false;
         this.hideAnimHupai();
@@ -761,12 +761,16 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (isSuccess) {
             // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
             DebugLog.instance.log("游戏成功！");
-            if (this.sceneModel.gameType != GameType.SKEWERS) {
-                this.showAnimHupai();
-            }
+            // if (this.sceneModel.gameType != GameType.SKEWERS) {
+            //     this.showAnimHupai();
+            // }else{
+                
+            // }
+            (this.sceneModel as any).showSuccessView();
             this.playWin();
             showAlert = false;
         } else {
+            showAlert = false;
             // 处理游戏失败逻辑，标记错误位置
             for (let wrongNode of wrongIndices) {
                 let cardCtrl = wrongNode.getComponent(CardCtrl);
@@ -774,20 +778,20 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                     cardCtrl.setWrong();
                 }
             }
-            ad.title = "可惜";
-            ad.message = "挑战失败了";
             DebugLog.instance.log("游戏失败！");
             this.playFail();
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
-                showAlert = false;
-            }
+            (this.sceneModel as any).showFailView();
+
+            // ad.title = "可惜";
+            // ad.message = "挑战失败了";
+            
         }
 
         if (showAlert) {
             AlertManager.getInstance().showAlert(ad);
         }
         let complete = this.getCorrectPosComplete();
-        this.btn_nextlevel.node.active = this.model.hasNextLevel();
+        // this.btn_nextlevel.node.active = this.model.hasNextLevel();
         this.btn_commitresult.node.active = false;
         this.model.postGameData(complete, this.timerComponent.getElapsedTime(), user_answer);
         this.timerComponent.resetTimer();
@@ -800,6 +804,20 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
         return (this.winCount - fiexLength) / (sumCounts - fiexLength);
     }
+
+
+    onSuccessNextLevel(): void {
+        this.clickNextLeve();
+    }
+
+    onFailNextLevel(): void {
+        this.clickNextLeve();
+    }
+
+    onAgain(): void {
+        this.onClickRetryGame();
+    }
+
 
     public clickNextLeve() {
         this.bgmClip = null;
@@ -909,7 +927,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
         }
 
-        this.btn_nextlevel.node.active = true;
+        // this.btn_nextlevel.node.active = true;
         this.btn_commitresult.node.active = false;
         let complete = this.getCorrectPosComplete();
         this.model.postGameData(complete, this.model.gameTime, user_answer);
