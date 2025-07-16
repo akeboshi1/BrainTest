@@ -70,6 +70,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     private customsSendDataState: boolean;
     private isAbleClick: boolean = true;
 
+    // 点击保护相关变量
+    private isCardFlipping: boolean = false; // 是否有卡片正在翻转
+    private lastClickTime: number = 0; // 上次点击时间
+    private readonly CLICK_INTERVAL: number = 100; // 点击间隔保护时间（毫秒）
+
     // 倒计时暂停相关变量
     private isCountdownPaused: boolean = false;
     private pauseStartTime: number = 0;
@@ -140,19 +145,49 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
     clickCardHandler(event, data) {
-        if (!this.isAbleClick) { return; }
+        // 基础检查
+        if (!this.isAbleClick) { 
+            DebugLog.instance.log("游戏未开始，无法点击卡片");
+            return; 
+        }
         if (!this.cardList || this._setTimeOutId != null) {
+            DebugLog.instance.log("卡片列表为空或正在预览中，无法点击");
             return;
         }
 
+        // 点击间隔保护
+        const currentTime = Date.now();
+        if (currentTime - this.lastClickTime < this.CLICK_INTERVAL) {
+            DebugLog.instance.error("点击过于频繁，忽略此次点击");
+            return;
+        }
+
+        // 检查是否有卡片正在翻转
+        if (this.isCardFlipping) {
+            DebugLog.instance.log("有卡片正在翻转中，忽略此次点击");
+            return;
+        }
+
+        // 检查卡片是否已经被翻开或删除
+        const index = Number(data);
+        if (this.cardList[index].isBacked || this.cardList[index].isDeleted) {
+            DebugLog.instance.log("卡片已经被翻开或删除，忽略此次点击");
+            return;
+        }
+
+        // 更新点击时间
+        this.lastClickTime = currentTime;
+        this.isCardFlipping = true;
+
         // 播放音效
         this.playAudio("music/fanpai", true);
-        const index = Number(data);
+        
         let self = this;
         // 获取当前卡片
         const currentCard = this.cardPool.children[0].children[index];
         const card = currentCard.getChildByName("card")
         const sprite = card.getComponent(Sprite);
+        
         this.flipCardAnimation(card, () => {
             // 翻转到中间点时加载卡片图片
             const bundle = assetManager.getBundle(self.bundleName);
@@ -192,7 +227,10 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.currentCustomsSuccess();
                 return;
             }
-            this.showSpriteAnimation("texture/right", () => { });
+            this.showSpriteAnimation("texture/right", () => { 
+                // 重置翻转状态
+                this.isCardFlipping = false;
+            });
             this.playAudio("music/success", true);
         }
 
@@ -216,9 +254,22 @@ export class Main extends BaseScene<IBaseGameChild> {
 
                     });
                     this.cardList[card.index].isBacked = false;
-                })
+                });
+                
+                // 在错误动画完成后重置翻转状态
+                setTimeout(() => {
+                    this.isCardFlipping = false;
+                }, 200); // 给错误动画足够的时间完成
             });
             this.playAudio("music/fail",true);
+        }
+
+        // 如果只有一张卡片被翻开，需要重置翻转状态
+        if (isBackedCards.length === 1) {
+            // 在翻转动画完成后重置状态
+            setTimeout(() => {
+                this.isCardFlipping = false;
+            }, 200); // 翻转动画的完整时长
         }
 
         DebugLog.instance.log(index, currentCard);
@@ -315,10 +366,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
+    /**
+     * 重置点击保护状态
+     */
+    private resetClickProtection() {
+        this.isCardFlipping = false;
+        this.lastClickTime = 0;
+        DebugLog.instance.log("点击保护状态已重置");
+    }
+
     private _startTime: number = 0
     private _endTime: number = 0;
     currentCustomsSuccess() {
         this.isAbleClick = false;
+        this.isCardFlipping = false;
         this._endTime = TimeUtil.getNow();
         this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
@@ -338,6 +399,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     startGame() {
         this.isAbleClick = true;
+        this.isCardFlipping = false;
+        this.lastClickTime = 0;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
         this.gameStartInit();
@@ -345,6 +408,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     startGameByAlert() {
         this.isAbleClick = true;
+        this.isCardFlipping = false;
+        this.lastClickTime = 0;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
         this.gameStartInit();
@@ -363,6 +428,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     playNextCustoms() {
         this.isAbleClick = true;
+        this.isCardFlipping = false;
+        this.lastClickTime = 0;
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.sceneModel.goonHandler(this)
         } else {
@@ -372,6 +439,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     replayGame() {
         this.isAbleClick = true;
+        this.isCardFlipping = false;
+        this.lastClickTime = 0;
         this.closeAllCard();
         this.timerInit();
         this.timerTick();
@@ -398,6 +467,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     gameStartInit() {
         // this.successView.active = false;
         this.customsSendDataState = false;
+        this.resetClickProtection();
         this.initCardView();
 
         this.timerInit();
@@ -546,6 +616,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearInterval(this.timerId);
         clearInterval(this.intervalId);
         
+        // 重置点击保护状态
+        this.isAbleClick = false;
+        this.isCardFlipping = false;
+        this.lastClickTime = 0;
+        
         // 移除应用状态监听
         game.off(Game.EVENT_HIDE, this.onAppHide, this);
         game.off(Game.EVENT_SHOW, this.onAppShow, this);
@@ -573,30 +648,42 @@ export class Main extends BaseScene<IBaseGameChild> {
         let remainTime = this.seconds[this.hardIndex];
 
         const updateDisplay = (time) => {
-            self.countDownLabel.string = `${time.toFixed(1)}s`;
+            // 确保时间不会显示负数
+            const displayTime = Math.max(0, time);
+            self.countDownLabel.string = `${displayTime.toFixed(1)}s`;
             tween(self.countDownLabel.node)
                 .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
                 .to(0.25, { scale: new Vec3(1, 1, 1) })
                 .start();
         };
 
+        // 使用更精确的倒计时逻辑
+        const startTime = Date.now();
+        const totalDuration = this.seconds[this.hardIndex] * 1000; // 转换为毫秒
+        
         this.intervalId = setInterval(() => {
-            if (remainTime >= 1) {
-                remainTime -= 1;
-                updateDisplay(remainTime);
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, totalDuration - elapsedTime) / 1000; // 转换回秒
+            
+            if (remainingTime > 0) {
+                updateDisplay(remainingTime);
             } else {
-                clearInterval(this.intervalId);
-                remainTime -= 0.5;
-                updateDisplay(remainTime);
-                // 创建新的0.5秒定时器
-                this.intervalId = setInterval(() => {
-                    if (remainTime > 0) {
-                        remainTime -= 0.5;
-                        updateDisplay(remainTime);
-                    }
-                }, 500);
+                // 时间到0时显示"开始"并播放放大动画
+                this.countDownLabel.string = "开始";
+                this.countDownLabel.node.setScale(1, 1, 1);
+                
+                // 播放放大动画
+                tween(this.countDownLabel.node)
+                    .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                    .to(0.2, { scale: new Vec3(1, 1, 1) })
+                    .call(() => {
+                        // 动画完成后停止定时器
+                        clearInterval(this.intervalId);
+                        this.intervalId = null;
+                    })
+                    .start();
             }
-        }, 1000);
+        }, 100); // 每100毫秒更新一次，更平滑
         this._startTime = TimeUtil.getNow();
         if (this._setTimeOutId != null) {
             clearTimeout(this._setTimeOutId);
@@ -610,12 +697,26 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
             this._setTimeOutId = null;
 
-            // 检查并修复可能存在的问题
-            this.checkAndFixCardScales();
+            // 确保显示"开始"并播放放大动画
+            this.countDownLabel.string = "开始";
+            this.countDownLabel.node.setScale(1, 1, 1);
+            
+            // 播放放大动画
+            tween(this.countDownLabel.node)
+                .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                .to(0.2, { scale: new Vec3(1, 1, 1) })
+                .call(() => {
+                    // 动画完成后延迟一段时间再隐藏标签
+                    setTimeout(() => {
+                        // 检查并修复可能存在的问题
+                        this.checkAndFixCardScales();
 
-            this.closeAllCard();
-            this.countDownLabel.node.active = false;
-            this.timerTick();
+                        this.closeAllCard();
+                        this.countDownLabel.node.active = false;
+                        this.timerTick();
+                    }, 300); // 给用户时间看到"开始"文字
+                })
+                .start();
 
         }, this.seconds[this.hardIndex] * 1000);
     }
@@ -656,7 +757,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.playFail();
         // clearInterval(this.timerId);
         AudioManager.getInstance().stopBgm();
-        this.isAbleClick = false
+        this.isAbleClick = false;
+        this.isCardFlipping = false;
         let { complete, duration } = this.requestGameResult();
         // 倒计时结束，游戏结束
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -863,49 +965,43 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.countDownLabel.string = `${remainingTime.toFixed(1)}s`;
         this.countDownLabel.node.setScale(1, 1, 1);
         
-        let remainTime = remainingTime;
-        
         const updateDisplay = (time) => {
-            this.countDownLabel.string = `${time.toFixed(1)}s`;
+            // 确保时间不会显示负数
+            const displayTime = Math.max(0, time);
+            this.countDownLabel.string = `${displayTime.toFixed(1)}s`;
             tween(this.countDownLabel.node)
                 .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
                 .to(0.25, { scale: new Vec3(1, 1, 1) })
                 .start();
         };
         
-        // 先处理整数秒
-        if (remainTime >= 1) {
-            const fullSeconds = Math.floor(remainTime);
-            const decimalPart = remainTime - fullSeconds;
+        // 使用精确的倒计时逻辑
+        const startTime = Date.now();
+        const totalDuration = remainingTime * 1000; // 转换为毫秒
+        
+        this.intervalId = setInterval(() => {
+            const elapsedTime = Date.now() - startTime;
+            const currentRemainingTime = Math.max(0, totalDuration - elapsedTime) / 1000; // 转换回秒
             
-            this.intervalId = setInterval(() => {
-                if (remainTime >= 1) {
-                    remainTime -= 1;
-                    updateDisplay(remainTime);
-                } else {
-                    clearInterval(this.intervalId);
-                    if (decimalPart > 0) {
-                        remainTime = decimalPart;
-                        updateDisplay(remainTime);
-                        // 创建新的0.5秒定时器
-                        this.intervalId = setInterval(() => {
-                            if (remainTime > 0) {
-                                remainTime -= 0.5;
-                                updateDisplay(remainTime);
-                            }
-                        }, 500);
-                    }
-                }
-            }, 1000);
-        } else {
-            // 处理小数秒
-            this.intervalId = setInterval(() => {
-                if (remainTime > 0) {
-                    remainTime -= 0.5;
-                    updateDisplay(remainTime);
-                }
-            }, 500);
-        }
+            if (currentRemainingTime > 0) {
+                updateDisplay(currentRemainingTime);
+            } else {
+                // 时间到0时显示"开始"并播放放大动画
+                this.countDownLabel.string = "开始";
+                this.countDownLabel.node.setScale(1, 1, 1);
+                
+                // 播放放大动画
+                tween(this.countDownLabel.node)
+                    .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                    .to(0.2, { scale: new Vec3(1, 1, 1) })
+                    .call(() => {
+                        // 动画完成后停止定时器
+                        clearInterval(this.intervalId);
+                        this.intervalId = null;
+                    })
+                    .start();
+            }
+        }, 100); // 每100毫秒更新一次，更平滑
         
         // 设置结束定时器
         this._setTimeOutId = setTimeout(() => {
@@ -926,16 +1022,30 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.intervalId = null;
         }
         
-        // 检查并修复可能存在的问题
-        this.checkAndFixCardScales();
+        // 确保显示"开始"并播放放大动画
+        this.countDownLabel.string = "开始";
+        this.countDownLabel.node.setScale(1, 1, 1);
         
-        this.closeAllCard();
-        this.countDownLabel.node.active = false;
-        this.timerTick();
-        
-        // 重置预览模式标志
-        this.isInPreviewMode = false;
-        this.isCountdownPaused = false;
+        // 播放放大动画
+        tween(this.countDownLabel.node)
+            .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+            .to(0.2, { scale: new Vec3(1, 1, 1) })
+            .call(() => {
+                // 动画完成后延迟一段时间再隐藏标签
+                setTimeout(() => {
+                    // 检查并修复可能存在的问题
+                    this.checkAndFixCardScales();
+                    
+                    this.closeAllCard();
+                    this.countDownLabel.node.active = false;
+                    this.timerTick();
+                    
+                    // 重置预览模式标志
+                    this.isInPreviewMode = false;
+                    this.isCountdownPaused = false;
+                }, 300); // 给用户时间看到"开始"文字
+            })
+            .start();
     }
 }
 

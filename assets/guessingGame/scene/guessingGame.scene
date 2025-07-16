@@ -1050,10 +1050,10 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 121,
-      "g": 93,
-      "b": 93,
-      "a": 102
+      "r": 38,
+      "g": 37,
+      "b": 49,
+      "a": 229
     },
     "_spriteFrame": {
       "__uuid__": "0bf206cb-a5c8-4fa8-84cb-3cc2e395b9cb@f9941",
@@ -2260,7 +2260,7 @@
       "__uuid__": "b3856782-06e4-47da-b1da-8b5781e9f660@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 0,
+    "_type": 1,
     "_fillType": 0,
     "_sizeMode": 0,
     "_fillCenter": {
@@ -2574,7 +2574,7 @@
       "__uuid__": "b3856782-06e4-47da-b1da-8b5781e9f660@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 0,
+    "_type": 1,
     "_fillType": 0,
     "_sizeMode": 0,
     "_fillCenter": {
@@ -2886,7 +2886,7 @@
       "__uuid__": "b3856782-06e4-47da-b1da-8b5781e9f660@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 0,
+    "_type": 1,
     "_fillType": 0,
     "_sizeMode": 0,
     "_fillCenter": {
@@ -3198,7 +3198,7 @@
       "__uuid__": "b3856782-06e4-47da-b1da-8b5781e9f660@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 0,
+    "_type": 1,
     "_fillType": 0,
     "_sizeMode": 0,
     "_fillCenter": {

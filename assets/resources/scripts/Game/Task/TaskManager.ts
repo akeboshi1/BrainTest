@@ -202,9 +202,13 @@ export class TaskManager extends BaseManager {
     public requestInitLevalCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_initial_eval_task, context);
         if (data.status == 0) {
+            AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
         } else {
-            if(!data.data)return;
+            if(!data.data){
+                AlertManager.getInstance().showSocketAlert("初始评测任务数据为空");
+                return;
+            }
             this._curTaskId = data.data.id;
             let task = new TaskData();
             task.refrehData(data.data);
