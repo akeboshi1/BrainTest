@@ -1,5 +1,4 @@
 import { _decorator, Component, Node, Graphics, Color, Vec2, Label, resources, SpriteFrame, Sprite } from 'cc';
-import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;

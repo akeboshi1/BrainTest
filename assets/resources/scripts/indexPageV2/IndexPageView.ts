@@ -20,6 +20,7 @@ import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
 import { Global } from '../Core/Manager/Config/Global';
 import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/BundlePreloadManager';
 import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import { VipAlert } from '../Game/UI/Vip/VipAlert';
 
 
 const { ccclass, property } = _decorator;
@@ -54,6 +55,7 @@ export class IndexPageView extends AdaptComponent {
     start() {
         super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
+        UIManager.getInstance().registerPanel(VipAlert.NAME,BundleName.RESOURCES,"/prefab/VipPanel/VipAlert",VipAlert);
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getPersonalInitialReport();
         PersonalCenterManager.getInstance().requestUserInfo();
@@ -133,6 +135,9 @@ export class IndexPageView extends AdaptComponent {
         })
     }
     setUserName(name) {
+        if (name.length > 5) {
+            name = name.substring(0, 6) + '...';
+        }
         this.userName.string = name;
     }
     setDayLabel(day: number) {

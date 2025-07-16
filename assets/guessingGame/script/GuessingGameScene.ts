@@ -177,6 +177,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 this.progresslabel.string = "第" +  level +'/'+ (this.sceneModel as any).levelLen  + "关";
             }
         }
+    
 
         // this.questionNode.active = true;
         const question: GuessingQuestion = data.question;
@@ -414,6 +415,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     onClickReplay() {
         if(this.replayCount<=0){ return; }
+        if (this.questionLabel) {
+            this.questionLabel.node.active = true;
+        }
         this.replayCount--;
         // 根据重听次数和是否已点击开始按钮决定是否显示重听按钮
         this.replayButtonNode.active = this.replayCount > 0 && !this._hasClickedStartBtn;

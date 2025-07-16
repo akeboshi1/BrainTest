@@ -19,6 +19,10 @@ const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameScene')
 export class FingerGameScene extends Component {
+
+    @property(Node)
+    private gameViewNode: Node = null;
+
     @property(VideoPlayer)
     private videoPlayer: VideoPlayer = null;
 
@@ -64,6 +68,7 @@ export class FingerGameScene extends Component {
     private _completePanelData: DataProvider<IFingerGameCompleteData[]> = null;
 
     start() {
+        this.gameViewNode.active = false;
         this._model = new FingerGameModel();
         this._model.init();
         // 获取相机权限
@@ -101,14 +106,18 @@ export class FingerGameScene extends Component {
         const setIndex = 0; // 默认第一套
         this._currentSetIndex = setIndex;
         this._currentSectionIndex = currentSectionIndex;
-        this.noticeNode.active = true;
+
 
         //todo 创建一个新界面展示所有的section信息
         let sectionData: SectionConfig[] = [];
         for (let i = 0; i < data.length; i++) {
             sectionData.push(fingerGameConfig.fingerSets[setIndex].sections[data[i].id - 1]);
         }
-        UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, sectionData);
+        let self = this;
+        UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, sectionData).then(()=>{
+            self.gameViewNode.active = true;
+            self.noticeNode.active = true;
+        });
     }
 
     update(deltaTime: number) {
@@ -518,7 +527,7 @@ export class FingerGameScene extends Component {
                 let panelData: IFingerGameCompleteData[] = [];
                 for (let i = 0; i < this._model.activities.length; i++) {
                     panelData.push({
-                        name: fingerGameConfig.fingerSets[i].name,
+                        name: fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.activities[i].id - 1].name,
                         status: 0
                     });
                 }

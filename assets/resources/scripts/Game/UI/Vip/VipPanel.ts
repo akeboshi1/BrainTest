@@ -1,6 +1,6 @@
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import { _decorator, Prefab, instantiate, Label, Node, ScrollView, Sprite, resources, SpriteFrame, tween, UIOpacity, Vec3, EditBox ,sys } from "cc";
+import { _decorator, Prefab, instantiate, Label, Node, ScrollView, Sprite, resources, SpriteFrame, tween, UIOpacity, Vec3, EditBox ,RichText } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { SelectDate } from "./SelectDate";
@@ -69,8 +69,8 @@ export class VipPanel extends BasePanel {
     @property(Label)
     yearPriceLabel: Label;
 
-    @property(Label)
-    selectLabel: Label;
+    @property(RichText)
+    selectLabel: RichText;
 
     @property(Node)
     permanentNode: Node;
@@ -280,7 +280,7 @@ export class VipPanel extends BasePanel {
         // 默认选择月卡
         let _vipData = this._vipModel.vipDatas[0];
         this._select = _vipData.id;
-        this.selectLabel.string = _vipData.name;
+        this.selectLabel.string = `已经选择<color=#000000><b><size=55>${_vipData.name}</size></b></color>`;
 
         // 设置按钮颜色：月卡橙色，年卡白色
         let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
@@ -341,7 +341,7 @@ export class VipPanel extends BasePanel {
             this.createWaveTextAnimation(`您的会员有效期:${vipOrder.validDays}天`, this.label0);
             this.label1.string = `${vipOrder.validStartDate} 至 ${vipOrder.validEndDate}`;
             this.timeLabel.string = `您的会员剩余:${vipOrder.validLostDays}天`;
-            if(userData.has_initial_tier){
+            if(!userData.has_initial_tier){
                 btnLabel.string = "立即开始初次评测";
             }else{
                 btnLabel.string = "立即开始今日训练";
@@ -498,7 +498,7 @@ export class VipPanel extends BasePanel {
     cardClick(event, index: number) {
         let vipData = this._vipModel.vipDatas[Number(index)];
         this._select = vipData.id;
-        this.selectLabel.string = `已经选择${vipData.name}`;
+        this.selectLabel.string = `已经选择<color=#000000><b><size=55>${vipData.name}</size></b></color>`;
 
         let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
         let yearBtnSprite = this.yearBtn.getComponent(Sprite);

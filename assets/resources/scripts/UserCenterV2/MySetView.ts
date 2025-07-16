@@ -1,9 +1,8 @@
 import { _decorator, Component, Node } from 'cc';
-import { AlertManager } from '../Core/Manager/Alert/AlertManager';
-import { XieYiPanel } from '../Game/UI/Login/XieYiPanel';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import { BasePanel } from '../Core/UI/BasePanel';
+import { TreatyView } from '../TreatyV2/TreatyView';
 const { ccclass, property } = _decorator;
 
 @ccclass('MySetView')
@@ -13,22 +12,24 @@ export class MySetView extends BasePanel {
 
     }
     handleTreatClick(){
-        let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
-        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
-            url:xieyiFlagUrl
+        // let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
+        // UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        // UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+        //     url:xieyiFlagUrl
+        // });
+        // AlertManager.getInstance().closeCurrentAlert();
+        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        UIManager.getInstance().showPanel(TreatyView.NAME,{
+            flag:"XieYi"
         });
-        AlertManager.getInstance().closeCurrentAlert();
     }
 
 
     handlePrivacyClick(){
-        let privacyUrl="https://colapai.xinjiaxianglao.com/privacy.html"
-        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
-            url:privacyUrl
+        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        UIManager.getInstance().showPanel(TreatyView.NAME,{
+            flag:"Privacy"
         });
-        AlertManager.getInstance().closeCurrentAlert();
     }
     backToParent(){
         UIManager.getInstance().hidePanel(MySetView.NAME);

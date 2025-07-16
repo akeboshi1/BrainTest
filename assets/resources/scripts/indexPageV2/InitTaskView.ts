@@ -8,10 +8,10 @@ import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptCompon
 const { ccclass, property } = _decorator;
 
 @ccclass('InitTaskView')
-export class InitTaskView extends AdaptComponent {
+export class InitTaskView extends Component {
 
   start() {
-    super.start();
+    
   }
   onEnable() {
     EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, this.requestInitTaskCallback, this);

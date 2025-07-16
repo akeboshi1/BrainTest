@@ -22,7 +22,11 @@ export class UserCenterPanel extends AdaptComponent {
    @property(Node)
    memberNode:Node = null;
 
-   start(){
+
+    @property(Label)
+    descLabel:Label = null;
+
+    start(){
        super.start();
    }
 
@@ -51,8 +55,10 @@ export class UserCenterPanel extends AdaptComponent {
        let label = this.memberNode.getChildByName("label").getComponent(Label);
       if(userData.is_member){
           label.string = "续费会员";
+          this.descLabel.string =  "您已开通会员，点击续费";
       }else{
           label.string = "开通会员";
+          this.descLabel.string = "开通会员，享受更多特权";
       }
    }
    async loadTaskSprite(path: string): Promise<SpriteFrame> {
@@ -72,6 +78,9 @@ export class UserCenterPanel extends AdaptComponent {
       })
   }
    setPersonalCenterTitle(title: string) {
+      if (title.length > 5) {
+         title = title.substring(0, 6) + '...';
+      }
       this.userName.string = title;
    }
    onClickLogOut() {

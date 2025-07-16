@@ -22,6 +22,7 @@ export default class LayerUI extends BaseScene<any> {
 
 
     start(){
+        super.start();
         this.sceneModel = (director.getScene() as unknown as {sceneModel}).sceneModel;
     }
 

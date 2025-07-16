@@ -142,28 +142,13 @@ export default class GameView extends LayerPanel {
             this.framePostions = [];
             this._startTime = TimeUtil.getNow();
             this.canAddTime = true;
-            this.picture1 = this.getNode("pictureBg/mask/picture");
-            this.pictureList.push(this.picture1);
-            this.picture2 = this.getNode("picture2Bg/mask/picture");
-            this.pictureList.push(this.picture2);
-            this.resultNode = this.getNode("resultList");
-            this.countDownLabel = this.getNode("countDown/Label");
-            this.countDown = this.countDownLabel.getComponent(Label);
-            this.countDownTime = GameConfig.customTime;
-            this.tempCountDown = GameConfig.allTime;
-            this.progress = this.getNode("ProgressBar").getComponent(ProgressBar);
-            // this.progressSprite = this.progress.getComponent(Sprite);
-            this.guankaLabel = this.getNode("guankaLabel");
-            this.victory = this.getNode("victory");
-            this.victory.active = false;
-
-            this.quitBtn = this.getNode("back");
-
-            this.goonBtn = this.getNode("goonBtn");
-            this.goonBtn.active = false
-
-            this.plistNode = this.getNode("caidai");
-            this.plistNode.active = false;
+            
+            // 使用统一的方法获取viewNode中的UI元素
+            this.getViewNodeElements();
+            
+            // 设置倒计时和进度条初始值
+            // this.countDownTime = GameConfig.customTime;
+            // this.tempCountDown = GameConfig.allTime;
             let loopLevel = 0;
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 this._checkPoint = FindingGlobal.curSkewersGameIndex;
@@ -1197,6 +1182,69 @@ export default class GameView extends LayerPanel {
     }
 
     hide() {
+    }
+
+    /**
+     * 从viewNode中获取UI元素
+     * 统一管理viewNode内的所有UI元素获取
+     */
+    private getViewNodeElements(): void {
+        // 获取viewNode
+        let viewNode = this.getNode("viewNode");
+        if (!viewNode) {
+            DebugLog.instance.error("[GameView] viewNode not found");
+            return;
+        }
+
+        // 从viewNode中获取图片元素
+        this.picture1 = viewNode.getChildByName("pictureBg")?.getChildByName("mask")?.getChildByName("picture");
+        if (this.picture1) {
+            this.pictureList.push(this.picture1);
+        }
+        
+        this.picture2 = viewNode.getChildByName("picture2Bg")?.getChildByName("mask")?.getChildByName("picture");
+        if (this.picture2) {
+            this.pictureList.push(this.picture2);
+        }
+
+        // 从viewNode中获取结果列表节点
+        this.resultNode = viewNode.getChildByName("resultList");
+
+        // 从viewNode中获取倒计时标签
+        this.countDownLabel = viewNode.getChildByName("countDown")?.getChildByName("Label");
+        if (this.countDownLabel) {
+            this.countDown = this.countDownLabel.getComponent(Label);
+        }
+
+        // 从viewNode中获取进度条
+        const progressNode = viewNode.getChildByName("ProgressBar");
+        if (progressNode) {
+            this.progress = progressNode.getComponent(ProgressBar);
+        }
+
+        // 从viewNode中获取关卡标签
+        this.guankaLabel = viewNode.getChildByName("guankaLabel");
+
+        // 从viewNode中获取胜利节点
+        this.victory = viewNode.getChildByName("victory");
+        if (this.victory) {
+            this.victory.active = false;
+        }
+
+        // 从viewNode中获取按钮节点
+        this.quitBtn = viewNode.getChildByName("back");
+        this.goonBtn = viewNode.getChildByName("goonBtn");
+        if (this.goonBtn) {
+            this.goonBtn.active = false;
+        }
+
+        // 从viewNode中获取彩带节点
+        this.plistNode = viewNode.getChildByName("caidai");
+        if (this.plistNode) {
+            this.plistNode.active = false;
+        }
+
+        DebugLog.instance.log("[GameView] viewNode elements initialized successfully");
     }
 }
 

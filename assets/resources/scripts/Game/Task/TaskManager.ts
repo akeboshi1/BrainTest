@@ -138,6 +138,7 @@ export class TaskManager extends BaseManager {
         // 创建并发送请求
         let requestTaskSocket: SocketData = new SocketData({
             action: this.task_get_tasks,
+            skipDebounce:true,
             data: requestData
         });
 
@@ -192,6 +193,7 @@ export class TaskManager extends BaseManager {
         EventManager.getInstance().on(this.get_initial_eval_task, this.requestInitLevalCallback, this, true);
         let requestTaskSocket: SocketData = new SocketData({
             action: this.get_initial_eval_task,
+            skipDebounce:true,
         });
 
         SocketManager.getInstance().send(requestTaskSocket);        
@@ -200,9 +202,13 @@ export class TaskManager extends BaseManager {
     public requestInitLevalCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_initial_eval_task, context);
         if (data.status == 0) {
+            AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
         } else {
-            if(!data.data)return;
+            if(!data.data){
+                AlertManager.getInstance().showSocketAlert("初始评测任务数据为空");
+                return;
+            }
             this._curTaskId = data.data.id;
             let task = new TaskData();
             task.refrehData(data.data);
@@ -226,6 +232,7 @@ export class TaskManager extends BaseManager {
         // 创建并发送请求
         let requestTaskSocket: SocketData = new SocketData({
             action: this.task_get_tasks,
+            skipDebounce:true,
             data: requestData
         });
 

@@ -14,7 +14,9 @@ import {
     UITransform,
     Vec2,
     Vec3,
-    AudioClip
+    AudioClip,
+    ProgressBar,
+    Label
 } from 'cc';
 import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
@@ -27,6 +29,7 @@ import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Sce
 import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -44,6 +47,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     @property(Node)
     quitBtn: Node;
+
+
+    @property(Node)
+    private progressBar: ProgressBar;
+
+    @property(Label)
+    guankaLabel: Label;
 
     // 可拖拽的节点
     @property(Node)
@@ -67,6 +77,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // @property(puzzleSummaryAlert)
     // private summaryAlert: puzzleSummaryAlert;
 
+
+    @property(Node)
+    private showSpriteNode: Node;
 
     @property(Sprite)
     private showSprite: Sprite;
@@ -147,7 +160,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         for (let i = 1; i < 201; i++) {
             this.randomPlayIndex.push(i);
         }
-        this.showSprite.node.active = false;
+        this.showSpriteNode.active = false;
         this.cleanChipsCache();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             let game = (this.sceneModel as any).game;
@@ -155,6 +168,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.gameLength = game.timeLimit;
             this.textureIndex = (game.level - 1) % this.randomPlayIndex.length;
 
+            let skewersGameData = (this.sceneModel as any).game;
+            this.progressBar.progress = skewersGameData.progress;
+            this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
             // 串烧游戏时，直接开始游戏，不显示开始提示
             let textureID = this.randomPlayIndex[this.textureIndex];
             this.loadPuzzleTexture(textureID).then((texture) => {
@@ -167,7 +183,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         } else {
             this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.textureIndex = ((this.sceneModel as any).level - 1) % this.randomPlayIndex.length;
-
+            let level = (this.sceneModel as any).level;
+            this.progressBar.progress = 1;
+            this.guankaLabel.string = "第" + level + "关";
             // 非串烧游戏时，显示开始提示
             // this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
             let textureID = this.randomPlayIndex[this.textureIndex];
@@ -268,7 +286,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         this.dragStartFlag = true;
         let currentPos: Vec2 = event.getUILocation();
-        const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
+        let vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
+        vec3.x = vec3.x - this.offsetX;
         const startpos = new Vec2(vec3.x, vec3.y);
         let selectedObjectIndex = this.checkTouchedObjectIndex(startpos);
 
@@ -288,7 +307,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         let currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
         const offset = vec3.subtract(new Vec3(this.dragStartPos.x, this.dragStartPos.y, 0));
-        this.dragInstance.setPosition(this.dragObjectStartPos.x + offset.x, this.dragObjectStartPos.y + offset.y);
+        this.dragInstance.setPosition(this.dragObjectStartPos.x + offset.x - this.offsetX, this.dragObjectStartPos.y + offset.y);
     }
 
     onTouchEnd(event: EventTouch) {
@@ -299,16 +318,16 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         const currentPos: Vec2 = event.getUILocation();
         const vec3 = this.chipParentNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(currentPos.x, currentPos.y, 0));
-        const endpos = new Vec2(vec3.x, vec3.y);
-        
+        const endpos = new Vec2(vec3.x - this.offsetX, vec3.y);
+
         try {
             const selectedObjectIndex = this.checkTouchedObjectIndex(endpos);
-            
+
             // 检查getChipDataByPuzzlePos是否会报错
             const dragInstanceIndex = this.chipsInstances.indexOf(this.dragInstance);
             const dragChipData = this.getChipDataByPuzzlePos(dragInstanceIndex);
             const targetChipData = selectedObjectIndex !== -1 ? this.getChipDataByPuzzlePos(selectedObjectIndex) : null;
-            
+
             if (!dragChipData || (selectedObjectIndex !== -1 && !targetChipData)) {
                 DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 报错，拖拽图片返回原位置`);
                 this.processTouchCancel();
@@ -362,10 +381,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         try {
             // 检查dragObjectStartPos是否有效
-            if (this.dragObjectStartPos && 
-                typeof this.dragObjectStartPos.x === 'number' && 
+            if (this.dragObjectStartPos &&
+                typeof this.dragObjectStartPos.x === 'number' &&
                 typeof this.dragObjectStartPos.y === 'number') {
-                
+
                 tween(this.dragInstance)
                     .to(0.3, { position: this.dragObjectStartPos })
                     .start();
@@ -388,18 +407,18 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
 
         this.timerComponent.pauseTimer();
-        this.showSprite.node.active = true;
+        this.showSpriteNode.active = true;
 
         // 设置缩放动画（循环2次后完成）
-        let _tween = tween(this.showSprite.node)
+        let _tween = tween(this.showSpriteNode)
             .to(2, { scale: new Vec3(1.1, 1.1, 1.1) }, { easing: 'cubicOut' })
             .to(2, { scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' })
             .union()
             .repeat(1)  // 指定重复次数
             .call(() => {
                 // 动画完成回调，在指定次数的动画全部完成后执行
-                this.showSprite.node.setScale(new Vec3(1, 1, 1));
-                this.showSprite.node.active = false;
+                this.showSpriteNode.setScale(new Vec3(1, 1, 1));
+                this.showSpriteNode.active = false;
                 this.playAudio("music/win", true);
                 // 处理游戏结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -424,8 +443,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this._startTime = TimeUtil.getNow();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
+            let skewersGameData = (this.sceneModel as any).game;
+            this.progressBar.progress = skewersGameData.progress;
+            this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
         } else {
             this.timerComponent.startTimer(this.gameLength.valueOf());
+            let level = (this.sceneModel as any).level;
+            this.progressBar.progress = 1;
+            this.guankaLabel.string = "第" + level + "关";
         }
         this.onClickDisturbPuzzleButton();
         this.startGameMask.active = false;
@@ -528,6 +553,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             const chipData2 = this.getChipDataByPuzzlePos(puzzlePos2);
             if (!chipData1 || !chipData2) {
                 DebugLog.instance.error(`[puzzleGame] 交换失败: chipData1=${chipData1} chipData2=${chipData2}`);
+                if (this.dragInstance) {
+                    this.processTouchCancel();
+                }
                 return;
             }
 
@@ -554,6 +582,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
     }
 
+    private get offsetX() {
+        const uiSize = ScreenSizeUtil.getUISize();
+        const screenWidth = uiSize.width;
+        return screenWidth - this.chipParentNode.getComponent(UITransform).contentSize.width >> 1;
+    }
+
     private getChipDataByPuzzlePos(puzzlePos: number): Object {
         try {
             // 参数验证
@@ -561,14 +595,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 参数错误: puzzlePos=${puzzlePos}, chipsInstances.length=${this.chipsInstances.length}`);
                 return null;
             }
-            
+
             for (let [key, value] of this.chipsDataMap.entries()) {
                 const pos: number = value["puzzlePos"];
                 if (pos == puzzlePos) {
                     return value;
                 }
             }
-            
+
             DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 未找到数据: puzzlePos=${puzzlePos}`);
             return null;
         } catch (error) {
@@ -649,7 +683,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             }
 
             this.selectedLevel = this.levelList[this.selectedLevelIndex];
-            this.textureIndex = ((this.sceneModel as any).level-1) % this.randomPlayIndex.length;
+            this.textureIndex = ((this.sceneModel as any).level - 1) % this.randomPlayIndex.length;
             this.cleanChipsCache();
 
             let textureID = this.randomPlayIndex[this.textureIndex];

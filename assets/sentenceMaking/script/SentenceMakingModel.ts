@@ -63,6 +63,10 @@ export class SentenceMakingModel {
         return this.config.getQuestionByDifficultAndLevel(this.selectedDifficult, index - 1);
     }
 
+    getQuestionMaxNum(): number {
+        return this.config.getQuestionMaxNum(this.selectedDifficult);
+    }
+
     get isRunOver(): boolean {
         let count = this.skewerGameQuestionDatas.length;
         for (let i = 0; i < count; i++) {

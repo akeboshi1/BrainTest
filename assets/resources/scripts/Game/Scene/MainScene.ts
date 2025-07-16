@@ -15,7 +15,7 @@ import { InfoListPopCtrl } from '../UI/TaskAndNotificationPanel/InfoListPopCtrl'
 import { FrameComponent } from '../../Core/Component/FrameComponent';
 import { BundleName } from '../../Core/Manager/Load/BundleName';
 import { UIManager } from '../../Core/Manager/UI/UIManager';
-import { PersonalCenterPanel } from '../UI/PersonalCenter/PersonalCenterPanel';
+
 import { GameCenter } from '../UI/GameCenter/GameCenter';
 import { BrainTrain } from '../UI/BrainTrain/BrainTrain';
 import { TaskAndNotificationPanelCtrl } from '../UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
@@ -244,10 +244,7 @@ export class MainScene extends Component {
         UIManager.getInstance().showPanel(GameCenter.NAME);
     }
 
-    showUserCenter() {
-        UIManager.getInstance().registerPanel(PersonalCenterPanel.NAME, BundleName.RESOURCES, "prefab/personalCenter/PersonalCenterPanel", PersonalCenterPanel);
-        UIManager.getInstance().showPanel(PersonalCenterPanel.NAME);
-    }
+
     showMore() {
         const ad: AlertData = new AlertData();
         ad.title = "";

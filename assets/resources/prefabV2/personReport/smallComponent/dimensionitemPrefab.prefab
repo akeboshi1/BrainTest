@@ -560,12 +560,12 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 148,
-      "g": 149,
-      "b": 153,
+      "r": 134,
+      "g": 134,
+      "b": 134,
       "a": 255
     },
-    "_string": "",
+    "_string": "gjbjv",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
@@ -620,8 +620,6 @@
       "__id__": 0
     },
     "fileId": "eel66mv9lJZ5bJ8OIk1BOu",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -719,9 +717,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 148,
-      "g": 149,
-      "b": 153,
+      "r": 134,
+      "g": 134,
+      "b": 134,
       "a": 255
     },
     "_string": "",
@@ -828,9 +826,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 238,
-      "g": 238,
-      "b": 238,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
