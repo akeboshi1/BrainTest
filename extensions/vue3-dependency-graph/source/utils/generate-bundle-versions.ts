@@ -1,8 +1,8 @@
 import { join } from 'path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { readdirSync } from 'fs'; // 新增文件系统读取方法
-import { copyFileSync, rmSync } from 'fs'; // 新增文件操作方法
-import { copySync } from 'fs-extra'; // 新增文件夹拷贝方法
+import { copyFileSync, rmSync, renameSync } from 'fs'; // 新增文件操作方法和 renameSync 用于移动操作
+import { ensureDirSync } from 'fs-extra'; // 只保留确保目录存在的方法
 
 const MD5_REGEX = /index\.([a-f0-9]+)\.js/;
 
@@ -18,14 +18,21 @@ export async function generateBundleVersions(targetPath: string): Promise<boolea
             mkdirSync(targetPath, { recursive: true });
         }
 
-        // 新增 bundle 目录扫描
+        // bundle 目录扫描
         const bundles = readdirSync(targetPath, { withFileTypes: true })
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name);
 
+        // 添加空检查
+        if (bundles.length === 0) {
+            console.warn('警告: 未找到任何 bundle 目录，请确保已经构建生成了 bundle 文件');
+            Editor.Dialog.warn('未找到任何 bundle 目录，请先构建生成 bundle 文件！');
+            return false;
+        }
+
         const configPath = Editor.Project.path + "/publish-remote-bundle";
         // 读取旧版本文件
-        let oldVersions = { bundles: {} } as any;
+        let oldVersions = { version: "2025.2.25 0000", bundles: {}, timestamp: Math.floor(Date.now() / 1000) } as any;
         try {
             oldVersions = JSON.parse(readFileSync(join(configPath, 'bundle_versions.json'), 'utf-8'));
         } catch { }
@@ -34,20 +41,20 @@ export async function generateBundleVersions(targetPath: string): Promise<boolea
         const today = new Date().toISOString().slice(0, 10).replace(/-/g, '.');
 
         const versionData = {
-            version: "2025.2.25 1.0.0", // 会被覆盖的初始值
+            version: "2025.2.25 0000", // 初始值会被覆盖
             bundles: bundles.reduce((acc, name) => {
                 const bundlePath = join(targetPath, name);
                 const currentMD5 = getCurrentMD5(bundlePath);
-                const oldBundle = oldVersions.bundles?.[name] || { version: `${today} 0.0.0` };
+                const oldBundle = oldVersions.bundles?.[name] || { version: `${today} 0000` };
 
                 // 版本号自增逻辑
                 let [bundleDate, bundleVersion] = oldBundle.version.split(' ');
-                let [major, minor, patch] = bundleVersion.split('.').map(Number);
+                let version = parseInt(bundleVersion);
 
                 if (currentMD5 !== oldBundle.md5) {
                     hasChanges = true;
-                    patch = (patch + 1) % 1000;
-                    bundleVersion = `${major}.${minor}.${patch.toString().padStart(3, '0')}`;
+                    version = (version + 1) % 10000;
+                    bundleVersion = version.toString().padStart(4, '0');
                 }
 
                 acc[name] = {
@@ -62,24 +69,20 @@ export async function generateBundleVersions(targetPath: string): Promise<boolea
                 };
                 return acc;
             }, {} as Record<string, any>),
-            timestamp: Math.floor(Date.now() / 1000)
+            timestamp: hasChanges ? Math.floor(Date.now() / 1000) : oldVersions.timestamp 
         };
 
         // 主版本号逻辑
-        const [oldDate, oldVersion] = (oldVersions.version || `${today} 0.0.0`).split(' ');
-        let [mainMajor, mainMinor, mainPatch] = oldVersion.split('.').map(Number);
+        const [oldDate, oldVersion] = (oldVersions.version || `${today} 0000`).split(' ');
+        let mainVersion = parseInt(oldVersion);
 
+        let changeDay = oldDate;
         if (hasChanges) {
-            if (oldDate === today) {
-                mainPatch = (mainPatch + 1) % 1000;
-            } else {
-                mainMajor += 1;
-                mainMinor = 0;
-                mainPatch = 0;
-            }
+            mainVersion = (mainVersion + 1) % 10000;
+            changeDay = today;
         }
 
-        versionData.version = `${today} ${mainMajor}.${mainMinor}.${mainPatch.toString().padStart(3, '0')}`;
+        versionData.version = `${changeDay} ${mainVersion.toString().padStart(4, '0')}`;
 
         writeFileSync(
             join(targetPath, 'bundle_versions.json'),
@@ -100,30 +103,34 @@ export async function generateBundleVersions(targetPath: string): Promise<boolea
             const versionDir = join(publishPath, `${bundleName}_${version}`);
             const newDir = join(versionDir, bundleName);
             
-            // 确保版本目录存在
-            if (!existsSync(versionDir)) {
-                mkdirSync(versionDir, { recursive: true });
-            }
+            try {
+                // 确保版本目录存在
+                ensureDirSync(versionDir);
 
-            // 使用 fs-extra 的递归拷贝（目标路径改为 newDir）
-            copySync(
-                join(targetPath, bundleName),
-                newDir,
-                {
-                    recursive: true,
-                    overwrite: true,
-                    errorOnExist: false
-                }
-            );
+                // 使用 renameSync 移动目录
+                renameSync(
+                    join(targetPath, bundleName),
+                    newDir
+                );
+            } catch (error) {
+                console.error(`移动 bundle ${bundleName} 失败:`, error);
+                Editor.Dialog.error(`移动 bundle ${bundleName} 失败: ${(error as Error).message}`);
+                return false;
+            }
         }
-        // 拷贝版本文件（路径改为直接到 publish 目录）
+
+        // 拷贝版本文件到发布目录
         copyFileSync(
             join(targetPath, 'bundle_versions.json'),
             join(publishPath, 'bundle_versions.json')
         );
+
+        console.log('Bundle 版本生成完成');
+        Editor.Dialog.info('Bundle 版本生成成功！');
         return true;
     } catch (error) {
         console.error('发布流程失败:', error);
+        Editor.Dialog.error(`发布流程失败: ${(error as Error).message}`);
         return false;
     }
 }

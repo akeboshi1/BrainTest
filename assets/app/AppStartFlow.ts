@@ -1,5 +1,7 @@
-import { _decorator, assetManager, Component, JsonAsset, Enum, Label, director, sys, Node, UITransform } from 'cc';
+import { _decorator, assetManager, Component, JsonAsset, Enum, Label, director, sys, Node, UITransform, Asset, UIOpacity, tween, EventTouch, input, Input, EventKeyboard, KeyCode, game } from 'cc';
 import { BundleManager, BundleVersionsConfig } from './BundleManager';
+import { Environment, PublishSettingConfig } from './PublishSettingConfig';
+
 const { ccclass, property } = _decorator;
 
 // 应用启动状态机
@@ -10,13 +12,6 @@ enum StartStatus {
     COMPLETE              // 启动完成
 }
 
-
-
-export enum Environment {
-    DEVELOPMENT,
-    PRODUCTION
-}
-
 @ccclass('AppStartFlow')
 export class AppStartFlow extends Component {
     // 核心状态管理
@@ -24,23 +19,8 @@ export class AppStartFlow extends Component {
     private socket: WebSocket | null = null;     // 服务器连接实例
     private bundleVersions!: BundleVersionsConfig; // 版本配置缓存
 
-    @property(String)
-    dev_remote_url: String = "https://kele.paipai.xinjiaxianglao.com/develop/";
-
-    @property(String)
-    pro_remote_url: String = "https://kele.paipai.xinjiaxianglao.com/production/";
-
-    @property(String)
-    dev_api_url: String = "wss://test.paipai2.xinjiaxianglao.com/api/home";
-
-    @property(String)
-    pro_api_url: String = "wss://kele.paipai.xinjiaxianglao.com/api/home";
-
-    @property({
-        type: Enum(Environment),
-        tooltip: '请选择环境'
-    })
-    currentEnvironment: Environment = Environment.DEVELOPMENT;
+    @property(UIOpacity)
+    iconOpacity: UIOpacity = null;
 
     @property(Label)
     messageLabel: Label = null;
@@ -48,23 +28,95 @@ export class AppStartFlow extends Component {
     @property(Label)
     versionLabel: Label = null;
 
-    @property(String)
-    version: String = "";
-
     @property(Node)
     buttonListContainer: Node = null;
 
-    // 添加组件销毁时的清理逻辑
+    @property(JsonAsset)
+    publishSettingConfig: JsonAsset = null;
+
+    @property(Node)
+    iconNode: Node = null;
+
+    private interval: number = 2; // 最小启动间隔时间（秒）
+    private startTime: number = 0; // 记录启动开始时间
+    private longPressTimer: number = 0;
+    private longPressThreshold: number = 1000; // 长按阈值，单位毫秒
+    private isLongPressing: boolean = false;
+
+    onLoad() {
+        // 注册触摸事件监听
+        if (this.iconNode) {
+            this.iconNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+            this.iconNode.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+            this.iconNode.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        }
+    }
+
     onDestroy() {
+        // 清理触摸事件监听
+        if (this.iconNode) {
+            this.iconNode.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+            this.iconNode.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+            this.iconNode.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        }
+
+        if (this.iconOpacity) {
+            tween(this.iconOpacity).stop();
+        }
+
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             console.log('关闭WebSocket连接');
             this.socket.close();
         }
     }
+
+    private onTouchStart(event: EventTouch) {
+        this.isLongPressing = true;
+        this.longPressTimer = Date.now();
+        
+        // 开始长按检测
+        this.scheduleOnce(() => {
+            if (this.isLongPressing && Date.now() - this.longPressTimer >= this.longPressThreshold) {
+                // 触发长按事件
+                this.onLongPress();
+            }
+        }, this.longPressThreshold / 1000);
+    }
+
+    private onTouchEnd(event: EventTouch) {
+        this.isLongPressing = false;
+        this.unscheduleAllCallbacks();
+        
+        // 如果触摸时间小于阈值，不触发长按事件
+        if (Date.now() - this.longPressTimer < this.longPressThreshold) {
+            return;
+        }
+    }
+
+    private onLongPress() {
+        if (this.messageLabel && this.messageLabel.node) {
+            this.messageLabel.node.active = true;
+        }
+    }
+
     // 主流程入口
-    start() {
-        this.updateVersionLabel(); // 初始显示应用版本
-        this.connectToSocket();
+    async start() {
+        // 添加呼吸动画
+        this.startBreathingAnimation();
+
+        this.startTime = Date.now();
+        await PublishSettingConfig.getInstance().init(this.publishSettingConfig);
+
+        if (PublishSettingConfig.getInstance().getIsRemoteBundle()) {
+            this.updateVersionLabel();
+            this.connectToSocket();
+        } else {
+            let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
+            this.loadBundleVersionsConfig(remoteurl + 'bundle_versions.json').finally(() => {
+                this.state = StartStatus.COMPLETE;
+                this.onNextStep();
+            });
+        }
     }
 
     private updateProgressText(message: string) {
@@ -77,7 +129,7 @@ export class AppStartFlow extends Component {
         if (!this.versionLabel) return;
 
         // 基础应用版本
-        let versionInfo = `应用版本: ${this.version}`;
+        let versionInfo = `应用版本: ${PublishSettingConfig.getInstance().getAppVersion()}`;
 
         // 添加配置版本（如果已加载）
         if (this.bundleVersions) {
@@ -96,7 +148,7 @@ export class AppStartFlow extends Component {
     // 网络连接管理 --------------------------------------------------
     private connectToSocket() {
         this.updateProgressText('正在连接服务器...');
-        this.socket = new WebSocket(this.currentEnvironment == Environment.DEVELOPMENT ? this.dev_api_url.valueOf() : this.pro_api_url.valueOf());
+        this.socket = new WebSocket(PublishSettingConfig.getInstance().getApiUrl());
 
         // 连接成功回调
         this.socket.onopen = () => {
@@ -116,8 +168,12 @@ export class AppStartFlow extends Component {
     private onNextStep() {
         switch (this.state) {
             case StartStatus.DOWNLOADING_VERSION:
-                let remoteurl = this.currentEnvironment == Environment.DEVELOPMENT ? this.dev_remote_url.valueOf() : this.pro_remote_url.valueOf();
-                this.loadBundleVersionsConfig(remoteurl + 'bundle_versions.json');
+                let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
+                this.loadBundleVersionsConfig(remoteurl + 'bundle_versions.json').then(() => {
+                    this.state = StartStatus.DOWNLOADING_RESOURCES;
+                    this.onNextStep();
+                    //this.createDebugButton(); // 创建调试按钮
+                });
                 break;
             case StartStatus.DOWNLOADING_RESOURCES:
                 // 直接下载指定资源包
@@ -152,12 +208,26 @@ export class AppStartFlow extends Component {
                     result: 1
                 });
 
-                director.loadScene('start', (err) => {
-                    if (err) console.error('场景跳转失败:', err);
-                });
-
+                // 计算已经过去的时间
+                const elapsedTime = (Date.now() - this.startTime) / 1000; // 转换为秒
+                if (elapsedTime < this.interval) {
+                    // 如果未到1秒，则等待剩余时间
+                    const remainingTime = (this.interval - elapsedTime) * 1000; // 转换为毫秒
+                    setTimeout(() => {
+                        this.gotoStartScene();
+                    }, remainingTime);
+                } else {
+                    // 如果已经超过1秒，直接进入场景
+                    this.gotoStartScene();
+                }
                 break;
         }
+    }
+
+    private gotoStartScene() {
+        director.loadScene('start', (err) => {
+            if (err) console.error('场景跳转失败:', err);
+        });
     }
 
     // 版本配置加载器 ------------------------------------------------
@@ -176,15 +246,10 @@ export class AppStartFlow extends Component {
                 this.bundleVersions = response;
 
                 // 新增缓存逻辑
-                let remoteBaseUrl = this.currentEnvironment == Environment.DEVELOPMENT ? this.dev_remote_url.valueOf() : this.pro_remote_url.valueOf();
+                let remoteBaseUrl = PublishSettingConfig.getInstance().getRemoteUrl();
                 BundleManager.getInstance().cacheBundleConfig(response, remoteBaseUrl);
                 this.updateVersionLabel();
 
-                // 状态推进到资源下载
-                this.state = StartStatus.DOWNLOADING_RESOURCES;
-
-                //this.createDebugButton(); // 创建调试按钮
-                this.onNextStep();
             } catch (error) {
                 this.reportBundleLoad({
                     bundle: 'config',
@@ -227,7 +292,7 @@ export class AppStartFlow extends Component {
         versionbackup: string
     }) {
         return new Promise<void>((resolve, reject) => {
-            let remoteurl = this.currentEnvironment == Environment.DEVELOPMENT ? this.dev_remote_url.valueOf() : this.pro_remote_url.valueOf();
+            let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
             // 修改路径格式为：远程URL/资源包_版本/资源包
             const primaryBundleUrl = BundleManager.getInstance().getBundleRemoteUrl(bundleName);
             const fallbackBundleUrl = BundleManager.getInstance().getBundleRemoteUrl(bundleName, true);
@@ -279,7 +344,7 @@ export class AppStartFlow extends Component {
             action: 'bundle.report_bundle_load',
             data: {
                 device_id: "EMPTY",//this.getDeviceId(), // 需要实现设备ID获取
-                app_version: this.version,
+                app_version: PublishSettingConfig.getInstance().getAppVersion(),
                 bundle: params.bundle,
                 old_ver: '',    // 需要从本地存储获取旧版本
                 new_ver: this.bundleVersions?.bundles[params.bundle]?.version || '',
@@ -304,7 +369,7 @@ export class AppStartFlow extends Component {
             // 设置节点尺寸
             buttonNode.addComponent(UITransform);
             buttonNode.getComponent(UITransform).setContentSize(150, 75);
-            
+
             const label = buttonNode.addComponent(Label);
             label.string = bundleName;
             label.fontSize = 24;
@@ -326,5 +391,28 @@ export class AppStartFlow extends Component {
             // 添加到容器
             this.buttonListContainer.addChild(buttonNode);
         });
+    }
+
+    // 添加呼吸动画方法
+    private startBreathingAnimation() {
+        if (!this.iconOpacity) return;
+
+        // 停止可能存在的之前的动画
+        tween(this.iconOpacity).stop();
+
+        // 创建新的呼吸动画
+        tween(this.iconOpacity)
+            .repeatForever(
+                tween()
+                    // 从当前透明度到255（完全不透明）
+                    .to(1, { opacity: 0 }, {
+                        easing: 'smooth',
+                    })
+                    // 从255到0（完全透明）
+                    .to(1, { opacity: 255 }, {
+                        easing: 'smooth',
+                    })
+            )
+            .start();
     }
 }

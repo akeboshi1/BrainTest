@@ -32,16 +32,11 @@
   "packAutoAtlas": true,
   "startScene": "f5e0a941-3994-4681-9360-f6c6b1e4ff2c",
   "outputName": "android",
-  "taskName": "android-apk-001",
+  "taskName": "android-bundle-remote",
   "scenes": [
     {
       "url": "db://assets/app/app.scene",
       "uuid": "f5e0a941-3994-4681-9360-f6c6b1e4ff2c"
-    },
-    {
-      "url": "db://assets/resources/scene/main.scene",
-      "uuid": "50a89549-02aa-481b-8231-58dd51f9d707",
-      "bundle": "db://assets/resources"
     },
     {
       "url": "db://assets/resources/scene/start.scene",
@@ -59,14 +54,29 @@
       "bundle": "db://assets/fanpai"
     },
     {
+      "url": "db://assets/fingerGame/scene/fingerGame.scene",
+      "uuid": "56ca3fe9-5188-4516-ba55-bd7b9af3bf92",
+      "bundle": "db://assets/fingerGame"
+    },
+    {
       "url": "db://assets/guessingGame/scene/guessingGame.scene",
       "uuid": "69d8c34d-01ab-4218-a396-816bb659c064",
       "bundle": "db://assets/guessingGame"
     },
     {
+      "url": "db://assets/math24/scene/math24.scene",
+      "uuid": "34d7ce44-bdd2-45db-bb5f-69a36cb2771b",
+      "bundle": "db://assets/math24"
+    },
+    {
       "url": "db://assets/puzzle/scene/puzzle.scene",
       "uuid": "72b1db71-31c9-4ad7-a164-1c7c61e72d26",
       "bundle": "db://assets/puzzle"
+    },
+    {
+      "url": "db://assets/resources/scene/mainV2.scene",
+      "uuid": "713fdf84-a1c8-4dcb-a707-13085f7061e9",
+      "bundle": "db://assets/resources"
     },
     {
       "url": "db://assets/sentenceMaking/scene/sentenceMaking.scene",
@@ -79,19 +89,9 @@
       "bundle": "db://assets/smalltheater"
     },
     {
-      "url": "db://assets/finding/scene/game/Game.scene",
+      "url": "db://assets/finding/scene/game/finding.scene",
       "uuid": "d76ce13c-2c91-435f-abdd-7cc8929c4508",
       "bundle": "db://assets/finding"
-    },
-    {
-      "url": "db://assets/finding/scene/loading/finding.scene",
-      "uuid": "556e7a99-8f04-4454-a5ae-170809f726e1",
-      "bundle": "db://assets/finding"
-    },
-    {
-      "url": "db://assets/math24/scene/math24.scene",
-      "uuid": "34d7ce44-bdd2-45db-bb5f-69a36cb2771b",
-      "bundle": "db://assets/math24"
     }
   ],
   "wasmCompressionMode": false,
@@ -107,7 +107,7 @@
         "landscapeRight": false,
         "landscapeLeft": false
       },
-      "apiLevel": 26,
+      "apiLevel": 35,
       "appABIs": [
         "arm64-v8a"
       ],

@@ -8,6 +8,7 @@ import { UIManager } from "../UI/UIManager";
 import { LoadPanel } from "../../../Game/UI/Load/LoadPanel";
 import { BundleManager } from "db://assets/app/BundleManager";
 import { SceneManager } from "../Scene/SceneManager";
+import { PublishSettingConfig } from "db://assets/app/PublishSettingConfig";
 // BundlePreloadManager类用于管理资源包的预加载和释放操作，通过配置文件获取预加载信息，并触发相应事件通知外部相关进度和状态 
 
 export class BundlePreloadManager extends BaseManager {
@@ -71,7 +72,7 @@ export class BundlePreloadManager extends BaseManager {
             bundle = assetManager.getBundle(bundleName);
             if (!bundle) {
                 bundle = await new Promise<AssetManager.Bundle>((resolve, reject) => {
-                    const isRemoteConfigEnabled = BundleManager.getInstance().isRemoteConfigEnabled;
+                    const isRemoteConfigEnabled = PublishSettingConfig.getInstance().getIsRemoteBundle();
                     const bundleUrl = isRemoteConfigEnabled ?  BundleManager.getInstance().getBundleRemoteUrl(bundleName) : bundleName;
                     const options = isRemoteConfigEnabled ? { version : BundleManager.getInstance().getBundleMD5(bundleName) } : undefined;
                     DebugLog.instance.log(`开始加载资源包 ${bundleUrl}, version: ${options?.version}`);

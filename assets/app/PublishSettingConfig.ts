@@ -1,4 +1,4 @@
-import { assetManager, JsonAsset } from 'cc';
+import { assetManager, JsonAsset, sys } from 'cc';
 
 // 环境枚举
 export enum Environment {
@@ -111,6 +111,9 @@ export class PublishSettingConfig {
      */
     public getIsRemoteBundle(): boolean {
         this.checkInitialized();
+        if(!sys.isNative) {
+            return false;
+        }
         return this.configData?.isRemoteBundle || false;
     }
 
