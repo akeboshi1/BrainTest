@@ -16,6 +16,11 @@ export class SettlementPanel extends BasePanel{
     @property(Node)
     private btn2Node: Node = null;
 
+    @property(Label)
+    private btn1Label: Label = null; // 添加按钮1的文本标签
+    @property(Label)
+    private btn2Label: Label = null; // 添加按钮2的文本标签
+
     private getOver: boolean = false;
 
     @property(Node)
@@ -30,9 +35,14 @@ export class SettlementPanel extends BasePanel{
     @property(Label)
     private progressLabel:Label = null;
 
+    @property(Node)
+    quitTitle:Node = null;
+
     public againHandler: Function = null;
 
     public nextHandler: Function = null;
+
+    // public title: string = ""; // 添加自定义标题支持
 
     public static NAME: string = 'SettlementPanel';
 
@@ -45,6 +55,7 @@ export class SettlementPanel extends BasePanel{
             this.result = data.result;
             this.againHandler = data.againHandler;
             this.nextHandler = data.nextHandler;
+            // this.title = data.title || ""; // 获取自定义标题
         }
     }
 
@@ -53,20 +64,55 @@ export class SettlementPanel extends BasePanel{
     }
 
     public initEnd() {
-        if (this.result) {
+        if (this.result === null) {
+            // 退出确认模式
+            this.btn1Node.active = true;
+            this.loseTitle.active = false;
+            this.winTitle.active = false;
+            this.quitTitle.active = true;
+            this.titlelabel.string = "是否退出当前游戏？";
+            this.titlelabel.node.setPosition(0, 0, 0);
+            SettlementPanel.bezierTo(this.quitTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
+            SettlementPanel.bezierTo(this.titlelabel.node, 0.5, v3(-200, 0, 0), v3(-100, 200, 0), v3(0, 0, 0), {}).start();
+            // 设置按钮文本
+            if (this.btn1Label) {
+                this.btn1Label.string = "继续游戏";
+            }
+            if (this.btn2Label) {
+                this.btn2Label.string = "退出游戏";
+            }
+        } else if (this.result) {
+            // 成功模式
             this.btn1Node.active = false;
             this.loseTitle.active = false;
+            this.quitTitle.active = false;
             this.winTitle.active = true;
             this.winTitle.setPosition(-200, 0, 0);
             SettlementPanel.bezierTo(this.winTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
             this.titlelabel.string = "恭喜通关";
             this.titlelabel.node.setPosition(-200, 0, 0);
             SettlementPanel.bezierTo(this.titlelabel.node, 0.5, v3(-200, 0, 0), v3(-100, 200, 0), v3(0, 0, 0), {}).start();
+            
+            // 设置按钮文本
+            if (this.btn2Label) {
+                this.btn2Label.string = "下一关";
+            }
         } else {
+            // 失败模式
             this.btn1Node.active = true;
             this.loseTitle.active = true;
+            this.quitTitle.active = false;
             this.winTitle.active = false;
             this.titlelabel.string = "请再接再厉";
+            SettlementPanel.bezierTo(this.loseTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
+            SettlementPanel.bezierTo(this.titlelabel.node, 0.5, v3(-200, 0, 0), v3(-100, 200, 0), v3(0, 0, 0), {}).start();
+            // 设置按钮文本
+            if (this.btn1Label) {
+                this.btn1Label.string = "重玩";
+            }
+            if (this.btn2Label) {
+                this.btn2Label.string = "下一关";
+            }
         }
     }
 

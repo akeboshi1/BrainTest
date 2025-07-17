@@ -522,7 +522,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     public exitCallBack(context) {
         context.pauseTime();
-        super.exitCallBack(this);
+        super.exitCallBack(context);
     }
 
     private autoExitCallBack(context) {
@@ -530,7 +530,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         clearTimeout(context._setTimeOutId);
         //上报数据
         context.requestGameResult(false);
-        super.exitCallBack(this);
+        super.exitCallBack(context);
     }
 
     private checkTouchedObjectIndex(currentPos: Vec2): number {
