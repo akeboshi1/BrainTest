@@ -215,10 +215,45 @@ export class ScreenAdapter {
         // 使用setScale对viewNode进行缩放
         viewNode.setScale(scaleFactor, scaleFactor, 1);
         
+        // 对非viewNode中的节点进行特殊处理
+        this.scaleNonViewNodeElements(panel, scaleFactor);
+        
         // 处理viewNode内的Label组件
        // this.scaleLabelsInNode(viewNode, scaleFactor);
         
         DebugLog.instance.log(`[ScreenAdapter] viewNode缩放完成: 缩放比例${scaleFactor.toFixed(3)}`);
+    }
+
+    /**
+     * 对非viewNode中的节点进行特殊缩放处理
+     * @param panel 面板根节点
+     * @param scaleFactor 缩放比例
+     */
+    private scaleNonViewNodeElements(panel: Node, scaleFactor: number): void {
+        DebugLog.instance.log(`[ScreenAdapter] 开始处理非viewNode中的节点缩放`);
+        
+        // 遍历panel的直接子节点（排除viewNode）
+        panel.children.forEach(child => {
+            if (child.name !== 'viewNode') {
+                const widget = child.getComponent(Widget);
+                if (widget) {
+                    // 检查是否上下适配（vertical stretch）
+                    const isVerticalStretch = widget.isAlignTop && widget.isAlignBottom;
+                    
+                    if (isVerticalStretch) {
+                        // 上下适配的节点，只做横向缩放，竖向不变
+                        const currentScale = child.scale;
+                        child.setScale(scaleFactor, currentScale.y, currentScale.z);
+                        DebugLog.instance.log(`[ScreenAdapter] 非viewNode节点横向缩放: ${child.name}, 缩放前: x=${currentScale.x.toFixed(3)}, y=${currentScale.y.toFixed(3)}, 缩放后: x=${scaleFactor.toFixed(3)}, y=${currentScale.y.toFixed(3)}`);
+                    } else {
+                        // 其他情况，保持原有缩放
+                        DebugLog.instance.log(`[ScreenAdapter] 非viewNode节点保持原有缩放: ${child.name}, 对齐方式: ${this.getWidgetAlignmentInfo(widget)}`);
+                    }
+                } else {
+                    DebugLog.instance.log(`[ScreenAdapter] 非viewNode节点无Widget组件: ${child.name}`);
+                }
+            }
+        });
     }
 
     /**

@@ -113,7 +113,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         const uiSize = ScreenSizeUtil.getUISize();
         const screenWidth = uiSize.width;
         const totalItemsWidth = this.rawMaxNum * this.itemWidth + (this.rawMaxNum - 1) * this.paddingX;
-        this.leftOffset = (screenWidth - totalItemsWidth) / 2  - 50;
+        this.leftOffset = (screenWidth - totalItemsWidth) / 2  - 40;
         DebugLog.instance.log(`屏幕宽度: ${screenWidth}, 计算得到的leftOffset: ${this.leftOffset}`);
     }
 
