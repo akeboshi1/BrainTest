@@ -113,7 +113,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         const uiSize = ScreenSizeUtil.getUISize();
         const screenWidth = uiSize.width;
         const totalItemsWidth = this.rawMaxNum * this.itemWidth + (this.rawMaxNum - 1) * this.paddingX;
-        this.leftOffset = (screenWidth - totalItemsWidth) / 2  - 50;
+        this.leftOffset = (screenWidth - totalItemsWidth) / 2  - 40;
         DebugLog.instance.log(`屏幕宽度: ${screenWidth}, 计算得到的leftOffset: ${this.leftOffset}`);
     }
 
@@ -299,9 +299,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
         }else{
             let level = (this.sceneModel as any).level;
-            let maxNum = (this.sceneModel as any).levelLen;
-            this.progressBar.progress = level / maxNum;
-            this.guankaLabel.string = "第" + level + "/"+ maxNum + "关";
+            if(!Global.isAgain){
+                let maxNum = (this.sceneModel as any).levelLen;
+                this.progressBar.progress = level / maxNum;
+                this.guankaLabel.string = "第" + level + "/"+ maxNum + "关";
+            }
         }
 
         this.currentQuestion = question;
@@ -821,6 +823,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     public clickNextLeve() {
         this.bgmClip = null;
+        Global.isAgain = false;
         this.model.goNextQuestion();
         this.startGameFlow();
     }

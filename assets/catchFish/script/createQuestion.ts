@@ -30,95 +30,116 @@ export class CreateQuestion {
         let correctAnswer = 0;
 
         if (difficulty === 1) {
-            // 难度一：加减法和乘法
-            const operation = await getRandomInt(1, 3); // 1: 加法, 2: 减法, 3: 乘法
+            // 难度一：加减法
+            const operation = await getRandomInt(1, 2); // 1: 加法, 2: 减法
 
             if (operation === 1) {
-                // 加法（20以内数字，加减1位数，不能加减1和0）
-                let a, b;
-                do {
-                    a = await getRandomInt(2, 20);
-                    b = await getRandomInt(2, 9);
-                } while (a + b > 20); // 确保和不超过20
-                question = `${a} + ${b}`;
-                correctAnswer = a + b;
+                // 加法：1位数+1位数（有进位）或2位数+1位数（不进位）
+                const addType = await getRandomInt(1, 2);
+                
+                if (addType === 1) {
+                    // 1位数+1位数（有进位，如5+6）
+                    let a, b;
+                    do {
+                        a = await getRandomInt(5, 9);
+                        b = await getRandomInt(5, 9);
+                    } while (a + b < 10); // 确保有进位
+                    question = `${a} + ${b}`;
+                    correctAnswer = a + b;
+                } else {
+                    // 2位数+1位数（不进位，如15+4）
+                    let a, b;
+                    do {
+                        a = await getRandomInt(10, 19);
+                        b = await getRandomInt(1, 9);
+                    } while ((a % 10) + b >= 10); // 确保不进位
+                    question = `${a} + ${b}`;
+                    correctAnswer = a + b;
+                }
 
             } else if (operation === 2) {
-                // 减法（减法结果不能出现负数和0）
-                let a, b;
-                do {
-                    a = await getRandomInt(3, 20);
-                    b = await getRandomInt(2, 9); // b 小于等于 a
-                } while (b >= a); // 确保 b 小于 a
-                question = `${a} - ${b}`;
-                correctAnswer = a - b;
-
-            } else if (operation === 3) {
-                // 乘法（两个数都小于等于9）
-                let a = await getRandomInt(2, 9);
-                let b = await getRandomInt(2, 9);
-                question = `${a} x ${b}`;
-                correctAnswer = a * b;
+                // 减法：不能借位（如9-5或19-5）
+                const subType = await getRandomInt(1, 2);
+                
+                if (subType === 1) {
+                    // 1位数-1位数（不能借位）
+                    let a, b;
+                    do {
+                        a = await getRandomInt(5, 9);
+                        b = await getRandomInt(1, 4);
+                    } while (a <= b); // 确保不能借位且结果不为0
+                    question = `${a} - ${b}`;
+                    correctAnswer = a - b;
+                } else {
+                    // 2位数-1位数（不能借位）
+                    let a, b;
+                    do {
+                        a = await getRandomInt(10, 19);
+                        b = await getRandomInt(1, 8);
+                    } while ((a % 10) < b || a - b <= 0); // 确保不能借位且结果不为0
+                    question = `${a} - ${b}`;
+                    correctAnswer = a - b;
+                }
             }
         } else if (difficulty === 2) {
-            // 难度二：加减法和乘法
-            const operation = await getRandomInt(1, 3); // 1: 加法, 2: 减法, 3: 乘法
+            // 难度二：加减法
+            const operation = await getRandomInt(1, 2); // 1: 加法, 2: 减法
 
             if (operation === 1) {
-                // 2位数字加法，且需要有一次进位
-                let a, b;
-                do {
-                    a = await getRandomInt(30, 99);
-                    b = await getRandomInt(10, 99);
-                } while ((a % 10) + (b % 10) < 10 || a + b >= 100); // 确保有进位且和小于100
-                question = `${a} + ${b}`;
-                correctAnswer = a + b;
+                // 加法：两位数加两位数（不进位）或两位数加一位数（有进位）
+                const addType = await getRandomInt(1, 2);
+                
+                if (addType === 1) {
+                    // 两位数加两位数（不进位，如33+12）
+                    let a, b;
+                    do {
+                        a = await getRandomInt(20, 89);
+                        b = await getRandomInt(10, 89);
+                    } while ((a % 10) + (b % 10) >= 10 || (Math.floor(a / 10) + Math.floor(b / 10)) >= 9); // 确保不进位
+                    question = `${a} + ${b}`;
+                    correctAnswer = a + b;
+                } else {
+                    // 两位数加一位数（有进位，如25+8）
+                    let a, b;
+                    do {
+                        a = await getRandomInt(20, 89);
+                        b = await getRandomInt(1, 9);
+                    } while ((a % 10) + b < 10); // 确保有进位
+                    question = `${a} + ${b}`;
+                    correctAnswer = a + b;
+                }
 
             } else if (operation === 2) {
-                // 2位数字（大于20）减1位数字，减法需要有一次借位，答案不允许出现0和1
+                // 减法：2位数-1位数（有借位，如23-7）
                 let a, b;
                 do {
-                    a = await getRandomInt(21, 99);
-                    b = await getRandomInt(1, 9); // b为1到9的数字
-                } while (a - b < 2 || (a % 10) >= b); // 确保结果不为0和1且需要借位
+                    a = await getRandomInt(20, 99);
+                    b = await getRandomInt(1, 9);
+                } while ((a % 10) >= b || a - b <= 0); // 确保有借位且结果不为0
                 question = `${a} - ${b}`;
                 correctAnswer = a - b;
-
-            } else if (operation === 3) {
-                // 乘法（被乘数12、13、14、15，乘数小于等于5）
-                let a = await getRandomInt(12, 15);
-                let b = await getRandomInt(2, 5);
-                question = `${a} x ${b}`;
-                correctAnswer = a * b;
             }
         } else if (difficulty === 3) {
-            // 难度三：复合计算（只使用乘法作为内部运算）
-            // 括号内乘法（被乘数为12、13、14、15，乘数小于等于5）
-            let a = await getRandomInt(12, 15); // 被乘数
-            let b = await getRandomInt(2, 5); // 乘数
-            let innerQuestion = `${a} x ${b}`;
-            let innerResult = a * b;
-
-            // 括号外的数和操作
-            let outerNum;
-            let outerOperation;
+            // 难度三：连续两次计算，必须有一加一减，两次计算都需要进位或借位
+            // 格式：（2位数+1位数）-1位数，如：（25+8）-7
+            
+            // 第一步：2位数+1位数（有进位）
+            let a, b;
             do {
-                outerNum = await getRandomInt(1, 9); // 括号外的数小于等于10
-                outerOperation = await getRandomInt(1, 2); // 1: 加法, 2: 减法
-
-                if (outerOperation === 1) {
-                    // 加法
-                    question = `(${innerQuestion}) + ${outerNum}`;
-                    correctAnswer = innerResult + outerNum;
-
-                } else if (outerOperation === 2) {
-                    // 减法，确保结果不小于0
-                    if (innerResult >= outerNum) {
-                        question = `(${innerQuestion}) - ${outerNum}`;
-                        correctAnswer = innerResult - outerNum;
-                    }
-                }
-            } while (outerOperation === 2 && innerResult < outerNum); // 确保减法有效
+                a = await getRandomInt(20, 89);
+                b = await getRandomInt(1, 9);
+            } while ((a % 10) + b < 10); // 确保有进位
+            
+            let firstResult = a + b;
+            
+            // 第二步：减去1位数（有借位）
+            let c;
+            do {
+                c = await getRandomInt(1, 9);
+            } while ((firstResult % 10) >= c || firstResult - c <= 0); // 确保有借位且结果不为0
+            
+            question = `(${a} + ${b}) - ${c}`;
+            correctAnswer = firstResult - c;
         }
 
         // 生成选项
@@ -128,8 +149,8 @@ export class CreateQuestion {
         // 生成错误选项，确保不等于正确答案
         while (options.size < 4) {
             const wrongAnswer = await getRandomInt(correctAnswer - 10, correctAnswer + 10);
-            // 确保错误选项不等于正确答案且为非负数
-            if (wrongAnswer !== correctAnswer && wrongAnswer >= 0) {
+            // 确保错误选项不等于正确答案且为正数
+            if (wrongAnswer !== correctAnswer && wrongAnswer > 0) {
                 options.add(wrongAnswer.toString());
             }
         }
@@ -145,21 +166,5 @@ export class CreateQuestion {
         });
     }
 
-    static isInMultiplicationTable(n) {
-        // 检查范围
-        if (n < 1 || n > 81) {
-            return false;
-        }
 
-        // 检查因数
-        for (let a = 1; a <= 9; a++) {
-            for (let b = 1; b <= 9; b++) {
-                if (a * b === n) {
-                    return true; // 找到因数
-                }
-            }
-        }
-
-        return false; // 没有找到因数
-    }
 }
