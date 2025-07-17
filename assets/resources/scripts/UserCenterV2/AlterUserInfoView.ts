@@ -154,22 +154,28 @@ export class AlterUserInfoView extends BasePanel {
         this.user_birthday = data;
     }
     clickSelectBirthday() {
+        if (this.user_birthday) {
+            const arr = this.user_birthday.split('-');
+            if (arr.length === 3) {
+                this.comDateSelect.setInitValue(arr[0], arr[1], arr[2]);
+            }
+        }
         this.comDateSelect.callback = this.onBirthdayChanged.bind(this);
         this.comDataNode.active = true;
         this.comDateSelect.scrollToSelection(this.user_birthday);
     }
     clickSelectSex() {
-        this.commonSelector.setOptions(["男","女"]);
+        let sexStr = this.sexLabel.string;
+        this.commonSelector.setOptions(["男","女"], sexStr);
         this.commonSelector.callback = this.onSexChanged.bind(this);
         this.comSexNode.active = true;
-        let sexStr = this.sexLabel.string;  
         this.commonSelector.scrollToSelection(sexStr);
     }
     clickEducation(){
-        this.comEducationSelect.setOptions(["初中及以下","高中","大专","本科","硕士及以上"]);
+        let educationStr = this.educationLabel.string;
+        this.comEducationSelect.setOptions(["初中及以下","高中","大专","本科","硕士及以上"], educationStr);
         this.comEducationSelect.callback = this.onEducationChanged.bind(this);
         this.comEducationNode.active = true;
-        let educationStr = this.educationLabel.string;
         this.comEducationSelect.scrollToSelection(educationStr);
     }
     onEducationChanged(education): void {
