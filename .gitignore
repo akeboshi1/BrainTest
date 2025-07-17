@@ -26,3 +26,13 @@ node_modules/
 .idea/
 .profiles/
 coverage/
+
+#//////////////////////////
+# Build Configs
+#//////////////////////////
+buildConfigs/
+
+#//////////////////////////
+# Extensions
+#//////////////////////////
+extensions/vue3-dependency-graph/dist/
