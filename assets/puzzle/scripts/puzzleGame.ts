@@ -280,12 +280,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.chipsDataMap.clear();
     }
 
-    private get offsetX() {
-        const uiSize = ScreenSizeUtil.getUISize();
-        const screenWidth = uiSize.width;
-        return screenWidth - this.chipParentNode.getComponent(UITransform).contentSize.width >> 1;
-    }
-
     onTouchStart(event: EventTouch) {
         // 拖拽被禁用或已有拖拽实例时直接返回
         if (!this.isDragEnabled || this.dragInstance != null || this.dragStartFlag) return;
@@ -559,6 +553,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             const chipData2 = this.getChipDataByPuzzlePos(puzzlePos2);
             if (!chipData1 || !chipData2) {
                 DebugLog.instance.error(`[puzzleGame] 交换失败: chipData1=${chipData1} chipData2=${chipData2}`);
+                if (this.dragInstance) {
+                    this.processTouchCancel();
+                }
                 return;
             }
 
@@ -583,6 +580,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 this.processTouchCancel();
             }
         }
+    }
+
+    private get offsetX() {
+        const uiSize = ScreenSizeUtil.getUISize();
+        const screenWidth = uiSize.width;
+        return screenWidth - this.chipParentNode.getComponent(UITransform).contentSize.width >> 1;
     }
 
     private getChipDataByPuzzlePos(puzzlePos: number): Object {

@@ -13,13 +13,11 @@ export class BundleVersionsConfig {
 export class BundleManager {
     private static instance: BundleManager;
     
-    public isRemoteConfigEnabled = false;
     public bundleConfig: BundleVersionsConfig | null = null;
     public remoteUrl = ''; // 新增远程URL存储
 
     public cacheBundleConfig(config: BundleVersionsConfig, url: string) {
         this.bundleConfig = config;
-        this.isRemoteConfigEnabled = true;
         this.remoteUrl = url; // 存储URL
         console.log(`从[${url}]缓存配置版本:`, config.version);
     }

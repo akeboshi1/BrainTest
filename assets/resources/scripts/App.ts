@@ -15,10 +15,10 @@ import  {AlertManager, AlertData } from './Core/Manager/Alert/AlertManager';
 import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
 import { AudioManager } from './Core/Manager/Audio/AudioManager';
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
-import { PublishSetting } from './PublishSetting';
 import FeatureTogglesSetting from './FeatureTogglesSetting';
 import { NativeEventManager } from './Core/Manager/Event/NativeEventManager';
 import { AdaptComponent } from './mainV2/AdaptComponent';
+import { PublishSettingConfig } from '../../app/PublishSettingConfig';
 
 const { ccclass, property } = _decorator;
 
@@ -67,8 +67,6 @@ export class App extends AdaptComponent {
     @property(Node)
     event:Node;
 
-    @property(PublishSetting)
-    publishSetting: PublishSetting;
 
     // ai
     // game
@@ -153,7 +151,8 @@ export class App extends AdaptComponent {
         SceneManager.getInstance().init();
         PoolManager.getInstance().init();
         AudioManager.getInstance().init();
-        await FeatureTogglesSetting.getInstance().init(this.publishSetting.isMCI.valueOf());
+        const publishSetting = PublishSettingConfig.getInstance();
+        await FeatureTogglesSetting.getInstance().init(publishSetting.getIsMCI());
     }
 
     private async preLoadRes() {
@@ -166,7 +165,8 @@ export class App extends AdaptComponent {
             await AlertManager.getInstance().initSocketAlertPrefab();
 
             // 初始化socket
-            SocketManager.getInstance().initSocket(this.publishSetting.currentApiUrl).then(() => {
+            const publishSetting = PublishSettingConfig.getInstance();
+            SocketManager.getInstance().initSocket(publishSetting.getApiUrl()).then(() => {
                 this.socketOnHandler();
             }).catch(() => {
                 const alertData: AlertData = new AlertData();

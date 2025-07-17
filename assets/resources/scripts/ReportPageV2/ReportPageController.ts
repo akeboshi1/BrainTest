@@ -51,11 +51,11 @@ export class ReportPageController extends AdaptComponent {
             this.callbackPromises.brainTraining,
             this.callbackPromises.sumReport
         ]).then(() => {
-            // 检查用户是否完成初测
+            // 检查用户是否是会员
             const userData = PersonalCenterManager.getInstance().userInfoData;
-            if (userData && !userData.has_initial_tier) {
-                // 如果未完成初测，同时打开vipAlert
-                UIManager.getInstance().showPanel(VipAlert.NAME);
+            if (userData && !userData.is_member) {
+                // 如果不是会员，同时打开vipAlert
+                UIManager.getInstance().showPanel(VipAlert.NAME,null,false,null,false);
             }
             
             if (this.pageParams) {

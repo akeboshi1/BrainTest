@@ -1,15 +1,15 @@
-import {_decorator, Button, Color, EventTouch, Label, Node, Sprite,AudioClip,ProgressBar} from 'cc';
-import {GuessingGameEvent, GuessingGameModel} from './GuessingGameModel';
-import {FrameComponent} from '../../resources/scripts/Core/Component/FrameComponent';
-import {EventManager} from '../../resources/scripts/Core/Manager/Event/EventManager';
-import {GuessingQuestion} from './GuessingGameConfig';
-import {TimeUtil} from "db://assets/resources/scripts/Core/Util/TimeUtil";
-import {TimerCommonComponent} from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
-import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import { _decorator, Button, Color, EventTouch, Label, Node, Sprite, AudioClip, ProgressBar } from 'cc';
+import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
+import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
+import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
+import { GuessingQuestion } from './GuessingGameConfig';
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
+import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 
 const { ccclass, property } = _decorator;
 
@@ -42,16 +42,16 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private questionLabel: Label = null;
 
     @property(Label)
-    private progresslabel:Label = null;
+    private progresslabel: Label = null;
 
     @property(ProgressBar)
-    private progress:ProgressBar = null;
+    private progress: ProgressBar = null;
 
     @property(Node)
     quitBtn: Node;
 
     @property(Node)
-    startBtn:Node;
+    startBtn: Node;
 
     @property(Node)
     private optionsNode: Node = null;
@@ -70,12 +70,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     analysisLabel: Label = null;
 
     @property(Node)
-    replayButtonNode:Node = null;
-    
+    replayButtonNode: Node = null;
+
     @property(Node)
     questionReplayNode: Node = null;
-    
-    private replayCount:number = 2;
+
+    private replayCount: number = 2;
 
     private timeLimit = 30;
 
@@ -87,20 +87,20 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private currentQuestion: GuessingQuestion = null;
 
     private _startTime: number = 0;
-    
+
     // 添加状态标记，用于跟踪是否已经进入答题阶段
     private _isInAnswerPhase: boolean = false;
     private _hasClickedStartBtn: boolean = false; // 添加是否已点击开始按钮的状态
 
     protected bundleName: string = 'guessingGame';
 
-    private bgmClip:AudioClip;
+    private bgmClip: AudioClip;
     onLoad() {
-        this.audioUrls = ['audio/music/caimiBG',"audio/music/click", "audio/music/win"];
+        this.audioUrls = ['audio/music/caimiBG', "audio/music/click", "audio/music/win"];
         let self = this;
-        this.loadAudio().then(()=>{
+        this.loadAudio().then(() => {
             // 使用AudioManager播放背景音乐
-           self.playBgmAudio('audio/music/caimiBG', true);
+            self.playBgmAudio('audio/music/caimiBG', true);
         });
     }
 
@@ -151,7 +151,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         } else {
             let level = (this.sceneModel as any).game.level;
             this.progress.progress = level / (this.sceneModel as any).levelLen;
-            this.progresslabel.string = "第" + level +'/'+ (this.sceneModel as any).levelLen + "关";
+            this.progresslabel.string = "第" + level + '/' + (this.sceneModel as any).levelLen + "关";
             this.startGameFlow();
         }
     }
@@ -159,7 +159,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private startGameFlow() {
         this.guessingGameModel.startQuestionFlow();
         // 确保背景音乐在开始游戏时播放
-        if(!AudioManager.getInstance().isBgmPlaying()) {
+        if (!AudioManager.getInstance().isBgmPlaying()) {
             this.playBgmAudio('audio/music/caimiBG', true);
         }
     }
@@ -173,11 +173,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 this.progress.progress = skewersGameData.progress;
             } else {
                 let level = (this.sceneModel as any).game.level
-                this.progress.progress = level/(this.sceneModel as any).levelLen;
-                this.progresslabel.string = "第" +  level +'/'+ (this.sceneModel as any).levelLen  + "关";
+                this.progress.progress = level / (this.sceneModel as any).levelLen;
+                this.progresslabel.string = "第" + level + '/' + (this.sceneModel as any).levelLen + "关";
             }
         }
-    
+
 
         // this.questionNode.active = true;
         const question: GuessingQuestion = data.question;
@@ -197,12 +197,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private onAudioStart() {
         //答题阶段，暂停回来不播放语音
-        if(this._isInAnswerPhase && !this._replay)return;
+        if (this._isInAnswerPhase && !this._replay) return;
         this.frameComponent.playAnimation("speak", 24, true, true);
-        if(this.currentQuestion!=null){
+        if (this.currentQuestion != null) {
             this.questionLabel.string = this.currentQuestion.questionText;
         }
-        
+
         // 播放语音时隐藏重听按钮
         if (this.questionReplayNode) {
             this.questionReplayNode.active = false;
@@ -210,18 +210,18 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (this.replayButtonNode) {
             this.replayButtonNode.active = false;
         }
-        
+
         // 语音开始播放时显示开始按钮
         if (this.startBtn) {
             this.startBtn.getComponent(Button).interactable = true;
         }
-        
+
         // 语音播放时禁用选项按钮
         this.setOptionsInteractable(false);
     }
 
     private onAudioFinish() {
-        
+
         this.frameComponent.playAnimation("idle", 16, true, true);
 
         // 语音播放结束后，隐藏问题标签
@@ -229,29 +229,15 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.questionLabel.node.active = false;
         }
 
-        // 语音播放结束后，显示真实选项内容
-        if (this.currentQuestion) {
-            for (var i = 0; i < this.options.length; i++) {
-                let op: string = this.options[i];
-                let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
-                if (opnode) {
-                    opnode.getChildByName("Label").getComponent(Label).string = this.currentQuestion.options[op];
-                }
-            }
-        }
 
-        // 语音播放完毕后，隐藏开始按钮
         if (this.questionReplayNode) {
             this.questionReplayNode.active = false;
         }
-        
-        // 语音播放完毕后，隐藏开始按钮
-        if (this.startBtn) {
-            this.startBtn.getComponent(Button).interactable = false;
-        }
-        
-        // 语音播放完毕后启用选项按钮
-        this.setOptionsInteractable(true);
+
+        // if (this.startBtn) {
+        //     this.startBtn.getComponent(Button).interactable = false;
+        // }
+
 
         // 语音播放完毕后，启动答题倒计时
         this.startAnswer();
@@ -259,7 +245,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     private _replay: boolean = false;
-    
+
     private startAnswer() {
         // this.questionNode.active = false;
         // this.optionsNode.active = true;
@@ -305,20 +291,20 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
         if (result) {
             // 播放成功音效，使用playOneShot
-           this.playAudio("audio/music/win",true);
-        }else{
+            this.playAudio("audio/music/win", true);
+        } else {
             this.playFail();
         }
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this._requestGameResult(result);
         } else {
             this.requestGameCenterGameResult(result);
-            if(result){
+            if (result) {
                 (this.sceneModel as any).showSuccessView();
-            }else{
+            } else {
                 (this.sceneModel as any).showFailView();
             }
-           
+
         }
     }
 
@@ -328,7 +314,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this._resuleBoo = win;
         // 上报数据
         let endTime = TimeUtil.getNow();
-        let complete = win?1:0;
+        let complete = win ? 1 : 0;
         if (this._startTime == 0) {
             this._startTime = endTime;
         }
@@ -373,11 +359,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                if(SkewersManager.getInstance().isRunOver()) {
+                if (SkewersManager.getInstance().isRunOver()) {
                     this.analysisNode.active = false;
                     this.showNextSuccessHandler();
-                }else{
-                    if(SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null){
+                } else {
+                    if (SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null) {
                         (this.sceneModel as any).goonHandler(this, true);
                         this.clearGameView();
                     } else {
@@ -391,7 +377,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         }
     }
 
-    dzgoonHandler(resuleBoo:boolean = true) {
+    dzgoonHandler(resuleBoo: boolean = true) {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -400,13 +386,13 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Comprehension;
-                if(!_boo){
+                if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
-                }else{
+                } else {
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -414,7 +400,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     onClickReplay() {
-        if(this.replayCount<=0){ return; }
+        if (this.replayCount <= 0) { return; }
         if (this.questionLabel) {
             this.questionLabel.node.active = true;
         }
@@ -422,20 +408,20 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 根据重听次数和是否已点击开始按钮决定是否显示重听按钮
         this.replayButtonNode.active = this.replayCount > 0 && !this._hasClickedStartBtn;
         this.questionReplayNode.active = this.replayCount > 0 && !this._hasClickedStartBtn;
-        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `重听题目${this.replayCount}`;
+        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `可重听:${this.replayCount}次`;
         this._replay = true;
         this.guessingGameModel.replayQuestionAudio();
     }
-    reSetButton(){
+    reSetButton() {
         this.replayCount = 2;
         // 重置时重听按钮隐藏（等待语音播放完毕）
         this.replayButtonNode.active = false;
-        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `重听题目${this.replayCount}`;
+        this.replayButtonNode.getChildByName("text").getComponent(Label).string = `可重听:${this.replayCount}次`;
     }
 
     onChooseOption(event: EventTouch, p: string) {
         // 播放点击音效
-        this.playAudio("audio/music/click",true);
+        this.playAudio("audio/music/click", true);
         this.processAnswer(p);
     }
 
@@ -457,7 +443,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.resetPanel();
         // 设置重玩标志，避免更新关卡标签
         this._replay = true;
-        this.guessingGameModel.startQuestionFlow(); 
+        this.guessingGameModel.startQuestionFlow();
     }
 
     quitGame() {
@@ -496,24 +482,24 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     resetPanel() {
         this.guessingGameModel.stopAudio();
         // 确保背景音乐在重置面板时正常播放
-        if(!AudioManager.getInstance().isBgmPlaying()) {
+        if (!AudioManager.getInstance().isBgmPlaying()) {
             this.playBgmAudio('audio/music/caimiBG', true);
         }
         this.resumeTime();
-        
+
         // 重置答题计时器
         this.timerRT.resetTimer();
-        
+
         // 重置答题阶段标记
         this._isInAnswerPhase = false;
         this._replay = false;
         this._hasClickedStartBtn = false; // 重置点击开始按钮的状态
-        
+
         // 重置时显示问题标签
         if (this.questionLabel) {
             this.questionLabel.node.active = true;
         }
-        
+
         // this.timerRT.node.active = false;
         // this.timerStartGame.node.active = false;
 
@@ -522,21 +508,21 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.frameComponent.playAnimation("idle", 16, true, true);
 
         this.analysisNode.active = false;
-        
+
         // 重置重听按钮状态
         this.reSetButton();
-        
+
         // 重置时隐藏重听按钮（因为语音还未开始播放）
         if (this.questionReplayNode) {
             this.questionReplayNode.active = false;
         }
-        
+
         // 重置时隐藏开始按钮
         if (this.startBtn) {
             this.startBtn.getComponent(Button).interactable = true;
         }
 
-        for(let i = 0; i < this.options.length; i++){
+        for (let i = 0; i < this.options.length; i++) {
             let op: string = this.options[i];
             let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
             if (opnode) {
@@ -563,15 +549,15 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     public onClickStartAnswer() {
         this.guessingGameModel.stopAudio();
         this.frameComponent.playAnimation("idle", 16, true, true);
-        
+
         // 设置已点击开始按钮的状态
         this._hasClickedStartBtn = true;
-        
+
         // 点击开始按钮后隐藏问题标签
         if (this.questionLabel) {
             this.questionLabel.node.active = false;
         }
-        
+
         // 点击开始按钮后隐藏重听按钮
         if (this.replayButtonNode) {
             this.replayButtonNode.active = false;
@@ -579,12 +565,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (this.questionReplayNode) {
             this.questionReplayNode.active = false;
         }
-        
+
         // 点击开始按钮后隐藏开始按钮
         if (this.startBtn) {
             this.startBtn.getComponent(Button).interactable = true;
         }
-        
+
         // 直接显示答案选项
         if (this.currentQuestion) {
             for (var i = 0; i < this.options.length; i++) {
@@ -595,10 +581,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-        
+
         // 点击开始按钮后启用选项按钮
         this.setOptionsInteractable(true);
-        
+
         this.startAnswer();
         this._replay = false;
     }
@@ -608,7 +594,16 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.analysisNode.active = true;
         this.analysisLabel.string = this.currentQuestion.analysis;
         this.setCorrectOptionColor();
-        for(let i = 0; i < this.options.length; i++){
+        if (this.currentQuestion) {
+            for (var i = 0; i < this.options.length; i++) {
+                let op: string = this.options[i];
+                let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
+                if (opnode) {
+                    opnode.getChildByName("Label").getComponent(Label).string = this.currentQuestion.options[op];
+                }
+            }
+        }
+        for (let i = 0; i < this.options.length; i++) {
             let op: string = this.options[i];
             let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
             if (opnode) {
@@ -636,7 +631,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             correctNode.getComponent(Sprite).color = OptionButtonColorMap[OptionButtonColor.CORRECT];
         }
     }
-    
+
     // 设置选项按钮的可交互状态
     private setOptionsInteractable(interactable: boolean) {
         for (let i = 0; i < this.options.length; i++) {
