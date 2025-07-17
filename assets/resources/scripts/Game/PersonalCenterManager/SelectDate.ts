@@ -17,6 +17,10 @@ export class SelectDate extends Component {
     monthSelect:ScrollViewExt = null;
     @property(ScrollViewExt)
     daySelect:ScrollViewExt = null;
+    @property(Node)
+    cancelBtn:Node = null;
+    @property(Node)
+    confirmBtn:Node = null;
 
     callback: (year:string, month:string, day:string) => void;
 
@@ -29,6 +33,36 @@ export class SelectDate extends Component {
 
     private _day:string = '';
     private _dayIdx:number = 0;
+
+    private _initYear: string;
+    private _initMonth: string;
+    private _initDay: string;
+
+    setInitValue(year: string, month: string, day: string) {
+        this._initYear = year;
+        this._initMonth = month;
+        this._initDay = day;
+    }
+    onEnable(){
+        if(this.cancelBtn){
+            this.cancelBtn.on(Node.EventType.TOUCH_END, () => {
+                this.onClose('cancel');
+            })
+        }
+        if(this.confirmBtn){
+            this.confirmBtn.on(Node.EventType.TOUCH_END, () => {
+                this.onClose('confirm');
+            })
+        }
+    }
+    onDisable(){
+        if(this.cancelBtn){
+            this.cancelBtn.off(Node.EventType.TOUCH_END);
+        }
+        if(this.confirmBtn){
+            this.confirmBtn.off(Node.EventType.TOUCH_END);
+        }
+    }
 
     onLoad(){
         this._nodes = new Nodes(this.node);
@@ -142,8 +176,12 @@ export class SelectDate extends Component {
         this.monthSelect.dataList = len < 12? monthArr.slice(0, len - 12): monthArr.slice(0);
     }
 
-    private onClose(){
-        this.callback && this.callback(this._year.substring(0, this._year.length - 1), this._month.substring(0, this._month.length - 1), this._day.substring(0, this._day.length - 1));
+    private onClose(type: 'confirm' | 'cancel' = 'confirm'){
+        if(type === 'cancel'){
+            this.callback && this.callback(this._initYear, this._initMonth, this._initDay);
+        }else{
+            this.callback && this.callback(this._year.substring(0, this._year.length - 1), this._month.substring(0, this._month.length - 1), this._day.substring(0, this._day.length - 1));
+        }
         this.node.active = false;
     }
 

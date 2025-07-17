@@ -659,7 +659,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
         context._curFish.setSelect(context.selectColor, 1.3);
         for (let i = 0; i < len; i++) {
-            this.unSelectWang(i);
+            context.unSelectWang(i);
         }
     }
 

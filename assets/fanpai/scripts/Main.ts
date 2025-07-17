@@ -867,7 +867,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     exitCallBack(context) {
         clearTimeout(context._setTimeOutId);
         context._setTimeOutId = null;
-        super.exitCallBack(this);
+        super.exitCallBack(context);
     }
 
     /**
