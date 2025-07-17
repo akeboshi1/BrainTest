@@ -86,7 +86,7 @@ export class SelectDate extends Component {
 
         if(this._nodes.nodeMask){
             this._nodes.nodeMask.on(Node.EventType.TOUCH_END, () => {                
-                this.onClose();
+                this.onClose('cancel');
             })
         }
     }
