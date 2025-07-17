@@ -720,7 +720,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -10,
+      "x": 0,
       "y": 850,
       "z": 0
     },
@@ -928,7 +928,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1000,
-      "height": 50.4
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -953,11 +953,11 @@
     "__prefab": {
       "__id__": 41
     },
-    "_lineHeight": 40,
+    "_lineHeight": 60,
     "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_fontSize": 40,
+    "_fontSize": 50,
     "_fontColor": {
       "__type__": "cc.Color",
       "r": 0,
@@ -1176,8 +1176,9 @@
     "treatyRichText": {
       "__id__": 40
     },
-    "loadingProgress": null,
-    "loadingNode": null,
+    "scrollView": {
+      "__id__": 27
+    },
     "_id": ""
   },
   {
