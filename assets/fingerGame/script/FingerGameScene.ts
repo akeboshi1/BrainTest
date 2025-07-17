@@ -413,7 +413,7 @@ export class FingerGameScene extends Component {
             let group_size = 4;
             let post_data = {
                 token: token,
-                task_id: task_id,
+                activity_id: this._model.activity.id,
                 group_size: group_size,
                 absolutePath: this._absolutePath,
             }
