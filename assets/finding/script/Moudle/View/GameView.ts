@@ -33,12 +33,12 @@ import { FindingGuide } from "db://assets/resources/scripts/Core/Manager/Guide/g
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import FindingGlobal from "db://assets/finding/script/Common/FindingGlobal";
 import { Game } from "../../Scene/Game";
-import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import { GameType } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import { AbortablePromise } from "db://assets/resources/scripts/Core/StateMachine/AbortablePromise";
-import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { SequenceFlow } from "db://assets/resources/scripts/Core/StateMachine/SequenceFlow";
 import HomeView from "db://assets/finding/script/Moudle/View/HomeView";
 
@@ -99,13 +99,13 @@ export default class GameView extends LayerPanel {
     private reminderNode: Node = null;
 
     private guankaLabel: Node = null;
-    
+
 
     private victory: Node = null;
 
     quitBtn: Node;
 
-    private goonBtn:Node = null;
+    private goonBtn: Node = null;
 
     private clockTime: number = null;
 
@@ -142,10 +142,10 @@ export default class GameView extends LayerPanel {
             this.framePostions = [];
             this._startTime = TimeUtil.getNow();
             this.canAddTime = true;
-            
+
             // 使用统一的方法获取viewNode中的UI元素
             this.getViewNodeElements();
-            
+
             // 设置倒计时和进度条初始值
             // this.countDownTime = GameConfig.customTime;
             // this.tempCountDown = GameConfig.allTime;
@@ -162,9 +162,9 @@ export default class GameView extends LayerPanel {
                 this.tempCountDown = skewersGameData.timeLimit;
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
-                let _hard =(this.sceneModel as any).game.difficulty;
+                let _hard = (this.sceneModel as any).game.difficulty;
                 this._curHard = _hard;
-                if(!Global.isAgain)this._checkPoint = (this.sceneModel as any).level;
+                if (!Global.isAgain) this._checkPoint = (this.sceneModel as any).level;
                 // if(Global.isAgain){
                 //     CacheMgr.hard --;
                 //     _hard = _hard<0?0:_hard-1;
@@ -182,14 +182,14 @@ export default class GameView extends LayerPanel {
 
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
                 if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
-                this.progress.progress = loopLevel/(this.sceneModel as any).levelLen;
+                this.progress.progress = loopLevel / (this.sceneModel as any).levelLen;
                 let customCount;
                 if (loopLevel == GameConfig.allCheckPoint) {
                     customCount = 1;
                 } else {
                     customCount = loopLevel;
                 }
-                this.guankaLabel.getComponent(Label).string = "第" + loopLevel+"/"+(this.sceneModel as any).levelLen + "关";
+                this.guankaLabel.getComponent(Label).string = "第" + loopLevel + "/" + (this.sceneModel as any).levelLen + "关";
             }
             this._curCount = 0;
             this._maxCount = this._counts[this._curHard - 1];
@@ -204,9 +204,9 @@ export default class GameView extends LayerPanel {
             const bundle = assetManager.getBundle(BundleName.FINGING);
             let spriteFrame1 = null;
             let spriteFrame2 = null;
-            let flow1 = new AbortablePromise((res,rej)=>{
-                bundle.load(bundleName + `/image/${imageName}_1_32/spriteFrame`,SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
-                    if(err){
+            let flow1 = new AbortablePromise((res, rej) => {
+                bundle.load(bundleName + `/image/${imageName}_1_32/spriteFrame`, SpriteFrame, (err: Error, spriteFrame: SpriteFrame) => {
+                    if (err) {
                         rej(err);
                     }
                     spriteFrame1 = spriteFrame;
@@ -214,9 +214,14 @@ export default class GameView extends LayerPanel {
                 });
             });
 
-            let flow2 = new AbortablePromise((res,rej)=>{
-                bundle.load(bundleName + `/image/${imageName}_2_32/spriteFrame`,SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
-                    if(err){
+            // 重置倒计时
+            this.countDownTime = GameConfig.customTime;
+            this.tempCountDown = GameConfig.allTime;
+            this.countDown.string = Math.ceil(this.countDownTime) + "秒";
+
+            let flow2 = new AbortablePromise((res, rej) => {
+                bundle.load(bundleName + `/image/${imageName}_2_32/spriteFrame`, SpriteFrame, (err: Error, spriteFrame: SpriteFrame) => {
+                    if (err) {
                         rej(err);
                     }
                     spriteFrame2 = spriteFrame;
@@ -227,7 +232,7 @@ export default class GameView extends LayerPanel {
             let flow = new SequenceFlow();
             flow.addFlow(flow1);
             flow.addFlow(flow2);
-            flow.start().then(()=>{
+            flow.start().then(() => {
                 pictureSprite1.spriteFrame = spriteFrame1;
                 pictureSprite2.spriteFrame = spriteFrame2;
                 pictureSprite1.node.active = true;
@@ -261,7 +266,7 @@ export default class GameView extends LayerPanel {
                     // graphics.fillColor = new Color(255, 0, 0, 128); // 红色半透明
                     // graphics.rect(-nodeUITransform.width/2, -nodeUITransform.height/2, nodeUITransform.width, nodeUITransform.height);
                     // graphics.fill();
-                    
+
                     nodeUITransform.convertToWorldSpaceAR(node.position);
                     self.framePostions.push(node.position);
                     self.picture1.addChild(node);
@@ -282,7 +287,7 @@ export default class GameView extends LayerPanel {
                     Game.Ins.setGameViewRef(this);
                 }
                 resolve();
-            }).catch((err)=>{
+            }).catch((err) => {
                 DebugLog.instance.error(err);
             });
         })
@@ -291,9 +296,9 @@ export default class GameView extends LayerPanel {
     private backHandler() {
         this.pause = true;
         FindingGlobal.reset();
-        this.quitGame({ 
-            parentNode: this.viewNode, 
-            context: this 
+        this.quitGame({
+            parentNode: this.viewNode,
+            context: this
         });
     }
 
@@ -568,7 +573,7 @@ export default class GameView extends LayerPanel {
         CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
         this.refreshGame();
     }
-    
+
     onFailNextLevel(): void {
         CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
         this.refreshGame();
@@ -736,7 +741,7 @@ export default class GameView extends LayerPanel {
         super.goonHandler(context);
     }
 
-    dzgoonHandler(resuleBoo:boolean = true) {
+    dzgoonHandler(resuleBoo: boolean = true) {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -745,13 +750,13 @@ export default class GameView extends LayerPanel {
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Judgment;
-                if(!_boo){
+                if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
-                }else{
+                } else {
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -760,7 +765,7 @@ export default class GameView extends LayerPanel {
     public clearGameView() {
         super.clearGameView();
         AudioMgr.stop();
-        
+
         // 安全清理：禁用所有相关节点而不是直接设置spriteFrame为null
         this.safeClearAllNodes();
     }
@@ -773,27 +778,27 @@ export default class GameView extends LayerPanel {
         if (this.viewNode && this.viewNode.isValid) {
             this.viewNode.active = false;
         }
-        
+
         // 禁用错误节点
         if (this.errNode && this.errNode.isValid) {
             this.errNode.active = false;
         }
-        
+
         // 禁用提示节点
         if (this.reminderNode && this.reminderNode.isValid) {
             this.reminderNode.active = false;
         }
-        
+
         // 禁用胜利节点
         if (this.victory && this.victory.isValid) {
             this.victory.active = false;
         }
-        
+
         // 禁用彩带节点
         if (this.plistNode && this.plistNode.isValid) {
             this.plistNode.active = false;
         }
-        
+
         // 禁用所有图片节点
         if (this.pictureList && this.pictureList.length > 0) {
             this.pictureList.forEach(picture => {
@@ -802,7 +807,7 @@ export default class GameView extends LayerPanel {
                 }
             });
         }
-        
+
         // 禁用提示圆圈节点
         if (this.hintRoundNode1 && this.hintRoundNode1.isValid) {
             this.hintRoundNode1.active = false;
@@ -821,7 +826,7 @@ export default class GameView extends LayerPanel {
         // SkewersManager.getInstance().showGameAlert(context.node,AlertType.Next,SkewersManager.getInstance().nextSkewersGameStr,'',0,0,context.alertGoonHandler,context.exitCallBack,context);
     }
 
-    nextClick(){
+    nextClick() {
         this.nextHandler(this);
     }
 
@@ -829,7 +834,7 @@ export default class GameView extends LayerPanel {
      * 显示所有不同的地方
      * @private
      */
-    private showAllPoint(){
+    private showAllPoint() {
         // 用粉色圆圈显示所有尚未点击的不同点
         const url = "sub/image/view/gameView/public/hint";
         for (let i = 0; i < this.frameList.length; i++) {
@@ -846,7 +851,7 @@ export default class GameView extends LayerPanel {
                 this.tempList.push(this.frameList[i].id);
             }
         }
-        
+
         // 更新显示结果
         for (let i = 0; i < this.resultList.length && i < this.resultNode.children.length; i++) {
             let resultNode = this.resultNode.children[i];
@@ -855,7 +860,7 @@ export default class GameView extends LayerPanel {
                 children.active = true;
             }
         }
-        
+
         // 游戏结束
         if (this.resultList.length >= this._maxCount) {
             this.gameOver = true;
@@ -863,7 +868,7 @@ export default class GameView extends LayerPanel {
         }
     }
 
-    public onClickShowAnswer(){
+    public onClickShowAnswer() {
         super.onClickShowAnswer();
         this.goonBtn.active = true;
         this.showAllPoint();
@@ -876,7 +881,7 @@ export default class GameView extends LayerPanel {
             layer: Layer.gameLayer,
             panel: HomeView,
             param: CacheMgr.checkpoint
-        }).then(()=>{
+        }).then(() => {
 
             PanelMgr.INS.closePanel(GameView);
         });
@@ -885,10 +890,10 @@ export default class GameView extends LayerPanel {
     exitCallBack(context) {
         context.pause = false;
         AudioMgr.audioSource.stop();
-        
+
         // 安全清理：禁用所有相关节点
         this.safeClearAllNodes();
-        
+
         PanelMgr.INS.closePanel(GameView);
         FindingGlobal.reset();
         context.totalCompete(context);
@@ -908,7 +913,7 @@ export default class GameView extends LayerPanel {
         AudioMgr.audioSource.stop();
         // 上报游戏数据
         this._endTime = TimeUtil.getNow();
-       
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             FindingGlobal.skewersGameLevel = 0;
             this._requestSkewersGameComplete();
@@ -969,7 +974,7 @@ export default class GameView extends LayerPanel {
             duration,
             timelimit: GameConfig.customTime,
             difficulty: this._curHard,
-            levelMode:curGame.levelMode
+            levelMode: curGame.levelMode
         });
         // GameCenterManager.getInstance().gamePassLevel(curGame.sessionid, this.resultList.length, CacheMgr.checkpoint,
         //     this.resultList.length / this._maxCount, duration, GameConfig.customTime, this._curHard, () => { });
@@ -991,18 +996,18 @@ export default class GameView extends LayerPanel {
         }
 
         const bundle = assetManager.getBundle(BundleName.FINGING);
-        bundle.load(GameConfig.prefabData[this.hintIndex],Prefab,(err:Error,prefab:Prefab)=>{
-            if(err){
+        bundle.load(GameConfig.prefabData[this.hintIndex], Prefab, (err: Error, prefab: Prefab) => {
+            if (err) {
                 DebugLog.instance.error(err);
                 return;
             }
-            
+
             // 再次检查，确保在异步加载完成后reminderNode仍然为null
             if (this.reminderNode && this.reminderNode.isValid) {
                 this.reminderNode.destroy();
                 this.reminderNode = null;
             }
-            
+
             let node = instantiate(prefab);
             this.viewNode.addChild(node);
             let script = node.getComponent(HintPrefab);
@@ -1040,8 +1045,8 @@ export default class GameView extends LayerPanel {
         let particleUrl = "sub/image/view/gameView/particle/win";
 
         const bundle = assetManager.getBundle(BundleName.FINGING);
-        bundle.load(particleUrl,ParticleAsset,(err:Error,particle:ParticleAsset)=>{
-            if(err){
+        bundle.load(particleUrl, ParticleAsset, (err: Error, particle: ParticleAsset) => {
+            if (err) {
                 DebugLog.instance.error(err);
             }
             particleComp.file = particle;
@@ -1084,12 +1089,12 @@ export default class GameView extends LayerPanel {
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
         const bundle = assetManager.getBundle(BundleName.FINGING);
-        bundle.load(url+"/spriteFrame",SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
-            if(err){
+        bundle.load(url + "/spriteFrame", SpriteFrame, (err: Error, spriteFrame: SpriteFrame) => {
+            if (err) {
                 DebugLog.instance.error(err);
             }
             sprite.spriteFrame = spriteFrame;
-            if(url == "sub/image/view/gameView/public/hint"){
+            if (url == "sub/image/view/gameView/public/hint") {
                 sprite.color = new Color(255, 0, 0, 255); // 红色
             }
             sprite.node.active = true;
@@ -1124,8 +1129,8 @@ export default class GameView extends LayerPanel {
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
         const bundle = assetManager.getBundle(BundleName.FINGING);
-        bundle.load("sub/image/view/gameView/public/err/spriteFrame",SpriteFrame,(err:Error,spriteFrame:SpriteFrame)=>{
-            if(err){
+        bundle.load("sub/image/view/gameView/public/err/spriteFrame", SpriteFrame, (err: Error, spriteFrame: SpriteFrame) => {
+            if (err) {
                 DebugLog.instance.error(err);
             }
             sprite.spriteFrame = spriteFrame;
@@ -1201,7 +1206,7 @@ export default class GameView extends LayerPanel {
         if (this.picture1) {
             this.pictureList.push(this.picture1);
         }
-        
+
         this.picture2 = viewNode.getChildByName("picture2Bg")?.getChildByName("mask")?.getChildByName("picture");
         if (this.picture2) {
             this.pictureList.push(this.picture2);
