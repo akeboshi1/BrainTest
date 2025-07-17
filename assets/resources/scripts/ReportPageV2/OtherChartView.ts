@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, Graphics, Label, log, Node, resources, Sprite, SpriteFrame, UITransform } from 'cc';
+import { _decorator, Color, Component, Graphics, Label, log, Node, resources, Sprite, SpriteFrame, UITransform, EventHandler } from 'cc';
 import { ReportManager } from '../ManagerV2/ReportManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
@@ -19,6 +19,7 @@ export class OtherChartView extends Component {
     private color: Color = new Color(0, 0, 0);
     private width: number = 0;
     private height: number = 0;
+    private dataPoints: Node[] = [];
 
     private currentIndex: number = 0;
     private total: number = 0;
@@ -55,9 +56,10 @@ export class OtherChartView extends Component {
 
         // 清除所有子节点（包括标签）
         this.lineChart.removeAllChildren();
+        this.dataPoints = [];
 
         // 先绘制主线条
-        g.strokeColor =new Color(0, 89, 247);
+        g.strokeColor = new Color(0, 89, 247);
         g.lineWidth = 6;
 
         // 刻度高
@@ -80,19 +82,31 @@ export class OtherChartView extends Component {
         // 绘制网格线
         this.drawGridLine(g);
 
-        // 最后绘制标签，这样不会被网格线覆盖
-        for (let i = 0; i < this.scoreData.length - 1; i++) {
-            const x1 = i * this.width / (this.scoreData.length - 1) - centerX;
-            const x2 = (i + 1) * this.width / (this.scoreData.length - 1) - centerX;
-            const y1 = this.scoreData[i] * _h - centerY;
-            const y2 = this.scoreData[i + 1] * _h - centerY;
-
-            // 绘制标签
-            this.drawLabel(x1, y1, `${this.scoreData[i]}`);
-            if (i === this.scoreData.length - 2) {
-                this.drawLabel(x2, y2, `${this.scoreData[i + 1]}`);
-            }
+        // 绘制数据点和圆点
+        for (let i = 0; i < this.scoreData.length; i++) {
+            const x = i * this.width / (this.scoreData.length - 1) - centerX;
+            const y = this.scoreData[i] * _h - centerY;
+            
+            // 创建数据点节点
+            const pointNode = new Node();
+            pointNode.setPosition(x, y);
+            this.lineChart.addChild(pointNode);
+            this.dataPoints.push(pointNode);
+            
+            // 绘制圆点
+            const pointGraphics = pointNode.addComponent(Graphics);
+            pointGraphics.fillColor = new Color(0, 89, 247);
+            pointGraphics.circle(0, 0, 8);
+            pointGraphics.fill();
+            
+            // 添加点击事件组件
+            const uiTransform = pointNode.addComponent(UITransform);
+            uiTransform.setContentSize(30, 30);
+            
+            // 为每个圆点添加点击事件
+            pointNode.on(Node.EventType.TOUCH_START, (event) => this.onPointClick(i), this);
         }
+        
         this.drawXAxisLabel();
     }
     clickLeftArrow() {
@@ -166,7 +180,21 @@ export class OtherChartView extends Component {
         }
     }
 
-    drawLabel(x: number, y: number, text: string, color: Color = new Color(148, 149, 153)) {
+    onPointClick(index: number) {
+        // 检查当前圆点是否已经有标签
+        const pointNode = this.dataPoints[index];
+        const existingLabel = pointNode.children.find(child => child.getComponent(Label));
+        
+        if (existingLabel) {
+            // 如果已经有标签，则移除它
+            existingLabel.destroy();
+        } else {
+            // 如果没有标签，则添加标签
+            this.drawLabel(0, 20, `${this.scoreData[index]}`, new Color(148, 149, 153), pointNode);
+        }
+    }
+
+    drawLabel(x: number, y: number, text: string, color: Color = new Color(148, 149, 153), parent: Node = this.lineChart) {
         const labelNode = new Node();
         const label = labelNode.addComponent(Label);
         label.string = text;
@@ -175,7 +203,8 @@ export class OtherChartView extends Component {
         labelNode.setPosition(x - width / 2, y);
         label.fontSize = 36;
         labelNode.getComponent(UITransform).setAnchorPoint(0, 0);
-        this.lineChart.addChild(labelNode);
+        parent.addChild(labelNode);
+        return labelNode;
     }
 
 }

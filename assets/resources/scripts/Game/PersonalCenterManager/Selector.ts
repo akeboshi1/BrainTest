@@ -7,6 +7,10 @@ export class Selector extends Component {
 
     @property(ScrollViewExt)
     svExt: ScrollViewExt = null;
+    @property(Node)
+    cancelBtn:Node = null;
+    @property(Node)
+    confirmBtn:Node = null;
 
     // @property([String])
     // options: String[] = [];
@@ -18,12 +22,41 @@ export class Selector extends Component {
 
     private _selectedOptions: string;
     private _index: number;
+    
+    // 新增：记录初始值
+    private _initSelectedOption: string;
+    private _initIndex: number;
 
-    onLoad(): void {
-
+    onEnable(){
+        if(this.cancelBtn){
+            this.cancelBtn.on(Node.EventType.TOUCH_END, () => {
+                this.onClose('cancel');
+            })
+        }
+        if(this.confirmBtn){
+            this.confirmBtn.on(Node.EventType.TOUCH_END, () => {
+                this.onClose('confirm');
+            })
+        }
     }
-    setOptions(options: string[]) {
+    onDisable(){
+        if(this.cancelBtn){
+            this.cancelBtn.off(Node.EventType.TOUCH_END);
+        }
+        if(this.confirmBtn){
+            this.confirmBtn.off(Node.EventType.TOUCH_END);
+        }
+    }
+    setOptions(options: string[], initValue?: string) {
         this.options = options;
+        // 记录初始值
+        if (initValue && options.indexOf(initValue) !== -1) {
+            this._initSelectedOption = initValue;
+            this._initIndex = options.indexOf(initValue);
+        } else {
+            this._initSelectedOption = options[0];
+            this._initIndex = 0;
+        }
         this.startOptionsShow();
     }
     startOptionsShow(){
@@ -46,7 +79,7 @@ export class Selector extends Component {
 
             if (this._nodes.nodeMask) {
                 this._nodes.nodeMask.on(Node.EventType.TOUCH_END, () => {
-                    this.onClose();
+                    this.onClose('cancel');
                 })
             }
         } catch (error) {
@@ -69,8 +102,12 @@ export class Selector extends Component {
         }
     }
 
-    private onClose() {
-        this.callback(this._selectedOptions);
+    private onClose(type: 'confirm' | 'cancel' = 'confirm') {
+        if (type === 'cancel') {
+            this.callback && this.callback(this._initSelectedOption);
+        } else {
+            this.callback && this.callback(this._selectedOptions);
+        }
         this.node.active = false;
     }
 
