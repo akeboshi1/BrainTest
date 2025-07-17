@@ -16,7 +16,7 @@ export class TreatyView extends BasePanel {
 
     private contentChunks: string[] = [];
     private currentChunkIndex: number = 0;
-    private readonly CHUNK_SIZE: number = 1000; 
+    private readonly CHUNK_SIZE: number = 600; 
     private isLoading: boolean = false;
     private readonly LOADING_TEXT: string = '\n\n<color=#B6B6B6>文字正在加载中，请稍后...</color>';
 
