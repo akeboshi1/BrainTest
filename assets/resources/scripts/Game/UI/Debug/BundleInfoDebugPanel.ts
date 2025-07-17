@@ -2,6 +2,7 @@ import { _decorator, Label, Node, UITransform, Vec3 } from 'cc';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { BundleManager } from 'db://assets/app/BundleManager';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
+import { PublishSettingConfig } from 'db://assets/app/PublishSettingConfig';
 
 const { ccclass, property } = _decorator;
 
@@ -12,12 +13,10 @@ export class BundleInfoDebugPanel extends BasePanel {
     @property(Label)
     private versionLabel: Label = null!;
 
+    @property(Node)
     private contentNode: Node = null!;
 
     start() {
-        // 获取预设的Label所在节点作为内容节点
-        this.contentNode = this.versionLabel.node.parent;
-
         // 显示版本信息
         this.showBundleInfo();
     }
@@ -31,9 +30,10 @@ export class BundleInfoDebugPanel extends BasePanel {
             return;
         }
 
+        let isremote = PublishSettingConfig.getInstance().getIsRemoteBundle();
         // 显示全局版本号
         let ver = config.version.split(' ')[1];
-        this.versionLabel.string = `全局版本：${ver}`;
+        this.versionLabel.string = `全局版本：${ver} ${isremote ? "远程" : "本地"}`;
 
         for (const bundleName in config.bundles) {
             const bundleInfo = config.bundles[bundleName];
