@@ -32,9 +32,6 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     @property(TimerCommonComponent)
     private timerRT: TimerCommonComponent = null;
 
-    // @property(TimerCommonComponent)
-    // private timerStartGame: TimerCommonComponent = null;
-
     @property(Node)
     private questionNode: Node = null;
 
