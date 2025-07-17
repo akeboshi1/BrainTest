@@ -12,6 +12,13 @@ export class SettlementPanel extends BasePanel{
     private residueTime:number = 0;
 
     @property(Node)
+    bg0 :Node = null;
+    @property(Node)
+    bg1 :Node = null;
+    @property(Node)
+    bg2 :Node = null;
+
+    @property(Node)
     private btn1Node: Node = null;
     @property(Node)
     private btn2Node: Node = null;
@@ -66,6 +73,9 @@ export class SettlementPanel extends BasePanel{
     public initEnd() {
         if (this.result === null) {
             // 退出确认模式
+            this.bg0.active = true;
+            this.bg1.active = true;
+            this.bg2.active = true;
             this.btn1Node.active = true;
             this.loseTitle.active = false;
             this.winTitle.active = false;
@@ -83,6 +93,9 @@ export class SettlementPanel extends BasePanel{
             }
         } else if (this.result) {
             // 成功模式
+            this.bg0.active = false;
+            this.bg1.active = false;
+            this.bg2.active = false;
             this.btn1Node.active = false;
             this.loseTitle.active = false;
             this.quitTitle.active = false;
@@ -99,6 +112,9 @@ export class SettlementPanel extends BasePanel{
             }
         } else {
             // 失败模式
+            this.bg0.active = false;
+            this.bg1.active = false;
+            this.bg2.active = false;
             this.btn1Node.active = true;
             this.loseTitle.active = true;
             this.quitTitle.active = false;
