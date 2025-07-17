@@ -194,7 +194,7 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
         } else {
             context.clearGameView();
         }
-        if (this.sceneModel) this.sceneModel.exitCallBack();
+        if (context.sceneModel) context.sceneModel.exitCallBack();
     }
 
     //  ========== 退出游戏打开评测面板 ==========
@@ -204,7 +204,7 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
         } else {
             context.clearGameView();
         }
-        if (this.sceneModel) this.sceneModel.remoteExitCallBack();
+        if (context.sceneModel) context.sceneModel.remoteExitCallBack();
     }
 
     // ========== 继续游戏回调 ==========

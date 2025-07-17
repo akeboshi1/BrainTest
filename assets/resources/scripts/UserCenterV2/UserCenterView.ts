@@ -5,11 +5,12 @@ import { AlterUserInfoView } from './AlterUserInfoView';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
-import {VipPanel} from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
+import { VipPanel } from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 import { VerifyPanel } from '../Game/UI/Login/VerifyPanel';
 import { MySetView } from './MySetView';
-import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
-import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import { AlertData, AlertManager } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import { BundleInfoDebugPanel } from '../Game/UI/Debug/BundleInfoDebugPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('UserCenterPanel')
@@ -20,30 +21,85 @@ export class UserCenterPanel extends AdaptComponent {
    userIcon: Sprite = null;
 
    @property(Node)
-   memberNode:Node = null;
+   memberNode: Node = null;
 
 
-    @property(Label)
-    descLabel:Label = null;
+   @property(Label)
+   descLabel: Label = null;
 
-    start(){
-       super.start();
+   // 点击计数器相关属性
+   private clickCount: number = 0;
+   private clickTimer: number = 0;
+   private readonly CLICK_TIMEOUT: number = 3; // 3秒超时
+   private readonly REQUIRED_CLICKS: number = 5; // 需要5次点击
+
+   start() {
+      super.start();
    }
 
    onEnable() {
       EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
       PersonalCenterManager.getInstance().requestUserInfo();
+
+      // 为userIcon添加点击事件
+      this.userIcon.node.on(Node.EventType.TOUCH_END, this.onUserIconClick, this);
    }
+   
    onDisable() {
       EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
+      // 移除点击事件监听
+      this.userIcon.node.off(Node.EventType.TOUCH_END, this.onUserIconClick, this);
+   }
+
+   /**
+    * 处理用户头像点击事件
+    */
+   private onUserIconClick() {
+      const currentTime = Date.now() / 1000;
+      
+      // 如果是第一次点击或超时，重置计数器
+      if (this.clickCount === 0 || (currentTime - this.clickTimer) > this.CLICK_TIMEOUT) {
+         this.clickCount = 1;
+         this.clickTimer = currentTime;
+      } else {
+         // 在时间窗口内，增加计数
+         this.clickCount++;
+         
+         // 检查是否达到目标点击次数
+         if (this.clickCount >= this.REQUIRED_CLICKS) {
+            this.openBundleInfoDebugPanel();
+            this.resetClickCounter();
+         }
+      }
+   }
+
+   /**
+    * 重置点击计数器
+    */
+   private resetClickCounter() {
+      this.clickCount = 0;
+      this.clickTimer = 0;
+   }
+
+   /**
+    * 打开BundleInfoDebugPanel
+    */
+   private openBundleInfoDebugPanel() {
+      UIManager.getInstance().registerPanel(
+         BundleInfoDebugPanel.NAME, 
+         BundleName.RESOURCES, 
+         "/prefab/Debug/BundleInfoDebugPanel", 
+         BundleInfoDebugPanel
+      );
+      UIManager.getInstance().showPanel(BundleInfoDebugPanel.NAME);
    }
 
    async getUserInfoCallBack() {
       let userData = PersonalCenterManager.getInstance().userInfoData;
-      if(userData.gender==1){
+      if (userData.gender == 1) {
          const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
          this.userIcon.spriteFrame = spriteFrame;
-      }else{
+      } else {
          const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/female/spriteFrame');
          this.userIcon.spriteFrame = spriteFrame;
       }
@@ -52,31 +108,31 @@ export class UserCenterPanel extends AdaptComponent {
       } else {
          this.setPersonalCenterTitle("未设置昵称");
       }
-       let label = this.memberNode.getChildByName("label").getComponent(Label);
-      if(userData.is_member){
-          label.string = "续费会员";
-          this.descLabel.string =  "您已开通会员，点击续费";
-      }else{
-          label.string = "开通会员";
-          this.descLabel.string = "开通会员，享受更多特权";
+      let label = this.memberNode.getChildByName("label").getComponent(Label);
+      if (userData.is_member) {
+         label.string = "续费会员";
+         this.descLabel.string = "您已开通会员，点击续费";
+      } else {
+         label.string = "开通会员";
+         this.descLabel.string = "开通会员，享受更多特权";
       }
    }
    async loadTaskSprite(path: string): Promise<SpriteFrame> {
       return new Promise((resolve, reject) => {
-          resources.load(path, SpriteFrame, (err, spriteFrame) => {
-              if (err) {
-                  reject(err);
-                  return;
-              }
+         resources.load(path, SpriteFrame, (err, spriteFrame) => {
+            if (err) {
+               reject(err);
+               return;
+            }
 
-              if (!spriteFrame) {
-                  reject(new Error('Loaded sprite frame is null'));
-                  return;
-              }
-              resolve(spriteFrame);
-          });
+            if (!spriteFrame) {
+               reject(new Error('Loaded sprite frame is null'));
+               return;
+            }
+            resolve(spriteFrame);
+         });
       })
-  }
+   }
    setPersonalCenterTitle(title: string) {
       if (title.length > 5) {
          title = title.substring(0, 6) + '...';
@@ -107,18 +163,18 @@ export class UserCenterPanel extends AdaptComponent {
       UIManager.getInstance().showPanel(MySetView.NAME);
    }
 
-   onClickShowVip(){
+   onClickShowVip() {
       EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
       UIManager.getInstance().showPanel(VipPanel.NAME);
    }
 
-   private onCloseVerifyPanel(){
+   private onCloseVerifyPanel() {
    }
 
-   showScanPanel(){
+   showScanPanel() {
       UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
       UIManager.getInstance().showPanel(VerifyPanel.NAME);
-  }
+   }
 }
 
 

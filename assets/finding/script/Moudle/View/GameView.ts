@@ -892,7 +892,7 @@ export default class GameView extends LayerPanel {
         AudioMgr.audioSource.stop();
 
         // 安全清理：禁用所有相关节点
-        this.safeClearAllNodes();
+        context.safeClearAllNodes();
 
         PanelMgr.INS.closePanel(GameView);
         FindingGlobal.reset();
