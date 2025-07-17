@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Component, JsonAsset, Enum, Label, director, sys, Node, UITransform, Asset, UIOpacity, tween, EventTouch, input, Input, EventKeyboard, KeyCode, game } from 'cc';
+import { _decorator, assetManager, Component, JsonAsset, Enum, Label, director, sys, Node, UITransform, Asset, UIOpacity, tween, EventTouch, input, Input, EventKeyboard, KeyCode, game, profiler } from 'cc';
 import { BundleManager, BundleVersionsConfig } from './BundleManager';
 import { Environment, PublishSettingConfig } from './PublishSettingConfig';
 
@@ -44,6 +44,8 @@ export class AppStartFlow extends Component {
     private isLongPressing: boolean = false;
 
     onLoad() {
+        // 将调试信息隐藏
+        profiler.hideStats();
         // 注册触摸事件监听
         if (this.iconNode) {
             this.iconNode.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
