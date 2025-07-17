@@ -4,8 +4,7 @@ import { SocketData } from "../../Core/Manager/Net/SocketData";
 import { Global } from "../../Core/Manager/Config/Global";
 import { DebugLog } from "../../Core/Util/DebugLog";
 import { SceneManager } from "../../Core/Manager/Scene/SceneManager";
-import { instantiate, Node, Prefab, resources } from "cc";
-import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
+import { Node } from "cc";
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "../../Core/Manager/Load/BundlePreloadManager";
 import { BundleName } from "../../Core/Manager/Load/BundleName";
@@ -478,13 +477,7 @@ export class GameCenterManager {
     }
 
 
-    private checkAlertScale(parentNode:Node,alertNode){
-        if(parentNode && parentNode.scale.x < 1||parentNode.scale.y < 1){
-            alertNode.setScale(1/parentNode.scale.x,1/parentNode.scale.y,1);
-        }else{
-            alertNode.setScale(1,1,1);
-        }
-    }
+    // 移除checkAlertScale方法，因为不再使用BrainTrainAlert
 
 
     /**
@@ -495,19 +488,22 @@ export class GameCenterManager {
      * @param context
      */
     public quitGame(parentNode: Node, goon_callback: Function, exit_callback: Function, context) {
-        resources.load("prefab/BrainTrainAlert", Prefab, (err, prefab) => {
-            if (err) {
-                DebugLog.instance.error(err);
-                return;
+        // 使用SettlementPanel替代BrainTrainAlert
+        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+            result: null, // 设置为null表示退出确认模式
+            // title: "是否退出当前游戏？",
+            againHandler: () => {
+                // 继续游戏
+                if (goon_callback) {
+                    goon_callback(context);
+                }
+            },
+            nextHandler: () => {
+                // 退出游戏
+                if (exit_callback) {
+                    exit_callback(context);
+                }
             }
-            let alertNode = instantiate(prefab);
-            this.checkAlertScale(parentNode,alertNode);
-            parentNode.addChild(alertNode);
-            let alert = alertNode.getComponent("GameAlert");
-            alertNode.setPosition(0, 0, 0);
-            alert["showView"](AlertType.Game_Center);
-            alert["setTitle"]("是否退出当前游戏？");
-            alert["bindCallBack"](goon_callback, exit_callback, context);
         });
     }
 

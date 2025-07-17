@@ -131,7 +131,6 @@ export class GameAlert extends AdaptComponent {
         this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
         // 调整alert位置
         this.adjustAlertPosition();
-        
         switch (type) {
             case AlertType.Normal1:
                 this.exitBtn.node.active = true;
