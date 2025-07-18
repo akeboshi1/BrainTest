@@ -210,7 +210,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
         // 语音开始播放时启用开始按钮
         if (this.startBtn) {
-            this.startBtn.getComponent(Button).interactable = true;
+            this.startBtn.active = true;
         }
 
         // 语音播放时禁用选项按钮
@@ -528,7 +528,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
         // 重置时启用开始按钮
         if (this.startBtn) {
-            this.startBtn.getComponent(Button).interactable = true;
+            this.startBtn.active = true;
         }
 
         for (let i = 0; i < this.options.length; i++) {
@@ -578,7 +578,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
         // 点击开始按钮后禁用开始按钮
         if (this.startBtn) {
-            this.startBtn.getComponent(Button).interactable = false;
+            this.startBtn.active = false;
         }
 
         // 直接显示答案选项
