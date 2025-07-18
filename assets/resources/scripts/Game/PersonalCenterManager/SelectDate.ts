@@ -38,11 +38,7 @@ export class SelectDate extends Component {
     private _initMonth: string;
     private _initDay: string;
 
-    setInitValue(year: string, month: string, day: string) {
-        this._initYear = year;
-        this._initMonth = month;
-        this._initDay = day;
-    }
+  
     onEnable(){
         if(this.cancelBtn){
             this.cancelBtn.on(Node.EventType.TOUCH_END, () => {
@@ -107,6 +103,14 @@ export class SelectDate extends Component {
 
         this._day = dayArr[0];
         this._dayIdx = 0;
+
+        // 设置默认初始值
+        this.setOptions(this._year, this._month, this._day);
+    }
+    setOptions(year: string, month: string, day: string) {
+        this._initYear = year || this._year.substring(0, this._year.length - 1);
+        this._initMonth = month || this._month.substring(0, this._month.length - 1);
+        this._initDay = day || this._day.substring(0, this._day.length - 1);
     }
 
     private onYearChanged(idx:number, data:Array<string>){
