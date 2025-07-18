@@ -48,6 +48,25 @@ export interface PublishBundleToServerParams {
      * 环境
      */
     environment: 'development' | 'production';
+    
+    /**
+     * 并发上传数量（默认5）
+     */
+    concurrency?: number;
+    
+    /**
+     * 是否启用增量上传（默认true）
+     */
+    incremental?: boolean;
+}
+
+/**
+ * 文件上传任务
+ */
+interface UploadTask {
+    localPath: string;
+    remotePath: string;
+    size: number;
 }
 
 /**
@@ -60,6 +79,11 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
     private uploadedFiles: number = 0;
     private totalFiles: number = 0;
     private currentUploadFile: string = '';
+    private uploadQueue: UploadTask[] = [];
+    private concurrency: number = 5;
+    private incremental: boolean = true;
+    private createdDirectories: Set<string> = new Set();
+    private uploadPromises: Promise<void>[] = [];
     
     constructor() {
         super('发布Bundle到服务器', '将生成的Bundle上传到远程服务器');
@@ -80,6 +104,13 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         this.uploadedFiles = 0;
         this.totalFiles = 0;
         this.currentUploadFile = '';
+        this.uploadQueue = [];
+        this.createdDirectories.clear();
+        this.uploadPromises = [];
+        
+        // 设置并发数和增量上传
+        this.concurrency = params.concurrency || 10;
+        this.incremental = params.incremental !== false;
         
         this.updateProgress(0, '准备发布Bundle到服务器');
         
@@ -123,16 +154,19 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             
             this.updateProgress(15, `目标路径: ${remotePath}`);
             
-            // 计算要上传的文件总数
-            this.totalFiles = this.calculateFiles(localPath);
+            // 扫描文件并构建上传队列
+            this.updateProgress(20, '扫描文件...');
+            await this.scanFiles(localPath, remotePath);
             
-            this.updateProgress(20, `需要上传的文件总数: ${this.totalFiles}`);
+            this.updateProgress(25, `需要上传的文件总数: ${this.totalFiles}`);
             
-            // 开始上传
-            this.updateProgress(25, '开始上传文件');
+            // 批量创建目录
+            this.updateProgress(30, '创建远程目录结构...');
+            await this.createDirectoriesBatch();
             
-            // 上传整个目录
-            await this.uploadDirectory(localPath, remotePath);
+            // 开始并发上传
+            this.updateProgress(35, '开始并发上传文件');
+            await this.uploadFilesConcurrently();
             
             this.updateProgress(95, '验证上传结果');
             
@@ -168,6 +202,159 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
                 }
                 this.client = null;
             }
+        }
+    }
+    
+    /**
+     * 扫描文件并构建上传队列
+     */
+    private async scanFiles(localDir: string, remoteDir: string): Promise<void> {
+        const items = readdirSync(localDir);
+        
+        for (const item of items) {
+            if (this.canceled) {
+                throw new Error('扫描已取消');
+            }
+            
+            const localItemPath = join(localDir, item);
+            const remoteItemPath = `${remoteDir}/${item}`;
+            
+            if (lstatSync(localItemPath).isDirectory()) {
+                // 递归扫描子目录
+                await this.scanFiles(localItemPath, remoteItemPath);
+            } else {
+                // 检查是否需要上传（增量上传）
+                if (this.incremental && await this.shouldSkipFile(localItemPath, remoteItemPath)) {
+                    console.log(`跳过文件（已存在且相同）: ${item}`);
+                    continue;
+                }
+                
+                const stats = lstatSync(localItemPath);
+                this.uploadQueue.push({
+                    localPath: localItemPath,
+                    remotePath: remoteItemPath,
+                    size: stats.size
+                });
+                this.totalFiles++;
+            }
+        }
+    }
+    
+    /**
+     * 检查是否应该跳过文件（增量上传）
+     */
+    private async shouldSkipFile(localPath: string, remotePath: string): Promise<boolean> {
+        if (!this.client) return false;
+        
+        try {
+            const remoteStats = await this.client.stat(remotePath);
+            const localStats = lstatSync(localPath);
+            
+            // 比较文件大小
+            const remoteSize = (remoteStats as any).size || 0;
+            return remoteSize === localStats.size;
+        } catch {
+            // 远程文件不存在，需要上传
+            return false;
+        }
+    }
+    
+    /**
+     * 批量创建目录
+     */
+    private async createDirectoriesBatch(): Promise<void> {
+        if (!this.client) return;
+        
+        const directories = new Set<string>();
+        
+        // 收集所有需要的目录
+        for (const task of this.uploadQueue) {
+            const dir = task.remotePath.substring(0, task.remotePath.lastIndexOf('/'));
+            if (dir && !this.createdDirectories.has(dir)) {
+                directories.add(dir);
+            }
+        }
+        
+        // 按层级排序，确保父目录先创建
+        const sortedDirs = Array.from(directories).sort((a, b) => {
+            const aDepth = (a.match(/\//g) || []).length;
+            const bDepth = (b.match(/\//g) || []).length;
+            return aDepth - bDepth;
+        });
+        
+        // 批量创建目录
+        for (const dir of sortedDirs) {
+            if (this.canceled) break;
+            
+            try {
+                await this.client.mkdir(dir, true);
+                this.createdDirectories.add(dir);
+            } catch (error) {
+                // 目录可能已存在，继续
+                console.warn(`创建目录失败，可能已存在: ${dir}`);
+            }
+        }
+    }
+    
+    /**
+     * 并发上传文件
+     */
+    private async uploadFilesConcurrently(): Promise<void> {
+        if (!this.client || this.uploadQueue.length === 0) return;
+        
+        const semaphore = new Semaphore(this.concurrency);
+        
+        // 创建上传任务
+        const uploadTasks = this.uploadQueue.map(task => 
+            this.uploadFileWithSemaphore(task, semaphore)
+        );
+        
+        // 等待所有上传完成
+        await Promise.all(uploadTasks);
+    }
+    
+    /**
+     * 使用信号量上传单个文件
+     */
+    private async uploadFileWithSemaphore(task: UploadTask, semaphore: Semaphore): Promise<void> {
+        await semaphore.acquire();
+        
+        try {
+            await this.uploadSingleFile(task);
+        } finally {
+            semaphore.release();
+        }
+    }
+    
+    /**
+     * 上传单个文件
+     */
+    private async uploadSingleFile(task: UploadTask): Promise<void> {
+        if (this.canceled || !this.client) {
+            throw new Error('上传已取消或客户端不存在');
+        }
+        
+        this.currentUploadFile = task.localPath.split('/').pop() || '';
+        
+        try {
+            await this.withRetry(
+                async () => {
+                    await this.client!.put(task.localPath, task.remotePath);
+                },
+                2, // 减少重试次数
+                1000 // 减少重试间隔
+            );
+            
+            this.uploadedFiles++;
+            
+            // 减少进度更新频率，每10个文件更新一次
+            if (this.uploadedFiles % 10 === 0 || this.uploadedFiles === this.totalFiles) {
+                const progress = Math.min(95, 35 + Math.floor((this.uploadedFiles / this.totalFiles) * 60));
+                this.updateProgress(progress, `已上传 ${this.uploadedFiles}/${this.totalFiles} 个文件`);
+            }
+        } catch (error) {
+            console.error(`上传文件失败: ${task.localPath}`, error);
+            // 继续处理其他文件，不抛出错误
         }
     }
     
@@ -232,141 +419,6 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
     }
     
     /**
-     * 计算目录下的文件总数
-     */
-    private calculateFiles(dir: string): number {
-        let count = 0;
-        const items = readdirSync(dir);
-        for (const item of items) {
-            const itemPath = join(dir, item);
-            if (lstatSync(itemPath).isDirectory()) {
-                count += this.calculateFiles(itemPath);
-            } else {
-                count++;
-            }
-        }
-        return count;
-    }
-    
-    /**
-     * 上传目录
-     */
-    private async uploadDirectory(localDir: string, remoteDir: string): Promise<void> {
-        if (this.canceled || !this.client) {
-            throw new Error('上传已取消或客户端不存在');
-        }
-        
-        // 格式化远程路径
-        remoteDir = remoteDir.replace(/\\/g, '/');
-        
-        // 确保远程目录存在
-        try {
-            // 检查目录是否存在
-            let dirExists = false;
-            try {
-                const stats = await this.withTimeout(
-                    this.client.stat(remoteDir),
-                    15000,
-                    '检查远程目录'
-                );
-                
-                // 检查是否为目录
-                const statsAny = stats as any;
-                if (
-                    (typeof statsAny.isDirectory === 'function' && statsAny.isDirectory()) ||
-                    (typeof statsAny.isDirectory === 'boolean' && statsAny.isDirectory) ||
-                    statsAny.type === 'd' ||
-                    (statsAny.mode && (statsAny.mode & 0o40000) !== 0)
-                ) {
-                    dirExists = true;
-                }
-            } catch (error) {
-                // 目录不存在，需要创建
-            }
-            
-            // 如果目录不存在，创建它
-            if (!dirExists) {
-                try {
-                    await this.withTimeout(
-                        this.client.mkdir(remoteDir, true),
-                        30000,
-                        '创建远程目录'
-                    );
-                } catch (error) {
-                    // 如果递归创建失败，尝试手动创建目录层次
-                    const parts = remoteDir.replace(/\\/g, '/').split('/').filter(Boolean);
-                    let currentPath = '';
-                    
-                    // 从根目录开始逐级创建
-                    if (remoteDir.startsWith('/')) {
-                        currentPath = '/';
-                    }
-                    
-                    for (const part of parts) {
-                        currentPath = currentPath ? `${currentPath}/${part}` : part;
-                        try {
-                            // 检查目录是否存在
-                            try {
-                                await this.client.stat(currentPath);
-                                continue; // 目录已存在，跳过
-                            } catch {
-                                // 目录不存在，继续创建
-                            }
-                            
-                            await this.withTimeout(
-                                this.client.mkdir(currentPath, false),
-                                10000,
-                                `创建目录 ${currentPath}`
-                            );
-                        } catch (error) {
-                            console.warn(`创建目录失败，可能已存在: ${currentPath}`);
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.warn(`远程目录处理失败，尝试继续上传: ${remoteDir}`, error);
-        }
-        
-        // 处理目录中的所有文件和子目录
-        const items = readdirSync(localDir);
-        
-        for (const item of items) {
-            if (this.canceled) {
-                throw new Error('上传已取消');
-            }
-            
-            const localItemPath = join(localDir, item);
-            const remoteItemPath = `${remoteDir}/${item}`;
-            
-            if (lstatSync(localItemPath).isDirectory()) {
-                // 递归处理子目录
-                await this.uploadDirectory(localItemPath, remoteItemPath);
-            } else {
-                // 上传文件
-                this.currentUploadFile = item;
-                
-                try {
-                    await this.withRetry(
-                        async () => {
-                            await this.client!.put(localItemPath, remoteItemPath);
-                        },
-                        3, // 重试3次
-                        2000 // 每次重试间隔2秒
-                    );
-                    
-                    this.uploadedFiles++;
-                    const progress = Math.min(95, 25 + Math.floor((this.uploadedFiles / this.totalFiles) * 70));
-                    this.updateProgress(progress, `已上传 ${this.uploadedFiles}/${this.totalFiles} 个文件`);
-                } catch (error) {
-                    console.error(`上传文件失败: ${item}`, error);
-                    // 继续处理其他文件
-                }
-            }
-        }
-    }
-    
-    /**
      * 带超时的Promise
      */
     private withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
@@ -396,5 +448,37 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             }
         }
         throw lastError;
+    }
+}
+
+/**
+ * 信号量类，用于控制并发数量
+ */
+class Semaphore {
+    private permits: number;
+    private waitQueue: Array<() => void> = [];
+    
+    constructor(permits: number) {
+        this.permits = permits;
+    }
+    
+    async acquire(): Promise<void> {
+        if (this.permits > 0) {
+            this.permits--;
+            return Promise.resolve();
+        }
+        
+        return new Promise<void>(resolve => {
+            this.waitQueue.push(resolve);
+        });
+    }
+    
+    release(): void {
+        if (this.waitQueue.length > 0) {
+            const resolve = this.waitQueue.shift()!;
+            resolve();
+        } else {
+            this.permits++;
+        }
     }
 } 

@@ -208,9 +208,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.replayButtonNode.active = false;
         }
 
-        // 语音开始播放时显示开始按钮
+        // 语音开始播放时启用开始按钮
         if (this.startBtn) {
-            this.startBtn.getComponent(Button).interactable = true;
+            this.startBtn.active = true;
         }
 
         // 语音播放时禁用选项按钮
@@ -526,9 +526,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.questionReplayNode.active = false;
         }
 
-        // 重置时隐藏开始按钮
+        // 重置时启用开始按钮
         if (this.startBtn) {
-            this.startBtn.getComponent(Button).interactable = true;
+            this.startBtn.active = true;
         }
 
         for (let i = 0; i < this.options.length; i++) {
@@ -576,9 +576,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.questionReplayNode.active = false;
         }
 
-        // 点击开始按钮后隐藏开始按钮
+        // 点击开始按钮后禁用开始按钮
         if (this.startBtn) {
-            this.startBtn.getComponent(Button).interactable = true;
+            this.startBtn.active = false;
         }
 
         // 直接显示答案选项

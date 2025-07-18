@@ -551,11 +551,13 @@ export class FlowManager {
                 
                 // 2. 从Git更新Bundle版本信息
                 console.log('步骤2: 从Git更新Bundle版本信息');
-                const updateSuccess = await this.startBundleVersionsUpdate();
-                if (!updateSuccess) {
-                    console.error('步骤2失败: 无法更新Bundle版本，发布过程终止');
-                    return false;
-                }
+                // 临时关闭Bundle版本更新步骤
+                // const updateSuccess = await this.startBundleVersionsUpdate();
+                // if (!updateSuccess) {
+                //     console.error('步骤2失败: 无法更新Bundle版本，发布过程终止');
+                //     return false;
+                // }
+                console.log('步骤2: Bundle版本更新步骤已临时关闭');
                 
                 // 3. 执行Cocos发布
                 console.log('步骤3: 执行Cocos Creator发布');
@@ -591,14 +593,16 @@ export class FlowManager {
                 
                 // 6. 提交Bundle版本到Git
                 console.log('步骤6: 提交Bundle版本到Git');
-                const pushSuccess = await this.startBundleVersionsPush(
-                    `更新Bundle版本 [${environment}] v${appVersion}`
-                );
+                // 临时关闭Bundle版本推送步骤
+                // const pushSuccess = await this.startBundleVersionsPush(
+                //     `更新Bundle版本 [${environment}] v${appVersion}`
+                // );
                 
-                if (!pushSuccess) {
-                    console.error('步骤6失败: 提交Bundle版本失败，发布过程终止');
-                    return false;
-                }
+                // if (!pushSuccess) {
+                //     console.error('步骤6失败: 提交Bundle版本失败，发布过程终止');
+                //     return false;
+                // }
+                console.log('步骤6: Bundle版本推送步骤已临时关闭');
                 
                 console.log('所有流程执行完成，REMOTE_BUNDLES发布成功');
                 return true;
