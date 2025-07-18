@@ -157,7 +157,7 @@ export class AlterUserInfoView extends BasePanel {
         if (this.user_birthday) {
             const arr = this.user_birthday.split('-');
             if (arr.length === 3) {
-                this.comDateSelect.setInitValue(arr[0], arr[1], arr[2]);
+                this.comDateSelect.setOptions(arr[0], arr[1], arr[2]);
             }
         }
         this.comDateSelect.callback = this.onBirthdayChanged.bind(this);
