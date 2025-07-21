@@ -768,7 +768,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             // }else{
                 
             // }
-            (this.sceneModel as any).showSuccessView();
+            if(this.sceneModel.gameType == GameType.SKEWERS){
+
+            }else{
+                (this.sceneModel as any).showSuccessView();
+            }
+
             this.playWin();
             showAlert = false;
         } else {
@@ -782,8 +787,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
             DebugLog.instance.log("游戏失败！");
             this.playFail();
-            (this.sceneModel as any).showFailView();
-
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                showAlert = false;
+            }else{
+                (this.sceneModel as any).showFailView();
+            }
             // ad.title = "可惜";
             // ad.message = "挑战失败了";
             
