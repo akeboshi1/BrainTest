@@ -407,6 +407,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
 
         this.timerComponent.pauseTimer();
+        
+        // 隐藏底图（拼图块）
+        this.chipParentNode.active = false;
+        
         this.showSpriteNode.active = true;
 
         // 设置缩放动画（循环2次后完成）
@@ -419,6 +423,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 // 动画完成回调，在指定次数的动画全部完成后执行
                 this.showSpriteNode.setScale(new Vec3(1, 1, 1));
                 this.showSpriteNode.active = false;
+                
+                // 显示底图（拼图块）
+                this.chipParentNode.active = true;
+                
                 this.playAudio("music/win", true);
                 // 处理游戏结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
