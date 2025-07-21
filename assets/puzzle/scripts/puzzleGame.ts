@@ -590,10 +590,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
     }
 
+    // private _difficulty:number = 0;
+
     private get offsetX() {
         const uiSize = ScreenSizeUtil.getUISize();
         const screenWidth = uiSize.width;
-        return screenWidth - this.chipParentNode.getComponent(UITransform).contentSize.width >> 1;
+        let scale = screenWidth/1080 >1?1:screenWidth/1080;
+        let contentSizeWidth = this.chipParentNode.getComponent(UITransform).contentSize.width;
+        return  (screenWidth - contentSizeWidth)/2-80/scale;;
     }
 
     private getChipDataByPuzzlePos(puzzlePos: number): Object {
