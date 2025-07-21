@@ -156,7 +156,7 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     private startGoonTimer(){
-        let count = 5;
+        let count = 15;
         this.nextBtnLabel.string = `下一节(${count})`;
        
         this.schedule(() => {

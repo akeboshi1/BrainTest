@@ -4,6 +4,7 @@ export interface IFingerActivity {
     name: string;          // 动作名称
     description: string;   // 描述
     is_evaluable: boolean; // 是否要评分
+    hand_mode: number;     //// 手模式1分开(分左右手框)2 合并 (用一个大框)
 }
 
 export interface IFingerActivityScore {

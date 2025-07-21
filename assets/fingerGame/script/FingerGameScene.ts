@@ -67,6 +67,10 @@ export class FingerGameScene extends Component {
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
     private _completePanelData: DataProvider<IFingerGameCompleteData[]> = null;
 
+    private _blackMaskUid: string = 'c78f6df5-23d8-4296-8ede-202c6e535fe0';
+    private _leftrightRectUid: string = '6dfdc8c5-ad70-454f-b754-383a18e80c4a';
+    private _emptyRectUid: string = '72391fb4-6ab4-47c9-8bc2-3d17c9197e33';
+
     start() {
         this.gameViewNode.active = false;
         this._model = new FingerGameModel();
@@ -114,7 +118,7 @@ export class FingerGameScene extends Component {
             sectionData.push(fingerGameConfig.fingerSets[setIndex].sections[data[i].id - 1]);
         }
         let self = this;
-        UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, sectionData).then(()=>{
+        UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, sectionData).then(() => {
             self.gameViewNode.active = true;
             self.noticeNode.active = true;
         });
@@ -139,7 +143,7 @@ export class FingerGameScene extends Component {
         this._currentSectionIndex = sectionIndex;
 
         this.titleLabel.string = "益脑手指操（" + (sectionIndex + 1) + "/" + this._model.activities.length + "）";
-        
+
         const config = fingerGameConfig.fingerSets[setIndex]?.sections[this._model.activity.id - 1];
         DebugLog.instance.log('restoreSceneData ============= setIndex=' + setIndex + ' sectionIndex=' + sectionIndex);
         if (!config) {
@@ -181,7 +185,9 @@ export class FingerGameScene extends Component {
         this.videoPlayer.clip = previewClip;
         this.segmentProgressBar.setProgress(0);
         this.videoPlayer.play();
-        this.showImageOverlay();
+
+        let topUid = this._model.handMode === 1 ? this._leftrightRectUid : this._emptyRectUid;
+        this.showImageOverlay(topUid, this._blackMaskUid);
         this.skipButton.active = true;
 
         // 用计时器控制播放完成
@@ -231,7 +237,8 @@ export class FingerGameScene extends Component {
             this.startRecorder();
         }
 
-        this.hideImageOverlay();
+        let topUid = this._model.handMode === 1 ? this._leftrightRectUid : this._emptyRectUid;
+        this.showImageOverlay(topUid);
         this.skipButton.active = false;
         // 用计时器控制播放完成
         const timer = setTimeout(() => {
@@ -277,7 +284,6 @@ export class FingerGameScene extends Component {
             // 预览视频播放完成，等待3秒后播放演示视频
             const timer = setTimeout(() => {
                 this.playDemoVideo();
-                this.hideImageOverlay();
             }, 500);
             this._timers.push(timer);
         } else {
@@ -340,7 +346,7 @@ export class FingerGameScene extends Component {
         if (sys.platform === 'ANDROID') {
             DebugLog.instance.log('showCameraPreview =============');
             native.bridge.sendToNative(NativeEvent.CAMERA, 'start');
-            this.showImageOverlay();
+            this.showImageOverlay(this._emptyRectUid, this._blackMaskUid);
         }
     }
 
@@ -351,10 +357,14 @@ export class FingerGameScene extends Component {
         }
     }
 
-    showImageOverlay() {
+    showImageOverlay(topUid: string, bottomUid: string | null = null) {
         if (sys.platform === 'ANDROID') {
             DebugLog.instance.log('showImageOverlay =============');
-            native.bridge.sendToNative(NativeEvent.CAMERAOVERLAY, 'edbdf22c-072e-4d09-9f60-b1431c2c35fb');
+            let arg1 = topUid;
+            if (bottomUid) {
+                arg1 = arg1 + ',' + bottomUid;
+            }
+            native.bridge.sendToNative(NativeEvent.CAMERAOVERLAY, arg1);
         }
     }
 
@@ -645,6 +655,13 @@ export class FingerGameScene extends Component {
         this.debugLabel.string = this._model.isMember() ? "开" : "关";
     }
 
+    debugShowImageOverlay() {
+        this.showImageOverlay(this._leftrightRectUid, this._blackMaskUid);
+    }
+
+    debugShowImageOverlay2() {
+        this.showImageOverlay(this._emptyRectUid);
+    }
 }
 
 
