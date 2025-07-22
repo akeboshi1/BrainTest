@@ -52,18 +52,20 @@ export class LoadPanel extends BasePanel {
 
       start() {
             DebugLog.instance.log("load start");
-            this.setTitle("正在进入场景");
+            this.setTitle("加载资源中");
             this.setProgress('开始加载');
       }
 
       onEnable(): void {
             EventManager.getInstance().on(BundlePreloadEvent.PROGRESS, this.processBundleProcess.bind(this), this);
+            EventManager.getInstance().on(BundlePreloadEvent.SCENE_LOADED, this.onSceneLoaded.bind(this), this);
             EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onBundleLoadFinish.bind(this), this);
             this.startRotate();
       }
 
       onDisable(): void {
             EventManager.getInstance().off(BundlePreloadEvent.PROGRESS, this);
+            EventManager.getInstance().off(BundlePreloadEvent.SCENE_LOADED, this);
             EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
             this.stopRotate();
       }
@@ -93,7 +95,13 @@ export class LoadPanel extends BasePanel {
             this.setProgress(`加载资源中 ${data.progress}%`);
       }
 
+      onSceneLoaded(data: any) {
+            this.setTitle("进入场景中");
+            this.setProgress(`场景资源加载完成: ${data.sceneName}`);
+      }
+
       onBundleLoadFinish() {
+            this.setTitle("进入场景中");
             this.setProgress(`全部加载完成！`);
       }
 

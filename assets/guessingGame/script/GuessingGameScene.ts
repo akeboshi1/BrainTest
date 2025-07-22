@@ -11,6 +11,7 @@ import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
+// import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 
 const { ccclass, property } = _decorator;
 
@@ -104,10 +105,18 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         if (!this.bInit) {
-            this.guessingGameModel.init(this);
-            this.bInit = true;
+            // 优化：异步初始化模型，避免阻塞主线程
+            this.guessingGameModel.init(this).then(() => {
+                this.bInit = true;
+                this.resetPanel();
+            }).catch((error) => {
+                DebugLog.instance.error("GuessingGameModel初始化失败:", error);
+                // 即使初始化失败也要重置面板，避免界面卡死
+                this.resetPanel();
+            });
+        } else {
+            this.resetPanel();
         }
-        this.resetPanel();
     }
 
     onEnable(): void {
@@ -116,6 +125,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         EventManager.getInstance().on(GuessingGameEvent.SHOW_QUESTION, this.onShowQuestion, this);
         EventManager.getInstance().on(GuessingGameEvent.AUDIO_STARTED, this.onAudioStart, this);
         EventManager.getInstance().on(GuessingGameEvent.AUDIO_FINISHED, this.onAudioFinish, this);
+        EventManager.getInstance().on(GuessingGameEvent.AUDIO_LOAD_START, this.onAudioLoadStart, this);
+        EventManager.getInstance().on(GuessingGameEvent.AUDIO_LOAD_COMPLETE, this.onAudioLoadComplete, this);
+        EventManager.getInstance().on(GuessingGameEvent.AUDIO_LOAD_FAILED, this.onAudioLoadFailed, this);
 
         this.timerRT.on('timer-end', this.answerOutOfTime, this);
     }
@@ -126,6 +138,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         EventManager.getInstance().off(GuessingGameEvent.SHOW_QUESTION, this);
         EventManager.getInstance().off(GuessingGameEvent.AUDIO_STARTED, this);
         EventManager.getInstance().off(GuessingGameEvent.AUDIO_FINISHED, this);
+        EventManager.getInstance().off(GuessingGameEvent.AUDIO_LOAD_START, this);
+        EventManager.getInstance().off(GuessingGameEvent.AUDIO_LOAD_COMPLETE, this);
+        EventManager.getInstance().off(GuessingGameEvent.AUDIO_LOAD_FAILED, this);
 
         this.timerRT.off('timer-end', this.answerOutOfTime, this);
     }
@@ -241,6 +256,65 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 不调用startAnswer()，避免开启倒计时
         // this.startAnswer();
         this._replay = false;
+    }
+
+    // 音频开始加载时的处理
+    private onAudioLoadStart(data: any) {
+        DebugLog.instance.log("音频开始加载:", data.url);
+        
+        // // 显示音频加载提示弹窗
+        // let ad: AlertData = new AlertData();
+        // ad.title = "加载中";
+        // ad.message = "正在加载音频资源，请稍候...";
+        // ad.cancelButtonVisible = false;
+        // ad.confirmButtonText = "等待";
+        // ad.confirmCb = () => {
+        //     // 用户点击等待按钮，不做任何操作，继续等待
+        // };
+        // // 设置弹窗位置为屏幕中央，确保适配后位置正确
+        // ad.x = 0;
+        // ad.y = 0;
+        // AlertManager.getInstance().showAlert(ad);
+    }
+
+    // 音频加载完成时的处理
+    private onAudioLoadComplete(data: any) {
+        DebugLog.instance.log("音频加载完成:", data.url);
+        
+        // 关闭音频加载提示弹窗
+        // AlertManager.getInstance().closeCurrentAlert();
+        
+        // 音频加载完成后，可以开始游戏流程
+        DebugLog.instance.log("音频资源加载完成，游戏可以开始");
+        
+        // 如果还没有开始答题，可以在这里触发一些初始化逻辑
+        if (!this._isInAnswerPhase) {
+            // 音频加载完成，游戏准备就绪
+            DebugLog.instance.log("游戏准备就绪，等待用户操作");
+        }
+    }
+
+    // 音频加载失败时的处理
+    private onAudioLoadFailed(data: any) {
+        DebugLog.instance.error("音频加载失败:", data.url, data.error);
+        
+        // // 关闭音频加载提示弹窗
+        // AlertManager.getInstance().closeCurrentAlert();
+        //
+        // // 显示音频加载失败提示
+        // let ad: AlertData = new AlertData();
+        // ad.title = "加载失败";
+        // ad.message = "音频资源加载失败，游戏将继续进行，但可能无法听到题目音频";
+        // ad.cancelButtonVisible = false;
+        // ad.confirmButtonText = "继续游戏";
+        // ad.confirmCb = () => {
+        //     // 用户确认后继续游戏
+        //     DebugLog.instance.log("用户确认继续游戏");
+        // };
+        // // 设置弹窗位置为屏幕中央，确保适配后位置正确
+        // ad.x = 0;
+        // ad.y = 0;
+        // AlertManager.getInstance().showAlert(ad);
     }
 
     private _replay: boolean = false;

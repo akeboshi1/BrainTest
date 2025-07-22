@@ -26,21 +26,33 @@ export class GuessingGameConfig {
     async loadConfig() {
         let bundle = assetManager.getBundle(this.bundleName);
 
-        await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
+            // 优化：添加超时处理，避免长时间等待
+            const timeout = setTimeout(() => {
+                reject(new Error("配置文件加载超时"));
+            }, 10000); // 10秒超时
+
             bundle.load(this.jsonFilePath, JsonAsset, (err: Error | null, data: JsonAsset) => {
+                clearTimeout(timeout); // 清除超时定时器
+                
                 if (err) {
                     DebugLog.instance.warn("加载配置文件失败:" + err);
                     reject(err);
                 } else {
-                    let qb = data.json.questionBank;
-                    // 设置quessingQuestions
-                    for (let question of qb) {
-                        question.hasAnswer = false;
-                        this.quessingQuestions.set(question.questionNumber.toString(), question);
-                        this.questionNums.push(question.questionNumber);
+                    try {
+                        let qb = data.json.questionBank;
+                        // 设置quessingQuestions
+                        for (let question of qb) {
+                            question.hasAnswer = false;
+                            this.quessingQuestions.set(question.questionNumber.toString(), question);
+                            this.questionNums.push(question.questionNumber);
+                        }
+                        DebugLog.instance.log("GuessingGameConfig load success!!! ");
+                        resolve(data);
+                    } catch (parseError) {
+                        DebugLog.instance.error("配置文件解析失败:", parseError);
+                        reject(parseError);
                     }
-                    DebugLog.instance.log("GuessingGameConfig load success!!! ");
-                    resolve(data);
                 }
             });
         });
