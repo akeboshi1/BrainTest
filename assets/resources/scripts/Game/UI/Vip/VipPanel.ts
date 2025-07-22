@@ -293,25 +293,26 @@ export class VipPanel extends BasePanel {
      */
     private onVipGetData() {
         let vipDatas = this._vipModel.vipDatas;
+        console.log("vipDatas",vipDatas);
         let len = vipDatas.length;
         for (let i: number = 0; i < len; i++) {
             let vipData = vipDatas[i];
             if (vipData.periodUnit == VipType.Day) {
              // this.dayBtn.active = true;
-               this.dayPriceLabel.string = vipData.price.toString();
+               this.dayPriceLabel.string = `${vipData.discountPrice}`;
                this.dayNameLabel.string = `可乐派-${vipData.name}`;
-               this.dayDiscountLabel.string = `¥${vipData.discountPrice}`;
+               this.dayDiscountLabel.string = `¥${vipData.price}`;
                this.dayFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             } else if (vipData.periodUnit == VipType.Mouth) {
                 // this.mouthBtn.active = true;
-                this.mouthPriceLabel.string = vipData.price.toString();
-                this.mouthNameLabel.string = `可乐派-${vipData.name}卡`;
-                this.mouthDiscountLabel.string = `¥${vipData.discountPrice}`;
+                this.mouthPriceLabel.string = `${vipData.discountPrice}`;
+                this.mouthNameLabel.string = `可乐派-${vipData.name}`;
+                this.mouthDiscountLabel.string = `¥${vipData.price}`;
                 this.mouthFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             }else if (vipData.periodUnit == VipType.Week) {
-                this.weekPriceLabel.string = vipData.price.toString();
-                this.weekNameLabel.string = `可乐派-${vipData.name}卡`;
-                this.weekDiscountLabel.string = `¥${vipData.discountPrice}`;
+                this.weekPriceLabel.string = `${vipData.discountPrice}`;
+                this.weekNameLabel.string = `可乐派-${vipData.name}`;
+                this.weekDiscountLabel.string = `¥${vipData.price}`;
                 this.weekFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             }
         }
