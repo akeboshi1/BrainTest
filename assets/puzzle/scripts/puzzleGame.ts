@@ -407,6 +407,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
 
         this.timerComponent.pauseTimer();
+        
+        // 隐藏底图（拼图块）
+        this.chipParentNode.active = false;
+        
         this.showSpriteNode.active = true;
 
         // 设置缩放动画（循环2次后完成）
@@ -419,6 +423,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 // 动画完成回调，在指定次数的动画全部完成后执行
                 this.showSpriteNode.setScale(new Vec3(1, 1, 1));
                 this.showSpriteNode.active = false;
+                
+                // 显示底图（拼图块）
+                this.chipParentNode.active = true;
+                
                 this.playAudio("music/win", true);
                 // 处理游戏结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -582,10 +590,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
     }
 
+    // private _difficulty:number = 0;
+
     private get offsetX() {
         const uiSize = ScreenSizeUtil.getUISize();
         const screenWidth = uiSize.width;
-        return screenWidth - this.chipParentNode.getComponent(UITransform).contentSize.width >> 1;
+        let scale = screenWidth/1080 >1?1:screenWidth/1080;
+        let contentSizeWidth = this.chipParentNode.getComponent(UITransform).contentSize.width;
+        return  (screenWidth - contentSizeWidth)/2-75/scale;
     }
 
     private getChipDataByPuzzlePos(puzzlePos: number): Object {

@@ -747,8 +747,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             node.off(Node.EventType.TOUCH_CANCEL, this.onDragEnd, this);
             if (cardCtrl) {
                 let currentIndex = cardCtrl.getid();
+                let expectedText = this.model.getCurrentQuestion().sentence[i];
+                let actualText = this.model.getCurrentQuestion().sentence[currentIndex];
 
-                if (currentIndex !== i) {
+                // 比较文本内容而不是索引
+                if (expectedText !== actualText) {
                     isSuccess = false;
                     wrongIndices.push(node);
                     DebugLog.instance.log('fail', this.correctDragCount++);
@@ -768,7 +771,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             // }else{
                 
             // }
-            (this.sceneModel as any).showSuccessView();
+            if(this.sceneModel.gameType == GameType.SKEWERS){
+
+            }else{
+                (this.sceneModel as any).showSuccessView();
+            }
+
             this.playWin();
             showAlert = false;
         } else {
@@ -782,8 +790,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
             DebugLog.instance.log("游戏失败！");
             this.playFail();
-            (this.sceneModel as any).showFailView();
-
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                showAlert = false;
+            }else{
+                (this.sceneModel as any).showFailView();
+            }
             // ad.title = "可惜";
             // ad.message = "挑战失败了";
             
@@ -897,12 +908,13 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     onTimerEnd() {
         this.playFail();
         if (this.sceneModel.gameType != GameType.SKEWERS) {
-            let ad: AlertData = new AlertData();
-            ad.cancelButtonVisible = false;
-            ad.title = "没有时间啦";
-            ad.message = "挑战失败";
-            // ad.y = 350; // 设置y坐标
-            AlertManager.getInstance().showAlert(ad);
+            (this.sceneModel as any).showFailView();
+            // let ad: AlertData = new AlertData();
+            // ad.cancelButtonVisible = false;
+            // ad.title = "没有时间啦";
+            // ad.message = "挑战失败";
+            // // ad.y = 350; // 设置y坐标
+            // AlertManager.getInstance().showAlert(ad);
         }
 
         for (let [key, node] of this.sourceContainerMap) {
@@ -921,7 +933,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             let cardCtrl = node.getComponent(CardCtrl);
             if (cardCtrl) {
                 let currentIndex = cardCtrl.getid();
-                if (currentIndex !== i) {
+                let expectedText = this.model.getCurrentQuestion().sentence[i];
+                let actualText = this.model.getCurrentQuestion().sentence[currentIndex];
+                
+                // 比较文本内容而不是索引
+                if (expectedText !== actualText) {
                     DebugLog.instance.log('fail', this.correctDragCount++);
                 } else {
                     this.winCount++;

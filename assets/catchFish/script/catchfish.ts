@@ -24,14 +24,15 @@ import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
 import { CatchFishGuide } from "db://assets/resources/scripts/Core/Manager/Guide/game/CatchFishGuide";
-import {CreateQuestion, FishQuestion} from "db://assets/catchFish/script/createQuestion";
+import { CreateQuestion, FishQuestion } from "db://assets/catchFish/script/createQuestion";
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
-import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
-import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {Global} from "db://assets/resources/scripts/Core/Manager/Config/Global";
-import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
+import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
+import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
 const { ccclass, property } = _decorator;
 
 
@@ -57,7 +58,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     // gameBeforeView: Node;
 
     @property(Node)
-    answerView:Node
+    answerView: Node
 
     @property(Node)
     quitBtn: Node;
@@ -127,9 +128,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private _leftSceneX: number = -1;
 
+
     private isGuide: boolean = false;
 
-    private _wangPosList = [{ x: 127, y: 154 }, { x: 402, y: 154 }, { x: 677, y: 154 }, { x: 952, y: 154 }];
+    private _wangPosList = [{ x: -235, y: 82.5 }, { x: 230, y: 82.5 }, { x: -235, y: -82.5 }, { x: 230, y: 82.5 }];
 
     private _fishTweens: Tween<Node>[] = [];
     private _isPaused = false;
@@ -158,12 +160,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // ====================== 继承basescene ===================
     onLoad() {
-        this.audioUrls = [ "music/fishBG","music/fishCatch", "music/win"];
+        this.audioUrls = ["music/fishBG", "music/fishCatch", "music/win"];
         this.bundleName = BundleName.CATCHFISH;
         let self = this;
-        this.loadAudio().then(()=>{
-            if(!self.bgmClip){
-                self.bgmClip = self.playBgmAudio("music/fishBG",true);
+        this.loadAudio().then(() => {
+            if (!self.bgmClip) {
+                self.bgmClip = self.playBgmAudio("music/fishBG", true);
             }
         });
 
@@ -202,9 +204,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         const scene = director.getScene();
         const canvas = scene.getComponentInChildren(Canvas);
         const uitransform = canvas.getComponent(UITransform);
-        if(uitransform.width < 1080){
+        if (uitransform.width < 1080) {
             this._leftSceneX = -uitransform.width / 2 - 80;
-        }else{
+        } else {
             this._leftSceneX = -1080 / 2 - 80;
         }
         this.fishs = [];
@@ -221,7 +223,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
 
 
-    public hideGuide(){
+    public hideGuide() {
         super.hideGuide();
         this.sceneModel.runNextGame();
     }
@@ -237,7 +239,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
 
-    dzgoonHandler(resuleBoo:boolean = true) {
+    dzgoonHandler(resuleBoo: boolean = true) {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -246,13 +248,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Calculator;
-                if(!_boo){
+                if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
-                }else{
+                } else {
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -424,18 +426,18 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
 
 
-       this.initResultNode();
+        this.initResultNode();
 
         // this.catchLabel.getComponent(Label).string = `${this.wangCount}/${this.wangMaxCount}`;
         this.timeInit();
         this.createFish();
 
-        if(!this.bgmClip){
-            this.bgmClip = this.playBgmAudio("music/fishBG",true);
+        if (!this.bgmClip) {
+            this.bgmClip = this.playBgmAudio("music/fishBG", true);
         }
     }
 
-    private initResultNode(){
+    private initResultNode() {
         for (let j = 0; j < this.resultNode.children.length; j++) {
             let children = this.resultNode.children[j].getChildByName("right");
             children.active = false;
@@ -444,7 +446,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             }
         }
     }
-    private bgmClip:AudioClip;
+    private bgmClip: AudioClip;
 
 
 
@@ -530,15 +532,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         const downY = baseY - this._fishes3Config.amplitude;
 
         const floatTween = tween(this.fishes3)
-            .to(this._fishes3Config.duration, { 
-                position: new Vec3(this.fishes3.position.x, upY, this.fishes3.position.z) 
-            }, { 
-                easing: this._fishes3Config.easeType 
+            .to(this._fishes3Config.duration, {
+                position: new Vec3(this.fishes3.position.x, upY, this.fishes3.position.z)
+            }, {
+                easing: this._fishes3Config.easeType
             })
-            .to(this._fishes3Config.duration, { 
-                position: new Vec3(this.fishes3.position.x, downY, this.fishes3.position.z) 
-            }, { 
-                easing: this._fishes3Config.easeType 
+            .to(this._fishes3Config.duration, {
+                position: new Vec3(this.fishes3.position.x, downY, this.fishes3.position.z)
+            }, {
+                easing: this._fishes3Config.easeType
             })
             .call(() => {
                 // 循环动画
@@ -663,8 +665,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
-    private _offsetX :number = 900;
-    private _offsetX1:number = 1200;
+    private _offsetX: number = 770;
+    private _offsetX1: number = 1200;
     moveFishes(fish: Fish, delay: number = 0) {
         if (this._gameEnded) return; // 游戏结束不再移动鱼
         if (fish.curTween) {
@@ -1049,8 +1051,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.resetAndStartFishMovement();
 
         this.createFish();
-        if(!this.bgmClip){
-            this.bgmClip = this.playBgmAudio("music/fishBG",true);
+        if (!this.bgmClip) {
+            this.bgmClip = this.playBgmAudio("music/fishBG", true);
         }
     }
 
@@ -1094,32 +1096,56 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             // this.hasWangClick = false;
             return;
         }
+
+        // 立即停止鱼的动画，让鱼停止不动
         this._curFish.curTween.stop();
+        this._curFish.pause = true;
+
         let wangPrefab = instantiate(this.wangPrefab);
-        wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
+
         // 获取当前索引对应的wang
         let wang = this.wangs[index];
         // 将wangPrefab添加到wang的子节点中
         wang.addChild(wangPrefab);
         wangPrefab.setPosition(new Vec3(0, 0, 0));
+        wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
         // wang.setPosition(new Vec3(0, 0, 0));
         // 游戏过程数据匹配
         this.sceneModel.gameMatch();
 
         let self = this;// -600.-520.-440.-360
-        let offsetX = this._curFish.currentIndex * 10 + 550;
         let offsetTime = this._curFish.positionYIndex * 0.01;
-        let fishWorldPos = self._curFish.getFishNode().parent.getComponent(UITransform).convertToWorldSpaceAR(this._curFish.position);
+
+        // 获取鱼的视觉中心位置（fish子节点的世界坐标）
+        let fishNode = self._curFish.getFishNode();
+        let fishSpriteNode = fishNode.getChildByName("fish");
+        let fishWorldPos = fishSpriteNode.getComponent(UITransform).convertToWorldSpaceAR(new Vec3(0, 0, 0));
         let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wangPrefab.position);
+
+        // 根据场景高度动态调整渔网落点位置
+        const scene = director.getScene();
+
+        const canvas = scene.getComponentInChildren(Canvas);
+        const canvasUITransform = canvas.getComponent(UITransform);
+        const sceneHeight = ScreenSizeUtil.getPhysicalSize().height;
+        let xOffset = 0;
+        if (canvasUITransform.width > 1080) {
+            xOffset = 0;
+        } else {
+            xOffset = canvasUITransform.width - 1080 >> 1 + 40;
+        }
+        const heightRatio = sceneHeight / 1920 * 0.5;
+        let yOffset = 60 * heightRatio;
+
         let question = this._curFish.getData();
         // 标记题目为已回答
         question.hasChose = true;
 
         if (this._wangTween) this._wangTween.stop();
-        // 启动动画
+        // 启动动画 - 网飞向鱼的视觉中心
         this._wangTween = tween(wangPrefab).parallel(
             tween().to(0.4 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
-            tween().to(0.25 - offsetTime, { position: new Vec3(fishWorldPos.x - wangWorldPos.x, fishWorldPos.y - 500, fishWorldPos.z) }))
+            tween().to(0.25 - offsetTime, { position: new Vec3(fishWorldPos.x - wangWorldPos.x - xOffset, fishWorldPos.y - wangWorldPos.y + yOffset, fishWorldPos.z) }))
             .call(() => {
                 self._curFish.curTween.stop();
                 const scaleUp = 1.3; // 放大到2倍
@@ -1142,7 +1168,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         wang.removeChild(wangPrefab);
                         if (self._clearBoo) return;
                         self.wangCount++;
-                        self.showResultRightEffect(self.wangCount-1);
+                        self.showResultRightEffect(self.wangCount - 1);
                         // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
                             self.endCurHardGame();
@@ -1206,7 +1232,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._gameEnded = true; // 设置游戏结束标志
         this.pauseTime(); // 停止倒计时
         this.clearGameView(); // 停止所有鱼和动画，确保结算面板弹出时鱼不再游动
-        this.playAudio("music/win",true);
+        this.playAudio("music/win", true);
         // 保存错题
         this.saveWrongQuestions();
 
@@ -1228,7 +1254,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._endTime = TimeUtil.getNow();
         let complete = this.wangCount / this.wangMaxCount;
         let duration = (this._endTime - this._startTime) / 1000;
-        this.requestGameComplete({ context: this, parentNode: this.mainView, complete, duration});
+        this.requestGameComplete({ context: this, parentNode: this.mainView, complete, duration });
     }
 
     private _requestGameCenterComplete() {
@@ -1245,7 +1271,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             duration,
             timelimit: this.INIT_TIME,
             difficulty: this.hards[this.hardIndex],
-            levelMode:curGame.levelMode
+            levelMode: curGame.levelMode
         });
     }
 
