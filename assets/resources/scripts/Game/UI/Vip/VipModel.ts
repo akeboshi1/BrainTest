@@ -120,7 +120,7 @@ export class VipData {
         this.description = data['description'] || "";
         this.periodUnit = data['period_unit'] || "";
         this.periodCount = data['period_count'] || 0;
-
+        this.bonusDay = data['bonus_days'] || 0;
         // 根据周期单位设置会员类型
     }
 
