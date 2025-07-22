@@ -13,23 +13,21 @@ export enum VipType {
     /**
      * 非会员
      */
-    None = 0,
+    // None = 0,
     /**
      * 日卡会员
      */
-    Day = 1,
-    /**
-     * 月卡会员
-     */
-    Mouth = 2,
+    Day = 'day',
+    Week = 'week',
+    Mouth = 'month',
     /**
      * 年卡会员
      */
-    Year = 3,
+    // Year = 3,
     /**
      * 永久会员
      */
-    Forever = 4,
+    // Forever = 4,
 }
 
 // VIP相关事件枚举
@@ -71,12 +69,17 @@ export class VipData {
     /**
      * 会员类型
      */
-    public type: number = 0;
+    // public type: string = '';
 
     /**
      * 会员卡ID
      */
     public id: number = 0;
+
+    /**
+     * 赠送天数
+     */
+    public bonusDay: number = 0;
 
     /**
      * 折扣价格
@@ -119,28 +122,11 @@ export class VipData {
         this.periodCount = data['period_count'] || 0;
 
         // 根据周期单位设置会员类型
-        this.setVipTypeByPeriodUnit();
     }
 
     /**
      * 根据周期单位设置会员类型
      */
-    private setVipTypeByPeriodUnit() {
-        switch (this.periodUnit.toLowerCase()) {
-            case "day":
-                this.type = VipType.Day;
-                break;
-            case "month":
-                this.type = VipType.Mouth;
-                break;
-            case "year":
-                this.type = VipType.Year;
-                break;
-            default:
-                this.type = VipType.None;
-                break;
-        }
-    }
 
     /**
      * 获取显示价格（优先显示折扣价）
