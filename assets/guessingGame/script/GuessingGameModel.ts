@@ -76,8 +76,17 @@ export class GuessingGameModel {
             return;
         }
 
-        // 尝试加载音频资源，最多重试3次
-        await this.loadAudioResource(bundle, audioUrl, 3);
+        // 触发音频开始加载事件
+        EventManager.getInstance().emit(GuessingGameEvent.AUDIO_LOAD_START, { url: audioUrl });
+
+        // 异步加载音频资源，不阻塞主线程
+        this.loadAudioResource(bundle, audioUrl, 3).then(() => {
+            // 音频加载成功，触发完成事件
+            EventManager.getInstance().emit(GuessingGameEvent.AUDIO_LOAD_COMPLETE, { url: audioUrl });
+        }).catch(error => {
+            DebugLog.instance.error("音频加载失败:", error);
+            EventManager.getInstance().emit(GuessingGameEvent.AUDIO_LOAD_FAILED, { url: audioUrl, error: error });
+        });
     }
 
     // 加载音频资源的方法，支持重试
@@ -178,5 +187,7 @@ export enum GuessingGameEvent {
     SHOW_QUESTION = "guessingGame.showQuestion",
     AUDIO_STARTED = "guessingGame.audioStarted",
     AUDIO_FINISHED = "guessingGame.audioFinished",
+    AUDIO_LOAD_START = "guessingGame.audioLoadStart",
+    AUDIO_LOAD_COMPLETE = "guessingGame.audioLoadComplete",
     AUDIO_LOAD_FAILED = "guessingGame.audioLoadFailed",
 }

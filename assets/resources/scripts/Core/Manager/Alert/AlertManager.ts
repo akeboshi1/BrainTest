@@ -1,8 +1,9 @@
-import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3, _decorator, Component, director, tween } from "cc";
+import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3, _decorator, Component, director, tween, Widget } from "cc";
 import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { SceneManager } from "../Scene/SceneManager";
+import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
 const { ccclass, property } = _decorator;
 
 @ccclass('AlertManager')
@@ -92,6 +93,9 @@ export class AlertManager extends BaseManager {
         rootNode.addChild(alertNode);
         this.currentAlert = alertNode;
 
+        // 使用项目中的ScreenAdapter进行UI适配
+        this.adaptAlertUI(alertNode);
+
         // 设置弹窗位置，如果提供了x和y坐标则使用，否则使用默认位置(中央)
         if (alertData.x !== 0 || alertData.y !== 0) {
             alertNode.setPosition(alertData.x, alertData.y);
@@ -176,6 +180,9 @@ export class AlertManager extends BaseManager {
         rootNode.addChild(alertNode);
         this.currentAlert = alertNode;
 
+        // 使用项目中的ScreenAdapter进行UI适配
+        this.adaptAlertUI(alertNode);
+
         // 设置弹窗位置，如果提供了x和y坐标则使用，否则使用默认位置(中央)
         if (alertData.x !== 0 || alertData.y !== 0) {
             alertNode.setPosition(alertData.x, alertData.y);
@@ -244,6 +251,70 @@ export class AlertManager extends BaseManager {
                 this.showAlert(nextAlertData);
             }
         }
+    }
+
+    /**
+     * 使用项目中的ScreenAdapter对弹窗进行UI适配
+     * @param alertNode 弹窗节点
+     */
+    private adaptAlertUI(alertNode: Node) {
+        try {
+            // 使用项目中的ScreenAdapter进行UI适配
+            ScreenAdapter.getInstance().adaptPanelUI(alertNode);
+            
+            // 确保弹窗有合适的Widget组件设置
+            this.setupAlertWidget(alertNode);
+            
+            DebugLog.instance.log(`[AlertManager] Alert UI adaptation completed for: ${alertNode.name}`);
+        } catch (error) {
+            DebugLog.instance.error(`[AlertManager] Alert UI adaptation failed: ${error}`);
+        }
+    }
+
+    /**
+     * 设置弹窗的Widget组件，确保在不同屏幕尺寸下正确显示
+     * @param alertNode 弹窗节点
+     */
+    private setupAlertWidget(alertNode: Node) {
+        // 为弹窗根节点添加Widget组件，确保居中显示
+        let widget = alertNode.getComponent(Widget);
+        if (!widget) {
+            widget = alertNode.addComponent(Widget);
+        }
+        
+        // 设置Widget为居中显示
+        widget.isAlignHorizontalCenter = true;
+        widget.isAlignVerticalCenter = true;
+        widget.isAlignTop = false;
+        widget.isAlignBottom = false;
+        widget.isAlignLeft = false;
+        widget.isAlignRight = false;
+        widget.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
+        
+        // 更新Widget对齐
+        widget.updateAlignment();
+        
+        // 查找viewNode并设置其Widget
+        const viewNode = alertNode.getChildByName('viewNode');
+        if (viewNode) {
+            let viewWidget = viewNode.getComponent(Widget);
+            if (!viewWidget) {
+                viewWidget = viewNode.addComponent(Widget);
+            }
+            
+            // viewNode也设置为居中
+            viewWidget.isAlignHorizontalCenter = true;
+            viewWidget.isAlignVerticalCenter = true;
+            viewWidget.isAlignTop = false;
+            viewWidget.isAlignBottom = false;
+            viewWidget.isAlignLeft = false;
+            viewWidget.isAlignRight = false;
+            viewWidget.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
+            
+            viewWidget.updateAlignment();
+        }
+        
+        DebugLog.instance.log(`[AlertManager] Alert Widget setup completed for: ${alertNode.name}`);
     }
 
     public onSceneChanged(sceneName: string, lastSceneName: string) {
