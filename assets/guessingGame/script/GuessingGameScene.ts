@@ -11,7 +11,7 @@ import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
-import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+// import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 
 const { ccclass, property } = _decorator;
 
@@ -262,19 +262,19 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private onAudioLoadStart(data: any) {
         DebugLog.instance.log("音频开始加载:", data.url);
         
-        // 显示音频加载提示弹窗
-        let ad: AlertData = new AlertData();
-        ad.title = "加载中";
-        ad.message = "正在加载音频资源，请稍候...";
-        ad.cancelButtonVisible = false;
-        ad.confirmButtonText = "等待";
-        ad.confirmCb = () => {
-            // 用户点击等待按钮，不做任何操作，继续等待
-        };
-        // 设置弹窗位置为屏幕中央，确保适配后位置正确
-        ad.x = 0;
-        ad.y = 0;
-        AlertManager.getInstance().showAlert(ad);
+        // // 显示音频加载提示弹窗
+        // let ad: AlertData = new AlertData();
+        // ad.title = "加载中";
+        // ad.message = "正在加载音频资源，请稍候...";
+        // ad.cancelButtonVisible = false;
+        // ad.confirmButtonText = "等待";
+        // ad.confirmCb = () => {
+        //     // 用户点击等待按钮，不做任何操作，继续等待
+        // };
+        // // 设置弹窗位置为屏幕中央，确保适配后位置正确
+        // ad.x = 0;
+        // ad.y = 0;
+        // AlertManager.getInstance().showAlert(ad);
     }
 
     // 音频加载完成时的处理
@@ -282,7 +282,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log("音频加载完成:", data.url);
         
         // 关闭音频加载提示弹窗
-        AlertManager.getInstance().closeCurrentAlert();
+        // AlertManager.getInstance().closeCurrentAlert();
         
         // 音频加载完成后，可以开始游戏流程
         DebugLog.instance.log("音频资源加载完成，游戏可以开始");
@@ -298,23 +298,23 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private onAudioLoadFailed(data: any) {
         DebugLog.instance.error("音频加载失败:", data.url, data.error);
         
-        // 关闭音频加载提示弹窗
-        AlertManager.getInstance().closeCurrentAlert();
-        
-        // 显示音频加载失败提示
-        let ad: AlertData = new AlertData();
-        ad.title = "加载失败";
-        ad.message = "音频资源加载失败，游戏将继续进行，但可能无法听到题目音频";
-        ad.cancelButtonVisible = false;
-        ad.confirmButtonText = "继续游戏";
-        ad.confirmCb = () => {
-            // 用户确认后继续游戏
-            DebugLog.instance.log("用户确认继续游戏");
-        };
-        // 设置弹窗位置为屏幕中央，确保适配后位置正确
-        ad.x = 0;
-        ad.y = 0;
-        AlertManager.getInstance().showAlert(ad);
+        // // 关闭音频加载提示弹窗
+        // AlertManager.getInstance().closeCurrentAlert();
+        //
+        // // 显示音频加载失败提示
+        // let ad: AlertData = new AlertData();
+        // ad.title = "加载失败";
+        // ad.message = "音频资源加载失败，游戏将继续进行，但可能无法听到题目音频";
+        // ad.cancelButtonVisible = false;
+        // ad.confirmButtonText = "继续游戏";
+        // ad.confirmCb = () => {
+        //     // 用户确认后继续游戏
+        //     DebugLog.instance.log("用户确认继续游戏");
+        // };
+        // // 设置弹窗位置为屏幕中央，确保适配后位置正确
+        // ad.x = 0;
+        // ad.y = 0;
+        // AlertManager.getInstance().showAlert(ad);
     }
 
     private _replay: boolean = false;
