@@ -19,7 +19,10 @@ export class UserCenterPanel extends AdaptComponent {
    userName: Label = null;
    @property(Sprite)
    userIcon: Sprite = null;
-
+   @property(Label)
+   phoneNumberLabel: Label = null;
+   @property(Label)
+   memberValidity: Label = null;
    @property(Node)
    memberNode: Node = null;
 
@@ -115,6 +118,14 @@ export class UserCenterPanel extends AdaptComponent {
       } else {
          label.string = "开通会员";
          this.descLabel.string = "开通会员，享受更多特权";
+      }
+      if(userData.mp_no){
+         this.phoneNumberLabel.string = `手机号：${userData.mp_no}`;
+      }else{
+         this.phoneNumberLabel.string = "未绑定手机号";
+      }
+      if(userData.member_endTime){
+         this.memberValidity.string = `会员有效期至：${userData.member_endTime}`;
       }
    }
    async loadTaskSprite(path: string): Promise<SpriteFrame> {

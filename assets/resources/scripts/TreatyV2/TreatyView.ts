@@ -14,71 +14,63 @@ export class TreatyView extends BasePanel {
     @property(ScrollView)
     scrollView: ScrollView = null;
 
+    @property([RichText])
+    richTextsContent: RichText[] = [];
+
     private contentChunks: string[] = [];
     private currentChunkIndex: number = 0;
-    private readonly CHUNK_SIZE: number = 600; 
+    private readonly CHUNK_SIZE: number = 600;
     private isLoading: boolean = false;
     private readonly LOADING_TEXT: string = '\n\n<color=#B6B6B6>文字正在加载中，请稍后...</color>';
 
     start() {
-        if (this.scrollView) {
-            // 监听滚动到底事件
-            this.scrollView.node.on('bounce-bottom', this.loadNextChunk, this);
-        }
     }
 
     onDestroy() {
-        if (this.scrollView) {
-            this.scrollView.node.off('bounce-bottom', this.loadNextChunk, this);
-        }
+        this.unscheduleAllCallbacks();
     }
-
+    private sections: string[] = [];
     restore(data: any) {
-        let fullContent: string = "";
         if (data.flag == "Privacy") {
-            fullContent = PRIVACY_CONTENT.privacyPolicy;
+            this.sections = [
+                PRIVACY_CONTENT.section0,
+                PRIVACY_CONTENT.section1,
+                PRIVACY_CONTENT.section2,
+                PRIVACY_CONTENT.section3,
+                PRIVACY_CONTENT.section4,
+                PRIVACY_CONTENT.section5,
+                PRIVACY_CONTENT.section6,
+                PRIVACY_CONTENT.section7,
+                PRIVACY_CONTENT.section8,
+                PRIVACY_CONTENT.section9
+            ];
         } else if (data.flag == "XieYi") {
-            fullContent = TREATY_CONTENT.getTreaty;
+            this.sections = [
+                TREATY_CONTENT.section0,
+                TREATY_CONTENT.section1,
+                TREATY_CONTENT.section2,
+                TREATY_CONTENT.section3,
+                TREATY_CONTENT.section4,
+                TREATY_CONTENT.section5,
+                TREATY_CONTENT.section6,
+                TREATY_CONTENT.section7,
+                TREATY_CONTENT.section8,
+                TREATY_CONTENT.section9
+            ];
         }
+        this.schedule(() => {
+            this.loadNextChunk();
+        }, 0.5, 10);
 
-        // 分块存储内容
-        for (let i = 0; i < fullContent.length; i += this.CHUNK_SIZE) {
-            this.contentChunks.push(fullContent.slice(i, i + this.CHUNK_SIZE));
-        }
-
-        // 初始只加载第一块内容
-        if (this.contentChunks.length > 0) {
-            this.treatyRichText.string = this.contentChunks[0];
-            if (this.contentChunks.length > 1) {
-                this.treatyRichText.string += this.LOADING_TEXT;
-            }
-            this.currentChunkIndex = 1;
-        }
     }
 
     private loadNextChunk() {
-        if (this.isLoading || this.currentChunkIndex >= this.contentChunks.length) {
-            if (this.currentChunkIndex >= this.contentChunks.length) {
-                this.removeLoadingText();
-            }
+        if (this.currentChunkIndex > 9) {
+            this.unscheduleAllCallbacks();
             return;
         }
-
-        this.isLoading = true;
-
-        // 移除当前的加载提示（如果有的话）
-        const content = this.removeLoadingText(this.treatyRichText.string);
-        
-        // 一次性加载剩余的所有内容
-        let newContent = content;
-        while (this.currentChunkIndex < this.contentChunks.length) {
-            newContent += this.contentChunks[this.currentChunkIndex];
-            this.currentChunkIndex++;
-        }
-        
-        // 直接更新内容
-        this.treatyRichText.string = newContent;
-        this.isLoading = false;
+        this.richTextsContent[this.currentChunkIndex].string = this.sections[this.currentChunkIndex] || '';
+        this.currentChunkIndex++;
     }
 
     private removeLoadingText(content: string = this.treatyRichText.string): string {

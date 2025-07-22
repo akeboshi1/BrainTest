@@ -108,9 +108,9 @@ export class SelectDate extends Component {
         this.setOptions(this._year, this._month, this._day);
     }
     setOptions(year: string, month: string, day: string) {
-        this._initYear = year || this._year.substring(0, this._year.length - 1);
-        this._initMonth = month || this._month.substring(0, this._month.length - 1);
-        this._initDay = day || this._day.substring(0, this._day.length - 1);
+        this._initYear = (year ? year.replace('年', '') : this._year.replace('年', ''));
+        this._initMonth = (month ? month.replace('月', '') : this._month.replace('月', ''));
+        this._initDay = (day ? day.replace('日', '') : this._day.replace('日', ''));
     }
 
     private onYearChanged(idx:number, data:Array<string>){
