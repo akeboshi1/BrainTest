@@ -746,6 +746,12 @@ export default class GameView extends LayerPanel {
 
     requestGameCompleteCallBack() {
         this.updateSkewersGameList();
+        
+        // 串烧游戏结算完成后恢复关闭按钮交互
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.setQuitButtonInteractable(true);
+            this._isSettling = false;
+        }
     }
 
     private updateSkewersGameList() {
@@ -782,6 +788,9 @@ export default class GameView extends LayerPanel {
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
                 } else {
+                    // 串烧游戏类型不匹配时，恢复关闭按钮交互
+                    this.setQuitButtonInteractable(true);
+                    this._isSettling = false;
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -992,8 +1001,8 @@ export default class GameView extends LayerPanel {
         this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
         
         // 串烧游戏结算完成后恢复关闭按钮交互
-        this.setQuitButtonInteractable(true);
-        this._isSettling = false;
+        // 注意：串烧游戏的结算流程是异步的，需要等待服务器响应和弹窗显示
+        // 关闭按钮的交互将在requestGameCompleteCallBack中恢复
     }
 
     private _requestGameCenterComplete() {
