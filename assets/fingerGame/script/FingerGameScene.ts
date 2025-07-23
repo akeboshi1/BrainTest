@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, UITransform, VideoPlayer, ProgressBar, tween, Vec3, UIOpacity, VideoClip, native, sys, Texture2D } from 'cc';
+import { _decorator, Component, Label, Node, UITransform, VideoPlayer, ProgressBar, tween, Vec3, UIOpacity, VideoClip, native, sys, Texture2D, Scene } from 'cc';
 import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
 import { fingerGameConfig, SectionConfig } from '../config/fingerGameConfig';
 import { SegmentProgressBar } from './SegmentProgressBar';
@@ -10,11 +10,12 @@ import { NativeEvent } from '../../resources/scripts/Core/Manager/Event/NativeEv
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../resources/scripts/Core/Util/LocalStorageUtil';
 import { FingerGameResultData, FingerGameResult } from './FingerGameResultData';
 import { FingerGameSetFinishPanel, IFingerGameSetFinishPanelData } from './FingerGameSetFinishPanel';
-import { FingerGameCompletePanel, IFingerGameCompleteData } from './FingerGameCompletePanel';
+import { FingerGameCompletePanel, IFingerGameCompleteData, IFingerGameCompletePanelData } from './FingerGameCompletePanel';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 import { IFingerActivity, IFingerActivityResult, IFingerActivityScore } from './FingerGameProtocol';
 import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
 import { FingerGameSectionsPanel } from './FingerGameSectionsPanel';
+import { GameType } from '../../resources/scripts/Core/Scene/SceneModel/BaseGameModel';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameScene')
@@ -65,7 +66,7 @@ export class FingerGameScene extends Component {
     private _isRecording: boolean = false;
 
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
-    private _completePanelData: DataProvider<IFingerGameCompleteData[]> = null;
+    private _completePanelData: DataProvider<IFingerGameCompletePanelData> = null;
 
     private _blackMaskUid: string = 'c78f6df5-23d8-4296-8ede-202c6e535fe0';
     private _leftrightRectUid: string = '6dfdc8c5-ad70-454f-b754-383a18e80c4a';
@@ -94,9 +95,13 @@ export class FingerGameScene extends Component {
     }
 
     onGetAllTaskActivitiesResult(data: IFingerActivityResult) {
-        let panelData: IFingerGameCompleteData[] = [];
+        let panelData: IFingerGameCompletePanelData = {
+            showStatue: true,
+            data: [],
+            goonHandler: this.handleSummaryBack.bind(this)
+        };
         for (let i = 0; i < data.activities.length; i++) {
-            panelData.push({
+            panelData.data.push({
                 name: data.activities[i].name,
                 status: data.activities[i].rating
             });
@@ -266,6 +271,7 @@ export class FingerGameScene extends Component {
                 let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].icon;
 
                 let panelData: IFingerGameSetFinishPanelData = {
+                    showResult: true,
                     result: null,
                     nextSectionName: nextSectionName,
                     nextSectionIconUrl: nextSectionIconUrl,
@@ -406,6 +412,17 @@ export class FingerGameScene extends Component {
             DebugLog.instance.log(this._absolutePath);
             this.hideAllNativeNode();
 
+            let panelData: IFingerGameSetFinishPanelData = {
+                showResult: false,
+                result: null,
+                nextSectionName: null,
+                nextSectionIconUrl: null,
+                back: this.handleSummaryBack.bind(this),
+                goNext: this.handleSummaryGoNext.bind(this)
+            }
+
+            this._finishPanelData.data = panelData;
+
             UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData).then((isShow: boolean) => {
                 this.PostVideoData();
             });
@@ -479,6 +496,7 @@ export class FingerGameScene extends Component {
                 let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].icon;
 
                 let panelData: IFingerGameSetFinishPanelData = {
+                    showResult: true,
                     result: result,
                     nextSectionName: nextSectionName,
                     nextSectionIconUrl: nextSectionIconUrl,
@@ -523,28 +541,44 @@ export class FingerGameScene extends Component {
     }
 
     handleSummaryBack() {
-        SceneManager.getInstance().backToHall();
+        let restoreData = SceneManager.getInstance().getRestoreData();
+        if (restoreData && restoreData.gametype === GameType.GAME_CENTER) {
+            SceneManager.getInstance().backToGameCenter();
+        } else {
+            SceneManager.getInstance().backToHall();
+        }
     }
 
     handleSummaryGoNext() {
         let isLastSection = this._model.isLastSection;
         if (isLastSection) {
-            this._completePanelData = new DataProvider<IFingerGameCompleteData[]>();
+            this._completePanelData = new DataProvider<IFingerGameCompletePanelData>();
+            let panelData: IFingerGameCompletePanelData = null;
 
             if (this._model.isMember()) {
                 this._model.getAllTaskActivitiesResult();
+
+                panelData = {
+                    showStatue: false,
+                    data: [],
+                    goonHandler: this.handleSummaryBack.bind(this)
+                };
             } else {
-                let panelData: IFingerGameCompleteData[] = [];
+                panelData = {
+                    showStatue: true,
+                    data: [],
+                    goonHandler: this.handleSummaryBack.bind(this)
+                };
+
                 for (let i = 0; i < this._model.activities.length; i++) {
-                    panelData.push({
+                    panelData.data.push({
                         name: fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.activities[i].id - 1].name,
                         status: 0
                     });
                 }
-
-                this._completePanelData.data = panelData;
             }
-
+            this._completePanelData.data = panelData;
+            
             UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, this._completePanelData);
         } else {
             this._currentSectionIndex++;
@@ -576,29 +610,35 @@ export class FingerGameScene extends Component {
 
     //debug
     debugCompletePanel() {
-        let panelData: IFingerGameCompleteData[] = [];
-        panelData.push({
+        let panelData: IFingerGameCompletePanelData = {
+            showStatue: false,
+            data: [],
+            goonHandler: this.handleSummaryBack.bind(this)
+        };
+        panelData.data.push({
             name: '测试',
             status: 1
         });
-        panelData.push({
+        panelData.data.push({
             name: '测试2',
             status: 2
         });
-        panelData.push({
+        panelData.data.push({
             name: '测试3',
             status: 3
         });
-        panelData.push({
+        panelData.data.push({
             name: '测试4',
             status: null
         });
 
-        this._completePanelData = new DataProvider<IFingerGameCompleteData[]>();
+        this._completePanelData = new DataProvider<IFingerGameCompletePanelData>();
+        panelData.showStatue = true;
+        this._completePanelData.data = panelData;
 
-        setTimeout(() => {
-            this._completePanelData.data = panelData;
-        }, 3000);
+        // this.scheduleOnce(() => {
+        //     this._completePanelData.data = panelData;
+        // }, 3000);
 
         UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, this._completePanelData);
     }
@@ -637,15 +677,16 @@ export class FingerGameScene extends Component {
 
         this._finishPanelData = new DataProvider<IFingerGameSetFinishPanelData>()
         let panelData: IFingerGameSetFinishPanelData = {
-            result: data,
-            nextSectionName: nextSectionName,
-            nextSectionIconUrl: nextSectionIconUrl,
+            showResult: false,
+            result: null,
+            nextSectionName: null,
+            nextSectionIconUrl: null,
             back: this.handleSummaryBack.bind(this),
             goNext: this.handleSummaryGoNext.bind(this)
         }
-        setTimeout(() => {
-            this._finishPanelData.data = panelData;
-        }, 3000);
+
+        this._finishPanelData.data = panelData;
+
 
         UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData);
     }

@@ -203,8 +203,7 @@ export class App extends AdaptComponent {
      * @private
      */
     private initGame() {
-        let url = Global.RES_Root + this.sceneName;
-        SceneManager.getInstance().changeScene(url, this.sceneName).then(() => {
+        SceneManager.getInstance().changeScene(this.sceneName).then(() => {
             DebugLog.instance.log(`${this.sceneName} 场景切换成功`);
         });
     }

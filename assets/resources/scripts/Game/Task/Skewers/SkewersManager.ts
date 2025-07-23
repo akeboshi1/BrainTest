@@ -438,7 +438,7 @@ export class SkewersManager {
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
-        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+        SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.SKEWERS}).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
             (scene as any).sceneModel = SkewersManager.getInstance().skewersSpecData;
             // (scene as any).sceneModel.scene = scene as any;
@@ -484,11 +484,6 @@ export class SkewersManager {
         Global.userData.curSkewerGameData = this._game;
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
         BundlePreloadManager.getInstance().preload(sceneName);
-
-        // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-        //     DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
-        //     Global.userData.curSkewerGameData = game;
-        // });
     }
 
     /**
@@ -518,12 +513,6 @@ export class SkewersManager {
             EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
             BundlePreloadManager.getInstance().preload(sceneName);
         }
-
-
-        // SceneManager.getInstance().changeScene(url,sceneName).then(()=>{
-        //     DebugLog.instance.log(`串烧游戏 ${sceneName} 切换成功`);
-        //     Global.userData.curSkewerGameData = this._game;
-        // });
     }
 
     /**

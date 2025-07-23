@@ -20,7 +20,7 @@ import { GameCenter } from '../UI/GameCenter/GameCenter';
 import { BrainTrain } from '../UI/BrainTrain/BrainTrain';
 import { TaskAndNotificationPanelCtrl } from '../UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl';
 import FeatureTogglesSetting, { FeatureToggle } from '../../FeatureTogglesSetting';
-
+import { GameType } from '../../Core/Scene/SceneModel/BaseGameModel';
 
 const { ccclass, property } = _decorator;
 
@@ -316,7 +316,7 @@ export class MainScene extends Component {
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
-        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+        SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.GAME_CENTER}).then((scene) => {
             self._clickBoo = false;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
