@@ -121,7 +121,7 @@ export class CreateQuestion {
             }
         } else if (difficulty === 3) {
             // 难度三：连续两次计算，必须有一加一减，两次计算都需要进位或借位
-            // 格式：（2位数+1位数）-1位数，如：（25+8）-7
+            // 格式：2位数+1位数-1位数，如：25+8-7
             
             // 第一步：2位数+1位数（有进位）
             let a, b;
@@ -132,13 +132,13 @@ export class CreateQuestion {
             
             let firstResult = a + b;
             
-            // 第二步：减去1位数（有借位）
+            // 第二步：减去1位数（有借位），且不能与加法中的1位数相同
             let c;
             do {
                 c = await getRandomInt(1, 9);
-            } while ((firstResult % 10) >= c || firstResult - c <= 0); // 确保有借位且结果不为0
+            } while ((firstResult % 10) >= c || firstResult - c <= 0 || c === b); // 确保有借位且结果不为0，且c不等于b
             
-            question = `(${a} + ${b}) - ${c}`;
+            question = `${a} + ${b} - ${c}`;
             correctAnswer = firstResult - c;
         }
 
