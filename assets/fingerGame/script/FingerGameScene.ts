@@ -299,13 +299,7 @@ export class FingerGameScene extends Component {
     }
 
     public onClickExit() {
-        this.hideAllNativeNode();
-
-        SceneManager.getInstance().backToHall();
-
-        // 清理所有定时器
-        this._timers.forEach(timer => clearTimeout(timer));
-        this._timers = [];
+        this.handleSummaryBack();
     }
 
     onDestroy() {
