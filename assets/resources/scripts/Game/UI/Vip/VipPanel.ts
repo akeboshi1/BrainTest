@@ -50,6 +50,22 @@ export class VipPanel extends BasePanel {
     //===== 会员类型
     @property(Node)
     typeNode: Node;
+    //---------------------------------------
+
+    @property(Node)
+    dayBtn: Node;
+
+    @property(Label)
+    dayNameLabel: Label;
+
+    @property(Label)
+    dayPriceLabel: Label;
+
+    @property(Label)
+    dayDiscountLabel: Label;
+
+    @property(Label)
+    dayFreeGiveLabel: Label;
 
     @property(Node)
     mouthBtn: Node
@@ -60,14 +76,28 @@ export class VipPanel extends BasePanel {
     @property(Label)
     mouthPriceLabel: Label;
 
+    @property(Label)
+    mouthDiscountLabel: Label;
+
+    @property(Label)
+    mouthFreeGiveLabel: Label;
+
     @property(Node)
-    yearBtn: Node;
+    weekBtn: Node;
 
     @property(Label)
-    yearNameLabel: Label;
+    weekNameLabel: Label;
 
     @property(Label)
-    yearPriceLabel: Label;
+    weekPriceLabel: Label;
+
+    @property(Label)
+    weekDiscountLabel: Label;
+
+    @property(Label)
+    weekFreeGiveLabel: Label;
+
+    //---------------------------------------
 
     @property(RichText)
     selectLabel: RichText;
@@ -263,35 +293,45 @@ export class VipPanel extends BasePanel {
      */
     private onVipGetData() {
         let vipDatas = this._vipModel.vipDatas;
+        console.log("vipDatas",vipDatas);
         let len = vipDatas.length;
         for (let i: number = 0; i < len; i++) {
             let vipData = vipDatas[i];
-            if (vipData.type == VipType.Day) {
-                this.mouthBtn.active = true;
-                this.mouthPriceLabel.string = vipData.price.toString();
-                this.mouthNameLabel.string = vipData.name;
-            } else if (vipData.type == VipType.Mouth) {
-                this.yearBtn.active = true;
-                this.yearPriceLabel.string = vipData.price.toString();
-                this.yearNameLabel.string = vipData.name;
+            if (vipData.periodUnit == VipType.Day) {
+             // this.dayBtn.active = true;
+               this.dayPriceLabel.string = `${vipData.discountPrice}`;
+               this.dayNameLabel.string = `可乐派-${vipData.name}`;
+               this.dayDiscountLabel.string = `¥${vipData.price}`;
+               this.dayFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
+            } else if (vipData.periodUnit == VipType.Mouth) {
+                // this.mouthBtn.active = true;
+                this.mouthPriceLabel.string = `${vipData.discountPrice}`;
+                this.mouthNameLabel.string = `可乐派-${vipData.name}`;
+                this.mouthDiscountLabel.string = `¥${vipData.price}`;
+                this.mouthFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
+            }else if (vipData.periodUnit == VipType.Week) {
+                this.weekPriceLabel.string = `${vipData.discountPrice}`;
+                this.weekNameLabel.string = `可乐派-${vipData.name}`;
+                this.weekDiscountLabel.string = `¥${vipData.price}`;
+                this.weekFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             }
         }
-
-        // 默认选择月卡
         let _vipData = this._vipModel.vipDatas[0];
         this._select = _vipData.id;
-        this.selectLabel.string = `已经选择<color=#000000><b><size=55>${_vipData.name}</size></b></color>`;
-
-        // 设置按钮颜色：月卡橙色，年卡白色
-        let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
-        let yearBtnSprite = this.yearBtn.getComponent(Sprite);
-
-        if (mouthBtnSprite) {
-            this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
-        }
-        if (yearBtnSprite) {
-            this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
-        }
+        this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${_vipData.name}</size></b></color>模式`;        
+        this.setBtnFrame(_vipData.periodUnit);
+    }
+    setBtnFrame(name: string) {
+        const selectedBtn = name == VipType.Mouth ? this.mouthBtn : 
+                          name == VipType.Week ? this.weekBtn : 
+                          this.dayBtn;
+        let selectedBtnSprite = selectedBtn.getComponent(Sprite);
+        this.changeBtnFrame(selectedBtnSprite, "textureV2/userCenter/member1/spriteFrame").then();
+        [this.mouthBtn, this.weekBtn, this.dayBtn].forEach(btn => {
+            if (btn !== selectedBtn) {
+                this.changeBtnFrame(btn.getComponent(Sprite), "textureV2/userCenter/member2/spriteFrame").then();
+            }
+        });
     }
 
     /**
@@ -498,20 +538,22 @@ export class VipPanel extends BasePanel {
     cardClick(event, index: number) {
         let vipData = this._vipModel.vipDatas[Number(index)];
         this._select = vipData.id;
-        this.selectLabel.string = `已经选择<color=#000000><b><size=55>${vipData.name}</size></b></color>`;
+        this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${vipData.name}</size></b></color>模式`;
 
-        let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
-        let yearBtnSprite = this.yearBtn.getComponent(Sprite);
+        this.setBtnFrame(vipData.periodUnit);
+    
+        // let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
+        // let yearBtnSprite = this.yearBtn.getComponent(Sprite);
 
-        if (vipData.periodUnit != "month") {
-            // 选择月卡：月卡显示橙色，年卡显示白色
-            this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
-            this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
-        } else {
-            // 选择年卡：月卡显示白色，年卡显示橙色
-            this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
-            this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
-        }
+        // if (vipData.periodUnit != "month") {
+        //     // 选择月卡：月卡显示橙色，年卡显示白色
+        //     this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
+        //     this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
+        // } else {
+        //     // 选择年卡：月卡显示白色，年卡显示橙色
+        //     this.changeBtnFrame(mouthBtnSprite, "textureV2/vip/rect_white/spriteFrame").then();
+        //     this.changeBtnFrame(yearBtnSprite, "textureV2/vip/rect_orange/spriteFrame").then();
+        // }
     }
 
 

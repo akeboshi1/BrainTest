@@ -159,10 +159,21 @@ export class BundlePreloadManager extends BaseManager {
             }
         }
 
-        DebugLog.instance.log(`全部加载完成！`);
+        DebugLog.instance.log(`全部预加载完成！`);
         if (this.loadedBundle.indexOf(bundleName) < 0) {
             this.loadedBundle.push(bundleName);
         }
+        
+        // 预加载完成后，开始加载场景资源
+        try {
+            await this.loadSceneResources(bundleName);
+        } catch (error) {
+            DebugLog.instance.error(`加载场景资源失败: ${error}`);
+            EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+            return;
+        }
+        
+        DebugLog.instance.log(`所有资源加载完成，开始倒计时动画`);
         
         // 显示倒计时动画，等倒计时完成后再派发FINISH事件
         // 当切入的场景是fingerGame时，不显示倒计时，直接派发finish事件
@@ -209,12 +220,113 @@ export class BundlePreloadManager extends BaseManager {
     public isBundleLoaded(bundleName: BundleName) {
         return assetManager.getBundle(bundleName) != null;
     }
+
+    /**
+     * 加载场景资源但不切换场景
+     * 在预加载完成后调用，用于加载场景资源到内存中
+     * @param bundleName 资源包名称
+     * @param sceneName 场景名称（可选，如果不提供则使用配置中的场景名）
+     */
+    public async loadSceneResources(bundleName: BundleName, sceneName?: string) {
+        if (!this.bInit) {
+            DebugLog.instance.error("BundlePreloadManager尚未初始化，请先调用init方法");
+            return;
+        }
+
+        const bundle = assetManager.getBundle(bundleName);
+        if (!bundle) {
+            DebugLog.instance.error(`资源包 ${bundleName} 未加载，请先调用preload方法`);
+            return;
+        }
+
+        // 确定要加载的场景名称
+        let targetSceneName = sceneName;
+        if (!targetSceneName) {
+            const isBundleConfigExist = this.config.getGameModuleNames().indexOf(bundleName) >= 0;
+            if (isBundleConfigExist) {
+                targetSceneName = this.config.getPreloadScene(bundleName);
+            } else {
+                targetSceneName = bundleName.valueOf();
+            }
+        }
+
+        DebugLog.instance.log(`开始加载场景资源: ${targetSceneName}`);
+
+        try {
+            // 更新LoadPanel显示场景资源加载进度
+            const loadPanelInfo = UIManager.getInstance().getActivePanel(LoadPanel.NAME);
+            if (loadPanelInfo && loadPanelInfo.comp) {
+                const loadPanel = loadPanelInfo.comp as LoadPanel;
+                loadPanel.setProgress(`加载场景资源中...`);
+            }
+
+            // 使用assetManager.loadBundle加载场景资源到内存中
+            await new Promise<void>((resolve, reject) => {
+                bundle.loadScene(targetSceneName, (err) => {
+                    if (err) {
+                        DebugLog.instance.error(`加载场景资源 ${targetSceneName} 失败: ${err}`);
+                        reject(err);
+                    } else {
+                        DebugLog.instance.log(`场景资源 ${targetSceneName} 加载完成`);
+                        resolve();
+                    }
+                });
+            });
+
+            // 更新LoadPanel显示场景资源加载完成
+            if (loadPanelInfo && loadPanelInfo.comp) {
+                const loadPanel = loadPanelInfo.comp as LoadPanel;
+                loadPanel.setProgress(`场景资源加载完成`);
+            }
+
+            // 触发场景资源加载完成事件
+            EventManager.getInstance().emit(BundlePreloadEvent.SCENE_LOADED, { 
+                bundleName, 
+                sceneName: targetSceneName 
+            });
+
+        } catch (error) {
+            DebugLog.instance.error(`加载场景资源 ${targetSceneName} 出错: ${error}`);
+            EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { 
+                bundleName, 
+                sceneName: targetSceneName,
+                error 
+            });
+        }
+    }
+
+    /**
+     * 检查场景资源是否已加载
+     * @param bundleName 资源包名称
+     * @param sceneName 场景名称（可选）
+     * @returns 是否已加载
+     */
+    public isSceneLoaded(bundleName: BundleName, sceneName?: string): boolean {
+        const bundle = assetManager.getBundle(bundleName);
+        if (!bundle) {
+            return false;
+        }
+
+        let targetSceneName = sceneName;
+        if (!targetSceneName) {
+            const isBundleConfigExist = this.config.getGameModuleNames().indexOf(bundleName) >= 0;
+            if (isBundleConfigExist) {
+                targetSceneName = this.config.getPreloadScene(bundleName);
+            } else {
+                targetSceneName = bundleName.valueOf();
+            }
+        }
+
+        // 检查场景是否已加载到内存中
+        return bundle.getSceneInfo(targetSceneName) !== null;
+    }
 }
 
 // 定义预加载相关的事件枚举，方便外部统一监听和处理不同阶段的预加载事件
 export enum BundlePreloadEvent {
     START = "BundlePreloadEvent.start",
     BUNDLELOADED = "BundlePreloadEvent.bundleLoaded",
+    SCENE_LOADED = "BundlePreloadEvent.sceneLoaded",
     FINISH = "BundlePreloadEvent.finish",
     PROGRESS = "BundlePreloadEvent.progress",
     FAILED = "BundlePreloadEvent.failed",

@@ -597,7 +597,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         const screenWidth = uiSize.width;
         let scale = screenWidth/1080 >1?1:screenWidth/1080;
         let contentSizeWidth = this.chipParentNode.getComponent(UITransform).contentSize.width;
-        return  (screenWidth - contentSizeWidth)/2-80/scale;;
+        return  (screenWidth - contentSizeWidth)/2-75/scale;
     }
 
     private getChipDataByPuzzlePos(puzzlePos: number): Object {

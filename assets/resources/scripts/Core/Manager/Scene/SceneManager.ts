@@ -10,6 +10,7 @@ import { EventManager } from '../Event/EventManager';
 import {
     TaskAndNotificationPanelCtrl
 } from "db://assets/resources/scripts/Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl";
+import { BundlePreloadEvent, BundlePreloadManager } from '../Load/BundlePreloadManager';
 
 export class SceneManager extends BaseManager {
 
@@ -278,5 +279,94 @@ export class SceneManager extends BaseManager {
 
     emitSceneChangedEvent(sceneName: string, lastSceneName: string) {
         this.eventTarget.emit(SceneManager.SCENE_CHANGED, sceneName, lastSceneName);
+    }
+
+    /**
+     * 基于BundlePreloadEvent的场景切换
+     * 先预加载资源包，然后监听FINISH事件进行场景切换
+     * @param bundleName 资源包名称
+     * @param sceneName 场景名称（可选，如果不提供则使用配置中的场景名）
+     * @param callback 场景切换完成后的回调函数
+     */
+    public async changeSceneWithPreload(bundleName: BundleName, sceneName?: string, callback?: (scene: Scene) => void): Promise<Scene> {
+        return new Promise((resolve, reject) => {
+            // 确定要切换的场景名称
+            let targetSceneName = sceneName;
+            if (!targetSceneName) {
+                const bundlePreloadConfig = BundlePreloadManager.getInstance()['config'];
+                const isBundleConfigExist = bundlePreloadConfig.getGameModuleNames().indexOf(bundleName) >= 0;
+                if (isBundleConfigExist) {
+                    targetSceneName = bundlePreloadConfig.getPreloadScene(bundleName);
+                } else {
+                    targetSceneName = bundleName.valueOf();
+                }
+            }
+
+            DebugLog.instance.log(`开始预加载场景: ${targetSceneName}`);
+
+            // 监听预加载完成事件
+            const onPreloadFinish = (data: any) => {
+                if (data.bundleName === bundleName) {
+                    DebugLog.instance.log(`预加载完成，开始切换场景: ${targetSceneName}`);
+                    
+                    // 移除事件监听
+                    EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
+                    
+                    // 执行场景切换
+                    this.changeScene("", targetSceneName, bundleName).then((scene) => {
+                        DebugLog.instance.log(`场景切换成功: ${targetSceneName}`);
+                        if (callback) {
+                            callback(scene);
+                        }
+                        resolve(scene);
+                    }).catch((error) => {
+                        DebugLog.instance.error(`场景切换失败: ${targetSceneName}`, error);
+                        reject(error);
+                    });
+                }
+            };
+
+            // 监听场景资源加载完成事件（可选）
+            const onSceneLoaded = (data: any) => {
+                if (data.bundleName === bundleName) {
+                    DebugLog.instance.log(`场景资源加载完成: ${data.sceneName}`);
+                }
+            };
+
+            // 监听预加载失败事件
+            const onPreloadFailed = (data: any) => {
+                if (data.bundleName === bundleName) {
+                    DebugLog.instance.error(`预加载失败: ${bundleName}`, data);
+                    
+                    // 移除所有事件监听
+                    EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
+                    EventManager.getInstance().off(BundlePreloadEvent.SCENE_LOADED, this);
+                    EventManager.getInstance().off(BundlePreloadEvent.FAILED, this);
+                    
+                    reject(new Error(`预加载失败: ${bundleName}`));
+                }
+            };
+
+            // 注册事件监听
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, onPreloadFinish, this);
+            EventManager.getInstance().on(BundlePreloadEvent.SCENE_LOADED, onSceneLoaded, this);
+            EventManager.getInstance().on(BundlePreloadEvent.FAILED, onPreloadFailed, this);
+
+            // 开始预加载
+            BundlePreloadManager.getInstance().preload(bundleName).catch((error) => {
+                DebugLog.instance.error(`预加载启动失败: ${bundleName}`, error);
+                reject(error);
+            });
+        });
+    }
+
+    /**
+     * 检查场景是否已预加载完成
+     * @param bundleName 资源包名称
+     * @param sceneName 场景名称（可选）
+     * @returns 是否已预加载完成
+     */
+    public isScenePreloaded(bundleName: BundleName, sceneName?: string): boolean {
+        return BundlePreloadManager.getInstance().isSceneLoaded(bundleName, sceneName);
     }
 }
