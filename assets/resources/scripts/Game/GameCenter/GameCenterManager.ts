@@ -236,7 +236,7 @@ export class GameCenterManager {
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         DebugLog.instance.log(`${sceneName} 预加载完成`);
-        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+        SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.GAME_CENTER}).then((scene) => {
             EventManager.getInstance().emit(SceneManager.SCENE_ENTER);
             (scene as any).sceneModel = GameCenterManager.getInstance().gameSpecData;
             (scene as any).sceneModel.scene = scene as any;

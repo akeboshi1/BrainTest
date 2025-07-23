@@ -3060,7 +3060,7 @@
     },
     "component": "",
     "_componentId": "5fbadCI2cxOzI8/PypSM7S9",
-    "handler": "debugShowImageOverlay",
+    "handler": "debugCompletePanel",
     "customEventData": ""
   },
   {

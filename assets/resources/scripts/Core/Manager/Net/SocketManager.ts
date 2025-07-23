@@ -223,15 +223,6 @@ export class SocketManager extends BaseManager {
                     LoginManager.getInstance().requestTokenVerification((result) => {
                         if (!result) {
                             LoginManager.getInstance().loginout();
-                            // //回退到主界面
-                            // LocalStorageUtil.clean();
-                            //
-                            // EventManager.getInstance().destory();
-                            // AudioManager.getInstance().destory();
-                            //
-                            // SceneManager.getInstance().changeScene(BundleName.MAIN, "start").then(() => {
-                            //     DebugLog.instance.log(`start场景切换成功`);
-                            // });
                         }
 
                         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);

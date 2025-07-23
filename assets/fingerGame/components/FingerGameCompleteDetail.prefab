@@ -438,7 +438,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 14.833999999999946,
+      "x": 0,
       "y": 0,
       "z": 0
     },
@@ -479,12 +479,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 28.828125,
+      "width": 36,
       "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 1,
+      "x": 0.5,
       "y": 0.5
     },
     "_id": ""
@@ -515,7 +515,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "✔",
+    "_string": "中",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
@@ -588,8 +588,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 72,
-      "height": 72
+      "width": 70,
+      "height": 70
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -620,17 +620,17 @@
     "_color": {
       "__type__": "cc.Color",
       "r": 255,
-      "g": 255,
-      "b": 255,
+      "g": 143,
+      "b": 0,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "f295768d-b45d-4585-b31d-56067b84a7b9@f9941",
+      "__uuid__": "a1c2f4f3-1c13-433f-a29c-e37c5569da6a@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
     "_fillType": 0,
-    "_sizeMode": 1,
+    "_sizeMode": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",
       "x": 0,

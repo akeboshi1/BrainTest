@@ -21,6 +21,7 @@ import { Global } from '../Core/Manager/Config/Global';
 import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/BundlePreloadManager';
 import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 import { VipAlert } from '../Game/UI/Vip/VipAlert';
+import { GameType } from '../Core/Scene/SceneModel/BaseGameModel';
 
 
 const { ccclass, property } = _decorator;
@@ -205,7 +206,7 @@ export class IndexPageView extends AdaptComponent {
     }
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
-        SceneManager.getInstance().changeScene(url, sceneName).then((scene) => {
+        SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.SKEWERS}).then((scene) => {
             self._clickBoo = false;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
