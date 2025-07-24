@@ -1,6 +1,5 @@
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
-import { LoginPanel } from "db://assets/resources/scripts/Game/UI/Login/LoginPanel";
 import { SocketData } from "db://assets/resources/scripts/Core/Manager/Net/SocketData";
 import { SocketManager } from "db://assets/resources/scripts/Core/Manager/Net/SocketManager";
 import { TimeUtil } from "../../Util/TimeUtil";
@@ -17,6 +16,7 @@ import { NativeEvent } from "../Event/NativeEvent";
 import { native, sys } from "cc";
 import {AlterUserInfoView} from "db://assets/resources/scripts/UserCenterV2/AlterUserInfoView";
 import {PersonalCenterManager} from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
+import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -27,11 +27,13 @@ export class LoginManager {
         }
         return LoginManager._instance;
     }
+    public static LoginByInstitutionResult: string = "LoginByInstitutionResult";
 
     private login_login_by_token: string = "login.login_by_token";
     private login_send_mp_code: string = "login.send_mp_code";
     private login_login_by_mp: string = "login.login_by_mp";
     private user_set_invite_code: string = "user.set_invite_code";
+    private login_by_institution: string = "login.login_by_organization"
 
     private _phoneNum: string = "";
 
@@ -45,7 +47,7 @@ export class LoginManager {
     }
 
     init() {
-        UIManager.getInstance().registerPanel(LoginPanel.NAME, BundleName.RESOURCES, "prefab/LoginPanel", LoginPanel);
+        UIManager.getInstance().registerPanel(SwitchLoginPanel.NAME, BundleName.RESOURCES, "/prefab/AuthLogin/SwitchLoginPanel",SwitchLoginPanel);
         UIManager.getInstance().registerPanel(AlterUserInfoView.NAME, BundleName.RESOURCES, "/prefabV2/personalCenter/alterUserInfo", AlterUserInfoView);
         UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
     }
@@ -123,9 +125,9 @@ export class LoginManager {
     }
 
     private requestLoginByMpHandler(data: any) {
-        DebugLog.instance.log(data);
-        if (data['status'] == 0) {
-            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);
+        DebugLog.instance.log(data);     
+        if (data['status'] == 0) {  
+            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);       
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
             // const alertData: AlertData = new AlertData();
             // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
@@ -133,6 +135,7 @@ export class LoginManager {
             return;
         }
 
+        // 如果返回的数据中的手机号与当前用户的手机号不匹配，表示登录失败
         if (data['data']['mp_no'] != this.phoneNum) {
             DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
             AlertManager.getInstance().showSocketAlert(`${data['data']['mp_no']} 手机号不匹配`);
@@ -157,7 +160,7 @@ export class LoginManager {
         if (isNew) {
 
             UIManager.getInstance().showPanel(AlterUserInfoView.NAME,true);
-            UIManager.getInstance().hidePanel(LoginPanel.NAME);
+            UIManager.getInstance().hidePanel(SwitchLoginPanel.NAME);
 
             // 主动弹出邀请码界面
             EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
@@ -168,6 +171,22 @@ export class LoginManager {
         }
 
         GlobalConfigManager.getInstance().init();
+    }
+    private requestLoginByInstitutionHandler(data: any) {
+        if (data['status'] == 0) {  
+            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);       
+            DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
+            return;
+        }
+        
+        Global.userData.token = data.data['token'];
+        Global.userData.tokenExpires = data.data['expires'];
+       
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
+        const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
+        EventManager.getInstance().emit(LoginManager.LoginByInstitutionResult);
+      
     }
 
     private onCloseVerifyPanel(){
@@ -187,6 +206,7 @@ export class LoginManager {
         this.request(this.user_set_invite_code, { invite_code: code });
     }
 
+    // 发送验证码
     public requestSendMpCode(phoneNum: string) {
         EventManager.getInstance().on(this.login_send_mp_code, this.requestSendMpCodeHandler, this, true);
         this._phoneNum = phoneNum;
@@ -197,10 +217,16 @@ export class LoginManager {
         EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginByMpHandler, this, true);
         this.request(this.login_login_by_mp, { "mp_no": this.phoneNum, "code": mpCode });
     }
+    public requestLoginByInstitution(institutionCode: string, userCode: string, password: string) {
+        EventManager.getInstance().on(this.login_by_institution, this.requestLoginByInstitutionHandler, this, true);
+        this.request(this.login_by_institution, { "org_code": institutionCode, "username": userCode, "password": password });
+    }
+
+
 
     start() {
         if (this.tokenExpirationVerification()) {
-            UIManager.getInstance().showPanel(LoginPanel.NAME);
+            UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
         } else {
             let self = this;
             this.requestTokenVerification((result) => {
@@ -216,7 +242,7 @@ export class LoginManager {
         let usetData = PersonalCenterManager.getInstance().userInfoData;
         if(usetData.full_name == ""){
             UIManager.getInstance().showPanel(AlterUserInfoView.NAME,true);
-            UIManager.getInstance().hidePanel(LoginPanel.NAME);
+            UIManager.getInstance().hidePanel(SwitchLoginPanel.NAME);
 
             // 主动弹出邀请码界面
             EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
