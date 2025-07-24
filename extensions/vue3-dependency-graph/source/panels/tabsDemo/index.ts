@@ -45,6 +45,7 @@ interface MyComponent {
         environment: PublishEnvironment;
         app_version: string;
     };
+    lastChangedBundles: string[];
     switchTab(tabId: PublishConfigType): void;
     getConfigPath(configFile: string): string;
     startPublish(): Promise<void>;
@@ -176,6 +177,16 @@ module.exports = Editor.Panel.define({
                             </div>
                         </div>
                     </div>
+                    <!-- 变更Bundle信息窗口（调试日志见控制台） -->
+                    <div class="changed-bundles-info" style="margin-top: 24px; padding: 12px; border: 1px solid #e0e0e0; background: #fafbfc; border-radius: 6px;">
+                        <h4 style="margin: 0 0 8px 0;">本次发布变更的 Bundle：</h4>
+                        <div v-if="lastChangedBundles.length > 0">
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li v-for="name in lastChangedBundles" :key="name">{{ name }}</li>
+                            </ul>
+                        </div>
+                        <div v-else style="color: #888;">无变更</div>
+                    </div>
                 `,
                 data: () => ({
                     PublishEnvironment,
@@ -229,7 +240,8 @@ module.exports = Editor.Panel.define({
                         isMCI: false,
                         environment: PublishEnvironment.DEVELOPMENT,
                         app_version: '1.0.0'
-                    }
+                    },
+                    lastChangedBundles: [] as string[]
                 }),
                 methods: {
                     /**
@@ -346,6 +358,7 @@ module.exports = Editor.Panel.define({
                         if (this.publishStatus === 'publishing') return;
                         
                         console.log(`开始发布流程: ${this.activeTab}`);
+                        console.log('startPublish 前 lastChangedBundles:', this.lastChangedBundles);
                         this.publishStatus = 'publishing';
                         
                         // 初始化进度列表
@@ -366,17 +379,27 @@ module.exports = Editor.Panel.define({
                                 useDebugMode
                             );
                             
+                            console.log('发布流程执行完毕，success:', success);
+                            console.log('flowManager.lastChangedBundles:', this.flowManager.lastChangedBundles);
                             if (!success) {
                                 this.publishStatus = 'failed';
                                 Editor.Dialog.error('执行发布流程失败');
+                                this.lastChangedBundles = this.flowManager.lastChangedBundles || [];
+                                console.log('发布失败，lastChangedBundles赋值:', this.lastChangedBundles);
                             } else {
                                 this.publishStatus = 'success';
+                                // 发布成功后，读取变更的bundle
+                                this.lastChangedBundles = this.flowManager.lastChangedBundles || [];
+                                console.log('发布成功，lastChangedBundles赋值:', this.lastChangedBundles);
                             }
                         } catch (error) {
                             console.error('发布过程中发生错误:', error);
                             this.publishStatus = 'failed';
                             Editor.Dialog.error(`发布失败: ${error instanceof Error ? error.message : String(error)}`);
+                            this.lastChangedBundles = this.flowManager.lastChangedBundles || [];
+                            console.log('发布异常，lastChangedBundles赋值:', this.lastChangedBundles);
                         }
+                        console.log('startPublish 结束 lastChangedBundles:', this.lastChangedBundles);
                     },
                     
                     /**
@@ -411,6 +434,8 @@ module.exports = Editor.Panel.define({
                                     flow.message = message;
                                 }
                             }
+                            // 日志：流程完成时的lastChangedBundles
+                            console.log(`[finishFlow] flowName: ${flowName}, isSuccess: ${isSuccess}, 当前lastChangedBundles:`, this.lastChangedBundles);
                             
                             // 如果有任何流程失败，整个发布状态为失败，并且取消所有后续流程
                             if (!isSuccess && flow.status === 'failed') {
@@ -523,7 +548,7 @@ module.exports = Editor.Panel.define({
                             this.finishFlow(flowName, isSuccess, message);
                         }
                     });
-                    
+                    console.log('flowManager 初始化完成:', this.flowManager);
                     // 加载发布设置
                     this.loadPublishSettings();
                 }

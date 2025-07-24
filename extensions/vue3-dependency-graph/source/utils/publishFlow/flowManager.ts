@@ -80,6 +80,10 @@ export const FLOW_CONFIG: Record<PublishConfigType, FlowType[]> = {
 export class FlowManager {
     private readonly flows: Map<string, ProcessFlow> = new Map();
     public readonly config: FlowManagerConfig;
+    /**
+     * 缓存上次生成bundle版本时变更的bundle
+     */
+    public lastChangedBundles: string[] = [];
     
     constructor(config: FlowManagerConfig) {
         this.config = config;
@@ -220,7 +224,8 @@ export class FlowManager {
             
             // 设置完成回调
             if (this.config.onFlowComplete) {
-                flow.setFinishedCallback((method, message) => {
+                flow.setFinishedCallback((method, message, changedBundles) => {
+                    this.lastChangedBundles = changedBundles || [];
                     if (this.config.onFlowComplete) {
                         this.config.onFlowComplete(
                             FlowType.GENERATE_BUNDLE_VERSION, 
@@ -472,6 +477,7 @@ export class FlowManager {
             
             const params: PublishBundleToServerParams = {
                 projectPath: this.config.projectPath,
+                changeBundleList: this.lastChangedBundles,
                 environment: env,
                 sftpConfig: sftpConfig
             };
@@ -522,6 +528,9 @@ export class FlowManager {
         appVersion?: string,
         debug: boolean = false
     ): Promise<boolean> {
+        const startTime = Date.now();
+        console.log(`[流程耗时] 开始执行完整发布流程: ${configType}`);
+        
         try {
             // 初始化进度列表，添加所需的流程
             this.initializeProgressList(configType as PublishConfigType);
@@ -536,6 +545,7 @@ export class FlowManager {
                 // REMOTE_BUNDLES 需要执行完整的六步流程，必须严格串行
                 
                 // 1. 更新发布设置
+                const step1Start = Date.now();
                 console.log('步骤1: 修改发布设置');
                 const settingSuccess = await this.updatePublishSetting(
                     configType,
@@ -543,6 +553,8 @@ export class FlowManager {
                     environment,
                     appVersion
                 );
+                const step1End = Date.now();
+                console.log(`[流程耗时] 步骤1(修改发布设置) 耗时: ${step1End - step1Start}ms`);
                 
                 if (!settingSuccess) {
                     console.error('步骤1失败: 无法更新发布设置，发布过程终止');
@@ -550,6 +562,7 @@ export class FlowManager {
                 }
                 
                 // 2. 从Git更新Bundle版本信息
+                const step2Start = Date.now();
                 console.log('步骤2: 从Git更新Bundle版本信息');
                 // 临时关闭Bundle版本更新步骤
                 // const updateSuccess = await this.startBundleVersionsUpdate();
@@ -558,14 +571,19 @@ export class FlowManager {
                 //     return false;
                 // }
                 console.log('步骤2: Bundle版本更新步骤已临时关闭');
+                const step2End = Date.now();
+                console.log(`[流程耗时] 步骤2(更新Bundle版本信息) 耗时: ${step2End - step2Start}ms`);
                 
                 // 3. 执行Cocos发布
+                const step3Start = Date.now();
                 console.log('步骤3: 执行Cocos Creator发布');
                 const publishSuccess = await this.startPublish(
                     configType,
                     configPath,
                     debug
                 );
+                const step3End = Date.now();
+                console.log(`[流程耗时] 步骤3(Cocos Creator发布) 耗时: ${step3End - step3Start}ms`);
                 
                 if (!publishSuccess) {
                     console.error('步骤3失败: Cocos发布失败，发布过程终止');
@@ -573,18 +591,25 @@ export class FlowManager {
                 }
                 
                 // 4. 生成Bundle版本文件
+                const step4Start = Date.now();
                 console.log('步骤4: 生成Bundle版本文件');
                 const generateSuccess = await this.startGenerateBundleVersion();
+                const step4End = Date.now();
+                console.log(`[流程耗时] 步骤4(生成Bundle版本文件) 耗时: ${step4End - step4Start}ms`);
                 if (!generateSuccess) {
                     console.error('步骤4失败: 生成Bundle版本失败，发布过程终止');
                     return false;
                 }
                 
                 // 5. 发布Bundle到服务器
+                const step5Start = Date.now();
                 console.log('步骤5: 发布Bundle到服务器');
+                //const publishToServerSuccess = false;
                 const publishToServerSuccess = await this.startPublishBundleToServer(
                     environment || 'DEVELOPMENT'
                 );
+                const step5End = Date.now();
+                console.log(`[流程耗时] 步骤5(发布Bundle到服务器) 耗时: ${step5End - step5Start}ms`);
                 
                 if (!publishToServerSuccess) {
                     console.error('步骤5失败: 发布Bundle到服务器失败，发布过程终止');
@@ -592,6 +617,7 @@ export class FlowManager {
                 }
                 
                 // 6. 提交Bundle版本到Git
+                const step6Start = Date.now();
                 console.log('步骤6: 提交Bundle版本到Git');
                 // 临时关闭Bundle版本推送步骤
                 // const pushSuccess = await this.startBundleVersionsPush(
@@ -603,13 +629,17 @@ export class FlowManager {
                 //     return false;
                 // }
                 console.log('步骤6: Bundle版本推送步骤已临时关闭');
+                const step6End = Date.now();
+                console.log(`[流程耗时] 步骤6(提交Bundle版本到Git) 耗时: ${step6End - step6Start}ms`);
                 
-                console.log('所有流程执行完成，REMOTE_BUNDLES发布成功');
+                const totalEnd = Date.now();
+                console.log(`[流程耗时] 所有流程执行完成，REMOTE_BUNDLES发布成功，总耗时: ${totalEnd - startTime}ms`);
                 return true;
             } else {
                 // 其他发布类型(FULL_PACKAGE, REMOTE_STARTUP)只执行基本流程
                 
                 // 1. 更新发布设置
+                const step1Start = Date.now();
                 console.log('步骤1: 修改发布设置');
                 const settingSuccess = await this.updatePublishSetting(
                     configType,
@@ -617,6 +647,8 @@ export class FlowManager {
                     environment,
                     appVersion
                 );
+                const step1End = Date.now();
+                console.log(`[流程耗时] 步骤1(修改发布设置) 耗时: ${step1End - step1Start}ms`);
                 
                 if (!settingSuccess) {
                     console.error('步骤1失败: 无法更新发布设置，发布过程终止');
@@ -624,23 +656,28 @@ export class FlowManager {
                 }
                 
                 // 2. 执行Cocos发布
+                const step2Start = Date.now();
                 console.log('步骤2: 执行Cocos Creator发布');
                 const publishSuccess = await this.startPublish(
                     configType,
                     configPath,
                     debug
                 );
+                const step2End = Date.now();
+                console.log(`[流程耗时] 步骤2(Cocos Creator发布) 耗时: ${step2End - step2Start}ms`);
                 
                 if (!publishSuccess) {
                     console.error('步骤2失败: Cocos发布失败，发布过程终止');
                     return false;
                 }
                 
-                console.log(`所有流程执行完成，${configType}发布成功`);
+                const totalEnd = Date.now();
+                console.log(`[流程耗时] 所有流程执行完成，${configType}发布成功，总耗时: ${totalEnd - startTime}ms`);
                 return true;
             }
         } catch (error) {
-            console.error(`执行完整发布流程失败 [${configType}]:`, error);
+            const errorEnd = Date.now();
+            console.error(`[流程耗时] 执行完整发布流程失败 [${configType}]: 耗时 ${errorEnd - startTime}ms`, error);
             // 发生异常时，取消所有正在运行的流程
             this.cancelAllFlows();
             return false;
