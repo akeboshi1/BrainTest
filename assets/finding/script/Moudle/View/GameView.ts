@@ -129,6 +129,12 @@ export default class GameView extends LayerPanel {
     private _particleTimeoutIds: Map<string, any> = new Map();
 
     /**
+     * 游戏结算状态标志
+     * @private
+     */
+    private _isSettling: boolean = false;
+
+    /**
      * 找茬个数
      * @private
      */
@@ -286,6 +292,11 @@ export default class GameView extends LayerPanel {
                 if (Game.Ins) {
                     Game.Ins.setGameViewRef(this);
                 }
+                
+                // 确保关闭按钮处于可交互状态
+                this.setQuitButtonInteractable(true);
+                this._isSettling = false;
+                
                 resolve();
             }).catch((err) => {
                 DebugLog.instance.error(err);
@@ -294,6 +305,12 @@ export default class GameView extends LayerPanel {
     }
 
     private backHandler() {
+        // 如果游戏正在结算中，阻止退出操作
+        if (this._isSettling) {
+            DebugLog.instance.log("[GameView] 游戏结算中，无法退出游戏");
+            return;
+        }
+        
         this.pause = true;
         FindingGlobal.reset();
         this.quitGame({
@@ -501,6 +518,11 @@ export default class GameView extends LayerPanel {
         this.victory.active = false;
         this.goonBtn.active = false;
         this.plistNode.active = false;
+        
+        // 重置结算状态并恢复关闭按钮交互
+        this._isSettling = false;
+        this.setQuitButtonInteractable(true);
+        
         // 清理不同点节点
         this.framePostions = [];
         this.frameList = [];
@@ -601,10 +623,13 @@ export default class GameView extends LayerPanel {
             clearTimeout(id);
         });
         this._particleTimeoutIds.clear();
+        
+        // 重置结算状态
+        this._isSettling = false;
     }
 
     public onTouchDown(event) {
-        if (this.gameOver || this.resultList.length == this._maxCount) return;
+        if (this.gameOver || this.resultList.length == this._maxCount || this._isSettling) return;
         let clickPos;
         let url = "sub/image/view/gameView/public/rightRound";
         if (!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().curGuide instanceof FindingGuide == true && GuideManager.getInstance().curGuide.state == GuideState.processing) {
@@ -721,6 +746,12 @@ export default class GameView extends LayerPanel {
 
     requestGameCompleteCallBack() {
         this.updateSkewersGameList();
+        
+        // 串烧游戏结算完成后恢复关闭按钮交互
+        if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.setQuitButtonInteractable(true);
+            this._isSettling = false;
+        }
     }
 
     private updateSkewersGameList() {
@@ -757,6 +788,9 @@ export default class GameView extends LayerPanel {
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
                 } else {
+                    // 串烧游戏类型不匹配时，恢复关闭按钮交互
+                    this.setQuitButtonInteractable(true);
+                    this._isSettling = false;
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -903,6 +937,14 @@ export default class GameView extends LayerPanel {
 
     public closeGame(isWin) {
         if (this.gameOver) return;
+        
+        // 设置游戏结算状态
+        this._isSettling = true;
+        this.gameOver = true;
+        
+        // 禁用关闭按钮交互
+        this.setQuitButtonInteractable(false);
+        
         this.removeMonitorEvent();
         if (isWin) {
             this.victory.active = true;
@@ -957,6 +999,10 @@ export default class GameView extends LayerPanel {
         let complete = this.resultList.length / this._maxCount;//this.resultNode.children.length;
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
+        
+        // 串烧游戏结算完成后恢复关闭按钮交互
+        // 注意：串烧游戏的结算流程是异步的，需要等待服务器响应和弹窗显示
+        // 关闭按钮的交互将在requestGameCompleteCallBack中恢复
     }
 
     private _requestGameCenterComplete() {
@@ -985,6 +1031,9 @@ export default class GameView extends LayerPanel {
             } else {
                 (this.sceneModel as any).showFailView();
             }
+            // 恢复关闭按钮交互
+            this.setQuitButtonInteractable(true);
+            this._isSettling = false;
         }, 1000);
     }
 
@@ -1054,7 +1103,7 @@ export default class GameView extends LayerPanel {
 
         this.viewNode.addChild(node);
         tween(node)
-            .to(0.5, { position: new Vec3(targetNodePos.x, targetNodePos.y) })
+            .to(0.1, { position: new Vec3(targetNodePos.x, targetNodePos.y) })
             .call(() => {
                 let children = resultNode.getChildByName("right")
                 children.active = true;
@@ -1181,12 +1230,27 @@ export default class GameView extends LayerPanel {
 
     public checkResult() {
         if (this.resultList.length == this._maxCount) {
+            // 在检查结果时禁用退出按钮
+            this.setQuitButtonInteractable(false);
+            this._isSettling = true;
+            
             this.closeGame(true);
             this.gameOver = true;
         }
     }
 
     hide() {
+    }
+
+    /**
+     * 设置关闭按钮的交互状态
+     * @param interactable 是否可交互
+     * @private
+     */
+    private setQuitButtonInteractable(interactable: boolean): void {
+        if (this.quitBtn && this.quitBtn.isValid) {
+            this.setInteractable(this.quitBtn, interactable, true);
+        }
     }
 
     /**

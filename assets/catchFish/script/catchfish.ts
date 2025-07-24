@@ -665,8 +665,33 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
+    // public get offsetX(): number {
+    //     let scene = director.getScene();
+    //     let canvas = scene.getComponentInChildren(Canvas);
+    //     let uitransform = canvas.getComponent(UITransform);
+    //     if (uitransform.width < 1080) {
+    //         this._offsetX = uitransform.width / 1080 * 770;
+    //     } else {
+    //         this._offsetX = 770;
+    //     }
+    //     return this._offsetX;
+    // }
+
+    // public get offsetX1(): number {
+    //     let scene = director.getScene();
+    //     let canvas = scene.getComponentInChildren(Canvas);
+    //     let uitransform = canvas.getComponent(UITransform);
+    //     if (uitransform.width < 1080) {
+    //         this._offsetX1 = uitransform.width / 1080 * 800;
+    //     } else {
+    //         this._offsetX1 = 800;
+            
+    //     }
+    //     return this._offsetX1;
+    // }
+
     private _offsetX: number = 770;
-    private _offsetX1: number = 1200;
+    private _offsetX1: number = 770;
     moveFishes(fish: Fish, delay: number = 0) {
         if (this._gameEnded) return; // 游戏结束不再移动鱼
         if (fish.curTween) {
@@ -676,7 +701,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         let self = this;
         const upDistance = 8; // 上下浮动的距离+
-        const duration = (20 * (1600 - Math.abs(800 - fish.position.x))) / 1600; // 每次往返的时间(根据鱼的当前点x坐标动态计算时间)
+        const duration = (15 * (1200 - Math.abs(800 - fish.position.x))) / 1200; // 每次往返的时间(根据鱼的当前点x坐标动态计算时间)
         DebugLog.instance.log("pause duration:" + duration);
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;

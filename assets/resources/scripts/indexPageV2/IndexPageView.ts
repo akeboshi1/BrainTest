@@ -85,30 +85,33 @@ export class IndexPageView extends AdaptComponent {
     }
     async getUserInfoCallBack() {
         const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
-         if(userData.gender==1){
-            const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
-            this.userIcon.spriteFrame = spriteFrame;
-         }else{
-            const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/female/spriteFrame');
-            this.userIcon.spriteFrame = spriteFrame;
-         }
-         if(userData.full_name){
-            this.setUserName(userData.nickname);
-         }else{
-            this.setUserName("未设置昵称");
-         }
-      
-        this.setDayLabel(userData.trained_days);
-        if (!userData.has_initial_tier) {
-            this.initDataParent.active = true;
-            TaskManager.getInstance().start();
-            let initDataPanel = instantiate(this.initDataPrefab);
-            initDataPanel.parent = this.initDataParent;
-            initDataPanel.setPosition(0, 0);
-        } else {
-            this.trendEntery.active = true;
-            this.generateTask();
-        }
+        if(!userData){ return; }
+        
+            if(userData.gender==1){
+                const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
+                this.userIcon.spriteFrame = spriteFrame;
+             }else{
+                const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/female/spriteFrame');
+                this.userIcon.spriteFrame = spriteFrame;
+             }
+             if(userData.full_name){
+                this.setUserName(userData.nickname);
+             }else{
+                this.setUserName("未设置昵称");
+             }
+          
+            this.setDayLabel(userData.trained_days);
+            if (!userData.has_initial_tier) {
+                this.initDataParent.active = true;
+                TaskManager.getInstance().start();
+                let initDataPanel = instantiate(this.initDataPrefab);
+                initDataPanel.parent = this.initDataParent;
+                initDataPanel.setPosition(0, 0);
+            } else {
+                this.trendEntery.active = true;
+                this.generateTask();
+            }
+        
 
         // 当会员时间还剩余1天，显示续费入口
         if (PersonalCenterManager.getInstance().userInfoData.getMemberRemainingDays() == 1) {

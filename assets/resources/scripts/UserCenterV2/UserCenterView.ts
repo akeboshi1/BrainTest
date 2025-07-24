@@ -99,6 +99,7 @@ export class UserCenterPanel extends AdaptComponent {
 
    async getUserInfoCallBack() {
       let userData = PersonalCenterManager.getInstance().userInfoData;
+      if(!userData){ return; }
       if (userData.gender == 1) {
          const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
          this.userIcon.spriteFrame = spriteFrame;
