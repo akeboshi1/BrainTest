@@ -1,5 +1,5 @@
 import { native, sys } from "cc";
-import { AlertManager } from "../../../Core/Manager/Alert/AlertManager";
+import { AlertManager, AlertData } from "../../../Core/Manager/Alert/AlertManager";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { SocketData } from "../../../Core/Manager/Net/SocketData";
 import { SocketManager } from "../../../Core/Manager/Net/SocketManager";
@@ -324,22 +324,45 @@ export class VipModel {
     private _preResultID:string = "";
     /**
      * 请求拉起微信支付
-     * @param data 
+     * @param data
      */
     public requestWxPay(data) {
         this._preResultID = data.order_id;
-        // if (sys.platform === sys.Platform.ANDROID) {
-        //     DebugLog.instance.error(`请求拉起微信支付`);
-        //     NativeEventManager.getInstance().on(NativeEvent.PAYMENTResult, this.payResultCallBack, this);
-        //     native.bridge.sendToNative(NativeEvent.WXPAY, JSON.stringify(data));
-        // }else{
-            var testData = {
-                result:1,
-                order_id:data.order_id
-            }
+        if (sys.platform === sys.Platform.ANDROID) {
+            DebugLog.instance.error(`请求拉起微信支付`);
+            // 由于服务端没有实现支付结果回调，直接发送支付请求
+            native.bridge.sendToNative(NativeEvent.WXPAY, JSON.stringify(data));
 
-            this.payResultCallBack(JSON.stringify(testData));
-        // }
+            // 直接弹出主动查询订单的弹窗
+            this.showOrderQueryAlert(data.order_id);
+        }else{
+
+            this.showOrderQueryAlert(data.order_id);
+            // var testData = {
+            //     result:1,
+            //     order_id:data.order_id
+            // }
+
+            // this.payResultCallBack(JSON.stringify(testData));
+        }
+    }
+
+    /**
+     * 显示主动查询订单的弹窗
+     * @param orderId 订单ID
+     */
+    private showOrderQueryAlert(orderId: number) {
+        const alertData: AlertData = new AlertData();
+        alertData.title = "支付处理中";
+        alertData.message = "若您的支付已完成，请点击下方按钮确认订单状态。";
+        alertData.cancelButtonVisible = false;
+        alertData.confirmButtonText = "完成";
+        alertData.confirmCb = () => {
+            // 点击查询订单按钮时调用requestGetOrder方法
+            this.requestGetOrder(orderId);
+        };
+
+        AlertManager.getInstance().showAlert(alertData);
     }
 
 
@@ -398,8 +421,20 @@ export class VipModel {
             vipOrder.validEndDate = data.data["detail"]["end_date"];
             vipOrder.validLostDays = data.data["detail"]["membership_valid_days"];
         }
-        //手动刷新下人物信息
+
+        // 手动刷新下人物信息
         PersonalCenterManager.getInstance().requestUserInfo();
+
+        // 当订单查询成功时，模拟支付结果回调
+        if (vipOrder.status == 1) {
+            // 模拟支付成功的回调
+            const mockPayData = {
+                result: 1,
+                order_id: vipOrder.id
+            };
+            this.payResultCallBack(JSON.stringify(mockPayData));
+        }
+
         EventManager.getInstance().emit(VipEvent.VIP_GET_ORDER,vipOrder);
     }
 

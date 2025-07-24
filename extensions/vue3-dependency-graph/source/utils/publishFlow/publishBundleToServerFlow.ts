@@ -6,6 +6,14 @@ import { readdirSync, lstatSync } from 'fs-extra';
 import Client from 'ssh2-sftp-client';
 
 /**
+ * 环境文件夹命名配置
+ */
+const ENVIRONMENT_FOLDER_NAMES = {
+    development: 'develop',
+    production: 'production'
+} as const;
+
+/**
  * 发布Bundle到服务器流程参数
  */
 export interface PublishBundleToServerParams {
@@ -13,6 +21,11 @@ export interface PublishBundleToServerParams {
      * 项目路径
      */
     projectPath: string;
+
+    /**
+     * 需要上传的Bundle列表
+     */
+    changeBundleList: string[];
     
     /**
      * SFTP配置
@@ -115,7 +128,7 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         this.updateProgress(0, '准备发布Bundle到服务器');
         
         try {
-            const { projectPath, sftpConfig, environment } = params;
+            const { projectPath, sftpConfig, environment, changeBundleList } = params;
             
             // 检查本地发布目录
             const localPath = join(projectPath, 'publish-remote-bundle');
@@ -149,14 +162,14 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             this.updateProgress(10, '服务器连接成功');
             
             // 确定远程路径
-            const env = environment.toLowerCase() === 'development' ? 'develop' : 'production';
+            const env = environment.toLowerCase() === 'development' ? ENVIRONMENT_FOLDER_NAMES.development : ENVIRONMENT_FOLDER_NAMES.production;
             const remotePath = join(sftpConfig.remotePath, env).replace(/\\/g, '/');
             
             this.updateProgress(15, `目标路径: ${remotePath}`);
             
-            // 扫描文件并构建上传队列
-            this.updateProgress(20, '扫描文件...');
-            await this.scanFiles(localPath, remotePath);
+            // 根据changeBundleList构建上传队列
+            this.updateProgress(20, '构建上传队列...');
+            await this.buildUploadQueueFromChangeList(localPath, remotePath, changeBundleList);
             
             this.updateProgress(25, `需要上传的文件总数: ${this.totalFiles}`);
             
@@ -206,9 +219,59 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
     }
     
     /**
-     * 扫描文件并构建上传队列
+     * 根据changeBundleList构建上传队列
      */
-    private async scanFiles(localDir: string, remoteDir: string): Promise<void> {
+    private async buildUploadQueueFromChangeList(localPath: string, remotePath: string, changeBundleList: string[]): Promise<void> {
+        console.log('根据changeBundleList构建上传队列:', changeBundleList);
+        
+        for (const bundleName of changeBundleList) {
+            if (this.canceled) {
+                throw new Error('构建上传队列已取消');
+            }
+            
+            // 构建本地bundle路径
+            const localBundlePath = join(localPath, bundleName);
+            
+            // 检查bundle目录是否存在
+            if (!existsSync(localBundlePath)) {
+                console.warn(`Bundle目录不存在，跳过: ${localBundlePath}`);
+                continue;
+            }
+            
+            // 直接添加整个bundle目录作为上传任务，不进行递归扫描
+            const stats = lstatSync(localBundlePath);
+            this.uploadQueue.push({
+                localPath: localBundlePath,
+                remotePath: `${remotePath}/${bundleName}`,
+                size: stats.size
+            });
+            this.totalFiles++;
+            
+            console.log(`添加bundle上传任务: ${bundleName} -> ${remotePath}/${bundleName}`);
+        }
+        
+        // 添加bundle_versions.json文件的上传任务
+        const versionsFilePath = join(localPath, 'bundle_versions.json');
+        if (existsSync(versionsFilePath)) {
+            const stats = lstatSync(versionsFilePath);
+            this.uploadQueue.push({
+                localPath: versionsFilePath,
+                remotePath: `${remotePath}/bundle_versions.json`,
+                size: stats.size
+            });
+            this.totalFiles++;
+            console.log(`添加bundle_versions.json上传任务: ${versionsFilePath} -> ${remotePath}/bundle_versions.json`);
+        } else {
+            console.warn('bundle_versions.json文件不存在，跳过上传');
+        }
+        
+        console.log(`构建上传队列完成，共 ${this.totalFiles} 个任务`);
+    }
+    
+    /**
+     * 扫描单个bundle目录
+     */
+    private async scanBundleDirectory(localDir: string, remoteDir: string): Promise<void> {
         const items = readdirSync(localDir);
         
         for (const item of items) {
@@ -221,7 +284,7 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             
             if (lstatSync(localItemPath).isDirectory()) {
                 // 递归扫描子目录
-                await this.scanFiles(localItemPath, remoteItemPath);
+                await this.scanBundleDirectory(localItemPath, remoteItemPath);
             } else {
                 // 检查是否需要上传（增量上传）
                 if (this.incremental && await this.shouldSkipFile(localItemPath, remoteItemPath)) {
@@ -339,7 +402,17 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         try {
             await this.withRetry(
                 async () => {
-                    await this.client!.put(task.localPath, task.remotePath);
+                    // 检查本地路径是否为目录
+                    const stats = lstatSync(task.localPath);
+                    if (stats.isDirectory()) {
+                        // 如果是目录，使用uploadDir方法上传整个目录
+                        console.log(`上传目录: ${task.localPath} -> ${task.remotePath}`);
+                        await this.client!.uploadDir(task.localPath, task.remotePath);
+                    } else {
+                        // 如果是文件，使用put方法上传
+                        console.log(`上传文件: ${task.localPath} -> ${task.remotePath}`);
+                        await this.client!.put(task.localPath, task.remotePath);
+                    }
                 },
                 2, // 减少重试次数
                 1000 // 减少重试间隔

@@ -361,8 +361,10 @@ export class VipPanel extends BasePanel {
         this.label2.node.active = false;
         this.iconNode.active = true;
 
-        this.createWaveTextAnimation("正在查询订单...", this.label0);
-        this._vipModel.requestGetOrder(orderId);
+
+        
+        // this.createWaveTextAnimation("正在查询订单...", this.label0);
+        // this._vipModel.requestGetOrder(orderId);
     }
 
     /**
