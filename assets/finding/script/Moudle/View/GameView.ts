@@ -629,7 +629,7 @@ export default class GameView extends LayerPanel {
     }
 
     public onTouchDown(event) {
-        if (this.gameOver || this.resultList.length == this._maxCount) return;
+        if (this.gameOver || this.resultList.length == this._maxCount || this._isSettling) return;
         let clickPos;
         let url = "sub/image/view/gameView/public/rightRound";
         if (!event.target && GuideManager.getInstance().curGuide && GuideManager.getInstance().curGuide instanceof FindingGuide == true && GuideManager.getInstance().curGuide.state == GuideState.processing) {
@@ -1103,7 +1103,7 @@ export default class GameView extends LayerPanel {
 
         this.viewNode.addChild(node);
         tween(node)
-            .to(0.5, { position: new Vec3(targetNodePos.x, targetNodePos.y) })
+            .to(0.1, { position: new Vec3(targetNodePos.x, targetNodePos.y) })
             .call(() => {
                 let children = resultNode.getChildByName("right")
                 children.active = true;
@@ -1230,6 +1230,10 @@ export default class GameView extends LayerPanel {
 
     public checkResult() {
         if (this.resultList.length == this._maxCount) {
+            // 在检查结果时禁用退出按钮
+            this.setQuitButtonInteractable(false);
+            this._isSettling = true;
+            
             this.closeGame(true);
             this.gameOver = true;
         }
