@@ -353,10 +353,10 @@ export class VipModel {
      */
     private showOrderQueryAlert(orderId: number) {
         const alertData: AlertData = new AlertData();
-        alertData.title = "主动查询订单";
-        alertData.message = "支付请求已发送，请点击按钮查询订单状态";
+        alertData.title = "支付处理中";
+        alertData.message = "若您的支付已完成，请点击下方按钮确认订单状态。";
         alertData.cancelButtonVisible = false;
-        alertData.confirmButtonText = "查询订单";
+        alertData.confirmButtonText = "完成";
         alertData.confirmCb = () => {
             // 点击查询订单按钮时调用requestGetOrder方法
             this.requestGetOrder(orderId);
