@@ -275,10 +275,10 @@ export class VipPanel extends BasePanel {
     }
 
     onEnable(): void {
-        EventManager.getInstance().on(VipEvent.VIP_GET_DATA, this.onVipGetData.bind(this), this, true);
-        EventManager.getInstance().on(VipEvent.VIP_ORDER_CREATED, this.onVipOrderCreated.bind(this), this, true);
-        EventManager.getInstance().on(VipEvent.VIP_PAY_RESULT, this.onVipPayResult.bind(this), this, true);
-        EventManager.getInstance().on(VipEvent.VIP_GET_ORDER, this.onVipGetOrder.bind(this), this, true);
+        EventManager.getInstance().on(VipEvent.VIP_GET_DATA, this.onVipGetData.bind(this), this);
+        EventManager.getInstance().on(VipEvent.VIP_ORDER_CREATED, this.onVipOrderCreated.bind(this), this);
+        EventManager.getInstance().on(VipEvent.VIP_PAY_RESULT, this.onVipPayResult.bind(this), this);
+        EventManager.getInstance().on(VipEvent.VIP_GET_ORDER, this.onVipGetOrder.bind(this), this);
     }
 
     onDisable(): void {
@@ -362,7 +362,7 @@ export class VipPanel extends BasePanel {
         this.iconNode.active = true;
 
 
-        
+
         // this.createWaveTextAnimation("正在查询订单...", this.label0);
         // this._vipModel.requestGetOrder(orderId);
     }
