@@ -199,23 +199,23 @@ export class VipOrder {
     /**
      * 会员有效期(天)
      */
-    public validDays:number = 0;
+    public validDays: number = 0;
 
     /**
      * 会员开启时间
      */
-    public validStartDate:string = "";
+    public validStartDate: string = "";
 
     /**
      * 会员结束时间
      */
-    public validEndDate:string = "";
+    public validEndDate: string = "";
 
 
     /**
      * 会员剩余天数
      */
-    public validLostDays:string = "";
+    public validLostDays: string = "";
 
 }
 
@@ -312,7 +312,7 @@ export class VipModel {
         let amount = data.data["order_amount"];
         let desc = data.data["order_desc"];
         let noncestr = data.data["nonce_str"];
-        EventManager.getInstance().emit(VipEvent.VIP_ORDER_CREATED,{
+        EventManager.getInstance().emit(VipEvent.VIP_ORDER_CREATED, {
             order_id: id,
             order_amount: amount,
             order_desc: desc,
@@ -321,7 +321,7 @@ export class VipModel {
     }
 
 
-    private _preResultID:string = "";
+    private _preResultID: string = "";
     /**
      * 请求拉起微信支付
      * @param data
@@ -335,7 +335,7 @@ export class VipModel {
 
             // 直接弹出主动查询订单的弹窗
             this.showOrderQueryAlert(data.order_id);
-        }else{
+        } else {
 
             this.showOrderQueryAlert(data.order_id);
             // var testData = {
@@ -358,8 +358,9 @@ export class VipModel {
         alertData.cancelButtonVisible = false;
         alertData.confirmButtonText = "完成";
         alertData.confirmCb = () => {
-            // 点击查询订单按钮时调用requestGetOrder方法
+            // 点击完成按钮时调用requestGetOrder方法
             this.requestGetOrder(orderId);
+            AlertManager.getInstance().closeCurrentAlert();
         };
 
         AlertManager.getInstance().showAlert(alertData);
@@ -373,14 +374,14 @@ export class VipModel {
         }
         let payData = JSON.parse(data);
         let status = payData.result;
-        if(status == 0){
+        if (status == 0) {
             AlertManager.getInstance().showSocketAlert("支付失败");
             return;
         }
         let orderId = payData.order_id;
-        if(orderId == this._preResultID){
+        if (orderId == this._preResultID) {
             EventManager.getInstance().emit(VipEvent.VIP_PAY_RESULT, orderId);
-        }else{
+        } else {
             AlertManager.getInstance().showSocketAlert("当前订单过期");
         }
     }
@@ -415,7 +416,7 @@ export class VipModel {
         vipOrder.status = data.data["status"];
         vipOrder.created_at = data.data["created_at"];
         vipOrder.finished_at = data.data["finished_at"];
-        if(data.data["detail"]){
+        if (data.data["detail"]) {
             vipOrder.validDays = data.data["detail"]["plan_valid_days"];
             vipOrder.validStartDate = data.data["detail"]["start_date"];
             vipOrder.validEndDate = data.data["detail"]["end_date"];
@@ -435,7 +436,10 @@ export class VipModel {
             this.payResultCallBack(JSON.stringify(mockPayData));
         }
 
-        EventManager.getInstance().emit(VipEvent.VIP_GET_ORDER,vipOrder);
+        // 确保弹窗已关闭
+        // AlertManager.getInstance().closeCurrentAlert();
+
+        EventManager.getInstance().emit(VipEvent.VIP_GET_ORDER, vipOrder);
     }
 
 
