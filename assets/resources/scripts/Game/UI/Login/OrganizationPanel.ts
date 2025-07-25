@@ -6,7 +6,6 @@ import { AlertData, AlertManager } from '../../../Core/Manager/Alert/AlertManage
 import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
-import md5 from "./md5.js";
 import { Md5 } from '../../../Core/Util/md5';
 const { ccclass, property } = _decorator;
 
@@ -63,8 +62,11 @@ export class OrganizationPanel extends Component {
         let userCode = this.userCode.getComponent(EditBox);
         this.userCodeValue = userCode.string;
     }
+    // 修改密码
     passwordChange(){
+        // 获取密码输入框组件
         let password = this.password.getComponent(EditBox);
+        // 获取密码输入框中的值
         this.passwordValue = password.string;
     }
     private confirmHandler() {
@@ -73,6 +75,10 @@ export class OrganizationPanel extends Component {
         // LoginManager.getInstance().requestLoginByInstitution(this.institutionCodeValue,this.userCodeValue,this.passwordValue);
     }
     commitBtnClick(){
+        if(this.institutionCodeValue == "" || this.userCodeValue == "" || this.passwordValue == ""){
+            AlertManager.getInstance().showSocketAlert("请输入完整信息");
+            return;
+        }
         if (!this.toggle.isChecked) {
             let ad: AlertData = new AlertData();
             ad.title = "提示";

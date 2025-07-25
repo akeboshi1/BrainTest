@@ -169,13 +169,11 @@ export class LoginManager {
         } else {
             SceneManager.getInstance().backToHall();
         }
-
         GlobalConfigManager.getInstance().init();
     }
     private requestLoginByInstitutionHandler(data: any) {
         if (data['status'] == 0) {  
-            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);       
-            DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
+            AlertManager.getInstance().showSocketAlert(`${data.message}`);       
             return;
         }
         
