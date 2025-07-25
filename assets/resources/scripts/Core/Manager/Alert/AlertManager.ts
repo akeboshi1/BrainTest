@@ -210,6 +210,7 @@ export class AlertManager extends BaseManager {
 
         // }
 
+        let self = this;
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）
         let cancelButton = alertNode.getChildByName("viewNode").getChildByName('cancelButton').getComponent(Button);
         if (cancelButton) {
@@ -218,7 +219,7 @@ export class AlertManager extends BaseManager {
                 if (alertData.cancelCb) {
                     alertData.cancelCb();
                 }
-                this.closeCurrentAlert();
+                self.closeCurrentAlert();
             });
 
             cancelButton.node.getChildByName("Label").getComponent(Label).string = alertData.cancelButtonText;
@@ -231,7 +232,7 @@ export class AlertManager extends BaseManager {
                 if (alertData.confirmCb) {
                     alertData.confirmCb();
                 }
-                this.closeCurrentAlert();
+                self.closeCurrentAlert();
             });
 
             confirmButton.node.getChildByName("Label").getComponent(Label).string = alertData.confirmButtonText;

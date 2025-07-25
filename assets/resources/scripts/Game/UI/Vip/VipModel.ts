@@ -360,7 +360,6 @@ export class VipModel {
         alertData.confirmCb = () => {
             // 点击完成按钮时调用requestGetOrder方法
             this.requestGetOrder(orderId);
-            AlertManager.getInstance().closeCurrentAlert();
         };
 
         AlertManager.getInstance().showAlert(alertData);
