@@ -60,6 +60,7 @@ export class OrganizationPanel extends Component {
     }
     onDisable() {
         EventManager.getInstance().off(LoginManager.LoginByInstitutionResult, this);
+        this.stopPromptAnimation();
     }
     onLoginByInstitutionResult() {
         SceneManager.getInstance().backToHall();
@@ -148,6 +149,11 @@ export class OrganizationPanel extends Component {
             .to(0.03, { scale: new Vec3(1, 1, 1) })
             .to(0.03, { scale: new Vec3(1.1, 1.1, 1.1) })
             .start();
+    }
+    stopPromptAnimation() {
+        tween(this.institutionCodePrompt).stop();
+        tween(this.userCodePrompt).stop();
+        tween(this.passwordPrompt).stop();
     }
     private confirmHandler() {
         this.toggle.isChecked = true;
