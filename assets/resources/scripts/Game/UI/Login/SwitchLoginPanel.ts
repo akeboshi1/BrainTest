@@ -25,8 +25,8 @@ export class SwitchLoginPanel extends BasePanel {
     }
 
     async authCodeLogin() {
-        this.authCodeLoginBtn.getComponent(Label).color = new Color(36, 98, 207);
-        this.orangizeLoginBtn.getComponent(Label).color = new Color(148, 149, 153);
+        this.authCodeLoginBtn.getChildByName("label").getComponent(Label).color = new Color(36, 98, 207);
+        this.orangizeLoginBtn.getChildByName("label").getComponent(Label).color = new Color(148, 149, 153);
         const prefab = await this.loadPrefab(loginPanelConfig.authCodeLoginUrl);
         const instance = instantiate(prefab);
         this.clearLoginContainer();
@@ -40,8 +40,8 @@ export class SwitchLoginPanel extends BasePanel {
         }
     }
     async orangizeLogin() {
-        this.authCodeLoginBtn.getComponent(Label).color = new Color(148, 149, 153);
-        this.orangizeLoginBtn.getComponent(Label).color = new Color(36, 98, 207);
+        this.authCodeLoginBtn.getChildByName("label").getComponent(Label).color = new Color(148, 149, 153);
+        this.orangizeLoginBtn.getChildByName("label").getComponent(Label).color = new Color(36, 98, 207);
         const prefab = await this.loadPrefab(loginPanelConfig.orangizeLoginUrl);
         const instance = instantiate(prefab);
         this.clearLoginContainer();

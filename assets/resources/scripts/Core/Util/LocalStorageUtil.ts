@@ -21,4 +21,5 @@ export enum LocalStorageKeyEnum {
     USER_TOKEN = "user.token",
     USER_TOKEN_EXPIREDTIME = "user.token.EXPIREDTIME",
     USER_PHONENUM = "user.phonenum",
+    USER_DEFAULT_LOGIN_STATUS = "0",//0：默认验证码登录，1：默认机构登录
 }

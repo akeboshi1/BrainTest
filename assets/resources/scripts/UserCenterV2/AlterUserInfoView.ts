@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, EditBox, Label, Node, resources, Sprite, SpriteFrame } from 'cc';
+import { _decorator, Color, Component, EditBox, Label, Node, resources, Sprite, SpriteFrame, tween, Vec3 } from 'cc';
 import { SelectDate } from '../Game/PersonalCenterManager/SelectDate';
 import { BasePanel } from '../Core/UI/BasePanel';
 import { Selector } from '../Game/PersonalCenterManager/Selector';
@@ -6,8 +6,8 @@ import { DebugLog } from '../Core/Util/DebugLog';
 import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
-import {VerifyPanel} from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
-import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { VerifyPanel } from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('AlterUserInfoView')
@@ -16,43 +16,48 @@ export class AlterUserInfoView extends BasePanel {
     @property(SelectDate)
     comDateSelect: SelectDate = null;
     @property(Node)
-    comDataNode:Node =null;
+    comDataNode: Node = null;
     @property(Label)
-    birthdayLabel:Label =null
+    birthdayLabel: Label = null
     @property(Selector)
     commonSelector: Selector = null;
     @property(Node)
-    comSexNode:Node =null;
+    comSexNode: Node = null;
     @property(Label)
-    sexLabel:Label =null;
+    sexLabel: Label = null;
     @property(Selector)
-    comEducationSelect:Selector =null;
+    comEducationSelect: Selector = null;
     @property(Node)
-    comEducationNode:Node =null;
+    comEducationNode: Node = null;
     @property(Label)
-    educationLabel:Label =null;
+    educationLabel: Label = null;
     @property(EditBox)
     nickNameEditBox: EditBox = null;
     @property(EditBox)
-    nameEditBox:EditBox =null;
+    nameEditBox: EditBox = null;
     @property(Node)
-    backBtnNode:Node = null;
+    backBtnNode: Node = null;
     @property(Label)
-    title:Label = null;
+    title: Label = null;
     @property(Sprite)
-    touXiangIcon:Sprite = null;
+    touXiangIcon: Sprite = null;
+    @property(Node)
+    nickNamePromptNode: Node = null;
+    @property(Node)
+    namePromptNode: Node = null;
 
-    private user_birthday='';
-    private user_sex=0;
-    private user_nick_name='';
-    private user_name='';
-    private user_education=0;
+    private user_birthday = '';
+    private user_sex = 0;
+    private user_nick_name = '';
+    private user_name = '';
+    private user_education = 0;
 
     onDisable(): void {
         this.nickNameEditBox.node.off('editing-did-begin');
         this.nickNameEditBox.node.off('editing-did-ended');
         this.nameEditBox.node.off('editing-did-begin');
         this.nameEditBox.node.off('editing-did-ended');
+        this.stopPromptAnimation();
     }
 
     onEnable(): void {
@@ -63,8 +68,8 @@ export class AlterUserInfoView extends BasePanel {
     }
 
     private loginEmitboo = false;
-    restore(data){
-        if(data !=null)this.loginEmitboo = data;
+    restore(data) {
+        if (data != null) this.loginEmitboo = data;
         this.backBtnNode.active = !this.loginEmitboo;
         this.title.string = this.loginEmitboo ? "完善信息" : "修改信息";
     }
@@ -73,30 +78,51 @@ export class AlterUserInfoView extends BasePanel {
     }
     nickNameInputFinished(event) {
         this.user_nick_name = this.nickNameEditBox.string;
-        DebugLog.instance.log("onInputFinished", this.user_nick_name)
-     
+        if (this.user_nick_name.length < 2 || this.user_nick_name.length > 10) {
+            this.promptAnimation(this.nickNamePromptNode);
+            return;
+        }
+        this.nickNamePromptNode.active = false;
     }
+    private promptAnimation(node: Node) {
+        node.active = true;
+        tween(node)
+            .to(0.03, { scale: new Vec3(1.1, 1.1, 1.1) })
+            .to(0.03, { scale: new Vec3(1, 1, 1) })
+            .to(0.03, { scale: new Vec3(1.1, 1.1, 1.1) })
+            .start();
+    }
+    stopPromptAnimation() {
+        tween(this.nickNamePromptNode).stop();
+        tween(this.namePromptNode).stop();
+    }
+
     nameInputFinished(event) {
         this.user_name = this.nameEditBox.string;
+        if (this.user_name.length < 2 || this.user_name.length > 10) {
+            this.promptAnimation(this.namePromptNode);
+            return;
+        }
+        this.namePromptNode.active = false;
         DebugLog.instance.log("onInputFinished", this.user_name)
     }
     start() {
-        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.initUserInfoPanel, this,true);
+        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.initUserInfoPanel, this, true);
         PersonalCenterManager.getInstance().requestUserInfo();
     }
     initUserInfoPanel() {
         let userData = PersonalCenterManager.getInstance().userInfoData;
         if (!userData.full_name || !userData.birthday || !userData.education || !userData.gender) { return; }
-        this.nickNameEditBox.string=userData.nickname;
-        this.user_nick_name=userData.nickname.toString();
-        this.nameEditBox.string=userData.full_name;
-        this.user_name=userData.full_name.toString();
+        this.nickNameEditBox.string = userData.nickname;
+        this.user_nick_name = userData.nickname.toString();
+        this.nameEditBox.string = userData.full_name;
+        this.user_name = userData.full_name.toString();
         this.setSex(userData.gender == 1 ? "男" : "女");
         this.updateTouXiangIcon(userData.gender == 1 ? "男" : "女");
         this.setBirthday(userData.birthday);
-        this.setEducationById(userData.education); 
+        this.setEducationById(userData.education);
     }
-     setEducationById(data) {
+    setEducationById(data) {
         let education;
 
         if (data == "1") {
@@ -122,7 +148,7 @@ export class AlterUserInfoView extends BasePanel {
         this.setSex(sex);
         this.updateTouXiangIcon(sex);
     }
-    async updateTouXiangIcon(sex){
+    async updateTouXiangIcon(sex) {
         this.touXiangIcon.spriteFrame = await (sex == "男" ? this.loadTaskSprite('textureV2/indexPage/male/spriteFrame') : this.loadTaskSprite('textureV2/indexPage/female/spriteFrame'));
     }
     async loadTaskSprite(path: string): Promise<SpriteFrame> {
@@ -166,14 +192,14 @@ export class AlterUserInfoView extends BasePanel {
     }
     clickSelectSex() {
         let sexStr = this.sexLabel.string;
-        this.commonSelector.setOptions(["男","女"], sexStr);
+        this.commonSelector.setOptions(["男", "女"], sexStr);
         this.commonSelector.callback = this.onSexChanged.bind(this);
         this.comSexNode.active = true;
         this.commonSelector.scrollToSelection(sexStr);
     }
-    clickEducation(){
+    clickEducation() {
         let educationStr = this.educationLabel.string;
-        this.comEducationSelect.setOptions(["初中及以下","高中","大专","本科","硕士及以上"], educationStr);
+        this.comEducationSelect.setOptions(["初中及以下", "高中", "大专", "本科", "硕士及以上"], educationStr);
         this.comEducationSelect.callback = this.onEducationChanged.bind(this);
         this.comEducationNode.active = true;
         this.comEducationSelect.scrollToSelection(educationStr);
@@ -187,7 +213,7 @@ export class AlterUserInfoView extends BasePanel {
         this.educationLabel.string = data;
     }
     setEducationId(education) {
-        if (education == "初中及以下") {    
+        if (education == "初中及以下") {
             this.user_education = 1;
         } else if (education == "高中") {
             this.user_education = 2;
@@ -200,8 +226,18 @@ export class AlterUserInfoView extends BasePanel {
         }
     }
     commitUserInfo() {
-        // console.log('发送个人信息',this.user_nick_name, this.user_name, this.user_sex, this.user_birthday,this.user_education)
-        if (this.user_nick_name == "" || this.user_name == "" || this.user_sex == 0 || this.user_birthday == "" ) { this.errorAlert(); return; }
+        let hasError = false;
+        if (this.user_nick_name.length < 2) {
+            this.promptAnimation(this.nickNamePromptNode);
+            hasError = true;
+        }
+        if (this.user_name.length < 2) {
+            this.promptAnimation(this.namePromptNode);
+            hasError = true;
+        }
+        if (hasError) return;
+        if (this.user_nick_name == "" || this.user_name == "" || this.user_sex == 0 || this.user_birthday == "") { this.errorAlert(); return; }
+
         const alertData: AlertData = new AlertData();
         alertData.title = "确定要修改个人信息吗？";
         alertData.cancelButtonVisible = true;
@@ -233,7 +269,7 @@ export class AlterUserInfoView extends BasePanel {
     }
     backToParent() {
         UIManager.getInstance().hidePanel(AlterUserInfoView.NAME);
-        if(this.loginEmitboo) {
+        if (this.loginEmitboo) {
             // 主动弹出邀请码界面
             UIManager.getInstance().showPanel(VerifyPanel.NAME);
         }
