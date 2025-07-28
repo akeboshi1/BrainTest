@@ -295,6 +295,7 @@ export class FingerGameScene extends Component {
         } else {
             // 演示视频播放完成，进入结算逻辑
             DebugLog.instance.log('视频播放完成，进入结算逻辑');
+            this.videoPlayer.stop();
         }
     }
 
