@@ -19,6 +19,7 @@ import {SkewersSpecGameModel} from "db://assets/resources/scripts/Core/Scene/Sce
 import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {GameDataFactory} from "db://assets/resources/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
 import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
+import { LoadPanel } from "../../UI/Load/LoadPanel";
 /**
  * 脑力串烧管理器
  */
@@ -111,6 +112,11 @@ export class SkewersManager {
      */
     public static REQUEST_SKEWERSGAME_COMPLETE = "REQUEST_SKEWERSGAME_COMPLETE";
 
+    /**
+     * 串烧游戏加载错误事件
+     */
+    public static SKEWERS_LOAD_ERROR = "SKEWERS_LOAD_ERROR";
+
     private _iconUrlMap: Map<SkewersGameType, string>;
 
     public init() {
@@ -130,6 +136,9 @@ export class SkewersManager {
         this._iconUrlMap.set(SkewersGameType.Memory, "texture/game/icon/memoryicon");
 
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
+        
+        // 设置串烧游戏加载错误事件监听
+        this.setupSkewersErrorHandling();
     }
 
     public get skewersSpecData(): SkewersSpecGameModel {
@@ -433,15 +442,39 @@ export class SkewersManager {
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
+        
+        // 设置预加载事件监听
+        this.setupPreloadEventListeners(sceneName);
+        
+        // 开始预加载
         BundlePreloadManager.getInstance().preload(sceneName);
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
+        DebugLog.instance.log(`串烧游戏预加载完成，开始切换场景: ${sceneName}`);
+        
         SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.SKEWERS}).then((scene) => {
             DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
             (scene as any).sceneModel = SkewersManager.getInstance().skewersSpecData;
             // (scene as any).sceneModel.scene = scene as any;
+            
+            // 清理事件监听器
+            this.cleanupPreloadEventListeners();
+        }).catch((error) => {
+            DebugLog.instance.error(`串烧游戏场景切换失败: ${sceneName}`, error);
+            
+            // 清理事件监听器
+            this.cleanupPreloadEventListeners();
+            
+            // 触发串烧游戏加载错误事件
+            EventManager.getInstance().emit(SkewersManager.SKEWERS_LOAD_ERROR, {
+                sceneName,
+                error: error,
+                type: 'scene_change_failed'
+            });
+            
+            // 显示错误提示
+            this.showLoadErrorAlert(sceneName);
         });
     }
 
@@ -482,7 +515,11 @@ export class SkewersManager {
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
+        
+        // 设置预加载事件监听
+        this.setupPreloadEventListeners(sceneName);
+        
+        // 开始预加载
         BundlePreloadManager.getInstance().preload(sceneName);
     }
 
@@ -510,7 +547,11 @@ export class SkewersManager {
         if (changeScene) {
             const sceneName = this._game.gameCode;
             let url = Global.RES_Root + sceneName;
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
+            
+            // 设置预加载事件监听
+            this.setupPreloadEventListeners(sceneName);
+            
+            // 开始预加载
             BundlePreloadManager.getInstance().preload(sceneName);
         }
     }
@@ -578,5 +619,198 @@ export class SkewersManager {
             return null;
         }
         return nextGame;
+    }
+
+    /**
+     * 设置预加载事件监听器
+     * @param sceneName 场景名称
+     */
+    private setupPreloadEventListeners(sceneName: string) {
+        // 清理之前的事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        // 监听预加载完成事件
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, "", sceneName), this, true);
+        
+        // 监听预加载失败事件
+        EventManager.getInstance().on(BundlePreloadEvent.FAILED, this.onPreloadFailed.bind(this, sceneName), this, true);
+        
+        // 监听加载错误已处理事件
+        EventManager.getInstance().on(BundlePreloadEvent.LOAD_ERROR_HANDLED, this.onLoadErrorHandled.bind(this, sceneName), this, true);
+    }
+
+    /**
+     * 清理预加载事件监听器
+     */
+    private cleanupPreloadEventListeners() {
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
+        EventManager.getInstance().off(BundlePreloadEvent.FAILED, this);
+        EventManager.getInstance().off(BundlePreloadEvent.LOAD_ERROR_HANDLED, this);
+    }
+
+    /**
+     * 预加载失败回调
+     * @param sceneName 场景名称
+     * @param data 失败数据
+     */
+    private onPreloadFailed(sceneName: string, data: any) {
+        DebugLog.instance.error(`串烧游戏预加载失败: ${sceneName}`, data);
+        
+        // 清理事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        // 触发串烧游戏加载错误事件
+        EventManager.getInstance().emit(SkewersManager.SKEWERS_LOAD_ERROR, {
+            sceneName,
+            error: data,
+            type: 'preload_failed'
+        });
+        
+        // 显示错误提示
+        this.showLoadErrorAlert(sceneName);
+    }
+
+    /**
+     * 加载错误已处理回调
+     * @param sceneName 场景名称
+     * @param data 处理结果数据
+     */
+    private onLoadErrorHandled(sceneName: string, data: any) {
+        DebugLog.instance.log(`串烧游戏加载错误已处理: ${sceneName}`, data);
+        
+        // 清理事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        if (data.handledSuccessfully) {
+            // 错误已成功处理，用户已回到大厅
+            DebugLog.instance.log(`串烧游戏加载错误处理成功，用户已回到大厅: ${sceneName}`);
+            
+            // 重置串烧游戏状态
+            this.resetSkewersGameState();
+        } else {
+            // 错误处理失败
+            DebugLog.instance.error(`串烧游戏加载错误处理失败: ${sceneName}`, data.finalError);
+            
+            // 显示错误提示
+            this.showLoadErrorAlert(sceneName);
+        }
+    }
+
+    /**
+     * 显示加载错误提示
+     * @param sceneName 场景名称
+     */
+    private showLoadErrorAlert(sceneName: string) {
+        // 使用AlertManager显示错误提示弹窗
+        const alertData = new AlertData();
+        alertData.title = "加载失败";
+        alertData.message = `游戏 ${sceneName} 加载失败，请稍后重试`;
+        alertData.cancelButtonVisible = true;
+        alertData.cancelButtonText = "退出";
+        alertData.confirmButtonText = "重试";
+        alertData.cancelCb = () => {
+            // 退出回调
+            DebugLog.instance.log(`用户选择退出游戏: ${sceneName}`);
+            this.handleLoadErrorExit();
+        };
+        alertData.confirmCb = () => {
+            // 重试回调
+            DebugLog.instance.log(`用户选择重试加载游戏: ${sceneName}`);
+            this.retryLoadGame(sceneName);
+        };
+        
+        AlertManager.getInstance().showAlert(alertData);
+    }
+
+    /**
+     * 重试加载游戏
+     * @param sceneName 场景名称
+     */
+    private retryLoadGame(sceneName: string) {
+        DebugLog.instance.log(`重试加载游戏: ${sceneName}`);
+        
+        // 延迟一段时间后重试，避免立即重试
+        setTimeout(() => {
+            // 重新开始游戏加载
+            if (this._game) {
+                this.startGame(this._game.taskID);
+            } else {
+                DebugLog.instance.error("无法重试：游戏数据为空");
+                this.handleLoadErrorExit();
+            }
+        }, 1000);
+    }
+
+    /**
+     * 处理加载错误退出
+     */
+    private async handleLoadErrorExit() {
+        DebugLog.instance.log("处理串烧游戏加载错误退出");
+        
+        // 重置串烧游戏状态
+        this.resetSkewersGameState();
+        
+        // 关闭LoadPanel
+        try {
+            await UIManager.getInstance().hidePanel(LoadPanel.NAME);
+            DebugLog.instance.log("LoadPanel已关闭");
+        } catch (error) {
+            DebugLog.instance.error("关闭LoadPanel失败:", error);
+        }
+        
+        // 回到串烧游戏大厅
+        try {
+            await SceneManager.getInstance().backToSkewersGameCenter();
+            DebugLog.instance.log("已回到串烧游戏大厅");
+        } catch (error) {
+            DebugLog.instance.error("回到串烧游戏大厅失败:", error);
+        }
+    }
+
+    /**
+     * 重置串烧游戏状态
+     */
+    private resetSkewersGameState() {
+        DebugLog.instance.log("重置串烧游戏状态");
+        
+        // 重置全局状态
+        Global.isSkewersGame = false;
+        Global.isAgain = false;
+        
+        // 清理事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        // 重置当前游戏索引
+        this._curIndex = -1;
+        
+        // 清理当前游戏数据
+        this._game = null;
+        Global.userData.curSkewerGameData = null;
+    }
+
+    /**
+     * 设置串烧游戏错误处理
+     */
+    private setupSkewersErrorHandling() {
+        // 监听串烧游戏加载错误事件
+        EventManager.getInstance().on(SkewersManager.SKEWERS_LOAD_ERROR, (data) => {
+            DebugLog.instance.error(`串烧游戏加载错误事件: ${data.sceneName}`, data);
+            
+            // 可以在这里添加全局的错误处理逻辑
+            // 比如记录错误日志、上报错误等
+            
+            // 根据错误类型进行不同的处理
+            switch (data.type) {
+                case 'preload_failed':
+                    DebugLog.instance.error(`串烧游戏预加载失败: ${data.sceneName}`);
+                    break;
+                case 'scene_change_failed':
+                    DebugLog.instance.error(`串烧游戏场景切换失败: ${data.sceneName}`);
+                    break;
+                default:
+                    DebugLog.instance.error(`串烧游戏未知错误类型: ${data.type}`);
+                    break;
+            }
+        }, this);
     }
 }

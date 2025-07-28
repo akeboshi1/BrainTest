@@ -13,7 +13,8 @@ import { GameType } from "db://assets/resources/scripts/Core/Scene/SceneModel/Ba
 import { GameCenterSpecModel } from "db://assets/resources/scripts/Core/Scene/SceneModel/GameCenterSpecModel";
 import { SettlementPanel } from "db://assets/resources/scripts/Core/UI/SettlementPanel";
 import { UIManager } from "../../Core/Manager/UI/UIManager";
-import { AlertManager } from "../../Core/Manager/Alert/AlertManager";
+import { AlertManager, AlertData } from "../../Core/Manager/Alert/AlertManager";
+import { LoadPanel } from "../UI/Load/LoadPanel";
 
 /**
  * 游戏大厅通信数据
@@ -211,6 +212,11 @@ export class GameCenterManager {
     public static GAMEMATCHITEM = "game.match_item";
     public static GAMEPASSLEVEL = "game.pass_level";
 
+    /**
+     * 游戏大厅加载错误事件
+     */
+    public static GAME_CENTER_LOAD_ERROR = "GAME_CENTER_LOAD_ERROR";
+
 
 
 
@@ -226,21 +232,47 @@ export class GameCenterManager {
         GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecModel);
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
         GameCenterManager._settlementPanel = new SettlementPanel();
+        
+        // 设置游戏大厅错误处理
+        this.setupGameCenterErrorHandling();
     }
 
     perload(url, sceneName) {
         DebugLog.instance.log(`${sceneName} gamemanager sceneName`);
-        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, sceneName), this, true);
+        
+        // 设置预加载事件监听器
+        this.setupPreloadEventListeners(sceneName);
+        
+        // 开始预加载
         BundlePreloadManager.getInstance().preload(sceneName as BundleName);
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         DebugLog.instance.log(`${sceneName} 预加载完成`);
+        
         SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.GAME_CENTER}).then((scene) => {
             EventManager.getInstance().emit(SceneManager.SCENE_ENTER);
             (scene as any).sceneModel = GameCenterManager.getInstance().gameSpecData;
             (scene as any).sceneModel.scene = scene as any;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
+            
+            // 清理事件监听器
+            this.cleanupPreloadEventListeners();
+        }).catch((error) => {
+            DebugLog.instance.error(`游戏大厅场景切换失败: ${sceneName}`, error);
+            
+            // 清理事件监听器
+            this.cleanupPreloadEventListeners();
+            
+            // 触发游戏大厅加载错误事件
+            EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
+                sceneName,
+                error: error,
+                type: 'scene_change_failed'
+            });
+            
+            // 显示错误提示
+            this.showLoadErrorAlert(sceneName);
         });
     }
 
@@ -336,6 +368,14 @@ export class GameCenterManager {
         if (status == 0) {
             AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
+            
+            // 触发游戏大厅加载错误事件
+            EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
+                sceneName: 'unknown',
+                error: data.message,
+                type: 'start_game_failed'
+            });
+            
             if (gsData && gsData.callback) {
                 gsData.socketData.data = data.data;
                 gsData.callback(data);
@@ -439,6 +479,14 @@ export class GameCenterManager {
         if (status == 0) {
             AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
+            
+            // 触发游戏大厅加载错误事件
+            EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
+                sceneName: 'unknown',
+                error: data.message,
+                type: 'pass_level_failed'
+            });
+            
             return;
         }
         this._curGame.sessionid = data.data.session_id;
@@ -526,4 +574,186 @@ export class GameCenterManager {
         return this._settlementPanel;
     }
 
+    /**
+     * 设置预加载事件监听器
+     * @param sceneName 场景名称
+     */
+    private setupPreloadEventListeners(sceneName: string) {
+        // 清理之前的事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        // 监听预加载完成事件
+        EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, "", sceneName), this, true);
+        
+        // 监听预加载失败事件
+        EventManager.getInstance().on(BundlePreloadEvent.FAILED, this.onPreloadFailed.bind(this, sceneName), this, true);
+        
+        // 监听加载错误已处理事件
+        EventManager.getInstance().on(BundlePreloadEvent.LOAD_ERROR_HANDLED, this.onLoadErrorHandled.bind(this, sceneName), this, true);
+    }
+
+    /**
+     * 清理预加载事件监听器
+     */
+    private cleanupPreloadEventListeners() {
+        EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
+        EventManager.getInstance().off(BundlePreloadEvent.FAILED, this);
+        EventManager.getInstance().off(BundlePreloadEvent.LOAD_ERROR_HANDLED, this);
+    }
+
+    /**
+     * 预加载失败回调
+     * @param sceneName 场景名称
+     * @param data 失败数据
+     */
+    private onPreloadFailed(sceneName: string, data: any) {
+        DebugLog.instance.error(`游戏大厅预加载失败: ${sceneName}`, data);
+        
+        // 清理事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        // 触发游戏大厅加载错误事件
+        EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
+            sceneName,
+            error: data,
+            type: 'preload_failed'
+        });
+        
+        // 显示错误提示
+        this.showLoadErrorAlert(sceneName);
+    }
+
+    /**
+     * 加载错误已处理回调
+     * @param sceneName 场景名称
+     * @param data 处理结果数据
+     */
+    private onLoadErrorHandled(sceneName: string, data: any) {
+        DebugLog.instance.log(`游戏大厅加载错误已处理: ${sceneName}`, data);
+        
+        // 清理事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        // 无论处理成功还是失败，都显示错误提示让用户选择
+        DebugLog.instance.log(`游戏大厅加载错误，显示用户选择界面: ${sceneName}`);
+        this.showLoadErrorAlert(sceneName);
+    }
+
+    /**
+     * 显示加载错误提示
+     * @param sceneName 场景名称
+     */
+    private showLoadErrorAlert(sceneName: string) {
+        // 使用AlertManager显示错误提示弹窗，不关闭已打开的GuidePanel
+        const alertData = new AlertData();
+        alertData.title = "加载失败";
+        alertData.message = `游戏 ${sceneName} 加载失败，请选择操作`;
+        alertData.cancelButtonVisible = true;
+        alertData.cancelButtonText = "返回大厅";
+        alertData.confirmButtonText = "重试";
+        alertData.cancelCb = () => {
+            // 返回大厅回调
+            DebugLog.instance.log(`用户选择返回大厅: ${sceneName}`);
+            this.handleLoadErrorExit();
+            // 不自动跳转，让用户自己处理返回逻辑
+            DebugLog.instance.log("用户选择返回大厅，等待用户自己处理跳转逻辑");
+        };
+        alertData.confirmCb = () => {
+            // 重试回调
+            DebugLog.instance.log(`用户选择重试加载游戏: ${sceneName}`);
+            this.retryLoadGame(sceneName);
+        };
+        
+        // 显示AlertManager的alert，不关闭已打开的GuidePanel
+        AlertManager.getInstance().showAlert(alertData);
+    }
+
+    /**
+     * 重试加载游戏
+     * @param sceneName 场景名称
+     */
+    private retryLoadGame(sceneName: string) {
+        DebugLog.instance.log(`重试加载游戏: ${sceneName}`);
+        
+        // 延迟一段时间后重试，避免立即重试
+        setTimeout(() => {
+            // 重新开始游戏加载
+            this.perload("", sceneName);
+        }, 1000);
+    }
+
+    /**
+     * 处理加载错误退出
+     */
+    private async handleLoadErrorExit() {
+        DebugLog.instance.log("处理游戏大厅加载错误退出");
+        
+        // 重置游戏大厅状态
+        this.resetGameCenterState();
+        
+        // 关闭LoadPanel
+        try {
+            await UIManager.getInstance().hidePanel(LoadPanel.NAME);
+            DebugLog.instance.log("LoadPanel已关闭");
+        } catch (error) {
+            DebugLog.instance.error("关闭LoadPanel失败:", error);
+        }
+        
+        // 回到游戏大厅
+        try {
+            await SceneManager.getInstance().backToGameCenter();
+            DebugLog.instance.log("已回到游戏大厅");
+        } catch (error) {
+            DebugLog.instance.error("回到游戏大厅失败:", error);
+        }
+    }
+
+    /**
+     * 重置游戏大厅状态
+     */
+    private resetGameCenterState() {
+        DebugLog.instance.log("重置游戏大厅状态");
+        
+        // 重置全局状态
+        Global.isSkewersGame = false;
+        Global.isAgain = false;
+        
+        // 清理事件监听器
+        this.cleanupPreloadEventListeners();
+        
+        // 清理当前游戏数据
+        this._curGame = null;
+    }
+
+    /**
+     * 设置游戏大厅错误处理
+     */
+    private setupGameCenterErrorHandling() {
+        // 监听游戏大厅加载错误事件
+        EventManager.getInstance().on(GameCenterManager.GAME_CENTER_LOAD_ERROR, (data) => {
+            DebugLog.instance.error(`游戏大厅加载错误事件: ${data.sceneName}`, data);
+            
+            // 可以在这里添加全局的错误处理逻辑
+            // 比如记录错误日志、上报错误等
+            
+            // 根据错误类型进行不同的处理
+            switch (data.type) {
+                case 'preload_failed':
+                    DebugLog.instance.error(`游戏大厅预加载失败: ${data.sceneName}`);
+                    break;
+                case 'scene_change_failed':
+                    DebugLog.instance.error(`游戏大厅场景切换失败: ${data.sceneName}`);
+                    break;
+                case 'start_game_failed':
+                    DebugLog.instance.error(`游戏大厅开始游戏失败: ${data.error}`);
+                    break;
+                case 'pass_level_failed':
+                    DebugLog.instance.error(`游戏大厅通过关卡失败: ${data.error}`);
+                    break;
+                default:
+                    DebugLog.instance.error(`游戏大厅未知错误类型: ${data.type}`);
+                    break;
+            }
+        }, this);
+    }
 }

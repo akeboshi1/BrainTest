@@ -2,7 +2,7 @@ import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { BundlePreloadConfig } from "../../../Config/BundlePreloadConfig";
 import { EventManager } from "../Event/EventManager";
-import { assetManager, AssetManager, debug, JsonAsset, sys } from "cc";
+import { assetManager, AssetManager, debug, JsonAsset, sys, director } from "cc";
 import { BundleName } from "./BundleName";
 import { UIManager } from "../UI/UIManager";
 import { LoadPanel } from "../../../Game/UI/Load/LoadPanel";
@@ -65,7 +65,7 @@ export class BundlePreloadManager extends BaseManager {
 
         // 触发预加载开始事件，通知外部预加载操作即将开始
         EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
-
+        await UIManager.getInstance().showPanel(LoadPanel.NAME);
         let bundle: AssetManager.Bundle = null;
 
         try {
@@ -93,6 +93,9 @@ export class BundlePreloadManager extends BaseManager {
         } catch (err) {
             DebugLog.instance.error(`加载资源包 ${bundleName} 出错: ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+            
+            // 加载失败时关闭LoadPanel并回到游戏大厅
+            await this.handleLoadError(bundleName, err);
             return;
         }
 
@@ -101,7 +104,7 @@ export class BundlePreloadManager extends BaseManager {
         let loadedAssets = 0;
         let totalAssets = 0;
 
-        await UIManager.getInstance().showPanel(LoadPanel.NAME);
+       
 
         // 预加载场景
         try {
@@ -126,6 +129,9 @@ export class BundlePreloadManager extends BaseManager {
         } catch (err) {
             DebugLog.instance.error(`加载场景 ${bundleName} 出错: ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+            
+            // 加载失败时关闭LoadPanel并回到游戏大厅
+            await this.handleLoadError(bundleName, err);
             return;
         }
 
@@ -154,6 +160,9 @@ export class BundlePreloadManager extends BaseManager {
                 } catch (err) {
                     DebugLog.instance.error(`加载资源 ${assetPath} 出错: ${err}`);
                     EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+                    
+                    // 加载失败时关闭LoadPanel并回到游戏大厅
+                    await this.handleLoadError(bundleName, err);
                     return;
                 }
             }
@@ -170,6 +179,9 @@ export class BundlePreloadManager extends BaseManager {
         } catch (error) {
             DebugLog.instance.error(`加载场景资源失败: ${error}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+            
+            // 加载失败
+            await this.handleLoadError(bundleName, error);
             return;
         }
         
@@ -292,6 +304,9 @@ export class BundlePreloadManager extends BaseManager {
                 sceneName: targetSceneName,
                 error 
             });
+            
+            // 加载失败时关闭LoadPanel并回到游戏大厅
+            await this.handleLoadError(bundleName, error);
         }
     }
 
@@ -320,6 +335,91 @@ export class BundlePreloadManager extends BaseManager {
         // 检查场景是否已加载到内存中
         return bundle.getSceneInfo(targetSceneName) !== null;
     }
+
+    /**
+     * 处理加载错误
+     * 关闭LoadPanel并根据当前场景决定回到游戏大厅或任务大厅
+     * @param bundleName 失败的资源包名称
+     * @param error 错误信息
+     */
+    private async handleLoadError(bundleName: BundleName, error: any) {
+        DebugLog.instance.error(`处理加载错误: ${bundleName}`, error);
+        
+        try {
+            // 关闭LoadPanel
+            // await UIManager.getInstance().hidePanel(LoadPanel.NAME);
+            
+            // 获取当前场景名称
+            const currentScene = director.getScene();
+            const currentSceneName = currentScene ? currentScene.name : '';
+            
+            DebugLog.instance.log(`当前场景: ${currentSceneName}, 加载失败的资源包: ${bundleName}`);
+            
+            // // 根据当前场景和失败的资源包决定回到哪个大厅
+            // if (currentSceneName === 'mainV2') {
+            //     // 如果当前在主场景，尝试回到游戏大厅
+            //     await this.backToGameCenter();
+            // } else if (bundleName === BundleName.FINGERGAME || bundleName === BundleName.MATH24) {
+            //     // 如果是串烧相关游戏，回到串烧任务大厅
+            //     await this.backToSkewersGameCenter();
+            // } else {
+            //     // 默认回到游戏大厅
+            //     await this.backToGameCenter();
+            // }
+            
+            // 触发加载错误已处理事件
+            EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
+                bundleName, 
+                error,
+                currentSceneName,
+                handledSuccessfully: true 
+            });
+            
+        } catch (backError) {
+            DebugLog.instance.error(`回到大厅失败: ${backError}`);
+            // 如果回到大厅也失败，尝试回到主场景
+            try {
+                await SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES);
+                
+                // 触发加载错误已处理事件（降级处理）
+                EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
+                    bundleName, 
+                    error,
+                    currentSceneName: 'mainV2',
+                    handledSuccessfully: true,
+                    fallbackUsed: true 
+                });
+                
+            } catch (finalError) {
+                DebugLog.instance.error(`回到主场景也失败: ${finalError}`);
+                
+                // 触发加载错误已处理事件（完全失败）
+                EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
+                    bundleName, 
+                    error,
+                    currentSceneName: 'unknown',
+                    handledSuccessfully: false,
+                    finalError 
+                });
+            }
+        }
+    }
+
+    /**
+     * 回到游戏大厅
+     */
+    private async backToGameCenter(): Promise<void> {
+        DebugLog.instance.log('回到游戏大厅');
+        await SceneManager.getInstance().backToGameCenter();
+    }
+
+    /**
+     * 回到串烧任务大厅
+     */
+    private async backToSkewersGameCenter(): Promise<void> {
+        DebugLog.instance.log('回到串烧任务大厅');
+        await SceneManager.getInstance().backToSkewersGameCenter();
+    }
 }
 
 // 定义预加载相关的事件枚举，方便外部统一监听和处理不同阶段的预加载事件
@@ -331,4 +431,5 @@ export enum BundlePreloadEvent {
     PROGRESS = "BundlePreloadEvent.progress",
     FAILED = "BundlePreloadEvent.failed",
     COUNTDOWN_FINISH = "BundlePreloadEvent.countdownFinish",
+    LOAD_ERROR_HANDLED = "BundlePreloadEvent.loadErrorHandled", // 新增：加载错误已处理事件
 }
