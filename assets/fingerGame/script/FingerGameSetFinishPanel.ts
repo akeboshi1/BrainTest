@@ -15,6 +15,7 @@ export interface IFingerGameSetFinishPanelData {
     nextSectionIconUrl: string | null;
     back: () => void;
     goNext: () => void;
+    reStart: () => void;
 }
 
 @ccclass('FingerGameSetFinishPanel')
@@ -58,6 +59,7 @@ export class FingerGameSetFinishPanel extends BasePanel {
 
     private _backHandler: () => void = null;
     private _nextHandler: () => void = null;
+    private _reStartHandler: () => void = null;
 
     private _fakeProgressStages = [
         { text: "上传手指操视频中", percent: 0.10, duration: 2 }, // 0-2秒
@@ -136,6 +138,10 @@ export class FingerGameSetFinishPanel extends BasePanel {
 
         if (data.goNext) {
             this._nextHandler = data.goNext;
+        }
+
+        if (data.reStart) {
+            this._reStartHandler = data.reStart;
         }
     }
 
@@ -251,6 +257,18 @@ export class FingerGameSetFinishPanel extends BasePanel {
         UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
         if (this._nextHandler) {
             this._nextHandler();
+        }
+    }
+
+    public onClickReStart() {
+        if (this._clickedBool) {
+            return;
+        }
+        this._clickedBool = true;
+        this.unscheduleAllCallbacks();
+        UIManager.getInstance().hidePanel(FingerGameSetFinishPanel.NAME);
+        if (this._reStartHandler) {
+            this._reStartHandler();
         }
     }
 
