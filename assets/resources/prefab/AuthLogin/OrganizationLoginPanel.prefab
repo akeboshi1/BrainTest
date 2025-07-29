@@ -1084,12 +1084,12 @@
       "__id__": 40
     },
     "editingDidBegan": [],
-    "textChanged": [
+    "textChanged": [],
+    "editingDidEnded": [
       {
         "__id__": 41
       }
     ],
-    "editingDidEnded": [],
     "editingReturn": [],
     "_textLabel": {
       "__id__": 26
@@ -1117,7 +1117,7 @@
     },
     "component": "",
     "_componentId": "1e383KCD2VKA7rkxmgjuiMh",
-    "handler": "institutionCodeChange",
+    "handler": "institutionCodeChangeFinished",
     "customEventData": ""
   },
   {
@@ -1987,12 +1987,12 @@
       "__id__": 77
     },
     "editingDidBegan": [],
-    "textChanged": [
+    "textChanged": [],
+    "editingDidEnded": [
       {
         "__id__": 78
       }
     ],
-    "editingDidEnded": [],
     "editingReturn": [],
     "_textLabel": {
       "__id__": 63
@@ -2020,7 +2020,7 @@
     },
     "component": "",
     "_componentId": "1e383KCD2VKA7rkxmgjuiMh",
-    "handler": "userCodeChange",
+    "handler": "userCodeChangeFinished",
     "customEventData": ""
   },
   {
@@ -2893,12 +2893,12 @@
       "__id__": 114
     },
     "editingDidBegan": [],
-    "textChanged": [
+    "textChanged": [],
+    "editingDidEnded": [
       {
         "__id__": 115
       }
     ],
-    "editingDidEnded": [],
     "editingReturn": [],
     "_textLabel": {
       "__id__": 100
@@ -2926,7 +2926,7 @@
     },
     "component": "",
     "_componentId": "1e383KCD2VKA7rkxmgjuiMh",
-    "handler": "passwordChange",
+    "handler": "passwordChangeFinished",
     "customEventData": ""
   },
   {
