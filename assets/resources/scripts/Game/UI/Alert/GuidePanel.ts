@@ -1,8 +1,9 @@
-import {  _decorator,Button,Node,Color,Label,Sprite } from "cc";
+import {  _decorator,Button,Node,Color,Label,Sprite,VideoPlayer,resources,VideoClip,UITransform } from "cc";
 import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
 import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import {GameCenterManager} from "db://assets/resources/scripts/Game/GameCenter/GameCenterManager";
 import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import {VideoControlPanel} from "./VideoControlPanel";
 const { ccclass, property } = _decorator;
 
 enum OptionButtonColor {
@@ -22,7 +23,7 @@ const OptionButtonColorMap = {//rgb(209, 95, 128)
 @ccclass('GuidePanel')
 export class GuidePanel extends BasePanel {
 
-    
+
     @property(Button)
     btn:Button = null;
 
@@ -38,18 +39,23 @@ export class GuidePanel extends BasePanel {
     @property(Label)
     descLabel:Label = null;
 
-    
+    // 可选：直接使用VideoPlayer（如果不需要完整的控制面板）
+    @property(VideoPlayer)
+    videoPlayer: VideoPlayer = null;
+
+    // 添加视频播放器节点引用，用于变色
+    @property(Node)
+    videoPlayerNode: Node = null;
+
+
     public static NAME: string = 'GuidePanel';
-
-
-
 
     private gameName:BundleName= undefined;
 
     private callback:Function = undefined;
 
     private exitcallback:Function = undefined;
-    
+
     restore(data){
         if(data !=null){
             this.gameName = data.name
@@ -83,6 +89,186 @@ export class GuidePanel extends BasePanel {
             this.descLabel.string = descStr;
             this.btnNode2.active= this.btnNode3.active = this.gameName != BundleName.GUESSINGGAME;
             this.selectHard(null,"0");
+
+            // 初始化视频（如果有的话）
+            this.initVideo();
+        }
+    }
+
+    /**
+     * 初始化视频
+     */
+    private initVideo() {
+        // 确保VideoPlayer不会自动播放
+        if (this.videoPlayer) {
+            this.videoPlayer.playOnAwake = false;
+        }
+        
+        // 初始化视频颜色
+        this.initVideoColor();
+        
+        this.loadLocalVideo();
+    }
+
+    /**
+     * 初始化视频颜色
+     */
+    private initVideoColor() {
+        if (this.videoPlayerNode) {
+            // 获取视频播放器节点的Sprite组件
+            const sprite = this.videoPlayerNode.getComponent(Sprite);
+            if (sprite) {
+                // 设置初始颜色为正常白色
+                sprite.color = new Color(255, 255, 255, 255);
+            }
+        }
+    }
+
+    /**
+     * 设置视频为灰色（暂停状态）
+     */
+    private setVideoGray() {
+        if (this.videoPlayerNode) {
+            const sprite = this.videoPlayerNode.getComponent(Sprite);
+            if (sprite) {
+                sprite.color = new Color(128, 128, 128, 255);
+            }
+        }
+    }
+
+    /**
+     * 设置视频为正常颜色（播放状态）
+     */
+    private setVideoNormal() {
+        if (this.videoPlayerNode) {
+            const sprite = this.videoPlayerNode.getComponent(Sprite);
+            if (sprite) {
+                sprite.color = new Color(255, 255, 255, 255);
+            }
+        }
+    }
+
+    /**
+     * 视频点击事件处理
+     */
+    public onVideoClick(data,event) {
+        if (!this.videoPlayer || !this.videoPlayer.clip) {
+            console.warn("视频未加载完成");
+            return;
+        }
+        if(event === VideoPlayer.EventType.COMPLETED){
+        }else if(event === VideoPlayer.EventType.CLICKED){
+            if (this.videoPlayer.isPlaying) {
+                // 如果正在播放，则暂停并设置为灰色
+                this.pauseVideo();
+            } else {
+                // 如果没有播放，则开始播放并设置为正常颜色
+                this.playVideo();
+            }
+        }else if(event === VideoPlayer.EventType.PAUSED){
+        }
+    }
+
+    /**
+     * 视频播放完成事件
+     */
+    private onVideoCompleted() {
+        console.log("视频播放完成");
+        // 播放完成后自动停止
+        this.stopVideo();
+    }
+
+    /**
+     * 视频开始播放事件
+     */
+    private onVideoPlaying() {
+        console.log("视频开始播放");
+    }
+
+    /**
+     * 视频暂停事件
+     */
+    private onVideoPaused() {
+        console.log("视频已暂停");
+    }
+
+    /**
+     * 加载本地视频文件
+     */
+    private loadLocalVideo() {
+        let videoPath = "";
+
+        // 根据游戏类型设置对应的视频路径
+        switch(this.gameName) {
+            case BundleName.FINGING:
+                videoPath = "video/fishguide"; // 找茬游戏教程视频
+                break;
+            case BundleName.FANPAI:
+                videoPath = "video/fishguide"; // 翻牌游戏教程视频
+                break;
+            case BundleName.PUZZLE:
+                videoPath = "video/fishguide"; // 拼图游戏教程视频
+                break;
+            case BundleName.CATCHFISH:
+                videoPath = "video/fishguide"; // 捕鱼游戏教程视频（已存在）
+                break;
+            case BundleName.GUESSINGGAME:
+                videoPath = "video/fishguide"; // 猜谜游戏教程视频
+                break;
+            case BundleName.SENTENCEMAKING:
+                videoPath = "video/fishguide"; // 造句游戏教程视频
+                break;
+        }
+
+        if (videoPath) {
+            // 从resources目录加载视频文件
+            resources.load(videoPath, VideoClip, (err, videoClip) => {
+                if (err) {
+                    console.warn(`加载视频失败: ${videoPath}`, err);
+                    return;
+                }
+
+                console.log(`视频加载成功: ${videoPath}`);
+
+                // 设置视频到播放器，但不自动播放
+                this.videoPlayer.clip = videoClip;
+                this.videoPlayer.playOnAwake = false; // 确保不会自动播放
+
+            });
+        }
+    }
+
+    /**
+     * 播放视频（外部调用接口）
+     */
+    playVideo() {
+        if (this.videoPlayer) {
+            // 直接使用VideoPlayer播放
+            this.videoPlayer.play();
+            // 播放时设置为正常颜色
+            this.setVideoNormal();
+            this.videoPlayer.node.active =true;
+        }
+    }
+
+    /**
+     * 暂停视频（外部调用接口）
+     */
+    pauseVideo() {
+        if (this.videoPlayer && this.videoPlayer.isPlaying) {
+            this.videoPlayer.pause();
+            // 暂停时设置为灰色
+            this.setVideoGray();
+            this.videoPlayer.node.active =false;
+        }
+    }
+
+    /**
+     * 停止视频（外部调用接口）
+     */
+    stopVideo() {
+        if (this.videoPlayer) {
+            this.videoPlayer.stop();
         }
     }
 
@@ -90,24 +276,24 @@ export class GuidePanel extends BasePanel {
         let btnSprite1:Sprite = this.btnNode.getComponent(Sprite);
         let btnSprite2:Sprite = this.btnNode2.getComponent(Sprite);
         let btnSprite3:Sprite = this.btnNode3.getComponent(Sprite);
-         switch(data){
-             case "0":
-                 btnSprite1.color = OptionButtonColorMap[OptionButtonColor.SELECT];
-                 btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                 btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                 break;
-             case "1":
-                 btnSprite2.color = OptionButtonColorMap[OptionButtonColor.SELECT];
-                 btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                 btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                 break;
-             case "2":
-                 btnSprite3.color = OptionButtonColorMap[OptionButtonColor.SELECT];
-                 btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                 btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                 break;
-         }
-         GameCenterManager.getInstance().setDifficulty(Number(data)+1);
+        switch(data){
+            case "0":
+                btnSprite1.color = OptionButtonColorMap[OptionButtonColor.SELECT];
+                btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+                btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+                break;
+            case "1":
+                btnSprite2.color = OptionButtonColorMap[OptionButtonColor.SELECT];
+                btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+                btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+                break;
+            case "2":
+                btnSprite3.color = OptionButtonColorMap[OptionButtonColor.SELECT];
+                btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+                btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+                break;
+        }
+        GameCenterManager.getInstance().setDifficulty(Number(data)+1);
     }
 
     startGame(){
@@ -117,18 +303,24 @@ export class GuidePanel extends BasePanel {
         this._closePanel();
     }
 
-
     closePanel(){
         if(this.exitcallback != undefined){
             this.exitcallback();
         }
-       this._closePanel();
+        this._closePanel();
     }
 
     _closePanel(){
+        // 停止视频播放
+        this.stopVideo();
+        
+        // 重置视频颜色为正常
+        this.setVideoNormal();
+
         this.callback = undefined;
         this.gameName = undefined;
         this.exitcallback = undefined;
         UIManager.getInstance().hidePanel(GuidePanel.NAME);
     }
+
 }

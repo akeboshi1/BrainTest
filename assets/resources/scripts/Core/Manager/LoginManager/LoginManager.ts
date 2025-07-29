@@ -6,16 +6,16 @@ import { TimeUtil } from "../../Util/TimeUtil";
 import { LocalStorageKeyEnum, LocalStorageUtil } from "../../Util/LocalStorageUtil";
 import { EventManager } from "../Event/EventManager";
 import { SceneManager } from "../Scene/SceneManager";
-import {AlertManager, AlertData } from "../Alert/AlertManager";
+import { AlertManager, AlertData } from "../Alert/AlertManager";
 import { VerifyPanel } from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
 import { BundleName } from "../Load/BundleName";
 import { DebugLog } from "../../Util/DebugLog";
 import { GlobalConfigManager } from "../../../Config/GlobalConfigManager";
-import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { NativeEvent } from "../Event/NativeEvent";
 import { native, sys } from "cc";
-import {AlterUserInfoView} from "db://assets/resources/scripts/UserCenterV2/AlterUserInfoView";
-import {PersonalCenterManager} from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
+import { AlterUserInfoView } from "db://assets/resources/scripts/UserCenterV2/AlterUserInfoView";
+import { PersonalCenterManager } from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
 
 export class LoginManager {
@@ -47,7 +47,7 @@ export class LoginManager {
     }
 
     init() {
-        UIManager.getInstance().registerPanel(SwitchLoginPanel.NAME, BundleName.RESOURCES, "/prefab/AuthLogin/SwitchLoginPanel",SwitchLoginPanel);
+        UIManager.getInstance().registerPanel(SwitchLoginPanel.NAME, BundleName.RESOURCES, "/prefab/AuthLogin/SwitchLoginPanel", SwitchLoginPanel);
         UIManager.getInstance().registerPanel(AlterUserInfoView.NAME, BundleName.RESOURCES, "/prefabV2/personalCenter/alterUserInfo", AlterUserInfoView);
         UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
     }
@@ -92,7 +92,6 @@ export class LoginManager {
             this._loginByTokenCb(true);
             this._loginByTokenCb = null;
         }
-
         GlobalConfigManager.getInstance().init();
     }
 
@@ -125,9 +124,9 @@ export class LoginManager {
     }
 
     private requestLoginByMpHandler(data: any) {
-        DebugLog.instance.log(data);     
-        if (data['status'] == 0) {  
-            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);       
+        DebugLog.instance.log(data);
+        if (data['status'] == 0) {
+            AlertManager.getInstance().showSocketAlert(`${data['message']}`);
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
             // const alertData: AlertData = new AlertData();
             // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
@@ -137,7 +136,7 @@ export class LoginManager {
 
         // 如果返回的数据中的手机号与当前用户的手机号不匹配，表示登录失败
         if (data['data']['mp_no'] != this.phoneNum) {
-            DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
+            DebugLog.instance.error(`手机号不匹配`);
             AlertManager.getInstance().showSocketAlert(`${data['data']['mp_no']} 手机号不匹配`);
             // const alertData: AlertData = new AlertData();
             // alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;
@@ -153,13 +152,14 @@ export class LoginManager {
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
         const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "0");
 
 
         // 根据是否是新用户来调整ui显示逻辑
         let isNew = data.data["is_new"];
         if (isNew) {
 
-            UIManager.getInstance().showPanel(AlterUserInfoView.NAME,true);
+            UIManager.getInstance().showPanel(AlterUserInfoView.NAME, true);
             UIManager.getInstance().hidePanel(SwitchLoginPanel.NAME);
 
             // 主动弹出邀请码界面
@@ -172,22 +172,23 @@ export class LoginManager {
         GlobalConfigManager.getInstance().init();
     }
     private requestLoginByInstitutionHandler(data: any) {
-        if (data['status'] == 0) {  
-            AlertManager.getInstance().showSocketAlert(`${data.message}`);       
+        if (data['status'] == 0) {
+            AlertManager.getInstance().showSocketAlert(`${data.message}`);
             return;
         }
-        
+
         Global.userData.token = data.data['token'];
         Global.userData.tokenExpires = data.data['expires'];
-       
+
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
         const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "1");
         EventManager.getInstance().emit(LoginManager.LoginByInstitutionResult);
-      
+
     }
 
-    private onCloseVerifyPanel(){
+    private onCloseVerifyPanel() {
         SceneManager.getInstance().backToHall();
     }
 
@@ -227,27 +228,32 @@ export class LoginManager {
             UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
         } else {
             let self = this;
+            let defaultLoginStatus = LocalStorageUtil.get(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS);
             this.requestTokenVerification((result) => {
                 if (result) {
-                    EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack,self.requestUserInfoCallback, self,true);
-                    PersonalCenterManager.getInstance().requestUserInfo();
+                    if (defaultLoginStatus == "1") {
+                        SceneManager.getInstance().backToHall();
+                    } else {
+                        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, self.requestUserInfoCallback, self, true);
+                        PersonalCenterManager.getInstance().requestUserInfo();
+                    }
                 }
             });
         }
     }
 
-    private requestUserInfoCallback(){
+    private requestUserInfoCallback() {
         let usetData = PersonalCenterManager.getInstance().userInfoData;
-        if(usetData.full_name == ""){
-            UIManager.getInstance().showPanel(AlterUserInfoView.NAME,true);
+        if (usetData.full_name == "") {
+            UIManager.getInstance().showPanel(AlterUserInfoView.NAME, true);
             UIManager.getInstance().hidePanel(SwitchLoginPanel.NAME);
 
             // 主动弹出邀请码界面
             EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
-        }else{
+        } else {
             SceneManager.getInstance().backToHall();
         }
-        if(sys.platform === 'ANDROID'){
+        if (sys.platform === 'ANDROID') {
             console.log(`发送设备信息到native`);
             native.bridge.sendToNative(NativeEvent.Device, 'info');
         }
@@ -258,7 +264,7 @@ export class LoginManager {
         SocketManager.getInstance().send(socketData);
     }
 
-    loginout(){
+    loginout() {
         LocalStorageUtil.clean();
         EventManager.getInstance().destory();
         AudioManager.getInstance().destory();
