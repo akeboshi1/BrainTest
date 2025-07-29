@@ -247,7 +247,7 @@ export class GuidePanel extends BasePanel {
             this.videoPlayer.play();
             // 播放时设置为正常颜色
             this.setVideoNormal();
-            this.videoPlayer.node.active =true;
+            // this.videoPlayer.node.active =true;
         }
     }
 
@@ -259,7 +259,7 @@ export class GuidePanel extends BasePanel {
             this.videoPlayer.pause();
             // 暂停时设置为灰色
             this.setVideoGray();
-            this.videoPlayer.node.active =false;
+            // this.videoPlayer.node.active =false;
         }
     }
 
