@@ -289,7 +289,31 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             throw new Error(`本地Bundle目录不存在: ${localBundlePath}`);
         }
 
-        await this.scanBundleDirectory(localBundlePath, remoteBundlePath);
+        // 直接添加整个目录作为上传任务，跳过扫描
+        const stats = lstatSync(localBundlePath);
+        this.uploadQueue.push({
+            localPath: localBundlePath,
+            remotePath: remoteBundlePath,
+            size: stats.size
+        });
+        this.totalFiles++;
+        console.log(`添加目录上传任务: ${localBundlePath} -> ${remoteBundlePath}`);
+        
+        // 添加bundle_versions.json文件的上传任务
+        const versionsFilePath = join(localPath, 'bundle_versions.json');
+        if (existsSync(versionsFilePath)) {
+            const versionsStats = lstatSync(versionsFilePath);
+            this.uploadQueue.push({
+                localPath: versionsFilePath,
+                remotePath: `${remotePath}/bundle_versions.json`,
+                size: versionsStats.size
+            });
+            this.totalFiles++;
+            console.log(`添加bundle_versions.json上传任务: ${versionsFilePath} -> ${remotePath}/bundle_versions.json`);
+        } else {
+            console.warn('bundle_versions.json文件不存在，跳过上传');
+        }
+        
         console.log(`全量上传队列构建完成，共 ${this.totalFiles} 个任务`);
     }
     
