@@ -78,7 +78,7 @@ export const fingerGameConfig: FingerGameConfig = {
                     },
                     demoVideo: {
                         path: "video/set1/4_demo",
-                        duration: 21.8
+                        duration: 29.0
                     }
                 },
                 {
@@ -90,7 +90,7 @@ export const fingerGameConfig: FingerGameConfig = {
                     },
                     demoVideo: {
                         path: "video/set1/5_demo",
-                        duration: 21.9
+                        duration: 29.2
                     }
                 },  
                 {
