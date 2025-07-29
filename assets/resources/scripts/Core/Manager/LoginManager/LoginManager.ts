@@ -126,7 +126,7 @@ export class LoginManager {
     private requestLoginByMpHandler(data: any) {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
-            AlertManager.getInstance().showSocketAlert(`请求${data['action']}失败，请重新再试`);
+            AlertManager.getInstance().showSocketAlert(`${data['message']}`);
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
             // const alertData: AlertData = new AlertData();
             // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
@@ -136,7 +136,7 @@ export class LoginManager {
 
         // 如果返回的数据中的手机号与当前用户的手机号不匹配，表示登录失败
         if (data['data']['mp_no'] != this.phoneNum) {
-            DebugLog.instance.error(`${data['data']['mp_no']} 手机号不匹配`);
+            DebugLog.instance.error(`手机号不匹配`);
             AlertManager.getInstance().showSocketAlert(`${data['data']['mp_no']} 手机号不匹配`);
             // const alertData: AlertData = new AlertData();
             // alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;

@@ -2,13 +2,14 @@ import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { BundlePreloadConfig } from "../../../Config/BundlePreloadConfig";
 import { EventManager } from "../Event/EventManager";
-import { assetManager, AssetManager, debug, JsonAsset, sys } from "cc";
+import { assetManager, AssetManager, debug, JsonAsset, sys, director } from "cc";
 import { BundleName } from "./BundleName";
 import { UIManager } from "../UI/UIManager";
 import { LoadPanel } from "../../../Game/UI/Load/LoadPanel";
 import { BundleManager } from "db://assets/app/BundleManager";
 import { SceneManager } from "../Scene/SceneManager";
 import { PublishSettingConfig } from "db://assets/app/PublishSettingConfig";
+
 // BundlePreloadManager类用于管理资源包的预加载和释放操作，通过配置文件获取预加载信息，并触发相应事件通知外部相关进度和状态 
 
 export class BundlePreloadManager extends BaseManager {
@@ -17,6 +18,11 @@ export class BundlePreloadManager extends BaseManager {
 
     // 配置对象，用于读取和解析资源包预加载相关的配置信息
     private config: BundlePreloadConfig = new BundlePreloadConfig();
+
+    // 超时配置常量（单位：毫秒）
+    private static readonly BUNDLE_LOAD_TIMEOUT = 30000; // 资源包加载超时时间：30秒
+    private static readonly SCENE_LOAD_TIMEOUT = 20000;  // 场景加载超时时间：20秒
+    private static readonly ASSET_LOAD_TIMEOUT = 15000;  // 资源加载超时时间：15秒
 
     // 单例模式获取实例的静态方法，确保整个项目中只有一个BundlePreloadManager实例在运行
     public static getInstance(): BundlePreloadManager {
@@ -27,6 +33,24 @@ export class BundlePreloadManager extends BaseManager {
     }
 
     private loadedBundle: BundleName[] = [];
+
+    /**
+     * 创建带超时的Promise
+     * @param promise 原始Promise
+     * @param timeout 超时时间（毫秒）
+     * @param timeoutMessage 超时错误信息
+     * @returns 带超时的Promise
+     */
+    private createTimeoutPromise<T>(promise: Promise<T>, timeout: number, timeoutMessage: string): Promise<T> {
+        return Promise.race([
+            promise,
+            new Promise<never>((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error(timeoutMessage));
+                }, timeout);
+            })
+        ]);
+    }
 
     // 初始化方法，加载资源包预加载的配置文件，如果尚未加载则进行加载操作，并标记为已初始化
     init() {
@@ -65,13 +89,13 @@ export class BundlePreloadManager extends BaseManager {
 
         // 触发预加载开始事件，通知外部预加载操作即将开始
         EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
-
+        await UIManager.getInstance().showPanel(LoadPanel.NAME);
         let bundle: AssetManager.Bundle = null;
 
         try {
             bundle = assetManager.getBundle(bundleName);
             if (!bundle) {
-                bundle = await new Promise<AssetManager.Bundle>((resolve, reject) => {
+                const bundleLoadPromise = new Promise<AssetManager.Bundle>((resolve, reject) => {
                     const isRemoteConfigEnabled = PublishSettingConfig.getInstance().getIsRemoteBundle();
                     const bundleUrl = isRemoteConfigEnabled ?  BundleManager.getInstance().getBundleRemoteUrl(bundleName) : bundleName;
                     const options = isRemoteConfigEnabled ? { version : BundleManager.getInstance().getBundleMD5(bundleName) } : undefined;
@@ -85,6 +109,13 @@ export class BundlePreloadManager extends BaseManager {
                         }
                     });
                 });
+
+                // 添加超时处理
+                bundle = await this.createTimeoutPromise(
+                    bundleLoadPromise,
+                    BundlePreloadManager.BUNDLE_LOAD_TIMEOUT,
+                    `加载资源包 ${bundleName} 超时`
+                );
             }
             else {
                 DebugLog.instance.log(`资源包 ${bundleName} 已加载`);
@@ -93,6 +124,9 @@ export class BundlePreloadManager extends BaseManager {
         } catch (err) {
             DebugLog.instance.error(`加载资源包 ${bundleName} 出错: ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+            
+            // 加载失败时关闭LoadPanel并回到游戏大厅
+            await this.handleLoadError(bundleName, err);
             return;
         }
 
@@ -101,12 +135,11 @@ export class BundlePreloadManager extends BaseManager {
         let loadedAssets = 0;
         let totalAssets = 0;
 
-        await UIManager.getInstance().showPanel(LoadPanel.NAME);
+       
 
         // 预加载场景
         try {
-            await new Promise((resolve, reject) => {
-
+            const sceneLoadPromise = new Promise((resolve, reject) => {
                 bundle.preloadScene(preloadScene, (finished, total, item) => {
                     totalAssets = preloadAssets.length + total;
                     loadedAssets = finished;
@@ -123,9 +156,19 @@ export class BundlePreloadManager extends BaseManager {
                     }
                 });
             });
+
+            // 添加超时处理
+            await this.createTimeoutPromise(
+                sceneLoadPromise,
+                BundlePreloadManager.SCENE_LOAD_TIMEOUT,
+                `加载场景 ${preloadScene} 超时`
+            );
         } catch (err) {
             DebugLog.instance.error(`加载场景 ${bundleName} 出错: ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+            
+            // 加载失败时关闭LoadPanel并回到游戏大厅
+            await this.handleLoadError(bundleName, err);
             return;
         }
 
@@ -136,7 +179,7 @@ export class BundlePreloadManager extends BaseManager {
             const type = this.config.stringToAssetType(assetTypeStr);
             if (type) {
                 try {
-                    await new Promise((res, rej) => {
+                    const assetLoadPromise = new Promise((res, rej) => {
                         bundle.preload(assetPath, type, (err, data) => {
                             if (err) {
                                 rej(err);
@@ -146,6 +189,13 @@ export class BundlePreloadManager extends BaseManager {
                         });
                     });
 
+                    // 添加超时处理
+                    await this.createTimeoutPromise(
+                        assetLoadPromise,
+                        BundlePreloadManager.ASSET_LOAD_TIMEOUT,
+                        `加载资源 ${assetPath} 超时`
+                    );
+
                     loadedAssets++;
                     const progress = Math.round(loadedAssets / totalAssets * 100);
                     // 触发预加载进度事件，通知外部当前的加载进度
@@ -154,6 +204,9 @@ export class BundlePreloadManager extends BaseManager {
                 } catch (err) {
                     DebugLog.instance.error(`加载资源 ${assetPath} 出错: ${err}`);
                     EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+                    
+                    // 加载失败时关闭LoadPanel并回到游戏大厅
+                    await this.handleLoadError(bundleName, err);
                     return;
                 }
             }
@@ -170,6 +223,9 @@ export class BundlePreloadManager extends BaseManager {
         } catch (error) {
             DebugLog.instance.error(`加载场景资源失败: ${error}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
+            
+            // 加载失败
+            await this.handleLoadError(bundleName, error);
             return;
         }
         
@@ -261,7 +317,7 @@ export class BundlePreloadManager extends BaseManager {
             }
 
             // 使用assetManager.loadBundle加载场景资源到内存中
-            await new Promise<void>((resolve, reject) => {
+            const sceneResourceLoadPromise = new Promise<void>((resolve, reject) => {
                 bundle.loadScene(targetSceneName, (err) => {
                     if (err) {
                         DebugLog.instance.error(`加载场景资源 ${targetSceneName} 失败: ${err}`);
@@ -272,6 +328,13 @@ export class BundlePreloadManager extends BaseManager {
                     }
                 });
             });
+
+            // 添加超时处理
+            await this.createTimeoutPromise(
+                sceneResourceLoadPromise,
+                BundlePreloadManager.SCENE_LOAD_TIMEOUT,
+                `加载场景资源 ${targetSceneName} 超时`
+            );
 
             // 更新LoadPanel显示场景资源加载完成
             if (loadPanelInfo && loadPanelInfo.comp) {
@@ -292,6 +355,9 @@ export class BundlePreloadManager extends BaseManager {
                 sceneName: targetSceneName,
                 error 
             });
+            
+            // 加载失败时关闭LoadPanel并回到游戏大厅
+            await this.handleLoadError(bundleName, error);
         }
     }
 
@@ -320,6 +386,100 @@ export class BundlePreloadManager extends BaseManager {
         // 检查场景是否已加载到内存中
         return bundle.getSceneInfo(targetSceneName) !== null;
     }
+
+    /**
+     * 处理加载错误
+     * 派发相应的事件通知外部处理
+     * @param bundleName 失败的资源包名称
+     * @param error 错误信息
+     */
+    private async handleLoadError(bundleName: BundleName, error: any) {
+        DebugLog.instance.error(`处理加载错误: ${bundleName}`, error);
+        
+        // 检查是否为超时错误
+        const isTimeoutError = error && error.message && error.message.includes('超时');
+        
+        try {
+            // 关闭LoadPanel
+            // await UIManager.getInstance().hidePanel(LoadPanel.NAME);
+            
+            // 获取当前场景名称
+            const currentScene = director.getScene();
+            const currentSceneName = currentScene ? currentScene.name : '';
+            
+            DebugLog.instance.log(`当前场景: ${currentSceneName}, 加载失败的资源包: ${bundleName}, 是否超时: ${isTimeoutError}`);
+            
+            // 触发相应的错误事件，让外部处理弹窗显示
+            if (isTimeoutError) {
+                EventManager.getInstance().emit(BundlePreloadEvent.TIMEOUT, { 
+                    bundleName, 
+                    error,
+                    currentSceneName 
+                });
+            } else {
+                EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { 
+                    bundleName, 
+                    error,
+                    currentSceneName 
+                });
+            }
+            
+            // 触发加载错误已处理事件
+            EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
+                bundleName, 
+                error,
+                currentSceneName,
+                handledSuccessfully: true,
+                isTimeout: isTimeoutError
+            });
+            
+        } catch (backError) {
+            DebugLog.instance.error(`处理加载错误失败: ${backError}`);
+            // 如果处理失败，尝试回到主场景
+            try {
+                await SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES);
+                
+                // 触发加载错误已处理事件（降级处理）
+                EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
+                    bundleName, 
+                    error,
+                    currentSceneName: 'mainV2',
+                    handledSuccessfully: true,
+                    fallbackUsed: true,
+                    isTimeout: isTimeoutError
+                });
+                
+            } catch (finalError) {
+                DebugLog.instance.error(`回到主场景也失败: ${finalError}`);
+                
+                // 触发加载错误已处理事件（完全失败）
+                EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
+                    bundleName, 
+                    error,
+                    currentSceneName: 'unknown',
+                    handledSuccessfully: false,
+                    finalError,
+                    isTimeout: isTimeoutError
+                });
+            }
+        }
+    }
+
+    /**
+     * 回到游戏大厅
+     */
+    private async backToGameCenter(): Promise<void> {
+        DebugLog.instance.log('回到游戏大厅');
+        await SceneManager.getInstance().backToGameCenter();
+    }
+
+    /**
+     * 回到串烧任务大厅
+     */
+    private async backToSkewersGameCenter(): Promise<void> {
+        DebugLog.instance.log('回到串烧任务大厅');
+        await SceneManager.getInstance().backToSkewersGameCenter();
+    }
 }
 
 // 定义预加载相关的事件枚举，方便外部统一监听和处理不同阶段的预加载事件
@@ -330,5 +490,7 @@ export enum BundlePreloadEvent {
     FINISH = "BundlePreloadEvent.finish",
     PROGRESS = "BundlePreloadEvent.progress",
     FAILED = "BundlePreloadEvent.failed",
+    TIMEOUT = "BundlePreloadEvent.timeout", // 新增：加载超时事件
     COUNTDOWN_FINISH = "BundlePreloadEvent.countdownFinish",
+    LOAD_ERROR_HANDLED = "BundlePreloadEvent.loadErrorHandled", // 新增：加载错误已处理事件
 }
