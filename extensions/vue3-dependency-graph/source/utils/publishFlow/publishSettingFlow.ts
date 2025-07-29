@@ -31,6 +31,11 @@ export interface PublishSettingParams {
      * 应用版本号
      */
     appVersion?: string;
+    
+    /**
+     * 是否全量上传
+     */
+    isFullUpload?: boolean;
 }
 
 /**
@@ -57,7 +62,7 @@ export class PublishSettingFlow extends BaseProcessFlow {
         this.updateProgress(0, '开始修改发布设置');
         
         try {
-            const { projectPath, publishType, isMCI, environment, appVersion } = params;
+            const { projectPath, publishType, isMCI, environment, appVersion, isFullUpload } = params;
             
             // 检查参数
             if (!projectPath || !publishType) {
@@ -103,6 +108,10 @@ export class PublishSettingFlow extends BaseProcessFlow {
             
             if (appVersion) {
                 publishSetting.app_version = appVersion;
+            }
+            
+            if (isFullUpload !== undefined) {
+                publishSetting.isFullUpload = isFullUpload;
             }
             
             this.updateProgress(60, '保存发布设置文件');

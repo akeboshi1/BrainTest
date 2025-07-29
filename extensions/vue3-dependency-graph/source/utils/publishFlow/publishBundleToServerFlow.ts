@@ -9,7 +9,7 @@ import Client from 'ssh2-sftp-client';
  * 环境文件夹命名配置
  */
 const ENVIRONMENT_FOLDER_NAMES = {
-    development: 'develop',
+    development: 'test',
     production: 'production'
 } as const;
 
@@ -71,6 +71,11 @@ export interface PublishBundleToServerParams {
      * 是否启用增量上传（默认true）
      */
     incremental?: boolean;
+    
+    /**
+     * 是否全量上传（默认false）
+     */
+    isFullUpload?: boolean;
 }
 
 /**
@@ -128,7 +133,7 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         this.updateProgress(0, '准备发布Bundle到服务器');
         
         try {
-            const { projectPath, sftpConfig, environment, changeBundleList } = params;
+            const { projectPath, sftpConfig, environment, changeBundleList, isFullUpload } = params;
             
             // 检查本地发布目录
             const localPath = join(projectPath, 'publish-remote-bundle');
@@ -169,7 +174,11 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             
             // 根据changeBundleList构建上传队列
             this.updateProgress(20, '构建上传队列...');
-            await this.buildUploadQueueFromChangeList(localPath, remotePath, changeBundleList);
+            if (isFullUpload) {
+                await this.buildUploadQueueForFullUpload(localPath, remotePath);
+            } else {
+                await this.buildUploadQueueFromChangeList(localPath, remotePath, changeBundleList);
+            }
             
             this.updateProgress(25, `需要上传的文件总数: ${this.totalFiles}`);
             
@@ -266,6 +275,22 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         }
         
         console.log(`构建上传队列完成，共 ${this.totalFiles} 个任务`);
+    }
+
+    /**
+     * 构建全量上传的文件列表
+     */
+    private async buildUploadQueueForFullUpload(localPath: string, remotePath: string): Promise<void> {
+        console.log('构建全量上传的文件列表...');
+        const localBundlePath = localPath;
+        const remoteBundlePath = remotePath;
+
+        if (!existsSync(localBundlePath)) {
+            throw new Error(`本地Bundle目录不存在: ${localBundlePath}`);
+        }
+
+        await this.scanBundleDirectory(localBundlePath, remoteBundlePath);
+        console.log(`全量上传队列构建完成，共 ${this.totalFiles} 个任务`);
     }
     
     /**
