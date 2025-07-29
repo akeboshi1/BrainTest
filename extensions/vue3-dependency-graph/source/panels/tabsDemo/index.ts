@@ -44,6 +44,7 @@ interface MyComponent {
         isMCI: boolean;
         environment: PublishEnvironment;
         app_version: string;
+        isFullUpload: boolean;
     };
     lastChangedBundles: string[];
     switchTab(tabId: PublishConfigType): void;
@@ -109,6 +110,14 @@ module.exports = Editor.Panel.define({
                                             <label>
                                                 <input type="checkbox" v-model="publishSettings.isMCI">
                                                 开启MCI
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- 全量上传 -->
+                                        <div class="setting-item" v-if="showSettingItem(tab.id, 'isFullUpload')">
+                                            <label>
+                                                <input type="checkbox" v-model="publishSettings.isFullUpload">
+                                                全量上传
                                             </label>
                                         </div>
                                         
@@ -239,7 +248,8 @@ module.exports = Editor.Panel.define({
                     publishSettings: {
                         isMCI: false,
                         environment: PublishEnvironment.DEVELOPMENT,
-                        app_version: '1.0.0'
+                        app_version: '1.0.0',
+                        isFullUpload: false
                     },
                     lastChangedBundles: [] as string[]
                 }),
@@ -279,7 +289,8 @@ module.exports = Editor.Panel.define({
                                 this.publishSettings = {
                                     isMCI: settings.isMCI !== undefined ? settings.isMCI : false,
                                     environment: settings.environment || PublishEnvironment.DEVELOPMENT,
-                                    app_version: settings.app_version || '1.0.0'
+                                    app_version: settings.app_version || '1.0.0',
+                                    isFullUpload: settings.isFullUpload !== undefined ? settings.isFullUpload : false
                                 };
                                 
                                 console.log('发布设置已加载:', this.publishSettings);
@@ -329,7 +340,8 @@ module.exports = Editor.Panel.define({
                             this.activeTab,
                             this.publishSettings.isMCI,
                             this.publishSettings.environment,
-                            this.publishSettings.app_version
+                            this.publishSettings.app_version,
+                            this.publishSettings.isFullUpload
                         );
                     },
                     
@@ -342,13 +354,18 @@ module.exports = Editor.Panel.define({
                             return true;
                         }
                         
-                        if (tabId === PublishConfigType.REMOTE_BUNDLES) {
-                            // REMOTE_BUNDLES只显示环境设置
-                            return setting === 'environment';
+                        if (setting === 'isFullUpload') {
+                            // 只有REMOTE_BUNDLES标签页显示全量上传选项
+                            return tabId === PublishConfigType.REMOTE_BUNDLES;
                         }
                         
-                        // FULL_PACKAGE和REMOTE_STARTUP显示所有设置
-                        return true;
+                        if (tabId === PublishConfigType.REMOTE_BUNDLES) {
+                            // REMOTE_BUNDLES只显示环境设置和全量上传
+                            return setting === 'environment' || setting === 'isFullUpload';
+                        }
+                        
+                        // FULL_PACKAGE和REMOTE_STARTUP显示所有设置（除了全量上传）
+                        return setting !== 'isFullUpload';
                     },
                     
                     /**
@@ -376,7 +393,8 @@ module.exports = Editor.Panel.define({
                                 this.publishSettings.isMCI,
                                 this.publishSettings.environment,
                                 this.publishSettings.app_version,
-                                useDebugMode
+                                useDebugMode,
+                                this.publishSettings.isFullUpload
                             );
                             
                             console.log('发布流程执行完毕，success:', success);
