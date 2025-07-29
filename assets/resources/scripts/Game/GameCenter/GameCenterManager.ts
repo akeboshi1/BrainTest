@@ -232,16 +232,19 @@ export class GameCenterManager {
         GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecModel);
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
         GameCenterManager._settlementPanel = new SettlementPanel();
-        
-        // 设置游戏大厅错误处理
-        this.setupGameCenterErrorHandling();
     }
 
     perload(url, sceneName) {
         DebugLog.instance.log(`${sceneName} gamemanager sceneName`);
         
+        // 设置游戏大厅错误处理监听器（仅在需要时添加）
+        this.setupGameCenterErrorHandling();
+        
         // 设置预加载事件监听器
         this.setupPreloadEventListeners(sceneName);
+        
+        // 模拟预加载超时测试（仅用于测试，生产环境请注释掉）
+        // this.simulatePreloadTimeout(sceneName);
         
         // 开始预加载
         BundlePreloadManager.getInstance().preload(sceneName as BundleName);
@@ -602,6 +605,15 @@ export class GameCenterManager {
     }
 
     /**
+     * 清理游戏大厅错误处理监听器
+     */
+    private cleanupGameCenterErrorHandling() {
+        EventManager.getInstance().off(GameCenterManager.GAME_CENTER_LOAD_ERROR, this);
+        EventManager.getInstance().off(BundlePreloadEvent.TIMEOUT, this);
+        EventManager.getInstance().off(BundlePreloadEvent.FAILED, this);
+    }
+
+    /**
      * 预加载失败回调
      * @param sceneName 场景名称
      * @param data 失败数据
@@ -643,11 +655,22 @@ export class GameCenterManager {
      * 显示加载错误提示
      * @param sceneName 场景名称
      */
-    private showLoadErrorAlert(sceneName: string) {
+    private showLoadErrorAlert(sceneName: string, isTimeout: boolean = false, errorData: any = null) {
+        DebugLog.instance.log(`GameCenterManager.showLoadErrorAlert 被调用: ${sceneName}, isTimeout: ${isTimeout}`, errorData);
+        
         // 使用AlertManager显示错误提示弹窗，不关闭已打开的GuidePanel
         const alertData = new AlertData();
-        alertData.title = "加载失败";
-        alertData.message = `游戏 ${sceneName} 加载失败，请选择操作`;
+        
+        if (isTimeout) {
+            // 超时错误提示
+            alertData.title = "加载超时";
+            alertData.message = `游戏 ${sceneName} 加载超时，请检查网络连接后重试`;
+        } else {
+            // 其他错误提示
+            alertData.title = "加载失败";
+            alertData.message = `游戏 ${sceneName} 加载失败，请稍后重试`;
+        }
+        
         alertData.cancelButtonVisible = true;
         alertData.cancelButtonText = "返回大厅";
         alertData.confirmButtonText = "重试";
@@ -661,6 +684,11 @@ export class GameCenterManager {
         alertData.confirmCb = () => {
             // 重试回调
             DebugLog.instance.log(`用户选择重试加载游戏: ${sceneName}`);
+            
+            // 先关闭当前弹窗
+            AlertManager.getInstance().closeCurrentAlert();
+            
+            // 然后重试加载游戏
             this.retryLoadGame(sceneName);
         };
         
@@ -720,15 +748,46 @@ export class GameCenterManager {
         
         // 清理事件监听器
         this.cleanupPreloadEventListeners();
+        this.cleanupGameCenterErrorHandling();
         
         // 清理当前游戏数据
         this._curGame = null;
     }
 
     /**
+     * 模拟预加载超时（仅用于测试）
+     * @param sceneName 场景名称
+     */
+    private simulatePreloadTimeout(sceneName: string) {
+        // 模拟3秒后触发超时事件
+        setTimeout(() => {
+            DebugLog.instance.log(`模拟预加载超时: ${sceneName}`);
+            
+            // 直接调用游戏大厅的超时处理方法，避免事件冲突
+            this.showLoadErrorAlert(sceneName, true, {
+                bundleName: sceneName,
+                error: "模拟超时错误",
+                timeout: 3000,
+                currentSceneName: "gameCenter" // 明确标识这是游戏大厅场景
+            });
+            
+            // 同时触发超时事件（可选，用于日志记录）
+            EventManager.getInstance().emit(BundlePreloadEvent.TIMEOUT, {
+                bundleName: sceneName,
+                error: "模拟超时错误",
+                timeout: 3000,
+                currentSceneName: "gameCenter"
+            });
+        }, 3000);
+    }
+
+    /**
      * 设置游戏大厅错误处理
      */
     private setupGameCenterErrorHandling() {
+        // 先清理可能存在的监听器，避免重复监听
+        this.cleanupGameCenterErrorHandling();
+        
         // 监听游戏大厅加载错误事件
         EventManager.getInstance().on(GameCenterManager.GAME_CENTER_LOAD_ERROR, (data) => {
             DebugLog.instance.error(`游戏大厅加载错误事件: ${data.sceneName}`, data);
@@ -753,6 +812,39 @@ export class GameCenterManager {
                 default:
                     DebugLog.instance.error(`游戏大厅未知错误类型: ${data.type}`);
                     break;
+            }
+        }, this);
+
+        // 监听BundlePreloadManager的超时和失败事件
+        // 注意：这里监听的是全局的BundlePreloadEvent事件
+        EventManager.getInstance().on(BundlePreloadEvent.TIMEOUT, (data) => {
+            DebugLog.instance.error(`游戏大厅资源加载超时: ${data.bundleName}`, data);
+            
+            // 检查是否为游戏大厅相关的超时事件
+            // 通过currentSceneName或bundleName来判断
+            const isGameCenterRelated = data.currentSceneName === "gameCenter" || 
+                                      data.currentSceneName === "mainV2" ||
+                                      !data.currentSceneName; // 如果没有场景信息，默认处理
+            
+            if (isGameCenterRelated) {
+                this.showLoadErrorAlert(data.bundleName, true, data);
+            } else {
+                DebugLog.instance.log(`游戏大厅忽略非相关超时事件: ${data.bundleName} (场景: ${data.currentSceneName})`);
+            }
+        }, this);
+
+        EventManager.getInstance().on(BundlePreloadEvent.FAILED, (data) => {
+            DebugLog.instance.error(`游戏大厅资源加载失败: ${data.bundleName}`, data);
+            
+            // 检查是否为游戏大厅相关的失败事件
+            const isGameCenterRelated = data.currentSceneName === "gameCenter" || 
+                                      data.currentSceneName === "mainV2" ||
+                                      !data.currentSceneName;
+            
+            if (isGameCenterRelated) {
+                this.showLoadErrorAlert(data.bundleName, false, data);
+            } else {
+                DebugLog.instance.log(`游戏大厅忽略非相关失败事件: ${data.bundleName} (场景: ${data.currentSceneName})`);
             }
         }, this);
     }

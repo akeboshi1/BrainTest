@@ -136,9 +136,6 @@ export class SkewersManager {
         this._iconUrlMap.set(SkewersGameType.Memory, "texture/game/icon/memoryicon");
 
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
-        
-        // 设置串烧游戏加载错误事件监听
-        this.setupSkewersErrorHandling();
     }
 
     public get skewersSpecData(): SkewersSpecGameModel {
@@ -443,8 +440,14 @@ export class SkewersManager {
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
         
+        // 设置串烧游戏错误处理监听器（仅在需要时添加）
+        this.setupSkewersErrorHandling();
+        
         // 设置预加载事件监听
         this.setupPreloadEventListeners(sceneName);
+        
+        // 模拟预加载超时测试（仅用于测试，生产环境请注释掉）
+        // this.simulatePreloadTimeout(sceneName);
         
         // 开始预加载
         BundlePreloadManager.getInstance().preload(sceneName);
@@ -516,6 +519,9 @@ export class SkewersManager {
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
         
+        // 设置串烧游戏错误处理监听器（仅在需要时添加）
+        this.setupSkewersErrorHandling();
+        
         // 设置预加载事件监听
         this.setupPreloadEventListeners(sceneName);
         
@@ -547,6 +553,9 @@ export class SkewersManager {
         if (changeScene) {
             const sceneName = this._game.gameCode;
             let url = Global.RES_Root + sceneName;
+            
+            // 设置串烧游戏错误处理监听器（仅在需要时添加）
+            this.setupSkewersErrorHandling();
             
             // 设置预加载事件监听
             this.setupPreloadEventListeners(sceneName);
@@ -649,6 +658,15 @@ export class SkewersManager {
     }
 
     /**
+     * 清理串烧游戏错误处理监听器
+     */
+    private cleanupSkewersErrorHandling() {
+        EventManager.getInstance().off(SkewersManager.SKEWERS_LOAD_ERROR, this);
+        EventManager.getInstance().off(BundlePreloadEvent.TIMEOUT, this);
+        EventManager.getInstance().off(BundlePreloadEvent.FAILED, this);
+    }
+
+    /**
      * 预加载失败回调
      * @param sceneName 场景名称
      * @param data 失败数据
@@ -700,11 +718,22 @@ export class SkewersManager {
      * 显示加载错误提示
      * @param sceneName 场景名称
      */
-    private showLoadErrorAlert(sceneName: string) {
+    private showLoadErrorAlert(sceneName: string, isTimeout: boolean = false, errorData: any = null) {
+        DebugLog.instance.log(`SkewersManager.showLoadErrorAlert 被调用: ${sceneName}, isTimeout: ${isTimeout}`, errorData);
+        
         // 使用AlertManager显示错误提示弹窗
         const alertData = new AlertData();
-        alertData.title = "加载失败";
-        alertData.message = `游戏 ${sceneName} 加载失败，请稍后重试`;
+        
+        if (isTimeout) {
+            // 超时错误提示
+            alertData.title = "加载超时";
+            alertData.message = `游戏 ${sceneName} 加载超时，请检查网络连接后重试`;
+        } else {
+            // 其他错误提示
+            alertData.title = "加载失败";
+            alertData.message = `游戏 ${sceneName} 加载失败，请稍后重试`;
+        }
+        
         alertData.cancelButtonVisible = true;
         alertData.cancelButtonText = "退出";
         alertData.confirmButtonText = "重试";
@@ -716,6 +745,11 @@ export class SkewersManager {
         alertData.confirmCb = () => {
             // 重试回调
             DebugLog.instance.log(`用户选择重试加载游戏: ${sceneName}`);
+            
+            // 先关闭当前弹窗
+            AlertManager.getInstance().closeCurrentAlert();
+            
+            // 然后重试加载游戏
             this.retryLoadGame(sceneName);
         };
         
@@ -779,6 +813,7 @@ export class SkewersManager {
         
         // 清理事件监听器
         this.cleanupPreloadEventListeners();
+        this.cleanupSkewersErrorHandling();
         
         // 重置当前游戏索引
         this._curIndex = -1;
@@ -789,9 +824,39 @@ export class SkewersManager {
     }
 
     /**
+     * 模拟预加载超时（仅用于测试）
+     * @param sceneName 场景名称
+     */
+    private simulatePreloadTimeout(sceneName: string) {
+        // 模拟3秒后触发超时事件
+        setTimeout(() => {
+            DebugLog.instance.log(`模拟串烧游戏预加载超时: ${sceneName}`);
+            
+            // 直接调用串烧游戏的超时处理方法，避免事件冲突
+            this.showLoadErrorAlert(sceneName, true, {
+                bundleName: sceneName,
+                error: "模拟超时错误",
+                timeout: 3000,
+                currentSceneName: "skewers" // 明确标识这是串烧游戏场景
+            });
+            
+            // 同时触发超时事件（可选，用于日志记录）
+            EventManager.getInstance().emit(BundlePreloadEvent.TIMEOUT, {
+                bundleName: sceneName,
+                error: "模拟超时错误",
+                timeout: 3000,
+                currentSceneName: "skewers"
+            });
+        }, 3000);
+    }
+
+    /**
      * 设置串烧游戏错误处理
      */
     private setupSkewersErrorHandling() {
+        // 先清理可能存在的监听器，避免重复监听
+        this.cleanupSkewersErrorHandling();
+        
         // 监听串烧游戏加载错误事件
         EventManager.getInstance().on(SkewersManager.SKEWERS_LOAD_ERROR, (data) => {
             DebugLog.instance.error(`串烧游戏加载错误事件: ${data.sceneName}`, data);
@@ -811,6 +876,17 @@ export class SkewersManager {
                     DebugLog.instance.error(`串烧游戏未知错误类型: ${data.type}`);
                     break;
             }
+        }, this);
+
+        // 监听BundlePreloadManager的超时和失败事件
+        EventManager.getInstance().on(BundlePreloadEvent.TIMEOUT, (data) => {
+            DebugLog.instance.error(`串烧游戏资源加载超时: ${data.bundleName}`, data);
+            this.showLoadErrorAlert(data.bundleName, true, data);
+        }, this);
+
+        EventManager.getInstance().on(BundlePreloadEvent.FAILED, (data) => {
+            DebugLog.instance.error(`串烧游戏资源加载失败: ${data.bundleName}`, data);
+            this.showLoadErrorAlert(data.bundleName, false, data);
         }, this);
     }
 }
