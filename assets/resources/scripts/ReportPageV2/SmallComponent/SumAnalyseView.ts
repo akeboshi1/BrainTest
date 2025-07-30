@@ -49,7 +49,7 @@ const resultAnalysisConfig = [
         name: '待提升领域',
     }
 ]
-//根据ComprehRecommend中的元素生成五个dimensionItemView
+
 const ComprehRecommendConfig = [
     {
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_8',
@@ -62,33 +62,22 @@ const ComprehRecommendConfig = [
         text: '每日保持适度的有氧运动（如慢走、太极、八段锦）'
     },
     {
-    // 开始游戏
-        iconPath: '/textureV2/userReport/dimension_icon/texture/dime_10',
-        // 创建游戏模型
+        iconPath: '/textureV2/userReport/dimension_icon/texture/dime_10',   
         name: '饮食优化',
-        // 初始化游戏模型
         text: '每日健康饮食，适量摄入富含Omega-3（深海鱼油、坚果）、抗氧化物质（蓝莓、绿茶）'
     },
     {
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_11',
-        // 注册游戏完成面板
-        name: '心里社交',
-        // 注册游戏设置完成面板
+        name: '心理社交',
         text: '鼓励参与社交活动、维持积极情绪，多与亲友交流讨论时事或感兴趣的话题内容，有助激活多脑区联动'
     },
-        // 如果是安卓平台
     {
-            // 注册相机录制结果事件
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_12',
-            // 注册视频数据上传完成事件
         name: '评估复查',
-            // 注册视频数据上传错误事件
         text: '建议每半年进行一次认知评估，动态掌握认知功能实时状态'
     }
-
-        // 注册获取任务列表完成事件
 ];
-        // 注册获取所有任务活动结果事件
+
 const CognizeTipsConfig = [
         // 获取任务列表
     {

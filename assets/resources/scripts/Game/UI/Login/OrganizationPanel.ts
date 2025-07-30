@@ -7,6 +7,7 @@ import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { Md5 } from '../../../Core/Util/md5';
+import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 const { ccclass, property } = _decorator;
 
 @ccclass('OrganizationPanel')
@@ -35,17 +36,37 @@ export class OrganizationPanel extends Component {
     private userCodeValue: string = "";
     private passwordValue: string = "";
     private isPasswordVisible: boolean = false; // 密码是否可见
+  
     start() {
-        // this.changeBtnFrame(0);
-        // 初始化密码输入框，设置占位符文本和密码模式
+        this.initInstitutionCodeEditBox();
+        this.initPasswordEditBox();
+        this.initPasswordEye();
+        this.initToggle();
+    }
+    initToggle(){
+        let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+        if(isFirstLogin == "true"){
+            this.toggle.isChecked = false;
+            this.tips.active = true;
+         }else{
+            this.toggle.isChecked = true;
+            this.tips.active = false;
+         }
+    }
+    initInstitutionCodeEditBox() {
+        let institutionCode = LocalStorageUtil.get(LocalStorageKeyEnum.INSTITUTION_CODE);
+        // 添加空值检查，如果为 null 则使用空字符串
+        if (!institutionCode) {
+            institutionCode = "";
+        }
+        this.institutionCode.getComponent(EditBox).string = institutionCode;
+        this.institutionCodeValue = institutionCode;
+    }
+    initPasswordEditBox() {
         let passwordEditBox = this.password.getComponent(EditBox);
         passwordEditBox.inputFlag = EditBox.InputFlag.PASSWORD; // 设置密码模式
         passwordEditBox.placeholder = "请输入密码";
-        
-        // 初始化密码眼睛图标为闭眼状态
-        this.initPasswordEye();
     }
-    
     // 初始化密码眼睛图标
     async initPasswordEye() {
         try {
@@ -55,8 +76,9 @@ export class OrganizationPanel extends Component {
             console.error("加载密码眼睛图标失败:", error);
         }
     }
+    //用户第一次登录
     onEnable() {
-        EventManager.getInstance().on(LoginManager.LoginByInstitutionResult, this.onLoginByInstitutionResult, this);
+        EventManager.getInstance().on(LoginManager.LoginByInstitutionResult, this.onLoginByInstitutionResult, this) ;
     }
     onDisable() {
         EventManager.getInstance().off(LoginManager.LoginByInstitutionResult, this);
@@ -75,24 +97,30 @@ export class OrganizationPanel extends Component {
         UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
         UIManager.getInstance().showPanel(TreatyView.NAME, {
             flag: "Privacy"
-        });
+        }); 
     }
+    private _hasHandledFirstLogin: boolean = false;
     private toggleClickHandler() {
-        this.tips.active = this.toggle.isChecked;
+        if (!this._hasHandledFirstLogin) {
+            let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+            if (isFirstLogin == "true") {
+                LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "false");
+                this._hasHandledFirstLogin = true;
+            }
+        }
+           this.tips.active = this.toggle.isChecked;   
     }
-    institutionCodeChange() {
-        this.institutionCodeValue = this.institutionCode.getComponent(EditBox).string;
+    institutionCodeChangeFinished() {
+        this.institutionCodeValue = this.institutionCode.getComponent(EditBox).string ;
         if (this.institutionCodeValue.length > 10) {
             this.institutionCodePrompt.active = true;
             this.promptAnimation(this.institutionCodePrompt);
             return;
         }
         this.institutionCodePrompt.active = false;
-        let institutionCode = this.institutionCode.getComponent(EditBox);
-        this.institutionCodeValue = institutionCode.string;
     }
 
-    userCodeChange() {
+    userCodeChangeFinished() {
         this.userCodeValue = this.userCode.getComponent(EditBox).string;
         if (this.userCodeValue.length < 4 || this.userCodeValue.length > 10) {
             this.userCodePrompt.active = true;
@@ -100,11 +128,10 @@ export class OrganizationPanel extends Component {
             return;
         }
         this.userCodePrompt.active = false;
-        let userCode = this.userCode.getComponent(EditBox);
-        this.userCodeValue = userCode.string;
+    
     }
     // 修改密码
-    passwordChange() {
+    passwordChangeFinished() {
         let passwordEditBox = this.password.getComponent(EditBox);
         this.passwordValue = passwordEditBox.string;
         

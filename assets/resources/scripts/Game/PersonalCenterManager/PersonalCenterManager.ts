@@ -36,7 +36,7 @@ export class PersonalCenterManager {
     //获取用户报告
     private user_get_report: string = "user.get_user_reports";
 
-    private _userInfoData: UserInfoData;
+    private _userInfoData: UserInfoData | undefined;
 
     //报告数据
     private _reportDataList= [];
@@ -44,7 +44,7 @@ export class PersonalCenterManager {
     constructor() {
     }
 
-    public get userInfoData(): UserInfoData {
+    public get userInfoData(): UserInfoData | undefined {
         return this._userInfoData;
     }
 

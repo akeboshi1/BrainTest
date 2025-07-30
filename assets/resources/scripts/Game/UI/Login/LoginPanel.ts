@@ -8,6 +8,7 @@ import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginMa
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 import { TreatyView } from '../../../TreatyV2/TreatyView';
+import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -86,6 +87,7 @@ export class LoginPanel extends BasePanel {
 
     private isTimeOver: boolean = false;
 
+    private _hasHandledFirstLogin: boolean = false;
 
     constructor() {
         super();
@@ -97,8 +99,18 @@ export class LoginPanel extends BasePanel {
             this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END, this.checkBoxHandler, this);
         }
         this.textChange();
-
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
+        this.initToggle();
+    }
+    initToggle(){
+        let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+        if(isFirstLogin == "true"){
+            this.toggle.isChecked = false;
+            this.tips.active = true;  
+         }else{
+            this.toggle.isChecked = true;
+            this.tips.active = false;
+         }
     }
 
     onEnable() {
@@ -248,6 +260,13 @@ export class LoginPanel extends BasePanel {
     }
 
     private toggleClickHandler() {
+        if (!this._hasHandledFirstLogin) {
+            let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+            if (isFirstLogin == "true") {
+                LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "false");
+                this._hasHandledFirstLogin = true;
+            }
+        }
         this.tips.active = this.toggle.isChecked;
     }
 
