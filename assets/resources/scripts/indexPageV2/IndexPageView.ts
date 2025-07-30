@@ -17,7 +17,7 @@ import { SceneManager } from '../Core/Manager/Scene/SceneManager';
 import { AlertData, AlertManager } from '../Core/Manager/Alert/AlertManager';
 import { Global } from '../Core/Manager/Config/Global';
 import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/BundlePreloadManager';
-import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptComponent";
 import { VipAlert } from '../Game/UI/Vip/VipAlert';
 import { GameType } from '../Core/Scene/SceneModel/BaseGameModel';
 
@@ -46,6 +46,15 @@ export class IndexPageView extends AdaptComponent {
     @property(Node)
     private trendEntery: Node = null;
 
+    @property(Node)
+    private vipIcon: Node = null;
+
+    @property(Node)
+    private vipBg: Node = null;
+
+    @property(Node)
+    private vipNoBg: Node = null;
+
     private taskConfig: TaskContainerConfig = new TaskContainerConfig();
 
     @property(Node)
@@ -55,7 +64,7 @@ export class IndexPageView extends AdaptComponent {
     start() {
         super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
-        UIManager.getInstance().registerPanel(VipAlert.NAME,BundleName.RESOURCES,"/prefab/VipPanel/VipAlert",VipAlert);
+        UIManager.getInstance().registerPanel(VipAlert.NAME, BundleName.RESOURCES, "/prefab/VipPanel/VipAlert", VipAlert);
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getPersonalInitialReport();
         const userData = PersonalCenterManager.getInstance().userInfoData;
@@ -89,33 +98,35 @@ export class IndexPageView extends AdaptComponent {
     }
     async getUserInfoCallBack() {
         const userData = PersonalCenterManager.getInstance().userInfoData;
-        if(!userData){ return; }
-        
-            if(userData.gender==1){
-                const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
-                this.userIcon.spriteFrame = spriteFrame;
-             }else{
-                const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/female/spriteFrame');
-                this.userIcon.spriteFrame = spriteFrame;
-             }
-             if(userData.full_name){
-                this.setUserName(userData.nickname);
-             }else{
-                this.setUserName("未设置昵称");
-             }
-          
-            this.setDayLabel(userData.trained_days);
-            if (!userData.has_initial_tier) {
-                this.initDataParent.active = true;
-                TaskManager.getInstance().start();
-                let initDataPanel = instantiate(this.initDataPrefab);
-                initDataPanel.parent = this.initDataParent;
-                initDataPanel.setPosition(0, 0);
-            } else {
-                this.trendEntery.active = true;
-                this.generateTask();
-            }
-        
+        if (!userData) { return; }
+
+        if (userData.gender == 1) {
+            const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/male/spriteFrame');
+            this.userIcon.spriteFrame = spriteFrame;
+        } else {
+            const spriteFrame = await this.loadTaskSprite('textureV2/indexPage/female/spriteFrame');
+            this.userIcon.spriteFrame = spriteFrame;
+        }
+        if (userData.full_name) {
+            this.setUserName(userData.nickname);
+        } else {
+            this.setUserName("未设置昵称");
+        }
+
+        this.setDayLabel(userData.trained_days);
+        if (!userData.has_initial_tier) {
+            this.initDataParent.active = true;
+            TaskManager.getInstance().start();
+            let initDataPanel = instantiate(this.initDataPrefab);
+            initDataPanel.parent = this.initDataParent;
+            initDataPanel.setPosition(0, 0);
+        } else {
+            this.trendEntery.active = true;
+            this.generateTask();
+        }
+
+        this.vipBg.active = userData.is_member;
+        this.vipNoBg.active = !userData.is_member;
 
         // 当会员时间还剩余1天，显示续费入口
         if (PersonalCenterManager.getInstance().userInfoData.getMemberRemainingDays() == 1) {
@@ -141,6 +152,9 @@ export class IndexPageView extends AdaptComponent {
                 resolve(spriteFrame);
             });
         })
+    }
+    buyHandler() {
+        UIManager.getInstance().showPanel(VipPanel.NAME);
     }
     setUserName(name) {
         if (name.length > 5) {
@@ -179,7 +193,7 @@ export class IndexPageView extends AdaptComponent {
         } else {
             const alertData: AlertData = new AlertData();
             alertData.title = "去解锁会员,畅玩更多功能";
-            alertData.cancelButtonVisible=true;
+            alertData.cancelButtonVisible = true;
             alertData.confirmCb = function () {
                 this.cofirmGoToVip();
             }.bind(this);
@@ -194,7 +208,7 @@ export class IndexPageView extends AdaptComponent {
         } else {
             const alertData: AlertData = new AlertData();
             alertData.title = "去解锁会员,畅玩更多功能";
-            alertData.cancelButtonVisible=true;
+            alertData.cancelButtonVisible = true;
             alertData.confirmCb = function () {
                 this.cofirmGoToVip();
             }.bind(this);
@@ -202,18 +216,18 @@ export class IndexPageView extends AdaptComponent {
         }
     }
     private _clickBoo = false;
-    goToFingerCame(){
+    goToFingerCame() {
         if (this._clickBoo) {
             return;
         }
         this._clickBoo = true;
         let url = Global.RES_Root + BundleName.FINGERGAME;
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.FINGERGAME), this, true);
-        BundlePreloadManager.getInstance().preload(BundleName.FINGERGAME); 
+        BundlePreloadManager.getInstance().preload(BundleName.FINGERGAME);
     }
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
-        SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.SKEWERS}).then((scene) => {
+        SceneManager.getInstance().changeScene(sceneName, "", { gametype: GameType.SKEWERS }).then((scene) => {
             self._clickBoo = false;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });

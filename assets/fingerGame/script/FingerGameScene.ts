@@ -276,7 +276,8 @@ export class FingerGameScene extends Component {
                     nextSectionName: nextSectionName,
                     nextSectionIconUrl: nextSectionIconUrl,
                     back: this.handleSummaryBack.bind(this),
-                    goNext: this.handleSummaryGoNext.bind(this)
+                    goNext: this.handleSummaryGoNext.bind(this),
+                    reStart: this.handleSummaryReStart.bind(this)
                 }
                 this._finishPanelData.data = panelData;
                 UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData);
@@ -413,7 +414,8 @@ export class FingerGameScene extends Component {
                 nextSectionName: null,
                 nextSectionIconUrl: null,
                 back: this.handleSummaryBack.bind(this),
-                goNext: this.handleSummaryGoNext.bind(this)
+                goNext: this.handleSummaryGoNext.bind(this),
+                reStart: this.handleSummaryReStart.bind(this)
             }
 
             this._finishPanelData.data = panelData;
@@ -496,7 +498,8 @@ export class FingerGameScene extends Component {
                     nextSectionName: nextSectionName,
                     nextSectionIconUrl: nextSectionIconUrl,
                     back: this.handleSummaryBack.bind(this),
-                    goNext: this.handleSummaryGoNext.bind(this)
+                    goNext: this.handleSummaryGoNext.bind(this),
+                    reStart: this.handleSummaryReStart.bind(this)
                 }
                 DebugLog.instance.log('panelData创建完成 =============');
                 DebugLog.instance.log(JSON.stringify(panelData));
@@ -580,6 +583,10 @@ export class FingerGameScene extends Component {
             this._model.addSectionIndex();
             this.restoreSceneData(this._currentSetIndex, this._currentSectionIndex);
         }
+    }
+
+    handleSummaryReStart() {
+        this.restoreSceneData(this._currentSetIndex, this._currentSectionIndex);
     }
 
     /**
@@ -677,7 +684,8 @@ export class FingerGameScene extends Component {
             nextSectionName: null,
             nextSectionIconUrl: null,
             back: this.handleSummaryBack.bind(this),
-            goNext: this.handleSummaryGoNext.bind(this)
+            goNext: this.handleSummaryGoNext.bind(this),
+            reStart: this.handleSummaryReStart.bind(this)
         }
 
         this._finishPanelData.data = panelData;

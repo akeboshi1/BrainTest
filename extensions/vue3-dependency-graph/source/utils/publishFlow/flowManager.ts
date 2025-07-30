@@ -343,12 +343,14 @@ export class FlowManager {
      * @param isMCI 是否MCI
      * @param environment 环境
      * @param appVersion 应用版本号
+     * @param isFullUpload 是否全量上传
      */
     async updatePublishSetting(
         publishType: string,
         isMCI?: boolean,
         environment?: string,
-        appVersion?: string
+        appVersion?: string,
+        isFullUpload?: boolean
     ): Promise<boolean> {
         try {
             const flow = this.getPublishSettingFlow() as PublishSettingFlow;
@@ -359,7 +361,8 @@ export class FlowManager {
                 publishType,
                 isMCI,
                 environment,
-                appVersion
+                appVersion,
+                isFullUpload
             };
             
             await flow.start(params);
@@ -445,8 +448,9 @@ export class FlowManager {
     /**
      * 启动发布Bundle到服务器流程
      * @param environment 环境设置
+     * @param isFullUpload 是否全量上传
      */
-    async startPublishBundleToServer(environment: string): Promise<boolean> {
+    async startPublishBundleToServer(environment: string, isFullUpload?: boolean): Promise<boolean> {
         try {
             const flow = this.getPublishBundleToServerFlow() as PublishBundleToServerFlow;
             
@@ -479,7 +483,8 @@ export class FlowManager {
                 projectPath: this.config.projectPath,
                 changeBundleList: this.lastChangedBundles,
                 environment: env,
-                sftpConfig: sftpConfig
+                sftpConfig: sftpConfig,
+                isFullUpload: isFullUpload
             };
             
             await flow.start(params);
@@ -519,6 +524,7 @@ export class FlowManager {
      * @param environment 环境
      * @param appVersion 应用版本号
      * @param debug 是否调试模式
+     * @param isFullUpload 是否全量上传
      */
     async executeFullPublishProcess(
         configType: string,
@@ -526,7 +532,8 @@ export class FlowManager {
         isMCI?: boolean,
         environment?: string,
         appVersion?: string,
-        debug: boolean = false
+        debug: boolean = false,
+        isFullUpload?: boolean
     ): Promise<boolean> {
         const startTime = Date.now();
         console.log(`[流程耗时] 开始执行完整发布流程: ${configType}`);
@@ -551,7 +558,8 @@ export class FlowManager {
                     configType,
                     isMCI,
                     environment,
-                    appVersion
+                    appVersion,
+                    isFullUpload
                 );
                 const step1End = Date.now();
                 console.log(`[流程耗时] 步骤1(修改发布设置) 耗时: ${step1End - step1Start}ms`);
@@ -606,7 +614,8 @@ export class FlowManager {
                 console.log('步骤5: 发布Bundle到服务器');
                 //const publishToServerSuccess = false;
                 const publishToServerSuccess = await this.startPublishBundleToServer(
-                    environment || 'DEVELOPMENT'
+                    environment || 'DEVELOPMENT',
+                    isFullUpload
                 );
                 const step5End = Date.now();
                 console.log(`[流程耗时] 步骤5(发布Bundle到服务器) 耗时: ${step5End - step5Start}ms`);
