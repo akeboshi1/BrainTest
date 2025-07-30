@@ -78,7 +78,6 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
     onEnable(): void {
         // this.tabClick(null, 0);
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this,true);
-        TaskManager.getInstance().start();
         TaskManager.getInstance().requestTaskList();
 
         // EventManager.getInstance().on(TaskManager.NotificationListRequestCallBack, this.notificationRequestCallBack, this);
