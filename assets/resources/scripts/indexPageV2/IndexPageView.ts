@@ -2,8 +2,6 @@ import { _decorator, Component, Node, Prefab, instantiate, Label, resources, Spr
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
-import { UserInfoData } from '../Game/PersonalCenterManager/UserInfoData';
-
 
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
@@ -53,16 +51,22 @@ export class IndexPageView extends AdaptComponent {
     @property(Node)
     vipNode: Node = null;
 
+  
     start() {
         super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         UIManager.getInstance().registerPanel(VipAlert.NAME,BundleName.RESOURCES,"/prefab/VipPanel/VipAlert",VipAlert);
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getPersonalInitialReport();
-        PersonalCenterManager.getInstance().requestUserInfo();
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        if(userData){
+            this.getUserInfoCallBack();
+        }else{
+            PersonalCenterManager.getInstance().requestUserInfo();
+        }
     }
     clickNavBar(event, data) {
-        const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
+        const userData = PersonalCenterManager.getInstance().userInfoData;
         if(!userData.has_initial_tier){
             return;
         }
@@ -84,7 +88,7 @@ export class IndexPageView extends AdaptComponent {
         this.radarMap.getComponent(RadiaGraph).setValues(values);
     }
     async getUserInfoCallBack() {
-        const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
+        const userData = PersonalCenterManager.getInstance().userInfoData;
         if(!userData){ return; }
         
             if(userData.gender==1){
