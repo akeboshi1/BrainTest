@@ -18,7 +18,6 @@ import {
     ProgressBar,
     Label
 } from 'cc';
-import { puzzleSummaryAlert } from './puzzleSummaryAlert';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -49,8 +48,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     quitBtn: Node;
 
 
-    @property(Node)
-    private progressBar: ProgressBar;
+    @property(ProgressBar)
+    progressBar: ProgressBar;
 
     @property(Label)
     guankaLabel: Label;
