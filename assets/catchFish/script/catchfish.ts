@@ -1261,6 +1261,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 保存错题
         this.saveWrongQuestions();
 
+        // 先展示所有的right effect动画
+        await this.showAllResultRightAndSettle();
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this._requestSkewersGameComplete();
         } else {
@@ -1268,7 +1271,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 this._requestGameCenterComplete();
             }
             this.customsSendDataState = true;
-            await this.showAllResultRightAndSettle();
         }
     }
 
@@ -1581,7 +1583,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
         await Promise.all(promises);
         // 所有动画完成后再展示结算界面
-        (this.sceneModel as any).showSuccessView();
+        if (this.sceneModel.gameType != GameType.SKEWERS) {
+            (this.sceneModel as any).showSuccessView();
+        }
     }
 }
 
