@@ -434,9 +434,12 @@ export class FingerGameScene extends Component {
 
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
             let task_id = this._model.getTaskId();
+            DebugLog.instance.log('taskid = '+ task_id +' =============');
+            
             let group_size = 4;
             let post_data = {
                 token: token,
+                task_id: task_id,
                 activity_id: this._model.activity.id,
                 group_size: group_size,
                 absolutePath: this._absolutePath,
@@ -482,10 +485,6 @@ export class FingerGameScene extends Component {
                 }
                 DebugLog.instance.log('postData创建完成 =============');
                 DebugLog.instance.log(JSON.stringify(postData));
-
-                DebugLog.instance.log('准备调用completeTaskActivity =============');
-                this._model.completeTaskActivity(postData);
-                DebugLog.instance.log('completeTaskActivity调用完成 =============');
 
                 DebugLog.instance.log('准备创建panelData =============');
                 let isLastSection = this._model.isLastSection;
