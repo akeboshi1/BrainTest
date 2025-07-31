@@ -183,6 +183,7 @@ export class LoginManager {
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
         const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
+        LocalStorageUtil.set(LocalStorageKeyEnum.INSTITUTION_CODE, data.data['org_code']);
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "1");
         EventManager.getInstance().emit(LoginManager.LoginByInstitutionResult);
 
@@ -224,6 +225,10 @@ export class LoginManager {
 
 
     start() {
+        if (!LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN)) {
+            LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "true");
+        }
+        
         if (this.tokenExpirationVerification()) {
             UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
         } else {
