@@ -1634,8 +1634,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 0.5,
-      "y": 0.6,
+      "x": 0.6,
+      "y": 0.7,
       "z": 1
     },
     "_mobility": 0,
@@ -1662,8 +1662,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1920,
-      "height": 1080
+      "width": 856,
+      "height": 556
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
