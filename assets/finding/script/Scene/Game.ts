@@ -2,7 +2,6 @@ import { _decorator, Component, director } from "cc";
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import PanelMgr, { Layer } from "../Common/manage/PanelMgr";
-import HomeView from "../Moudle/View/HomeView";
 import GameView from "../Moudle/View/GameView";
 import { GameType } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import FindingGlobal from "../Common/FindingGlobal";
@@ -24,15 +23,13 @@ export class Game extends BaseScene<IBaseGameChild> {
     // 添加GameView引用
     protected curView: BaseScene<IBaseGameChild> = null;
 
-    onLoad() {
-        Emit.instance().on(EventCode.PanelMgrInitOK, this.do_after_panelMgr_initOK, this)
-    }
 
     start() {
         super.start();
         Game.Ins = this;
         // 初始化FindingGlobal的事件监听器
         FindingGlobal.initEventListeners();
+        Emit.instance().on(EventCode.PanelMgrInitOK, this.do_after_panelMgr_initOK, this)
         Emit.instance().emit(EventCode.PanelMgrInitOK);
         // // 监听PanelMgr初始化完成事件
         // Emit.instance().on(EventCode.PanelMgrInitOK, () => {
@@ -61,8 +58,6 @@ export class Game extends BaseScene<IBaseGameChild> {
     do_after_panelMgr_initOK() {
         // 判断当前游戏是否是串烧游戏
         this.sceneModel = (director.getScene() as unknown as { sceneModel }).sceneModel;
-        AudioMgr.backMusic()
-
         AudioMgr.backMusic()
         let checkPoint = 0;
         if (this.sceneModel.gameType === GameType.SKEWERS) {
