@@ -33,11 +33,11 @@ export class Game extends BaseScene<IBaseGameChild> {
         Game.Ins = this;
         // 初始化FindingGlobal的事件监听器
         FindingGlobal.initEventListeners();
-
-        // 监听PanelMgr初始化完成事件
-        Emit.instance().on(EventCode.PanelMgrInitOK, () => {
-            this.do_after_panelMgr_initOK();
-        }, this);
+        Emit.instance().emit(EventCode.PanelMgrInitOK);
+        // // 监听PanelMgr初始化完成事件
+        // Emit.instance().on(EventCode.PanelMgrInitOK, () => {
+        //     this.do_after_panelMgr_initOK();
+        // }, this);
     }
 
     setGameViewRef(view: GameView) {

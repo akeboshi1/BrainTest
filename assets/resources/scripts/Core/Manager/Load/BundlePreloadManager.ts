@@ -64,7 +64,7 @@ export class BundlePreloadManager extends BaseManager {
     }
 
     private onSceneChanged(sceneName: string, lastSceneName: string) {
-        DebugLog.instance.log(`场景切换 ${sceneName}, ${lastSceneName}`);
+        DebugLog.instance.debug(`场景切换 ${sceneName}, ${lastSceneName}`);
         if (lastSceneName != sceneName && (lastSceneName != BundleName.RESOURCES && lastSceneName != BundleName.MAIN)) {
             this.release(lastSceneName as BundleName);
         }
@@ -99,7 +99,7 @@ export class BundlePreloadManager extends BaseManager {
                     const isRemoteConfigEnabled = PublishSettingConfig.getInstance().getIsRemoteBundle();
                     const bundleUrl = isRemoteConfigEnabled ?  BundleManager.getInstance().getBundleRemoteUrl(bundleName) : bundleName;
                     const options = isRemoteConfigEnabled ? { version : BundleManager.getInstance().getBundleMD5(bundleName) } : undefined;
-                    DebugLog.instance.log(`开始加载资源包 ${bundleUrl}, version: ${options?.version}`);
+                    DebugLog.instance.debug(`开始加载资源包 ${bundleUrl}, version: ${options?.version}`);
 
                     assetManager.loadBundle(bundleUrl, options, (err, bundle) => {
                         if (err) {
@@ -118,7 +118,7 @@ export class BundlePreloadManager extends BaseManager {
                 );
             }
             else {
-                DebugLog.instance.log(`资源包 ${bundleName} 已加载`);
+                DebugLog.instance.debug(`资源包 ${bundleName} 已加载`);
             }
 
         } catch (err) {
@@ -130,7 +130,7 @@ export class BundlePreloadManager extends BaseManager {
             return;
         }
 
-        DebugLog.instance.log(`加载资源包 ${bundleName} 完成！`);
+        DebugLog.instance.debug(`加载资源包 ${bundleName} 完成！`);
         EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
         let loadedAssets = 0;
         let totalAssets = 0;
@@ -145,7 +145,7 @@ export class BundlePreloadManager extends BaseManager {
                     loadedAssets = finished;
                     const progress = Math.round(loadedAssets / totalAssets * 100);
                     // 触发预加载进度事件，通知外部当前的加载进度
-                    DebugLog.instance.log(`加载场景中 ${progress}`);
+                    DebugLog.instance.debug(`加载场景中 ${progress}`);
                     EventManager.getInstance().emit(BundlePreloadEvent.PROGRESS, { bundleName, progress });
                 }, (err: Error | null) => {
                     if (err) {
@@ -199,7 +199,7 @@ export class BundlePreloadManager extends BaseManager {
                     loadedAssets++;
                     const progress = Math.round(loadedAssets / totalAssets * 100);
                     // 触发预加载进度事件，通知外部当前的加载进度
-                    DebugLog.instance.log(`加载资源中 ${progress}`);
+                    DebugLog.instance.debug(`加载资源中 ${progress}`);
                     EventManager.getInstance().emit(BundlePreloadEvent.PROGRESS, { bundleName, progress });
                 } catch (err) {
                     DebugLog.instance.error(`加载资源 ${assetPath} 出错: ${err}`);
@@ -212,7 +212,7 @@ export class BundlePreloadManager extends BaseManager {
             }
         }
 
-        DebugLog.instance.log(`全部预加载完成！`);
+        DebugLog.instance.debug(`全部预加载完成！`);
         if (this.loadedBundle.indexOf(bundleName) < 0) {
             this.loadedBundle.push(bundleName);
         }
@@ -229,7 +229,7 @@ export class BundlePreloadManager extends BaseManager {
             return;
         }
         
-        DebugLog.instance.log(`所有资源加载完成，开始倒计时动画`);
+        DebugLog.instance.debug(`所有资源加载完成，开始倒计时动画`);
         
         // 显示倒计时动画，等倒计时完成后再派发FINISH事件
         // 当切入的场景是fingerGame时，不显示倒计时，直接派发finish事件
@@ -306,7 +306,7 @@ export class BundlePreloadManager extends BaseManager {
             }
         }
 
-        DebugLog.instance.log(`开始加载场景资源: ${targetSceneName}`);
+        DebugLog.instance.debug(`开始加载场景资源: ${targetSceneName}`);
 
         try {
             // 更新LoadPanel显示场景资源加载进度
@@ -323,7 +323,7 @@ export class BundlePreloadManager extends BaseManager {
                         DebugLog.instance.error(`加载场景资源 ${targetSceneName} 失败: ${err}`);
                         reject(err);
                     } else {
-                        DebugLog.instance.log(`场景资源 ${targetSceneName} 加载完成`);
+                        DebugLog.instance.debug(`场景资源 ${targetSceneName} 加载完成`);
                         resolve();
                     }
                 });
@@ -407,7 +407,7 @@ export class BundlePreloadManager extends BaseManager {
             const currentScene = director.getScene();
             const currentSceneName = currentScene ? currentScene.name : '';
             
-            DebugLog.instance.log(`当前场景: ${currentSceneName}, 加载失败的资源包: ${bundleName}, 是否超时: ${isTimeoutError}`);
+            DebugLog.instance.debug(`当前场景: ${currentSceneName}, 加载失败的资源包: ${bundleName}, 是否超时: ${isTimeoutError}`);
             
             // 触发相应的错误事件，让外部处理弹窗显示
             if (isTimeoutError) {
