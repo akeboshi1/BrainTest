@@ -18,6 +18,14 @@ export class DebugLog {
 
     }
 
+    /**
+     * 调试日志
+     * @param data 日志内容
+     */
+    public debug(...data: any[]){
+        console.log(...data);
+    }
+
     public info(...data: any[]){
         console.info(...data);
     }
