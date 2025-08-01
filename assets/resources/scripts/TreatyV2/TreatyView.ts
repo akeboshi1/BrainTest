@@ -1,4 +1,4 @@
-import { _decorator, Node, RichText, ScrollView } from 'cc';
+import { _decorator, Label, Node, RichText, ScrollView } from 'cc';
 import { BasePanel } from '../Core/UI/BasePanel';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { PRIVACY_CONTENT, TREATY_CONTENT } from './TreatyDataConfig';
@@ -8,27 +8,25 @@ const { ccclass, property } = _decorator;
 export class TreatyView extends BasePanel {
     static NAME = 'TreatyView';
 
-    @property(RichText)
-    treatyRichText: RichText = null;
-
     @property(ScrollView)
     scrollView: ScrollView = null;
 
-    @property([RichText])
-    richTextsContent: RichText[] = [];
-
-    private contentChunks: string[] = [];
+    @property([Label])
+    textsContent: Label[] = [];
+   
     private currentChunkIndex: number = 0;
     private readonly CHUNK_SIZE: number = 600;
     private isLoading: boolean = false;
     private readonly LOADING_TEXT: string = '\n\n<color=#B6B6B6>文字正在加载中，请稍后...</color>';
 
     start() {
+    
     }
 
     onDestroy() {
         this.unscheduleAllCallbacks();
     }
+
     private sections: string[] = [];
     restore(data: any) {
         if (data.flag == "Privacy") {
@@ -42,7 +40,9 @@ export class TreatyView extends BasePanel {
                 PRIVACY_CONTENT.section6,
                 PRIVACY_CONTENT.section7,
                 PRIVACY_CONTENT.section8,
-                PRIVACY_CONTENT.section9
+                PRIVACY_CONTENT.section9,
+                PRIVACY_CONTENT.section10,
+                PRIVACY_CONTENT.section11,
             ];
         } else if (data.flag == "XieYi") {
             this.sections = [
@@ -55,26 +55,33 @@ export class TreatyView extends BasePanel {
                 TREATY_CONTENT.section6,
                 TREATY_CONTENT.section7,
                 TREATY_CONTENT.section8,
-                TREATY_CONTENT.section9
+                TREATY_CONTENT.section9,
+                TREATY_CONTENT.section10,
+                TREATY_CONTENT.section11,   
             ];
         }
         this.schedule(() => {
             this.loadNextChunk();
-        }, 0.5, 10);
-
+        }, 0.1, 12);
     }
 
     private loadNextChunk() {
-        if (this.currentChunkIndex > 9) {
+        if (this.currentChunkIndex > 11) {
             this.unscheduleAllCallbacks();
             return;
         }
-        this.richTextsContent[this.currentChunkIndex].string = this.sections[this.currentChunkIndex] || '';
+        
+        // Check if the textsContent array has enough elements
+        if (this.currentChunkIndex >= this.textsContent.length) {
+            this.unscheduleAllCallbacks();
+            return;
+        }
+        
+        const content = this.sections[this.currentChunkIndex] || '';   
+        if (this.textsContent[this.currentChunkIndex]) {
+            this.textsContent[this.currentChunkIndex].string = content;
+        }
         this.currentChunkIndex++;
-    }
-
-    private removeLoadingText(content: string = this.treatyRichText.string): string {
-        return content ? content.replace(this.LOADING_TEXT, '') : '';
     }
 
     backToParent() {
