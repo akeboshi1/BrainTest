@@ -333,6 +333,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._wangTween = null;
         }
 
+        // 清理所有渔网节点
+        this.clearAllWangNodes();
+
         // 停止所有动画
         Tween.stopAll();
         this._fishTweens.forEach(tween => {
@@ -1091,6 +1094,11 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private _guideIndex = -1;
     private _wangClick(data) {
+        // 如果游戏已经结束，不再处理渔网点击
+        if (this._gameEnded || this._clearBoo) {
+            return;
+        }
+
         this.hasWangClick = true;
         // 遍历wangs数组
         let index = Number(data);
@@ -1191,13 +1199,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         // self.hasWangClick = false;
                         // 移除wangPrefab
                         wang.removeChild(wangPrefab);
-                        if (self._clearBoo) return;
+                        if (self._clearBoo || self._gameEnded) return;
                         self.wangCount++;
                         self.showResultRightEffect(self.wangCount - 1);
                         // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
                             self.endCurHardGame();
                         }
+                        if (self._clearBoo || self._gameEnded) return;
+                        
                         if (self.hasGuide && self.fishs.length <= 1) {
                             if (this._wangTween) {
                                 this._wangTween.stop();
@@ -1222,14 +1232,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                 this.fishs = [];
                             }
                             self._curFish = null;
-                            if (!self._clearBoo) self.createFish();
+                            if (!self._clearBoo && !self._gameEnded) self.createFish();
                         } else {
                             // 设置当前鱼为选中状态
                             self._curFish.setSelect(self.unSelectColor, 1);
                             // 随机生成鱼
                             self.randomFish(self._curFish);
                             // 移动鱼
-                            if (!self._pause) self.moveFishes(self._curFish, SHOOT_INTERVAL);
+                            if (!self._pause && !self._gameEnded) self.moveFishes(self._curFish, SHOOT_INTERVAL);
 
                             self._curFish = null;
                         }
@@ -1253,6 +1263,25 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
+    // 清理所有渔网节点
+    private clearAllWangNodes() {
+        // 遍历所有wang节点，清理其中的渔网预制体
+        for (let i = 0; i < this.wangs.length; i++) {
+            const wang = this.wangs[i];
+            if (wang && wang.isValid) {
+                // 查找并移除所有渔网预制体子节点
+                const children = wang.children;
+                for (let j = children.length - 1; j >= 0; j--) {
+                    const child = children[j];
+                    // 检查是否是渔网预制体（通过检查是否有特定的组件或名称）
+                    if (child && child.isValid && child.name !== 'Label') {
+                        wang.removeChild(child);
+                    }
+                }
+            }
+        }
+    }
+
     private async endCurHardGame() {
         this._gameEnded = true; // 设置游戏结束标志
         this.pauseTime(); // 停止倒计时
@@ -1261,6 +1290,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 保存错题
         this.saveWrongQuestions();
 
+        // 先展示所有的right effect动画
+        await this.showAllResultRightAndSettle();
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this._requestSkewersGameComplete();
         } else {
@@ -1268,7 +1300,6 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 this._requestGameCenterComplete();
             }
             this.customsSendDataState = true;
-            await this.showAllResultRightAndSettle();
         }
     }
 
@@ -1581,7 +1612,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
         await Promise.all(promises);
         // 所有动画完成后再展示结算界面
-        (this.sceneModel as any).showSuccessView();
+        if (this.sceneModel.gameType != GameType.SKEWERS) {
+            (this.sceneModel as any).showSuccessView();
+        }
     }
 }
 

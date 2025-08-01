@@ -51,7 +51,7 @@ export class SceneManager extends BaseManager {
      * @param sceneName scene名字
      */
     async changeScene(sceneName: string, bundleName: string = "", restoreData?: any): Promise<Scene> {
-        DebugLog.instance.log(`${sceneName} 开始切换场景0`);
+        DebugLog.instance.debug(`${sceneName} 开始切换场景0`);
         this._restoreData = null;
         const preScene = director.getScene();
         EventManager.getInstance().disableContext(preScene);
@@ -60,7 +60,7 @@ export class SceneManager extends BaseManager {
             bundleName = bundleName == "" ? sceneName : bundleName;
             let sceneBundle = assetManager.getBundle(bundleName);
             if (!sceneBundle) {
-                DebugLog.instance.log(`${sceneName} 开始切换场景`);
+                DebugLog.instance.debug(`${sceneName} 开始切换场景`);
                 DebugLog.instance.warn(`${sceneName} 请使用perloadScene预加载场景`);
 
                 assetManager.loadBundle(bundleName, (err, bundle) => {
@@ -78,14 +78,14 @@ export class SceneManager extends BaseManager {
                         director.loadScene(sceneName, (err, scene) => {
                             // 如果加载失败，打印错误信息
                             if (err) {
-                                DebugLog.instance.log(`${sceneName} 切换场景失败`);
+                                DebugLog.instance.debug(`${sceneName} 切换场景失败`);
                                 DebugLog.instance.error(err);
                                 reject(err);
                                 return;
                             }
                             const lastSceneName = this._curSceneName;
                             this._curSceneName = sceneName;
-                            DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                            DebugLog.instance.debug(`${sceneName} 场景切换成功`);
                             this._restoreData = restoreData;
                             // 返回场景
                             resolve(scene);
@@ -94,17 +94,17 @@ export class SceneManager extends BaseManager {
                     });
                 });
             } else {
-                DebugLog.instance.log(`${sceneName} 开始切换场景2`);
+                DebugLog.instance.debug(`${sceneName} 开始切换场景2`);
                 // 已经加载过bundle的情况
                 director.loadScene(sceneName, (err, scene) => {
                     if (err) {
-                        DebugLog.instance.log(`${sceneName} 场景切换失败`);
+                        DebugLog.instance.debug(`${sceneName} 场景切换失败`);
                         DebugLog.instance.error(err);
                         return;
                     }
                     const lastSceneName = this._curSceneName;
                     this._curSceneName = sceneName;
-                    DebugLog.instance.log(`${sceneName} 场景切换成功`);
+                    DebugLog.instance.debug(`${sceneName} 场景切换成功`);
                     this._restoreData = restoreData;
                     resolve(scene);
                     this.emitSceneChangedEvent(sceneName, lastSceneName);

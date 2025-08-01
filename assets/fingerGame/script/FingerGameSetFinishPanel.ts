@@ -46,20 +46,31 @@ export class FingerGameSetFinishPanel extends BasePanel {
     @property(Label)
     private nextBtnLabel: Label = null;
 
-    @property(Node)
-    private nextBtnMaskNode: Node = null;
-
     @property(Button)
     private nextBtn: Button = null;
 
     @property(ProgressBar)
     private progressBar: ProgressBar = null;
 
+    //新增确认等待评分节点
+    @property(Node)
+    private confirmWaitScoreNode: Node = null;
+
+    @property(Label)
+    private confirmWaitScoreLabel: Label = null;
+
+    @property(Node)
+    private progressNode: Node = null;
+
+
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
 
     private _backHandler: () => void = null;
     private _nextHandler: () => void = null;
     private _reStartHandler: () => void = null;
+
+    private _showScoreFlag: boolean = false;
+    private _scoreDataCache: FingerGameResult = null;
 
     private _fakeProgressStages = [
         { text: "上传手指操视频中", percent: 0.10, duration: 2 }, // 0-2秒
@@ -78,12 +89,9 @@ export class FingerGameSetFinishPanel extends BasePanel {
 
     restore(data: DataProvider<IFingerGameSetFinishPanelData> | null) {
         this._finishPanelData = data;
-        this.nextSectionNode.active = false;
         this.setSummaryComponent.node.active = false;
         this.finishNode.active = false;
-        this.startWaittingAnim();
-        this.nextBtnMaskNode.active = true;
-        this.nextBtn.interactable = false;
+        this.startGoonTimer();
 
         if (data) {
             DebugLog.instance.log('Binding DataProvider FingerGameSetFinishPanel =============');
@@ -100,38 +108,39 @@ export class FingerGameSetFinishPanel extends BasePanel {
         if (data.showResult) {
             this.waittingNode.active = false;
             this.stopFakeProgressAnim();
-            this.setTouchableDelay();
             if (data.result) {
-                this.setSummaryComponent.restoreComponent(data.result);
-                this.setSummaryComponent.node.active = true;
-                this.finishNode.active = false;
+                this._scoreDataCache = data.result;
+                if (this._showScoreFlag) {
+                    this.setSummaryComponent.restoreComponent(this._scoreDataCache);
+                    this.setSummaryComponent.node.active = true;
+                    this.finishNode.active = false;
+                }
             } else {
                 this.setSummaryComponent.node.active = false;
                 this.finishNode.active = true;
             }
-
-            if (data.nextSectionName) {
-                this.nextSectionNode.active = true;
-                this.nextSectionName.string = "下一节：" + data.nextSectionName;
-                if (data.nextSectionIconUrl) {
-                    let bundle = assetManager.getBundle(BundleName.FINGERGAME);
-                    bundle.load(data.nextSectionIconUrl, SpriteFrame, (err, spriteFrame) => {
-                        if (err) {
-                            console.error('加载图标失败', err);
-                        } else {
-                            this.nextSectionIcon.spriteFrame = spriteFrame as SpriteFrame;
-                        }
-                    });
-                }
-                this.startGoonTimer();
-
-                this.setSummaryComponent.setClickShowScoreHandler(this.onShowScoreHandler.bind(this));
-            } else {
-                this.nextSectionNode.active = false;
-                this.nextBtnLabel.string = "继续";
-            }
         }
-        
+
+        if (data.nextSectionName) {
+            this.nextSectionNode.active = true;
+            this.nextSectionName.string = "下一节：" + data.nextSectionName;
+            if (data.nextSectionIconUrl) {
+                let bundle = assetManager.getBundle(BundleName.FINGERGAME);
+                bundle.load(data.nextSectionIconUrl, SpriteFrame, (err, spriteFrame) => {
+                    if (err) {
+                        console.error('加载图标失败', err);
+                    } else {
+                        this.nextSectionIcon.spriteFrame = spriteFrame as SpriteFrame;
+                    }
+                });
+            }
+
+            this.setSummaryComponent.setClickShowScoreHandler(this.onShowScoreHandler.bind(this));
+        } else {
+            this.nextSectionNode.active = false;
+            this.nextBtnLabel.string = "继续";
+        }
+
         if (data.back) {
             this._backHandler = data.back;
         }
@@ -145,20 +154,12 @@ export class FingerGameSetFinishPanel extends BasePanel {
         }
     }
 
-    private setTouchableDelay() {
-        this.scheduleOnce(() => {
-            this.nextBtnMaskNode.active = false;
-            this.nextBtn.interactable = true;
-        }, 0.5);
-    }
-
     private onShowScoreHandler() {
         this.unscheduleAllCallbacks();
         this.nextBtnLabel.string = "下一节";
     }
 
     private startWaittingAnim() {
-        this.waittingNode.active = true;
         this._fakeProgressIndex = 0;
         this.progressBar.progress = 0;
         this.unscheduleAllCallbacks();
@@ -216,12 +217,12 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
     private startGoonTimer() {
-        let count = 15;
-        this.nextBtnLabel.string = `下一节(${count})`;
+        let count = 6;
+        this.confirmWaitScoreLabel.string = `（${count}）秒后自动进入下一节\n如果你想查看评分，请点击按钮`;
 
         this.schedule(() => {
             count--;
-            this.nextBtnLabel.string = `下一节(${count})`;
+            this.confirmWaitScoreLabel.string = `（${count}）秒后自动进入下一节\n如果你想查看评分，请点击按钮`;
             if (count <= 0) {
                 this.onClickNext();
             }
@@ -270,6 +271,21 @@ export class FingerGameSetFinishPanel extends BasePanel {
         if (this._reStartHandler) {
             this._reStartHandler();
         }
+    }
+
+    public onClickConfirmWaitScore() {
+        if (this._scoreDataCache) {
+            this.setSummaryComponent.restoreComponent(this._scoreDataCache);
+            this.setSummaryComponent.node.active = true;
+            this.finishNode.active = false;
+            return;
+        }
+
+        this.confirmWaitScoreNode.active = false;
+        this.progressNode.active = true;
+        this.unscheduleAllCallbacks();
+        this.startWaittingAnim();
+        this._showScoreFlag = true;
     }
 
     onDestroy() {

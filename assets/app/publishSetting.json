@@ -6,6 +6,6 @@
   "pro_api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
   "environment": "DEVELOPMENT",
   "isMCI": false,
-  "isRemoteBundle": true,
-  "isFullUpload": false
+  "isRemoteBundle": false,
+  "isFullUpload": true
 }
