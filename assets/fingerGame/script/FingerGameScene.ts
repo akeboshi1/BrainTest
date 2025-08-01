@@ -408,11 +408,15 @@ export class FingerGameScene extends Component {
             DebugLog.instance.log(this._absolutePath);
             this.hideAllNativeNode();
 
+            let isLastSection = this._model.isLastSection;
+            let nextSectionName = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].name;
+            let nextSectionIconUrl = isLastSection ? null : fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].icon;
+
             let panelData: IFingerGameSetFinishPanelData = {
                 showResult: false,
                 result: null,
-                nextSectionName: null,
-                nextSectionIconUrl: null,
+                nextSectionName: nextSectionName,
+                nextSectionIconUrl: nextSectionIconUrl,
                 back: this.handleSummaryBack.bind(this),
                 goNext: this.handleSummaryGoNext.bind(this),
                 reStart: this.handleSummaryReStart.bind(this)
@@ -434,8 +438,8 @@ export class FingerGameScene extends Component {
 
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
             let task_id = this._model.getTaskId();
-            DebugLog.instance.log('taskid = '+ task_id +' =============');
-            
+            DebugLog.instance.log('taskid = ' + task_id + ' =============');
+
             let group_size = 4;
             let post_data = {
                 token: token,
@@ -575,7 +579,7 @@ export class FingerGameScene extends Component {
                 }
             }
             this._completePanelData.data = panelData;
-            
+
             UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, this._completePanelData);
         } else {
             this._currentSectionIndex++;
