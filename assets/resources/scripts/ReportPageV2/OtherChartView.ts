@@ -89,8 +89,9 @@ export class OtherChartView extends Component {
 
         // 绘制数据点和圆点 - 跳过null值的点
         for (let i = 0; i < this.scoreData.length; i++) {
-            // 如果当前点为null，则跳过绘制
+            // 如果当前点为null，则在dataPoints数组中插入null，保持索引一致
             if (this.scoreData[i] === null) {
+                this.dataPoints.push(null);
                 continue;
             }
             
@@ -193,6 +194,12 @@ export class OtherChartView extends Component {
     onPointClick(index: number) {
         // 检查当前圆点是否已经有标签
         const pointNode = this.dataPoints[index];
+        
+        // 如果pointNode不存在（对应null值的数据点），直接返回
+        if (!pointNode) {
+            return;
+        }
+        
         const existingLabel = pointNode.children.find(child => child.getComponent(Label));
         
         if (existingLabel) {
