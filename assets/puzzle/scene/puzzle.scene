@@ -5140,7 +5140,7 @@
       "__id__": 23
     },
     "progressBar": {
-      "__id__": 28
+      "__id__": 36
     },
     "guankaLabel": {
       "__id__": 39
@@ -5253,7 +5253,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 1310.5188679245282,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
