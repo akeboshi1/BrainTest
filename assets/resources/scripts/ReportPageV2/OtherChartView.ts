@@ -67,8 +67,13 @@ export class OtherChartView extends Component {
         let centerX = this.width / 2;
         let centerY = this.height / 2;
 
-        // 绘制折线图
+        // 绘制折线图 - 跳过null值的连线
         for (let i = 0; i < this.scoreData.length - 1; i++) {
+            // 如果当前点或下一个点为null，则跳过连线
+            if (this.scoreData[i] === null || this.scoreData[i + 1] === null) {
+                continue;
+            }
+            
             const x1 = i * this.width / (this.scoreData.length - 1) - centerX;
             const x2 = (i + 1) * this.width / (this.scoreData.length - 1) - centerX;
             const y1 = this.scoreData[i] * _h - centerY;
@@ -82,8 +87,13 @@ export class OtherChartView extends Component {
         // 绘制网格线
         this.drawGridLine(g);
 
-        // 绘制数据点和圆点
+        // 绘制数据点和圆点 - 跳过null值的点
         for (let i = 0; i < this.scoreData.length; i++) {
+            // 如果当前点为null，则跳过绘制
+            if (this.scoreData[i] === null) {
+                continue;
+            }
+            
             const x = i * this.width / (this.scoreData.length - 1) - centerX;
             const y = this.scoreData[i] * _h - centerY;
             
@@ -190,7 +200,10 @@ export class OtherChartView extends Component {
             existingLabel.destroy();
         } else {
             // 如果没有标签，则添加标签
-            this.drawLabel(0, 20, `${this.scoreData[index]}`, new Color(148, 149, 153), pointNode);
+            // 确保数据不为null
+            if (this.scoreData[index] !== null) {
+                this.drawLabel(0, 20, `${this.scoreData[index]}`, new Color(148, 149, 153), pointNode);
+            }
         }
     }
 

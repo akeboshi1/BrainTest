@@ -380,7 +380,7 @@ export class VipPanel extends BasePanel {
             this.label2.node.active = true;
             this.timeNode.active = true;
             const userData: UserInfoData = PersonalCenterManager.getInstance().userInfoData;
-            this.createWaveTextAnimation(`您的会员有效期:${vipOrder.validDays}天`, this.label0);
+            this.createWaveTextAnimation(`你购买的会员天数:${vipOrder.validDays}天`, this.label0);
             this.label1.string = `${vipOrder.validStartDate} 至 ${vipOrder.validEndDate}`;
             this.timeLabel.string = `您的会员剩余:${vipOrder.validLostDays}天`;
             if(!userData.has_initial_tier){
