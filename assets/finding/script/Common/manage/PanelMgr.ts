@@ -33,7 +33,7 @@ export default class PanelMgr extends Component {
     }
 
     start(){
-        Emit.instance().emit(EventCode.PanelMgrInitOK);
+
     }
 
 
