@@ -12,14 +12,24 @@ import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/Bundle
 const {ccclass, property} = _decorator;
 @ccclass
 export default class PanelMgr extends Component {
-    public static INS: PanelMgr
-    @property(
-        {
-            type: [Node],
-            tooltip: "只要将Game中的场景layer按照顺序赋值即可， 如果存在修改，需要到PannerMgr.ts中修改枚举变量 Layer,也是需要按照绑定顺序"
+    private static _INS: PanelMgr;
+
+    public static get INS(): PanelMgr{
+        if(PanelMgr._INS == null){
+            PanelMgr._INS = new PanelMgr();
         }
-    )
-    public layers: Node[] = []
+        return PanelMgr._INS;
+    }
+
+    // @property(
+    //     {
+    //         type: [Node],
+    //         tooltip: "只要将Game中的场景layer按照顺序赋值即可， 如果存在修改，需要到PannerMgr.ts中修改枚举变量 Layer,也是需要按照绑定顺序"
+    //     }
+    // )
+    // public layers: Node[] = []
+
+    public layers:Node[] = [];
 
     //当前正在Loading 的面板
     private LoadingList: Map<string, number> = new Map<string, number>()
@@ -28,9 +38,14 @@ export default class PanelMgr extends Component {
     //当前关闭但是未摧毁的面板，存储在这里，下次打开该面板的时候，就会使用这里的面板
     private hideList: Map<string, Node> = new Map<string, Node>()
 
-    onLoad() {
-        PanelMgr.INS = this;
+    public clear(){
+        this.LoadingList.clear();
+        this.openList.clear();
+        this.hideList.clear();
     }
+    // onLoad() {
+    //     PanelMgr.INS = this;
+    // }
 
     start(){
 

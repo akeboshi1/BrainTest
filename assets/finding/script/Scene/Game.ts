@@ -1,4 +1,4 @@
-import { _decorator, Component, director } from "cc";
+import { _decorator, Node, director } from "cc";
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import PanelMgr, { Layer } from "../Common/manage/PanelMgr";
@@ -24,9 +24,19 @@ export class Game extends BaseScene<IBaseGameChild> {
     protected curView: BaseScene<IBaseGameChild> = null;
 
 
+    @property(
+        {
+            type: [Node]
+        }
+    )
+    public layers: Node[] = []
+
+
     start() {
         super.start();
         Game.Ins = this;
+        PanelMgr.INS.layers = this.layers;
+        PanelMgr.INS.clear();
         // 初始化FindingGlobal的事件监听器
         FindingGlobal.initEventListeners();
         Emit.instance().on(EventCode.PanelMgrInitOK, this.do_after_panelMgr_initOK, this)
