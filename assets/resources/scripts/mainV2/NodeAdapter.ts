@@ -10,10 +10,10 @@ const { ccclass, property } = _decorator;
 export class NodeAdapter extends Component {
     
     /** 设计分辨率宽度 */
-    private static readonly DESIGN_WIDTH: number = 1920;
+    private static readonly DESIGN_WIDTH: number = 1080;
     
     /** 设计分辨率高度 */
-    private static readonly DESIGN_HEIGHT: number = 1080;
+    private static readonly DESIGN_HEIGHT: number = 1920;
     
     /** 设计分辨率高宽比 */
     private static readonly DESIGN_ASPECT_RATIO: number = NodeAdapter.DESIGN_HEIGHT / NodeAdapter.DESIGN_WIDTH;
@@ -44,14 +44,13 @@ export class NodeAdapter extends Component {
         const originalWidth = nodeSize.contentSize.width;
         const originalHeight = nodeSize.contentSize.height;
         
-        let targetWidth: number;
-        let targetHeight: number;
+        let targetWidth: number = originalWidth;
+        let targetHeight: number = originalHeight;
         
+        // 计算缩放比例，使宽度适配屏幕宽度
+        const scaleX = screenWidth / originalWidth;
         if (screenAspectRatio > NodeAdapter.DESIGN_ASPECT_RATIO) {
             // 屏幕高宽比更大（更窄），需要缩小节点
-            // 计算缩放比例，使宽度适配屏幕宽度
-            const scaleX = screenWidth / originalWidth;
-            
             // 应用缩放
             const currentScale = this.node.getScale();
             this.node.setScale(new Vec3(scaleX, scaleX, currentScale.z));
@@ -59,14 +58,6 @@ export class NodeAdapter extends Component {
             // 调整高度以适配屏幕高度
             targetWidth = originalWidth;
             targetHeight = originalHeight / scaleX;
-        } else {
-            // 屏幕高宽比更小（更宽），只需要调整宽度到屏幕宽度
-            const scaleX = screenWidth / originalWidth;
-            const currentScale = this.node.getScale();
-            this.node.setScale(new Vec3(scaleX, scaleX, currentScale.z));
-            
-            targetWidth = originalWidth * scaleX;
-            targetHeight = originalHeight * scaleX;
         }
         
         // 更新节点尺寸
