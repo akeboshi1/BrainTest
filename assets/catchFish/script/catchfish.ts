@@ -276,22 +276,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
      */
     quitGame() {
         // console.log("返回大厅")
-        this._pause = true;
-        // this.pauseTime();
         this.setGamePause(true);
-        this.fishs.forEach(fish => {
-            fish.curTween.stop();
-            fish.curTween = null;
-        });
         super.quitGame({ parentNode: this.mainView, context: this });
     }
 
     resumeCallBack(context) {
         context.setGamePause(false);
-        context.fishs.forEach(fish => {
-            context.moveFishes(fish);
-        });
-        context._pause = false;
         super.resumeCallBack(context);
     }
 
@@ -559,12 +549,29 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     // 暂停/恢复控制
     setGamePause(isPaused: boolean) {
         this._isPaused = isPaused;
+        this._pause = isPaused; // 保持向后兼容
+        
         if (isPaused) {
+            // 暂停背景鱼群动画
             this._fishTweens.forEach(tween => tween.stop());
+            // 暂停所有鱼的移动，移除tween
+            this.fishs.forEach(fish => {
+                if (fish.curTween) {
+                    fish.curTween.stop();
+                    fish.curTween = null;
+                }
+            });
         } else {
+            // 恢复背景鱼群动画
             this._fishTweens.forEach(tween => tween.start());
+            // 恢复所有鱼的移动，重新创建tween
+            this.fishs.forEach(fish => {
+                if (!fish.pause && !this._gameEnded) {
+                    // 重新创建鱼的移动tween
+                    this.moveFishes(fish, 0);
+                }
+            });
         }
-
     }
 
 
@@ -688,7 +695,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     //         this._offsetX1 = uitransform.width / 1080 * 800;
     //     } else {
     //         this._offsetX1 = 800;
-            
+
     //     }
     //     return this._offsetX1;
     // }
@@ -697,6 +704,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _offsetX1: number = 770;
     moveFishes(fish: Fish, delay: number = 0) {
         if (this._gameEnded) return; // 游戏结束不再移动鱼
+        if (this._isPaused) return; // 游戏暂停时不创建新的tween
         if (fish.curTween) {
             fish.curTween.stop();
             fish.curTween = null;
@@ -704,12 +712,20 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         let self = this;
         const upDistance = 8; // 上下浮动的距离+
-        const duration = (15 * (1200 - Math.abs(800 - fish.position.x))) / 1200; // 每次往返的时间(根据鱼的当前点x坐标动态计算时间)
-        DebugLog.instance.log("pause duration:" + duration);
+        
+        // 使用固定速度计算duration，确保鱼的速度一致
+        const baseSpeed = 50; // 基础速度（像素/秒）- 调整为更慢的速度
+        
+        // 计算鱼需要移动的总距离，确保速度一致
+        let targetX = -600; // 目标位置
+        let distance = Math.abs(fish.position.x - targetX);
+        const duration = distance / baseSpeed;
+        
+        DebugLog.instance.log("fish position:" + fish.position.x + ", target:" + targetX + ", distance:" + distance + ", duration:" + duration);
+        
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave
-        let pause = false;
         // 使用 tween 创建运动效果
         if (this.sceneModel.hasGuide) {
             if (!this.hasGuide) {
@@ -720,6 +736,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .to(duration, { position: new Vec3(-600, fish.position.y, fish.position.z) },
                         {
                             onUpdate: () => {
+                                if (self._isPaused) return; // 暂停时不更新位置
                                 if (fish.pause) {
                                     fish.curTween.stop();
                                     return;
@@ -753,6 +770,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         }
                     )
                     .call(() => {
+                        if (self._isPaused) return; // 暂停时不执行回调
                         fish.pause = false;
                         if (this.sceneModel.gameType != GameType.SKEWERS) {
                             if ((self.sceneModel as any).settleMentPanelShow) {
@@ -770,14 +788,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .start(); // 启动动画
             } else {
                 // 串烧正常流程
-                if (this._pause && fish.position.x < this._leftSceneX + this._offsetX) {
-                    fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, this.fishYs[fish.positionYIndex], fish.position.z) },
+                if (fish.position.x < this._leftSceneX + this._offsetX) {
+                    // 计算这个分支的duration
+                    let branchTargetX = -600;
+                    let branchDistance = Math.abs(fish.position.x - branchTargetX);
+                    let branchDuration = branchDistance / baseSpeed;
+                    fish.curTween = tween(fish).to(branchDuration, { position: new Vec3(branchTargetX, this.fishYs[fish.positionYIndex], fish.position.z) },
                         {
                             onUpdate: () => {
-                                if (self._pause) {
-                                    DebugLog.instance.log("pause update")
-                                    return;
-                                }
+                                if (self._isPaused) return; // 暂停时不更新位置
                                 if (fish.pause) {
                                     fish.curTween.stop();
                                     return;
@@ -815,7 +834,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         }
                     )
                         .call(() => {
-                            self._pause = false;
+                            if (self._isPaused) return; // 暂停时不执行回调
                             fish.pause = false;
                             if (this.sceneModel.gameType != GameType.SKEWERS) {
                                 if ((self.sceneModel as any).settleMentPanelShow) {
@@ -838,9 +857,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         .to(0.5, { position: new Vec3(self._leftSceneX + this._offsetX, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                         .call(() => {
                             self.hasWangClick = false;
-                            fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - this._offsetX1, fish.position.y, fish.position.z) },
+                            // 计算第二阶段移动的duration
+                            let secondTargetX = fish.position.x - this._offsetX1;
+                            let secondDistance = Math.abs(fish.position.x - secondTargetX);
+                            let secondDuration = secondDistance / baseSpeed;
+                            fish.curTween = tween(fish).to(secondDuration, { position: new Vec3(secondTargetX, fish.position.y, fish.position.z) },
                                 {
                                     onUpdate: () => {
+                                        if (self._isPaused) return; // 暂停时不更新位置
                                         if (fish.pause) {
                                             fish.curTween.stop();
                                             return;
@@ -872,6 +896,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                 }
                             )
                                 .call(() => {
+                                    if (self._isPaused) return; // 暂停时不执行回调
                                     fish.pause = false;
                                     if (this.sceneModel.gameType != GameType.SKEWERS) {
                                         if ((self.sceneModel as any).settleMentPanelShow) {
@@ -893,14 +918,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             }
         }
         else {
-            if (this._pause && fish.position.x < this._leftSceneX + this._offsetX) {
-                fish.curTween = tween(fish).to(duration, { position: new Vec3(-600, this.fishYs[fish.positionYIndex], fish.position.z) },
+            if (fish.position.x < this._leftSceneX + this._offsetX) {
+                // 计算这个分支的duration
+                let branchTargetX = -600;
+                let branchDistance = Math.abs(fish.position.x - branchTargetX);
+                let branchDuration = branchDistance / baseSpeed;
+                fish.curTween = tween(fish).to(branchDuration, { position: new Vec3(branchTargetX, this.fishYs[fish.positionYIndex], fish.position.z) },
                     {
                         onUpdate: () => {
-                            if (self._pause) {
-                                DebugLog.instance.log("pause update")
-                                return;
-                            }
+                            if (self._isPaused) return; // 暂停时不更新位置
                             if (fish.pause) {
                                 fish.curTween.stop();
                                 return;
@@ -934,7 +960,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     }
                 )
                     .call(() => {
-                        self._pause = false;
+                        if (self._isPaused) return; // 暂停时不执行回调
                         fish.pause = false;
                         if (this.sceneModel.gameType != GameType.SKEWERS) {
                             if ((self.sceneModel as any).settleMentPanelShow) {
@@ -957,9 +983,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                     .to(0.2, { position: new Vec3(self._leftSceneX + this._offsetX, fish.position.y, fish.position.z) }, { easing: 'cubicIn' })
                     .call(() => {
                         self.hasWangClick = false;
-                        fish.curTween = tween(fish).to(duration, { position: new Vec3(fish.position.x - this._offsetX1, fish.position.y, fish.position.z) },
+                        // 计算第二阶段移动的duration
+                        let secondTargetX = fish.position.x - this._offsetX1;
+                        let secondDistance = Math.abs(fish.position.x - secondTargetX);
+                        let secondDuration = secondDistance / baseSpeed;
+                        fish.curTween = tween(fish).to(secondDuration, { position: new Vec3(secondTargetX, fish.position.y, fish.position.z) },
                             {
                                 onUpdate: () => {
+                                    if (self._isPaused) return; // 暂停时不更新位置
                                     if (fish.pause) {
                                         fish.curTween.stop();
                                         return;
@@ -991,6 +1022,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                             }
                         )
                             .call(() => {
+                                if (self._isPaused) return; // 暂停时不执行回调
                                 fish.pause = false;
                                 if (this.sceneModel.gameType != GameType.SKEWERS) {
                                     if ((self.sceneModel as any).settleMentPanelShow) {
@@ -1057,7 +1089,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.customsSendDataState = true;
         this._gameEnded = false; // 重置游戏结束标志
         this._clearBoo = false;
-        this._pause = false; // 重置暂停状态
+        this._isPaused = false; // 重置暂停状态
+        this._pause = false; // 保持向后兼容
         this.hasGuide = false; // 重置引导状态
         this.isGuide = false; // 重置引导状态
         this.hasWangClick = false; // 重置网点击状态
@@ -1207,7 +1240,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                             self.endCurHardGame();
                         }
                         if (self._clearBoo || self._gameEnded) return;
-                        
+
                         if (self.hasGuide && self.fishs.length <= 1) {
                             if (this._wangTween) {
                                 this._wangTween.stop();
@@ -1290,15 +1323,36 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 保存错题
         this.saveWrongQuestions();
 
-        // 先展示所有的right effect动画
-        await this.showAllResultRightAndSettle();
-
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-            this._requestSkewersGameComplete();
+            // 为串烧游戏添加保险机制
+            try {
+                // 设置超时保险，防止await一直卡住
+                const timeoutPromise = new Promise<void>((resolve) => {
+                    setTimeout(() => {
+                        console.warn("endCurHardGame 串烧游戏超时，强制完成");
+                        resolve();
+                    }, 4000); // 4秒超时
+                });
+
+                // 先展示所有的right effect动画
+                const animationPromise = this.showAllResultRightAndSettle();
+                
+                // 使用Promise.race确保不会一直等待
+                await Promise.race([animationPromise, timeoutPromise]);
+                
+                // 确保请求发送
+                this._requestSkewersGameComplete();
+            } catch (error) {
+                console.error("endCurHardGame 串烧游戏发生错误:", error);
+                // 即使出错也要发送请求
+                this._requestSkewersGameComplete();
+            }
         } else {
             if (!this.customsSendDataState) {
                 this._requestGameCenterComplete();
             }
+            // 先展示所有的right effect动画
+            await this.showAllResultRightAndSettle();
             this.customsSendDataState = true;
         }
     }
@@ -1588,6 +1642,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 resolve();
                 return;
             }
+            
+            // 设置单个动画的超时保险
+            const timeout = setTimeout(() => {
+                console.warn(`showResultRightEffect index ${index} 超时，强制完成`);
+                resolve();
+            }, 1000); // 1秒超时
+            
             let resultNode = this.resultNode.children[index];
             let rightNode = resultNode.getChildByName("right");
             if (rightNode) {
@@ -1597,24 +1658,50 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 tween(rightNode)
                     .to(0.2, { scale: new Vec3(1.2, 1.2, 1), opacity: 255 })
                     .to(0.1, { scale: new Vec3(1, 1, 1) })
-                    .call(() => resolve())
+                    .call(() => {
+                        clearTimeout(timeout);
+                        resolve();
+                    })
                     .start();
             } else {
+                clearTimeout(timeout);
                 resolve();
             }
         });
     }
 
-    public async showAllResultRightAndSettle() {
-        const promises = [];
-        for (let i = 0; i < this.wangCount; i++) {
-            promises.push(this.showResultRightEffect(i));
-        }
-        await Promise.all(promises);
-        // 所有动画完成后再展示结算界面
-        if (this.sceneModel.gameType != GameType.SKEWERS) {
-            (this.sceneModel as any).showSuccessView();
-        }
+    public async showAllResultRightAndSettle(): Promise<void> {
+        return new Promise((resolve) => {
+            // 设置超时保险，防止动画卡住
+            const timeout = setTimeout(() => {
+                console.warn("showAllResultRightAndSettle 超时，强制完成");
+                resolve();
+            }, 2500); // 2.5秒超时
+
+            const promises = [];
+            for (let i = 0; i < this.wangCount; i++) {
+                promises.push(this.showResultRightEffect(i));
+            }
+            
+            Promise.all(promises)
+                .then(() => {
+                    clearTimeout(timeout);
+                    // 所有动画完成后再展示结算界面
+                    if (this.sceneModel.gameType != GameType.SKEWERS) {
+                        (this.sceneModel as any).showSuccessView();
+                    }
+                    resolve();
+                })
+                .catch((error) => {
+                    clearTimeout(timeout);
+                    console.error("showAllResultRightAndSettle 发生错误:", error);
+                    // 即使出错也要继续执行
+                    if (this.sceneModel.gameType != GameType.SKEWERS) {
+                        (this.sceneModel as any).showSuccessView();
+                    }
+                    resolve();
+                });
+        });
     }
 }
 

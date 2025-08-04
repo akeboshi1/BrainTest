@@ -369,6 +369,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     quitGame() {
         this.resetDragState();
 
+        // 暂停背景音乐
+        this.pauseBgmAudio();
+
         super.quitGame({ parentNode: this.viewNode, context: this });
         if (this._timeID) {
             clearTimeout(this._timeID);
@@ -407,11 +410,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         this.timerComponent.pauseTimer();
         
+        // 暂停背景音乐
+        this.pauseBgmAudio();
+        
         // 隐藏底图（拼图块）
         this.chipParentNode.active = false;
         
         this.showSpriteNode.active = true;
-
+        this.playAudio("music/win", true);
         // 设置缩放动画（循环2次后完成）
         let _tween = tween(this.showSpriteNode)
             .to(2, { scale: new Vec3(1.1, 1.1, 1.1) }, { easing: 'cubicOut' })
@@ -426,7 +432,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 // 显示底图（拼图块）
                 this.chipParentNode.active = true;
                 
-                this.playAudio("music/win", true);
+               
                 // 处理游戏结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
                     this.requestGameResult();
@@ -723,11 +729,19 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onTimerEnd() {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
+        
+        // 暂停背景音乐
+        this.pauseBgmAudio();
+        
         this.processGameFail();
     }
 
     processGameFail() {
         DebugLog.instance.log("失败");
+        
+        // 暂停背景音乐
+        this.pauseBgmAudio();
+        
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult();
