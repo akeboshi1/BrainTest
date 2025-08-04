@@ -3,13 +3,12 @@ import { TopNavBarController } from './TopNavBarController';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { ReportManager } from '../ManagerV2/ReportManager';
-import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { VipAlert } from '../Game/UI/Vip/VipAlert';
 const { ccclass, property } = _decorator;
 
 @ccclass('ReportPageController')
-export class ReportPageController extends AdaptComponent {
+export class ReportPageController extends Component {
     @property(TopNavBarController)
     topNavBarController: TopNavBarController = null;
 
@@ -31,7 +30,6 @@ export class ReportPageController extends AdaptComponent {
         EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
     }
     start() {
-        super.start();
         ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getUserSumReport();
         PersonalCenterManager.getInstance().requestUserInfo();

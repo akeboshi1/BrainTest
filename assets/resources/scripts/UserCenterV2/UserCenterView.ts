@@ -9,12 +9,11 @@ import { VipPanel } from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
 import { VerifyPanel } from '../Game/UI/Login/VerifyPanel';
 import { MySetView } from './MySetView';
 import { AlertData, AlertManager } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
-import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptComponent";
 import { BundleInfoDebugPanel } from '../Game/UI/Debug/BundleInfoDebugPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('UserCenterPanel')
-export class UserCenterPanel extends AdaptComponent {
+export class UserCenterPanel extends Component {
    @property(Label)
    userName: Label = null;
    @property(Sprite)
@@ -37,7 +36,6 @@ export class UserCenterPanel extends AdaptComponent {
    private readonly REQUIRED_CLICKS: number = 5; // 需要5次点击
 
    start() {
-      super.start();
    }
 
    onEnable() {
