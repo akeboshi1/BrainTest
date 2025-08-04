@@ -364,6 +364,11 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
         }
     }
 
+    // ========== 暂停背景音乐 ==========
+    public pauseBgmAudio() {
+        AudioManager.getInstance().pauseBgm();
+    }
+
     public playWin() {
         AudioManager.getInstance().playWin();
     }

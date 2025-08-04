@@ -343,7 +343,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 this.processTouchCancel();
             }
         } catch (error) {
-            DebugLog.instance.error(`[puzzleGame] onTouchEnd 发生错误: ${error}，拖拽图片返回原位置`);
+            DebugLog.instance.debug(`[puzzleGame] onTouchEnd 发生错误: ${error}，拖拽图片返回原位置`);
             this.processTouchCancel();
         }
 
@@ -407,11 +407,14 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
         this.timerComponent.pauseTimer();
         
+        // 暂停背景音乐
+        this.pauseBgmAudio();
+        
         // 隐藏底图（拼图块）
         this.chipParentNode.active = false;
         
         this.showSpriteNode.active = true;
-
+        this.playAudio("music/win", true);
         // 设置缩放动画（循环2次后完成）
         let _tween = tween(this.showSpriteNode)
             .to(2, { scale: new Vec3(1.1, 1.1, 1.1) }, { easing: 'cubicOut' })
@@ -426,7 +429,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 // 显示底图（拼图块）
                 this.chipParentNode.active = true;
                 
-                this.playAudio("music/win", true);
+               
                 // 处理游戏结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
                     this.requestGameResult();
