@@ -1234,12 +1234,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         wang.removeChild(wangPrefab);
                         if (self._clearBoo || self._gameEnded) return;
                         self.wangCount++;
-                        self.showResultRightEffect(self.wangCount - 1).then(() => {
-                            // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
-                            if (self.wangCount == self.wangMaxCount) {
-                                self.endCurHardGame();
-                            }
-                        });
+                       
+                        // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
+                        if (self.wangCount == self.wangMaxCount) {
+                            self.endCurHardGame();
+                        }else{
+                            self.showResultRightEffect(self.wangCount - 1);
+                        }
                         if (self._clearBoo || self._gameEnded) return;
 
                         if (self.hasGuide && self.fishs.length <= 1) {
@@ -1326,13 +1327,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
              // 确保请求发送
+             this.showAllResultRightAndSettle();
              this._requestSkewersGameComplete();
         } else {
             if (!this.customsSendDataState) {
                 this._requestGameCenterComplete();
             }
             // 先展示所有的right effect动画
-            await this.showAllResultRightAndSettle();
+            this.showAllResultRightAndSettle();
             this.customsSendDataState = true;
         }
     }
@@ -1616,72 +1618,34 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.rePlayGame();
     }
 
-    public showResultRightEffect(index: number): Promise<void> {
-        return new Promise((resolve) => {
-            if (index < 0 || index >= this.resultNode.children.length) {
-                resolve();
-                return;
-            }
-            
-            // 设置单个动画的超时保险
-            const timeout = setTimeout(() => {
-                console.warn(`showResultRightEffect index ${index} 超时，强制完成`);
-                resolve();
-            }, 1000); // 1秒超时
-            
-            let resultNode = this.resultNode.children[index];
-            let rightNode = resultNode.getChildByName("right");
-            if (rightNode) {
-                rightNode.active = true;
-                rightNode.scale = new Vec3(0.5, 0.5, 0.5);
-                rightNode.opacity = 0;
-                tween(rightNode)
-                    .to(0.2, { scale: new Vec3(1.2, 1.2, 1), opacity: 255 })
-                    .to(0.1, { scale: new Vec3(1, 1, 1) })
-                    .call(() => {
-                        clearTimeout(timeout);
-                        resolve();
-                    })
-                    .start();
-            } else {
-                clearTimeout(timeout);
-                resolve();
-            }
-        });
+    public showResultRightEffect(index: number): void {
+        if (index < 0 || index >= this.resultNode.children.length) {
+            return;
+        }
+        
+        let resultNode = this.resultNode.children[index];
+        let rightNode = resultNode.getChildByName("right");
+        if (rightNode) {
+            rightNode.active = true;
+            rightNode.scale = new Vec3(0.5, 0.5, 0.5);
+            rightNode.opacity = 0;
+            tween(rightNode)
+                .to(0.05, { scale: new Vec3(1.2, 1.2, 1), opacity: 255 })
+                .to(0.025, { scale: new Vec3(1, 1, 1) })
+                .start();
+        }
     }
 
-    public async showAllResultRightAndSettle(): Promise<void> {
-        return new Promise((resolve) => {
-            // 设置超时保险，防止动画卡住
-            const timeout = setTimeout(() => {
-                console.warn("showAllResultRightAndSettle 超时，强制完成");
-                resolve();
-            }, 2500); // 2.5秒超时
-
-            const promises = [];
-            for (let i = 0; i < this.wangCount; i++) {
-                promises.push(this.showResultRightEffect(i));
-            }
-            
-            Promise.all(promises)
-                .then(() => {
-                    clearTimeout(timeout);
-                    // 所有动画完成后再展示结算界面
-                    if (this.sceneModel.gameType != GameType.SKEWERS) {
-                        (this.sceneModel as any).showSuccessView();
-                    }
-                    resolve();
-                })
-                .catch((error) => {
-                    clearTimeout(timeout);
-                    console.error("showAllResultRightAndSettle 发生错误:", error);
-                    // 即使出错也要继续执行
-                    if (this.sceneModel.gameType != GameType.SKEWERS) {
-                        (this.sceneModel as any).showSuccessView();
-                    }
-                    resolve();
-                });
-        });
+    public showAllResultRightAndSettle(): void {
+        // 直接显示所有正确结果的动画
+        for (let i = 0; i < this.wangCount; i++) {
+            this.showResultRightEffect(i);
+        }
+        
+        // 立即显示结算界面，不等待动画完成
+        if (this.sceneModel.gameType != GameType.SKEWERS) {
+            (this.sceneModel as any).showSuccessView();
+        }
     }
 }
 
