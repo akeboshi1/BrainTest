@@ -343,7 +343,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 this.processTouchCancel();
             }
         } catch (error) {
-            DebugLog.instance.error(`[puzzleGame] onTouchEnd 发生错误: ${error}，拖拽图片返回原位置`);
+            DebugLog.instance.debug(`[puzzleGame] onTouchEnd 发生错误: ${error}，拖拽图片返回原位置`);
             this.processTouchCancel();
         }
 
@@ -368,9 +368,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     quitGame() {
         this.resetDragState();
-
-        // 暂停背景音乐
-        this.pauseBgmAudio();
 
         super.quitGame({ parentNode: this.viewNode, context: this });
         if (this._timeID) {
@@ -729,19 +726,11 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onTimerEnd() {
         DebugLog.instance.log("计时器结束了，执行相应逻辑");
-        
-        // 暂停背景音乐
-        this.pauseBgmAudio();
-        
         this.processGameFail();
     }
 
     processGameFail() {
         DebugLog.instance.log("失败");
-        
-        // 暂停背景音乐
-        this.pauseBgmAudio();
-        
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, this.failRequestSkewersGameComplete, this);
             this.requestGameResult();
