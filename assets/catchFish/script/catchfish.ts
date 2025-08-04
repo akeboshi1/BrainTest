@@ -1234,11 +1234,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         wang.removeChild(wangPrefab);
                         if (self._clearBoo || self._gameEnded) return;
                         self.wangCount++;
-                        self.showResultRightEffect(self.wangCount - 1);
-                        // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
-                        if (self.wangCount == self.wangMaxCount) {
-                            self.endCurHardGame();
-                        }
+                        self.showResultRightEffect(self.wangCount - 1).then(() => {
+                            // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
+                            if (self.wangCount == self.wangMaxCount) {
+                                self.endCurHardGame();
+                            }
+                        });
                         if (self._clearBoo || self._gameEnded) return;
 
                         if (self.hasGuide && self.fishs.length <= 1) {
@@ -1324,29 +1325,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.saveWrongQuestions();
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-            // 为串烧游戏添加保险机制
-            try {
-                // 设置超时保险，防止await一直卡住
-                const timeoutPromise = new Promise<void>((resolve) => {
-                    setTimeout(() => {
-                        console.warn("endCurHardGame 串烧游戏超时，强制完成");
-                        resolve();
-                    }, 4000); // 4秒超时
-                });
-
-                // 先展示所有的right effect动画
-                const animationPromise = this.showAllResultRightAndSettle();
-                
-                // 使用Promise.race确保不会一直等待
-                await Promise.race([animationPromise, timeoutPromise]);
-                
-                // 确保请求发送
-                this._requestSkewersGameComplete();
-            } catch (error) {
-                console.error("endCurHardGame 串烧游戏发生错误:", error);
-                // 即使出错也要发送请求
-                this._requestSkewersGameComplete();
-            }
+             // 确保请求发送
+             this._requestSkewersGameComplete();
         } else {
             if (!this.customsSendDataState) {
                 this._requestGameCenterComplete();

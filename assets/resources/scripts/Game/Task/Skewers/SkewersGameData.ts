@@ -218,6 +218,7 @@ export class SkewersGameData {
                 count++;
             }
         }
+        if(count == 0)count = 1;
         return count / len;
     }
 
@@ -230,6 +231,7 @@ export class SkewersGameData {
                 count++;
             }
         }
+        if(count == 0)count = 1;
         return count + " / " + len;
     }
 
