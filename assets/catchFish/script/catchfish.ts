@@ -69,6 +69,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     @property([Node])
     wangs: Node[] = [];
 
+    @property([Node])
+    wang: Node[] = [];
+
     @property([SpriteFrame])
     spriteFrames: SpriteFrame[] = [];
 
@@ -347,13 +350,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         fish.curTween.stop();
                         fish.curTween = null;
                     }
-                    // 确保鱼节点存在且有效
-                    const fishNode = fish.getFishNode();
-                    if (fishNode && fishNode.isValid && this.fishParentNode.isValid) {
-                        if (fishNode.parent === this.fishParentNode) {
-                            this.fishParentNode.removeChild(fishNode);
-                        }
-                    }
+                    // // 确保鱼节点存在且有效
+                    // const fishNode = fish.getFishNode();
+                    // if (fishNode && fishNode.isValid && this.fishParentNode.isValid) {
+                    //     if (fishNode.parent === this.fishParentNode) {
+                    //         this.fishParentNode.removeChild(fishNode);
+                    //     }
+                    // }
                     fish = null;
                 }
             }
@@ -365,6 +368,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
 
     startGame() {
+        Tween.stopAll();
         this.customsSendDataState = false;
         this._clearBoo = false;
         this._gameEnded = false; // 重置游戏结束标志
@@ -589,7 +593,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             for (let i = 0; i < len; i++) {
                 if (this._gameEnded) break; // 游戏结束不再创建
                 let fish = new Fish(this.fishPrefab);
-                fish.positionYIndex = len == 1 ? 1 : Math.floor(Math.random() * this.fishYs.length);
+                fish.positionYIndex = 1;//len == 1 ? 1 : Math.floor(Math.random() * this.fishYs.length);
                 fish.setParent(this.fishParentNode);
                 this.randomFish(fish);
                 this.fishs.push(fish);
@@ -609,7 +613,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             return;
         }
         let x = 800;
-        let y = this.fishYs[fish.positionYIndex];
+        let y = this.fishYs[1];
 
         if (this.sceneModel.hasGuide) {
             if (!this.hasGuide) {
@@ -626,7 +630,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         fish.setPosition(x, y);
         fish.setScale(1);
-        DebugLog.instance.log(`create ---- ${fish.position}`)
+        console.log(`create ---- ${fish.position}`)
 
         fish.setSpriteFrame(spriteFrame);
 
@@ -1167,14 +1171,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._curFish.curTween.stop();
         this._curFish.pause = true;
 
-        let wangPrefab = instantiate(this.wangPrefab);
+        // let wangPrefab = instantiate(this.wangPrefab);
 
         // 获取当前索引对应的wang
-        let wang = this.wangs[index];
-        // 将wangPrefab添加到wang的子节点中
-        wang.addChild(wangPrefab);
-        wangPrefab.setPosition(new Vec3(0, 0, 0));
-        wangPrefab.setWorldScale(new Vec3(0.5, 0.5, 0.5));
+        let wang = this.wang[index];
+        wang.active=true;
+        wang.setPosition(new Vec3(0, 0, 0));
+        wang.setWorldScale(new Vec3(0.5, 0.5, 0.5));
         // wang.setPosition(new Vec3(0, 0, 0));
         // 游戏过程数据匹配
         this.sceneModel.gameMatch();
@@ -1186,7 +1189,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         let fishNode = self._curFish.getFishNode();
         let fishSpriteNode = fishNode.getChildByName("fish");
         let fishWorldPos = fishSpriteNode.getComponent(UITransform).convertToWorldSpaceAR(new Vec3(0, 0, 0));
-        let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wangPrefab.position);
+        let wangWorldPos = wang.getComponent(UITransform).convertToWorldSpaceAR(wang.position);
 
         // 根据场景高度动态调整渔网落点位置
         const scene = director.getScene();
@@ -1209,7 +1212,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         if (this._wangTween) this._wangTween.stop();
         // 启动动画 - 网飞向鱼的视觉中心
-        this._wangTween = tween(wangPrefab).parallel(
+        this._wangTween = tween(wang).parallel(
             tween().to(0.4 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
             tween().to(0.25 - offsetTime, { position: new Vec3(fishWorldPos.x - wangWorldPos.x - xOffset, fishWorldPos.y - wangWorldPos.y + yOffset, fishWorldPos.z) }))
             .call(() => {
@@ -1218,6 +1221,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 const scaleDown = 1.0; // 恢复到原始大小
                 const duration = 0.06; // 每次放大和缩小的时长
                 self.playAudio("music/fishCatch", true);
+                console.log("wangclick 0");
                 tween(self._curFish.getFishNode())
                     .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
                     .delay(0.1)
@@ -1231,7 +1235,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         self._wangTween = null;
                         // self.hasWangClick = false;
                         // 移除wangPrefab
-                        wang.removeChild(wangPrefab);
+                        wang.active=false;
                         if (self._clearBoo || self._gameEnded) return;
                         self.wangCount++;
                        
@@ -1244,14 +1248,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         if (self._clearBoo || self._gameEnded) return;
 
                         if (self.hasGuide && self.fishs.length <= 1) {
-                            if (this._wangTween) {
-                                this._wangTween.stop();
-                                this._wangTween = null;
+                            if (self._wangTween) {
+                                self._wangTween.stop();
+                                self._wangTween = null;
                             }
                             // Tween.stopAll();
-                            EventManager.getInstance().off(Fish.FishClick, this);
+                            EventManager.getInstance().off(Fish.FishClick, self);
 
-                            if (this.fishs) {
+                            if (self.fishs) {
                                 let len = this.fishs.length;
                                 for (let i: number = 0; i < len; i++) {
                                     let fish = this.fishs[i];
@@ -1260,11 +1264,11 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                             fish.curTween.stop();
                                             fish.curTween = null;
                                         }
-                                        this.fishParentNode.removeChild(fish.getFishNode());
+                                        //self.fishParentNode.removeChild(fish.getFishNode());
                                         fish = null;
                                     }
                                 }
-                                this.fishs = [];
+                                self.fishs = [];
                             }
                             self._curFish = null;
                             if (!self._clearBoo && !self._gameEnded) self.createFish();
@@ -1300,21 +1304,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // 清理所有渔网节点
     private clearAllWangNodes() {
-        // 遍历所有wang节点，清理其中的渔网预制体
-        for (let i = 0; i < this.wangs.length; i++) {
-            const wang = this.wangs[i];
-            if (wang && wang.isValid) {
-                // 查找并移除所有渔网预制体子节点
-                const children = wang.children;
-                for (let j = children.length - 1; j >= 0; j--) {
-                    const child = children[j];
-                    // 检查是否是渔网预制体（通过检查是否有特定的组件或名称）
-                    if (child && child.isValid && child.name !== 'Label') {
-                        wang.removeChild(child);
-                    }
-                }
-            }
-        }
+        return;
     }
 
     private async endCurHardGame() {
@@ -1566,6 +1556,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     onDestroy() {
+        Tween.stopAllByTarget(this.fishes1);
+        Tween.stopAllByTarget(this.fishes2);
+        Tween.stopAllByTarget(this.fishes3);
+        for(let i = 0; i < this.wangs.length; i++){
+            Tween.stopAllByTarget(this.wangs[i]);
+        }
+
         // 确保在组件销毁前清理所有资源
         if (this._wangTween) {
             this._wangTween.stop();

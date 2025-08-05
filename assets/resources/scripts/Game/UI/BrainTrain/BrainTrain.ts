@@ -92,7 +92,7 @@ export class BrainTrain extends BasePanel {
                 let progressStr = _gameData.progressStr;
                 progressLabel.string = `${progressStr}`;
                 let completeIcon = gameItem.getChildByName("completeIcon");
-                if (_gameData.progress >= 1) {
+                if (_gameData.progress > 1) {
                     completeIcon.active = true;
                 } else {
                     completeIcon.active = false;
