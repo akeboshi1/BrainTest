@@ -4,7 +4,7 @@ import { join } from 'path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { readdirSync } from 'fs';
 import { copyFileSync, rmSync, renameSync } from 'fs';
-import { ensureDirSync } from 'fs-extra';
+import { ensureDirSync, moveSync } from 'fs-extra';
 
 /**
  * 生成Bundle版本流程参数
@@ -208,10 +208,11 @@ export class GenerateBundleVersionFlow extends BaseProcessFlow {
                     // 确保版本目录存在
                     ensureDirSync(versionDir);
 
-                    // 使用 renameSync 移动目录
-                    renameSync(
+                    // 使用 moveSync 移动并重命名目录（自动覆盖目标）
+                    moveSync(
                         join(targetPath, bundleName),
-                        newDir
+                        newDir,
+                        { overwrite: true }
                     );
                 } catch (error) {
                     console.error(`移动 bundle ${bundleName} 失败:`, error);
