@@ -65,8 +65,6 @@ export class IndexPageView extends AdaptComponent {
         super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         UIManager.getInstance().registerPanel(VipAlert.NAME, BundleName.RESOURCES, "/prefab/VipPanel/VipAlert", VipAlert);
-        ReportManager.getInstance().getPersonalReport();
-        ReportManager.getInstance().getPersonalInitialReport();
         const userData = PersonalCenterManager.getInstance().userInfoData;
         if(userData){
             this.getUserInfoCallBack();

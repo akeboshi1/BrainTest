@@ -101,41 +101,58 @@ export class ReportManager {
             end_date: ''
         };
     }
-
-    public getPersonalReport() {
-        EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingTiersCallback, this, true);
-        let requestBrainTrainingTiersSocket: SocketData = new SocketData({
+    private isInitial:boolean = false;
+    public getPersonalReport(param?) {
+        this.isInitial = param || false;
+        EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingTiersCallback, this);
+        let socketData: any = {
             action: this.get_brain_training_tiers,
             skipDebounce: true
-        });
+        };
+        if (param) {
+            socketData.data = {
+                "initial": param
+            };
+        }
+        let requestBrainTrainingTiersSocket: SocketData = new SocketData(socketData);
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
 
     requestBrainTrainingTiersCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_brain_training_tiers, context);
-        this.clearReportList();
-        this.clearWeekStatistics();
+        if(!this.isInitial){
+            this.clearReportList();
+            this.clearWeekStatistics();
+        }else{
+            this.clearReportListInitial();
+        }
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            if (data.data) {
-                if(data.data['start_date']){
-                    this._weekStatistics.start_date = data.data['start_date'];
+            if(!this.isInitial){
+                if (data.data) {
+                    if(data.data['start_date']){
+                        this._weekStatistics.start_date = data.data['start_date'];
+                    }
+                    if(data.data['end_date']){
+                        this._weekStatistics.end_date = data.data['end_date'];
+                    }
+                    let result = data.data['result'];
+                    if (result.length == 0) {
+                        // DebugLog.instance.log('暂无个人报告');
+                        EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
+                        return;
+                    }
+                    this._reportDataList = result;
+                    this.processReportData(this._reportDataList); 
                 }
-                if(data.data['end_date']){
-                    this._weekStatistics.end_date = data.data['end_date'];
+            }else{
+                if(data.data){
+                    this._reportDataListInitial = data.data['result'];
+                    this.processReportData(this._reportDataListInitial);
                 }
-                let result = data.data['result'];
-                if (result.length == 0) {
-                    // DebugLog.instance.log('暂无个人报告');
-                    EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
-                    return;
-                }
-                this._reportDataList = result;
-                this.processReportData(this._reportDataList);
-                EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
-
             }
+            EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
         }
     }
     processReportData(reportDataList: ReportData[]) {
@@ -148,33 +165,33 @@ export class ReportManager {
         reportDataList.push(...sortedReportDataList);
     }
 
-    public getPersonalInitialReport() {
-        EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingInitialCallback, this, true);
-        let requestBrainTrainingTiersSocket: SocketData = new SocketData({
-            action: this.get_brain_training_tiers,
-            data: {
-                "initial": true
-            },
-            skipDebounce: true
-        });
-        SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
-    }
-    requestBrainTrainingInitialCallback(data: SocketData, context: any) {
-        EventManager.getInstance().off(this.get_brain_training_tiers, context);
-        this.clearReportListInitial();
-        if (data.status == 0) {
-            DebugLog.instance.error(data.message);
-        } else {
-            if(data.data){
-                let result = data.data['result'];
-                if (result.length == 0) {
-                    return;
-                }
-                this._reportDataListInitial = result;
-                this.processReportData(this._reportDataListInitial);
-            }
-        }
-    }
+    // public getPersonalInitialReport() {
+    //     EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingInitialCallback, this, true);
+    //     let requestBrainTrainingTiersSocket: SocketData = new SocketData({
+    //         action: this.get_brain_training_tiers,
+    //         data: {
+    //             "initial": true
+    //         },
+    //         skipDebounce: true
+    //     });
+    //     SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
+    // }
+    // requestBrainTrainingInitialCallback(data: SocketData, context: any) {
+    //     EventManager.getInstance().off(this.get_brain_training_tiers, context);
+    //     this.clearReportListInitial();
+    //     if (data.status == 0) {
+    //         DebugLog.instance.error(data.message);
+    //     } else {
+    //         if(data.data){
+    //             let result = data.data['result'];
+    //             if (result.length == 0) {
+    //                 return;
+    //             }
+    //             this._reportDataListInitial = result;
+    //             this.processReportData(this._reportDataListInitial);
+    //         }
+    //     }
+    // }
 
     clearUserSumReport() {
         this._userSumReport = null;
