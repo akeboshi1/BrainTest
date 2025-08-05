@@ -70,7 +70,7 @@ export class TimerCommonComponent extends Component {
 
 
     public getElapsedTime(): number {
-        return Math.ceil((Date.now() - this.startTime) / 1000);
+        return (Date.now() - this.startTime) / 1000;
     }
 
     private _pauseTime:number;
