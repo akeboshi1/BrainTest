@@ -218,7 +218,7 @@ export class SkewersGameData {
                 count++;
             }
         }
-        if(count >= len)count = len;
+        // if(count >= len)count = len;
         return count / len;
     }
 
