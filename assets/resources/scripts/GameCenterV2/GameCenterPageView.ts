@@ -12,7 +12,7 @@ import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponen
 const { ccclass, property } = _decorator;
 
 @ccclass('GameCenterPageView')
-export class GameCenterPageView extends AdaptComponent {
+export class GameCenterPageView extends Component {
 
     // ====================== 游戏大厅
     public static NAME: string = "GameCenter";
@@ -29,7 +29,6 @@ export class GameCenterPageView extends AdaptComponent {
 
 
     start() {
-        super.start();
         this.gameCenterInit();
     }
 

@@ -211,25 +211,27 @@ export class SkewersGameData {
 
     get progress(): number {
         let len = this.trains.length;
-        let count = 0;
+        let count = 1;
         for (let i: number = 0; i < len; ++i) {
             let tmpData: SkewersGameTrainData = this.trains[i];
             if (tmpData.status == SkewersGameStatus.Completed) {
                 count++;
             }
         }
+        if(count >= len)count = len;
         return count / len;
     }
 
     get progressStr(): string {
         let len = this.trains.length;
-        let count = 0;
+        let count = 1;
         for (let i: number = 0; i < len; ++i) {
             let tmpData: SkewersGameTrainData = this.trains[i];
             if (tmpData.status == SkewersGameStatus.Completed) {
                 count++;
             }
         }
+        if(count >= len)count = len;
         return count + " / " + len;
     }
 
