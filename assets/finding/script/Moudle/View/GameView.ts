@@ -186,6 +186,9 @@ export default class GameView extends LayerPanel {
                 //     this._curHard = _hard % 3;
                 // }
 
+                // 重置倒计时
+                this.countDownTime = GameConfig.customTime;
+                this.tempCountDown = GameConfig.allTime;
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
                 if (loopLevel == 0) loopLevel = GameConfig.allCheckPoint;
                 this.progress.progress = loopLevel / (this.sceneModel as any).levelLen;
@@ -220,9 +223,7 @@ export default class GameView extends LayerPanel {
                 });
             });
 
-            // 重置倒计时
-            this.countDownTime = GameConfig.customTime;
-            this.tempCountDown = GameConfig.allTime;
+
             this.countDown.string = Math.ceil(this.countDownTime) + "秒";
 
             let flow2 = new AbortablePromise((res, rej) => {
