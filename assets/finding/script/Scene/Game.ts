@@ -316,7 +316,7 @@ export class Game extends BaseScene<IBaseGameChild> {
                     // 资源尺寸 696*436
                     // 必须按照资源尺寸的比例来设计ui上的图片容器尺寸，否则将对不上配置上的交互点
                     // 按照1.3的比例来设计ui上的图片容器尺寸，显示尺寸 904.8*566.8
-                    node.setPosition(Number(tempData[0]) * 1.3, uitransform.height - Number(tempData[1]) * 1.3);
+                    node.setPosition(Number(tempData[0]) * this._scale, uitransform.height - Number(tempData[1]) * this._scale);
                     nodeUITransform.setAnchorPoint(0, 1);
                     node.setScale(1.4, 1.4);
 
@@ -552,6 +552,7 @@ export class Game extends BaseScene<IBaseGameChild> {
         }
     }
 
+    private _scale = 1.5;
     refreshGame(): void {
         // 重新初始化关卡数据
         this.initUI();
@@ -614,7 +615,7 @@ export class Game extends BaseScene<IBaseGameChild> {
             let tempData = tmpDataList[i].split(",");
             nodeUITransform.width = Number(tempData[2]);
             nodeUITransform.height = Number(tempData[3]);
-            node.setPosition(Number(tempData[0]) * 1.3, uitransform.height - Number(tempData[1]) * 1.3);
+            node.setPosition(Number(tempData[0]) * this._scale, uitransform.height - Number(tempData[1]) * this._scale);
             nodeUITransform.setAnchorPoint(0, 1);
             node.setScale(1.4, 1.4);
             nodeUITransform.convertToWorldSpaceAR(node.position);

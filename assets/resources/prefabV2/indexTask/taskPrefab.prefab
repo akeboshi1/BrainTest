@@ -380,7 +380,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 90,
+      "width": 120,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -419,8 +419,8 @@
     "_string": "去完成",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -919,8 +919,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -122.856,
-      "y": 81.053,
+      "x": -118,
+      "y": 92.453,
       "z": 0
     },
     "_lrot": {
@@ -960,8 +960,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 260.6278280709945,
-      "height": 63
+      "width": 312.75339368519343,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -997,12 +997,12 @@
       "a": 255
     },
     "_string": "今日份游戏",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 50,
+    "_lineHeight": 60,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1078,7 +1078,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -74.285,
+      "x": -29.885,
       "y": -33.985,
       "z": 0
     },
@@ -1119,8 +1119,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 330,
-      "height": 130.4
+      "width": 480,
+      "height": 130.39999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1153,15 +1153,15 @@
       "r": 0,
       "g": 0,
       "b": 0,
-      "a": 255
+      "a": 173
     },
     "_string": "专为老年人设计的脑力训练\n游戏，通过认知挑战延缓\n阿尔茨海默",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 26,
-    "_fontSize": 25,
+    "_actualFontSize": 40,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 2,
     "_enableWrapText": true,
     "_font": null,

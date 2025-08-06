@@ -1142,7 +1142,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 284.0999999999999,
+      "y": 210.5,
       "z": 0
     },
     "_lrot": {
@@ -1244,8 +1244,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -447.4,
-      "y": -280.5,
+      "x": -514,
+      "y": -318,
       "z": 0
     },
     "_lrot": {
@@ -1283,8 +1283,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 894.8,
-      "height": 556.8
+      "width": 1024,
+      "height": 634
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1341,8 +1341,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 894.8,
-      "height": 556.8
+      "width": 1024,
+      "height": 644
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1418,8 +1418,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 904.8,
-      "height": 566.8
+      "width": 1044,
+      "height": 654
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1493,7 +1493,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -374.605,
+      "y": -541,
       "z": 0
     },
     "_lrot": {
@@ -1595,8 +1595,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -447.4,
-      "y": -280.5,
+      "x": -514,
+      "y": -318,
       "z": 0
     },
     "_lrot": {
@@ -1634,8 +1634,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 894.8,
-      "height": 556.8
+      "width": 1024,
+      "height": 634
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1692,8 +1692,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 894.8,
-      "height": 556.8
+      "width": 1024,
+      "height": 644
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1769,8 +1769,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 904.8,
-      "height": 566.8
+      "width": 1044,
+      "height": 654
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1856,7 +1856,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -46.5,
+      "y": -165,
       "z": 0
     },
     "_lrot": {
@@ -4471,8 +4471,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -322.077,
-      "y": 601.605,
+      "x": -150,
+      "y": 587,
       "z": 0
     },
     "_lrot": {
@@ -4510,8 +4510,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 226.728515625,
-      "height": 37.8
+      "width": 600,
+      "height": 55
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4543,10 +4543,10 @@
     "_string": "游戏进度",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 30,
+    "_lineHeight": 50,
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
@@ -4740,7 +4740,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 392.874,
-      "y": 598.4839999999999,
+      "y": 587,
       "z": 0
     },
     "_lrot": {
@@ -4826,8 +4826,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 80.0537109375,
-      "height": 37.8
+      "width": 133.4228515625,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4859,10 +4859,10 @@
     "_string": "100秒",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 30,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -4910,7 +4910,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100,
+      "width": 150,
       "height": 50
     },
     "_anchorPoint": {

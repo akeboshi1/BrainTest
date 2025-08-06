@@ -351,12 +351,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         fish.curTween = null;
                     }
                     // // 确保鱼节点存在且有效
-                    // const fishNode = fish.getFishNode();
-                    // if (fishNode && fishNode.isValid && this.fishParentNode.isValid) {
-                    //     if (fishNode.parent === this.fishParentNode) {
-                    //         this.fishParentNode.removeChild(fishNode);
-                    //     }
-                    // }
+                    const fishNode = fish.getFishNode();
+                    if (fishNode && fishNode.isValid && this.fishParentNode.isValid) {
+                        if (fishNode.parent === this.fishParentNode) {
+                            this.fishParentNode.removeChild(fishNode);
+                        }
+                    }
                     fish = null;
                 }
             }
@@ -1264,7 +1264,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                                             fish.curTween.stop();
                                             fish.curTween = null;
                                         }
-                                        //self.fishParentNode.removeChild(fish.getFishNode());
+                                        self.fishParentNode.removeChild(fish.getFishNode());
                                         fish = null;
                                     }
                                 }

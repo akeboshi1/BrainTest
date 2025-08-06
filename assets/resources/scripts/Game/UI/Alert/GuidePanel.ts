@@ -204,7 +204,7 @@ export class GuidePanel extends BasePanel {
                 videoPath = "video/fishguide"; // 找茬游戏教程视频
                 break;
             case BundleName.FANPAI:
-                videoPath = "video/fishguide"; // 翻牌游戏教程视频
+                videoPath = "video/fanpaiguide"; // 翻牌游戏教程视频
                 break;
             case BundleName.PUZZLE:
                 videoPath = "video/fishguide"; // 拼图游戏教程视频
@@ -213,7 +213,7 @@ export class GuidePanel extends BasePanel {
                 videoPath = "video/fishguide"; // 捕鱼游戏教程视频（已存在）
                 break;
             case BundleName.GUESSINGGAME:
-                videoPath = "video/fishguide"; // 猜谜游戏教程视频
+                videoPath = "video/guessguide"; // 猜谜游戏教程视频
                 break;
             case BundleName.SENTENCEMAKING:
                 videoPath = "video/fishguide"; // 造句游戏教程视频
@@ -316,6 +316,8 @@ export class GuidePanel extends BasePanel {
         
         // 重置视频颜色为正常
         this.setVideoNormal();
+
+        this.videoPlayerNode.active = false;
 
         this.callback = undefined;
         this.gameName = undefined;

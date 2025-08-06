@@ -231,10 +231,7 @@ export class LoadPanel extends BasePanel {
             tween(this.timeDescLabel.node)
                 .to(0.5, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
                 .call(() => {
-                    // 缩放动画完成后，延迟1秒后派发倒计时完成事件
-                    setTimeout(() => {
-                        EventManager.getInstance().emit(BundlePreloadEvent.COUNTDOWN_FINISH);
-                    }, 1000);
+                  EventManager.getInstance().emit(BundlePreloadEvent.COUNTDOWN_FINISH);
                 })
                 .start();
       }

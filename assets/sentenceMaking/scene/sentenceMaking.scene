@@ -2919,8 +2919,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 37.8
+      "width": 135,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2949,13 +2949,13 @@
       "b": 255,
       "a": 255
     },
-    "_string": "六大维度",
+    "_string": "语言力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 30,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -4122,9 +4122,7 @@
         "__expectedType__": "cc.SpriteFrame"
       }
     ],
-    "timerComponent": {
-      "__id__": 107
-    },
+    "timerComponent": null,
     "animShow": {
       "__id__": 53
     },
@@ -4134,9 +4132,7 @@
     "progressBar": {
       "__id__": 95
     },
-    "guankaLabel": {
-      "__id__": 98
-    },
+    "guankaLabel": null,
     "correctAnswerNode": {
       "__id__": 55
     },
@@ -4204,7 +4200,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 959.9999999999999,
     "_near": 0,
     "_far": 1000,
     "_color": {
