@@ -27,9 +27,9 @@ export class RadiaGraph extends Component {
 
     // 开始函数
     start() {
-        // TODO: 添加开始函数的具体实现
-        let data = ReportManager.getInstance().reportDataList;
-        this.updateView(data);
+        ReportManager.getInstance().getPersonalReport();
+        // let data = ReportManager.getInstance().reportDataList;
+        // this.updateView(data);
     }
 
     onEnable() {
