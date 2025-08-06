@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, Graphics, Label, log, Node, resources, Sprite, SpriteFrame, UITransform, EventHandler } from 'cc';
+import { _decorator, Color, Component, Graphics, Label, log, Node, resources, Sprite, SpriteFrame, UITransform, EventHandler, Button } from 'cc';
 import { ReportManager } from '../ManagerV2/ReportManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
@@ -37,15 +37,19 @@ export class OtherChartView extends Component {
         this.height = this.lineChart.getComponent(UITransform).height;
         let cogAbilityBriefData = ReportManager.getInstance().cogAbilityWeeklyScoresData;
         this.scoreData = cogAbilityBriefData.result.map(item => item.score);
-        this.initLeftArrow();
-        this.total = ReportManager.getInstance().getCogAbilityWeeklyTotalByIndex(this.currentIndex);
+        this.total = ReportManager.getInstance().getCogAbilityWeeklyTotal();
         this.showTitleContentByIndex(this.currentIndex);
+        this.initLeftArrow();
         this.drawLineChart();
     }
     initLeftArrow(){
+        const leftArrowSprite = this.leftArrow.getComponent(Sprite);
         if(this.total <= 1){
-            const leftArrowSprite = this.leftArrow.getComponent(Sprite);
             leftArrowSprite.color = new Color(0, 0, 0, 50);
+            this.leftArrow.getComponent(Button).interactable = false;
+        }else{
+            leftArrowSprite.color = new Color(0, 0, 0);
+            this.leftArrow.getComponent(Button).interactable = true;
         }
     }
     drawLineChart() {
@@ -121,38 +125,46 @@ export class OtherChartView extends Component {
         this.drawXAxisLabel();
     }
     clickLeftArrow() {
+        console.log('左侧点击')
         this.currentIndex++;
-        if (this.currentIndex >= this.total - 1) {
-            const leftArrowSprite = this.leftArrow.getComponent(Sprite);
-            leftArrowSprite.color = new Color(0, 0, 0, 50);
-            
-            console.log('超出索引值范围')
-            return;
-        }
         const rightArrowSprite = this.rightArrow.getComponent(Sprite);
         rightArrowSprite.color = new Color(0, 0, 0);
+        this.rightArrow.getComponent(Button).interactable = true;
+        if (this.currentIndex+1 >= this.total - 1) {
+            const leftArrowSprite = this.leftArrow.getComponent(Sprite);
+            leftArrowSprite.color = new Color(0, 0, 0, 50);
+            this.leftArrow.getComponent(Button).interactable = false;
+            this.currentIndex = this.total-1;
+            console.log('左侧最后一个数据')
+            return;
+        }
         ReportManager.getInstance().getCogAbilityWeeklyScores(null, this.currentIndex);
     }
     clickRightArrow() {
+        console.log('右侧点击')
         this.currentIndex--;
-        if (this.currentIndex <=-this.total) {
-            const rightArrowSprite = this.rightArrow.getComponent(Sprite);
-            rightArrowSprite.color = new Color(0, 0, 0,50);
-            return;
-        }
         const leftArrowSprite = this.leftArrow.getComponent(Sprite);
         leftArrowSprite.color = new Color(0, 0, 0);
+        this.leftArrow.getComponent(Button).interactable = true;
+        if (this.currentIndex-1 <=-(this.total-1)) {
+            const rightArrowSprite = this.rightArrow.getComponent(Sprite);
+            rightArrowSprite.color = new Color(0, 0, 0,50);
+            this.rightArrow.getComponent(Button).interactable = false;
+            this.currentIndex = -(this.total-1);
+            console.log('右侧当前最后一个数据')
+            return;
+        }
         ReportManager.getInstance().getCogAbilityWeeklyScores(null, this.currentIndex);
     }
     getCogAbilityWeeklyScoresCallback() {
         this.showTitleContentByIndex(this.currentIndex);
-        let weekDate = ReportManager.getInstance().getCogAbilityWeeklyScoresDataByIndex(this.currentIndex);
-        this.scoreData = weekDate.map(item => item.score);
+        let cogAbilityBriefData = ReportManager.getInstance().cogAbilityWeeklyScoresData;
+        this.scoreData = cogAbilityBriefData.result.map(item => item.score);
         this.drawLineChart();
     }
 
     showTitleContentByIndex(index: number) {
-        let cogAbilityWeeklyFirstDayAndLastDay = ReportManager.getInstance().getCogAbilityWeeklyFirstDayAndLastDayByIndex(index);
+        let cogAbilityWeeklyFirstDayAndLastDay = ReportManager.getInstance().getCogAbilityWeeklyFirstDayAndLastDay()
         if (index == 0) {
             this.title.string = `本周`;
         } else {
