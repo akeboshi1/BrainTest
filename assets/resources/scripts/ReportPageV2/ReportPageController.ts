@@ -21,24 +21,20 @@ export class ReportPageController extends Component {
 
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-        EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
         EventManager.getInstance().on(ReportManager.getUserSumReportCallback, this.getUserSumReportCallback, this);
     }
+
     onDisable() {
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
-        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
         EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
     }
+
     start() {
-        ReportManager.getInstance().getPersonalReport();
         ReportManager.getInstance().getUserSumReport();
         PersonalCenterManager.getInstance().requestUserInfo();
         this.callbackPromises = {
             userInfo: new Promise((resolve) => {
                 this.userInfoResolve = resolve;
-            }),
-            brainTraining: new Promise((resolve) => {
-                this.brainTrainingResolve = resolve;
             }),
             sumReport: new Promise((resolve) => {
                 this.sumReportResolve = resolve;
@@ -46,7 +42,6 @@ export class ReportPageController extends Component {
         };
         Promise.all([
             this.callbackPromises.userInfo,
-            this.callbackPromises.brainTraining,
             this.callbackPromises.sumReport
         ]).then(() => {
             // 检查用户是否是会员
@@ -66,7 +61,6 @@ export class ReportPageController extends Component {
     }
 
     private userInfoResolve: Function;
-    private brainTrainingResolve: Function;
     private sumReportResolve: Function;
 
     getUserInfoCallBack() {
@@ -74,11 +68,7 @@ export class ReportPageController extends Component {
             this.userInfoResolve();
         }
     }
-    getBrainTrainingTiersCallback() {
-        if (this.brainTrainingResolve) {
-            this.brainTrainingResolve();
-        }
-    }
+
     getUserSumReportCallback() {
         if (this.sumReportResolve) {
             this.sumReportResolve();

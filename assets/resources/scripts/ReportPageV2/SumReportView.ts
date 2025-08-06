@@ -1,5 +1,5 @@
 import { _decorator, Component, instantiate, Label, Node, Prefab } from 'cc';
-import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
+import { ReportData, ReportManager, WeekStatisticsData } from '../ManagerV2/ReportManager';
 import { RadiaGraph } from '../indexPageV2/RadiaGraph';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
@@ -11,17 +11,37 @@ const { ccclass, property } = _decorator;
 export class SumReportView extends Component {
     @property(RadiaGraph)
     radarMap: RadiaGraph = null;
+
     @property(Label)
     weekStatistics: Label = null;
-    start() {
-        this.showWeekStatistics();
-        this.showInitialWeekGraph();
-        this.showCurrentWeekGraph();
-       
+    
+    start() {   
+        ReportManager.getInstance().weekStatistics.addListener(this.onWeekStatisticsChange.bind(this));
+        ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
+        ReportManager.getInstance().reportDataListInitial.addListener(this.onReportDataListInitialChange.bind(this));
     }
-    showWeekStatistics(){
-        let weekStatistics = ReportManager.getInstance().weekStatistics;
-        this.weekStatistics.string = `统计周期${weekStatistics.start_date?weekStatistics.start_date:'——'}至${weekStatistics.end_date?weekStatistics.end_date:'——'}`;
+    
+    protected onDestroy(): void {
+        ReportManager.getInstance().weekStatistics.removeListener(this.onWeekStatisticsChange.bind(this));
+        ReportManager.getInstance().reportDataList.removeListener(this.onReportDataListChange.bind(this));
+        ReportManager.getInstance().reportDataListInitial.removeListener(this.onReportDataListInitialChange.bind(this));
+    }
+    
+    
+    onWeekStatisticsChange(data: WeekStatisticsData){
+        this.weekStatistics.string = `统计周期${data.start_date?data.start_date:'——'}至${data.end_date?data.end_date:'——'}`;
+    }
+
+    onReportDataListChange(data: ReportData[]) {
+        const values = data.map(item => item.tier);
+        this.radarMap.getComponent(RadiaGraph).setValues(values);
+        this.radarMap.getComponent(RadiaGraph).updateView(data);
+    }
+    
+    onReportDataListInitialChange(data: ReportData[]) {
+        const valuesInitial = data.map(item => item.tier);
+        this.radarMap.getComponent(RadiaGraph).setSecondValues(valuesInitial);
+        this.radarMap.getComponent(RadiaGraph).updateView(data);
     }
    
     clickNavBar(event, data) {
@@ -31,22 +51,7 @@ export class SumReportView extends Component {
         }
         EventManager.getInstance().emit('onTopNavBarClick', data);
     }
-    showCurrentWeekGraph() {
-        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
-        const values = reportDataList.map(item => item.tier);
-        this.radarMap.getComponent(RadiaGraph).setValues(values);
-    }
-    showInitialWeekGraph() {
-        let reportDataListInitial: ReportData[] = ReportManager.getInstance().reportDataListInitial;
-        const valuesInitial = reportDataListInitial.map(item => item.tier);
-        this.radarMap.getComponent(RadiaGraph).setSecondValues(valuesInitial);
-    }
-
-
-
-    update(deltaTime: number) {
-
-    }
+    
 }
 
 

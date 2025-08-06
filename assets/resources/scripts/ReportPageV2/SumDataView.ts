@@ -9,12 +9,7 @@ export class SumDataView extends Component {
     reportSummary: RichText = null;
     @property(Label)
     reportSummaryData:Label=null;
-    // onEnable() {
-    //     EventManager.getInstance().on(ReportManager.getUserSumReportCallback, this.getUserSumReportCallback, this);
-    // }
-    // onDisable() {
-    //     EventManager.getInstance().off(ReportManager.getUserSumReportCallback, this);
-    // }
+    
     start() {
         let summaryData= ReportManager.getInstance().userSumReport;
         this.showReportSummary(summaryData);

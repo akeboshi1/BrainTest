@@ -25,31 +25,15 @@ export class RadiaGraph extends Component {
     private values: number[] = [];
     private secondValues: number[] = []; // 添加第二个数据数组
 
-    // 开始函数
-    start() {
-        // TODO: 添加开始函数的具体实现
-        let data = ReportManager.getInstance().reportDataList;
-        this.updateView(data);
-    }
-
-    onEnable() {
-        EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
-    }
-    onDisable() {
-        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
-    }
-
     async loadTaskSprite(path: string): Promise<SpriteFrame> {
         return new Promise((resolve, reject) => {
             resources.load(path, SpriteFrame, (err, spriteFrame) => {
                 if (err) {
-                    // DebugLog.instance.error(`Failed to load sprite: ${path}`, err);
                     reject(err);
                     return;
                 }
 
                 if (!spriteFrame) {
-                    // DebugLog.instance.error(`Loaded sprite frame is null: ${path}`);
                     reject(new Error('Loaded sprite frame is null'));
                     return;
                 }
@@ -57,7 +41,6 @@ export class RadiaGraph extends Component {
             });
         })
     }
-
 
     async updateView(data: ReportData[]) {  
         if (data.length == 0) {
@@ -71,11 +54,14 @@ export class RadiaGraph extends Component {
             this.noDataLabel.string = '暂无数据';
             return;
         }
+
         this.noDataLabel.node.active = false;
+
         for (let index = 0; index < data.length; index++) {
             const item = data[index];
             this.labelsNode[index].active = true;
             let spriteNode = this.labelsNode[index].getChildByName('icon');
+            
             if (item.tier == 1 || item.tier == 2 || item.tier == 3 || item.tier == 4 || item.tier == 5) {
                 spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.red);
             } else if (item.tier == 6 || item.tier == 7) {
@@ -83,6 +69,7 @@ export class RadiaGraph extends Component {
             } else {
                 spriteNode.getComponent(Sprite).spriteFrame = await this.loadTaskSprite(iconPath.green);
             }
+
             this.labelsNode[index].getChildByName('titleLable').getComponent(Label).string = item.cog_ability_desc
             if (item.tier > 1) {
                 this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string = `优于${(item.tier-1) * 10}%同龄人`;
@@ -90,11 +77,6 @@ export class RadiaGraph extends Component {
                 this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string = `同龄组末位的10%`;
             }
         }
-    }
-
-    async getBrainTrainingTiersCallback() {
-        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
-        await this.updateView(reportDataList);
     }
 
     setValues(values: number[]) {
