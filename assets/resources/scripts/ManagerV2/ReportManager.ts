@@ -293,10 +293,7 @@ export class ReportManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            if (!data.data) {
-                DebugLog.instance.log('数据为空')
-                return;
-            }
+
             let result = data.data;
 
             this._cogAbilityWeeklyScoresData = result;
@@ -307,19 +304,14 @@ export class ReportManager {
     clearCogAbilityWeeklyScoresData() {
         this._cogAbilityWeeklyScoresData = null;
     }
-
-    getCogAbilityWeeklyScoresDataByIndex(index: number) {
-        return this._cogAbilityWeeklyScoresData.result;
-    }
-
-    getCogAbilityWeeklyFirstDayAndLastDayByIndex(index: number) {
+ 
+    getCogAbilityWeeklyFirstDayAndLastDay() {
         return {
             first_day: this._cogAbilityWeeklyScoresData.first_day,
             last_day: this._cogAbilityWeeklyScoresData.last_day
         };
     }
-
-    getCogAbilityWeeklyTotalByIndex(index: number) {
+    getCogAbilityWeeklyTotal() {
         return this._cogAbilityWeeklyScoresData.total;
     }
 }
