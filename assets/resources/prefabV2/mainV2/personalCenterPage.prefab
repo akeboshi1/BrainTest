@@ -564,8 +564,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 225,
-      "height": 56.7
+      "width": 250,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -601,12 +601,12 @@
       "a": 255
     },
     "_string": "加尔铁溶据",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 45,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -655,8 +655,6 @@
       "__id__": 0
     },
     "fileId": "dctQHvrk5MfJABCK64Ba41",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -723,8 +721,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 382.4609375,
-      "height": 50.4
+      "width": 430.2685546875,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -762,10 +760,10 @@
     "_string": "手机号：2173970718",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1025,8 +1023,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 200,
-      "height": 50.4
+      "width": 220,
+      "height": 69.3
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1064,10 +1062,10 @@
     "_string": "会员中心",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 55,
+    "_fontSize": 55,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 55,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1302,7 +1300,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -193.185,
+      "x": -167.285,
       "y": -59.522999999999996,
       "z": 0
     },
@@ -1343,7 +1341,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 490.7109375,
+      "width": 545.234375,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1382,8 +1380,8 @@
     "_string": "专业报告 | 个性分析 | 五维数据",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 36,
-    "_fontSize": 36,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -1434,8 +1432,6 @@
       "__id__": 0
     },
     "fileId": "79HTLPoHJFF4p9jD/UyZG5",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1469,7 +1465,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 290,
-      "y": -92,
+      "y": -106.6,
       "z": 0
     },
     "_lrot": {
@@ -1598,8 +1594,8 @@
     "_string": "开通会员",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 55,
+    "_fontSize": 55,
     "_fontFamily": "Arial",
     "_lineHeight": 55,
     "_overflow": 1,
@@ -1833,7 +1829,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -234.174,
+      "x": -439,
       "y": -140.041,
       "z": 0
     },
@@ -1874,12 +1870,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 400,
-      "height": 70
+      "width": 565,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
@@ -1913,8 +1909,8 @@
     "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 36,
-    "_fontSize": 36,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -2051,8 +2047,6 @@
       "__id__": 0
     },
     "fileId": "cbbkgwUgtIOqvsk4rFUM/r",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -2432,8 +2426,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 180,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2471,10 +2465,10 @@
     "_string": "修改资料",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -3126,8 +3120,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 180,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3165,10 +3159,10 @@
     "_string": "填邀请码",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -3820,8 +3814,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 180,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3859,10 +3853,10 @@
     "_string": "我的设置",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -4514,8 +4508,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 180,
+      "height": 56.7
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4553,10 +4547,10 @@
     "_string": "退出登录",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 45,
+    "_fontSize": 45,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 45,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -5172,6 +5166,9 @@
     },
     "memberNode": {
       "__id__": 54
+    },
+    "inviteNode": {
+      "__id__": 110
     },
     "descLabel": {
       "__id__": 72

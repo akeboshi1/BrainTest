@@ -1331,7 +1331,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -54.647,
+      "x": -79.647,
       "y": 8.693,
       "z": 0
     },
@@ -1508,8 +1508,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 22.24609375,
-      "height": 50.4
+      "width": 27.8076171875,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1547,10 +1547,10 @@
     "_string": "0",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1667,8 +1667,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 180,
-      "height": 37.8
+      "width": 240,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1706,10 +1706,10 @@
     "_string": "连续使用天数",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 30,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -2216,7 +2216,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -78.018,
+      "x": -95.418,
       "y": 18.391,
       "z": 0
     },
@@ -2257,7 +2257,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 150,
+      "width": 180,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -2296,8 +2296,8 @@
     "_string": "语言力",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 0,
@@ -2449,7 +2449,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -125,
-      "y": -40,
+      "y": -39.999999999999986,
       "z": 0
     },
     "_lrot": {
@@ -2489,8 +2489,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 210.05126953125,
-      "height": 44.1
+      "width": 240.05859375,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2520,18 +2520,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 148,
-      "g": 149,
-      "b": 153,
+      "r": 92,
+      "g": 94,
+      "b": 100,
       "a": 255
     },
     "_string": "超过80%同龄",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 35,
-    "_fontSize": 35,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 35,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -2588,7 +2588,7 @@
     "_left": 0,
     "_right": 0,
     "_top": 0,
-    "_bottom": -2.200000000000003,
+    "_bottom": -5.350000000000001,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
     "_isAbsLeft": true,
@@ -3186,8 +3186,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 210.05126953125,
-      "height": 44.1
+      "width": 240.05859375,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3217,18 +3217,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 148,
-      "g": 149,
-      "b": 153,
+      "r": 92,
+      "g": 94,
+      "b": 100,
       "a": 255
     },
     "_string": "超过80%同龄",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 35,
-    "_fontSize": 35,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 35,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -3847,8 +3847,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 210.05126953125,
-      "height": 44.1
+      "width": 240.05859375,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3878,18 +3878,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 148,
-      "g": 149,
-      "b": 153,
+      "r": 92,
+      "g": 94,
+      "b": 100,
       "a": 255
     },
     "_string": "超过80%同龄",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 35,
-    "_fontSize": 35,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 35,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -4508,8 +4508,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 210.05126953125,
-      "height": 44.1
+      "width": 240.05859375,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4539,18 +4539,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 148,
-      "g": 149,
-      "b": 153,
+      "r": 92,
+      "g": 94,
+      "b": 100,
       "a": 255
     },
     "_string": "超过80%同龄",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 35,
-    "_fontSize": 35,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 35,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -5169,8 +5169,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 210.05126953125,
-      "height": 44.1
+      "width": 240.05859375,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5200,18 +5200,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 148,
-      "g": 149,
-      "b": 153,
+      "r": 92,
+      "g": 94,
+      "b": 100,
       "a": 255
     },
     "_string": "超过80%同龄",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 35,
-    "_fontSize": 35,
+    "_actualFontSize": 40,
+    "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 35,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -6878,7 +6878,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -244,
+      "x": -196.8,
       "y": 0,
       "z": 0
     },
@@ -6919,8 +6919,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 384,
-      "height": 60.480000000000004
+      "width": 445.6,
+      "height": 70
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6958,10 +6958,10 @@
     "_string": "您的会员即将到期",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 48,
-    "_fontSize": 48,
+    "_actualFontSize": 55,
+    "_fontSize": 55,
     "_fontFamily": "Arial",
-    "_lineHeight": 48,
+    "_lineHeight": 55,
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
@@ -7135,8 +7135,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 192,
-      "height": 60.480000000000004
+      "width": 200,
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -7174,10 +7174,10 @@
     "_string": "立即续费",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 48,
-    "_fontSize": 48,
+    "_actualFontSize": 50,
+    "_fontSize": 50,
     "_fontFamily": "Arial",
-    "_lineHeight": 48,
+    "_lineHeight": 50,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -7621,7 +7621,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1919.9999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

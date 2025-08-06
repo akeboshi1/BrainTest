@@ -25,6 +25,8 @@ export class UserCenterPanel extends Component {
    @property(Node)
    memberNode: Node = null;
 
+   @property(Node)
+   inviteNode:Node = null;
 
    @property(Label)
    descLabel: Label = null;
@@ -125,6 +127,11 @@ export class UserCenterPanel extends Component {
       }
       if(userData.member_endTime){
          this.memberValidity.string = `会员有效期至：${userData.member_endTime}`;
+      }
+      if(userData.is_invited){
+         this.inviteNode.active = false;
+      }else{
+          this.inviteNode.active = true;
       }
    }
    async loadTaskSprite(path: string): Promise<SpriteFrame> {

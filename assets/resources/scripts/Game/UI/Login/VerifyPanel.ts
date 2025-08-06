@@ -72,7 +72,7 @@ export class VerifyPanel extends BasePanel {
         
         this._inviteCode = this.editBox.string;
         //     .start();
-        EventManager.getInstance().on(LoginManager.InviteCodeResult, this.invitecodeCallBack, this,true);
+        EventManager.getInstance().on(LoginManager.LoginByTokenResult, this.invitecodeCallBack, this,true);
         LoginManager.getInstance().setInviteCode(this._inviteCode);
     }
 
