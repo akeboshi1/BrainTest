@@ -34,7 +34,19 @@ export class MainSceneController extends AdaptComponent {
     start() {
         super.start();
         DebugLog.instance.log("MainSceneController start");
-    } 
+
+        this.loadReportData();
+    }
+
+    async loadReportData(){
+        try {   
+            await ReportManager.getInstance().getRecentReport();
+            await ReportManager.getInstance().getInitialReport();
+            DebugLog.instance.log("报告数据加载完成");
+        } catch (error) {
+            DebugLog.instance.error("报告数据加载失败:", error.message);
+        }
+    }
 
     update(deltaTime: number) {
         

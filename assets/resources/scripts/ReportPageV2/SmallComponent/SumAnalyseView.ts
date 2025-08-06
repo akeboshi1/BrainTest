@@ -1,10 +1,11 @@
 import { _decorator, Component, instantiate, Label, Node, Prefab, resources, Sprite, SpriteFrame, Vec3 } from 'cc';
-import { ReportManager } from '../../ManagerV2/ReportManager';
+import { ReportManager, UserSumReport } from '../../ManagerV2/ReportManager';
 import { DimensionItemView } from './DimensionItemView';
 import { PersonalCenterManager } from '../../Game/PersonalCenterManager/PersonalCenterManager';
 import { UIManager } from '../../Core/Manager/UI/UIManager';
 import { StatePanel } from './StatePanel';
 import { BundleName } from '../../Core/Manager/Load/BundleName';
+import { DebugLog } from '../../Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
 
 const SumAnalyseType = [
@@ -127,11 +128,17 @@ export class SumAnalyseView extends Component {
     fourthAnalysisNode: Node = null;
     @property(Sprite)
     fourthItemArrowIcon: Sprite = null;
+
     start() {
-        this.judgeIsWeekOrMonth();
+        ReportManager.getInstance().userSumReport.addListener(this.onUserSumReportChange.bind(this));
     }
-    judgeIsWeekOrMonth() {
-        let reportPeriod = ReportManager.getInstance().userSumReport.report_period;
+    
+    onDestroy(): void {
+        ReportManager.getInstance().userSumReport.removeListener(this.onUserSumReportChange.bind(this));
+    }
+
+    onUserSumReportChange(data: UserSumReport) {
+        let reportPeriod = data.report_period;
         if (!reportPeriod) {
             this.userEvaluationLabel.node.destroy();
             return;
@@ -143,6 +150,7 @@ export class SumAnalyseView extends Component {
             this.userEvaluationLabel.string = `${personName}认知功能（月）保健评估`;
         }
     }
+
     clickFirstAnalysisItem() {
         if (this.firstItemArrowIcon.node.angle === 0) {
             // 箭头向下，展开内容
@@ -154,6 +162,7 @@ export class SumAnalyseView extends Component {
             this.hideChildNodes(this.firstAnalysisNode);
         }
     }
+
     async clickSecondAnalysisItem() {
         if (this.secondItemArrowIcon.node.angle === 0) {
             this.secondItemArrowIcon.node.angle = 180;
@@ -239,8 +248,13 @@ export class SumAnalyseView extends Component {
     }
 
     async loadReportListData() {
-        let reportPeriod = ReportManager.getInstance().userSumReport.report_period;
-        let reportList = ReportManager.getInstance().reportDataList;
+        let reportPeriod = ReportManager.getInstance().userSumReport.data.report_period;
+        if(!reportPeriod){
+            DebugLog.instance.error('reportPeriod is null');
+            return;
+        }
+
+        let reportList = ReportManager.getInstance().reportDataList.data;
         for(let index=0;index<reportList.length;index++){
             SumAnalyseType[index].title = reportList[index].cog_ability_desc;
             SumAnalyseType[index].weekTier = reportList[index].tier;
