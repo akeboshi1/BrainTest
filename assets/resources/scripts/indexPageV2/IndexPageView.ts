@@ -29,20 +29,28 @@ const { ccclass, property } = _decorator;
 export class IndexPageView extends AdaptComponent {
     @property(Prefab)
     private taskPrefab: Prefab = null;
+
     @property(Node)
     private taskContainer: Node = null;
+
     @property(Label)
     private userName: Label = null;
+
     @property(Sprite)
     private userIcon: Sprite = null;
+
     @property(Label)
     private dayLabel: Label = null;
+
     @property(Node)
     private radarMap: Node = null;
+
     @property(Prefab)
     private initDataPrefab: Prefab = null;
+
     @property(Node)
     private initDataParent: Node = null;
+
     @property(Node)
     private trendEntery: Node = null;
 
@@ -60,40 +68,39 @@ export class IndexPageView extends AdaptComponent {
     @property(Node)
     vipNode: Node = null;
 
-  
     start() {
         super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         UIManager.getInstance().registerPanel(VipAlert.NAME, BundleName.RESOURCES, "/prefab/VipPanel/VipAlert", VipAlert);
         const userData = PersonalCenterManager.getInstance().userInfoData;
-        if(userData){
+        if (userData) {
             this.getUserInfoCallBack();
-        }else{
+        } else {
             PersonalCenterManager.getInstance().requestUserInfo();
         }
+
+        ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
     }
-    clickNavBar(event, data) {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        if(!userData.has_initial_tier){
-            return;
-        }
-        EventManager.getInstance().emit('onShowReport', data);
+
+    protected onDestroy(): void {
+        ReportManager.getInstance().reportDataList.removeListener(this.onReportDataListChange.bind(this));
     }
+
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-        EventManager.getInstance().on(ReportManager.getBrainTrainingTiersCallback, this.getBrainTrainingTiersCallback, this);
     }
+
     onDisable() {
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
-        EventManager.getInstance().off(ReportManager.getBrainTrainingTiersCallback, this);
     }
-    // 获取大脑训练等级回调函数
-    getBrainTrainingTiersCallback() {
-        let reportDataList: ReportData[] = ReportManager.getInstance().reportDataList;
-        const values = reportDataList.map(item => item.tier);
+
+    onReportDataListChange(data:ReportData[]) {
+        const values = data.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setValues(values);
+        this.radarMap.getComponent(RadiaGraph).updateView(data);
     }
+
     async getUserInfoCallBack() {
         const userData = PersonalCenterManager.getInstance().userInfoData;
         if (!userData) { return; }
@@ -133,6 +140,7 @@ export class IndexPageView extends AdaptComponent {
             this.vipNode.active = false;
         }
     }
+
     async loadTaskSprite(path: string): Promise<SpriteFrame> {
         return new Promise((resolve, reject) => {
             resources.load(path, SpriteFrame, (err, spriteFrame) => {
@@ -151,27 +159,31 @@ export class IndexPageView extends AdaptComponent {
             });
         })
     }
+
     buyHandler() {
         UIManager.getInstance().showPanel(VipPanel.NAME);
     }
+
     setUserName(name) {
         if (name.length > 5) {
             name = name.substring(0, 6) + '...';
         }
         this.userName.string = name;
     }
+
     setDayLabel(day: number) {
         this.dayLabel.string = `${day}天`;
     }
+    
     renewalHandler() {
         UIManager.getInstance().showPanel(VipPanel.NAME);
     }
+
     async generateTask() {
         await this.taskConfig.loadConfig();
         let taskdata = this.taskConfig.taskData;
         for (let i = 0; i < taskdata.length; i++) {
             let taskItem = instantiate(this.taskPrefab);
-            // taskItem.setPosition(0, -i*350, 0);
             let taskController = taskItem.getComponent(TaskItemController);
             taskController.setTaskIndex(i);
             taskController.setTaskTitle(taskdata[i].title);
@@ -183,6 +195,7 @@ export class IndexPageView extends AdaptComponent {
             taskController.node.parent = this.taskContainer;
         }
     }
+
     showBrainTrainingPanel() {
         let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
         if (is_member) {
@@ -213,6 +226,7 @@ export class IndexPageView extends AdaptComponent {
             AlertManager.getInstance().showAlert(alertData);
         }
     }
+
     private _clickBoo = false;
     goToFingerCame() {
         if (this._clickBoo) {
@@ -223,6 +237,7 @@ export class IndexPageView extends AdaptComponent {
         EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onPreloadFinish.bind(this, url, BundleName.FINGERGAME), this, true);
         BundlePreloadManager.getInstance().preload(BundleName.FINGERGAME);
     }
+
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
         SceneManager.getInstance().changeScene(sceneName, "", { gametype: GameType.SKEWERS }).then((scene) => {
@@ -230,11 +245,21 @@ export class IndexPageView extends AdaptComponent {
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });
     }
+
     cofirmGoToVip() {
         UIManager.getInstance().showPanel(VipPanel.NAME);
     }
+
     showUserInfo() {
         PersonalCenterManager.getInstance().requestUserInfo();
+    }
+
+    clickNavBar(event, data) {
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        if (!userData.has_initial_tier) {
+            return;
+        }
+        EventManager.getInstance().emit('onShowReport', data);
     }
 }
 

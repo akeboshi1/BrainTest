@@ -1,3 +1,4 @@
+import { DataProvider } from "../Core/Data/DataProvider";
 import { EventManager } from "../Core/Manager/Event/EventManager";
 import { SocketData } from "../Core/Manager/Net/SocketData";
 import { SocketManager } from "../Core/Manager/Net/SocketManager";
@@ -44,67 +45,134 @@ export interface CogAbilityWeeklyScoresData {
 }
 
 export class ReportManager {
-
-    public static getBrainTrainingTiersCallback: string = "getBrainTrainingTiersCallback";
     public static getUserSumReportCallback: string = "getUserSumReportCallback";
     public static getCogAbilityWeeklyScoresCallback: string = "getCogAbilityWeeklyScoresCallback";
+    public static getRecentReportCallback: string = "getRecentReportCallback";
+    public static getInitialReportCallback: string = "getInitialReportCallback";
 
     private static _instance: ReportManager;
     private get_brain_training_tiers: string = "user.get_brain_training_tiers";
     private get_user_report: string = "user.get_user_report";
     private get_cog_ability_brief: string = "user.get_cog_ability_brief";
     private get_cog_ability_weekly_scores: string = "user.get_cog_ability_weekly_scores";
-    private _reportDataList = [];
-    private _reportDataListInitial = [];
-    private _userSumReport:UserSumReport;
-    private _weekStatistics : WeekStatisticsData = {
-        start_date:'',
-        end_date:''
-    };
+
+    private _reportDataList: DataProvider<ReportData[]> = new DataProvider<ReportData[]>();
+    private _reportDataListInitial: DataProvider<ReportData[]> = new DataProvider<ReportData[]>();
+
+    private _userSumReport: DataProvider<UserSumReport> = new DataProvider<UserSumReport>();
+    private _weekStatistics: DataProvider<WeekStatisticsData> = new DataProvider<WeekStatisticsData>();
+
     private _cogAbilityBriefData: CogAbilityBriefData = null;
     private _cogAbilityWeeklyScoresData: CogAbilityWeeklyScoresData = null;
     private cog_ability: string = "";
+
     public static getInstance(): ReportManager {
         if (ReportManager._instance == null) {
             ReportManager._instance = new ReportManager();
         }
         return ReportManager._instance;
     }
+
     public get cogAbilityBriefData(): CogAbilityBriefData {
         return this._cogAbilityBriefData;
     }
+
     public get cogAbilityWeeklyScoresData(): CogAbilityWeeklyScoresData {
         return this._cogAbilityWeeklyScoresData;
     }
-    public get reportDataList(): ReportData[] {
+
+    public get reportDataList(): DataProvider<ReportData[]> {
         return this._reportDataList;
     }
-    public get weekStatistics(): WeekStatisticsData {
+
+    public get weekStatistics(): DataProvider<WeekStatisticsData> {
         return this._weekStatistics;
     }
-    public get reportDataListInitial(): ReportData[] {
+
+    public get reportDataListInitial(): DataProvider<ReportData[]> {
         return this._reportDataListInitial;
     }
-    public get userSumReport(): any {
+
+    public get userSumReport(): DataProvider<UserSumReport> {
         return this._userSumReport;
     }
 
     private clearReportList() {
-        this._reportDataList = [];
+        this._reportDataList.data = [];
     }
+
     private clearReportListInitial() {
-        this._reportDataListInitial = [];
+        this._reportDataListInitial.data = [];
     }
+
     private clearWeekStatistics() {
-        this._weekStatistics = {
+        this._weekStatistics.data = {
             start_date: '',
             end_date: ''
         };
     }
-    private isInitial:boolean = false;
-    public getPersonalReport(param?) {
-        this.isInitial = param || false;
-        EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingTiersCallback, this);
+
+    //获取近期报告
+    public async getRecentReport(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const callback = (data: SocketData) => {
+                if (data.status == 0) {
+                    reject(new Error(data.message));
+                } else {
+                    if (data.data) {
+                        let weekStatistics: WeekStatisticsData = {
+                            start_date: '',
+                            end_date: ''
+                        };
+                        if (data.data['start_date']) {
+                            weekStatistics.start_date = data.data['start_date'];
+                        }
+                        if (data.data['end_date']) {
+                            weekStatistics.end_date = data.data['end_date'];
+                        }
+                        this._weekStatistics.data = weekStatistics;
+
+                        let result = data.data['result'];
+                        if (result.length > 0) {
+                            this.processReportData(this._reportDataList.data);
+                            this._reportDataList.data = result;
+                        }
+                    }
+                    resolve();
+                }
+            };
+
+            this.clearReportList();
+            this.clearWeekStatistics();
+
+            EventManager.getInstance().on(this.get_brain_training_tiers, callback, this, true);
+            this.getPersonalReport(false);
+        });
+    }
+
+    //获取初始报告
+    public async getInitialReport(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const callback = (data: SocketData) => {
+                if (data.status == 0) {
+                    reject(new Error(data.message));
+                } else {
+                    if (data.data) {
+                        this.processReportData(this._reportDataListInitial.data);
+                        this._reportDataListInitial.data = data.data['result'];
+                    }
+                    resolve();
+                }
+            };
+
+            this.clearReportListInitial();
+
+            EventManager.getInstance().on(this.get_brain_training_tiers, callback, this, true);
+            this.getPersonalReport(true);
+        });
+    }
+
+    private getPersonalReport(param?: boolean) {
         let socketData: any = {
             action: this.get_brain_training_tiers,
             skipDebounce: true
@@ -118,43 +186,6 @@ export class ReportManager {
         SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
     }
 
-    requestBrainTrainingTiersCallback(data: SocketData, context: any) {
-        EventManager.getInstance().off(this.get_brain_training_tiers, context);
-        if(!this.isInitial){
-            this.clearReportList();
-            this.clearWeekStatistics();
-        }else{
-            this.clearReportListInitial();
-        }
-        if (data.status == 0) {
-            DebugLog.instance.error(data.message);
-        } else {
-            if(!this.isInitial){
-                if (data.data) {
-                    if(data.data['start_date']){
-                        this._weekStatistics.start_date = data.data['start_date'];
-                    }
-                    if(data.data['end_date']){
-                        this._weekStatistics.end_date = data.data['end_date'];
-                    }
-                    let result = data.data['result'];
-                    if (result.length == 0) {
-                        // DebugLog.instance.log('暂无个人报告');
-                        EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
-                        return;
-                    }
-                    this._reportDataList = result;
-                    this.processReportData(this._reportDataList); 
-                }
-            }else{
-                if(data.data){
-                    this._reportDataListInitial = data.data['result'];
-                    this.processReportData(this._reportDataListInitial);
-                }
-            }
-            EventManager.getInstance().emit(ReportManager.getBrainTrainingTiersCallback, {});
-        }
-    }
     processReportData(reportDataList: ReportData[]) {
         // 期望的顺序
         const expectedOrder = ['LANGUAGE', 'JUDGMENT', 'MEMORY', 'EXECUTION', 'CALCULATION'];
@@ -165,37 +196,10 @@ export class ReportManager {
         reportDataList.push(...sortedReportDataList);
     }
 
-    // public getPersonalInitialReport() {
-    //     EventManager.getInstance().on(this.get_brain_training_tiers, this.requestBrainTrainingInitialCallback, this, true);
-    //     let requestBrainTrainingTiersSocket: SocketData = new SocketData({
-    //         action: this.get_brain_training_tiers,
-    //         data: {
-    //             "initial": true
-    //         },
-    //         skipDebounce: true
-    //     });
-    //     SocketManager.getInstance().send(requestBrainTrainingTiersSocket);
-    // }
-    // requestBrainTrainingInitialCallback(data: SocketData, context: any) {
-    //     EventManager.getInstance().off(this.get_brain_training_tiers, context);
-    //     this.clearReportListInitial();
-    //     if (data.status == 0) {
-    //         DebugLog.instance.error(data.message);
-    //     } else {
-    //         if(data.data){
-    //             let result = data.data['result'];
-    //             if (result.length == 0) {
-    //                 return;
-    //             }
-    //             this._reportDataListInitial = result;
-    //             this.processReportData(this._reportDataListInitial);
-    //         }
-    //     }
-    // }
-
     clearUserSumReport() {
-        this._userSumReport = null;
+        this._userSumReport.data = null;
     }
+
     public getUserSumReport() {
         this.clearUserSumReport();
         EventManager.getInstance().on(this.get_user_report, this.requestUserSumReportCallback, this, true);
@@ -205,31 +209,40 @@ export class ReportManager {
         });
         SocketManager.getInstance().send(requestUserSumReportSocket);
     }
-   
+
     requestUserSumReportCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_user_report, context);
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            // let result = data.data;
-            this._userSumReport = data.data;  
+            this._userSumReport.data = data.data;
         }
         EventManager.getInstance().emit(ReportManager.getUserSumReportCallback);
     }
-    getUserSumReportMonthData(){
-        let detail=this._userSumReport.report.detail;
-        if(!detail){
+
+    getUserSumReportMonthData() {
+        let userSumReport = this._userSumReport.data;
+        if (!userSumReport) {
+            return null;
+        }
+        let detail = userSumReport.report.detail;
+        if (!detail) {
             return null;
         }
         const expectedOrder = ['LANGUAGE', 'JUDGMENT', 'MEMORY', 'EXECUTION', 'CALCULATION'];
-        const sortedReportDataList = expectedOrder.map(ability => { 
+        const sortedReportDataList = expectedOrder.map(ability => {
             return detail.find(item => item.cog_ability === ability);
         }).filter(item => item !== undefined);
         return sortedReportDataList;
     }
-    getFirstAnalysisDataByIndex(index: number):string{
-       let array:string[] = this._userSumReport.report.analysis[index];
-       return array.join(' ; ');  
+
+    getFirstAnalysisDataByIndex(index: number): string {
+        let userSumReport = this._userSumReport.data;
+        if (!userSumReport) {
+            return null;
+        }
+        let array: string[] = userSumReport.report.analysis[index];
+        return array.join(' ; ');
     }
 
     public getCogAbilityBrief(cog_ability: string) {
@@ -285,23 +298,27 @@ export class ReportManager {
                 return;
             }
             let result = data.data;
-        
+
             this._cogAbilityWeeklyScoresData = result;
-            EventManager.getInstance().emit(ReportManager.getCogAbilityWeeklyScoresCallback, {});         
+            EventManager.getInstance().emit(ReportManager.getCogAbilityWeeklyScoresCallback, {});
         }
     }
+
     clearCogAbilityWeeklyScoresData() {
         this._cogAbilityWeeklyScoresData = null;
     }
+
     getCogAbilityWeeklyScoresDataByIndex(index: number) {
         return this._cogAbilityWeeklyScoresData.result;
     }
+
     getCogAbilityWeeklyFirstDayAndLastDayByIndex(index: number) {
         return {
             first_day: this._cogAbilityWeeklyScoresData.first_day,
             last_day: this._cogAbilityWeeklyScoresData.last_day
         };
     }
+
     getCogAbilityWeeklyTotalByIndex(index: number) {
         return this._cogAbilityWeeklyScoresData.total;
     }
