@@ -79,10 +79,24 @@ interface MyComponent {
 }
 
 // 从配置文件读取 SFTP 配置
-async function loadSftpConfig() {
+async function loadSftpConfig(environment?: string) {
     try {
         const configPath = join(Editor.Project.path, 'sftp-config.json');
         const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+        
+        // 根据环境选择正确的 remotePath
+        if (environment && typeof config.remotePath === 'object' && config.remotePath !== null) {
+            // 新格式：remotePath 是一个对象，包含 development 和 production
+            const env = environment.toLowerCase() === 'production' ? 'production' : 'development';
+            const envPath = config.remotePath[env];
+            if (envPath) {
+                config.remotePath = envPath;
+                console.log(`使用 ${env} 环境的远程路径: ${envPath}`);
+            } else {
+                console.warn(`未找到 ${env} 环境的远程路径配置，使用默认路径`);
+            }
+        }
+        
         return config;
     } catch (error) {
         console.error('读取 SFTP 配置失败:', error);
@@ -423,7 +437,9 @@ module.exports = Editor.Panel.define({
                     // 组件挂载时加载发布设置
                     this.loadPublishSetting();
                     this.checkBundleVersion(); // 初始检查版本状态
-                    loadSftpConfig().then(config => {
+                    
+                    // 加载SFTP配置，使用默认的开发环境
+                    loadSftpConfig('development').then(config => {
                         if (config) {
                             this.sftpConfig = config;
                         }
@@ -774,6 +790,18 @@ module.exports = Editor.Panel.define({
                         }
 
                         this.uploadStatus = 'uploading';
+                        
+                        // 获取环境配置并转换为小写
+                        const environment = this.configObject.environment?.toLowerCase() == 'development' ? 'development' : 'production';
+                        
+                        // 根据环境重新加载SFTP配置
+                        const sftpConfig = await loadSftpConfig(environment);
+                        if (!sftpConfig) {
+                            this.uploadStatus = 'failed';
+                            Editor.Dialog.error('无法加载SFTP配置');
+                            return;
+                        }
+                        
                         // 创建SFTP客户端并添加调试功能
                         this.currentSftp = new Client();
                         // 启用调试日志
@@ -805,10 +833,10 @@ module.exports = Editor.Panel.define({
                             // 使用超时控制初始连接
                             await withTimeout(
                                 this.currentSftp.connect({
-                                    host: this.sftpConfig.host,
-                                    port: this.sftpConfig.port,
-                                    username: this.sftpConfig.username,
-                                    password: this.sftpConfig.password,
+                                    host: sftpConfig.host,
+                                    port: sftpConfig.port,
+                                    username: sftpConfig.username,
+                                    password: sftpConfig.password,
                                     readyTimeout: 10000, // 10秒连接超时
                                 }),
                                 20000,
@@ -816,9 +844,8 @@ module.exports = Editor.Panel.define({
                             );
                             console.log('服务器连接成功！');
 
-                            // 获取环境配置并转换为小写
-                            const environment = this.configObject.environment?.toLowerCase() == 'development' ? 'develop' : 'production';
-                            const remotePath = join(this.sftpConfig.remotePath, environment);
+                            // 确定远程路径（不再需要拼接环境路径，因为配置中已经包含了）
+                            const remotePath = sftpConfig.remotePath;
                             console.log(`目标路径: ${remotePath}`);
 
                             // 检查本地目录是否存在

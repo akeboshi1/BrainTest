@@ -1,11 +1,11 @@
 {
   "app_version": "1.0",
   "dev_remote_url": "https://kele.paipai.xinjiaxianglao.com/develop/",
-  "pro_remote_url": "https://kele.paipai.xinjiaxianglao.com/production/",
+  "pro_remote_url": "https://colapai.xinjiaxianglao.com/app/production/",
   "dev_api_url": "wss://test.paipai2.xinjiaxianglao.com/api/home",
-  "pro_api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
-  "environment": "DEVELOPMENT",
+  "pro_api_url": "wss://colapai.xinjiaxianglao.com/api/home",
+  "environment": "PRODUCTION",
   "isMCI": false,
-  "isRemoteBundle": false,
-  "isFullUpload": true
+  "isRemoteBundle": true,
+  "isFullUpload": false
 }
