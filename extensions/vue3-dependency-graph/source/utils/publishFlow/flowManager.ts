@@ -472,6 +472,21 @@ export class FlowManager {
                 if (existsSync(configPath)) {
                     const configData = JSON.parse(readFileSync(configPath, 'utf-8'));
                     sftpConfig = configData;
+                    
+                    // 根据环境选择正确的 remotePath
+                    if (typeof sftpConfig.remotePath === 'object' && sftpConfig.remotePath !== null) {
+                        // 新格式：remotePath 是一个对象，包含 development 和 production
+                        const envPath = sftpConfig.remotePath[env];
+                        if (envPath) {
+                            sftpConfig.remotePath = envPath;
+                            console.log(`使用 ${env} 环境的远程路径: ${envPath}`);
+                        } else {
+                            console.warn(`未找到 ${env} 环境的远程路径配置，使用默认路径`);
+                        }
+                    } else {
+                        // 旧格式：remotePath 是字符串，保持兼容性
+                        console.log(`使用兼容模式的远程路径: ${sftpConfig.remotePath}`);
+                    }
                 } else {
                     console.warn('SFTP配置文件不存在，使用默认配置');
                 }
