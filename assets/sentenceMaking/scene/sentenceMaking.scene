@@ -4122,7 +4122,9 @@
         "__expectedType__": "cc.SpriteFrame"
       }
     ],
-    "timerComponent": null,
+    "timerComponent": {
+      "__id__": 107
+    },
     "animShow": {
       "__id__": 53
     },
@@ -4132,7 +4134,9 @@
     "progressBar": {
       "__id__": 95
     },
-    "guankaLabel": null,
+    "guankaLabel": {
+      "__id__": 98
+    },
     "correctAnswerNode": {
       "__id__": 55
     },
@@ -4200,7 +4204,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 959.9999999999999,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
