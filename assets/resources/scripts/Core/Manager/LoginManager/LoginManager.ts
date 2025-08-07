@@ -100,7 +100,7 @@ export class LoginManager {
 
     private setInviteCodeCallBack(data: any) {
         if (data.status == 0) {
-            AlertManager.getInstance().showSocketAlert("无效验证码");
+            AlertManager.getInstance().showSocketAlert("无效邀请码");
             return;
         }
 
