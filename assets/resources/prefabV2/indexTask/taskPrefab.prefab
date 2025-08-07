@@ -190,8 +190,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 220,
-      "height": 200
+      "width": 223,
+      "height": 176
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -229,7 +229,7 @@
     "_spriteFrame": null,
     "_type": 0,
     "_fillType": 0,
-    "_sizeMode": 0,
+    "_sizeMode": 1,
     "_fillCenter": {
       "__type__": "cc.Vec2",
       "x": 0,
@@ -380,8 +380,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
-      "height": 50.4
+      "width": 198,
+      "height": 83.16
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -411,25 +411,25 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 0,
+      "g": 0,
+      "b": 0,
       "a": 255
     },
     "_string": "去完成",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 66,
+    "_fontSize": 66,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 66,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -525,10 +525,7 @@
       "b": 255,
       "a": 255
     },
-    "_spriteFrame": {
-      "__uuid__": "bf0c0ea2-2a25-4edb-bd99-7d07262a25ee@f9941",
-      "__expectedType__": "cc.SpriteFrame"
-    },
+    "_spriteFrame": null,
     "_type": 0,
     "_fillType": 0,
     "_sizeMode": 0,
@@ -919,8 +916,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -118,
-      "y": 92.453,
+      "x": -158,
+      "y": 101.353,
       "z": 0
     },
     "_lrot": {
@@ -960,7 +957,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 312.75339368519343,
+      "width": 300,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -1008,7 +1005,7 @@
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
-    "_isItalic": true,
+    "_isItalic": false,
     "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
@@ -1078,8 +1075,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -29.885,
-      "y": -33.985,
+      "x": -46,
+      "y": -50.585,
       "z": 0
     },
     "_lrot": {
@@ -1119,8 +1116,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 480,
-      "height": 130.39999999999998
+      "width": 532.4,
+      "height": 211.89999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1155,14 +1152,14 @@
       "b": 0,
       "a": 173
     },
-    "_string": "专为老年人设计的脑力训练\n游戏，通过认知挑战延缓\n阿尔茨海默",
+    "_string": "专为老年人设计的脑力\n训练游戏，通过认知挑战\n延缓阿尔茨海默",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
-    "_lineHeight": 45,
-    "_overflow": 2,
+    "_lineHeight": 65,
+    "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
