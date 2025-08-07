@@ -61,6 +61,7 @@ interface MyComponent {
     openVersionFileLocation(): Promise<void>;
     uploadToServer(): Promise<void>;
     cancelUpload(): Promise<void>;
+    uploadFolderWithProgress(localFolderPath: string, remoteFolderPath: string): Promise<void>;
     sftpConfig: {
         host: string;
         port: number;
@@ -70,7 +71,7 @@ interface MyComponent {
     };
     uploadStatus: 'idle' | 'uploading' | 'success' | 'failed';
     uploadStatusText: Record<string, string>;
-    currentSftp: Client;
+    currentSftp: Client | null;
     uploadProgress: number;
     uploadedFiles: number;
     totalFiles: number;
@@ -799,127 +800,6 @@ module.exports = Editor.Panel.define({
                             ]).finally(() => clearTimeout(timeoutId));
                         };
 
-                        // 添加队列控制
-                        const createQueue = (concurrency: number) => {
-                            const queue: Array<() => Promise<any>> = [];
-                            let activeCount = 0;
-                            
-                            const runTask = async () => {
-                                if (activeCount >= concurrency || queue.length === 0) {
-                                    return;
-                                }
-                                
-                                activeCount++;
-                                const task = queue.shift();
-                                
-                                try {
-                                    if (task) {
-                                        await task();
-                                    }
-                                } catch (error) {
-                                    console.error('任务执行失败:', error);
-                                } finally {
-                                    activeCount--;
-                                    runTask(); // 尝试执行下一个任务
-                                }
-                            };
-                            
-                            const addTask = (task: () => Promise<any>) => {
-                                queue.push(task);
-                                runTask(); // 尝试立即执行任务
-                            };
-                            
-                            const waitComplete = () => {
-                                if (activeCount === 0 && queue.length === 0) {
-                                    return Promise.resolve();
-                                }
-                                
-                                return new Promise<void>(resolve => {
-                                    const checkInterval = setInterval(() => {
-                                        if (activeCount === 0 && queue.length === 0) {
-                                            clearInterval(checkInterval);
-                                            resolve();
-                                        }
-                                    }, 100);
-                                });
-                            };
-                            
-                            return { addTask, waitComplete };
-                        };
-
-                        // 监控连接状态
-                        let isConnected = true;
-                        let connectionCheckInterval: NodeJS.Timeout;
-                        
-                        // 检查SFTP连接状态并在需要时重新连接
-                        const checkAndReconnect = async (): Promise<boolean> => {
-                            try {
-                                if (!this.currentSftp) {
-                                    console.warn('SFTP客户端不存在，创建新的连接');
-                                    this.currentSftp = new Client();
-                                    await this.currentSftp.connect({
-                                        host: this.sftpConfig.host,
-                                        port: this.sftpConfig.port,
-                                        username: this.sftpConfig.username,
-                                        password: this.sftpConfig.password,
-                                        readyTimeout: 10000
-                                    });
-                                    return true;
-                                }
-                                
-                                // 尝试执行一个简单操作来检查连接状态
-                                await this.currentSftp.list('.');
-                                return true;
-                            } catch (error) {
-                                console.warn('连接检查失败，尝试重新连接', error);
-                                
-                                try {
-                                    // 先关闭任何可能存在的连接
-                                    if (this.currentSftp) {
-                                        try {
-                                            await this.currentSftp.end();
-                                        } catch (e) {
-                                            console.error('关闭旧连接失败', e);
-                                        }
-                                    }
-                                    
-                                    // 创建新连接
-                                    this.currentSftp = new Client();
-                                    await this.currentSftp.connect({
-                                        host: this.sftpConfig.host,
-                                        port: this.sftpConfig.port,
-                                        username: this.sftpConfig.username,
-                                        password: this.sftpConfig.password,
-                                        readyTimeout: 10000
-                                    });
-                                    console.log('重新连接成功');
-                                    return true;
-                                } catch (reconnectError) {
-                                    console.error('重新连接失败', reconnectError);
-                                    return false;
-                                }
-                            }
-                        };
-                        
-                        // 启动连接状态监控
-                        const startConnectionMonitor = () => {
-                            // 每60秒检查一次连接
-                            connectionCheckInterval = setInterval(async () => {
-                                console.log('执行定期连接检查...');
-                                isConnected = await checkAndReconnect();
-                                if (!isConnected) {
-                                    console.error('连接已断开且无法重新连接');
-                                }
-                            }, 60000);
-                        };
-                        
-                        // 停止连接监控
-                        const stopConnectionMonitor = () => {
-                            if (connectionCheckInterval) {
-                                clearInterval(connectionCheckInterval);
-                            }
-                        };
-
                         try {
                             console.log('开始连接服务器...');
                             // 使用超时控制初始连接
@@ -948,260 +828,87 @@ module.exports = Editor.Panel.define({
                             }
                             console.log(`本地目录检查通过: ${localPath}`);
                             
-                            // 计算要上传的文件总数
-                            const calculateFiles = (dir: string): number => {
-                                let count = 0;
-                                const items = readdirSync(dir);
-                                for (const item of items) {
-                                    const itemPath = join(dir, item);
-                                    if (lstatSync(itemPath).isDirectory()) {
-                                        count += calculateFiles(itemPath);
-                                    } else {
-                                        count++;
-                                    }
-                                }
-                                return count;
-                            };
-                            
-                            this.totalFiles = calculateFiles(localPath);
-                            console.log(`需要上传的文件总数: ${this.totalFiles}`);
-                            
                             // 路径格式化函数，确保使用正确的分隔符
                             const formatRemotePath = (path: string): string => {
-                                // 转换为正斜杠格式（适用于大多数SFTP服务器）
                                 return path.replace(/\\/g, '/');
                             };
-                            
-                            // 手动实现上传目录的功能，以便跟踪进度
-                            const uploadQueue = createQueue(5); // 最多5个并发上传
-                            const failedUploads: Array<{ local: string, remote: string }> = [];
-                            
-                            const uploadDirectory = async (localDir: string, remoteDir: string): Promise<void> => {
-                                // 格式化远程路径
-                                remoteDir = formatRemotePath(remoteDir);
-                                // 仅在顶层目录输出日志
-                                if (localDir === localPath) {
-                                    console.log(`格式化后的远程路径: ${remoteDir}`);
-                                }
-                                
-                                // 确保远程目录存在
-                                try {
-                                    // 仅在顶层目录输出日志
-                                    if (localDir === localPath) {
-                                        console.log(`准备处理远程目录: ${remoteDir}`);
-                                    }
-                                    
-                                    // 先检查目录是否已存在
-                                    let dirExists = false;
-                                    try {
-                                        // 移除过多的日志
-                                        const stats = await withTimeout(
-                                            this.currentSftp.stat(remoteDir),
-                                            15000,
-                                            '检查远程目录'
-                                        );
-                                        
-                                        // 简化判断逻辑，使用类型断言
-                                        const statsAny = stats as any;
-                                        let isDir = false;
-                                        
-                                        // 尝试使用不同方式判断是否为目录
-                                        if (typeof statsAny.isDirectory === 'function') {
-                                            isDir = statsAny.isDirectory();
-                                        } else if (typeof statsAny.isDirectory === 'boolean') {
-                                            isDir = statsAny.isDirectory;
-                                        } else if (statsAny.type === 'd') {
-                                            isDir = true;
-                                        } else if (statsAny.mode && (statsAny.mode & 0o40000) !== 0) {
-                                            isDir = true;
-                                        }
-                                        
-                                        if (isDir) {
-                                            // 移除过多的日志
-                                            dirExists = true;
-                                        } else {
-                                            console.warn(`目标路径存在但不是目录: ${remoteDir}`);
-                                        }
-                                    } catch (statError) {
-                                        // 仅在顶层目录输出日志
-                                        if (localDir === localPath) {
-                                            console.log(`远程目录不存在，需要创建: ${remoteDir}`);
-                                        }
-                                    }
-                                    
-                                    // 如果目录不存在，才创建
-                                    if (!dirExists) {
-                                        // 仅在顶层目录输出详细日志
-                                        if (localDir === localPath) {
-                                            console.log(`尝试创建远程目录: ${remoteDir}`);
-                                        }
-                                        
-                                        // 为mkdir添加超时控制
-                                        await withTimeout(
-                                            this.currentSftp.mkdir(remoteDir, true),
-                                            30000, // 30秒超时
-                                            '创建远程目录'
-                                        ).catch(async (error) => {
-                                            console.warn(`使用递归方式创建目录失败，尝试手动创建: ${remoteDir}`, error);
-                                            
-                                            // 如果递归创建失败，尝试手动创建目录层次
-                                            const parts = remoteDir.replace(/\\/g, '/').split('/').filter(Boolean);
-                                            let currentPath = '';
-                                            
-                                            // 从根目录开始逐级创建
-                                            if (remoteDir.startsWith('/')) {
-                                                currentPath = '/';
-                                            }
-                                            
-                                            for (const part of parts) {
-                                                currentPath = currentPath ? `${currentPath}/${part}` : part;
-                                                try {
-                                                    // 精简日志输出
-                                                    // 检查目录是否存在
-                                                    try {
-                                                        const stats = await this.currentSftp.stat(currentPath);
-                                                        if (stats) {
-                                                            continue; // 目录已存在，跳过
-                                                        }
-                                                    } catch (statError) {
-                                                        // 目录不存在，继续创建
-                                                    }
-                                                    
-                                                    // 创建目录
-                                                    await withTimeout(
-                                                        this.currentSftp.mkdir(currentPath, false), // 不使用递归
-                                                        10000,
-                                                        `创建目录 ${currentPath}`
-                                                    );
-                                                } catch (mkdirError) {
-                                                    // 如果创建失败但目录可能已存在，继续处理
-                                                    console.warn(`创建目录失败，可能已存在: ${currentPath}`);
-                                                }
-                                            }
-                                        });
-                                    }
-                                    
-                                    // 仅在顶层目录输出日志
-                                    if (localDir === localPath) {
-                                        console.log(`远程目录处理完成: ${remoteDir}`);
-                                    }
-                                } catch (err) {
-                                    console.warn(`远程目录处理失败，尝试继续上传: ${remoteDir}`);
-                                    // 即使目录创建遇到问题，也尝试继续上传
-                                }
-                                
-                                // 获取目录下的所有文件
-                                const items = readdirSync(localDir);
-                                // 仅在顶层目录输出日志
-                                if (localDir === localPath) {
-                                    console.log(`目录 ${localDir} 中有 ${items.length} 个文件/文件夹`);
-                                }
-                                
-                                // 重试函数
-                                const withRetry = async (fn: () => Promise<any>, retries = 3, delay = 2000): Promise<any> => {
-                                    let lastError;
-                                    for (let i = 0; i < retries; i++) {
-                                        try {
-                                            return await fn();
-                                        } catch (err) {
-                                            console.warn(`操作失败，第 ${i+1}/${retries} 次重试`);
-                                            lastError = err;
-                                            // 最后一次重试前等待
-                                            if (i < retries - 1) {
-                                                await new Promise(resolve => setTimeout(resolve, delay));
-                                            }
-                                        }
-                                    }
-                                    throw lastError;
-                                };
-                                
-                                // 处理每个文件/文件夹
-                                for (const item of items) {
-                                    const localItemPath = join(localDir, item);
-                                    const remoteItemPath = formatRemotePath(join(remoteDir, item));
-                                    
-                                    if (lstatSync(localItemPath).isDirectory()) {
-                                        // 递归上传子目录
-                                        if (localDir === localPath) {
-                                            console.log(`处理子目录: ${item}`);
-                                        }
-                                        await uploadDirectory(localItemPath, remoteItemPath);
-                                    } else {
-                                        // 上传文件 - 添加到队列
-                                        uploadQueue.addTask(async () => {
-                                            this.currentUploadFile = item;
-                                            // 简化日志输出
-                                            
-                                            try {
-                                                await withRetry(async () => {
-                                                    // 精简日志
-                                                    await this.currentSftp.put(localItemPath, remoteItemPath);
-                                                });
-                                                
-                                                this.uploadedFiles++;
-                                                this.uploadProgress = (this.uploadedFiles / this.totalFiles) * 100;
-                                                // 每10个文件输出一次进度日志
-                                                if (this.uploadedFiles % 10 === 0 || this.uploadedFiles === this.totalFiles) {
-                                                    console.log(`进度: ${this.uploadProgress.toFixed(2)}% (${this.uploadedFiles}/${this.totalFiles})`);
-                                                }
-                                            } catch (error) {
-                                                console.error(`上传文件失败 (跳过继续): ${item}`);
-                                                failedUploads.push({ local: localItemPath, remote: remoteItemPath });
-                                            }
-                                        });
-                                    }
-                                }
-                            };
 
-                            console.log('开始上传文件...');
-                            console.log(`本地路径: ${localPath}`);
-                            console.log(`远程路径: ${remotePath}`);
+                            // 确定要上传的文件夹列表
+                            let foldersToUpload: string[] = [];
+                            const isFullUpload = this.configObject.isFullUpload === true;
                             
-                            // 启动连接监控
-                            startConnectionMonitor();
-                            
-                            // 上传整个目录
-                            console.log('正在执行上传目录操作...');
-                            try {
-                                await withTimeout(
-                                    (async () => {
-                                        // 先尝试直接创建远程目标目录
-                                        console.log(`正在准备目标目录: ${remotePath}`);
-                                        try {
-                                            await withTimeout(
-                                                this.currentSftp.mkdir(formatRemotePath(remotePath), true),
-                                                30000,
-                                                '创建主远程目录'
-                                            );
-                                            console.log(`目标目录准备完成: ${remotePath}`);
-                                        } catch (mkdirError) {
-                                            console.warn(`创建主远程目录失败，将在上传过程中逐级创建`);
-                                        }
-                                        
-                                        await uploadDirectory(localPath, remotePath);
-                                        console.log('等待所有上传任务完成...');
-                                        await uploadQueue.waitComplete();
-                                        console.log('所有上传任务已处理完成');
-                                        
-                                        // 报告失败的上传
-                                        if (failedUploads.length > 0) {
-                                            console.warn(`有 ${failedUploads.length} 个文件上传失败`);
-                                            console.warn('失败的文件列表:');
-                                            failedUploads.forEach(({local, remote}, index) => {
-                                                console.warn(`${index + 1}. ${local} -> ${remote}`);
-                                            });
-                                        }
-                                    })(),
-                                    1800000, // 增加到30分钟超时
-                                    '文件上传'
-                                );
-                                console.log('目录上传操作完成');
-                            } catch (uploadError) {
-                                console.error('目录上传操作失败:', uploadError);
-                                throw new Error(`文件上传失败: ${(uploadError as Error).message}`);
+                            if (isFullUpload) {
+                                // 全量上传：扫描根目录下的所有文件夹
+                                console.log('执行全量上传，扫描所有文件夹...');
+                                const items = readdirSync(localPath);
+                                foldersToUpload = items.filter((item: string) => {
+                                    const itemPath = join(localPath, item);
+                                    return lstatSync(itemPath).isDirectory();
+                                });
+                                console.log(`扫描到 ${foldersToUpload.length} 个文件夹:`, foldersToUpload);
+                            } else {
+                                // 增量上传：使用 changeBundleList 中的文件夹
+                                const changeBundleList = this.configObject.changeBundleList || [];
+                                if (changeBundleList.length === 0) {
+                                    console.warn('changeBundleList 为空，没有需要上传的文件夹');
+                                    this.uploadStatus = 'success';
+                                    Editor.Dialog.info('没有需要上传的文件');
+                                    return;
+                                }
+                                foldersToUpload = changeBundleList;
+                                console.log(`增量上传，需要上传 ${foldersToUpload.length} 个文件夹:`, foldersToUpload);
                             }
                             
-                            console.log('文件上传完成！');
+                            this.totalFiles = foldersToUpload.length;
+                            console.log(`需要上传的文件夹总数: ${this.totalFiles}`);
+
+                            // 创建远程目标目录
+                            console.log(`正在准备目标目录: ${remotePath}`);
+                            try {
+                                await withTimeout(
+                                    this.currentSftp.mkdir(formatRemotePath(remotePath), true),
+                                    30000,
+                                    '创建主远程目录'
+                                );
+                                console.log(`目标目录准备完成: ${remotePath}`);
+                            } catch (mkdirError) {
+                                console.warn(`创建主远程目录失败，将在上传过程中逐级创建`);
+                            }
+
+                            // 上传每个文件夹
+                            console.log('开始上传文件夹...');
+                            for (const folderName of foldersToUpload) {
+                                if (this.uploadStatus !== 'uploading') {
+                                    console.log('上传已中断');
+                                    break;
+                                }
+
+                                const localFolderPath = join(localPath, folderName);
+                                const remoteFolderPath = formatRemotePath(join(remotePath, folderName));
+                                
+                                // 检查本地文件夹是否存在
+                                if (!existsSync(localFolderPath)) {
+                                    console.warn(`本地文件夹不存在，跳过: ${localFolderPath}`);
+                                    continue;
+                                }
+                                
+                                console.log(`正在上传文件夹: ${folderName} -> ${remoteFolderPath}`);
+                                
+                                try {
+                                    // 使用 uploadDir 方法上传文件夹
+                                    await this.uploadFolderWithProgress(localFolderPath, remoteFolderPath);
+                                    
+                                    this.uploadedFiles++;
+                                    this.uploadProgress = (this.uploadedFiles / this.totalFiles) * 100;
+                                    
+                                    console.log(`文件夹上传完成: ${folderName} (${this.uploadedFiles}/${this.totalFiles})`);
+                                } catch (error) {
+                                    console.error(`上传文件夹失败: ${folderName}`, error);
+                                    // 继续上传其他文件夹，不中断整个流程
+                                }
+                            }
+                            
+                            console.log('所有文件夹上传完成！');
 
                             // 验证上传结果
                             console.log('上传完成，正在验证结果...');
@@ -1224,16 +931,67 @@ module.exports = Editor.Panel.define({
                             this.uploadStatus = 'failed';
                             Editor.Dialog.error('上传失败: ' + (error instanceof Error ? error.message : String(error)));
                         } finally {
-                            // 停止连接监控
-                            stopConnectionMonitor();
                             if (this.currentSftp) {
                                 try {
-                                    await this.currentSftp.end();
-                                    console.log('SFTP连接已关闭');
+                                    // 使用更安全的方式关闭连接
+                                    const sftp = this.currentSftp;
+                                    this.currentSftp = null; // 先置空引用
+                                    
+                                    // 使用 Promise 包装连接关闭操作
+                                    await new Promise<void>((resolve) => {
+                                        const timeout = setTimeout(() => {
+                                            console.warn('关闭连接超时，强制结束');
+                                            resolve();
+                                        }, 5000);
+                                        
+                                        try {
+                                            sftp.end()
+                                                .then(() => {
+                                                    clearTimeout(timeout);
+                                                    console.log('SFTP连接已关闭');
+                                                    resolve();
+                                                })
+                                                .catch((error) => {
+                                                    clearTimeout(timeout);
+                                                    console.warn('关闭SFTP连接时出现警告:', error);
+                                                    // 不抛出错误，只记录警告
+                                                    resolve();
+                                                });
+                                        } catch (error) {
+                                            clearTimeout(timeout);
+                                            console.warn('调用 end() 方法时出现错误:', error);
+                                            resolve();
+                                        }
+                                    });
                                 } catch (closeError) {
-                                    console.error('关闭连接时发生错误');
+                                    console.error('关闭连接时发生错误:', closeError);
                                 }
                             }
+                        }
+                    },
+                    
+                    // 新增：带进度输出的文件夹上传方法
+                    async uploadFolderWithProgress(this: MyComponent, localFolderPath: string, remoteFolderPath: string): Promise<void> {
+                        console.log(`使用 uploadDir 方法上传文件夹: ${localFolderPath} -> ${remoteFolderPath}`);
+                        
+                        if (!this.currentSftp) {
+                            throw new Error('SFTP客户端不存在');
+                        }
+                        
+                        // 添加上传进度监听器
+                        const uploadListener = (info: { source: string; destination: string }) => {
+                            console.log(`上传进度: ${info.source} -> ${info.destination}`);
+                            this.currentUploadFile = info.source.split('/').pop() || '';
+                        };
+                        
+                        // 注册上传事件监听器
+                        this.currentSftp.on('upload', uploadListener);
+                        
+                        try {
+                            await this.currentSftp.uploadDir(localFolderPath, remoteFolderPath);
+                        } finally {
+                            // 移除监听器
+                            this.currentSftp.removeListener('upload', uploadListener);
                         }
                     },
                     async cancelUpload(this: MyComponent) {

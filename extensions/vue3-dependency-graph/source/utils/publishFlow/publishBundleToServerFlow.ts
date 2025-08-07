@@ -9,7 +9,7 @@ import Client from 'ssh2-sftp-client';
  * 环境文件夹命名配置
  */
 const ENVIRONMENT_FOLDER_NAMES = {
-    development: 'develop',
+    development: 'test',
     production: 'production'
 } as const;
 
@@ -102,6 +102,10 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
     private incremental: boolean = true;
     private createdDirectories: Set<string> = new Set();
     private uploadPromises: Promise<void>[] = [];
+    private sftpConfig: PublishBundleToServerParams['sftpConfig'] | null = null;
+    private connectionMonitorInterval: NodeJS.Timeout | null = null;
+    private lastActivityTime: number = Date.now();
+    private currentUploadListener: ((info: { source: string; destination: string }) => void) | null = null;
     
     constructor() {
         super('发布Bundle到服务器', '将生成的Bundle上传到远程服务器');
@@ -125,6 +129,7 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         this.uploadQueue = [];
         this.createdDirectories.clear();
         this.uploadPromises = [];
+        this.sftpConfig = params.sftpConfig;
         
         // 设置并发数和增量上传
         this.concurrency = params.concurrency || 10;
@@ -165,6 +170,9 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             );
             
             this.updateProgress(10, '服务器连接成功');
+            
+            // 启动连接监控
+            this.startConnectionMonitor();
             
             // 确定远程路径
             const env = environment.toLowerCase() === 'development' ? ENVIRONMENT_FOLDER_NAMES.development : ENVIRONMENT_FOLDER_NAMES.production;
@@ -214,16 +222,90 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
                 this.handleFinish(FinishMethod.FAILURE, `上传失败: ${error instanceof Error ? error.message : String(error)}`);
             }
         } finally {
+            // 停止连接监控
+            this.stopConnectionMonitor();
+            
+            // 清理监听器引用
+            this.currentUploadListener = null;
+            
             // 关闭连接
             if (this.client) {
                 try {
-                    await this.client.end();
-                    console.log('SFTP连接已关闭');
+                    // 使用更安全的方式关闭连接
+                    const client = this.client;
+                    this.client = null; // 先置空引用，避免重复操作
+                    
+                    // 使用 Promise 包装连接关闭操作
+                    await new Promise<void>((resolve) => {
+                        // 设置超时，避免无限等待
+                        const timeout = setTimeout(() => {
+                            console.warn('关闭连接超时，强制结束');
+                            resolve();
+                        }, 5000);
+                        
+                        // 使用 try-catch 包装 end() 调用
+                        try {
+                            client.end()
+                                .then(() => {
+                                    clearTimeout(timeout);
+                                    console.log('SFTP连接已关闭');
+                                    resolve();
+                                })
+                                .catch((error) => {
+                                    clearTimeout(timeout);
+                                    console.warn('关闭SFTP连接时出现警告:', error);
+                                    // 不抛出错误，只记录警告
+                                    resolve();
+                                });
+                        } catch (error) {
+                            clearTimeout(timeout);
+                            console.warn('调用 end() 方法时出现错误:', error);
+                            resolve();
+                        }
+                    });
                 } catch (error) {
                     console.error('关闭SFTP连接失败:', error);
                 }
-                this.client = null;
             }
+        }
+    }
+    
+    /**
+     * 启动连接监控
+     */
+    private startConnectionMonitor(): void {
+        // 每30秒检查一次连接状态
+        this.connectionMonitorInterval = setInterval(async () => {
+            if (this.canceled || !this.isRunning) {
+                this.stopConnectionMonitor();
+                return;
+            }
+            
+            try {
+                // 检查连接是否还有响应
+                if (this.client) {
+                    await this.client.list('.');
+                    this.lastActivityTime = Date.now();
+                }
+            } catch (error) {
+                console.warn('连接监控检测到连接问题，尝试重新连接...');
+                try {
+                    await this.reconnectSftp();
+                    console.log('连接监控：重新连接成功');
+                } catch (reconnectError) {
+                    console.error('连接监控：重新连接失败', reconnectError);
+                }
+            }
+        }, 30000);
+    }
+    
+    /**
+     * 停止连接监控
+     */
+    private stopConnectionMonitor(): void {
+        if (this.connectionMonitorInterval) {
+            clearInterval(this.connectionMonitorInterval);
+            this.connectionMonitorInterval = null;
         }
     }
     
@@ -247,8 +329,14 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
                 continue;
             }
             
-            // 直接添加整个bundle目录作为上传任务，不进行递归扫描
+            // 检查是否为目录
             const stats = lstatSync(localBundlePath);
+            if (!stats.isDirectory()) {
+                console.warn(`Bundle路径不是目录，跳过: ${localBundlePath}`);
+                continue;
+            }
+            
+            // 直接添加整个bundle目录作为上传任务
             this.uploadQueue.push({
                 localPath: localBundlePath,
                 remotePath: `${remotePath}/${bundleName}`,
@@ -259,21 +347,6 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
             console.log(`添加bundle上传任务: ${bundleName} -> ${remotePath}/${bundleName}`);
         }
         
-        // 添加bundle_versions.json文件的上传任务
-        const versionsFilePath = join(localPath, 'bundle_versions.json');
-        if (existsSync(versionsFilePath)) {
-            const stats = lstatSync(versionsFilePath);
-            this.uploadQueue.push({
-                localPath: versionsFilePath,
-                remotePath: `${remotePath}/bundle_versions.json`,
-                size: stats.size
-            });
-            this.totalFiles++;
-            console.log(`添加bundle_versions.json上传任务: ${versionsFilePath} -> ${remotePath}/bundle_versions.json`);
-        } else {
-            console.warn('bundle_versions.json文件不存在，跳过上传');
-        }
-        
         console.log(`构建上传队列完成，共 ${this.totalFiles} 个任务`);
     }
 
@@ -282,93 +355,40 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
      */
     private async buildUploadQueueForFullUpload(localPath: string, remotePath: string): Promise<void> {
         console.log('构建全量上传的文件列表...');
-        const localBundlePath = localPath;
-        const remoteBundlePath = remotePath;
-
-        if (!existsSync(localBundlePath)) {
-            throw new Error(`本地Bundle目录不存在: ${localBundlePath}`);
+        
+        if (!existsSync(localPath)) {
+            throw new Error(`本地Bundle目录不存在: ${localPath}`);
         }
 
-        // 直接添加整个目录作为上传任务，跳过扫描
-        const stats = lstatSync(localBundlePath);
-        this.uploadQueue.push({
-            localPath: localBundlePath,
-            remotePath: remoteBundlePath,
-            size: stats.size
+        // 扫描根目录下的所有文件夹
+        const items = readdirSync(localPath);
+        const folders = items.filter(item => {
+            const itemPath = join(localPath, item);
+            return existsSync(itemPath) && lstatSync(itemPath).isDirectory();
         });
-        this.totalFiles++;
-        console.log(`添加目录上传任务: ${localBundlePath} -> ${remoteBundlePath}`);
         
-        // 添加bundle_versions.json文件的上传任务
-        const versionsFilePath = join(localPath, 'bundle_versions.json');
-        if (existsSync(versionsFilePath)) {
-            const versionsStats = lstatSync(versionsFilePath);
+        console.log(`扫描到 ${folders.length} 个文件夹:`, folders);
+        
+        // 为每个文件夹添加上传任务
+        for (const folderName of folders) {
+            if (this.canceled) {
+                throw new Error('构建上传队列已取消');
+            }
+            
+            const localFolderPath = join(localPath, folderName);
+            const stats = lstatSync(localFolderPath);
+            
             this.uploadQueue.push({
-                localPath: versionsFilePath,
-                remotePath: `${remotePath}/bundle_versions.json`,
-                size: versionsStats.size
+                localPath: localFolderPath,
+                remotePath: `${remotePath}/${folderName}`,
+                size: stats.size
             });
             this.totalFiles++;
-            console.log(`添加bundle_versions.json上传任务: ${versionsFilePath} -> ${remotePath}/bundle_versions.json`);
-        } else {
-            console.warn('bundle_versions.json文件不存在，跳过上传');
+            
+            console.log(`添加文件夹上传任务: ${folderName} -> ${remotePath}/${folderName}`);
         }
         
         console.log(`全量上传队列构建完成，共 ${this.totalFiles} 个任务`);
-    }
-    
-    /**
-     * 扫描单个bundle目录
-     */
-    private async scanBundleDirectory(localDir: string, remoteDir: string): Promise<void> {
-        const items = readdirSync(localDir);
-        
-        for (const item of items) {
-            if (this.canceled) {
-                throw new Error('扫描已取消');
-            }
-            
-            const localItemPath = join(localDir, item);
-            const remoteItemPath = `${remoteDir}/${item}`;
-            
-            if (lstatSync(localItemPath).isDirectory()) {
-                // 递归扫描子目录
-                await this.scanBundleDirectory(localItemPath, remoteItemPath);
-            } else {
-                // 检查是否需要上传（增量上传）
-                if (this.incremental && await this.shouldSkipFile(localItemPath, remoteItemPath)) {
-                    console.log(`跳过文件（已存在且相同）: ${item}`);
-                    continue;
-                }
-                
-                const stats = lstatSync(localItemPath);
-                this.uploadQueue.push({
-                    localPath: localItemPath,
-                    remotePath: remoteItemPath,
-                    size: stats.size
-                });
-                this.totalFiles++;
-            }
-        }
-    }
-    
-    /**
-     * 检查是否应该跳过文件（增量上传）
-     */
-    private async shouldSkipFile(localPath: string, remotePath: string): Promise<boolean> {
-        if (!this.client) return false;
-        
-        try {
-            const remoteStats = await this.client.stat(remotePath);
-            const localStats = lstatSync(localPath);
-            
-            // 比较文件大小
-            const remoteSize = (remoteStats as any).size || 0;
-            return remoteSize === localStats.size;
-        } catch {
-            // 远程文件不存在，需要上传
-            return false;
-        }
     }
     
     /**
@@ -451,32 +471,161 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         try {
             await this.withRetry(
                 async () => {
+                    // 检查连接状态，如果连接丢失则重新连接
+                    if (!this.client) {
+                        console.log('SFTP客户端不存在，尝试重新连接...');
+                        await this.reconnectSftp();
+                    } else {
+                        // 尝试执行一个简单操作来检查连接状态
+                        try {
+                            await this.client.list('.');
+                        } catch (error) {
+                            console.log('SFTP连接检查失败，尝试重新连接...');
+                            await this.reconnectSftp();
+                        }
+                    }
+                    
                     // 检查本地路径是否为目录
                     const stats = lstatSync(task.localPath);
                     if (stats.isDirectory()) {
                         // 如果是目录，使用uploadDir方法上传整个目录
                         console.log(`上传目录: ${task.localPath} -> ${task.remotePath}`);
-                        await this.client!.uploadDir(task.localPath, task.remotePath);
+                        
+                        // 先移除可能存在的旧监听器
+                        if (this.currentUploadListener) {
+                            this.client!.removeListener('upload', this.currentUploadListener);
+                            this.currentUploadListener = null;
+                        }
+                        
+                        // 添加上传进度监听器
+                        this.currentUploadListener = (info: { source: string; destination: string }) => {
+                            console.log(`上传进度: ${info.source} -> ${info.destination}`);
+                            this.currentUploadFile = info.source.split('/').pop() || '';
+                            this.lastActivityTime = Date.now(); // 更新活动时间
+                            
+                            // 更新进度信息
+                            this.uploadedFiles++;
+                            
+                            // 减少进度更新频率，每10个文件更新一次
+                            if (this.uploadedFiles % 10 === 0 || this.uploadedFiles === this.totalFiles) {
+                                const progress = Math.min(95, 35 + Math.floor((this.uploadedFiles / this.totalFiles) * 60));
+                                this.updateProgress(progress, `已上传 ${this.uploadedFiles}/${this.totalFiles} 个文件`);
+                            }
+                        };
+                        
+                        // 注册上传事件监听器
+                        this.client!.on('upload', this.currentUploadListener);
+                        
+                        try {
+                            await this.client!.uploadDir(task.localPath, task.remotePath);
+                        } finally {
+                            // 移除监听器
+                            if (this.currentUploadListener) {
+                                this.client!.removeListener('upload', this.currentUploadListener);
+                                this.currentUploadListener = null;
+                            }
+                        }
                     } else {
                         // 如果是文件，使用put方法上传
                         console.log(`上传文件: ${task.localPath} -> ${task.remotePath}`);
                         await this.client!.put(task.localPath, task.remotePath);
+                        this.lastActivityTime = Date.now(); // 更新活动时间
+                        
+                        this.uploadedFiles++;
+                        
+                        // 减少进度更新频率，每10个文件更新一次
+                        if (this.uploadedFiles % 10 === 0 || this.uploadedFiles === this.totalFiles) {
+                            const progress = Math.min(95, 35 + Math.floor((this.uploadedFiles / this.totalFiles) * 60));
+                            this.updateProgress(progress, `已上传 ${this.uploadedFiles}/${this.totalFiles} 个文件`);
+                        }
                     }
                 },
-                2, // 减少重试次数
-                1000 // 减少重试间隔
+                5, // 增加重试次数
+                3000 // 增加重试间隔
             );
-            
-            this.uploadedFiles++;
-            
-            // 减少进度更新频率，每10个文件更新一次
-            if (this.uploadedFiles % 10 === 0 || this.uploadedFiles === this.totalFiles) {
-                const progress = Math.min(95, 35 + Math.floor((this.uploadedFiles / this.totalFiles) * 60));
-                this.updateProgress(progress, `已上传 ${this.uploadedFiles}/${this.totalFiles} 个文件`);
-            }
         } catch (error) {
             console.error(`上传文件失败: ${task.localPath}`, error);
+            
+            // 如果是连接错误，尝试重新连接
+            if (error instanceof Error && (
+                error.message.includes('ECONNRESET') ||
+                error.message.includes('No SFTP connection') ||
+                error.message.includes('Connection lost')
+            )) {
+                console.log('检测到连接错误，尝试重新连接...');
+                try {
+                    await this.reconnectSftp();
+                    console.log('重新连接成功，可以继续上传');
+                } catch (reconnectError) {
+                    console.error('重新连接失败:', reconnectError);
+                }
+            }
+            
             // 继续处理其他文件，不抛出错误
+        }
+    }
+    
+    /**
+     * 重新连接SFTP
+     */
+    private async reconnectSftp(): Promise<void> {
+        if (!this.client) {
+            throw new Error('SFTP客户端不存在');
+        }
+        
+        try {
+            // 先尝试关闭现有连接
+            try {
+                const oldClient = this.client;
+                this.client = null; // 先置空引用
+                
+                await new Promise<void>((resolve) => {
+                    const timeout = setTimeout(() => {
+                        console.warn('关闭旧连接超时，强制结束');
+                        resolve();
+                    }, 3000);
+                    
+                    try {
+                        oldClient.end()
+                            .then(() => {
+                                clearTimeout(timeout);
+                                resolve();
+                            })
+                            .catch((error) => {
+                                clearTimeout(timeout);
+                                console.warn('关闭旧连接失败:', error);
+                                // 不抛出错误，继续执行
+                                resolve();
+                            });
+                    } catch (error) {
+                        clearTimeout(timeout);
+                        console.warn('调用旧连接 end() 方法时出现错误:', error);
+                        resolve();
+                    }
+                });
+            } catch (error) {
+                console.warn('关闭旧连接失败:', error);
+            }
+            
+            // 清理监听器引用
+            this.currentUploadListener = null;
+            
+            // 创建新的客户端
+            this.client = new Client();
+            
+            // 重新连接
+            await this.client.connect({
+                host: this.sftpConfig!.host,
+                port: this.sftpConfig!.port,
+                username: this.sftpConfig!.username,
+                password: this.sftpConfig!.password,
+                readyTimeout: 15000 // 增加连接超时时间
+            });
+            
+            console.log('SFTP重新连接成功');
+        } catch (error) {
+            console.error('SFTP重新连接失败:', error);
+            throw new Error(`重新连接失败: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
     
@@ -508,9 +657,19 @@ export class PublishBundleToServerFlow extends BaseProcessFlow {
         this.canceled = true;
         console.log('正在取消上传...');
         
+        // 停止连接监控
+        this.stopConnectionMonitor();
+        
+        // 清理监听器引用
+        this.currentUploadListener = null;
+        
         // 尝试关闭连接
         if (this.client) {
-            this.client.end().catch(error => {
+            const client = this.client;
+            this.client = null; // 先置空引用
+            
+            // 使用异步方式关闭连接，但不等待结果
+            client.end().catch(error => {
                 console.error('关闭SFTP连接失败:', error);
             });
         }
