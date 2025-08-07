@@ -9,7 +9,7 @@ import Client from 'ssh2-sftp-client';
  * 环境文件夹命名配置
  */
 const ENVIRONMENT_FOLDER_NAMES = {
-    development: 'test',
+    development: 'develop',
     production: 'production'
 } as const;
 
