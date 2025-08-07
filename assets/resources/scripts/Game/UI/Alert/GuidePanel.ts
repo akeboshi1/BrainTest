@@ -4,6 +4,8 @@ import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager
 import {GameCenterManager} from "db://assets/resources/scripts/Game/GameCenter/GameCenterManager";
 import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import {VideoControlPanel} from "./VideoControlPanel";
+import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
+import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
 const { ccclass, property } = _decorator;
 
 enum OptionButtonColor {
@@ -103,10 +105,7 @@ export class GuidePanel extends BasePanel {
         if (this.videoPlayer) {
             this.videoPlayer.playOnAwake = false;
         }
-        
-        // 初始化视频颜色
-        this.initVideoColor();
-        
+
         this.loadLocalVideo();
     }
 
@@ -234,9 +233,25 @@ export class GuidePanel extends BasePanel {
                 this.videoPlayer.clip = videoClip;
                 this.videoPlayer.playOnAwake = false; // 确保不会自动播放
 
+                this.adaptVideoPlayer();
+
             });
         }
     }
+
+    adaptVideoPlayer() {
+        if (!this.videoPlayer) {
+            return;
+        }
+
+        let scaleFactor = ScreenAdapter.getInstance().scaleFactor;
+
+
+        // 适配宽度
+        this.videoPlayer.node.setScale(scaleFactor, scaleFactor);
+    }
+
+    
 
     /**
      * 播放视频（外部调用接口）
