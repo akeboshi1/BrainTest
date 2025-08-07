@@ -201,6 +201,7 @@ export class GameAlert extends AdaptComponent {
                     this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "查看初测";
                 }else{
                     this.startBtn.node.active = true;
+                    this.startBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
                     this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
                     startBtnUITransform.width = Global.userData.curTaskData.type == TaskType.Review ? 300 : 900;
                 }
