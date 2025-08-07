@@ -916,7 +916,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -158,
+      "x": -149,
       "y": 101.353,
       "z": 0
     },
@@ -957,8 +957,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 300,
-      "height": 75.6
+      "width": 330,
+      "height": 83.16
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -996,10 +996,10 @@
     "_string": "今日份游戏",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 66,
+    "_fontSize": 66,
     "_fontFamily": "Arial",
-    "_lineHeight": 60,
+    "_lineHeight": 66,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1075,7 +1075,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -46,
+      "x": -44,
       "y": -50.585,
       "z": 0
     },
@@ -1155,10 +1155,10 @@
     "_string": "专为老年人设计的脑力\n训练游戏，通过认知挑战\n延缓阿尔茨海默",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 48,
-    "_fontSize": 48,
+    "_actualFontSize": 42,
+    "_fontSize": 42,
     "_fontFamily": "Arial",
-    "_lineHeight": 65,
+    "_lineHeight": 60,
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
@@ -1225,7 +1225,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 700,
+      "width": 726,
       "height": 330
     },
     "_anchorPoint": {
