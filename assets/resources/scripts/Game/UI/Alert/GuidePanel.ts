@@ -244,7 +244,7 @@ export class GuidePanel extends BasePanel {
             return;
         }
 
-        let scaleFactor = ScreenAdapter.getInstance().scaleFactor;
+        let scaleFactor = ScreenSizeUtil.getDevicePixelRatio();
 
 
         // 适配宽度
