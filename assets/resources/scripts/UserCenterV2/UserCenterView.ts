@@ -42,7 +42,7 @@ export class UserCenterPanel extends Component {
 
    onEnable() {
       EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
-      EventManager.getInstance().on(LoginManager.LoginByTokenResult, this.invitecodeCallBack, this,true);
+      EventManager.getInstance().on(LoginManager.LoginByTokenResult, this.invitecodeCallBack, this);
       PersonalCenterManager.getInstance().requestUserInfo();
 
       // 为userIcon添加点击事件
