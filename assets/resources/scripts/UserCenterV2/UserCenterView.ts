@@ -42,6 +42,7 @@ export class UserCenterPanel extends Component {
 
    onEnable() {
       EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
+      EventManager.getInstance().on(LoginManager.LoginByTokenResult, this.invitecodeCallBack, this,true);
       PersonalCenterManager.getInstance().requestUserInfo();
 
       // 为userIcon添加点击事件
@@ -50,6 +51,7 @@ export class UserCenterPanel extends Component {
    
    onDisable() {
       EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
+      EventManager.getInstance().off(LoginManager.LoginByTokenResult, this);
       // 移除点击事件监听
       this.userIcon.node.off(Node.EventType.TOUCH_END, this.onUserIconClick, this);
    }
@@ -95,6 +97,12 @@ export class UserCenterPanel extends Component {
          BundleInfoDebugPanel
       );
       UIManager.getInstance().showPanel(BundleInfoDebugPanel.NAME);
+   }
+
+   private invitecodeCallBack(){
+      if(this.inviteNode){
+          this.inviteNode.active = false;
+      }
    }
 
    async getUserInfoCallBack() {
