@@ -1,3 +1,7 @@
+// 版本配置文件名称定义
+export const BUNDLE_VERSIONS_FILE = 'bundle_versions.json';
+export const BUNDLE_VERSIONS_PREPUBLISH_FILE = 'bundle_versions_prepublish.json';
+
 // 版本配置数据结构（与JSON文件严格对应）
 export class BundleVersionsConfig {
     version!: string;     // 全局版本号（注意JSON字段拼写）
@@ -15,6 +19,7 @@ export class BundleManager {
     
     public bundleConfig: BundleVersionsConfig | null = null;
     public remoteUrl = ''; // 新增远程URL存储
+    public isPrePublishTest = false;
 
     public cacheBundleConfig(config: BundleVersionsConfig, url: string) {
         this.bundleConfig = config;
@@ -53,5 +58,14 @@ export class BundleManager {
         }
         const bundleInfo = this.bundleConfig.bundles[bundleName];
         return isBackup ? bundleInfo.md5backup : bundleInfo.md5;
+    }
+
+    public getBundleVersionFileName():string{
+        let prepublishKey = localStorage.getItem('app.isPrePublishTest');
+        if(prepublishKey != '1' && prepublishKey != '0'){
+            prepublishKey = '0';
+        }
+        this.isPrePublishTest = prepublishKey == '1';
+        return prepublishKey == '1' ? BUNDLE_VERSIONS_PREPUBLISH_FILE : BUNDLE_VERSIONS_FILE;
     }
 }

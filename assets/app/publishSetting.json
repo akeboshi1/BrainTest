@@ -4,7 +4,7 @@
   "pro_remote_url": "https://colapai.xinjiaxianglao.com/app/production/",
   "dev_api_url": "wss://test.paipai2.xinjiaxianglao.com/api/home",
   "pro_api_url": "wss://colapai.xinjiaxianglao.com/api/home",
-  "environment": "PRODUCTION",
+  "environment": "DEVELOP",
   "isMCI": false,
   "isRemoteBundle": true,
   "isFullUpload": false

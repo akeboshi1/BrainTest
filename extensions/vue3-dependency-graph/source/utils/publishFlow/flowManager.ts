@@ -5,6 +5,7 @@ import { BundleVersionsUpdateFlow, BundleVersionsUpdateParams } from './bundleVe
 import { GenerateBundleVersionFlow, GenerateBundleVersionParams } from './generateBundleVersionFlow';
 import { PublishBundleToServerFlow, PublishBundleToServerParams } from './publishBundleToServerFlow';
 import { BundleVersionsPushFlow, BundleVersionsPushParams } from './bundleVersionsPushFlow';
+import { UploadConfigFileFlow, UploadConfigFileParams } from './uploadConfigFileFlow';
 import { join } from 'path';
 import { existsSync, readFileSync } from 'fs-extra';
 
@@ -746,6 +747,161 @@ export class FlowManager {
                     console.error(`取消流程 ${flow.name} 时出错:`, error);
                 }
             }
+        }
+    }
+    
+    /**
+     * 获取上传配置文件流程
+     */
+    getUploadConfigFileFlow(): ProcessFlow {
+        const flowId = 'upload-config-file';
+        
+        if (!this.flows.has(flowId)) {
+            const flow = new UploadConfigFileFlow();
+            
+            // 设置进度回调
+            flow.setProgressCallback((progress, message) => {
+                if (this.config.onProgressUpdate) {
+                    this.config.onProgressUpdate(flow.name, progress, message);
+                }
+            });
+            
+            // 设置完成回调
+            flow.setFinishedCallback((method, message) => {
+                if (this.config.onFlowComplete) {
+                    this.config.onFlowComplete(flow.name, method === FinishMethod.SUCCESS, message);
+                }
+            });
+            
+            this.flows.set(flowId, flow);
+        }
+        
+        return this.flows.get(flowId)!;
+    }
+    
+    /**
+     * 上传预发布配置文件
+     * @param environment 环境设置
+     */
+    async uploadPrepublishConfig(environment: string): Promise<boolean> {
+        try {
+            const flow = this.getUploadConfigFileFlow() as UploadConfigFileFlow;
+            
+            // 转换环境设置为正确的类型
+            const env = environment.toUpperCase() === 'PRODUCTION' ? 'production' : 'development';
+            
+            // 加载SFTP配置
+            let sftpConfig = {
+                host: '远程服务器IP',
+                port: 22,
+                username: '用户名',
+                password: '密码',
+                remotePath: '/path/to/remote/directory'
+            };
+            
+            // 尝试从配置文件加载SFTP配置
+            try {
+                const configPath = join(this.config.projectPath, 'sftp-config.json');
+                if (existsSync(configPath)) {
+                    const configData = JSON.parse(readFileSync(configPath, 'utf-8'));
+                    sftpConfig = configData;
+                    
+                    // 根据环境选择正确的 remotePath
+                    if (typeof sftpConfig.remotePath === 'object' && sftpConfig.remotePath !== null) {
+                        // 新格式：remotePath 是一个对象，包含 development 和 production
+                        const envPath = sftpConfig.remotePath[env];
+                        if (envPath) {
+                            sftpConfig.remotePath = envPath;
+                            console.log(`使用 ${env} 环境的远程路径: ${envPath}`);
+                        } else {
+                            console.warn(`未找到 ${env} 环境的远程路径配置，使用默认路径`);
+                        }
+                    } else {
+                        // 旧格式：remotePath 是字符串，保持兼容性
+                        console.log(`使用兼容模式的远程路径: ${sftpConfig.remotePath}`);
+                    }
+                } else {
+                    console.warn('SFTP配置文件不存在，使用默认配置');
+                }
+            } catch (error) {
+                console.error('读取SFTP配置失败:', error);
+            }
+            
+            const params: UploadConfigFileParams = {
+                projectPath: this.config.projectPath,
+                environment: env,
+                sftpConfig: sftpConfig,
+                configType: 'prepublish'
+            };
+            
+            await flow.start(params);
+            return true;
+        } catch (error) {
+            console.error('上传预发布配置文件失败:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * 上传正式配置文件
+     * @param environment 环境设置
+     */
+    async uploadProductionConfig(environment: string): Promise<boolean> {
+        try {
+            const flow = this.getUploadConfigFileFlow() as UploadConfigFileFlow;
+            
+            // 转换环境设置为正确的类型
+            const env = environment.toUpperCase() === 'PRODUCTION' ? 'production' : 'development';
+            
+            // 加载SFTP配置
+            let sftpConfig = {
+                host: '远程服务器IP',
+                port: 22,
+                username: '用户名',
+                password: '密码',
+                remotePath: '/path/to/remote/directory'
+            };
+            
+            // 尝试从配置文件加载SFTP配置
+            try {
+                const configPath = join(this.config.projectPath, 'sftp-config.json');
+                if (existsSync(configPath)) {
+                    const configData = JSON.parse(readFileSync(configPath, 'utf-8'));
+                    sftpConfig = configData;
+                    
+                    // 根据环境选择正确的 remotePath
+                    if (typeof sftpConfig.remotePath === 'object' && sftpConfig.remotePath !== null) {
+                        // 新格式：remotePath 是一个对象，包含 development 和 production
+                        const envPath = sftpConfig.remotePath[env];
+                        if (envPath) {
+                            sftpConfig.remotePath = envPath;
+                            console.log(`使用 ${env} 环境的远程路径: ${envPath}`);
+                        } else {
+                            console.warn(`未找到 ${env} 环境的远程路径配置，使用默认路径`);
+                        }
+                    } else {
+                        // 旧格式：remotePath 是字符串，保持兼容性
+                        console.log(`使用兼容模式的远程路径: ${sftpConfig.remotePath}`);
+                    }
+                } else {
+                    console.warn('SFTP配置文件不存在，使用默认配置');
+                }
+            } catch (error) {
+                console.error('读取SFTP配置失败:', error);
+            }
+            
+            const params: UploadConfigFileParams = {
+                projectPath: this.config.projectPath,
+                environment: env,
+                sftpConfig: sftpConfig,
+                configType: 'production'
+            };
+            
+            await flow.start(params);
+            return true;
+        } catch (error) {
+            console.error('上传正式配置文件失败:', error);
+            return false;
         }
     }
 } 

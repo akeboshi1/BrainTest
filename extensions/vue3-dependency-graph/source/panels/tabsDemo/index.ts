@@ -47,6 +47,9 @@ interface MyComponent {
         isFullUpload: boolean;
     };
     lastChangedBundles: string[];
+    PublishEnvironment: typeof PublishEnvironment;
+    PublishEnvironmentTitle: Record<string, string>;
+    currentEnvironmentText: string;
     switchTab(tabId: PublishConfigType): void;
     getConfigPath(configFile: string): string;
     startPublish(): Promise<void>;
@@ -58,6 +61,10 @@ interface MyComponent {
     savePublishSettings(): Promise<boolean>;
     showSettingItem(tabId: PublishConfigType, setting: string): boolean;
     initializeProgressList(): void;
+    uploadPrepublishConfig(): Promise<void>;
+    uploadProductionConfig(): Promise<void>;
+    configUploadStatus: 'idle' | 'uploading' | 'success' | 'failed';
+    configUploadStatusText: Record<string, string>;
 }
 
 module.exports = Editor.Panel.define({
@@ -125,16 +132,42 @@ module.exports = Editor.Panel.define({
                                         <div class="setting-item" v-if="showSettingItem(tab.id, 'environment')">
                                             <label>发布环境：</label>
                                             <select v-model="publishSettings.environment">
-                                                <option v-for="(title, env) in PublishEnvironmentTitle" :key="env" :value="env">
-                                                    {{ title }}
-                                                </option>
+                                                <option value="DEVELOPMENT">开发环境</option>
+                                                <option value="PRODUCTION">线上环境</option>
                                             </select>
+                                            <!-- 调试信息 -->
+                                            <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                                                当前值: {{ currentEnvironmentText }} | 
+                                                可用选项: {{ Object.keys(PublishEnvironmentTitle).join(', ') }}
+                                            </div>
                                         </div>
                                         
                                         <!-- 版本号 -->
                                         <div class="setting-item" v-if="showSettingItem(tab.id, 'app_version')">
                                             <label>应用版本号：</label>
                                             <input type="text" v-model="publishSettings.app_version">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 配置文件上传面板（仅在REMOTE_BUNDLES标签页显示） -->
+                                <div class="config-upload-panel" v-if="tab.id === 'android-bundle-remote.json'">
+                                    <h3>配置文件上传</h3>
+                                    <div class="config-upload-actions">
+                                        <button @click="uploadPrepublishConfig" 
+                                                :disabled="configUploadStatus === 'uploading'" 
+                                                class="upload-config-btn prepublish-btn"
+                                                :class="{ 'btn-disabled': configUploadStatus === 'uploading' }">
+                                            {{ configUploadStatus === 'uploading' ? '上传中...' : '上传预发布配置' }}
+                                        </button>
+                                        <button @click="uploadProductionConfig" 
+                                                :disabled="configUploadStatus === 'uploading'" 
+                                                class="upload-config-btn production-btn"
+                                                :class="{ 'btn-disabled': configUploadStatus === 'uploading' }">
+                                            {{ configUploadStatus === 'uploading' ? '上传中...' : '上传正式配置' }}
+                                        </button>
+                                        <div class="config-upload-status" :class="configUploadStatus">
+                                            {{ configUploadStatusText[configUploadStatus] }}
                                         </div>
                                     </div>
                                 </div>
@@ -251,8 +284,23 @@ module.exports = Editor.Panel.define({
                         app_version: '1.0.0',
                         isFullUpload: false
                     },
-                    lastChangedBundles: [] as string[]
+                    lastChangedBundles: [] as string[],
+                    configUploadStatus: 'idle' as 'idle' | 'uploading' | 'success' | 'failed',
+                    configUploadStatusText: {
+                        idle: '未上传',
+                        uploading: '上传中',
+                        success: '上传成功',
+                        failed: '上传失败'
+                    }
                 }),
+                computed: {
+                    /**
+                     * 当前环境显示文本
+                     */
+                    currentEnvironmentText(this: MyComponent): string {
+                        return this.PublishEnvironmentTitle[this.publishSettings.environment] || '未知环境';
+                    }
+                },
                 methods: {
                     /**
                      * 切换标签页
@@ -294,12 +342,34 @@ module.exports = Editor.Panel.define({
                                 };
                                 
                                 console.log('发布设置已加载:', this.publishSettings);
+                                console.log('当前环境值:', this.publishSettings.environment);
+                                console.log('可用环境选项:', this.PublishEnvironmentTitle);
                             } else {
                                 console.warn('发布设置文件不存在，使用默认设置');
+                                // 确保设置默认值
+                                this.publishSettings = {
+                                    isMCI: false,
+                                    environment: PublishEnvironment.DEVELOPMENT,
+                                    app_version: '1.0.0',
+                                    isFullUpload: false
+                                };
+                                console.log('使用默认发布设置:', this.publishSettings);
+                                console.log('当前环境值:', this.publishSettings.environment);
+                                console.log('可用环境选项:', this.PublishEnvironmentTitle);
                             }
                         } catch (error) {
                             console.error('读取发布设置失败:', error);
                             Editor.Dialog.warn('读取发布设置失败，使用默认设置');
+                            // 确保在错误情况下也设置默认值
+                            this.publishSettings = {
+                                isMCI: false,
+                                environment: PublishEnvironment.DEVELOPMENT,
+                                app_version: '1.0.0',
+                                isFullUpload: false
+                            };
+                            console.log('使用默认发布设置:', this.publishSettings);
+                            console.log('当前环境值:', this.publishSettings.environment);
+                            console.log('可用环境选项:', this.PublishEnvironmentTitle);
                         }
                     },
                     
@@ -541,6 +611,46 @@ module.exports = Editor.Panel.define({
                         } catch (error) {
                             console.error('取消发布失败:', error);
                             Editor.Dialog.error(`取消发布失败: ${error instanceof Error ? error.message : String(error)}`);
+                        }
+                    },
+                    
+                    /**
+                     * 上传预发布配置
+                     */
+                    async uploadPrepublishConfig(this: MyComponent) {
+                        this.configUploadStatus = 'uploading';
+                        try {
+                            const success = await this.flowManager.uploadPrepublishConfig(this.publishSettings.environment);
+                            if (success) {
+                                this.configUploadStatus = 'success';
+                                Editor.Dialog.info('预发布配置上传成功');
+                            } else {
+                                this.configUploadStatus = 'failed';
+                                Editor.Dialog.error('预发布配置上传失败');
+                            }
+                        } catch (error) {
+                            this.configUploadStatus = 'failed';
+                            Editor.Dialog.error(`预发布配置上传失败: ${error instanceof Error ? error.message : String(error)}`);
+                        }
+                    },
+                    
+                    /**
+                     * 上传正式配置
+                     */
+                    async uploadProductionConfig(this: MyComponent) {
+                        this.configUploadStatus = 'uploading';
+                        try {
+                            const success = await this.flowManager.uploadProductionConfig(this.publishSettings.environment);
+                            if (success) {
+                                this.configUploadStatus = 'success';
+                                Editor.Dialog.info('正式配置上传成功');
+                            } else {
+                                this.configUploadStatus = 'failed';
+                                Editor.Dialog.error('正式配置上传失败');
+                            }
+                        } catch (error) {
+                            this.configUploadStatus = 'failed';
+                            Editor.Dialog.error(`正式配置上传失败: ${error instanceof Error ? error.message : String(error)}`);
                         }
                     }
                 },

@@ -2,7 +2,8 @@ import { _decorator, Label, Node, UITransform, Vec3 } from 'cc';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { BundleManager } from 'db://assets/app/BundleManager';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
-import { PublishSettingConfig } from 'db://assets/app/PublishSettingConfig';
+import { Environment, PublishSettingConfig } from 'db://assets/app/PublishSettingConfig';
+import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 
 const { ccclass, property } = _decorator;
 
@@ -16,9 +17,23 @@ export class BundleInfoDebugPanel extends BasePanel {
     @property(Node)
     private contentNode: Node = null!;
 
+    @property(Label)
+    private prePublishTestButtonLabel: Label = null!;
+
     start() {
         // 显示版本信息
         this.showBundleInfo();
+
+        this.initPrePublishTest();
+    }
+
+    private initPrePublishTest() {
+        let isPrePublishTest = LocalStorageUtil.get(LocalStorageKeyEnum.IS_PRE_PUBLISH_TEST);
+        if (isPrePublishTest != "1" && isPrePublishTest != "0") {
+            LocalStorageUtil.set(LocalStorageKeyEnum.IS_PRE_PUBLISH_TEST, "0");
+            isPrePublishTest = "0";
+        }
+        this.prePublishTestButtonLabel.string = isPrePublishTest == "0" ? "预发布测试关闭" : "预发布测试开启";
     }
 
     private showBundleInfo() {
@@ -33,7 +48,8 @@ export class BundleInfoDebugPanel extends BasePanel {
         let isremote = PublishSettingConfig.getInstance().getIsRemoteBundle();
         // 显示全局版本号
         let ver = config.version.split(' ')[1];
-        this.versionLabel.string = `全局版本：${ver} ${isremote ? "远程" : "本地"}`;
+        let env = PublishSettingConfig.getInstance().getEnvironment();
+        this.versionLabel.string = `全局版本：${ver} ${isremote ? "远程" : "本地"} \n ${env == Environment.DEVELOPMENT ? "开发" : "生产"} \n ${bundleManager.isPrePublishTest ? "预发布测试" : "正式发布"}`;
 
         for (const bundleName in config.bundles) {
             const bundleInfo = config.bundles[bundleName];
@@ -59,5 +75,16 @@ export class BundleInfoDebugPanel extends BasePanel {
 
     public onClickClose() {
         UIManager.getInstance().hidePanel(BundleInfoDebugPanel.NAME);
+    }
+
+    public onClickPrePublishTest() {
+        let isPrePublishTest = LocalStorageUtil.get(LocalStorageKeyEnum.IS_PRE_PUBLISH_TEST);
+        if (isPrePublishTest == "1") {
+            isPrePublishTest = "0";
+        } else {
+            isPrePublishTest = "1";
+        }
+        LocalStorageUtil.set(LocalStorageKeyEnum.IS_PRE_PUBLISH_TEST, isPrePublishTest);
+        this.prePublishTestButtonLabel.string = isPrePublishTest == "0" ? "预发布测试关闭" : "预发布测试开启";
     }
 }
