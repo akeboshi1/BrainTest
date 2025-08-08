@@ -46,17 +46,17 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 193
-      },
-      {
         "__id__": 195
       },
       {
         "__id__": 197
+      },
+      {
+        "__id__": 199
       }
     ],
     "_prefab": {
-      "__id__": 199
+      "__id__": 201
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -287,7 +287,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 33.33984375,
+      "width": 40.0078125,
       "height": 126
     },
     "_anchorPoint": {
@@ -326,8 +326,8 @@
     "_string": "   ",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 100,
     "_overflow": 0,
@@ -661,7 +661,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -113.163,
+      "x": -280,
       "y": 0,
       "z": 0
     },
@@ -702,12 +702,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 330,
-      "height": 69.3
+      "width": 360,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
@@ -741,10 +741,10 @@
     "_string": "检测结果概览",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 55,
+    "_lineHeight": 60,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1171,7 +1171,7 @@
   {
     "__type__": "cc.Node",
     "_name": "analysisheadPrefab2",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 1
@@ -1228,7 +1228,7 @@
   {
     "__type__": "cc.Node",
     "_name": "handAnalyseItem",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 47
@@ -1288,7 +1288,7 @@
   {
     "__type__": "cc.Node",
     "_name": "icon",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 48
@@ -1424,7 +1424,7 @@
   {
     "__type__": "cc.Node",
     "_name": "text",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 48
@@ -1444,7 +1444,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -165.7,
+      "x": -280,
       "y": 0,
       "z": 0
     },
@@ -1485,12 +1485,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 220,
-      "height": 69.3
+      "width": 240,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
@@ -1524,10 +1524,10 @@
     "_string": "结果分析",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 55,
+    "_lineHeight": 60,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1583,7 +1583,7 @@
   {
     "__type__": "cc.Node",
     "_name": "bottomArrow",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 48
@@ -2230,7 +2230,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -163.187,
+      "x": -280,
       "y": 0,
       "z": 0
     },
@@ -2271,12 +2271,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 220,
-      "height": 69.3
+      "width": 240,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
@@ -2310,10 +2310,10 @@
     "_string": "综合建议",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 55,
+    "_lineHeight": 60,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -3013,7 +3013,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -85.016,
+      "x": -280,
       "y": 0,
       "z": 0
     },
@@ -3054,12 +3054,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 385,
-      "height": 69.3
+      "width": 420,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
@@ -3093,10 +3093,10 @@
     "_string": "认知保健小贴士",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 55,
+    "_lineHeight": 60,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -3638,7 +3638,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 950,
+      "width": 960,
       "height": 300
     },
     "_anchorPoint": {
@@ -3775,7 +3775,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 850,
-      "height": 195.6
+      "height": 298.2
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3813,10 +3813,10 @@
     "_string": "每天30分钟有派派陪伴的脑力游戏和手指太极，把认知健康变成一种生活方式，您的每一次游戏闯关、每一个舒展动作，都是对未来的自己最好的投资",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 36,
-    "_fontSize": 36,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
-    "_lineHeight": 60,
+    "_lineHeight": 70,
     "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
@@ -3936,14 +3936,17 @@
     "_components": [
       {
         "__id__": 190
+      },
+      {
+        "__id__": 192
       }
     ],
     "_prefab": {
-      "__id__": 192
+      "__id__": 194
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -2.5,
+      "x": 0,
       "y": -1273,
       "z": 0
     },
@@ -3994,7 +3997,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -97.938,
+      "y": -37.8,
       "z": 0
     },
     "_lrot": {
@@ -4034,8 +4037,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 330,
-      "height": 69.3
+      "width": 360,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4073,10 +4076,10 @@
     "_string": "派派智护团队",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 55,
+    "_lineHeight": 60,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -4153,7 +4156,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -190,
+      "y": -135.84,
       "z": 0
     },
     "_lrot": {
@@ -4193,8 +4196,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 640,
-      "height": 50.4
+      "width": 768,
+      "height": 60.480000000000004
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4232,10 +4235,10 @@
     "_string": "为您提供科学、贴心的认知健康支持",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 48,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -4312,7 +4315,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -283.191,
+      "y": -197.58,
       "z": 0
     },
     "_lrot": {
@@ -4451,7 +4454,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -391.186,
+      "y": -310.58000000000004,
       "z": 0
     },
     "_lrot": {
@@ -4492,7 +4495,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 950,
-      "height": 112.99999999999999
+      "height": 163
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4530,8 +4533,8 @@
     "_string": "免责声明：本报告仅供参考，不构成医疗诊断建议。如有健康问题，请咨询专业医疗人员。查看详情 >>",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 38,
-    "_fontSize": 38,
+    "_actualFontSize": 42,
+    "_fontSize": 42,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 3,
@@ -4685,6 +4688,44 @@
     "fileId": "87eu9INilN0q6rQjl3bDDk"
   },
   {
+    "__type__": "cc.Layout",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 162
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 193
+    },
+    "_resizeMode": 0,
+    "_layoutType": 2,
+    "_cellSize": {
+      "__type__": "cc.Size",
+      "width": 40,
+      "height": 40
+    },
+    "_startAxis": 0,
+    "_paddingLeft": 0,
+    "_paddingRight": 0,
+    "_paddingTop": 0,
+    "_paddingBottom": 0,
+    "_spacingX": 0,
+    "_spacingY": 30,
+    "_verticalDirection": 1,
+    "_horizontalDirection": 0,
+    "_constraint": 0,
+    "_constraintNum": 2,
+    "_affectedByScale": false,
+    "_isAlign": false,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "99VKm6hfRPRJ+qOu9XZ2le"
+  },
+  {
     "__type__": "cc.PrefabInfo",
     "root": {
       "__id__": 1
@@ -4707,7 +4748,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 194
+      "__id__": 196
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -4735,7 +4776,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 196
+      "__id__": 198
     },
     "userEvaluationLabel": {
       "__id__": 11
@@ -4784,7 +4825,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 198
+      "__id__": 200
     },
     "_resizeMode": 1,
     "_layoutType": 2,

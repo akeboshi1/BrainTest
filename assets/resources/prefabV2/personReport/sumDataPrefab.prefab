@@ -320,8 +320,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 400,
-      "height": 63
+      "width": 432,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -359,10 +359,10 @@
     "_string": "根据以上数据总结",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 50,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1157,7 +1157,7 @@
     "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_fontSize": 40,
+    "_fontSize": 42,
     "_fontColor": {
       "__type__": "cc.Color",
       "r": 0,
@@ -1295,10 +1295,10 @@
     "_string": "label",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 42,
+    "_fontSize": 42,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 42,
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": null,
