@@ -1794,8 +1794,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -160,
-      "y": -42.999999999999986,
+      "x": -154,
+      "y": -50.000000000000014,
       "z": 0
     },
     "_lrot": {
@@ -1835,8 +1835,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 440,
-      "height": 69.3
+      "width": 480,
+      "height": 75.6
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1874,10 +1874,10 @@
     "_string": "健康脑力游戏广场",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 60,
+    "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 55,
+    "_lineHeight": 60,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -1931,9 +1931,9 @@
     },
     "_alignFlags": 9,
     "_target": null,
-    "_left": 94,
+    "_left": 74,
     "_right": 0,
-    "_top": 192.95499999999998,
+    "_top": 195.86,
     "_bottom": 0,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
@@ -2914,8 +2914,8 @@
     "_string": "观察力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
@@ -3142,8 +3142,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 1.2,
+      "y": 1.2,
       "z": 1
     },
     "_mobility": 0,
@@ -3345,8 +3345,8 @@
     "_string": "训练注意力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 3,
@@ -3431,7 +3431,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 332,
+      "x": 300,
       "y": 0,
       "z": 0
     },
@@ -3522,8 +3522,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3561,17 +3561,17 @@
     "_string": "开始任务",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -3631,8 +3631,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 100
+      "width": 300,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -3886,7 +3886,7 @@
         "__id__": 189
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 204
@@ -4030,8 +4030,8 @@
     "_string": "记忆力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
@@ -4258,8 +4258,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 1.2,
+      "y": 1.2,
       "z": 1
     },
     "_mobility": 0,
@@ -4461,8 +4461,8 @@
     "_string": "训练记忆力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 3,
@@ -4547,7 +4547,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 332,
+      "x": 300,
       "y": 0,
       "z": 0
     },
@@ -4638,8 +4638,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4677,17 +4677,17 @@
     "_string": "开始任务",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -4747,8 +4747,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 100
+      "width": 300,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5002,7 +5002,7 @@
         "__id__": 234
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 249
@@ -5146,8 +5146,8 @@
     "_string": "执行力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
@@ -5374,8 +5374,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 1.2,
+      "y": 1.2,
       "z": 1
     },
     "_mobility": 0,
@@ -5577,8 +5577,8 @@
     "_string": "训练执行力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -5663,7 +5663,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 332,
+      "x": 300,
       "y": 0,
       "z": 0
     },
@@ -5754,8 +5754,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5793,17 +5793,17 @@
     "_string": "开始任务",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -5863,8 +5863,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 100
+      "width": 300,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6118,7 +6118,7 @@
         "__id__": 279
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 294
@@ -6262,8 +6262,8 @@
     "_string": "计算力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
@@ -6490,8 +6490,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 1.2,
+      "y": 1.2,
       "z": 1
     },
     "_mobility": 0,
@@ -6693,8 +6693,8 @@
     "_string": "训练计算力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -6779,7 +6779,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 332,
+      "x": 300,
       "y": -12,
       "z": 0
     },
@@ -6870,8 +6870,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6909,17 +6909,17 @@
     "_string": "开始任务",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -6979,8 +6979,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 100
+      "width": 300,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -7249,7 +7249,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -480,
+      "y": -1488,
       "z": 0
     },
     "_lrot": {
@@ -7378,8 +7378,8 @@
     "_string": "理解力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
@@ -7606,8 +7606,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 1.2,
+      "y": 1.2,
       "z": 1
     },
     "_mobility": 0,
@@ -7809,8 +7809,8 @@
     "_string": "训练理解力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
@@ -7895,7 +7895,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 332,
+      "x": 300,
       "y": 0,
       "z": 0
     },
@@ -7986,8 +7986,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8025,17 +8025,17 @@
     "_string": "开始任务",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -8095,8 +8095,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 100
+      "width": 300,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8365,7 +8365,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -816,
+      "y": -1824,
       "z": 0
     },
     "_lrot": {
@@ -8494,8 +8494,8 @@
     "_string": "语言力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
     "_overflow": 1,
@@ -8722,8 +8722,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 1.2,
+      "y": 1.2,
       "z": 1
     },
     "_mobility": 0,
@@ -8887,7 +8887,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 400,
-      "height": 56.7
+      "height": 63
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8925,10 +8925,10 @@
     "_string": "训练语言力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
-    "_lineHeight": 45,
+    "_lineHeight": 50,
     "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
@@ -9011,7 +9011,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 332,
+      "x": 300,
       "y": 0,
       "z": 0
     },
@@ -9102,8 +9102,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9141,17 +9141,17 @@
     "_string": "开始任务",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -9211,8 +9211,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 100
+      "width": 300,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9481,7 +9481,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -1152,
+      "y": -2160,
       "z": 0
     },
     "_lrot": {
@@ -9838,8 +9838,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 1.2,
+      "y": 1.2,
       "z": 1
     },
     "_mobility": 0,
@@ -9962,7 +9962,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -15,
-      "y": -13,
+      "y": -39.3,
       "z": 0
     },
     "_lrot": {
@@ -10003,7 +10003,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 400,
-      "height": 56.7
+      "height": 112.99999999999999
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -10038,13 +10038,13 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练手脑协调能力",
+    "_string": "训练手脑协调\n能力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 45,
-    "_fontSize": 45,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
-    "_lineHeight": 45,
+    "_lineHeight": 50,
     "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
@@ -10127,7 +10127,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 332,
+      "x": 300,
       "y": 0,
       "z": 0
     },
@@ -10218,8 +10218,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
-      "height": 50.4
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -10257,17 +10257,17 @@
     "_string": "开始任务",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -10327,8 +10327,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 100
+      "width": 300,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

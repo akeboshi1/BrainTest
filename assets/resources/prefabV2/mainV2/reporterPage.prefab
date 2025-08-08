@@ -416,8 +416,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 220,
-      "height": 69.3
+      "width": 216,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -455,10 +455,10 @@
     "_string": "报告解读",
     "_horizontalAlign": 1,
     "_verticalAlign": 2,
-    "_actualFontSize": 55,
-    "_fontSize": 55,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 55,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -2444,8 +2444,6 @@
       "__id__": 0
     },
     "fileId": "e7IVnKCd5DFY7RSliKcNHI",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {

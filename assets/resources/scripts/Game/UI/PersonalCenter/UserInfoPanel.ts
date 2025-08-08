@@ -47,6 +47,9 @@ export class UserInfoPanel extends BasePanel {
     @property(EditBox)
     editBox: EditBox = null;
 
+    @property(Node)
+    inviteNode:Node = null;
+
     private user_name: string = "";
     private user_birthday: string = "";
     private user_sex: number = 0;
@@ -82,7 +85,7 @@ export class UserInfoPanel extends BasePanel {
         this.setName(userData.full_name);
         this.setSex(userData.gender == 1 ? "男" : "女");
         this.setBirthday(userData.birthday);
-        this.setEducationById(userData.education); 
+        this.setEducationById(userData.education);
     }
     setName(data) {
         this.user_name = data;

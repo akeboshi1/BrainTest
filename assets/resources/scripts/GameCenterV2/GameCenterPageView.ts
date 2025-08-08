@@ -8,7 +8,6 @@ import { GameCenterManager } from '../Game/GameCenter/GameCenterManager';
 import { BundlePreloadEvent } from '../Core/Manager/Load/BundlePreloadManager';
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { GuidePanel } from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
-import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameCenterPageView')
