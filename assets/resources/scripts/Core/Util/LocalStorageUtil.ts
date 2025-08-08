@@ -29,5 +29,6 @@ export enum LocalStorageKeyEnum {
     USER_PHONENUM = "user.phonenum",
     USER_DEFAULT_LOGIN_STATUS = "0",//0：默认验证码登录，1：默认机构登录
     INSTITUTION_CODE = "user.institutionCode",
-    IS_FIRST_LOGIN = "user.isFirstLogin"
+    IS_FIRST_LOGIN = "user.isFirstLogin",
+    IS_PRE_PUBLISH_TEST = "app.isPrePublishTest"
 }

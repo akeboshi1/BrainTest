@@ -4,14 +4,7 @@ import { join } from 'path';
 import { existsSync } from 'fs-extra';
 import { readdirSync, lstatSync } from 'fs-extra';
 import Client from 'ssh2-sftp-client';
-
-/**
- * 环境文件夹命名配置
- */
-const ENVIRONMENT_FOLDER_NAMES = {
-    development: 'develop',
-    production: 'production'
-} as const;
+import { ENVIRONMENT_FOLDER_NAMES } from './constants';
 
 /**
  * 发布Bundle到服务器流程参数

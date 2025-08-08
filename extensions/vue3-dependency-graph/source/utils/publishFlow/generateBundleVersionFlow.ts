@@ -227,6 +227,13 @@ export class GenerateBundleVersionFlow extends BaseProcessFlow {
                 join(publishPath, 'bundle_versions.json')
             );
 
+            // 拷贝预发布版本文件到发布目录
+            this.updateProgress(97, '拷贝预发布版本文件到发布目录');
+            copyFileSync(
+                join(targetPath, 'bundle_versions.json'),
+                join(publishPath, 'bundle_versions_prepublish.json')
+            );
+
             this.updateProgress(100, '版本生成完成');
             this.handleFinish(FinishMethod.SUCCESS, '版本生成成功', this.changedBundles);
         } catch (error) {

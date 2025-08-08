@@ -1,6 +1,6 @@
-import { _decorator, assetManager, Component, JsonAsset, Enum, Label, director, sys, Node, UITransform, Asset, UIOpacity, tween, EventTouch, input, Input, EventKeyboard, KeyCode, game, profiler } from 'cc';
+import { _decorator, assetManager, Component, JsonAsset, Label, director, sys, Node, UITransform, UIOpacity, tween, EventTouch, profiler } from 'cc';
 import { BundleManager, BundleVersionsConfig } from './BundleManager';
-import { Environment, PublishSettingConfig } from './PublishSettingConfig';
+import { PublishSettingConfig } from './PublishSettingConfig';
 
 const { ccclass, property } = _decorator;
 
@@ -114,7 +114,8 @@ export class AppStartFlow extends Component {
             this.connectToSocket();
         } else {
             let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
-            this.loadBundleVersionsConfig(remoteurl + 'bundle_versions.json').finally(() => {
+            let bundleVersionFileName = BundleManager.getInstance().getBundleVersionFileName();
+            this.loadBundleVersionsConfig(remoteurl + bundleVersionFileName).finally(() => {
                 this.state = StartStatus.COMPLETE;
                 this.onNextStep();
             });
@@ -171,7 +172,8 @@ export class AppStartFlow extends Component {
         switch (this.state) {
             case StartStatus.DOWNLOADING_VERSION:
                 let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
-                this.loadBundleVersionsConfig(remoteurl + 'bundle_versions.json').then(() => {
+                let bundleVersionFileName = BundleManager.getInstance().getBundleVersionFileName();
+                this.loadBundleVersionsConfig(remoteurl + bundleVersionFileName).then(() => {
                     this.state = StartStatus.DOWNLOADING_RESOURCES;
                     this.onNextStep();
                     //this.createDebugButton(); // 创建调试按钮
