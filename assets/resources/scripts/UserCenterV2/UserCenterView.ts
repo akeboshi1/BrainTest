@@ -10,10 +10,11 @@ import { VerifyPanel } from '../Game/UI/Login/VerifyPanel';
 import { MySetView } from './MySetView';
 import { AlertData, AlertManager } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import { BundleInfoDebugPanel } from '../Game/UI/Debug/BundleInfoDebugPanel';
+import { AdaptComponent } from '../mainV2/AdaptComponent';
 const { ccclass, property } = _decorator;
 
 @ccclass('UserCenterPanel')
-export class UserCenterPanel extends Component {
+export class UserCenterPanel extends AdaptComponent {
    @property(Label)
    userName: Label = null;
    @property(Sprite)
@@ -38,6 +39,7 @@ export class UserCenterPanel extends Component {
    private readonly REQUIRED_CLICKS: number = 5; // 需要5次点击
 
    start() {
+      super.start();
    }
 
    onEnable() {
