@@ -2153,8 +2153,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 377.880859375,
-      "height": 63
+      "width": 408.111328125,
+      "height": 68.04
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2192,10 +2192,10 @@
     "_string": "游戏进度：100%",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 50,
-    "_fontSize": 50,
+    "_actualFontSize": 54,
+    "_fontSize": 54,
     "_fontFamily": "Arial",
-    "_lineHeight": 50,
+    "_lineHeight": 54,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,

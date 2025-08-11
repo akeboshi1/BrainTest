@@ -5946,7 +5946,7 @@
   {
     "__type__": "cc.Node",
     "_name": "taskDataEntry",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 11
@@ -5959,7 +5959,7 @@
         "__id__": 261
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 277
@@ -6006,7 +6006,7 @@
   {
     "__type__": "cc.Node",
     "_name": "scrollBar",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 242
@@ -6066,7 +6066,7 @@
   {
     "__type__": "cc.Node",
     "_name": "bar",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 243
@@ -6371,7 +6371,7 @@
   {
     "__type__": "cc.Node",
     "_name": "content",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 261
@@ -6424,7 +6424,7 @@
   {
     "__type__": "cc.Node",
     "_name": "view",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 242
@@ -6811,7 +6811,7 @@
         "__id__": 295
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 310
@@ -7561,12 +7561,12 @@
     "__prefab": {
       "__id__": 313
     },
-    "_alignFlags": 18,
+    "_alignFlags": 20,
     "_target": null,
     "_left": 0,
     "_right": 0,
     "_top": 0,
-    "_bottom": 276,
+    "_bottom": 226,
     "_horizontalCenter": 0,
     "_verticalCenter": -650,
     "_isAbsLeft": true,
