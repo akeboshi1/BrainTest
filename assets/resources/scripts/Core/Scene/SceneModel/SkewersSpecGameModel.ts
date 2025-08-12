@@ -488,7 +488,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         }
         let exitFunc = alertType == AlertType.Revise ? context.reviseHandler:context.exitCallBack;
         let compStr = alertType == AlertType.Revise ? SkewersManager.getInstance().reviseCompleteStr: alertType == AlertType.Revise_Complete ? SkewersManager.getInstance().reviseDZCompleteStr:SkewersManager.getInstance().totalCompleteStr;
-        let remoteHandler = (SkewersManager.getInstance().curGame&&!SkewersManager.getInstance().curGame.is_correction && TaskManager.getInstance().curTask.type != TaskType.Revise) ? context.quitGame :
+        let remoteHandler = (SkewersManager.getInstance().curGame&&!SkewersManager.getInstance().curGame.is_correction && TaskManager.getInstance().curTask.type != TaskType.Review) ? context.quitGame :
             (alertType == AlertType.Revise_Complete ? context.quitGame : context.remoteHandler);
         SkewersManager.getInstance().showGameAlert(context.viewNode, alertType, compStr, SkewersManager.getInstance().totalBrainScore, 0, 0,
             exitFunc, remoteHandler, context);
