@@ -1,0 +1,40 @@
+import {Label, _decorator, Component, Node, UITransform} from "cc";
+const { ccclass, property } = _decorator;
+
+@ccclass('FamaNode')
+export class FamaNode extends Component{
+    @property(Label)
+    label:Label;
+
+    onLoad() {
+        // 确保节点可以接收触摸事件
+        this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+    }
+
+    onDestroy() {
+        // 清理触摸事件
+        this.node.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.node.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+    }
+
+    private onTouchStart(event: any) {
+        // 触摸开始事件
+    }
+
+    private onTouchMove(event: any) {
+        // 触摸移动事件
+    }
+
+    private onTouchEnd(event: any) {
+        // 触摸结束事件
+    }
+
+    private onTouchCancel(event: any) {
+        // 触摸取消事件
+    }
+}
