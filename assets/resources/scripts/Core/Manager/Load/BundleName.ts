@@ -1,5 +1,6 @@
 export enum BundleName{
     CATCHFISH = 'catchFish',
+    BALANCE = "balance",
     FANPAI = 'fanpai',
     FINGING = 'finding',
     GUESSINGGAME = 'guessingGame',
