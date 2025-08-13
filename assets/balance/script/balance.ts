@@ -87,6 +87,16 @@ export class balance extends BaseScene<IBaseGameChild> {
     private _leftPanOriginalPos: Vec3 = new Vec3();
     private _rightPanOriginalPos: Vec3 = new Vec3();
 
+    // 添加难度相关属性
+    gameDifficulty: number = 2; // 1: 简单, 2: 中等, 3: 困难
+
+    // 难度配置
+    private readonly DIFFICULTY_CONFIG = {
+        1: { answerCount: 4, panCount: 2 },
+        2: { answerCount: 6, panCount: 3 },
+        3: { answerCount: 8, panCount: 4 }
+    };
+
     onLoad() {
         this.audioUrls = ["music/balance_bgm", "music/loseBalance", "music/balance", "music/place"];
         this.bundleName = BundleName.BALANCE;
@@ -131,16 +141,77 @@ export class balance extends BaseScene<IBaseGameChild> {
         super.exitCallBack(context);
     }
 
-    /**
+     /**
      * 初始化拖拽功能
      */
-    private initDragAndDrop() {
-        // 为每个answerFama添加拖拽事件
+     private initDragAndDrop() {
+        // 根据难度设置可用的砝码数量
+        this.setupDifficulty();
+        
+        // 为每个可用的answerFama添加拖拽事件
         this.answerFamas.forEach((famaNode, index) => {
-            if (famaNode && famaNode.node) {
+            if (famaNode && famaNode.node && index < this.DIFFICULTY_CONFIG[this.gameDifficulty].answerCount) {
                 this.setupDragEvents(famaNode);
             }
         });
+    }
+
+    /**
+     * 根据难度设置游戏配置
+     */
+    private setupDifficulty() {
+        const config = this.DIFFICULTY_CONFIG[this.gameDifficulty];
+        
+        // 设置可用的answerFamas数量
+        this.answerFamas.forEach((famaNode, index) => {
+            if (famaNode && famaNode.node) {
+                if (index < config.answerCount) {
+                    // 启用可用的砝码
+                    famaNode.node.active = true;
+                } else {
+                    // 禁用不可用的砝码
+                    famaNode.node.active = false;
+                }
+            }
+        });
+
+        // 设置可用的托盘位置数量
+        this.leftFamas.forEach((famaNode, index) => {
+            if (famaNode) {
+                if (index < config.panCount) {
+                    // 启用可用的托盘位置
+                    famaNode.active = true;
+                } else {
+                    // 禁用不可用的托盘位置
+                    famaNode.active = false;
+                }
+            }
+        });
+
+        this.rightFamas.forEach((famaNode, index) => {
+            if (famaNode) {
+                if (index < config.panCount) {
+                    // 启用可用的托盘位置
+                    famaNode.active = true;
+                } else {
+                    // 禁用不可用的托盘位置
+                    famaNode.active = false;
+                }
+            }
+        });
+
+        console.log(`游戏难度: ${this.gameDifficulty}, 砝码数量: ${config.answerCount}, 托盘位置: ${config.panCount}`);
+    }
+
+    /**
+     * 设置游戏难度
+     */
+    public setDifficulty(difficulty: number) {
+        if (difficulty >= 1 && difficulty <= 3) {
+            this.gameDifficulty = difficulty;
+            this.setupDifficulty();
+            this.initDragAndDrop();
+        }
     }
 
     /**
@@ -327,8 +398,8 @@ export class balance extends BaseScene<IBaseGameChild> {
         return closestNode;
     }
     /**
-    * 检查拖拽结束位置
-    */
+     * 检查拖拽结束位置
+     */
     private checkDropPosition(famaNode: FamaNode, touchPos: Vec2) {
         // 检查是否放在answerNode上
         if (this.answerNode) {
@@ -341,7 +412,7 @@ export class balance extends BaseScene<IBaseGameChild> {
                     width: answerBounds.width,
                     height: answerBounds.height
                 };
-
+                
                 if (this.isPointInRect(touchPos, answerRect)) {
                     console.log("拖拽到answerNode");
                     this.moveFamaToAnswer(famaNode, touchPos);
@@ -349,11 +420,12 @@ export class balance extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-
-        // 检查是否放在左侧砝码位置
-        for (let i = 0; i < this.leftFamas.length; i++) {
+        
+        // 检查是否放在左侧砝码位置（只检查可用的位置）
+        const config = this.DIFFICULTY_CONFIG[this.gameDifficulty];
+        for (let i = 0; i < config.panCount; i++) {
             const leftFamaNode = this.leftFamas[i];
-            if (leftFamaNode && leftFamaNode.children.length === 0) {
+            if (leftFamaNode && leftFamaNode.active && leftFamaNode.children.length === 0) {
                 const leftBounds = leftFamaNode.getComponent(UITransform);
                 if (leftBounds) {
                     const leftWorldPos = leftFamaNode.getWorldPosition();
@@ -363,20 +435,20 @@ export class balance extends BaseScene<IBaseGameChild> {
                         width: leftBounds.width,
                         height: leftBounds.height
                     };
-
+                    
                     if (this.isPointInRect(touchPos, leftRect)) {
                         console.log(`拖拽到左侧砝码位置 ${i}`);
                         this.moveFamaToTarget(famaNode, leftFamaNode);
-                        return; // 找到匹配位置后直接返回
+                        return;
                     }
                 }
             }
         }
-
-        // 检查是否放在右侧砝码位置
-        for (let i = 0; i < this.rightFamas.length; i++) {
+        
+        // 检查是否放在右侧砝码位置（只检查可用的位置）
+        for (let i = 0; i < config.panCount; i++) {
             const rightFamaNode = this.rightFamas[i];
-            if (rightFamaNode && rightFamaNode.children.length === 0) {
+            if (rightFamaNode && rightFamaNode.active && rightFamaNode.children.length === 0) {
                 const rightBounds = rightFamaNode.getComponent(UITransform);
                 if (rightBounds) {
                     const rightWorldPos = rightFamaNode.getWorldPosition();
@@ -386,16 +458,16 @@ export class balance extends BaseScene<IBaseGameChild> {
                         width: rightBounds.width,
                         height: rightBounds.height
                     };
-
+                    
                     if (this.isPointInRect(touchPos, rightRect)) {
                         console.log(`拖拽到右侧砝码位置 ${i}`);
                         this.moveFamaToTarget(famaNode, rightFamaNode);
-                        return; // 找到匹配位置后直接返回
+                        return;
                     }
                 }
             }
         }
-
+        
         // 如果没有放在任何有效位置，恢复原始位置
         famaNode.node.setWorldPosition(this._originalPosition);
     }
@@ -458,14 +530,17 @@ export class balance extends BaseScene<IBaseGameChild> {
             point.y <= rect.y + rect.height;
     }
 
-    /**
+      /**
      * 检查天平平衡状态并执行倾斜效果
      */
-    private checkBalanceAndTilt() {
-        // 计算左侧砝码总重量
+      private checkBalanceAndTilt() {
+        const config = this.DIFFICULTY_CONFIG[this.gameDifficulty];
+        
+        // 计算左侧砝码总重量（只计算可用的托盘位置）
         let leftTotalWeight = 0;
-        for (const leftFama of this.leftFamas) {
-            if (leftFama && leftFama.children.length > 0) {
+        for (let i = 0; i < config.panCount; i++) {
+            const leftFama = this.leftFamas[i];
+            if (leftFama && leftFama.active && leftFama.children.length > 0) {
                 const famaNode = leftFama.children[0].getComponent(FamaNode);
                 if (famaNode) {
                     leftTotalWeight += famaNode.value;
@@ -473,10 +548,11 @@ export class balance extends BaseScene<IBaseGameChild> {
             }
         }
 
-        // 计算右侧砝码总重量
+        // 计算右侧砝码总重量（只计算可用的托盘位置）
         let rightTotalWeight = 0;
-        for (const rightFama of this.rightFamas) {
-            if (rightFama && rightFama.children.length > 0) {
+        for (let i = 0; i < config.panCount; i++) {
+            const rightFama = this.rightFamas[i];
+            if (rightFama && rightFama.active && rightFama.children.length > 0) {
                 const famaNode = rightFama.children[0].getComponent(FamaNode);
                 if (famaNode) {
                     rightTotalWeight += famaNode.value;
@@ -484,14 +560,14 @@ export class balance extends BaseScene<IBaseGameChild> {
             }
         }
 
-        console.log(`左侧总重量: ${leftTotalWeight}kg, 右侧总重量: ${rightTotalWeight}kg`);
+        console.log(`难度${this.gameDifficulty} - 左侧总重量: ${leftTotalWeight}kg, 右侧总重量: ${rightTotalWeight}kg`);
 
         // 根据重量差异执行倾斜效果
         if (leftTotalWeight > rightTotalWeight) {
-            // 左边重，杆子向左倾斜15°
+            // 左边重，杆子向左倾斜
             this.tiltBalance(4);
         } else if (rightTotalWeight > leftTotalWeight) {
-            // 右边重，杆子向右倾斜-15°
+            // 右边重，杆子向右倾斜
             this.tiltBalance(-4);
         } else {
             // 平衡状态，杆子保持水平

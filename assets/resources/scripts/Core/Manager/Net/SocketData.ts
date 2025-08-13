@@ -68,7 +68,7 @@ export class SocketData {
     /**
      * 最大重试次数
      */
-    private readonly MAX_RETRY_COUNT: number = 3;
+    private readonly MAX_RETRY_COUNT: number = 5;
 
     /**
      * 超时时间(毫秒)
