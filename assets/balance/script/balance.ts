@@ -24,8 +24,8 @@ import {
 
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import {TimerCommonComponent} from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
-import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import { FamaNode } from './FamaNode';
 const { ccclass, property } = _decorator;
 
@@ -35,7 +35,7 @@ export class balance extends BaseScene<IBaseGameChild> {
 
 
     @property(Node)
-    mainView:Node = null;
+    mainView: Node = null;
 
     @property(ProgressBar)
     progressBar: ProgressBar;
@@ -48,32 +48,35 @@ export class balance extends BaseScene<IBaseGameChild> {
     timerComponent: TimerCommonComponent = null;
 
     @property(Node)
-    ganzi:Node;
+    ganzi: Node;
 
     @property(Node)
-    leftPanNode:Node;
+    leftPanNode: Node;
 
     @property(Node)
-    rightPanNode:Node;
+    rightPanNode: Node;
 
     @property(Node)
-    leftNode:Node;
+    leftNode: Node;
 
     @property(Node)
-    rightNode:Node;
+    rightNode: Node;
 
 
     @property([Node])
-    leftFamas:Node[] = [];
+    leftFamas: Node[] = [];
 
     @property([Node])
-    rightFamas:Node[] = [];
+    rightFamas: Node[] = [];
 
     @property([FamaNode])
-    answerFamas:FamaNode[] = [];
+    answerFamas: FamaNode[] = [];
+
+    @property([Node])
+    answerNodes: Node[] = [];
 
     @property(Node)
-    answerNode:Node;
+    answerNode: Node;
 
 
     private bgmClip: AudioClip;
@@ -85,7 +88,7 @@ export class balance extends BaseScene<IBaseGameChild> {
     private _rightPanOriginalPos: Vec3 = new Vec3();
 
     onLoad() {
-        this.audioUrls = ["music/balance_bgm", "music/loseBalance", "music/balance","music/place"];
+        this.audioUrls = ["music/balance_bgm", "music/loseBalance", "music/balance", "music/place"];
         this.bundleName = BundleName.BALANCE;
         let self = this;
         this.loadAudio().then(() => {
@@ -104,14 +107,14 @@ export class balance extends BaseScene<IBaseGameChild> {
 
         // 初始化拖拽功能
         this.initDragAndDrop();
-        
+
         // 确保场景可以接收触摸事件
         this.node.on(Node.EventType.TOUCH_START, this.onSceneTouchStart, this);
         this.node.on(Node.EventType.TOUCH_MOVE, this.onSceneTouchMove, this);
         this.node.on(Node.EventType.TOUCH_END, this.onSceneTouchEnd, this);
     }
 
-    start(){
+    start() {
         super.start();
     }
 
@@ -145,7 +148,7 @@ export class balance extends BaseScene<IBaseGameChild> {
      */
     private setupDragEvents(famaNode: FamaNode) {
         const node = famaNode.node;
-        
+
         // 触摸开始事件
         node.on(Input.EventType.TOUCH_START, (event: EventTouch) => {
             this.onTouchStart(event, famaNode);
@@ -168,30 +171,26 @@ export class balance extends BaseScene<IBaseGameChild> {
     }
 
     /**
-     * 触摸开始事件处理
-     */
+  * 触摸开始事件处理
+  */
     private onTouchStart(event: EventTouch, famaNode: FamaNode) {
         if (this._draggingNode) return; // 如果已经在拖拽中，忽略新的触摸
-        
-        // 检查节点是否已经被放置，如果已经被放置则不允许拖拽
-        if (this.isFamaPlaced(famaNode)) {
-            return;
-        }
 
         this._draggingNode = famaNode;
         const touchPos = event.getUILocation();
         const nodePos = famaNode.node.getWorldPosition();
-        
+
         // 计算触摸点与节点位置的偏移
         this._dragOffset.x = touchPos.x - nodePos.x;
         this._dragOffset.y = touchPos.y - nodePos.y;
-        
+
         // 保存原始位置
         this._originalPosition.set(nodePos);
-        
+
         // 可以在这里添加拖拽开始的视觉反馈
         this.onDragStart(famaNode);
     }
+
 
     /**
      * 触摸移动事件处理
@@ -200,14 +199,14 @@ export class balance extends BaseScene<IBaseGameChild> {
         if (this._draggingNode !== famaNode) return;
 
         const touchPos = event.getUILocation();
-        
+
         // 计算新的节点位置（减去偏移量）
         const newX = touchPos.x - this._dragOffset.x;
         const newY = touchPos.y - this._dragOffset.y;
-        
+
         // 更新节点位置
         famaNode.node.setWorldPosition(newX, newY, this._originalPosition.z);
-        
+
         // 可以在这里添加拖拽中的逻辑
         this.onDragMove(famaNode, touchPos);
     }
@@ -219,10 +218,10 @@ export class balance extends BaseScene<IBaseGameChild> {
         if (this._draggingNode !== famaNode) return;
 
         const touchPos = event.getUILocation();
-        
+
         // 可以在这里添加拖拽结束的逻辑
         this.onDragEnd(famaNode, touchPos);
-        
+
         // 清理拖拽状态
         this._draggingNode = null;
     }
@@ -235,10 +234,10 @@ export class balance extends BaseScene<IBaseGameChild> {
 
         // 恢复原始位置
         famaNode.node.setWorldPosition(this._originalPosition);
-        
+
         // 清理拖拽状态
         this._draggingNode = null;
-        
+
         // 可以在这里添加拖拽取消的逻辑
         this.onDragCancel(famaNode);
     }
@@ -266,7 +265,7 @@ export class balance extends BaseScene<IBaseGameChild> {
     private onDragEnd(famaNode: FamaNode, touchPos: Vec2) {
         // 恢复原始缩放
         famaNode.node.setScale(1, 1, 1);
-        
+
         // 检查是否放在正确位置
         this.checkDropPosition(famaNode, touchPos);
     }
@@ -278,11 +277,79 @@ export class balance extends BaseScene<IBaseGameChild> {
         // 恢复原始缩放
         famaNode.node.setScale(1, 1, 1);
     }
+    /**
+    * 将famaNode移动到answerNode
+    */
+    private moveFamaToAnswer(famaNode: FamaNode, touchPos: Vec2) {
+        // 找到answerNodes中最接近触摸位置的节点
+        const targetNode = this.findClosestAnswerNode(touchPos);
+
+        if (targetNode) {
+            // 将famaNode添加为targetNode的子节点
+            targetNode.addChild(famaNode.node);
+
+            // 将砝码放置到targetNode的中心位置（本地坐标0,0,0）
+            famaNode.node.setPosition(0, 0, 0);
+        } else {
+            // 如果没有找到合适的位置，直接添加到answerNode
+            this.answerNode.addChild(famaNode.node);
+            famaNode.node.setPosition(0, 0, 0);
+        }
+
+        // 播放放置音效
+        this.playAudio("music/place");
+
+        // 检查天平平衡状态
+        this.checkBalanceAndTilt();
+    }
 
     /**
-     * 检查拖拽结束位置
+     * 找到answerNodes中最接近触摸位置的节点
      */
+    private findClosestAnswerNode(touchPos: Vec2): Node | null {
+        let closestNode: Node | null = null;
+        let minDistance = Number.MAX_VALUE;
+
+        for (const answerNode of this.answerNodes) {
+            if (answerNode && answerNode.children.length === 0) {
+                // 只考虑没有子节点的answerNode（未被使用的位置）
+                // 计算触摸位置与answerNode位置的距离
+                const answerNodeWorldPos = answerNode.getWorldPosition();
+                const distance = Vec2.distance(touchPos, new Vec2(answerNodeWorldPos.x, answerNodeWorldPos.y));
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestNode = answerNode;
+                }
+            }
+        }
+
+        return closestNode;
+    }
+    /**
+    * 检查拖拽结束位置
+    */
     private checkDropPosition(famaNode: FamaNode, touchPos: Vec2) {
+        // 检查是否放在answerNode上
+        if (this.answerNode) {
+            const answerBounds = this.answerNode.getComponent(UITransform);
+            if (answerBounds) {
+                const answerWorldPos = this.answerNode.getWorldPosition();
+                const answerRect = {
+                    x: answerWorldPos.x - answerBounds.width / 2,
+                    y: answerWorldPos.y - answerBounds.height / 2,
+                    width: answerBounds.width,
+                    height: answerBounds.height
+                };
+
+                if (this.isPointInRect(touchPos, answerRect)) {
+                    console.log("拖拽到answerNode");
+                    this.moveFamaToAnswer(famaNode, touchPos);
+                    return;
+                }
+            }
+        }
+
         // 检查是否放在左侧砝码位置
         for (let i = 0; i < this.leftFamas.length; i++) {
             const leftFamaNode = this.leftFamas[i];
@@ -296,7 +363,7 @@ export class balance extends BaseScene<IBaseGameChild> {
                         width: leftBounds.width,
                         height: leftBounds.height
                     };
-                    
+
                     if (this.isPointInRect(touchPos, leftRect)) {
                         console.log(`拖拽到左侧砝码位置 ${i}`);
                         this.moveFamaToTarget(famaNode, leftFamaNode);
@@ -305,7 +372,7 @@ export class balance extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-        
+
         // 检查是否放在右侧砝码位置
         for (let i = 0; i < this.rightFamas.length; i++) {
             const rightFamaNode = this.rightFamas[i];
@@ -319,7 +386,7 @@ export class balance extends BaseScene<IBaseGameChild> {
                         width: rightBounds.width,
                         height: rightBounds.height
                     };
-                    
+
                     if (this.isPointInRect(touchPos, rightRect)) {
                         console.log(`拖拽到右侧砝码位置 ${i}`);
                         this.moveFamaToTarget(famaNode, rightFamaNode);
@@ -328,10 +395,11 @@ export class balance extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-        
+
         // 如果没有放在任何有效位置，恢复原始位置
         famaNode.node.setWorldPosition(this._originalPosition);
     }
+
 
 
 
@@ -341,16 +409,16 @@ export class balance extends BaseScene<IBaseGameChild> {
     private moveFamaToTarget(famaNode: FamaNode, targetNode: Node) {
         // 将famaNode添加为targetNode的子节点
         targetNode.addChild(famaNode.node);
-        
+
         // 将砝码放置到目标节点的中心位置（本地坐标0,0,0）
         famaNode.node.setPosition(0, 0, 0);
-        
+
         // 播放放置音效
         this.playAudio("music/place");
-        
+
         // 检查天平平衡状态
         this.checkBalanceAndTilt();
-        
+
         // 可以在这里添加放置成功的视觉反馈
         // 例如：播放动画、改变颜色等
     }
@@ -362,21 +430,21 @@ export class balance extends BaseScene<IBaseGameChild> {
         // 检查节点是否已经是leftFamas或rightFamas中某个节点的子节点
         const parent = famaNode.node.parent;
         if (!parent) return false;
-        
+
         // 检查是否在leftFamas中
         for (const leftFama of this.leftFamas) {
             if (leftFama && leftFama.children.includes(famaNode.node)) {
                 return true;
             }
         }
-        
+
         // 检查是否在rightFamas中
         for (const rightFama of this.rightFamas) {
             if (rightFama && rightFama.children.includes(famaNode.node)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -384,10 +452,10 @@ export class balance extends BaseScene<IBaseGameChild> {
      * 检查点是否在矩形区域内
      */
     private isPointInRect(point: Vec2, rect: { x: number, y: number, width: number, height: number }): boolean {
-        return point.x >= rect.x && 
-               point.x <= rect.x + rect.width && 
-               point.y >= rect.y && 
-               point.y <= rect.y + rect.height;
+        return point.x >= rect.x &&
+            point.x <= rect.x + rect.width &&
+            point.y >= rect.y &&
+            point.y <= rect.y + rect.height;
     }
 
     /**
@@ -451,7 +519,7 @@ export class balance extends BaseScene<IBaseGameChild> {
             tween(this.leftPanNode)
                 .to(0.5, { position: v3(this._leftPanOriginalPos.x, this._leftPanOriginalPos.y - 20, 0) }, { easing: 'sineOut' })
                 .start();
-            
+
             // 右侧托盘上浮
             tween(this.rightPanNode)
                 .to(0.5, { position: v3(this._rightPanOriginalPos.x, this._rightPanOriginalPos.y + 20, 0) }, { easing: 'sineOut' })
@@ -461,7 +529,7 @@ export class balance extends BaseScene<IBaseGameChild> {
             tween(this.rightPanNode)
                 .to(0.5, { position: v3(this._rightPanOriginalPos.x, this._rightPanOriginalPos.y - 20, 0) }, { easing: 'sineOut' })
                 .start();
-            
+
             // 左侧托盘上浮
             tween(this.leftPanNode)
                 .to(0.5, { position: v3(this._leftPanOriginalPos.x, this._leftPanOriginalPos.y + 20, 0) }, { easing: 'sineOut' })
@@ -471,7 +539,7 @@ export class balance extends BaseScene<IBaseGameChild> {
             tween(this.leftPanNode)
                 .to(0.5, { position: this._leftPanOriginalPos }, { easing: 'sineOut' })
                 .start();
-            
+
             tween(this.rightPanNode)
                 .to(0.5, { position: this._rightPanOriginalPos }, { easing: 'sineOut' })
                 .start();
@@ -574,12 +642,12 @@ export class balance extends BaseScene<IBaseGameChild> {
     onDestroy() {
         // 清理拖拽事件
         this.cleanupDragEvents();
-        
+
         // 清理场景触摸事件
         this.node.off(Node.EventType.TOUCH_START, this.onSceneTouchStart, this);
         this.node.off(Node.EventType.TOUCH_MOVE, this.onSceneTouchMove, this);
         this.node.off(Node.EventType.TOUCH_END, this.onSceneTouchEnd, this);
-        
+
         super.onDestroy();
     }
 }
