@@ -47,6 +47,14 @@ export class balance extends BaseScene<IBaseGameChild> {
     @property(TimerCommonComponent)
     timerComponent: TimerCommonComponent = null;
 
+    @property(Node)
+    ganzi:Node;
+
+    @property(Node)
+    leftPanNode:Node;
+
+    @property(Node)
+    rightPanNode:Node;
 
     @property(Node)
     leftNode:Node;
@@ -64,12 +72,17 @@ export class balance extends BaseScene<IBaseGameChild> {
     @property([FamaNode])
     answerFamas:FamaNode[] = [];
 
+    @property(Node)
+    answerNode:Node;
+
 
     private bgmClip: AudioClip;
 
     private _draggingNode: FamaNode = null;
     private _dragOffset: Vec2 = new Vec2();
     private _originalPosition: Vec3 = new Vec3();
+    private _leftPanOriginalPos: Vec3 = new Vec3();
+    private _rightPanOriginalPos: Vec3 = new Vec3();
 
     onLoad() {
         this.audioUrls = ["music/balance_bgm", "music/loseBalance", "music/balance","music/place"];
@@ -80,6 +93,14 @@ export class balance extends BaseScene<IBaseGameChild> {
                 self.bgmClip = self.playBgmAudio("music/balance_bgm", true);
             }
         });
+
+        // 保存托盘的原始位置
+        if (this.leftPanNode) {
+            this._leftPanOriginalPos.set(this.leftPanNode.position);
+        }
+        if (this.rightPanNode) {
+            this._rightPanOriginalPos.set(this.rightPanNode.position);
+        }
 
         // 初始化拖拽功能
         this.initDragAndDrop();
@@ -151,6 +172,11 @@ export class balance extends BaseScene<IBaseGameChild> {
      */
     private onTouchStart(event: EventTouch, famaNode: FamaNode) {
         if (this._draggingNode) return; // 如果已经在拖拽中，忽略新的触摸
+        
+        // 检查节点是否已经被放置，如果已经被放置则不允许拖拽
+        if (this.isFamaPlaced(famaNode)) {
+            return;
+        }
 
         this._draggingNode = famaNode;
         const touchPos = event.getUILocation();
@@ -241,8 +267,7 @@ export class balance extends BaseScene<IBaseGameChild> {
         // 恢复原始缩放
         famaNode.node.setScale(1, 1, 1);
         
-        // 可以在这里添加拖拽结束的逻辑
-        // 例如：检查是否放在正确位置、播放音效等
+        // 检查是否放在正确位置
         this.checkDropPosition(famaNode, touchPos);
     }
 
@@ -258,46 +283,101 @@ export class balance extends BaseScene<IBaseGameChild> {
      * 检查拖拽结束位置
      */
     private checkDropPosition(famaNode: FamaNode, touchPos: Vec2) {
-        // 这里可以添加检查逻辑，判断famaNode是否放在了正确的位置
-        // 例如：检查是否与leftFamas或rightFamas中的某个位置重叠
-        
-        // 示例：检查是否放在左侧区域
-        if (this.leftNode) {
-            const leftBounds = this.leftNode.getComponent(UITransform);
-            if (leftBounds) {
-                const leftWorldPos = this.leftNode.getWorldPosition();
-                const leftRect = {
-                    x: leftWorldPos.x - leftBounds.width / 2,
-                    y: leftWorldPos.y - leftBounds.height / 2,
-                    width: leftBounds.width,
-                    height: leftBounds.height
-                };
-                
-                if (this.isPointInRect(touchPos, leftRect)) {
-                    console.log("拖拽到左侧区域");
-                    // 可以在这里添加相应的逻辑
+        // 检查是否放在左侧砝码位置
+        for (let i = 0; i < this.leftFamas.length; i++) {
+            const leftFamaNode = this.leftFamas[i];
+            if (leftFamaNode && leftFamaNode.children.length === 0) {
+                const leftBounds = leftFamaNode.getComponent(UITransform);
+                if (leftBounds) {
+                    const leftWorldPos = leftFamaNode.getWorldPosition();
+                    const leftRect = {
+                        x: leftWorldPos.x - leftBounds.width / 2,
+                        y: leftWorldPos.y - leftBounds.height / 2,
+                        width: leftBounds.width,
+                        height: leftBounds.height
+                    };
+                    
+                    if (this.isPointInRect(touchPos, leftRect)) {
+                        console.log(`拖拽到左侧砝码位置 ${i}`);
+                        this.moveFamaToTarget(famaNode, leftFamaNode);
+                        return; // 找到匹配位置后直接返回
+                    }
                 }
             }
         }
         
-        // 示例：检查是否放在右侧区域
-        if (this.rightNode) {
-            const rightBounds = this.rightNode.getComponent(UITransform);
-            if (rightBounds) {
-                const rightWorldPos = this.rightNode.getWorldPosition();
-                const rightRect = {
-                    x: rightWorldPos.x - rightBounds.width / 2,
-                    y: rightWorldPos.y - rightBounds.height / 2,
-                    width: rightBounds.width,
-                    height: rightBounds.height
-                };
-                
-                if (this.isPointInRect(touchPos, rightRect)) {
-                    console.log("拖拽到右侧区域");
-                    // 可以在这里添加相应的逻辑
+        // 检查是否放在右侧砝码位置
+        for (let i = 0; i < this.rightFamas.length; i++) {
+            const rightFamaNode = this.rightFamas[i];
+            if (rightFamaNode && rightFamaNode.children.length === 0) {
+                const rightBounds = rightFamaNode.getComponent(UITransform);
+                if (rightBounds) {
+                    const rightWorldPos = rightFamaNode.getWorldPosition();
+                    const rightRect = {
+                        x: rightWorldPos.x - rightBounds.width / 2,
+                        y: rightWorldPos.y - rightBounds.height / 2,
+                        width: rightBounds.width,
+                        height: rightBounds.height
+                    };
+                    
+                    if (this.isPointInRect(touchPos, rightRect)) {
+                        console.log(`拖拽到右侧砝码位置 ${i}`);
+                        this.moveFamaToTarget(famaNode, rightFamaNode);
+                        return; // 找到匹配位置后直接返回
+                    }
                 }
             }
         }
+        
+        // 如果没有放在任何有效位置，恢复原始位置
+        famaNode.node.setWorldPosition(this._originalPosition);
+    }
+
+
+
+    /**
+     * 将famaNode移动到目标节点作为子节点
+     */
+    private moveFamaToTarget(famaNode: FamaNode, targetNode: Node) {
+        // 将famaNode添加为targetNode的子节点
+        targetNode.addChild(famaNode.node);
+        
+        // 将砝码放置到目标节点的中心位置（本地坐标0,0,0）
+        famaNode.node.setPosition(0, 0, 0);
+        
+        // 播放放置音效
+        this.playAudio("music/place");
+        
+        // 检查天平平衡状态
+        this.checkBalanceAndTilt();
+        
+        // 可以在这里添加放置成功的视觉反馈
+        // 例如：播放动画、改变颜色等
+    }
+
+    /**
+     * 检查famaNode是否已经被放置
+     */
+    private isFamaPlaced(famaNode: FamaNode): boolean {
+        // 检查节点是否已经是leftFamas或rightFamas中某个节点的子节点
+        const parent = famaNode.node.parent;
+        if (!parent) return false;
+        
+        // 检查是否在leftFamas中
+        for (const leftFama of this.leftFamas) {
+            if (leftFama && leftFama.children.includes(famaNode.node)) {
+                return true;
+            }
+        }
+        
+        // 检查是否在rightFamas中
+        for (const rightFama of this.rightFamas) {
+            if (rightFama && rightFama.children.includes(famaNode.node)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**
@@ -308,6 +388,152 @@ export class balance extends BaseScene<IBaseGameChild> {
                point.x <= rect.x + rect.width && 
                point.y >= rect.y && 
                point.y <= rect.y + rect.height;
+    }
+
+    /**
+     * 检查天平平衡状态并执行倾斜效果
+     */
+    private checkBalanceAndTilt() {
+        // 计算左侧砝码总重量
+        let leftTotalWeight = 0;
+        for (const leftFama of this.leftFamas) {
+            if (leftFama && leftFama.children.length > 0) {
+                const famaNode = leftFama.children[0].getComponent(FamaNode);
+                if (famaNode) {
+                    leftTotalWeight += famaNode.value;
+                }
+            }
+        }
+
+        // 计算右侧砝码总重量
+        let rightTotalWeight = 0;
+        for (const rightFama of this.rightFamas) {
+            if (rightFama && rightFama.children.length > 0) {
+                const famaNode = rightFama.children[0].getComponent(FamaNode);
+                if (famaNode) {
+                    rightTotalWeight += famaNode.value;
+                }
+            }
+        }
+
+        console.log(`左侧总重量: ${leftTotalWeight}kg, 右侧总重量: ${rightTotalWeight}kg`);
+
+        // 根据重量差异执行倾斜效果
+        if (leftTotalWeight > rightTotalWeight) {
+            // 左边重，杆子向左倾斜15°
+            this.tiltBalance(4);
+        } else if (rightTotalWeight > leftTotalWeight) {
+            // 右边重，杆子向右倾斜-15°
+            this.tiltBalance(-4);
+        } else {
+            // 平衡状态，杆子保持水平
+            this.tiltBalance(0);
+        }
+    }
+
+    /**
+     * 执行天平倾斜动画
+     */
+    private tiltBalance(angle: number) {
+        // 停止之前的动画
+        Tween.stopAllByTarget(this.ganzi);
+        Tween.stopAllByTarget(this.leftPanNode);
+        Tween.stopAllByTarget(this.rightPanNode);
+
+        // 杆子倾斜动画
+        tween(this.ganzi)
+            .to(0.5, { angle: angle }, { easing: 'sineOut' })
+            .start();
+
+        // 左侧托盘跟随动画
+        if (angle > 0) {
+            // 左边重时，左侧托盘下沉
+            tween(this.leftPanNode)
+                .to(0.5, { position: v3(this._leftPanOriginalPos.x, this._leftPanOriginalPos.y - 20, 0) }, { easing: 'sineOut' })
+                .start();
+            
+            // 右侧托盘上浮
+            tween(this.rightPanNode)
+                .to(0.5, { position: v3(this._rightPanOriginalPos.x, this._rightPanOriginalPos.y + 20, 0) }, { easing: 'sineOut' })
+                .start();
+        } else if (angle < 0) {
+            // 右边重时，右侧托盘下沉
+            tween(this.rightPanNode)
+                .to(0.5, { position: v3(this._rightPanOriginalPos.x, this._rightPanOriginalPos.y - 20, 0) }, { easing: 'sineOut' })
+                .start();
+            
+            // 左侧托盘上浮
+            tween(this.leftPanNode)
+                .to(0.5, { position: v3(this._leftPanOriginalPos.x, this._leftPanOriginalPos.y + 20, 0) }, { easing: 'sineOut' })
+                .start();
+        } else {
+            // 平衡状态，托盘回到原始位置
+            tween(this.leftPanNode)
+                .to(0.5, { position: this._leftPanOriginalPos }, { easing: 'sineOut' })
+                .start();
+            
+            tween(this.rightPanNode)
+                .to(0.5, { position: this._rightPanOriginalPos }, { easing: 'sineOut' })
+                .start();
+        }
+
+        // 让砝码跟随托盘一起浮动
+        this.updateFamaPositions(angle);
+    }
+
+    /**
+     * 更新砝码位置，让砝码跟随托盘一起浮动
+     */
+    private updateFamaPositions(angle: number) {
+        // 更新左侧砝码位置
+        for (const leftFama of this.leftFamas) {
+            if (leftFama && leftFama.children.length > 0) {
+                const famaNode = leftFama.children[0];
+                if (famaNode) {
+                    if (angle > 0) {
+                        // 左边重时，左侧砝码下沉
+                        tween(famaNode)
+                            .to(0.5, { position: v3(0, -20, 0) }, { easing: 'sineOut' })
+                            .start();
+                    } else if (angle < 0) {
+                        // 右边重时，左侧砝码上浮
+                        tween(famaNode)
+                            .to(0.5, { position: v3(0, 20, 0) }, { easing: 'sineOut' })
+                            .start();
+                    } else {
+                        // 平衡状态，砝码回到中心位置
+                        tween(famaNode)
+                            .to(0.5, { position: v3(0, 0, 0) }, { easing: 'sineOut' })
+                            .start();
+                    }
+                }
+            }
+        }
+
+        // 更新右侧砝码位置
+        for (const rightFama of this.rightFamas) {
+            if (rightFama && rightFama.children.length > 0) {
+                const famaNode = rightFama.children[0];
+                if (famaNode) {
+                    if (angle > 0) {
+                        // 左边重时，右侧砝码上浮
+                        tween(famaNode)
+                            .to(0.5, { position: v3(0, 20, 0) }, { easing: 'sineOut' })
+                            .start();
+                    } else if (angle < 0) {
+                        // 右边重时，右侧砝码下沉
+                        tween(famaNode)
+                            .to(0.5, { position: v3(0, -20, 0) }, { easing: 'sineOut' })
+                            .start();
+                    } else {
+                        // 平衡状态，砝码回到中心位置
+                        tween(famaNode)
+                            .to(0.5, { position: v3(0, 0, 0) }, { easing: 'sineOut' })
+                            .start();
+                    }
+                }
+            }
+        }
     }
 
     /**
