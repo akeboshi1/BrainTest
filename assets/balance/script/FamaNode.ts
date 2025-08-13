@@ -14,7 +14,7 @@ export class FamaNode extends Component{
         this.node.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.node.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
-        this.label.string = this._value.toString()+"kg";
+        this.updateLabel();
     }
 
     onDestroy() {
@@ -27,6 +27,24 @@ export class FamaNode extends Component{
 
     get value():number{
         return this._value;
+    }
+
+    /**
+     * 设置砝码的值
+     * @param value 新的值
+     */
+    setValue(value: number): void {
+        this._value = value;
+        this.updateLabel();
+    }
+
+    /**
+     * 更新标签显示
+     */
+    private updateLabel(): void {
+        if (this.label) {
+            this.label.string = this._value.toString() + "kg";
+        }
     }
 
     private onTouchStart(event: any) {

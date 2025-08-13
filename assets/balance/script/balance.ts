@@ -27,6 +27,7 @@ import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Sce
 import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import { FamaNode } from './FamaNode';
+import { BalanceQuestionGenerator, BalanceQuestion } from './BalanceQuestionGenerator';
 const { ccclass, property } = _decorator;
 
 
@@ -78,6 +79,8 @@ export class balance extends BaseScene<IBaseGameChild> {
     @property(Node)
     answerNode: Node;
 
+    // 当前题目
+    private currentQuestion: BalanceQuestion = null;
 
     private bgmClip: AudioClip;
 
@@ -115,6 +118,15 @@ export class balance extends BaseScene<IBaseGameChild> {
             this._rightPanOriginalPos.set(this.rightPanNode.position);
         }
 
+        // 检查answerNode是否正确设置
+        if (!this.answerNode) {
+            console.warn("answerNode未设置，使用默认的answerNode");
+            // 如果没有设置answerNode，使用第一个answerNodes作为默认值
+            if (this.answerNodes && this.answerNodes.length > 0) {
+                this.answerNode = this.answerNodes[0];
+            }
+        }
+
         // 初始化拖拽功能
         this.initDragAndDrop();
 
@@ -122,10 +134,17 @@ export class balance extends BaseScene<IBaseGameChild> {
         this.node.on(Node.EventType.TOUCH_START, this.onSceneTouchStart, this);
         this.node.on(Node.EventType.TOUCH_MOVE, this.onSceneTouchMove, this);
         this.node.on(Node.EventType.TOUCH_END, this.onSceneTouchEnd, this);
+
+        // 输出调试信息
+        console.log(`Balance场景加载完成，当前难度: ${this.gameDifficulty}`);
+        console.log(`answerNode: ${this.answerNode ? this.answerNode.name : 'null'}`);
+        console.log(`answerFamas数量: ${this.answerFamas.length}`);
+        console.log(`answerNodes数量: ${this.answerNodes.length}`);
     }
 
     start() {
         super.start();
+        this.generateQuestion();
     }
 
     quitGame() {
@@ -211,6 +230,8 @@ export class balance extends BaseScene<IBaseGameChild> {
             this.gameDifficulty = difficulty;
             this.setupDifficulty();
             this.initDragAndDrop();
+            // 重新生成题目
+            this.generateQuestion();
         }
     }
 
@@ -361,10 +382,22 @@ export class balance extends BaseScene<IBaseGameChild> {
 
             // 将砝码放置到targetNode的中心位置（本地坐标0,0,0）
             famaNode.node.setPosition(0, 0, 0);
+            
+            console.log(`砝码已返回到answerNode位置: ${targetNode.name}`);
         } else {
-            // 如果没有找到合适的位置，直接添加到answerNode
-            this.answerNode.addChild(famaNode.node);
-            famaNode.node.setPosition(0, 0, 0);
+            // 如果没有找到合适的位置，尝试找到原始的answerNode位置
+            const originalIndex = this.findOriginalAnswerNodeIndex(famaNode);
+            if (originalIndex >= 0 && originalIndex < this.answerNodes.length) {
+                const originalNode = this.answerNodes[originalIndex];
+                originalNode.addChild(famaNode.node);
+                famaNode.node.setPosition(0, 0, 0);
+                console.log(`砝码已返回到原始位置: ${originalNode.name}`);
+            } else {
+                // 最后的选择，添加到默认的answerNode
+                this.answerNode.addChild(famaNode.node);
+                famaNode.node.setPosition(0, 0, 0);
+                console.log(`砝码已添加到默认answerNode: ${this.answerNode.name}`);
+            }
         }
 
         // 播放放置音效
@@ -372,6 +405,19 @@ export class balance extends BaseScene<IBaseGameChild> {
 
         // 检查天平平衡状态
         this.checkBalanceAndTilt();
+    }
+
+    /**
+     * 找到砝码的原始answerNode位置索引
+     */
+    private findOriginalAnswerNodeIndex(famaNode: FamaNode): number {
+        // 遍历answerFamas数组，找到对应的索引
+        for (let i = 0; i < this.answerFamas.length; i++) {
+            if (this.answerFamas[i] === famaNode) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -425,7 +471,7 @@ export class balance extends BaseScene<IBaseGameChild> {
         const config = this.DIFFICULTY_CONFIG[this.gameDifficulty];
         for (let i = 0; i < config.panCount; i++) {
             const leftFamaNode = this.leftFamas[i];
-            if (leftFamaNode && leftFamaNode.active && leftFamaNode.children.length === 0) {
+            if (leftFamaNode && leftFamaNode.active) {
                 const leftBounds = leftFamaNode.getComponent(UITransform);
                 if (leftBounds) {
                     const leftWorldPos = leftFamaNode.getWorldPosition();
@@ -438,6 +484,13 @@ export class balance extends BaseScene<IBaseGameChild> {
                     
                     if (this.isPointInRect(touchPos, leftRect)) {
                         console.log(`拖拽到左侧砝码位置 ${i}`);
+                        // 如果该位置已有砝码，先移除它
+                        if (leftFamaNode.children.length > 0) {
+                            const existingFama = leftFamaNode.children[0];
+                            leftFamaNode.removeChild(existingFama);
+                            // 将原来的砝码放回answerNode
+                            this.moveFamaToAnswer(existingFama.getComponent(FamaNode), touchPos);
+                        }
                         this.moveFamaToTarget(famaNode, leftFamaNode);
                         return;
                     }
@@ -448,7 +501,7 @@ export class balance extends BaseScene<IBaseGameChild> {
         // 检查是否放在右侧砝码位置（只检查可用的位置）
         for (let i = 0; i < config.panCount; i++) {
             const rightFamaNode = this.rightFamas[i];
-            if (rightFamaNode && rightFamaNode.active && rightFamaNode.children.length === 0) {
+            if (rightFamaNode && rightFamaNode.active) {
                 const rightBounds = rightFamaNode.getComponent(UITransform);
                 if (rightBounds) {
                     const rightWorldPos = rightFamaNode.getWorldPosition();
@@ -461,6 +514,13 @@ export class balance extends BaseScene<IBaseGameChild> {
                     
                     if (this.isPointInRect(touchPos, rightRect)) {
                         console.log(`拖拽到右侧砝码位置 ${i}`);
+                        // 如果该位置已有砝码，先移除它
+                        if (rightFamaNode.children.length > 0) {
+                            const existingFama = rightFamaNode.children[0];
+                            rightFamaNode.removeChild(existingFama);
+                            // 将原来的砝码放回answerNode
+                            this.moveFamaToAnswer(existingFama.getComponent(FamaNode), touchPos);
+                        }
                         this.moveFamaToTarget(famaNode, rightFamaNode);
                         return;
                     }
@@ -479,6 +539,15 @@ export class balance extends BaseScene<IBaseGameChild> {
      * 将famaNode移动到目标节点作为子节点
      */
     private moveFamaToTarget(famaNode: FamaNode, targetNode: Node) {
+        // 如果砝码已经在某个托盘上，先移除它
+        if (this.isFamaPlaced(famaNode)) {
+            const currentParent = famaNode.node.parent;
+            if (currentParent) {
+                currentParent.removeChild(famaNode.node);
+                console.log(`砝码 ${famaNode.value}kg 已从 ${currentParent.name} 移除`);
+            }
+        }
+
         // 将famaNode添加为targetNode的子节点
         targetNode.addChild(famaNode.node);
 
@@ -490,6 +559,8 @@ export class balance extends BaseScene<IBaseGameChild> {
 
         // 检查天平平衡状态
         this.checkBalanceAndTilt();
+
+        console.log(`砝码 ${famaNode.value}kg 已放置到 ${targetNode.name}`);
 
         // 可以在这里添加放置成功的视觉反馈
         // 例如：播放动画、改变颜色等
@@ -572,7 +643,124 @@ export class balance extends BaseScene<IBaseGameChild> {
         } else {
             // 平衡状态，杆子保持水平
             this.tiltBalance(0);
+            
+            // 检查是否完成游戏
+            this.checkGameCompletion();
         }
+    }
+
+    /**
+     * 检查游戏是否完成
+     */
+    private checkGameCompletion() {
+        if (!this.currentQuestion) return;
+
+        const config = this.DIFFICULTY_CONFIG[this.gameDifficulty];
+        let isCompleted = true;
+
+        // 检查是否所有可用的砝码都被放置
+        for (let i = 0; i < config.answerCount; i++) {
+            const famaNode = this.answerFamas[i];
+            if (famaNode && famaNode.node && famaNode.node.active) {
+                // 检查砝码是否被放置到托盘上
+                const isPlaced = this.isFamaPlaced(famaNode);
+                if (!isPlaced) {
+                    isCompleted = false;
+                    break;
+                }
+            }
+        }
+
+        if (isCompleted) {
+            console.log("恭喜！游戏完成！");
+            this.onGameCompleted();
+        }
+    }
+
+    /**
+     * 游戏完成回调
+     */
+    private onGameCompleted() {
+        // 播放成功音效
+        this.playAudio("music/balance");
+        
+        // 显示成功提示
+        if (this.guankaLabel) {
+            this.guankaLabel.string = "恭喜完成！";
+        }
+        
+        // 延迟后重新开始游戏，生成新题目
+        this.scheduleOnce(() => {
+            this.restartGame();
+        }, 2);
+    }
+
+    /**
+     * 重新开始游戏
+     */
+    public restartGame() {
+        // 重置所有砝码位置
+        this.resetAllFamas();
+        
+        // 生成新题目（从题库中随机选择）
+        this.generateQuestion();
+        
+        // 重置天平状态
+        this.tiltBalance(0);
+        
+        // 更新关卡标签
+        if (this.guankaLabel) {
+            this.guankaLabel.string = `关卡: ${this.gameDifficulty}`;
+        }
+        
+        console.log("游戏已重新开始，生成了新题目");
+    }
+
+    /**
+     * 重置所有砝码位置
+     */
+    private resetAllFamas() {
+        // 重置托盘上的砝码，让它们回到answerNodes中对应的位置
+        this.answerFamas.forEach((famaNode, index) => {
+            if (famaNode && famaNode.node) {
+                // 如果砝码在托盘上，将其放回对应的answerNode位置
+                if (this.isFamaPlaced(famaNode)) {
+                    famaNode.node.removeFromParent();
+                    
+                    // 将砝码放回对应的answerNode位置
+                    if (index < this.answerNodes.length) {
+                        const targetNode = this.answerNodes[index];
+                        if (targetNode) {
+                            targetNode.addChild(famaNode.node);
+                            famaNode.node.setPosition(0, 0, 0); // 相对于targetNode的本地坐标
+                            console.log(`砝码 ${index} 已重置到位置: ${targetNode.name}`);
+                        }
+                    } else {
+                        // 如果没有对应的answerNode，添加到默认的answerNode
+                        if (this.answerNode) {
+                            this.answerNode.addChild(famaNode.node);
+                            famaNode.node.setPosition(0, 0, 0);
+                            console.log(`砝码 ${index} 已重置到默认位置: ${this.answerNode.name}`);
+                        }
+                    }
+                }
+            }
+        });
+
+        // 清空托盘
+        this.leftFamas.forEach((famaNode) => {
+            if (famaNode) {
+                famaNode.removeAllChildren();
+            }
+        });
+
+        this.rightFamas.forEach((famaNode) => {
+            if (famaNode) {
+                famaNode.removeAllChildren();
+            }
+        });
+
+        console.log("托盘上的砝码已重置到对应的answerNode位置");
     }
 
     /**
@@ -713,6 +901,48 @@ export class balance extends BaseScene<IBaseGameChild> {
      */
     private onSceneTouchEnd(event: EventTouch) {
         // 场景触摸结束事件处理
+    }
+
+    /**
+     * 生成题目
+     */
+    private generateQuestion() {
+        // 使用静态方法生成题目
+        this.currentQuestion = BalanceQuestionGenerator.generateQuestion(this.gameDifficulty);
+        
+        // 更新关卡标签
+        if (this.guankaLabel) {
+            this.guankaLabel.string = `关卡: ${this.gameDifficulty}`;
+        }
+        
+        // 根据难度设置可用的砝码数量
+        const config = this.DIFFICULTY_CONFIG[this.gameDifficulty];
+        
+        // 设置砝码的值和可见性，但不改变它们的位置
+        this.answerFamas.forEach((famaNode, index) => {
+            if (famaNode && famaNode.node) {
+                if (index < config.answerCount) {
+                    // 启用可用的砝码
+                    famaNode.node.active = true;
+                    // 设置砝码的值
+                    if (this.currentQuestion && this.currentQuestion.answer[index] !== undefined) {
+                        famaNode.setValue(this.currentQuestion.answer[index]);
+                    }
+                } else {
+                    // 禁用不可用的砝码
+                    famaNode.node.active = false;
+                }
+            }
+        });
+
+        console.log(`=== 新题目生成 ===`);
+        console.log(`题目描述: ${this.currentQuestion.description}`);
+        console.log(`答案数组: ${this.currentQuestion.answer.join(', ')}`);
+        console.log(`左侧数字: ${this.currentQuestion.leftNumbers.join(' + ')} = ${this.currentQuestion.leftSum}`);
+        console.log(`右侧数字: ${this.currentQuestion.rightNumbers.join(' + ')} = ${this.currentQuestion.rightSum}`);
+        console.log(`可用的砝码数量: ${config.answerCount}`);
+        console.log(`砝码保持在原位置，只更新了值和可见性`);
+        console.log(`==================`);
     }
 
     onDestroy() {
