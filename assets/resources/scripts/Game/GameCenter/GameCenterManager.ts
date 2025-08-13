@@ -266,6 +266,7 @@ export class GameCenterManager {
             
             // 清理事件监听器
             this.cleanupPreloadEventListeners();
+
             
             // 触发游戏大厅加载错误事件
             EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
@@ -292,8 +293,11 @@ export class GameCenterManager {
     }
 
     public get currentGame(): GameCenterData {
-        this._curGame.difficulty = this._selectDifficulty;
-        return this._curGame;
+        if(this._curGame){
+            this._curGame.difficulty = this._selectDifficulty;
+            return this._curGame;
+        }
+        return null;
     }
 
 
@@ -562,12 +566,14 @@ export class GameCenterManager {
      * 退出游戏大厅游戏
      */
     public exitCallBack() {
-        SocketManager.getInstance().send(new SocketData({
-            action: GameCenterManager.GAMEEND,
-            data: {
-                session_id: GameCenterManager.getInstance().currentGame.sessionid,
-            }
-        }));
+        if (this._curGame) {
+            SocketManager.getInstance().send(new SocketData({
+                action: GameCenterManager.GAMEEND,
+                data: {
+                    session_id: GameCenterManager.getInstance().currentGame.sessionid,
+                }
+            }));
+        }
         Global.isAgain = false;
         GuideManager.getInstance().quitGame();
         SceneManager.getInstance().backToGameCenter();
