@@ -130,7 +130,7 @@ export class SocketData {
      */
     public needRetry():boolean {
         if (this._currentRetryCount >= this.MAX_RETRY_COUNT) {
-            this.handleMaxRetriesReached();
+            // this.handleMaxRetriesReached();
             return false;
         }
 

@@ -191,13 +191,13 @@ export class SocketManager extends BaseManager {
 
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
-        AlertManager.getInstance().showSocketAlert("网络关闭");
+        // AlertManager.getInstance().showSocketAlert("网络关闭");
         this.processReconnectFlow();
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.error('onSocketError !');
-        AlertManager.getInstance().showSocketAlert("网络错误！");
+        // AlertManager.getInstance().showSocketAlert("网络错误！");
         this._isReconnecting = false;
         this.processReconnectFlow();
     }
@@ -255,9 +255,50 @@ export class SocketManager extends BaseManager {
 
         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
 
-        AlertManager.getInstance().showSocketAlert('重连失败，请检查设备的网络链接。');
+        // 超过重连次数后，显示带有退出和重连按钮的弹窗
+        await this.showReconnectFailedAlert();
+        
         this._isReconnecting = false;
         return false;
+    }
+
+    /**
+     * 显示重连失败弹窗，提供退出和重连选项
+     */
+    private async showReconnectFailedAlert(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            const alertData: AlertData = {
+                title: "连接失败",
+                message: "网络连接失败，请检查网络设置后重试",
+                messageFontColor: "#FFFFFF",
+                confirmButtonText: "重连",
+                cancelButtonText: "退出",
+                cancelButtonVisible: true,
+                guideButtonVisible: false,
+                guideButtonText: '玩法介绍',
+                x: 0,
+                y: 0,
+                confirmCb: async () => {
+                    // 用户选择重连，继续尝试重连
+                    DebugLog.instance.log("用户选择重连，继续尝试重连");
+                    resolve();
+                    // 重新开始重连流程
+                    this._isReconnecting = false;
+                    this.processReconnectFlow();
+                },
+                cancelCb: () => {
+                    // 用户选择退出，跳转到登录界面
+                    DebugLog.instance.log("用户选择退出，跳转到登录界面");
+                    resolve();
+                    this._isReconnecting = false;
+                    LoginManager.getInstance().loginout();
+                },
+                contentClickCb: null,
+                guideCallBack: null
+            };
+            
+            AlertManager.getInstance().showAlert(alertData);
+        });
     }
 
     public send(data: SocketData) {
