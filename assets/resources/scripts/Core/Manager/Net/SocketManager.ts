@@ -7,6 +7,7 @@ import { LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
+import { SceneManager } from "../Scene/SceneManager";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
@@ -222,7 +223,9 @@ export class SocketManager extends BaseManager {
                 await new Promise<void>((resolve) => {
                     LoginManager.getInstance().requestTokenVerification((result) => {
                         if (!result) {
-                            LoginManager.getInstance().loginout();
+                            this._isReconnecting = false;
+                            // LoginManager.getInstance().loginout();
+                            SceneManager.getInstance().backToHall(true);
                         }
 
                         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
@@ -252,59 +255,21 @@ export class SocketManager extends BaseManager {
         }
 
         DebugLog.instance.error('Reached maximum reconnect attempts. Giving up.');
-
+       
         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
 
-        // 超过重连次数后，显示带有退出和重连按钮的弹窗
-        await this.showReconnectFailedAlert();
-        
         this._isReconnecting = false;
+
+        SceneManager.getInstance().backToHall(true);
+       
         return false;
     }
 
-    /**
-     * 显示重连失败弹窗，提供退出和重连选项
-     */
-    private async showReconnectFailedAlert(): Promise<void> {
-        return new Promise<void>((resolve) => {
-            const alertData: AlertData = {
-                title: "连接失败",
-                message: "网络连接失败，请检查网络设置后重试",
-                messageFontColor: "#FFFFFF",
-                confirmButtonText: "重连",
-                cancelButtonText: "退出",
-                cancelButtonVisible: true,
-                guideButtonVisible: false,
-                guideButtonText: '玩法介绍',
-                x: 0,
-                y: 0,
-                confirmCb: async () => {
-                    // 用户选择重连，继续尝试重连
-                    DebugLog.instance.log("用户选择重连，继续尝试重连");
-                    resolve();
-                    // 重新开始重连流程
-                    this._isReconnecting = false;
-                    this.processReconnectFlow();
-                },
-                cancelCb: () => {
-                    // 用户选择退出，跳转到登录界面
-                    DebugLog.instance.log("用户选择退出，跳转到登录界面");
-                    resolve();
-                    this._isReconnecting = false;
-                    LoginManager.getInstance().loginout();
-                },
-                contentClickCb: null,
-                guideCallBack: null
-            };
-            
-            AlertManager.getInstance().showAlert(alertData);
-        });
-    }
 
     public send(data: SocketData) {
         if (!this._socket || this._socket.readyState != this._socket.OPEN) {
             DebugLog.instance.warn('socket state is error! can not send message!');
-            this.processReconnectFlow();
+            // this.processReconnectFlow();
             return;
         }
 

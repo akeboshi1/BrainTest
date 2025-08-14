@@ -11,6 +11,9 @@ import {
     TaskAndNotificationPanelCtrl
 } from "db://assets/resources/scripts/Game/UI/TaskAndNotificationPanel/TaskAndNotificationPanelCtrl";
 import { BundlePreloadEvent, BundlePreloadManager } from '../Load/BundlePreloadManager';
+import { AlertData, AlertManager } from '../Alert/AlertManager';
+import { LoginManager } from '../LoginManager/LoginManager';
+import { SocketManager } from '../Net/SocketManager';
 
 export class SceneManager extends BaseManager {
 
@@ -134,13 +137,55 @@ export class SceneManager extends BaseManager {
         });
     }
 
+
+     /**
+     * 显示重连失败弹窗，提供退出和重连选项
+     */
+     private async showReconnectFailedAlert(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            const alertData: AlertData = {
+                title: "连接失败",
+                message: "网络连接失败，请检查网络设置后重试",
+                messageFontColor: "#FFFFFF",
+                confirmButtonText: "重连",
+                cancelButtonText: "退出",
+                cancelButtonVisible: true,
+                guideButtonVisible: false,
+                guideButtonText: '玩法介绍',
+                x: 0,
+                y: 0,
+                confirmCb: async () => {
+                    // 用户选择重连，继续尝试重连
+                    DebugLog.instance.log("用户选择重连，继续尝试重连");
+                    resolve();
+                    // 重新开始重连流程
+                    SocketManager.getInstance().processReconnectFlow();
+                },
+                cancelCb: () => {
+                    // 用户选择退出，跳转到登录界面
+                    DebugLog.instance.log("用户选择退出，跳转到登录界面");
+                    resolve();
+                    LoginManager.getInstance().loginout();
+                },
+                contentClickCb: null,
+                guideCallBack: null
+            };
+            
+            AlertManager.getInstance().showAlert(alertData);
+        });
+    }
+
     /**
      * 返回大厅
      */
-    async backToHall(): Promise<void> {
+    async backToHall(isReconnect: boolean = false): Promise<void> {
+        let self = this;
         return new Promise((resolve, reject) => {
             SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then(() => {
                 DebugLog.instance.log('返回大厅');
+                if(isReconnect){
+                   self.showReconnectFailedAlert();
+                }
                 resolve();
             }).catch(err => {
                 reject(err);
