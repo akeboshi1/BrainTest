@@ -170,7 +170,36 @@ export class App extends AdaptComponent {
                 this.socketOnHandler();
             }).catch(() => {
                 const alertData: AlertData = new AlertData();
+                alertData.title = "连接失败";
                 alertData.message = '网络链接失败，请检查网络环境';
+                alertData.messageFontColor = "#FFFFFF";
+                alertData.confirmButtonText = "重连";
+                alertData.cancelButtonText = "退出";
+                alertData.cancelButtonVisible = true;
+                alertData.guideButtonVisible = false;
+                alertData.guideButtonText = '玩法介绍';
+                alertData.x = 0;
+                alertData.y = 0;
+                alertData.confirmCb = async () => {
+                    // 用户选择重连，重新尝试初始化socket
+                    DebugLog.instance.log("用户选择重连，重新尝试初始化socket");
+                    try {
+                        await SocketManager.getInstance().initSocket(publishSetting.getApiUrl());
+                        this.socketOnHandler();
+                    } catch (error) {
+                        DebugLog.instance.error("重连失败:", error);
+                        // 重连失败，继续显示alert
+                        this.showReconnectFailedAlert(publishSetting);
+                    }
+                };
+                alertData.cancelCb = () => {
+                    // 用户选择退出，可以在这里添加退出逻辑
+                    DebugLog.instance.log("用户选择退出");
+                    // 如果需要跳转到登录界面，可以调用 LoginManager.getInstance().loginout();
+                };
+                alertData.contentClickCb = null;
+                alertData.guideCallBack = null;
+                
                 AlertManager.getInstance().showAlert(alertData);
             });
         }
@@ -205,6 +234,49 @@ export class App extends AdaptComponent {
     private initGame() {
         SceneManager.getInstance().changeScene(this.sceneName).then(() => {
             DebugLog.instance.log(`${this.sceneName} 场景切换成功`);
+        });
+    }
+
+    /**
+     * 显示重连失败弹窗，提供退出和重连选项
+     * @private
+     */
+    private async showReconnectFailedAlert(publishSetting: any): Promise<void> {
+        return new Promise<void>((resolve) => {
+            const alertData: AlertData = new AlertData();
+            alertData.title = "连接失败";
+            alertData.message = '网络链接失败，请检查网络环境';
+            alertData.messageFontColor = "#FFFFFF";
+            alertData.confirmButtonText = "重连";
+            alertData.cancelButtonText = "退出";
+            alertData.cancelButtonVisible = true;
+            alertData.guideButtonVisible = false;
+            alertData.guideButtonText = '玩法介绍';
+            alertData.x = 0;
+            alertData.y = 0;
+            alertData.confirmCb = async () => {
+                // 用户选择重连，继续尝试重连
+                DebugLog.instance.log("用户选择重连，继续尝试重连");
+                resolve();
+                try {
+                    await SocketManager.getInstance().initSocket(publishSetting.getApiUrl());
+                    this.socketOnHandler();
+                } catch (error) {
+                    DebugLog.instance.error("重连失败:", error);
+                    // 重连失败，继续显示alert
+                    this.showReconnectFailedAlert(publishSetting);
+                }
+            };
+            alertData.cancelCb = () => {
+                // 用户选择退出，跳转到登录界面
+                DebugLog.instance.log("用户选择退出，跳转到登录界面");
+                resolve();
+                // 如果需要跳转到登录界面，可以调用 LoginManager.getInstance().loginout();
+            };
+            alertData.contentClickCb = null;
+            alertData.guideCallBack = null;
+            
+            AlertManager.getInstance().showAlert(alertData);
         });
     }
 

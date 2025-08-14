@@ -7,6 +7,7 @@ import { LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
+import { SceneManager } from "../Scene/SceneManager";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
@@ -191,13 +192,13 @@ export class SocketManager extends BaseManager {
 
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
-        AlertManager.getInstance().showSocketAlert("网络关闭");
+        // AlertManager.getInstance().showSocketAlert("网络关闭");
         this.processReconnectFlow();
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.error('onSocketError !');
-        AlertManager.getInstance().showSocketAlert("网络错误！");
+        // AlertManager.getInstance().showSocketAlert("网络错误！");
         this._isReconnecting = false;
         this.processReconnectFlow();
     }
@@ -222,7 +223,9 @@ export class SocketManager extends BaseManager {
                 await new Promise<void>((resolve) => {
                     LoginManager.getInstance().requestTokenVerification((result) => {
                         if (!result) {
-                            LoginManager.getInstance().loginout();
+                            this._isReconnecting = false;
+                            // LoginManager.getInstance().loginout();
+                            SceneManager.getInstance().backToHall(true);
                         }
 
                         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
@@ -252,18 +255,21 @@ export class SocketManager extends BaseManager {
         }
 
         DebugLog.instance.error('Reached maximum reconnect attempts. Giving up.');
-
+       
         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
 
-        AlertManager.getInstance().showSocketAlert('重连失败，请检查设备的网络链接。');
         this._isReconnecting = false;
+
+        SceneManager.getInstance().backToHall(true);
+       
         return false;
     }
+
 
     public send(data: SocketData) {
         if (!this._socket || this._socket.readyState != this._socket.OPEN) {
             DebugLog.instance.warn('socket state is error! can not send message!');
-            this.processReconnectFlow();
+            // this.processReconnectFlow();
             return;
         }
 

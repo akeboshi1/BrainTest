@@ -53,6 +53,13 @@ export class GameCenter extends BasePanel {
             GameCenterManager.getInstance().perload(url,BundleName.MATH24);
             return;
         }
+        if(index== 7){
+            let url = Global.RES_Root + BundleName.BALANCE;
+            DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.BALANCE);
+            return;
+        }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
                 DebugLog.instance.error(data.message);
