@@ -19,7 +19,7 @@ export class GameCenterPageView extends Component {
     @property({ type: [Node] })
     gameList: Node[] = [];
 
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句'];
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句',"手指操","天平"];
 
 
     onLoad(){
@@ -57,6 +57,13 @@ export class GameCenterPageView extends Component {
             DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
             GameCenterManager.getInstance().perload(url,BundleName.FINGERGAME);
+            return;
+        }
+        if(index== 7){
+            let url = Global.RES_Root + BundleName.BALANCE;
+            DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.BALANCE);
             return;
         }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {

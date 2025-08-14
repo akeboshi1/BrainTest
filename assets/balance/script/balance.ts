@@ -91,7 +91,7 @@ export class balance extends BaseScene<IBaseGameChild> {
     private _rightPanOriginalPos: Vec3 = new Vec3();
 
     // 添加难度相关属性
-    gameDifficulty: number = 3; // 1: 简单, 2: 中等, 3: 困难
+    gameDifficulty: number = 1; // 1: 简单, 2: 中等, 3: 困难
 
     // 难度配置
     private readonly DIFFICULTY_CONFIG = {
