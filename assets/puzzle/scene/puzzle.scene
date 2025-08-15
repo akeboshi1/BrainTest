@@ -1458,7 +1458,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -318.9,
+      "x": -290,
       "y": 728.7000000000003,
       "z": 0
     },
@@ -1497,7 +1497,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 192,
+      "width": 260,
       "height": 60.480000000000004
     },
     "_anchorPoint": {
@@ -1527,7 +1527,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "拼图游戏",
+    "_string": "执行力训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
@@ -1882,7 +1882,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "游戏进度",
+    "_string": "进度",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 50,
@@ -5253,7 +5253,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 959.9999999999999,
+    "_orthoHeight": 960.0000000000001,
     "_near": 0,
     "_far": 1000,
     "_color": {

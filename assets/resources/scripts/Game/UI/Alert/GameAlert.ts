@@ -303,7 +303,7 @@ export class GameAlert extends AdaptComponent {
             this.progressBar.progress = curcount / maxcount;
             curProgress = `${curcount} / ${maxcount}`;
         }
-        this.progressLabel.string = `当前游戏进度:${curProgress}`;
+        this.progressLabel.string = `当前训练进度:${curProgress}`;
     }
 
     setTitle(str: string) {
@@ -481,7 +481,7 @@ export class GameAlert extends AdaptComponent {
     }
 
     /**
-     * 根据游戏类型调整alert位置
+     * 根据训练类型调整alert位置
      */
     private adjustAlertPosition() {
         // 如果alert节点不存在，不进行处理
@@ -503,29 +503,29 @@ export class GameAlert extends AdaptComponent {
     }
     
     /**
-     * 判断当前是否在游戏场景中
+     * 判断当前是否在训练场景中
      */
     private isInGameScene(): boolean {
         try {
-            // 检查Global对象中的游戏状态
+            // 检查Global对象中的训练状态
             if (!Global || !Global.isSkewersGame) {
                 return false;
             }
             
-            // 检查是否有当前游戏数据
+            // 检查是否有当前训练数据
             if (!Global.userData || !Global.userData.curSkewerGameData) {
                 return false;
             }
             
             return true;
         } catch (error) {
-            DebugLog.instance.error('判断是否在游戏场景时出错:', error);
+            DebugLog.instance.error('判断是否在训练场景时出错:', error);
             return false;
         }
     }
 
     /**
-     * 判断当前游戏是否是语言类型/订正查看答案
+     * 判断当前训练是否是语言类型/订正查看答案
      */
     private changePos(): boolean {
         try {
@@ -542,7 +542,7 @@ export class GameAlert extends AdaptComponent {
 
             return false;
         } catch (error) {
-            DebugLog.instance.error('判断语言游戏类型时出错:', error);
+            DebugLog.instance.error('判断语言训练类型时出错:', error);
             return false;
         }
     }

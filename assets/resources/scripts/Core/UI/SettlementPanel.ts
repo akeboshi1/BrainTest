@@ -80,16 +80,16 @@ export class SettlementPanel extends BasePanel{
             this.loseTitle.active = false;
             this.winTitle.active = false;
             this.quitTitle.active = true;
-            this.titlelabel.string = "是否退出当前游戏？";
+            this.titlelabel.string = "是否退出当前训练？";
             this.titlelabel.node.setPosition(0, 0, 0);
             SettlementPanel.bezierTo(this.quitTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
             SettlementPanel.bezierTo(this.titlelabel.node, 0.5, v3(-200, 0, 0), v3(-100, 200, 0), v3(0, 0, 0), {}).start();
             // 设置按钮文本
             if (this.btn1Label) {
-                this.btn1Label.string = "继续游戏";
+                this.btn1Label.string = "继续训练";
             }
             if (this.btn2Label) {
-                this.btn2Label.string = "退出游戏";
+                this.btn2Label.string = "退出训练";
             }
         } else if (this.result) {
             // 成功模式
