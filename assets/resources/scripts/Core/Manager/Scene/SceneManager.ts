@@ -196,7 +196,7 @@ export class SceneManager extends BaseManager {
     async backToGameCenter(): Promise<void> {
         return new Promise((resolve, reject) => {
             SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then((scene) => {
-                DebugLog.instance.log('返回游戏大厅');
+                DebugLog.instance.log('返回训练大厅');
                 let node = find("Canvas");
                 let mainScene = node.getComponent("MainSceneController");
                  mainScene["showGameCenter"]();
@@ -211,7 +211,7 @@ export class SceneManager extends BaseManager {
     async backToSkewersGameCenter(): Promise<void> {
         return new Promise((resolve, reject) => {
             SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then((scene) => {
-                DebugLog.instance.log('返回串烧游戏大厅');
+                DebugLog.instance.log('返回串烧训练大厅');
                 UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
                 UIManager.getInstance().showPanel(BrainTrain.NAME);
                 resolve();
@@ -224,7 +224,7 @@ export class SceneManager extends BaseManager {
     async backToSkewersGameCenterByID(id: number): Promise<void> {
         return new Promise((resolve, reject) => {
             SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then((scene) => {
-                DebugLog.instance.log('返回串烧游戏大厅');
+                DebugLog.instance.log('返回串烧训练大厅');
                 UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
                 UIManager.getInstance().showPanel(BrainTrain.NAME, id);
                 resolve();
@@ -237,7 +237,7 @@ export class SceneManager extends BaseManager {
     async backToTaskProgress(): Promise<void> {
         return new Promise((resolve, reject) => {
             SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then((scene) => {
-                DebugLog.instance.log('返回串烧游戏界面');
+                DebugLog.instance.log('返回串烧训练界面');
                 UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
                 UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
                 resolve();
@@ -250,7 +250,7 @@ export class SceneManager extends BaseManager {
     async showPingcePanel(): Promise<void> {
         return new Promise((resolve, reject) => {
             SceneManager.getInstance().changeScene("mainV2",BundleName.RESOURCES).then((scene) => {
-                DebugLog.instance.log('返回串烧游戏界面');
+                DebugLog.instance.log('返回串烧训练界面');
                 let node = find("Canvas");
                 let mainScene = node.getComponent("MainSceneController");
                 mainScene["showReport"]();

@@ -17,7 +17,7 @@ export class GameDataFactory {
         return gameData;
     }
 
-    // 新增注册新游戏类型的方法
+    // 新增注册新训练类型的方法
     static registerGameType(gameType: string, gameClass: new () => BaseGameModel<any>): void {
         this.gameMap.set(gameType, gameClass);
     }

@@ -51,7 +51,7 @@ export class BrainTrainTipPanel extends BasePanel {
             this.progressBar.progress = curcount / maxcount;
             curProgress = `${curcount} / ${maxcount}`;
         }
-        this.progressLabel.string = `当前游戏进度:${curProgress}`;
+        this.progressLabel.string = `当前训练进度:${curProgress}`;
     }
 
     async showPanel(): Promise<void> {

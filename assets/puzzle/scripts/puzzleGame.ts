@@ -170,13 +170,13 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             let skewersGameData = (this.sceneModel as any).game;
             this.progressBar.progress = skewersGameData.progress;
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
-            // 串烧游戏时，直接开始游戏，不显示开始提示
+            // 串烧训练时，直接开始训练，不显示开始提示
             let textureID = this.randomPlayIndex[this.textureIndex];
             this.loadPuzzleTexture(textureID).then((texture) => {
                 this.currentTexture2d = texture;
                 this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
                 this.updatePreviewSprite(this.currentTexture2d);
-                // 直接调用开始游戏
+                // 直接调用开始训练
                 this.onClickStartGame();
             });
         } else {
@@ -185,7 +185,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             let level = (this.sceneModel as any).level;
             this.progressBar.progress = 1;
             this.guankaLabel.string = "第" + level + "关";
-            // 非串烧游戏时，显示开始提示
+            // 非串烧训练时，显示开始提示
             // this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
             let textureID = this.randomPlayIndex[this.textureIndex];
             this.loadPuzzleTexture(textureID).then((texture) => {
@@ -430,7 +430,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 this.chipParentNode.active = true;
                 
                
-                // 处理游戏结果
+                // 处理训练结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
                     this.requestGameResult();
                 } else {
@@ -442,7 +442,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     }
 
-    // 启用拖拽功能和重置游戏状态
+    // 启用拖拽功能和重置训练状态
     private enableDragAndResetGame() {
         this.isDragEnabled = true;
     }
@@ -485,7 +485,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();

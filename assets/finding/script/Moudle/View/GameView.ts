@@ -129,7 +129,7 @@ export default class GameView extends LayerPanel {
     private _particleTimeoutIds: Map<string, any> = new Map();
 
     /**
-     * 游戏结算状态标志
+     * 训练结算状态标志
      * @private
      */
     private _isSettling: boolean = false;
@@ -306,9 +306,9 @@ export default class GameView extends LayerPanel {
     }
 
     private backHandler() {
-        // 如果游戏正在结算中，阻止退出操作
+        // 如果训练正在结算中，阻止退出操作
         if (this._isSettling) {
-            DebugLog.instance.log("[GameView] 游戏结算中，无法退出游戏");
+            DebugLog.instance.log("[GameView] 训练结算中，无法退出训练");
             return;
         }
         
@@ -748,7 +748,7 @@ export default class GameView extends LayerPanel {
     requestGameCompleteCallBack() {
         this.updateSkewersGameList();
         
-        // 串烧游戏结算完成后恢复关闭按钮交互
+        // 串烧训练结算完成后恢复关闭按钮交互
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.setQuitButtonInteractable(true);
             this._isSettling = false;
@@ -777,7 +777,7 @@ export default class GameView extends LayerPanel {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -789,7 +789,7 @@ export default class GameView extends LayerPanel {
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
                 } else {
-                    // 串烧游戏类型不匹配时，恢复关闭按钮交互
+                    // 串烧训练类型不匹配时，恢复关闭按钮交互
                     this.setQuitButtonInteractable(true);
                     this._isSettling = false;
                     (this.sceneModel as any).goonHandler(self, true);
@@ -896,7 +896,7 @@ export default class GameView extends LayerPanel {
             }
         }
 
-        // 游戏结束
+        // 训练结束
         if (this.resultList.length >= this._maxCount) {
             this.gameOver = true;
             this.canAddTime = false;
@@ -939,7 +939,7 @@ export default class GameView extends LayerPanel {
     public closeGame(isWin) {
         if (this.gameOver) return;
         
-        // 设置游戏结算状态
+        // 设置训练结算状态
         this._isSettling = true;
         this.gameOver = true;
         
@@ -954,7 +954,7 @@ export default class GameView extends LayerPanel {
             AudioMgr.play("sub/audio/view/game/lose", 1, false).then();
         }
         AudioMgr.audioSource.stop();
-        // 上报游戏数据
+        // 上报训练数据
         this._endTime = TimeUtil.getNow();
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -1001,8 +1001,8 @@ export default class GameView extends LayerPanel {
         let duration = (this._endTime - this._startTime - this._pauseDurTime) / 1000;
         this.requestGameComplete({ context: this, parentNode: this.viewNode, complete, duration });
         
-        // 串烧游戏结算完成后恢复关闭按钮交互
-        // 注意：串烧游戏的结算流程是异步的，需要等待服务器响应和弹窗显示
+        // 串烧训练结算完成后恢复关闭按钮交互
+        // 注意：串烧训练的结算流程是异步的，需要等待服务器响应和弹窗显示
         // 关闭按钮的交互将在requestGameCompleteCallBack中恢复
     }
 

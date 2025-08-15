@@ -1,5 +1,5 @@
 /**
- * 手指操游戏配置
+ * 手指操训练配置
  */
 
 export interface VideoConfig {

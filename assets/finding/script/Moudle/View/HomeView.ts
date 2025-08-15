@@ -96,7 +96,7 @@ export default class HomeView extends LayerPanel {
             checkPoint = !Global.isAgain ?this.randomSkewerGame():(this.sceneModel as any).level;
             FindingGlobal.skewersGameLevel = checkPoint;
         }else{
-            // 非串烧游戏优先使用FindingGlobal.gameCenterGameLevel，如果没有则使用sceneModel的level
+            // 非串烧训练优先使用FindingGlobal.gameCenterGameLevel，如果没有则使用sceneModel的level
             checkPoint = FindingGlobal.gameCenterGameLevel > 0 ? FindingGlobal.gameCenterGameLevel : (this.sceneModel as any).level;
             FindingGlobal.gameCenterGameLevel = checkPoint;
         }

@@ -3,13 +3,13 @@ import { GameCenterData, GameCenterManager } from "../../../Game/GameCenter/Game
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 
-// 游戏大厅进入上报参数
+// 训练大厅进入上报参数
 interface IGameCenterStartConfig {
     gameID: number;
     callback?: Function;
 }
 
-// 游戏大厅退出上报参数
+// 训练大厅退出上报参数
 interface IGameCenterEndConfig {
     sessionId: string;
     count: number;
@@ -22,13 +22,13 @@ interface IGameCenterEndConfig {
     callback?: Function;
 }
 
-// 游戏难度选择参数
+// 训练难度选择参数
 interface IGameDifficultyConfig {
     difficulty: number;  // 难度等级 1-简单 2-中等 3-困难
     callback?: Function; // 选择难度后的回调
 }
 
-// 游戏大厅特性
+// 训练大厅特性
 interface IGameCenterSpecific extends IBaseGameChild {
     sessionid: string;
 
@@ -83,7 +83,7 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     }
 
     runNextGame(): void {
-        // 大厅游戏切换逻辑...
+        // 大厅训练切换逻辑...
     }
 
     quitGame(config: IQuitGameConfig) {
@@ -107,7 +107,7 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     }
 
     /**
-     * 选择游戏难度
+     * 选择训练难度
      * @param config 难度配置参数
      */
     selectDifficulty(config: IGameDifficultyConfig) {
@@ -118,7 +118,7 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
 
         this.currentDifficulty = config.difficulty;
         
-        // 通知游戏中心管理器难度变更
+        // 通知训练中心管理器难度变更
         GameCenterManager.getInstance().setDifficulty(this.currentDifficulty);
 
         // 如果有回调函数，执行回调

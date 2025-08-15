@@ -1,5 +1,5 @@
 /**
- * 手指游戏结果数据接口
+ * 手指训练结果数据接口
  */
 export interface FingerGameResultData {
     /** 响应状态码 */
@@ -32,7 +32,7 @@ export interface FingerGameGroupScore {
 }
 
 /**
- * 手指游戏结果数据类
+ * 手指训练结果数据类
  */
 export class FingerGameResult {
     private _data: FingerGameResultData;

@@ -12,7 +12,7 @@ const { ccclass, property } = _decorator;
 @ccclass('GameCenter')
 export class GameCenter extends BasePanel {
 
-    // ====================== 游戏大厅
+    // ====================== 训练大厅
     public static NAME: string = "GameCenter";
 
     @property({ type: [Node] })

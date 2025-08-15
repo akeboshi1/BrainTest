@@ -321,7 +321,7 @@ export default class Tools {
      */
     private static scrollView_auto_data: Map<string, number> = new Map<string, number>()   //0 下（右）  1 上 （左）
     /**
-     * 垂直自动滚动 scroll_view  通常用于 小游戏推荐
+     * 垂直自动滚动 scroll_view  通常用于 小训练推荐
      * @param view
      * @param timeSecond
      */
@@ -418,7 +418,7 @@ export default class Tools {
     }
 
     /**
-     * 游戏链接后台，资源加载, 初始化 gameBox
+     * 训练链接后台，资源加载, 初始化 gameBox
      */
     public static model_initModel(f: Function): number {
         let functions: Function[] = [

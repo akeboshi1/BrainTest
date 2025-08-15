@@ -84,19 +84,19 @@ const CognizeTipsConfig = [
     {
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_1',
         name: '记忆力维护',
-        text: '日常练习：建议通过联想记忆法（如将信息与图像、故事关联）数字、单词卡片记忆游戏巩固',
+        text: '日常练习：建议通过联想记忆法（如将信息与图像、故事关联）数字、单词卡片记忆训练巩固',
         text2: '生活习惯：保持充足睡眠（7-8小时/天）睡眠不足易影响海马体功能'
     },
     {
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_2',
         name: '计算力提升',
-        text: '主动训练：每日进行速算练习（如心算购物金额）玩数字类游戏（如24点游戏）',
+        text: '主动训练：每日进行速算练习（如心算购物金额）玩数字类训练（如24点训练）',
         text2: '实践应用：尝试自主规划家庭开支或理财计算，增强数字敏感度'
     },
     {
         iconPath: '/textureV2/userReport/dimension_icon/texture/dime_3',
         name: '判断力与执行力优化',
-        text: '策略游戏：推荐象棋、围棋等需要预判和决策的游戏，或通过“找不同”“拼图”等电子游戏锻炼反应速度',
+        text: '策略训练：推荐象棋、围棋等需要预判和决策的训练，或通过“找不同”“拼图”等电子训练锻炼反应速度',
         text2: '目标拆分：将复杂任务拆解为小步骤（如制定每日计划表）逐步提升任务完成效率'
     },
     {

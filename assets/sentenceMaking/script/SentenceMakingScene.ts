@@ -142,7 +142,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.calculateLeftOffset();
 
         this.model.init(this).then(() => {
-            // 如果是串烧任务，直接开始游戏流程，不显示提示
+            // 如果是串烧任务，直接开始训练流程，不显示提示
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 this.startGameFlow();
             } else {
@@ -764,8 +764,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
 
         if (isSuccess) {
-            // 处理游戏成功逻辑，例如弹出成功提示，解锁下一关等
-            DebugLog.instance.log("游戏成功！");
+            // 处理训练成功逻辑，例如弹出成功提示，解锁下一关等
+            DebugLog.instance.log("训练成功！");
             // if (this.sceneModel.gameType != GameType.SKEWERS) {
             //     this.showAnimHupai();
             // }else{
@@ -781,14 +781,14 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             showAlert = false;
         } else {
             showAlert = false;
-            // 处理游戏失败逻辑，标记错误位置
+            // 处理训练失败逻辑，标记错误位置
             for (let wrongNode of wrongIndices) {
                 let cardCtrl = wrongNode.getComponent(CardCtrl);
                 if (cardCtrl) {
                     cardCtrl.setWrong();
                 }
             }
-            DebugLog.instance.log("游戏失败！");
+            DebugLog.instance.log("训练失败！");
             this.playFail();
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 showAlert = false;
@@ -874,7 +874,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 直接发送训练完成请求，不处理弹窗逻辑
                 // 使用模型中的运行结果
 
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -885,7 +885,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                     // 直接向服务器发送请求，但不处理回调
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         // 请求完成后不做弹窗处理
-                        // 然后直接继续下一个游戏
+                        // 然后直接继续下一个训练
                         (self.sceneModel as any).goonHandler(this, this.model.isRunOver);
                     }, this, true);
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);

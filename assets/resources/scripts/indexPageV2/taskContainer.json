@@ -1,8 +1,8 @@
 {
     "tasks": [
         {
-            "title": "今日份游戏",
-            "txt": "专为老年人设计的脑力训练游戏，通过认知挑战延缓阿尔茨海默症。",
+            "title": "今日份训练",
+            "txt": "专为老年人设计的脑力训练，通过认知挑战延缓阿尔茨海默症。",
             "icon": "textureV2/indexPage/add/spriteFrame",
             "icon_bg": "textureV2/indexPage/taskBg/spriteFrame",
             "click_function_name":"showBrainTrainingPanel"

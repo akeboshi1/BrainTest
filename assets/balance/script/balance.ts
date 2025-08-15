@@ -176,7 +176,7 @@ export class balance extends BaseScene<IBaseGameChild> {
     }
 
     /**
-     * 根据难度设置游戏配置
+     * 根据难度设置训练配置
      */
     private setupDifficulty() {
         const config = this.DIFFICULTY_CONFIG[this.gameDifficulty];
@@ -219,7 +219,7 @@ export class balance extends BaseScene<IBaseGameChild> {
             }
         });
 
-        console.log(`游戏难度: ${this.gameDifficulty}, 砝码数量: ${config.answerCount}, 托盘位置: ${config.panCount}`);
+        console.log(`训练难度: ${this.gameDifficulty}, 砝码数量: ${config.answerCount}, 托盘位置: ${config.panCount}`);
     }
 
     /**
@@ -811,13 +811,13 @@ export class balance extends BaseScene<IBaseGameChild> {
             // 平衡状态，杆子保持水平
             this.tiltBalance(0);
             
-            // 检查是否完成游戏
+            // 检查是否完成训练
             this.checkGameCompletion();
         }
     }
 
     /**
-     * 检查游戏是否完成
+     * 检查训练是否完成
      */
     private checkGameCompletion() {
         if (!this.currentQuestion) return;
@@ -839,13 +839,13 @@ export class balance extends BaseScene<IBaseGameChild> {
         }
 
         if (isCompleted) {
-            console.log("恭喜！游戏完成！");
+            console.log("恭喜！训练完成！");
             this.onGameCompleted();
         }
     }
 
     /**
-     * 游戏完成回调
+     * 训练完成回调
      */
     private onGameCompleted() {
         // 播放成功音效
@@ -856,14 +856,14 @@ export class balance extends BaseScene<IBaseGameChild> {
             this.guankaLabel.string = "恭喜完成！";
         }
         
-        // 延迟后重新开始游戏，生成新题目
+        // 延迟后重新开始训练，生成新题目
         this.scheduleOnce(() => {
             this.restartGame();
         }, 2);
     }
 
     /**
-     * 重新开始游戏
+     * 重新开始训练
      */
     public restartGame() {
         // 重置所有砝码位置
@@ -880,7 +880,7 @@ export class balance extends BaseScene<IBaseGameChild> {
             this.guankaLabel.string = `关卡: ${this.gameDifficulty}`;
         }
         
-        console.log("游戏已重新开始，生成了新题目");
+        console.log("训练已重新开始，生成了新题目");
     }
 
     /**
