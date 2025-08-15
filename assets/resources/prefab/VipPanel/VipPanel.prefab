@@ -6152,7 +6152,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 368.06899999999996,
+      "x": 691.5,
       "y": 3,
       "z": 0
     },
@@ -6493,7 +6493,7 @@
     "_string": "年卡",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 42,
+    "_actualFontSize": 48,
     "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 48,
@@ -6811,7 +6811,7 @@
     "_string": "9.9",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 66,
+    "_actualFontSize": 60,
     "_fontSize": 60,
     "_fontFamily": "Arial",
     "_lineHeight": 60,
@@ -7104,7 +7104,7 @@
         "__id__": 290
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 296
@@ -7503,7 +7503,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -150,
+      "y": -1350,
       "z": 0
     },
     "_lrot": {
@@ -12891,7 +12891,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 984,
-      "height": 300
+      "height": 1500
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -19888,7 +19888,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 900
+      "height": 2100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

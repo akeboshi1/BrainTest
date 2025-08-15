@@ -913,8 +913,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 200,
-      "height": 200
+      "width": 400,
+      "height": 400
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1049,8 +1049,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100,
-      "height": 100
+      "width": 150,
+      "height": 150
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2189,7 +2189,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "游戏进度：100%",
+    "_string": "训练进度：100%",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,

@@ -78,7 +78,7 @@ export class SkewersManager {
     private _gameDatas: SkewersGameData[];
 
     /**
-     * 当前游戏索引
+     * 当前训练索引
      * @private
      */
     private _curIndex: number = -1;
@@ -113,7 +113,7 @@ export class SkewersManager {
     public static REQUEST_SKEWERSGAME_COMPLETE = "REQUEST_SKEWERSGAME_COMPLETE";
 
     /**
-     * 串烧游戏加载错误事件
+     * 串烧训练加载错误事件
      */
     public static SKEWERS_LOAD_ERROR = "SKEWERS_LOAD_ERROR";
 
@@ -220,7 +220,7 @@ export class SkewersManager {
     }
 
     /**
-     * 获取全部没有完成得游戏数量
+     * 获取全部没有完成得训练数量
      */
     public getUnCompleteGameCount(): number {
         let len = this._gameDatas.length;
@@ -263,7 +263,7 @@ export class SkewersManager {
     }
 
     /**
-     * 中途退出串烧游戏接口
+     * 中途退出串烧训练接口
      * @param parentNode
      * @param goonCallBack
      * @param exitCallBack
@@ -289,7 +289,7 @@ export class SkewersManager {
     }
 
     /**
-     * 显示游戏弹窗
+     * 显示训练弹窗
      * @param parentNode 父节点
      * @param type 弹窗类型
      * @param title 标题
@@ -349,7 +349,7 @@ export class SkewersManager {
     }
 
     /**
-     * 退出串烧游戏
+     * 退出串烧训练
      */
     public exitCallBack() {
         Global.isAgain = false;
@@ -391,7 +391,7 @@ export class SkewersManager {
             return;
         } else {
             if (!this._gameDatas || this._gameDatas.length <= 0) {
-                DebugLog.instance.log("当前串烧游戏已经全部完成");
+                DebugLog.instance.log("当前串烧训练已经全部完成");
                 Global.isSkewersGame = false;
                 this._curIndex = -1;
                 return;
@@ -406,7 +406,7 @@ export class SkewersManager {
             }
             //let curGame = this.getUnCompleteGameData();
             if (!curGame) {
-                DebugLog.instance.log("当前串烧游戏已经全部完成");
+                DebugLog.instance.log("当前串烧训练已经全部完成");
                 Global.isSkewersGame = false;
                 this._curIndex = -1;
                 return;
@@ -425,7 +425,7 @@ export class SkewersManager {
     public startGame(id:number) {
         if (!this._gameDatas || this._gameDatas.length <= 0) {
             this._curIndex = -1;
-            DebugLog.instance.error("当前没有游戏可以运行");
+            DebugLog.instance.error("当前没有训练可以运行");
             return;
         }
         this._game = this.getUnCompleteGameData();
@@ -440,7 +440,7 @@ export class SkewersManager {
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
         
-        // 设置串烧游戏错误处理监听器（仅在需要时添加）
+        // 设置串烧训练错误处理监听器（仅在需要时添加）
         this.setupSkewersErrorHandling();
         
         // 设置预加载事件监听
@@ -454,22 +454,22 @@ export class SkewersManager {
     }
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
-        DebugLog.instance.log(`串烧游戏预加载完成，开始切换场景: ${sceneName}`);
+        DebugLog.instance.log(`串烧训练预加载完成，开始切换场景: ${sceneName}`);
         
         SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.SKEWERS}).then((scene) => {
-            DebugLog.instance.log(`串烧游戏 ${sceneName} 开始`);
+            DebugLog.instance.log(`串烧训练 ${sceneName} 开始`);
             (scene as any).sceneModel = SkewersManager.getInstance().skewersSpecData;
             // (scene as any).sceneModel.scene = scene as any;
             
             // 清理事件监听器
             this.cleanupPreloadEventListeners();
         }).catch((error) => {
-            DebugLog.instance.error(`串烧游戏场景切换失败: ${sceneName}`, error);
+            DebugLog.instance.error(`串烧训练场景切换失败: ${sceneName}`, error);
             
             // 清理事件监听器
             this.cleanupPreloadEventListeners();
             
-            // 触发串烧游戏加载错误事件
+            // 触发串烧训练加载错误事件
             EventManager.getInstance().emit(SkewersManager.SKEWERS_LOAD_ERROR, {
                 sceneName,
                 error: error,
@@ -482,29 +482,29 @@ export class SkewersManager {
     }
 
     /**
-     * 跳出串烧游戏，记录当前游戏index进度
+     * 跳出串烧训练，记录当前训练index进度
      */
     public pauseGame() {
         SceneManager.getInstance().backToHall().then(() => {
-            DebugLog.instance.log('退出串烧游戏');
+            DebugLog.instance.log('退出串烧训练');
         });
     }
 
     /**
-     * 返回串烧游戏
+     * 返回串烧训练
      */
     public resumeGame() {
         this.runGame(this._curIndex);
     }
 
     /**
-     * 指定 某index/某一类型 的串烧游戏
+     * 指定 某index/某一类型 的串烧训练
      * @param index
      */
     public runGame(index: number = 0) {
         if (!this._gameDatas || this._gameDatas.length <= 0) {
             this._curIndex = -1;
-            DebugLog.instance.error("当前没有游戏可以运行");
+            DebugLog.instance.error("当前没有训练可以运行");
             return;
         }
         this._game = this.getUnCompleteGameData();
@@ -519,7 +519,7 @@ export class SkewersManager {
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
         
-        // 设置串烧游戏错误处理监听器（仅在需要时添加）
+        // 设置串烧训练错误处理监听器（仅在需要时添加）
         this.setupSkewersErrorHandling();
         
         // 设置预加载事件监听
@@ -530,7 +530,7 @@ export class SkewersManager {
     }
 
     /**
-     * 是否完成了当前游戏
+     * 是否完成了当前训练
      */
     public hasCompleteCurGame():boolean {
         if(!this._game)return false;
@@ -544,17 +544,17 @@ export class SkewersManager {
 
 
     /**
-     * 运行下一个游戏
+     * 运行下一个训练
      */
     public runNextGame(changeScene: boolean = true) {
-        // 可能换到了下一个类型游戏
+        // 可能换到了下一个类型训练
         this._game = this.getUnCompleteGameData();
         Global.userData.curSkewerGameData = this._game;
         if (changeScene) {
             const sceneName = this._game.gameCode;
             let url = Global.RES_Root + sceneName;
             
-            // 设置串烧游戏错误处理监听器（仅在需要时添加）
+            // 设置串烧训练错误处理监听器（仅在需要时添加）
             this.setupSkewersErrorHandling();
             
             // 设置预加载事件监听
@@ -566,18 +566,18 @@ export class SkewersManager {
     }
 
     /**
-     * 上报游戏完成数据
+     * 上报训练完成数据
      */
     public requestGameComplete(complete: number, duration: number) {
         let curGame = this.getUnCompleteGameData();
         if (!curGame) {
-            DebugLog.instance.error("当前串烧游戏已经全部完成");
+            DebugLog.instance.error("当前串烧训练已经全部完成");
             return;
         }
         let curTrainData = curGame.getCurTrainData();
         let socketData = {
             action: this.task_complete_brain_training, data: {
-                "brain_training_id": curTrainData.brain_training_id, // 脑力训练（游戏小关）id （必填）
+                "brain_training_id": curTrainData.brain_training_id, // 脑力训练（训练小关）id （必填）
                 "complete": complete, // 完成度
                 "duration": duration, // 用时（秒）
                 "status": 1
@@ -600,7 +600,7 @@ export class SkewersManager {
 
 
     /**
-     * 游戏列表中是否还有未完成得游戏
+     * 训练列表中是否还有未完成得训练
      * @private
      */
     public getUnCompleteGameData(): SkewersGameData {
@@ -658,7 +658,7 @@ export class SkewersManager {
     }
 
     /**
-     * 清理串烧游戏错误处理监听器
+     * 清理串烧训练错误处理监听器
      */
     private cleanupSkewersErrorHandling() {
         EventManager.getInstance().off(SkewersManager.SKEWERS_LOAD_ERROR, this);
@@ -672,12 +672,12 @@ export class SkewersManager {
      * @param data 失败数据
      */
     private onPreloadFailed(sceneName: string, data: any) {
-        DebugLog.instance.error(`串烧游戏预加载失败: ${sceneName}`, data);
+        DebugLog.instance.error(`串烧训练预加载失败: ${sceneName}`, data);
         
         // 清理事件监听器
         this.cleanupPreloadEventListeners();
         
-        // 触发串烧游戏加载错误事件
+        // 触发串烧训练加载错误事件
         EventManager.getInstance().emit(SkewersManager.SKEWERS_LOAD_ERROR, {
             sceneName,
             error: data,
@@ -694,20 +694,20 @@ export class SkewersManager {
      * @param data 处理结果数据
      */
     private onLoadErrorHandled(sceneName: string, data: any) {
-        DebugLog.instance.log(`串烧游戏加载错误已处理: ${sceneName}`, data);
+        DebugLog.instance.log(`串烧训练加载错误已处理: ${sceneName}`, data);
         
         // 清理事件监听器
         this.cleanupPreloadEventListeners();
         
         if (data.handledSuccessfully) {
             // 错误已成功处理，用户已回到大厅
-            DebugLog.instance.log(`串烧游戏加载错误处理成功，用户已回到大厅: ${sceneName}`);
+            DebugLog.instance.log(`串烧训练加载错误处理成功，用户已回到大厅: ${sceneName}`);
             
-            // 重置串烧游戏状态
+            // 重置串烧训练状态
             this.resetSkewersGameState();
         } else {
             // 错误处理失败
-            DebugLog.instance.error(`串烧游戏加载错误处理失败: ${sceneName}`, data.finalError);
+            DebugLog.instance.error(`串烧训练加载错误处理失败: ${sceneName}`, data.finalError);
             
             // 显示错误提示
             this.showLoadErrorAlert(sceneName);
@@ -727,11 +727,11 @@ export class SkewersManager {
         if (isTimeout) {
             // 超时错误提示
             alertData.title = "加载超时";
-            alertData.message = `游戏 ${sceneName} 加载超时，请检查网络连接后重试`;
+            alertData.message = `训练 ${sceneName} 加载超时，请检查网络连接后重试`;
         } else {
             // 其他错误提示
             alertData.title = "加载失败";
-            alertData.message = `游戏 ${sceneName} 加载失败，请稍后重试`;
+            alertData.message = `训练 ${sceneName} 加载失败，请稍后重试`;
         }
         
         alertData.cancelButtonVisible = true;
@@ -739,17 +739,17 @@ export class SkewersManager {
         alertData.confirmButtonText = "重试";
         alertData.cancelCb = () => {
             // 退出回调
-            DebugLog.instance.log(`用户选择退出游戏: ${sceneName}`);
+            DebugLog.instance.log(`用户选择退出训练: ${sceneName}`);
             this.handleLoadErrorExit();
         };
         alertData.confirmCb = () => {
             // 重试回调
-            DebugLog.instance.log(`用户选择重试加载游戏: ${sceneName}`);
+            DebugLog.instance.log(`用户选择重试加载训练: ${sceneName}`);
             
             // 先关闭当前弹窗
             AlertManager.getInstance().closeCurrentAlert();
             
-            // 然后重试加载游戏
+            // 然后重试加载训练
             this.retryLoadGame(sceneName);
         };
         
@@ -757,19 +757,19 @@ export class SkewersManager {
     }
 
     /**
-     * 重试加载游戏
+     * 重试加载训练
      * @param sceneName 场景名称
      */
     private retryLoadGame(sceneName: string) {
-        DebugLog.instance.log(`重试加载游戏: ${sceneName}`);
+        DebugLog.instance.log(`重试加载训练: ${sceneName}`);
         
         // 延迟一段时间后重试，避免立即重试
         setTimeout(() => {
-            // 重新开始游戏加载
+            // 重新开始训练加载
             if (this._game) {
                 this.startGame(this._game.taskID);
             } else {
-                DebugLog.instance.error("无法重试：游戏数据为空");
+                DebugLog.instance.error("无法重试：训练数据为空");
                 this.handleLoadErrorExit();
             }
         }, 1000);
@@ -779,9 +779,9 @@ export class SkewersManager {
      * 处理加载错误退出
      */
     private async handleLoadErrorExit() {
-        DebugLog.instance.log("处理串烧游戏加载错误退出");
+        DebugLog.instance.log("处理串烧训练加载错误退出");
         
-        // 重置串烧游戏状态
+        // 重置串烧训练状态
         this.resetSkewersGameState();
         
         // 关闭LoadPanel
@@ -792,20 +792,20 @@ export class SkewersManager {
             DebugLog.instance.error("关闭LoadPanel失败:", error);
         }
         
-        // 回到串烧游戏大厅
+        // 回到串烧训练大厅
         try {
             await SceneManager.getInstance().backToSkewersGameCenter();
-            DebugLog.instance.log("已回到串烧游戏大厅");
+            DebugLog.instance.log("已回到串烧训练大厅");
         } catch (error) {
-            DebugLog.instance.error("回到串烧游戏大厅失败:", error);
+            DebugLog.instance.error("回到串烧训练大厅失败:", error);
         }
     }
 
     /**
-     * 重置串烧游戏状态
+     * 重置串烧训练状态
      */
     private resetSkewersGameState() {
-        DebugLog.instance.log("重置串烧游戏状态");
+        DebugLog.instance.log("重置串烧训练状态");
         
         // 重置全局状态
         Global.isSkewersGame = false;
@@ -815,10 +815,10 @@ export class SkewersManager {
         this.cleanupPreloadEventListeners();
         this.cleanupSkewersErrorHandling();
         
-        // 重置当前游戏索引
+        // 重置当前训练索引
         this._curIndex = -1;
         
-        // 清理当前游戏数据
+        // 清理当前训练数据
         this._game = null;
         Global.userData.curSkewerGameData = null;
     }
@@ -830,14 +830,14 @@ export class SkewersManager {
     private simulatePreloadTimeout(sceneName: string) {
         // 模拟3秒后触发超时事件
         setTimeout(() => {
-            DebugLog.instance.log(`模拟串烧游戏预加载超时: ${sceneName}`);
+            DebugLog.instance.log(`模拟串烧训练预加载超时: ${sceneName}`);
             
-            // 直接调用串烧游戏的超时处理方法，避免事件冲突
+            // 直接调用串烧训练的超时处理方法，避免事件冲突
             this.showLoadErrorAlert(sceneName, true, {
                 bundleName: sceneName,
                 error: "模拟超时错误",
                 timeout: 3000,
-                currentSceneName: "skewers" // 明确标识这是串烧游戏场景
+                currentSceneName: "skewers" // 明确标识这是串烧训练场景
             });
             
             // 同时触发超时事件（可选，用于日志记录）
@@ -851,15 +851,15 @@ export class SkewersManager {
     }
 
     /**
-     * 设置串烧游戏错误处理
+     * 设置串烧训练错误处理
      */
     private setupSkewersErrorHandling() {
         // 先清理可能存在的监听器，避免重复监听
         this.cleanupSkewersErrorHandling();
         
-        // 监听串烧游戏加载错误事件
+        // 监听串烧训练加载错误事件
         EventManager.getInstance().on(SkewersManager.SKEWERS_LOAD_ERROR, (data) => {
-            DebugLog.instance.error(`串烧游戏加载错误事件: ${data.sceneName}`, data);
+            DebugLog.instance.error(`串烧训练加载错误事件: ${data.sceneName}`, data);
             
             // 可以在这里添加全局的错误处理逻辑
             // 比如记录错误日志、上报错误等
@@ -867,25 +867,25 @@ export class SkewersManager {
             // 根据错误类型进行不同的处理
             switch (data.type) {
                 case 'preload_failed':
-                    DebugLog.instance.error(`串烧游戏预加载失败: ${data.sceneName}`);
+                    DebugLog.instance.error(`串烧训练预加载失败: ${data.sceneName}`);
                     break;
                 case 'scene_change_failed':
-                    DebugLog.instance.error(`串烧游戏场景切换失败: ${data.sceneName}`);
+                    DebugLog.instance.error(`串烧训练场景切换失败: ${data.sceneName}`);
                     break;
                 default:
-                    DebugLog.instance.error(`串烧游戏未知错误类型: ${data.type}`);
+                    DebugLog.instance.error(`串烧训练未知错误类型: ${data.type}`);
                     break;
             }
         }, this);
 
         // 监听BundlePreloadManager的超时和失败事件
         EventManager.getInstance().on(BundlePreloadEvent.TIMEOUT, (data) => {
-            DebugLog.instance.error(`串烧游戏资源加载超时: ${data.bundleName}`, data);
+            DebugLog.instance.error(`串烧训练资源加载超时: ${data.bundleName}`, data);
             this.showLoadErrorAlert(data.bundleName, true, data);
         }, this);
 
         EventManager.getInstance().on(BundlePreloadEvent.FAILED, (data) => {
-            DebugLog.instance.error(`串烧游戏资源加载失败: ${data.bundleName}`, data);
+            DebugLog.instance.error(`串烧训练资源加载失败: ${data.bundleName}`, data);
             this.showLoadErrorAlert(data.bundleName, false, data);
         }, this);
     }

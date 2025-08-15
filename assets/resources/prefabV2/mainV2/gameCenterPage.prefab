@@ -1871,7 +1871,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "健康脑力游戏广场",
+    "_string": "健康脑力训练广场",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 70,
@@ -3561,7 +3561,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -4677,7 +4677,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -5793,7 +5793,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -6909,7 +6909,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -8025,7 +8025,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -9141,7 +9141,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -10257,7 +10257,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -11373,7 +11373,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始任务",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 60,

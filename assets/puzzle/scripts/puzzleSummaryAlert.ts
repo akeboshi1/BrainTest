@@ -50,7 +50,7 @@ export class puzzleSummaryAlert extends Component {
             //this.successLabel.string = "挑战失败";
        // }
 
-        // 如果不是串烧游戏，则根据结果激活重试、跳转关卡和下一关按钮
+        // 如果不是串烧训练，则根据结果激活重试、跳转关卡和下一关按钮
         if (!Global.isSkewersGame) {
             // this.progressLabel.node.active = false;
             this.progressLabel.string = "请进入下一关！";
@@ -78,11 +78,11 @@ export class puzzleSummaryAlert extends Component {
             // 全部通关
             if (SkewersManager.getInstance().isRunOver()) {
                 // this.nextLabel.string = "全部通关";
-                this.progressLabel.string = `当前游戏进度:${maxCount}/${maxCount}`;
+                this.progressLabel.string = `当前训练进度:${maxCount}/${maxCount}`;
             } else {
                 // 直接进入下一关
                 // this.nextLabel.string = "下一关";
-                this.progressLabel.string = `当前游戏进度${curCount}/${maxCount}`;
+                this.progressLabel.string = `当前训练进度${curCount}/${maxCount}`;
             }
         }
     }

@@ -17,7 +17,7 @@ import { AlertManager, AlertData } from "../../Core/Manager/Alert/AlertManager";
 import { LoadPanel } from "../UI/Load/LoadPanel";
 
 /**
- * 游戏大厅通信数据
+ * 训练大厅通信数据
  */
 export class GameSocketData {
     public callback: Function = null;
@@ -29,14 +29,14 @@ export class GameSocketData {
 }
 
 /**
- * 游戏大厅数据
+ * 训练大厅数据
  */
 export class GameCenterData {
     public gameid: number;
     public sessionid: string;
     private result;
     public levelMode: number = 1;
-    // 当前gameData的游戏难度，关卡
+    // 当前gameData的训练难度，关卡
     private _level: number = 0;
     private _difficulty: number = 1;
     private _levels: number[];
@@ -146,7 +146,7 @@ export class GameCenterData {
 
 
     /**
-     * 游戏大厅选择的难度系数
+     * 训练大厅选择的难度系数
      */
     public get difficulty(): number {
         return this._difficulty;
@@ -194,7 +194,7 @@ export class GameCenterData {
 }
 
 /**
- * 游戏大厅管理器
+ * 训练大厅管理器
  */
 export class GameCenterManager {
     private static _instance: GameCenterManager;
@@ -213,7 +213,7 @@ export class GameCenterManager {
     public static GAMEPASSLEVEL = "game.pass_level";
 
     /**
-     * 游戏大厅加载错误事件
+     * 训练大厅加载错误事件
      */
     public static GAME_CENTER_LOAD_ERROR = "GAME_CENTER_LOAD_ERROR";
 
@@ -237,7 +237,7 @@ export class GameCenterManager {
     perload(url, sceneName) {
         DebugLog.instance.log(`${sceneName} gamemanager sceneName`);
         
-        // 设置游戏大厅错误处理监听器（仅在需要时添加）
+        // 设置训练大厅错误处理监听器（仅在需要时添加）
         this.setupGameCenterErrorHandling();
         
         // 设置预加载事件监听器
@@ -262,13 +262,13 @@ export class GameCenterManager {
             // 清理事件监听器
             this.cleanupPreloadEventListeners();
         }).catch((error) => {
-            DebugLog.instance.error(`游戏大厅场景切换失败: ${sceneName}`, error);
+            DebugLog.instance.error(`训练大厅场景切换失败: ${sceneName}`, error);
             
             // 清理事件监听器
             this.cleanupPreloadEventListeners();
 
             
-            // 触发游戏大厅加载错误事件
+            // 触发训练大厅加载错误事件
             EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
                 sceneName,
                 error: error,
@@ -303,7 +303,7 @@ export class GameCenterManager {
 
     private _selectDifficulty: number = 1;
     /**
-     * 设置当前游戏难度
+     * 设置当前训练难度
      * @param difficulty 难度等级 1-简单 2-中等 3-困难
      */
     public setDifficulty(difficulty: number): void {
@@ -357,7 +357,7 @@ export class GameCenterManager {
 
 
     /**
-     * 开始某个游戏
+     * 开始某个训练
      * @param gameID
      */
     public startGame(gameID: number, callback: Function = null): void {
@@ -376,7 +376,7 @@ export class GameCenterManager {
             AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
             
-            // 触发游戏大厅加载错误事件
+            // 触发训练大厅加载错误事件
             EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
                 sceneName: 'unknown',
                 error: data.message,
@@ -399,7 +399,7 @@ export class GameCenterManager {
 
 
     /**
-     * 结束游戏
+     * 结束训练
      * @param gameID
      */
     // public endGame(gameID: number, callback: Function = null) {
@@ -426,7 +426,7 @@ export class GameCenterManager {
 
 
     /**
-     * 游戏匹配
+     * 训练匹配
      * @param sessionid
      */
     public gameMatch(sessionid: string, callback: Function = null) {
@@ -451,13 +451,13 @@ export class GameCenterManager {
 
     /**
      * 过一小关
-     * @param sessionid 游戏会话id
-     * @param count  匹配数量 （找茬，翻牌，捕鱼中找到的不同数量）（必填）整数， 如果没有则填0(部分游戏机制不支持也填0)
+     * @param sessionid 训练会话id
+     * @param count  匹配数量 （找茬，翻牌，捕鱼中找到的不同数量）（必填）整数， 如果没有则填0(部分训练机制不支持也填0)
      * @param level  整数或字符串 关卡编号
      * @param complete 0-1之间数字 完成度 1 表示通过关成功
-     * @param duration  游戏用时（秒）
-     * @param timelimit 游戏限时（秒）
-     * @param difficulty 游戏难度1，2，3
+     * @param duration  训练用时（秒）
+     * @param timelimit 训练限时（秒）
+     * @param difficulty 训练难度1，2，3
      */
     public gamePassLevel(sessionid: string, count: number, level: number, complete: number, duration: number, timelimit: number, difficulty: number, levelMode: number, callback: Function = null) {
         if (Global.isAgain) {
@@ -487,7 +487,7 @@ export class GameCenterManager {
             AlertManager.getInstance().showSocketAlert(data.message);
             DebugLog.instance.error(data.message);
             
-            // 触发游戏大厅加载错误事件
+            // 触发训练大厅加载错误事件
             EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
                 sceneName: 'unknown',
                 error: data.message,
@@ -536,7 +536,7 @@ export class GameCenterManager {
 
 
     /**
-     * 中途退出游戏大厅游戏
+     * 中途退出训练大厅训练
      * @param parentNode
      * @param goon_callback
      * @param exit_callback
@@ -546,15 +546,15 @@ export class GameCenterManager {
         // 使用SettlementPanel替代BrainTrainAlert
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: null, // 设置为null表示退出确认模式
-            // title: "是否退出当前游戏？",
+            // title: "是否退出当前训练？",
             againHandler: () => {
-                // 继续游戏
+                // 继续训练
                 if (goon_callback) {
                     goon_callback(context);
                 }
             },
             nextHandler: () => {
-                // 退出游戏
+                // 退出训练
                 if (exit_callback) {
                     exit_callback(context);
                 }
@@ -563,7 +563,7 @@ export class GameCenterManager {
     }
 
     /**
-     * 退出游戏大厅游戏
+     * 退出训练大厅训练
      */
     public exitCallBack() {
         if (this._curGame) {
@@ -611,7 +611,7 @@ export class GameCenterManager {
     }
 
     /**
-     * 清理游戏大厅错误处理监听器
+     * 清理训练大厅错误处理监听器
      */
     private cleanupGameCenterErrorHandling() {
         EventManager.getInstance().off(GameCenterManager.GAME_CENTER_LOAD_ERROR, this);
@@ -625,12 +625,12 @@ export class GameCenterManager {
      * @param data 失败数据
      */
     private onPreloadFailed(sceneName: string, data: any) {
-        DebugLog.instance.error(`游戏大厅预加载失败: ${sceneName}`, data);
+        DebugLog.instance.error(`训练大厅预加载失败: ${sceneName}`, data);
         
         // 清理事件监听器
         this.cleanupPreloadEventListeners();
         
-        // 触发游戏大厅加载错误事件
+        // 触发训练大厅加载错误事件
         EventManager.getInstance().emit(GameCenterManager.GAME_CENTER_LOAD_ERROR, {
             sceneName,
             error: data,
@@ -647,13 +647,13 @@ export class GameCenterManager {
      * @param data 处理结果数据
      */
     private onLoadErrorHandled(sceneName: string, data: any) {
-        DebugLog.instance.log(`游戏大厅加载错误已处理: ${sceneName}`, data);
+        DebugLog.instance.log(`训练大厅加载错误已处理: ${sceneName}`, data);
         
         // 清理事件监听器
         this.cleanupPreloadEventListeners();
         
         // 无论处理成功还是失败，都显示错误提示让用户选择
-        DebugLog.instance.log(`游戏大厅加载错误，显示用户选择界面: ${sceneName}`);
+        DebugLog.instance.log(`训练大厅加载错误，显示用户选择界面: ${sceneName}`);
         this.showLoadErrorAlert(sceneName);
     }
 
@@ -670,11 +670,11 @@ export class GameCenterManager {
         if (isTimeout) {
             // 超时错误提示
             alertData.title = "加载超时";
-            alertData.message = `游戏 ${sceneName} 加载超时，请检查网络连接后重试`;
+            alertData.message = `训练 ${sceneName} 加载超时，请检查网络连接后重试`;
         } else {
             // 其他错误提示
             alertData.title = "加载失败";
-            alertData.message = `游戏 ${sceneName} 加载失败，请稍后重试`;
+            alertData.message = `训练 ${sceneName} 加载失败，请稍后重试`;
         }
         
         alertData.cancelButtonVisible = true;
@@ -689,12 +689,12 @@ export class GameCenterManager {
         };
         alertData.confirmCb = () => {
             // 重试回调
-            DebugLog.instance.log(`用户选择重试加载游戏: ${sceneName}`);
+            DebugLog.instance.log(`用户选择重试加载训练: ${sceneName}`);
             
             // 先关闭当前弹窗
             AlertManager.getInstance().closeCurrentAlert();
             
-            // 然后重试加载游戏
+            // 然后重试加载训练
             this.retryLoadGame(sceneName);
         };
         
@@ -703,15 +703,15 @@ export class GameCenterManager {
     }
 
     /**
-     * 重试加载游戏
+     * 重试加载训练
      * @param sceneName 场景名称
      */
     private retryLoadGame(sceneName: string) {
-        DebugLog.instance.log(`重试加载游戏: ${sceneName}`);
+        DebugLog.instance.log(`重试加载训练: ${sceneName}`);
         
         // 延迟一段时间后重试，避免立即重试
         setTimeout(() => {
-            // 重新开始游戏加载
+            // 重新开始训练加载
             this.perload("", sceneName);
         }, 1000);
     }
@@ -720,9 +720,9 @@ export class GameCenterManager {
      * 处理加载错误退出
      */
     private async handleLoadErrorExit() {
-        DebugLog.instance.log("处理游戏大厅加载错误退出");
+        DebugLog.instance.log("处理训练大厅加载错误退出");
         
-        // 重置游戏大厅状态
+        // 重置训练大厅状态
         this.resetGameCenterState();
         
         // 关闭LoadPanel
@@ -733,20 +733,20 @@ export class GameCenterManager {
             DebugLog.instance.error("关闭LoadPanel失败:", error);
         }
         
-        // 回到游戏大厅
+        // 回到训练大厅
         try {
             await SceneManager.getInstance().backToGameCenter();
-            DebugLog.instance.log("已回到游戏大厅");
+            DebugLog.instance.log("已回到训练大厅");
         } catch (error) {
-            DebugLog.instance.error("回到游戏大厅失败:", error);
+            DebugLog.instance.error("回到训练大厅失败:", error);
         }
     }
 
     /**
-     * 重置游戏大厅状态
+     * 重置训练大厅状态
      */
     private resetGameCenterState() {
-        DebugLog.instance.log("重置游戏大厅状态");
+        DebugLog.instance.log("重置训练大厅状态");
         
         // 重置全局状态
         Global.isSkewersGame = false;
@@ -756,7 +756,7 @@ export class GameCenterManager {
         this.cleanupPreloadEventListeners();
         this.cleanupGameCenterErrorHandling();
         
-        // 清理当前游戏数据
+        // 清理当前训练数据
         this._curGame = null;
     }
 
@@ -769,12 +769,12 @@ export class GameCenterManager {
         setTimeout(() => {
             DebugLog.instance.log(`模拟预加载超时: ${sceneName}`);
             
-            // 直接调用游戏大厅的超时处理方法，避免事件冲突
+            // 直接调用训练大厅的超时处理方法，避免事件冲突
             this.showLoadErrorAlert(sceneName, true, {
                 bundleName: sceneName,
                 error: "模拟超时错误",
                 timeout: 3000,
-                currentSceneName: "gameCenter" // 明确标识这是游戏大厅场景
+                currentSceneName: "gameCenter" // 明确标识这是训练大厅场景
             });
             
             // 同时触发超时事件（可选，用于日志记录）
@@ -788,15 +788,15 @@ export class GameCenterManager {
     }
 
     /**
-     * 设置游戏大厅错误处理
+     * 设置训练大厅错误处理
      */
     private setupGameCenterErrorHandling() {
         // 先清理可能存在的监听器，避免重复监听
         this.cleanupGameCenterErrorHandling();
         
-        // 监听游戏大厅加载错误事件
+        // 监听训练大厅加载错误事件
         EventManager.getInstance().on(GameCenterManager.GAME_CENTER_LOAD_ERROR, (data) => {
-            DebugLog.instance.error(`游戏大厅加载错误事件: ${data.sceneName}`, data);
+            DebugLog.instance.error(`训练大厅加载错误事件: ${data.sceneName}`, data);
             
             // 可以在这里添加全局的错误处理逻辑
             // 比如记录错误日志、上报错误等
@@ -804,19 +804,19 @@ export class GameCenterManager {
             // 根据错误类型进行不同的处理
             switch (data.type) {
                 case 'preload_failed':
-                    DebugLog.instance.error(`游戏大厅预加载失败: ${data.sceneName}`);
+                    DebugLog.instance.error(`训练大厅预加载失败: ${data.sceneName}`);
                     break;
                 case 'scene_change_failed':
-                    DebugLog.instance.error(`游戏大厅场景切换失败: ${data.sceneName}`);
+                    DebugLog.instance.error(`训练大厅场景切换失败: ${data.sceneName}`);
                     break;
                 case 'start_game_failed':
-                    DebugLog.instance.error(`游戏大厅开始游戏失败: ${data.error}`);
+                    DebugLog.instance.error(`训练大厅开始训练失败: ${data.error}`);
                     break;
                 case 'pass_level_failed':
-                    DebugLog.instance.error(`游戏大厅通过关卡失败: ${data.error}`);
+                    DebugLog.instance.error(`训练大厅通过关卡失败: ${data.error}`);
                     break;
                 default:
-                    DebugLog.instance.error(`游戏大厅未知错误类型: ${data.type}`);
+                    DebugLog.instance.error(`训练大厅未知错误类型: ${data.type}`);
                     break;
             }
         }, this);
@@ -824,9 +824,9 @@ export class GameCenterManager {
         // 监听BundlePreloadManager的超时和失败事件
         // 注意：这里监听的是全局的BundlePreloadEvent事件
         EventManager.getInstance().on(BundlePreloadEvent.TIMEOUT, (data) => {
-            DebugLog.instance.error(`游戏大厅资源加载超时: ${data.bundleName}`, data);
+            DebugLog.instance.error(`训练大厅资源加载超时: ${data.bundleName}`, data);
             
-            // 检查是否为游戏大厅相关的超时事件
+            // 检查是否为训练大厅相关的超时事件
             // 通过currentSceneName或bundleName来判断
             const isGameCenterRelated = data.currentSceneName === "gameCenter" || 
                                       data.currentSceneName === "mainV2" ||
@@ -835,14 +835,14 @@ export class GameCenterManager {
             if (isGameCenterRelated) {
                 this.showLoadErrorAlert(data.bundleName, true, data);
             } else {
-                DebugLog.instance.log(`游戏大厅忽略非相关超时事件: ${data.bundleName} (场景: ${data.currentSceneName})`);
+                DebugLog.instance.log(`训练大厅忽略非相关超时事件: ${data.bundleName} (场景: ${data.currentSceneName})`);
             }
         }, this);
 
         EventManager.getInstance().on(BundlePreloadEvent.FAILED, (data) => {
-            DebugLog.instance.error(`游戏大厅资源加载失败: ${data.bundleName}`, data);
+            DebugLog.instance.error(`训练大厅资源加载失败: ${data.bundleName}`, data);
             
-            // 检查是否为游戏大厅相关的失败事件
+            // 检查是否为训练大厅相关的失败事件
             const isGameCenterRelated = data.currentSceneName === "gameCenter" || 
                                       data.currentSceneName === "mainV2" ||
                                       !data.currentSceneName;
@@ -850,7 +850,7 @@ export class GameCenterManager {
             if (isGameCenterRelated) {
                 this.showLoadErrorAlert(data.bundleName, false, data);
             } else {
-                DebugLog.instance.log(`游戏大厅忽略非相关失败事件: ${data.bundleName} (场景: ${data.currentSceneName})`);
+                DebugLog.instance.log(`训练大厅忽略非相关失败事件: ${data.bundleName} (场景: ${data.currentSceneName})`);
             }
         }, this);
     }
