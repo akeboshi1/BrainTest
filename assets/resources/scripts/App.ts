@@ -157,7 +157,7 @@ export class App extends AdaptComponent {
 
     private async preLoadRes() {
         if (this.isPad) {
-            // 初始化游戏 打包单独游戏用
+            // 初始化训练 打包单独训练用
             this.initGame();
         } else {
             await AlertManager.getInstance().init();
@@ -228,7 +228,7 @@ export class App extends AdaptComponent {
     }
 
     /**
-     * 初始化游戏场景，单独发布某个游戏
+     * 初始化训练场景，单独发布某个训练
      * @private
      */
     private initGame() {

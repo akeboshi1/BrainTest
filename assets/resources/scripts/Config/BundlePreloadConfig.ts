@@ -26,17 +26,17 @@ export class BundlePreloadConfig {
         });
     }
 
-    // 获取指定游戏模块的预加载场景名称的方法
+    // 获取指定训练模块的预加载场景名称的方法
     getPreloadScene(gameModule: BundleName): string | undefined {
         return this.configData[gameModule]?.preloadScene;
     }
 
-    // 获取指定游戏模块的预加载资源列表的方法
+    // 获取指定训练模块的预加载资源列表的方法
     getPreloadAssets(gameModule: BundleName): any[] {
         return this.configData[gameModule]?.preloadAssets || [];
     }
 
-    // 获取所有游戏模块名称的方法（方便后续遍历等操作）
+    // 获取所有训练模块名称的方法（方便后续遍历等操作）
     getGameModuleNames(): string[] {
         return Object.keys(this.configData);
     }

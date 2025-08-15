@@ -13,7 +13,7 @@ const { ccclass, property } = _decorator;
 @ccclass('GameCenterPageView')
 export class GameCenterPageView extends Component {
 
-    // ====================== 游戏大厅
+    // ====================== 训练大厅
     public static NAME: string = "GameCenter";
 
     @property({ type: [Node] })

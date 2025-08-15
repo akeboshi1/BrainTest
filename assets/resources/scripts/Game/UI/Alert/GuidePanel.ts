@@ -66,22 +66,22 @@ export class GuidePanel extends BasePanel {
             let descStr = "";
             switch(this.gameName){
                 case BundleName.FINGING:
-                    descStr = "找茬游戏:对比两幅高度相似的图片，找出细微差异（如颜色、形状、数量），锻炼细节观察力与专注度"
+                    descStr = "找茬训练:对比两幅高度相似的图片，找出细微差异（如颜色、形状、数量），锻炼细节观察力与专注度"
                     break;
                 case BundleName.FANPAI:
-                    descStr = "翻牌游戏:玩家通过记忆卡牌位置寻找相同图案或数字的配对牌，考验短期记忆力与空间定位能力"
+                    descStr = "翻牌训练:玩家通过记忆卡牌位置寻找相同图案或数字的配对牌，考验短期记忆力与空间定位能力"
                     break;
                 case BundleName.PUZZLE:
-                    descStr = "拼图游戏:将碎片拼接为完整图案，训练空间想象力与耐心，锻炼人的执行力"
+                    descStr = "拼图训练:将碎片拼接为完整图案，训练空间想象力与耐心，锻炼人的执行力"
                     break;
                 case BundleName.CATCHFISH:
-                    descStr = "捕鱼游戏:将数学运算（加减法）融入捕鱼情境，玩家通过计算捕获目标鱼群，兼具趣味性与知识性，锻炼人的计算能力"
+                    descStr = "捕鱼训练:将数学运算（加减法）融入捕鱼情境，玩家通过计算捕获目标鱼群，兼具趣味性与知识性，锻炼人的计算能力"
                     break;
                 case BundleName.GUESSINGGAME:
-                    descStr = "猜谜游戏:通过线索推断答案，涵盖文字谜、动作谜、逻辑谜等多种形式，锻炼人的推理能力"
+                    descStr = "猜谜训练:通过线索推断答案，涵盖文字谜、动作谜、逻辑谜等多种形式，锻炼人的推理能力"
                     break;
                 case BundleName.SENTENCEMAKING:
-                    descStr = "组词造句:以麻将牌形式的文字游戏，牌面上是单个汉字或词语，玩家通过组合这些牌来形成词语或句子，锻炼人的语言能力"
+                    descStr = "组词造句:以麻将牌形式的文字训练，牌面上是单个汉字或词语，玩家通过组合这些牌来形成词语或句子，锻炼人的语言能力"
                     break;
                 case BundleName.SMALLTHEATER:
                     descStr = "小剧场"
@@ -197,25 +197,25 @@ export class GuidePanel extends BasePanel {
     private loadLocalVideo() {
         let videoPath = "";
 
-        // 根据游戏类型设置对应的视频路径
+        // 根据训练类型设置对应的视频路径
         switch(this.gameName) {
             case BundleName.FINGING:
-                videoPath = "video/findguide"; // 找茬游戏教程视频
+                videoPath = "video/findguide"; // 找茬训练教程视频
                 break;
             case BundleName.FANPAI:
-                videoPath = "video/fanpaiguide"; // 翻牌游戏教程视频
+                videoPath = "video/fanpaiguide"; // 翻牌训练教程视频
                 break;
             case BundleName.PUZZLE:
-                videoPath = "video/puzzleguide"; // 拼图游戏教程视频
+                videoPath = "video/puzzleguide"; // 拼图训练教程视频
                 break;
             case BundleName.CATCHFISH:
-                videoPath = "video/fishguide"; // 捕鱼游戏教程视频（已存在）
+                videoPath = "video/fishguide"; // 捕鱼训练教程视频（已存在）
                 break;
             case BundleName.GUESSINGGAME:
-                videoPath = "video/guessguide"; // 猜谜游戏教程视频
+                videoPath = "video/guessguide"; // 猜谜训练教程视频
                 break;
             case BundleName.SENTENCEMAKING:
-                videoPath = "video/majiangguide"; // 造句游戏教程视频
+                videoPath = "video/majiangguide"; // 造句训练教程视频
                 break;
         }
 

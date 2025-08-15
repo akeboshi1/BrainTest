@@ -154,7 +154,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     }
 
     private onModelInitComplete() {
-        // 如果是串烧任务，直接开始游戏流程，不显示提示
+        // 如果是串烧任务，直接开始训练流程，不显示提示
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             let skewersGameData = (this.sceneModel as any).game;
             this.progresslabel.string = "第" + skewersGameData.progressStr + "关";
@@ -170,7 +170,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private startGameFlow() {
         this.guessingGameModel.startQuestionFlow();
-        // 确保背景音乐在开始游戏时播放
+        // 确保背景音乐在开始训练时播放
         if (!AudioManager.getInstance().isBgmPlaying()) {
             this.playBgmAudio('audio/music/caimiBG', true);
         }
@@ -284,13 +284,13 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 关闭音频加载提示弹窗
         // AlertManager.getInstance().closeCurrentAlert();
         
-        // 音频加载完成后，可以开始游戏流程
-        DebugLog.instance.log("音频资源加载完成，游戏可以开始");
+        // 音频加载完成后，可以开始训练流程
+        DebugLog.instance.log("音频资源加载完成，训练可以开始");
         
         // 如果还没有开始答题，可以在这里触发一些初始化逻辑
         if (!this._isInAnswerPhase) {
-            // 音频加载完成，游戏准备就绪
-            DebugLog.instance.log("游戏准备就绪，等待用户操作");
+            // 音频加载完成，训练准备就绪
+            DebugLog.instance.log("训练准备就绪，等待用户操作");
         }
     }
 
@@ -304,12 +304,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // // 显示音频加载失败提示
         // let ad: AlertData = new AlertData();
         // ad.title = "加载失败";
-        // ad.message = "音频资源加载失败，游戏将继续进行，但可能无法听到题目音频";
+        // ad.message = "音频资源加载失败，训练将继续进行，但可能无法听到题目音频";
         // ad.cancelButtonVisible = false;
-        // ad.confirmButtonText = "继续游戏";
+        // ad.confirmButtonText = "继续训练";
         // ad.confirmCb = () => {
-        //     // 用户确认后继续游戏
-        //     DebugLog.instance.log("用户确认继续游戏");
+        //     // 用户确认后继续训练
+        //     DebugLog.instance.log("用户确认继续训练");
         // };
         // // 设置弹窗位置为屏幕中央，确保适配后位置正确
         // ad.x = 0;
@@ -461,7 +461,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -513,7 +513,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
 
     /**
-     * 进入下一局游戏
+     * 进入下一局训练
      */
     onClickContinueGame() {
         // this.bgmClip = null;

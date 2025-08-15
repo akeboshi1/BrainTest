@@ -4868,7 +4868,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "游戏进度",
+    "_string": "训练进度",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 30,
@@ -5027,7 +5027,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "找茬游戏",
+    "_string": "找茬训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
