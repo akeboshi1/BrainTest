@@ -300,18 +300,18 @@ export class VipPanel extends BasePanel {
             if (vipData.periodUnit == VipType.Day) {
              // this.dayBtn.active = true;
                this.dayPriceLabel.string = `${vipData.discountPrice}`;
-               this.dayNameLabel.string = `可乐派-${vipData.name}`;
+               this.dayNameLabel.string = `${vipData.name}`;
                this.dayDiscountLabel.string = `¥${vipData.price}`;
                this.dayFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             } else if (vipData.periodUnit == VipType.Mouth) {
                 // this.mouthBtn.active = true;
                 this.mouthPriceLabel.string = `${vipData.discountPrice}`;
-                this.mouthNameLabel.string = `可乐派-${vipData.name}`;
+                this.mouthNameLabel.string = `${vipData.name}`;
                 this.mouthDiscountLabel.string = `¥${vipData.price}`;
                 this.mouthFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             }else if (vipData.periodUnit == VipType.Week) {
                 this.weekPriceLabel.string = `${vipData.discountPrice}`;
-                this.weekNameLabel.string = `可乐派-${vipData.name}`;
+                this.weekNameLabel.string = `${vipData.name}`;
                 this.weekDiscountLabel.string = `¥${vipData.price}`;
                 this.weekFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             }
