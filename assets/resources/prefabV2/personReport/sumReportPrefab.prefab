@@ -624,7 +624,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 267,
+      "x": 488.489,
       "y": 408,
       "z": 0
     },
@@ -665,12 +665,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 389.6689453125,
+      "width": 519.8329453125,
       "height": 52.92
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 1,
       "y": 0.5
     },
     "_id": ""
@@ -702,14 +702,14 @@
       "a": 255
     },
     "_string": "统计周期 xxxx至xxxx",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 2,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
     "_fontSize": 42,
     "_fontFamily": "Arial",
     "_lineHeight": 42,
-    "_overflow": 0,
-    "_enableWrapText": true,
+    "_overflow": 3,
+    "_enableWrapText": false,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
@@ -2860,7 +2860,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -134,
+      "x": -147.923,
       "y": -30,
       "z": 0
     },
@@ -2901,7 +2901,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 287.7485234375,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -2944,8 +2944,8 @@
     "_fontSize": 42,
     "_fontFamily": "Arial",
     "_lineHeight": 42,
-    "_overflow": 0,
-    "_enableWrapText": true,
+    "_overflow": 3,
+    "_enableWrapText": false,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
@@ -4522,7 +4522,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 320,
+      "x": 340.252,
       "y": 65,
       "z": 0
     },
@@ -4884,7 +4884,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 292.9775234375,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -4927,8 +4927,8 @@
     "_fontSize": 42,
     "_fontFamily": "Arial",
     "_lineHeight": 42,
-    "_overflow": 0,
-    "_enableWrapText": true,
+    "_overflow": 3,
+    "_enableWrapText": false,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
