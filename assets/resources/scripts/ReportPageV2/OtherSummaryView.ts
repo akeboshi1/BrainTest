@@ -1,6 +1,6 @@
 import { _decorator, Component, Label, Node } from 'cc';
-import { EventManager } from '../Core/Manager/Event/EventManager';
-import { ReportManager } from '../ManagerV2/ReportManager';
+import { CogAbilityBriefData, ReportManager } from '../ManagerV2/ReportManager';
+import { DataProvider } from '../Core/Data/DataProvider';
 const { ccclass, property } = _decorator;
 
 @ccclass('OtherSummaryView')
@@ -17,26 +17,30 @@ export class OtherSummaryView extends Component {
     lastWeekLabel: Label = null;
     @property(Label)
     curWeekLabel: Label = null;
-    onLoad() {
-        this.initData();
-    }
-    initData() {
-        let cogAbilityBriefData = ReportManager.getInstance().cogAbilityBriefData;
-        console.log(cogAbilityBriefData);
-        this.summmaryDesLabel.string = cogAbilityBriefData.definition_desc;
-        this.definitionDescLabel.string = `定义说明：${cogAbilityBriefData.definition_desc}`;
-        this.scoreDescLabel.string = `得分说明：${cogAbilityBriefData.score_desc}`;
-        this.normRankingLabel.string = `常模排名：${cogAbilityBriefData.norm_ranking}`;
-        this.lastWeekLabel.string = cogAbilityBriefData.last_tier.toString();
-        this.curWeekLabel.string = cogAbilityBriefData.tier.toString();
-    }
+
+    private _cogAbilityBriefData: DataProvider<CogAbilityBriefData> = null;
 
     start() {
-
+        this._cogAbilityBriefData = ReportManager.getInstance().getAbilityBriefData();
+        this._cogAbilityBriefData.addListener(this.onCogAbilityBriefDataChange.bind(this));
     }
 
-    update(deltaTime: number) {
+    onDestroy(): void {
+        this._cogAbilityBriefData.removeListener(this.onCogAbilityBriefDataChange.bind(this));
+        this._cogAbilityBriefData = null;
+    }
 
+    onCogAbilityBriefDataChange(data: CogAbilityBriefData) {
+        this.summmaryDesLabel.string = data.definition_desc;
+        this.definitionDescLabel.string = `定义说明：${data.definition_desc}`;
+        this.scoreDescLabel.string = `得分说明：${data.score_desc}`;
+        this.normRankingLabel.string = `常模排名：${data.norm_ranking}`;
+        if(data.last_tier){
+            this.lastWeekLabel.string = data.last_tier.toString();
+        }
+        if(data.tier){
+            this.curWeekLabel.string = data.tier.toString();
+        }
     }
 }
 

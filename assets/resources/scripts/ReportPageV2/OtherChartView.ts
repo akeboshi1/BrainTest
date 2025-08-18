@@ -1,18 +1,32 @@
-import { _decorator, Color, Component, Graphics, Label, log, Node, resources, Sprite, SpriteFrame, UITransform, EventHandler, Button } from 'cc';
-import { ReportManager } from '../ManagerV2/ReportManager';
+import { _decorator, Color, Component, Graphics, Label, log, Node, resources, Sprite, SpriteFrame, UITransform, EventHandler, Button, macro } from 'cc';
+import { AbilityType, CogAbilityWeeklyScoresData, ReportManager } from '../ManagerV2/ReportManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
+import { DataProvider } from '../Core/Data/DataProvider';
+import { DebugLog } from '../Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
 
 @ccclass('OtherChartView')
 export class OtherChartView extends Component {
     @property(Node)
     lineChart: Node = null;
+
     @property(Node)
     leftArrow: Node = null;
+
     @property(Node)
     rightArrow: Node = null;
+
     @property(Label)
     title: Label = null;
+
+    @property(Label)
+    waitLabel: Label = null;
+
+    @property(Node)
+    waitNode: Node = null;
+
+    @property(Node)
+    dataNode: Node = null;
 
     private scoreData: number[] = [];
     private leftPadding = 114;
@@ -24,37 +38,78 @@ export class OtherChartView extends Component {
     private currentIndex: number = 0;
     private total: number = 0;
 
-    onEnable() {
-        EventManager.getInstance().on(ReportManager.getCogAbilityWeeklyScoresCallback, this.getCogAbilityWeeklyScoresCallback, this);
-    }
-    onDisable() {
-        EventManager.getInstance().off(ReportManager.getCogAbilityWeeklyScoresCallback, this);
-    }
-  
-  
+    private _currentDataProvider: DataProvider<CogAbilityWeeklyScoresData> = null;
+    private _currentAbilityType: AbilityType = null;
+
+    // 文本动画相关属性
+    private _dotCountForAnim: number = 1;
+    private _dotAnimStarted: boolean = false;
+
     start() {
+        this._currentAbilityType = ReportManager.getInstance().getCurrentAbilityType();
+
         this.width = this.lineChart.getComponent(UITransform).width - this.leftPadding;
         this.height = this.lineChart.getComponent(UITransform).height;
-        let cogAbilityBriefData = ReportManager.getInstance().cogAbilityWeeklyScoresData;
-        this.scoreData = cogAbilityBriefData.result.map(item => item.score);
-        this.total = ReportManager.getInstance().getCogAbilityWeeklyTotal();
-        this.showTitleContentByIndex(this.currentIndex);
-        this.initLeftArrow();
-        this.drawLineChart();
+
+        this.setArrowButtonInteractable(this.leftArrow, false);
+        this.setArrowButtonInteractable(this.rightArrow, false);
+
+        this.setDataProvider();
     }
-    initLeftArrow(){
-        const leftArrowSprite = this.leftArrow.getComponent(Sprite);
-        if(this.total <= 1){
-            leftArrowSprite.color = new Color(0, 0, 0, 50);
-            this.leftArrow.getComponent(Button).interactable = false;
-        }else{
-            leftArrowSprite.color = new Color(0, 0, 0);
-            this.leftArrow.getComponent(Button).interactable = true;
+
+    onDestroy(): void {
+        if (this._currentDataProvider != null) {
+            this._currentDataProvider.removeListener(this.onDataChange.bind(this));
+            this._currentDataProvider = null;
+        }
+
+        // 停止文本动画
+        this.unscheduleAllCallbacks();
+        this._dotAnimStarted = false;
+    }
+
+    setDataProvider() {
+        if (this._currentDataProvider != null) {
+            this._currentDataProvider.removeListener(this.onDataChange.bind(this));
+        }
+
+        this._currentDataProvider = ReportManager.getInstance().getWeeklyScoresDataProvider(this._currentAbilityType, this.currentIndex);
+        if (this._currentDataProvider.data == null) {
+            this.startWaitAnim();
+        }
+
+        this._currentDataProvider.addListener(this.onDataChange.bind(this));
+    }
+
+    onDataChange(data: CogAbilityWeeklyScoresData) {
+        this.unscheduleAllCallbacks();
+        this._dotAnimStarted = false;
+
+        if (data.available) {
+            this.dataNode.active = true;
+            this.waitNode.active = false;
+            this.scoreData = data.result.map(item => item.score);
+            this.total = data.total;
+
+            this.drawLineChart();
+            this.setArrowButtonInteractable(this.leftArrow, this.currentIndex < this.total - 1);
+            this.setArrowButtonInteractable(this.rightArrow, this.currentIndex > 0);
+
+            this.showTitleContentByIndex();
+        } else {
+            this.waitLabel.string = '暂无数据';
         }
     }
+
+    setArrowButtonInteractable(target: Node, isInteractable: boolean) {
+        const targetSprite = target.getComponent(Sprite);
+        targetSprite.color = new Color(0, 0, 0, isInteractable ? 100 : 50);
+        target.getComponent(Button).interactable = isInteractable;
+    }
+
     drawLineChart() {
         let g = this.lineChart.getComponent(Graphics);
-        
+
         // 清除所有内容
         g.clear();
 
@@ -77,7 +132,7 @@ export class OtherChartView extends Component {
             if (this.scoreData[i] === null || this.scoreData[i + 1] === null) {
                 continue;
             }
-            
+
             const x1 = i * this.width / (this.scoreData.length - 1) - centerX;
             const x2 = (i + 1) * this.width / (this.scoreData.length - 1) - centerX;
             const y1 = this.scoreData[i] * _h - centerY;
@@ -98,81 +153,104 @@ export class OtherChartView extends Component {
                 this.dataPoints.push(null);
                 continue;
             }
-            
+
             const x = i * this.width / (this.scoreData.length - 1) - centerX;
             const y = this.scoreData[i] * _h - centerY;
-            
+
             // 创建数据点节点
             const pointNode = new Node();
             pointNode.setPosition(x, y);
             this.lineChart.addChild(pointNode);
             this.dataPoints.push(pointNode);
-            
+
             // 绘制圆点
             const pointGraphics = pointNode.addComponent(Graphics);
             pointGraphics.fillColor = new Color(0, 89, 247);
             pointGraphics.circle(0, 0, 8);
             pointGraphics.fill();
-            
+
             // 添加点击事件组件
             const uiTransform = pointNode.addComponent(UITransform);
             uiTransform.setContentSize(30, 30);
-            
+
             // 为每个圆点添加点击事件
             pointNode.on(Node.EventType.TOUCH_START, (event) => this.onPointClick(i), this);
         }
-        
+
         this.drawXAxisLabel();
     }
+
     clickLeftArrow() {
-        console.log('左侧点击')
-        this.currentIndex++;
-        const rightArrowSprite = this.rightArrow.getComponent(Sprite);
-        rightArrowSprite.color = new Color(0, 0, 0);
-        this.rightArrow.getComponent(Button).interactable = true;
-        if (this.currentIndex+1 >= this.total - 1) {
-            const leftArrowSprite = this.leftArrow.getComponent(Sprite);
-            leftArrowSprite.color = new Color(0, 0, 0, 50);
-            this.leftArrow.getComponent(Button).interactable = false;
-            this.currentIndex = this.total-1;
-            console.log('左侧最后一个数据')
-            return;
+        if (this.currentIndex < this.total - 1) {
+            this.currentIndex++;
+            this.setDataProvider();
+            DebugLog.instance.log('左侧点击')
         }
-        ReportManager.getInstance().getCogAbilityWeeklyScores(null, this.currentIndex);
-    }
-    clickRightArrow() {
-        console.log('右侧点击')
-        this.currentIndex--;
-        const leftArrowSprite = this.leftArrow.getComponent(Sprite);
-        leftArrowSprite.color = new Color(0, 0, 0);
-        this.leftArrow.getComponent(Button).interactable = true;
-        if (this.currentIndex-1 <=-(this.total-1)) {
-            const rightArrowSprite = this.rightArrow.getComponent(Sprite);
-            rightArrowSprite.color = new Color(0, 0, 0,50);
-            this.rightArrow.getComponent(Button).interactable = false;
-            this.currentIndex = -(this.total-1);
-            console.log('右侧当前最后一个数据')
-            return;
-        }
-        ReportManager.getInstance().getCogAbilityWeeklyScores(null, this.currentIndex);
-    }
-    getCogAbilityWeeklyScoresCallback() {
-        this.showTitleContentByIndex(this.currentIndex);
-        let cogAbilityBriefData = ReportManager.getInstance().cogAbilityWeeklyScoresData;
-        this.scoreData = cogAbilityBriefData.result.map(item => item.score);
-        this.drawLineChart();
     }
 
-    showTitleContentByIndex(index: number) {
-        let cogAbilityWeeklyFirstDayAndLastDay = ReportManager.getInstance().getCogAbilityWeeklyFirstDayAndLastDay()
-        if (index == 0) {
+    clickRightArrow() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            this.setDataProvider();
+            DebugLog.instance.log('右侧点击')
+        }
+    }
+
+
+    showTitleContentByIndex() {
+        let data = ReportManager.getInstance().getWeeklyScoresDataProvider(this._currentAbilityType, this.currentIndex).data;
+        if (this.currentIndex == 0) {
             this.title.string = `本周`;
         } else {
-            this.title.string = `${cogAbilityWeeklyFirstDayAndLastDay.first_day} - ${cogAbilityWeeklyFirstDayAndLastDay.last_day}`;
+            this.title.string = `${data.first_day} - ${data.last_day}`;
         }
     }
 
-    drawXAxisLabel(textArr: string[] = ["第1天", "第2天", "第3天", "第4天", "第5天", "第6天", "第7天"]) {
+    /**
+     * 生成从开始日期到结束日期之间的所有日期字符串
+     * @param startDate 开始日期，格式：xxxx-xx-xx
+     * @param endDate 结束日期，格式：xxxx-xx-xx
+     * @returns 日期字符串数组，格式：["1.2", "1.3", ...]
+     */
+    private generateDateStrings(startDate: string, endDate: string): string[] {
+        const dateStrings: string[] = [];
+        
+        // 解析开始日期
+        const start = new Date(startDate);
+        // 解析结束日期
+        const end = new Date(endDate);
+        
+        // 验证日期格式
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            DebugLog.instance.log('日期格式错误');
+            return dateStrings;
+        }
+        
+        // 确保开始日期不大于结束日期
+        if (start > end) {
+            DebugLog.instance.log('开始日期不能大于结束日期');
+            return dateStrings;
+        }
+        
+        // 遍历从开始日期到结束日期的每一天
+        const currentDate = new Date(start);
+        while (currentDate <= end) {
+            const month = currentDate.getMonth() + 1; // getMonth() 返回 0-11，需要 +1
+            const day = currentDate.getDate();
+            
+            // 格式化为 "月.日" 的字符串
+            const dateString = `${month}.${day}`;
+            dateStrings.push(dateString);
+            
+            // 移动到下一天
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        return dateStrings;
+    }
+
+    drawXAxisLabel() {
+        let textArr = this.generateDateStrings(this._currentDataProvider.data.first_day, this._currentDataProvider.data.last_day);
         let g = this.lineChart.getComponent(Graphics);
         g.strokeColor = this.color;
         g.lineWidth = 4;
@@ -206,14 +284,14 @@ export class OtherChartView extends Component {
     onPointClick(index: number) {
         // 检查当前圆点是否已经有标签
         const pointNode = this.dataPoints[index];
-        
+
         // 如果pointNode不存在（对应null值的数据点），直接返回
         if (!pointNode) {
             return;
         }
-        
+
         const existingLabel = pointNode.children.find(child => child.getComponent(Label));
-        
+
         if (existingLabel) {
             // 如果已经有标签，则移除它
             existingLabel.destroy();
@@ -237,6 +315,24 @@ export class OtherChartView extends Component {
         labelNode.getComponent(UITransform).setAnchorPoint(0, 0);
         parent.addChild(labelNode);
         return labelNode;
+    }
+
+    startWaitAnim() {
+        this.waitNode.active = true;
+        this.dataNode.active = false;
+        this._startDotAnimation();
+    }
+
+    private _startDotAnimation() {
+        if (!this._dotAnimStarted) {
+            this._dotAnimStarted = true;
+            this._dotCountForAnim = 1;
+            this.schedule(() => {
+                this._dotCountForAnim = (this._dotCountForAnim % 3) + 1;
+                const dots = '.'.repeat(this._dotCountForAnim);
+                this.waitLabel.string = `获取数据中${dots}`;
+            }, 0.5, macro.REPEAT_FOREVER);
+        }
     }
 
 }
