@@ -1,7 +1,6 @@
-import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView, Button, tween, Vec3 } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, resources, Label, Color, Vec2, ScrollView, tween, Vec3 } from 'cc';
 import { DebugLog } from '../Core/Util/DebugLog';
-import { SkewersGameType } from '../Game/Task/Skewers/SkewersGameData';
-import { ReportManager } from '../ManagerV2/ReportManager';
+import { AbilityType, ReportManager } from '../ManagerV2/ReportManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
@@ -11,7 +10,7 @@ export const TopNavBarConfig = {
     otherSumDataPrefab: '/prefabV2/personReport/otherSumDataPrefab',
     sumDataAnalysisPrefab: '/prefabV2/personReport/sumAnalysisPrefab',
     sumReportPrefab: '/prefabV2/personReport/sumReportPrefab',
-    initDataPrefab:'/prefabV2/personReport/initDataPrefab'
+    initDataPrefab: '/prefabV2/personReport/initDataPrefab'
 }
 @ccclass('TopNavBarController')
 export class TopNavBarController extends Component {
@@ -20,22 +19,16 @@ export class TopNavBarController extends Component {
 
     @property(Node)
     parentNode_top: Node = null;
+
     @property(Node)
     parentNode_bottom: Node = null;
+
     @property(ScrollView)
     scrollViewNode: ScrollView = null;
-    onLoad(): void {
-        // this.scheduleOnce(() => {
-        //     if (this.parentNode_top && this.parentNode_bottom) {
-        //         this.init(this.parentNode_top, this.parentNode_bottom);
-        //         this.loadSumReport();
-        //     }
-        // }, 0);
-    }
-    start() {
 
-    }
-    onEnable(){     
+    private _pageLoadFlag: boolean = false;
+ 
+    onEnable() {
         EventManager.getInstance().on('onTopNavBarClick', this.onTopNavBarClick, this);
     }
 
@@ -43,29 +36,11 @@ export class TopNavBarController extends Component {
         EventManager.getInstance().off('onTopNavBarClick', this);
     }
 
-    private onTopNavBarClick( customData) {
+    private onTopNavBarClick(customData) {
         this.clickOtherNavLable(null, customData);
     }
 
-    public async loadPage(pageName: string): Promise<Node> {
-        if (!this.parentNode_top && !this.parentNode_bottom) {
-            DebugLog.instance.error('Page node not initialized!');
-            return;
-        }
-
-        // Clear current page
-        if (this.parentNode_top.children.length > 0 && this.parentNode_bottom.children.length > 0) {
-            this.parentNode_top.removeAllChildren();
-            this.parentNode_bottom.removeAllChildren();
-        }
-
-        // Load new page
-        const pagePath = TopNavBarConfig[pageName];
-        if (!pagePath) {
-            DebugLog.instance.error(`Page ${pageName} not found in config!`);
-            return;
-        }
-
+    public async loadPage(pagePath: string, parentNode: Node): Promise<Node> {
         try {
             const prefab = await new Promise<Prefab>((resolve, reject) => {
                 resources.load(pagePath, Prefab, (err, prefab: Prefab) => {
@@ -76,20 +51,16 @@ export class TopNavBarController extends Component {
                     resolve(prefab);
                 });
             });
-            
+
             const page = instantiate(prefab);
-            if (!pageName.includes('Data')) {
-                this.parentNode_top.addChild(page);
-                return this.parentNode_top;
-            } else {
-                this.parentNode_bottom.addChild(page);
-                return this.parentNode_bottom;
-            }
+            parentNode.addChild(page);
+            return parentNode;
         } catch (error) {
-            DebugLog.instance.error(`Failed to load page ${pageName}: ${error}`);
+            DebugLog.instance.error(`Failed to load page ${pagePath}: ${error}`);
             return null;
         }
     }
+
     selectedColor(i: number) {
         // 先将所有标签设置为未选中颜色
         this.labelsNode.forEach((node, index) => {
@@ -100,7 +71,7 @@ export class TopNavBarController extends Component {
                 if (index === i) {
                     line.active = true;
                     label.color = new Color(0, 89, 247); // 选中颜色（蓝色）
-                    tween(node).to(0.1, {scale: new Vec3(1.1, 1.1, 1.1)}).start();
+                    tween(node).to(0.1, { scale: new Vec3(1.1, 1.1, 1.1) }).start();
                 } else {
                     line.active = false;
                     label.color = new Color(98, 99, 102); // 未选中颜色（灰色）
@@ -108,16 +79,23 @@ export class TopNavBarController extends Component {
             }
         });
     }
-   async loadSumReport() {
+
+    async loadSumReport() {
         this.selectedColor(0);
-        await this.loadPage('sumReportPrefab');
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        if(!userData.has_initial_tier){
-           await this.loadPage('initDataPrefab');
-        }else{
-            await this.loadPage('sumDataAnalysisPrefab');
+        // Clear current page
+        if (this.parentNode_top.children.length > 0 && this.parentNode_bottom.children.length > 0) {
+            this.parentNode_top.removeAllChildren();
+            this.parentNode_bottom.removeAllChildren();
         }
-      
+
+        await this.loadPage(TopNavBarConfig.sumReportPrefab, this.parentNode_top);
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        if (!userData.has_initial_tier) {
+            await this.loadPage(TopNavBarConfig.initDataPrefab, this.parentNode_bottom);
+        } else {
+            await this.loadPage(TopNavBarConfig.sumDataAnalysisPrefab, this.parentNode_bottom);
+        }
+
         // 滚动到最上方
         if (this.scrollViewNode) {
             const scrollView = this.scrollViewNode.getComponent(ScrollView);
@@ -126,17 +104,52 @@ export class TopNavBarController extends Component {
             }
         }
     }
-    
+
     async clickOtherNavLable(event, customData) {
+        if(this._pageLoadFlag){
+            return;
+        }
+        this._pageLoadFlag = true;
+
         const { data, index } = JSON.parse(customData);
         if (data) {
             this.selectedColor(index);
-            ReportManager.getInstance().getCogAbilityBrief(data);
-            ReportManager.getInstance().getCogAbilityWeeklyScores(data,0);
+            let abilityType = null;
+            switch (data) {
+                case 'JUDGMENT':
+                    abilityType = AbilityType.JUDGMENT;
+                    break;
+                case 'MEMORY':
+                    abilityType = AbilityType.MEMORY;
+                    break;
+                case 'EXECUTION':
+                    abilityType = AbilityType.EXECUTION;
+                    break;
+                case 'CALCULATION':
+                    abilityType = AbilityType.CALCULATION;
+                    break;
+                case 'LANGUAGE':
+                    abilityType = AbilityType.LANGUAGE;
+                    break;
+                default:
+                    break;
+            }
+
+            if (abilityType) {
+                ReportManager.getInstance().setCurrentAbilityType(abilityType);
+            } else {
+                DebugLog.instance.error(`Ability type ${data} not found!`);
+            }
         }
-        
-        await this.loadPage('otherChartItem');
-        await this.loadPage('otherSumDataPrefab');
+
+        // Clear current page
+        if (this.parentNode_top.children.length > 0 && this.parentNode_bottom.children.length > 0) {
+            this.parentNode_top.removeAllChildren();
+            this.parentNode_bottom.removeAllChildren();
+        }
+
+        await this.loadPage(TopNavBarConfig.otherChartItem, this.parentNode_top);
+        await this.loadPage(TopNavBarConfig.otherSumDataPrefab, this.parentNode_bottom);
         // 滚动到最上方
         if (this.scrollViewNode) {
             const scrollView = this.scrollViewNode.getComponent(ScrollView);
@@ -144,9 +157,8 @@ export class TopNavBarController extends Component {
                 scrollView.scrollTo(new Vec2(0, 1), 0.1); // 0.1秒内滚动到顶部
             }
         }
-    }
-    update(deltaTime: number) {
-
+        
+        this._pageLoadFlag = false;
     }
 }
 

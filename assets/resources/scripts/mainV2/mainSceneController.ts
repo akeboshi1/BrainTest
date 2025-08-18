@@ -42,6 +42,7 @@ export class MainSceneController extends AdaptComponent {
         try {   
             await ReportManager.getInstance().getRecentReport();
             await ReportManager.getInstance().getInitialReport();
+            await ReportManager.getInstance().getUserSumReport();
             DebugLog.instance.log("报告数据加载完成");
         } catch (error) {
             DebugLog.instance.error("报告数据加载失败:", error.message);

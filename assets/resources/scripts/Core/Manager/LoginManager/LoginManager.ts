@@ -17,6 +17,7 @@ import { native, sys } from "cc";
 import { AlterUserInfoView } from "db://assets/resources/scripts/UserCenterV2/AlterUserInfoView";
 import { PersonalCenterManager } from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
+import { ReportManager } from "../../../ManagerV2/ReportManager";
 
 export class LoginManager {
     private static _instance: LoginManager;
@@ -275,6 +276,7 @@ export class LoginManager {
         AudioManager.getInstance().destory();
         SocketManager.getInstance().cleanSocketDatas();
         PersonalCenterManager.getInstance().clean();
+        ReportManager.getInstance().clean();
         SceneManager.getInstance().changeScene("start", BundleName.RESOURCES).then(() => {
             DebugLog.instance.log(`start场景切换成功`);
         });

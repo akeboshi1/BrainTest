@@ -2444,6 +2444,8 @@
       "__id__": 0
     },
     "fileId": "e7IVnKCd5DFY7RSliKcNHI",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3610,7 +3612,7 @@
     "component": "",
     "_componentId": "82ff9yy6NVInZagyGbh7tpf",
     "handler": "clickOtherNavLable",
-    "customEventData": "{\"data\": \"EXECUTIVE\", \"index\": 5}"
+    "customEventData": "{\"data\": \"EXECUTION\", \"index\": 5}"
   },
   {
     "__type__": "cc.PrefabInfo",
