@@ -8,12 +8,13 @@ import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
 import { SceneManager } from "../Scene/SceneManager";
+import { Prefab, resources } from "cc";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
 
     private _socket: WebSocket;
-    private _reSendTime:number = 500; //防抖500毫秒
+    private _reSendTime: number = 500; //防抖500毫秒
     private _reconnectInterval: number = 5; // 重连尝试间隔，单位秒
     private _reconnectMaxCount: number = 5; // 重连最大尝试次数
     private _isReconnecting: boolean = false;
@@ -32,6 +33,14 @@ export class SocketManager extends BaseManager {
     init() {
         this._socketDatas = new Map();
         this.startRetryCheck();
+
+        // 注册重连面板 并且预加载
+        UIManager.getInstance().registerPanel(ReconnectPanel.NAME, BundleName.RESOURCES, "prefab/Common/ReconnectPanel", ReconnectPanel);
+        resources.preload("prefab/Common/ReconnectPanel", Prefab, (err, asset) => {
+            if (err) {
+                DebugLog.instance.error('Prefab load error , url:' + "prefab/Common/ReconnectPanel");
+            }
+        });
     }
 
     update() {
@@ -39,11 +48,11 @@ export class SocketManager extends BaseManager {
         this.checkRetry();
     }
 
-    cleanSocketDatas(){
+    cleanSocketDatas() {
         this._socketDatas = new Map();
     }
 
-    cleanRetryTimer(){
+    cleanRetryTimer() {
         if (this._retryTimer) {
             clearInterval(this._retryTimer);
         }
@@ -166,11 +175,11 @@ export class SocketManager extends BaseManager {
             this._socket = null;
         }
 
-        if(url != null){
+        if (url != null) {
             this.api_url = url;
         }
 
-        if(this.api_url == null){
+        if (this.api_url == null) {
             DebugLog.instance.error("set socket url first!");
             return;
         }
@@ -206,8 +215,6 @@ export class SocketManager extends BaseManager {
         if (this._isReconnecting) return;
         this._isReconnecting = true;
 
-        UIManager.getInstance().registerPanel(ReconnectPanel.NAME, BundleName.RESOURCES, "prefab/Common/ReconnectPanel", ReconnectPanel);
-
         let eventName: string = 'Socket.reconnectCountChange';
 
         await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
@@ -217,27 +224,17 @@ export class SocketManager extends BaseManager {
             try {
                 await this.initSocket();
                 DebugLog.instance.error('Reconnected successfully.');
-
-                await new Promise<void>((resolve) => {
-                    LoginManager.getInstance().requestTokenVerification((result) => {
-                        if (!result) {
-                            this._isReconnecting = false;
-                            SceneManager.getInstance().backToHall(true);
-                        }
-
-                        UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
-
-                        resolve();
-                    });
-                });
-
+                if (SceneManager.getInstance().getCurrentScene().name != "start") {
+                    SceneManager.getInstance().backToHall();
+                }
+                UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
                 this._isReconnecting = false;
                 return true;
             } catch (error) {
                 DebugLog.instance.warn(`Reconnect attempt ${attempt} failed:`, error);
                 if (attempt < this._reconnectMaxCount) {
                     let ispanelActive = UIManager.getInstance().isPanelActive(ReconnectPanel.NAME);
-                    if(!ispanelActive){
+                    if (!ispanelActive) {
                         await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
                     }
 
@@ -252,13 +249,10 @@ export class SocketManager extends BaseManager {
         }
 
         DebugLog.instance.error('Reached maximum reconnect attempts. Giving up.');
-       
         UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
 
         this._isReconnecting = false;
-
-        SceneManager.getInstance().backToHall(true);
-       
+        this.showReconnectFailedAlert();
         return false;
     }
 
@@ -266,7 +260,6 @@ export class SocketManager extends BaseManager {
     public send(data: SocketData) {
         if (!this._socket || this._socket.readyState != this._socket.OPEN) {
             DebugLog.instance.warn('socket state is error! can not send message!');
-            // this.processReconnectFlow();
             return;
         }
 
@@ -312,5 +305,37 @@ export class SocketManager extends BaseManager {
                 }
             }
         }
+    }
+
+    /**
+     * 显示重连失败弹窗，提供退出和重连选项
+     */
+    private async showReconnectFailedAlert(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            const alertData: AlertData = {
+                title: "连接失败",
+                message: "网络连接失败，请检查网络设置后重试",
+                messageFontColor: "#FFFFFF",
+                confirmButtonText: "重连",
+                cancelButtonText: "退出",
+                cancelButtonVisible: false, // 隐藏退出按钮
+                guideButtonVisible: false,
+                guideButtonText: '玩法介绍',
+                x: 0,
+                y: 0,
+                confirmCb: async () => {
+                    // 用户选择重连，继续尝试重连
+                    DebugLog.instance.log("用户选择重连，继续尝试重连");
+                    resolve();
+                    // 重新开始重连流程
+                    SocketManager.getInstance().processReconnectFlow();
+                },
+                cancelCb: null,
+                contentClickCb: null,
+                guideCallBack: null
+            };
+
+            AlertManager.getInstance().showAlert(alertData);
+        });
     }
 }
