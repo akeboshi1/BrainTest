@@ -53,6 +53,29 @@ export class LoginManager {
         UIManager.getInstance().registerPanel(VerifyPanel.NAME, BundleName.RESOURCES, "prefab/UserCenter/VerifyPanel", VerifyPanel);
     }
 
+    start() {
+        if (!LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN)) {
+            LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "true");
+        }
+
+        if (this.tokenExpirationVerification()) {
+            UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
+        } else {
+            let self = this;
+            let defaultLoginStatus = LocalStorageUtil.get(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS);
+            this.requestTokenVerification((result) => {
+                if (result) {
+                    if (defaultLoginStatus == "1") {
+                        SceneManager.getInstance().backToHall();
+                    } else {
+                        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, self.requestUserInfoCallback, self, true);
+                        PersonalCenterManager.getInstance().requestUserInfo();
+                    }
+                }
+            });
+        }
+    }
+
     private tokenExpirationVerification(): boolean {
         const cur = TimeUtil.getNow();
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
@@ -68,7 +91,7 @@ export class LoginManager {
             const alertData: AlertData = new AlertData();
             alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
             alertData.confirmCb = function () {
-                this.showLoginPanel();
+                UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
 
@@ -107,7 +130,6 @@ export class LoginManager {
 
         Global.userData.inviteCode = data.data['invite_code'];
         EventManager.getInstance().emit(LoginManager.LoginByTokenResult, data.data['invite_code']);
-        // SceneManager.getInstance().backToHall();
     }
 
     private requestSendMpCodeHandler(data: any) {
@@ -115,9 +137,6 @@ export class LoginManager {
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
             AlertManager.getInstance().showSocketAlert(data.message);
-            // const alertData: AlertData = new AlertData();
-            // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            // AlertManager.getInstance().showAlert(alertData);
             return;
         }
         this._phoneNum = data['data']['mp_no'];
@@ -129,9 +148,6 @@ export class LoginManager {
         if (data['status'] == 0) {
             AlertManager.getInstance().showSocketAlert(`${data['message']}`);
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
-            // const alertData: AlertData = new AlertData();
-            // alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            // AlertManager.getInstance().showAlert(alertData);
             return;
         }
 
@@ -139,9 +155,6 @@ export class LoginManager {
         if (data['data']['mp_no'] != this.phoneNum) {
             DebugLog.instance.error(`手机号不匹配`);
             AlertManager.getInstance().showSocketAlert(`${data['data']['mp_no']} 手机号不匹配`);
-            // const alertData: AlertData = new AlertData();
-            // alertData.message = LoginErrorCode.LOGIN_INVALID_MP_NO;
-            // AlertManager.getInstance().showAlert(alertData);
             return;
         }
 
@@ -165,8 +178,6 @@ export class LoginManager {
 
             // 主动弹出邀请码界面
             EventManager.getInstance().on(VerifyPanel.CloseVerifyPanel, this.onCloseVerifyPanel, this, true);
-            // UIManager.getInstance().showPanel(LoginPopUpPanel.NAME);
-            // SceneManager.getInstance().backToHall();
         } else {
             SceneManager.getInstance().backToHall();
         }
@@ -221,31 +232,6 @@ export class LoginManager {
     public requestLoginByInstitution(institutionCode: string, userCode: string, password: string) {
         EventManager.getInstance().on(this.login_by_institution, this.requestLoginByInstitutionHandler, this, true);
         this.request(this.login_by_institution, { "org_code": institutionCode, "username": userCode, "password": password });
-    }
-
-
-
-    start() {
-        if (!LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN)) {
-            LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "true");
-        }
-        
-        if (this.tokenExpirationVerification()) {
-            UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
-        } else {
-            let self = this;
-            let defaultLoginStatus = LocalStorageUtil.get(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS);
-            this.requestTokenVerification((result) => {
-                if (result) {
-                    if (defaultLoginStatus == "1") {
-                        SceneManager.getInstance().backToHall();
-                    } else {
-                        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, self.requestUserInfoCallback, self, true);
-                        PersonalCenterManager.getInstance().requestUserInfo();
-                    }
-                }
-            });
-        }
     }
 
     private requestUserInfoCallback() {

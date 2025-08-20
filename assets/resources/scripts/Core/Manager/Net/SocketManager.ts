@@ -192,13 +192,11 @@ export class SocketManager extends BaseManager {
 
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
-        // AlertManager.getInstance().showSocketAlert("网络关闭");
         this.processReconnectFlow();
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.error('onSocketError !');
-        // AlertManager.getInstance().showSocketAlert("网络错误！");
         this._isReconnecting = false;
         this.processReconnectFlow();
     }
@@ -224,7 +222,6 @@ export class SocketManager extends BaseManager {
                     LoginManager.getInstance().requestTokenVerification((result) => {
                         if (!result) {
                             this._isReconnecting = false;
-                            // LoginManager.getInstance().loginout();
                             SceneManager.getInstance().backToHall(true);
                         }
 

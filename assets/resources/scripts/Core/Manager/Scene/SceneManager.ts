@@ -149,7 +149,7 @@ export class SceneManager extends BaseManager {
                 messageFontColor: "#FFFFFF",
                 confirmButtonText: "重连",
                 cancelButtonText: "退出",
-                cancelButtonVisible: true,
+                cancelButtonVisible: false, // 隐藏退出按钮
                 guideButtonVisible: false,
                 guideButtonText: '玩法介绍',
                 x: 0,
