@@ -39,7 +39,7 @@ export class OrganizationMemberLoginPanel extends BasePanel {
     private _isPasswordVisible: boolean = false;
 
     private _data: OrganizationUser;
-    private _password: string;
+    private _password: string = "";
 
     start() {
         this.setInputFlag(this._isPasswordVisible);
@@ -92,6 +92,7 @@ export class OrganizationMemberLoginPanel extends BasePanel {
 
     onClickLogin() {
         if(this.passwordPrompt.active || this._password.length < 4 || this._password.length > 10){
+            this.passwordPrompt.active = true;
             this.promptAnimation(this.passwordPrompt);
         }else{
             let md5password = Md5.hashStr(this._password);
