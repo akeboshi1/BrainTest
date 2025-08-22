@@ -19,6 +19,32 @@ import { PersonalCenterManager } from "db://assets/resources/scripts/Game/Person
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
 import { ReportManager } from "../../../ManagerV2/ReportManager";
 
+/**
+ * 组织用户信息接口
+ */
+export interface OrganizationUser {
+    /** 用户名（用来登录） */
+    username: string;
+    /** 昵称 */
+    nickname: string;
+    /** 姓名（显示） */
+    full_name: string;
+    /** 性别 1-男 2-女 */
+    gender: number;
+    /** 当天是否训练 */
+    today_trained: boolean;
+}
+
+/**
+ * 获取组织用户列表返回数据结构
+ */
+export interface GetOrganizationUsersResult {
+    /** 组织代码 */
+    org_code: string;
+    /** 用户列表 */
+    result: OrganizationUser[];
+}
+
 export class LoginManager {
     private static _instance: LoginManager;
 
@@ -28,13 +54,16 @@ export class LoginManager {
         }
         return LoginManager._instance;
     }
-    public static LoginByInstitutionResult: string = "LoginByInstitutionResult";
+    public static LoginOrganizationResult: string = "LoginOrganizationResult";
+    public static GetOrganizationUsersResult: string = "GetOrganizationUsersResult";
 
     private login_login_by_token: string = "login.login_by_token";
     private login_send_mp_code: string = "login.send_mp_code";
     private login_login_by_mp: string = "login.login_by_mp";
     private user_set_invite_code: string = "user.set_invite_code";
-    private login_by_institution: string = "login.login_by_organization"
+    private login_organization: string = "login.login_organization"
+    private login_get_organization_users: string = "login.get_organization_users"
+    private login_login_by_organization_and_username: string = "login.login_by_organization_and_username"
 
     private _phoneNum: string = "";
 
@@ -84,6 +113,28 @@ export class LoginManager {
             return true;//需要重新登陆
         }
         return false;
+    }
+
+    public cleanUserToken(){
+        LocalStorageUtil.remove(LocalStorageKeyEnum.USER_TOKEN);
+        LocalStorageUtil.remove(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME);
+        LocalStorageUtil.remove(LocalStorageKeyEnum.USER_PHONENUM);
+    }
+
+    public organizationTokenExpirationVerification(): boolean {
+        const cur = TimeUtil.getNow();
+        const token = LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_TOKEN);
+        const tokenExp = LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_TOKEN_EXPIREDTIME);
+        if (!tokenExp || !token || Number(tokenExp) <= cur) {
+            return true;//需要重新登陆
+        }  
+        return false;
+    }
+
+    public clearOrganizationToken(){
+        LocalStorageUtil.remove(LocalStorageKeyEnum.ORGANIZATION_TOKEN);
+        LocalStorageUtil.remove(LocalStorageKeyEnum.ORGANIZATION_TOKEN_EXPIREDTIME);
+        LocalStorageUtil.remove(LocalStorageKeyEnum.ORGANIZATION_NAME);
     }
 
     private onTokenVerificationCompleted(data, context) {
@@ -183,23 +234,6 @@ export class LoginManager {
         }
         GlobalConfigManager.getInstance().init();
     }
-    private requestLoginByInstitutionHandler(data: any) {
-        if (data['status'] == 0) {
-            AlertManager.getInstance().showSocketAlert(`${data.message}`);
-            return;
-        }
-
-        Global.userData.token = data.data['token'];
-        Global.userData.tokenExpires = data.data['expires'];
-
-        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
-        const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
-        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
-        LocalStorageUtil.set(LocalStorageKeyEnum.INSTITUTION_CODE, data.data['org_code']);
-        LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "1");
-        EventManager.getInstance().emit(LoginManager.LoginByInstitutionResult);
-
-    }
 
     private onCloseVerifyPanel() {
         SceneManager.getInstance().backToHall();
@@ -229,9 +263,63 @@ export class LoginManager {
         EventManager.getInstance().on(this.login_login_by_mp, this.requestLoginByMpHandler, this, true);
         this.request(this.login_login_by_mp, { "mp_no": this.phoneNum, "code": mpCode });
     }
-    public requestLoginByInstitution(institutionCode: string, userCode: string, password: string) {
-        EventManager.getInstance().on(this.login_by_institution, this.requestLoginByInstitutionHandler, this, true);
-        this.request(this.login_by_institution, { "org_code": institutionCode, "username": userCode, "password": password });
+
+    public requestLoginOrganization(institutionCode: string, password: string) {
+        EventManager.getInstance().on(this.login_organization, this.requestLoginOrganizationHandler, this, true);
+        this.request(this.login_organization, { "org_code": institutionCode, "org_password": password });
+    }
+    
+    private requestLoginOrganizationHandler(data: any) {
+        if (data['status'] == 0) {
+            AlertManager.getInstance().showSocketAlert(`${data.message}`);
+            return;
+        }
+
+        LocalStorageUtil.set(LocalStorageKeyEnum.ORGANIZATION_TOKEN, data.data['org_token']);
+        LocalStorageUtil.set(LocalStorageKeyEnum.ORGANIZATION_NAME, data.data['org_name']);
+        const expiredTime: number = TimeUtil.getNow() + Number(data.data['org_token_expires']) * 1000;
+        LocalStorageUtil.set(LocalStorageKeyEnum.ORGANIZATION_TOKEN_EXPIREDTIME, expiredTime.toString());
+        LocalStorageUtil.set(LocalStorageKeyEnum.INSTITUTION_CODE, data.data['org_code']);
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "1");
+        EventManager.getInstance().emit(LoginManager.LoginOrganizationResult, data.data['org_name']);
+    }
+
+    public requestGetOrganizationUsers(orgToken: string) {
+        EventManager.getInstance().on(this.login_get_organization_users, this.requestGetOrganizationUsersHandler, this, true);
+        this.request(this.login_get_organization_users, { "org_token": orgToken });
+    }
+
+    private requestGetOrganizationUsersHandler(data: any) {
+        DebugLog.instance.log(data);
+        if (data['status'] == 0) {
+            AlertManager.getInstance().showSocketAlert(`${data.message}`);
+            return;
+        }
+
+        const result: GetOrganizationUsersResult = data.data;
+        EventManager.getInstance().emit(LoginManager.GetOrganizationUsersResult, result);
+    }
+
+    public requestLoginOrganizationAndUsername(org_token: string, username: string, password: string) {
+        EventManager.getInstance().on(this.login_login_by_organization_and_username, this.requestLoginOrganizationAndUsernameHandler, this, true);
+        this.request(this.login_login_by_organization_and_username, { "org_token": org_token, "username": username, "password": password });
+    }
+
+    private requestLoginOrganizationAndUsernameHandler(data: any) {
+        if (data['status'] == 0) {
+            AlertManager.getInstance().showSocketAlert(`${data.message}`);
+            return;
+        }
+        Global.userData.token = data.data['token'];
+        DebugLog.instance.log(`${data} ====`);
+        Global.userData.tokenExpires = data.data['expires'];
+
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
+        const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
+        LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "1");
+
+        SceneManager.getInstance().backToHall();
     }
 
     private requestUserInfoCallback() {
@@ -257,7 +345,7 @@ export class LoginManager {
     }
 
     loginout() {
-        LocalStorageUtil.clean();
+        LoginManager.getInstance().cleanUserToken();
         EventManager.getInstance().destory();
         AudioManager.getInstance().destory();
         SocketManager.getInstance().cleanSocketDatas();
