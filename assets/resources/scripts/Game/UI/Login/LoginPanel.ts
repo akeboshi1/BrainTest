@@ -102,15 +102,12 @@ export class LoginPanel extends BasePanel {
         if (this.phoneNumberEdit.node) {
             this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END, this.checkBoxHandler, this);
         }
-        EventManager.getInstance().on(LoginManager.FirstLoginXieYi,this.remoteshowAlert,this);
+        EventManager.getInstance().on(LoginManager.FirstLoginXieYi,this.showAlert,this);
         this.textChange();
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.initToggle();
     }
-
-    remoteshowAlert(){
-        this.showAlert();
-    }
+    
 
     showAlert(){
         let ad: AlertData = new AlertData();
