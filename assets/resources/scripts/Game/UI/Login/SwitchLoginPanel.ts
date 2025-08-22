@@ -41,7 +41,7 @@ export class SwitchLoginPanel extends BasePanel {
                 this.orangizeSelect(orgName);
             }
         }else{
-            this.authCodeLogin();
+            this.authCodeLogin(false);
         }
 
         EventManager.getInstance().on(LoginManager.LoginOrganizationResult, this.onGetOrganizationUsersResult, this);
@@ -54,12 +54,13 @@ export class SwitchLoginPanel extends BasePanel {
     onGetOrganizationUsersResult(orgName: string) {
        this.orangizeSelect(orgName);
     }
-
-    async authCodeLogin() {
-        let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
-        if(isFirstLogin == "true") {
-            EventManager.getInstance().emit(LoginManager.FirstLoginXieYi);
-            return;
+    async authCodeLogin(click:boolean = true) {
+        if(click){
+            let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+            if(isFirstLogin == "true") {
+                EventManager.getInstance().emit(LoginManager.FirstLoginXieYi);
+                return;
+            }
         }
         if (this.currentPanelName === "authCodeLogin") {
             return;
