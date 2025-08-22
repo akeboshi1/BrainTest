@@ -630,7 +630,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private _setTimeOutId;
     // 预览卡片，time，秒数
-    seconds: number[] = [2.5, 4, 5];
+    seconds: number[] = [4, 5, 6];
     private intervalId;
     async previewCard() {
         let self = this;
