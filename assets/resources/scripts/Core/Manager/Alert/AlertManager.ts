@@ -172,7 +172,7 @@ export class AlertManager extends BaseManager {
         // 实例化预制体
         let alertNode = instantiate(this.userAgreeAlertPrefab);
         // 如果找不到弹窗层，则输出错误信息
-        let rootNode: Node = LayerUtil.getAlertLayer();
+        let rootNode: Node = LayerUtil.getPanelLayer();
         if (!rootNode) {
             DebugLog.instance.error("Can not find alert layer!");
             return;
