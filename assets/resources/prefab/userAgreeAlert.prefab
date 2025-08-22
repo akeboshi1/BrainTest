@@ -389,7 +389,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 800,
+      "width": 1000,
       "height": 700
     },
     "_anchorPoint": {
@@ -485,7 +485,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 200.39999999999998,
+      "y": 275.1,
       "z": 0
     },
     "_lrot": {
@@ -650,7 +650,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 0,
+      "y": 31.6,
       "z": 0
     },
     "_lrot": {
@@ -690,8 +690,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 747.0087890625,
-      "height": 169.51999999999998
+      "width": 963.8916015625,
+      "height": 368.2
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -774,11 +774,11 @@
     "__prefab": {
       "__id__": 31
     },
-    "_lineHeight": 52,
-    "_string": "请您阅读<color=#2462cf><on click=\"handleXieyiClick\"> 用户协议 </on></color>和<color=#2462cf><on click=\"handlePrivacyClick\"> 隐私政策</on></color>\n的全部条款，接受后\n可使用我们的服务",
+    "_lineHeight": 70,
+    "_string": "欢迎使用“派派智护”，我们非常重视您的\n个人信息和隐私保护。在您使用“派派智护”\n服务之前，请仔细阅读<color=#2462cf><on click=\"handleXieyiClick\"> 用户协议 </on></color>和<color=#2462cf>\n<on click=\"handlePrivacyClick\"> 隐私政策</on></color>我们将按照您同意的条款使用您的\n个人信息，以便为您提供服务。",
     "_horizontalAlign": 1,
     "_verticalAlign": 0,
-    "_fontSize": 54,
+    "_fontSize": 50,
     "_fontColor": {
       "__type__": "cc.Color",
       "r": 0,
@@ -827,8 +827,6 @@
       "__id__": 0
     },
     "fileId": "d8cjjN/Q9Np6gYrs04i4kQ",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -862,7 +860,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -200,
-      "y": -200,
+      "y": -230,
       "z": 0
     },
     "_lrot": {
@@ -1222,7 +1220,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 200,
-      "y": -200,
+      "y": -230,
       "z": 0
     },
     "_lrot": {
