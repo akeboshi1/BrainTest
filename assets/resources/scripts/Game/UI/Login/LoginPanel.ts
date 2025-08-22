@@ -107,7 +107,7 @@ export class LoginPanel extends BasePanel {
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.initToggle();
     }
-    
+
 
     showAlert(){
         let ad: AlertData = new AlertData();
