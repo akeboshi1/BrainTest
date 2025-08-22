@@ -4,8 +4,6 @@ import { TreatyView } from '../../../TreatyV2/TreatyView';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { AlertData, AlertManager } from '../../../Core/Manager/Alert/AlertManager';
 import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
-import { EventManager } from '../../../Core/Manager/Event/EventManager';
-import { SceneManager } from '../../../Core/Manager/Scene/SceneManager';
 import { Md5 } from '../../../Core/Util/md5';
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 const { ccclass, property } = _decorator;
@@ -14,8 +12,6 @@ const { ccclass, property } = _decorator;
 export class OrganizationPanel extends Component {
     @property(Node)
     institutionCode: Node;
-    @property(Node)
-    userCode: Node;
     @property(Node)
     password: Node;
     @property(Node)
@@ -26,14 +22,12 @@ export class OrganizationPanel extends Component {
     tips: Node;
     @property(Node)
     institutionCodePrompt: Node;
-    @property(Node)
-    userCodePrompt: Node;
+   
     @property(Node)
     passwordPrompt: Node;
     @property(Sprite)
     passwordEye: Sprite;
     private institutionCodeValue: string = "";
-    private userCodeValue: string = "";
     private passwordValue: string = "";
     private isPasswordVisible: boolean = false; // 密码是否可见
   
@@ -76,17 +70,11 @@ export class OrganizationPanel extends Component {
             console.error("加载密码眼睛图标失败:", error);
         }
     }
-    //用户第一次登录
-    onEnable() {
-        EventManager.getInstance().on(LoginManager.LoginByInstitutionResult, this.onLoginByInstitutionResult, this) ;
-    }
+    
     onDisable() {
-        EventManager.getInstance().off(LoginManager.LoginByInstitutionResult, this);
         this.stopPromptAnimation();
     }
-    onLoginByInstitutionResult() {
-        SceneManager.getInstance().backToHall();
-    }
+
     showXieYi() {
         UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
         UIManager.getInstance().showPanel(TreatyView.NAME, {
@@ -120,16 +108,6 @@ export class OrganizationPanel extends Component {
         this.institutionCodePrompt.active = false;
     }
 
-    userCodeChangeFinished() {
-        this.userCodeValue = this.userCode.getComponent(EditBox).string;
-        if (this.userCodeValue.length < 4 || this.userCodeValue.length > 10) {
-            this.userCodePrompt.active = true;
-            this.promptAnimation(this.userCodePrompt);
-            return;
-        }
-        this.userCodePrompt.active = false;
-    
-    }
     // 修改密码
     passwordChangeFinished() {
         let passwordEditBox = this.password.getComponent(EditBox);
@@ -179,7 +157,6 @@ export class OrganizationPanel extends Component {
     }
     stopPromptAnimation() {
         tween(this.institutionCodePrompt).stop();
-        tween(this.userCodePrompt).stop();
         tween(this.passwordPrompt).stop();
     }
     private confirmHandler() {
@@ -222,11 +199,7 @@ export class OrganizationPanel extends Component {
             this.promptAnimation(this.institutionCodePrompt);
             isVerify = false;
         }
-        if(this.userCodeValue.length < 4 || this.userCodeValue.length > 10){
-            this.userCodePrompt.active = true;
-            this.promptAnimation(this.userCodePrompt);
-            isVerify = false;
-        }
+        
         if(this.passwordValue.length < 4 || this.passwordValue.length > 10){
             this.passwordPrompt.active = true;
             this.promptAnimation(this.passwordPrompt);
@@ -234,6 +207,7 @@ export class OrganizationPanel extends Component {
         }
         return isVerify;
     }
+
     commitBtnClick() {
         if(!this.verifyAllInput()){
             return;
@@ -251,7 +225,7 @@ export class OrganizationPanel extends Component {
             return;
         }
         let md5Value = Md5.hashStr(this.passwordValue);
-        LoginManager.getInstance().requestLoginByInstitution(this.institutionCodeValue, this.userCodeValue, md5Value);
+        LoginManager.getInstance().requestLoginOrganization(this.institutionCodeValue, md5Value);
 
     }
 
