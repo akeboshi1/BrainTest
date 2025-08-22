@@ -9,6 +9,7 @@ import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/E
 import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 import { TreatyView } from '../../../TreatyV2/TreatyView';
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
+import {XieYiPanel} from "db://assets/resources/scripts/Game/UI/Login/XieYiPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -41,6 +42,9 @@ export class LoginPanel extends BasePanel {
 
     @property(Button)
     cleanNumberBtn: Button;
+
+    @property(Node)
+    maskNode:Node;
 
 
     // ===== 验证码
@@ -102,14 +106,37 @@ export class LoginPanel extends BasePanel {
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.initToggle();
     }
+
+    showAlert(){
+        let ad: AlertData = new AlertData();
+        ad.title = "提示";
+        ad.cancelButtonVisible = true;
+        ad.cancelButtonText = "不接受"
+        ad.confirmButtonText = "接受"
+        ad.contentClickCb = this.showXieYi.bind(this);
+        AlertManager.getInstance().showUserAgreeAlert(ad);
+        ad.confirmCb = this.confirmHandler.bind(this);
+        ad.cancelCb = this.cancelHandler.bind(this);
+    }
     initToggle(){
         let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
         if(isFirstLogin == "true"){
             this.toggle.isChecked = false;
-            this.tips.active = true;  
+            this.tips.active = true;
+            this.maskNode.active = true;
+            let ad: AlertData = new AlertData();
+            ad.title = "提示";
+            ad.cancelButtonVisible = true;
+            ad.cancelButtonText = "不接受"
+            ad.confirmButtonText = "接受"
+            ad.contentClickCb = this.showXieYi.bind(this);
+            AlertManager.getInstance().showUserAgreeAlert(ad);
+            ad.confirmCb = this.confirmHandler.bind(this);
+            ad.cancelCb = this.cancelHandler.bind(this);
          }else{
             this.toggle.isChecked = true;
             this.tips.active = false;
+            this.maskNode.active = false;
          }
     }
 
@@ -235,6 +262,7 @@ export class LoginPanel extends BasePanel {
         });
     }
 
+
     cancelHandler() {
         AlertManager.getInstance().closeCurrentAlert();
     }
@@ -246,17 +274,23 @@ export class LoginPanel extends BasePanel {
         });
     }
     showPrivacy() {
-        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
-        UIManager.getInstance().showPanel(TreatyView.NAME,{
-            flag:"Privacy"
+        // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        // UIManager.getInstance().showPanel(TreatyView.NAME,{
+        //     flag:"Privacy"
+        // });
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:"https://colapai.xinjiaxianglao.com/privacy.html"
         });
     }
 
     private confirmHandler() {
         //todo
         DebugLog.instance.log("请点击确认协议");
+
         this.toggle.isChecked = true;
         this.tips.active = false;
+        this.maskNode.active = false;
     }
 
     private toggleClickHandler() {
@@ -267,6 +301,7 @@ export class LoginPanel extends BasePanel {
                 this._hasHandledFirstLogin = true;
             }
         }
+        this.maskNode.active = this.toggle.isChecked;
         this.tips.active = this.toggle.isChecked;
     }
 

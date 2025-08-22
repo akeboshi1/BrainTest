@@ -13,24 +13,26 @@ export class MySetView extends BasePanel {
 
     }
     handleTreatClick(){
-        // let xieyiFlagUrl="https://colapai.xinjiaxianglao.com/xieyi.html"
-        // UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        // UIManager.getInstance().showPanel(XieYiPanel.NAME,{
-        //     url:xieyiFlagUrl
-        // });
-        // AlertManager.getInstance().closeCurrentAlert();
-        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
-        UIManager.getInstance().showPanel(TreatyView.NAME,{
-            flag:"XieYi"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:"https://colapai.xinjiaxianglao.com/xieyi.html"
         });
+        // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        // UIManager.getInstance().showPanel(TreatyView.NAME,{
+        //     flag:"XieYi"
+        // });
     }
 
 
     handlePrivacyClick(){
-        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
-        UIManager.getInstance().showPanel(TreatyView.NAME,{
-            flag:"Privacy"
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:"https://colapai.xinjiaxianglao.com/privacy.html"
         });
+        // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        // UIManager.getInstance().showPanel(TreatyView.NAME,{
+        //     flag:"Privacy"
+        // });
     }
 
     showXieYi() {
@@ -39,7 +41,6 @@ export class MySetView extends BasePanel {
              url:"https://beian.miit.gov.cn/"
         });
     }
-
 
     backToParent(){
         UIManager.getInstance().hidePanel(MySetView.NAME);
