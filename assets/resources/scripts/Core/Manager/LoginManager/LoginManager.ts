@@ -54,6 +54,7 @@ export class LoginManager {
         }
         return LoginManager._instance;
     }
+    public static FirstLoginXieYi:string = "FirstLoginXieYi";
     public static LoginOrganizationResult: string = "LoginOrganizationResult";
     public static GetOrganizationUsersResult: string = "GetOrganizationUsersResult";
 
