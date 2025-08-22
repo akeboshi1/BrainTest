@@ -102,10 +102,14 @@ export class LoginPanel extends BasePanel {
         if (this.phoneNumberEdit.node) {
             this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END, this.checkBoxHandler, this);
         }
-        EventManager.getInstance().on(LoginManager.FirstLoginXieYi,this.showAlert,this);
+        EventManager.getInstance().on(LoginManager.FirstLoginXieYi,this.remoteshowAlert,this);
         this.textChange();
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.initToggle();
+    }
+
+    remoteshowAlert(){
+        this.showAlert();
     }
 
     showAlert(){
@@ -293,7 +297,7 @@ export class LoginPanel extends BasePanel {
     private confirmHandler() {
         //todo
         DebugLog.instance.log("请点击确认协议");
-
+        LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "false");
         // this.toggle.isChecked = true;
         // this.tips.active = false;
         this.maskNode.active = false;
