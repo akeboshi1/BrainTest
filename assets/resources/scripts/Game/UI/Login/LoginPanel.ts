@@ -108,6 +108,7 @@ export class LoginPanel extends BasePanel {
         this.initToggle();
     }
 
+
     showAlert(){
         let ad: AlertData = new AlertData();
         ad.title = "提示";
@@ -172,12 +173,13 @@ export class LoginPanel extends BasePanel {
         if (!this.toggle.isChecked) {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
+            ad.message = "为了保证您的权益，请确认并勾选";
             ad.cancelButtonVisible = true;
             ad.cancelButtonText = "不接受"
             ad.confirmButtonText = "接受"
             ad.contentClickCb = this.showXieYi.bind(this);
-            AlertManager.getInstance().showUserAgreeAlert(ad);
-            ad.confirmCb = this.confirmHandler.bind(this);
+            AlertManager.getInstance().showAlert(ad);
+            ad.confirmCb = this.clickconfirmHandler.bind(this);
             ad.cancelCb = this.cancelHandler.bind(this);
             return;
         }
@@ -290,10 +292,17 @@ export class LoginPanel extends BasePanel {
         });
     }
 
+    private clickconfirmHandler() {
+        //todo
+        DebugLog.instance.log("请点击确认协议");
+        this.toggle.isChecked = true;
+        this.tips.active = false;
+    }
+
     private confirmHandler() {
         //todo
         DebugLog.instance.log("请点击确认协议");
-
+        LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "false");
         // this.toggle.isChecked = true;
         // this.tips.active = false;
         this.maskNode.active = false;
