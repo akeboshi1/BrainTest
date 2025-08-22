@@ -67,6 +67,7 @@ export class LoginManager {
     private login_login_by_organization_and_username: string = "login.login_by_organization_and_username"
 
     private _phoneNum: string = "";
+    private _xieyiToggleFlag: boolean = false;
 
     private _loginByTokenCb: (arg0: boolean) => void = null;
 
@@ -89,7 +90,12 @@ export class LoginManager {
         }
 
         if (this.tokenExpirationVerification()) {
-            UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
+            const alertData: AlertData = new AlertData();
+            alertData.message = LoginErrorCode["INVALID_TOKEN"];
+            alertData.confirmCb = function () {
+                UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
+            }.bind(this);
+            AlertManager.getInstance().showAlert(alertData);
         } else {
             let self = this;
             let defaultLoginStatus = LocalStorageUtil.get(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS);
@@ -346,6 +352,7 @@ export class LoginManager {
     }
 
     loginout() {
+        this._xieyiToggleFlag = true;
         LoginManager.getInstance().cleanUserToken();
         EventManager.getInstance().destory();
         AudioManager.getInstance().destory();
@@ -356,12 +363,20 @@ export class LoginManager {
             DebugLog.instance.log(`start场景切换成功`);
         });
     }
+
+    get xieyiToggleFlag(): boolean {
+        return this._xieyiToggleFlag;
+    }
+
+    set xieyiToggleFlag(flag: boolean) {
+        this._xieyiToggleFlag = flag;
+    }
 }
 
 export enum LoginErrorCode {
     LOGIN_INVALID_MP_NO = "无效的手机号",
     LOGIN_ERROR_MP_CODE = "短信验证码错误",
     USER_NOT_FOUND = "用户不存在",
-    INVALID_TOKEN = "无效的token, 或token过期",
+    INVALID_TOKEN = "登录已过期",
     INVALID_INVITE_CODE = "无效邀请码",
 }

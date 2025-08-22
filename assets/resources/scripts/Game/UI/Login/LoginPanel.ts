@@ -120,6 +120,7 @@ export class LoginPanel extends BasePanel {
         ad.confirmCb = this.confirmHandler.bind(this);
         ad.cancelCb = this.cancelHandler.bind(this);
     }
+
     initToggle(){
         let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
         if(isFirstLogin == "true"){
@@ -135,11 +136,11 @@ export class LoginPanel extends BasePanel {
             AlertManager.getInstance().showUserAgreeAlert(ad);
             ad.confirmCb = this.confirmHandler.bind(this);
             ad.cancelCb = this.cancelHandler.bind(this);
-         }else{
-            this.toggle.isChecked = true;
-            this.tips.active = false;
+        }else{
+            this.toggle.isChecked = LoginManager.getInstance().xieyiToggleFlag;
+            this.tips.active = !LoginManager.getInstance().xieyiToggleFlag;
             this.maskNode.active = false;
-         }
+        }
     }
 
     onEnable() {
@@ -281,11 +282,8 @@ export class LoginPanel extends BasePanel {
             url:"https://colapai.xinjiaxianglao.com/xieyi.html"
         });
     }
+
     showPrivacy() {
-        // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
-        // UIManager.getInstance().showPanel(TreatyView.NAME,{
-        //     flag:"Privacy"
-        // });
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
         UIManager.getInstance().showPanel(XieYiPanel.NAME,{
             url:"https://colapai.xinjiaxianglao.com/privacy.html"
@@ -293,18 +291,15 @@ export class LoginPanel extends BasePanel {
     }
 
     private clickconfirmHandler() {
-        //todo
         DebugLog.instance.log("请点击确认协议");
         this.toggle.isChecked = true;
         this.tips.active = false;
+        LoginManager.getInstance().xieyiToggleFlag = true;
     }
 
     private confirmHandler() {
-        //todo
         DebugLog.instance.log("请点击确认协议");
         LocalStorageUtil.set(LocalStorageKeyEnum.IS_FIRST_LOGIN, "false");
-        // this.toggle.isChecked = true;
-        // this.tips.active = false;
         this.maskNode.active = false;
     }
 
@@ -316,8 +311,9 @@ export class LoginPanel extends BasePanel {
                 this._hasHandledFirstLogin = true;
             }
         }
-        // this.maskNode.active = this.toggle.isChecked;
+
         this.tips.active = this.toggle.isChecked;
+        LoginManager.getInstance().xieyiToggleFlag = !this.toggle.isChecked;
     }
 
     /**
