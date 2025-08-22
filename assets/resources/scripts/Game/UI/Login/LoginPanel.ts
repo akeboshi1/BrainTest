@@ -102,6 +102,7 @@ export class LoginPanel extends BasePanel {
         if (this.phoneNumberEdit.node) {
             this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END, this.checkBoxHandler, this);
         }
+        EventManager.getInstance().on(LoginManager.FirstLoginXieYi,this.showAlert,this);
         this.textChange();
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.initToggle();
@@ -149,6 +150,7 @@ export class LoginPanel extends BasePanel {
         if (this.phoneNumberEdit.node) this.phoneNumberEdit.node.off(Node.EventType.TOUCH_END, this.checkBoxHandler);
         EventManager.getInstance().off(this.login_send_mp_code, this);
         EventManager.getInstance().off(this.login_login_by_mp, this);
+        EventManager.getInstance().off(LoginManager.FirstLoginXieYi,this);
         if (this.timerCommonComponent) this.timerCommonComponent.off('timer-end', this.onTimerEnd, this);
     }
 
@@ -268,9 +270,13 @@ export class LoginPanel extends BasePanel {
     }
     // 显示协议
     showXieYi() {
-        UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
-        UIManager.getInstance().showPanel(TreatyView.NAME,{
-            flag:"XieYi"
+        // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        // UIManager.getInstance().showPanel(TreatyView.NAME,{
+        //     flag:"XieYi"
+        // });
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
+            url:"https://colapai.xinjiaxianglao.com/xieyi.html"
         });
     }
     showPrivacy() {
@@ -288,8 +294,8 @@ export class LoginPanel extends BasePanel {
         //todo
         DebugLog.instance.log("请点击确认协议");
 
-        this.toggle.isChecked = true;
-        this.tips.active = false;
+        // this.toggle.isChecked = true;
+        // this.tips.active = false;
         this.maskNode.active = false;
     }
 
@@ -301,7 +307,7 @@ export class LoginPanel extends BasePanel {
                 this._hasHandledFirstLogin = true;
             }
         }
-        this.maskNode.active = this.toggle.isChecked;
+        // this.maskNode.active = this.toggle.isChecked;
         this.tips.active = this.toggle.isChecked;
     }
 

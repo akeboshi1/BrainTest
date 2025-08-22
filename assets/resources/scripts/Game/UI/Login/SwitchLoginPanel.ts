@@ -5,6 +5,7 @@ import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
 import { OrganizationMemberSelectPanel } from './OrganizationMemberSelectPanel';
 import { LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { LocalStorageKeyEnum } from '../../../Core/Util/LocalStorageUtil';
+import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 const { ccclass, property } = _decorator;
 
 const loginPanelConfig = {
@@ -40,7 +41,7 @@ export class SwitchLoginPanel extends BasePanel {
                 this.orangizeSelect(orgName);
             }
         }else{
-            this.authCodeLogin();
+            this.authCodeLogin(false);
         }
 
         EventManager.getInstance().on(LoginManager.LoginOrganizationResult, this.onGetOrganizationUsersResult, this);
@@ -53,8 +54,14 @@ export class SwitchLoginPanel extends BasePanel {
     onGetOrganizationUsersResult(orgName: string) {
        this.orangizeSelect(orgName);
     }
-
-    async authCodeLogin() {
+    async authCodeLogin(click:boolean = true) {
+        if(click){
+            let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+            if(isFirstLogin == "true") {
+                EventManager.getInstance().emit(LoginManager.FirstLoginXieYi);
+                return;
+            }
+        }
         if (this.currentPanelName === "authCodeLogin") {
             return;
         }
@@ -69,6 +76,11 @@ export class SwitchLoginPanel extends BasePanel {
     }
 
     async orangizeLogin() {
+        let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+        if(isFirstLogin == "true") {
+            EventManager.getInstance().emit(LoginManager.FirstLoginXieYi);
+            return;
+        }
         if (this.currentPanelName === "orangizeLogin") {
             return;
         }
