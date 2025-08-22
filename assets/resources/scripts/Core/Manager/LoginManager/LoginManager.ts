@@ -90,12 +90,7 @@ export class LoginManager {
         }
 
         if (this.tokenExpirationVerification()) {
-            const alertData: AlertData = new AlertData();
-            alertData.message = LoginErrorCode["INVALID_TOKEN"];
-            alertData.confirmCb = function () {
-                UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
-            }.bind(this);
-            AlertManager.getInstance().showAlert(alertData);
+            UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
         } else {
             let self = this;
             let defaultLoginStatus = LocalStorageUtil.get(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS);
