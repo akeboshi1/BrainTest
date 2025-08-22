@@ -56,6 +56,11 @@ export class SwitchLoginPanel extends BasePanel {
     }
 
     async authCodeLogin() {
+        let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
+        if(isFirstLogin == "true") {
+            EventManager.getInstance().emit(LoginManager.FirstLoginXieYi);
+            return;
+        }
         if (this.currentPanelName === "authCodeLogin") {
             return;
         }
