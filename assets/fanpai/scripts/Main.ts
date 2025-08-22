@@ -147,7 +147,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     clickCardHandler(event, data) {
         // 基础检查
         if (!this.isAbleClick) { 
-            DebugLog.instance.log("游戏未开始，无法点击卡片");
+            DebugLog.instance.log("训练未开始，无法点击卡片");
             return; 
         }
         if (!this.cardList || this._setTimeOutId != null) {
@@ -386,7 +386,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.playAudio("music/win",true);
         let obj = this.requestGameResult();
-        // 非串烧游戏
+        // 非串烧训练
         if (this.sceneModel.gameType !== GameType.SKEWERS) {
             (this.sceneModel as any).showSuccessView();
             if (!this.customsSendDataState) {
@@ -794,7 +794,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.isAbleClick = false;
         this.isCardFlipping = false;
         let { complete, duration } = this.requestGameResult();
-        // 倒计时结束，游戏结束
+        // 倒计时结束，训练结束
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             //上报数据
             this.sceneModel.requestGameComplete({ context: this, parentNode: this.mainView, complete, duration });
@@ -811,7 +811,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();

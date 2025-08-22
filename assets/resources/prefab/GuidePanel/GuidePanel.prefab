@@ -1065,7 +1065,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "游戏演示",
+    "_string": "训练演示",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -1931,7 +1931,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "开始游戏",
+    "_string": "开始训练",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 80,

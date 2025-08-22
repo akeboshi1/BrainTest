@@ -17,15 +17,15 @@ export default class FindingGlobal {
     }
 
     /**
-     * 初始化事件监听器，监听游戏大厅进度更新事件
+     * 初始化事件监听器，监听训练大厅进度更新事件
      */
     public static initEventListeners() {
-        // 监听游戏大厅进度更新事件
+        // 监听训练大厅进度更新事件
         EventManager.getInstance().on("GAME_CENTER_LEVEL_UPDATE", (data) => {
             // 更新本地进度变量
             CacheMgr.checkpoint = data.level;
             FindingGlobal.gameCenterGameLevel = data.level;
-            console.log("游戏大厅进度已更新:", data.level);
+            console.log("训练大厅进度已更新:", data.level);
         }, FindingGlobal);
     }
 
@@ -116,7 +116,7 @@ export default class FindingGlobal {
                     gameBox_probability: 100,  //gameBox 显示概率
                     chest_probability: 0,   //误触宝箱
                     video_probability: 0, //强拉视频 需要配合模式为非自动强拉
-                    more_game: [], //更多游戏导出列表
+                    more_game: [], //更多训练导出列表
                     export_show: [],      //显示时候的导出
                     slider: 0, //0 不显示   1 显示  2 显示并且自动拉出
                 },
@@ -125,7 +125,7 @@ export default class FindingGlobal {
                     gameBox_probability: 0,  //gameBox 显示概率
                     chest_probability: 0,   //误触宝箱
                     video_probability: 0, //强拉视频
-                    more_game: [], //更多游戏导出列表
+                    more_game: [], //更多训练导出列表
                     export_show: [],      //显示时候的导出
                     slider: 0, //0 不显示   1 显示  2 显示并且自动拉出
                 },
@@ -180,7 +180,7 @@ export default class FindingGlobal {
                 ],
 
                 video_auto_play: true, //视频是否自动播放  ,true 的话， 视频为自动播放模式， 如果为false 则根据自动跳场景来配置视频播放
-                video_play_on_login: true,  //一进入游戏是否强拉视频
+                video_play_on_login: true,  //一进入训练是否强拉视频
                 video_reconnect_interval: 5,  //视频重新拉取间隔
                 video_play_interval: 10, //视频播放间隔 0 不自动播放
                 grid: [],
@@ -210,7 +210,7 @@ export default class FindingGlobal {
     // 导出信息
     public static exportInfo: ExportData [] = [];
 
-    // 好友推荐游戏盒子信息
+    // 好友推荐训练盒子信息
     public static shareGameBox: ExportData[] = [];
 
     // 世界前二十排行榜信息
@@ -222,7 +222,7 @@ export default class FindingGlobal {
 
     public static LoginType: number = 3;
     /**
-     * 具体游戏配置
+     * 具体训练配置
      */
 }
 
@@ -234,9 +234,9 @@ export interface ExportData {
     id: number // 后台导出ID
     adImg: string // 广告图URL
     exportSrc: string // 导出路劲
-    gameOriginId: number // 原游戏ID
+    gameOriginId: number // 原训练ID
     gameTargetId: number
-    gameTargetName: string // 分享游戏名称
+    gameTargetName: string // 分享训练名称
     iconImg: string
     isLike: number
     isOffline: number

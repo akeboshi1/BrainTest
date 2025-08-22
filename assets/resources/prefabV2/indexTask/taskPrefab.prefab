@@ -993,7 +993,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "今日份游戏",
+    "_string": "今日份训练",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 66,
@@ -1152,7 +1152,7 @@
       "b": 0,
       "a": 173
     },
-    "_string": "专为老年人设计的脑力\n训练游戏，通过认知挑战\n延缓阿尔茨海默",
+    "_string": "专为老年人设计的脑力\n训练，通过认知挑战\n延缓阿尔茨海默",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 42,

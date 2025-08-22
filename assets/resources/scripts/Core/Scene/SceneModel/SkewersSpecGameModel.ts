@@ -16,7 +16,7 @@ interface AlertConfig {
     handlers: Function[];
 }
 
-// 串烧游戏特性
+// 串烧训练特性
 interface ISkewersSpecific extends IBaseGameChild {
     children: SkewersGameTrainData[];
     currentChild: SkewersGameTrainData | null;
@@ -31,7 +31,7 @@ interface ISkewersSpecific extends IBaseGameChild {
     completeCurrent(score: number): void;
 }
 
-// 游戏大厅退出上报参数
+// 训练大厅退出上报参数
 interface ISkewersGameEndConfig {
     trainID?: number;
     success?: boolean;
@@ -70,7 +70,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     }
 
     showStartAlert(config: IStartConfig) {
-        SkewersManager.getInstance().showGameAlert(config.parentNode, AlertType.Init, "开始游戏!", "", 0, 0, config.start, null, config.context);
+        SkewersManager.getInstance().showGameAlert(config.parentNode, AlertType.Init, "开始训练!", "", 0, 0, config.start, null, config.context);
     }
 
     refreshData(data: ISkewersSpecific): void {
@@ -78,12 +78,12 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         // 具体刷新逻辑...
     }
 
-    // 运行下一关游戏
+    // 运行下一关训练
     runNextGame(): void {
-        // 串烧游戏特有逻辑...
+        // 串烧训练特有逻辑...
     }
 
-    // ========= 中途退出游戏 =======
+    // ========= 中途退出训练 =======
     quitGame(config?: IQuitGameConfig): void {
         let trainData = SkewersManager.getInstance().getUnCompleteGameData()?.getCurTrainData();
         if(trainData){
@@ -133,7 +133,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     }
 
     /**
-     * 请求上报串烧游戏数据
+     * 请求上报串烧训练数据
      * @param config
      */
     requestGameComplete(config?: ISkewersGameEndConfig): void {
@@ -199,7 +199,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             config.isCorrection = data.is_correction;
             this.requestGameCompleteCallBack(config);
         };
-        // 完成当前游戏请求...
+        // 完成当前训练请求...
         EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, callbackWrapper, this, true);
         SkewersManager.getInstance().requestGameComplete(config.complete, config.duration);
     }
@@ -399,12 +399,12 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         }
     }
 
-    // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
+    // ===== 最后一个串烧训练失败后，弹窗继续得回调 =====
     failCompleteHandler = (context: any) => {
     
     }
 
-    // ========= 成功后进入下一类型游戏 =========
+    // ========= 成功后进入下一类型训练 =========
     showNextSuccessHandler(context) {
         const manager = SkewersManager.getInstance();
         const taskManager = TaskManager.getInstance();
@@ -428,7 +428,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         };
 
         let compleleGameStr = isReviseMode?manager['currentSkewersCompleteGameDZStr']:manager['currentSkewersCompleteGameStr'];
-        // 显示游戏弹窗
+        // 显示训练弹窗
         const showAlert = () => {
             const isRunOver = checkIsRunOver();
             const handler = isRunOver ? context.totalCompleteHandler : context.nextHandler;
@@ -454,7 +454,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         }
     }
 
-    // ======== 失败后进入下一类型游戏 =========
+    // ======== 失败后进入下一类型训练 =========
     showNextFailHandler(context) {
         const manager = SkewersManager.getInstance();
         const trainData = manager.curGame.getCurTrainData();
@@ -475,7 +475,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             isRunOver, context.exitCallBack, context);
     }
 
-    // ======= 全部串烧游戏结束 =========
+    // ======= 全部串烧训练结束 =========
     totalCompleteHandler(context) {
         let alertType = AlertType.Sucess_Big;
         let manager = SkewersManager.getInstance();
@@ -515,7 +515,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         }
     }
 
-    // ========= 下一类型游戏 =========
+    // ========= 下一类型训练 =========
     nextHandler(context) {
         let curTask = TaskManager.getInstance().curTask;
         let isRevise = curTask && curTask.type == TaskType.Revise;
@@ -525,7 +525,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             goonHandler, context.exitCallBack, context);
     }
 
-    // ========= 继续下一局游戏 =========
+    // ========= 继续下一局训练 =========
     goonHandler(context?: any, changeScene: boolean = true): void {
         if (!SkewersManager.getInstance().isRunOver()) {
             SkewersManager.getInstance().runNextGame(changeScene);
@@ -535,7 +535,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         this.destory();
     }
 
-    // ======== 退出游戏 ========
+    // ======== 退出训练 ========
     exitCallBack(): void {
         SkewersManager.getInstance().exitCallBack();
         this.destory();
@@ -546,7 +546,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         this.destory();
     }
 
-    // ======== 恢复游戏 ========
+    // ======== 恢复训练 ========
     resumeCallBack(): boolean {
         if (SkewersManager.getInstance().isRunOver()) {
             return false;
@@ -554,7 +554,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         return true;
     }
 
-    // ======== 游戏中调用外部逻辑 ======
+    // ======== 训练中调用外部逻辑 ======
     remoteHandler() {
 
     }

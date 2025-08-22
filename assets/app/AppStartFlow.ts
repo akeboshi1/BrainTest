@@ -205,7 +205,7 @@ export class AppStartFlow extends Component {
                 break;
             case StartStatus.COMPLETE:
                 console.log('所有资源下载完成');
-                this.updateProgressText('资源加载完成，进入游戏...');
+                this.updateProgressText('资源加载完成，进入训练...');
 
                 this.reportBundleLoad({
                     bundle: 'resources',

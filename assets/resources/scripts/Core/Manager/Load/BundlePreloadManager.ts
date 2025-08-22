@@ -125,7 +125,7 @@ export class BundlePreloadManager extends BaseManager {
             DebugLog.instance.error(`加载资源包 ${bundleName} 出错: ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
             
-            // 加载失败时关闭LoadPanel并回到游戏大厅
+            // 加载失败时关闭LoadPanel并回到训练大厅
             await this.handleLoadError(bundleName, err);
             return;
         }
@@ -167,7 +167,7 @@ export class BundlePreloadManager extends BaseManager {
             DebugLog.instance.error(`加载场景 ${bundleName} 出错: ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
             
-            // 加载失败时关闭LoadPanel并回到游戏大厅
+            // 加载失败时关闭LoadPanel并回到训练大厅
             await this.handleLoadError(bundleName, err);
             return;
         }
@@ -205,7 +205,7 @@ export class BundlePreloadManager extends BaseManager {
                     DebugLog.instance.error(`加载资源 ${assetPath} 出错: ${err}`);
                     EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
                     
-                    // 加载失败时关闭LoadPanel并回到游戏大厅
+                    // 加载失败时关闭LoadPanel并回到训练大厅
                     await this.handleLoadError(bundleName, err);
                     return;
                 }
@@ -356,7 +356,7 @@ export class BundlePreloadManager extends BaseManager {
                 error 
             });
             
-            // 加载失败时关闭LoadPanel并回到游戏大厅
+            // 加载失败时关闭LoadPanel并回到训练大厅
             await this.handleLoadError(bundleName, error);
         }
     }
@@ -466,10 +466,10 @@ export class BundlePreloadManager extends BaseManager {
     }
 
     /**
-     * 回到游戏大厅
+     * 回到训练大厅
      */
     private async backToGameCenter(): Promise<void> {
-        DebugLog.instance.log('回到游戏大厅');
+        DebugLog.instance.log('回到训练大厅');
         await SceneManager.getInstance().backToGameCenter();
     }
 

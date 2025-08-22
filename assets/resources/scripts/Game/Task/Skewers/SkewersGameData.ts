@@ -20,33 +20,33 @@ export enum SkewersGameType {
 
 
 /**
- * 游戏串烧数据
+ * 训练串烧数据
  */
 export class SkewersGameData {
     // ============== game
-    // 游戏名字
+    // 训练名字
     public gameName: string = '未知';
 
-    // 游戏id
+    // 训练id
     public gameID: number;
 
-    // 当前串烧游戏code
+    // 当前串烧训练code
     public gameCode: string;
 
     // 关卡获取类型 1 顺序获取  2 根据难度（顺序）获取
     public levelMode: number;
 
-    // 当前串烧游戏类型
+    // 当前串烧训练类型
     public type: SkewersGameType;
 
-    // 串烧游戏训练队列数据
+    // 串烧训练训练队列数据
     public trains: SkewersGameTrainData[];
 
     public is_correction : boolean = false;
 
     public index:number = -1;
 
-    // 一类串烧游戏状态
+    // 一类串烧训练状态
     private _status: number;
 
     // 难度
@@ -281,28 +281,28 @@ export class SkewersGameTrainData {
     // 任务id
     public brain_training_id: number;
 
-    // 游戏索引
+    // 训练索引
     public seq: number;
 
-    // 游戏状态 未完成0 已完成1
+    // 训练状态 未完成0 已完成1
     public status: number = 0;
 
-    // 游戏完成度 最低0 最高1
+    // 训练完成度 最低0 最高1
     public complete: number = 0;
 
-    // 游戏用时
+    // 训练用时
     public duration: number = 0;
 
-    // 当前串烧游戏难度
+    // 当前串烧训练难度
     public difficulty: number = 0;
 
-    // 当前串烧游戏游戏时间
+    // 当前串烧训练训练时间
     public timeLimit: number = 0;
 
     //关卡计数器
     public _level: number = 0;
 
-    // 游戏得分
+    // 训练得分
     public score: number = 0;
 
     // 完成得时间格式 “2024-11-22 07:30:00”

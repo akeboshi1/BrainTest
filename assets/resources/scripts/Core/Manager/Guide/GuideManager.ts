@@ -116,7 +116,7 @@ export class GuideManager extends BaseManager{
     }
 
     /**
-     * 强制退出游戏
+     * 强制退出训练
      */
     public quitGame(){
        if(this._curGuide){

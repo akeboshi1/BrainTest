@@ -139,7 +139,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _fishTweens: Tween<Node>[] = [];
     private _isPaused = false;
     private _clearBoo = false;
-    private _gameEnded = false; // 添加游戏结束标志
+    private _gameEnded = false; // 添加训练结束标志
     // 在类中添加边界属性和初始化方法
     private _sceneWidth: number = 1080; // 根据实际场景宽度设置
     private _moveSpeed: number = 200; // 像素/秒
@@ -231,7 +231,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.sceneModel.runNextGame();
     }
 
-    // ===== 最后一个串烧游戏失败后，弹窗继续得回调 =====
+    // ===== 最后一个串烧训练失败后，弹窗继续得回调 =====
     failCompleteHandler() {
         super.failCompleteHanlder(this);
     }
@@ -246,7 +246,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
-                // 直接发送游戏完成请求，不处理弹窗逻辑
+                // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
@@ -289,7 +289,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     onTimerEnd() {
-        // 如果游戏已经结束，不再执行倒计时逻辑
+        // 如果训练已经结束，不再执行倒计时逻辑
         if (this._gameEnded) {
             return;
         }
@@ -300,7 +300,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         if (this.wangCount !== this.wangMaxCount) {
             this._gameEnded = true;
-            this.clearGameView(); // 游戏失败时也立即停止所有鱼和动画
+            this.clearGameView(); // 训练失败时也立即停止所有鱼和动画
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 //上报数据
                 this._requestSkewersGameComplete();
@@ -320,7 +320,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     public clearGameView() {
         super.clearGameView();
         this._clearBoo = true;
-        this._gameEnded = true; // 确保游戏彻底结束
+        this._gameEnded = true; // 确保训练彻底结束
         if (this._wangTween) {
             this._wangTween.stop();
             this._wangTween = null;
@@ -364,14 +364,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
     }
 
-    // ================== 捕鱼游戏逻辑 ===================
+    // ================== 捕鱼训练逻辑 ===================
 
 
     startGame() {
         Tween.stopAll();
         this.customsSendDataState = false;
         this._clearBoo = false;
-        this._gameEnded = false; // 重置游戏结束标志
+        this._gameEnded = false; // 重置训练结束标志
 
         // 确保鱼群动画重置并启动
         this.resetAndStartFishMovement();
@@ -580,7 +580,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
 
     private createFish(count: number = 1) {
-        if (this._gameEnded) return; // 游戏结束不再创建鱼
+        if (this._gameEnded) return; // 训练结束不再创建鱼
         if (this.fishParentNode && this.fishPrefab) {
             if (!this.hasGuide) {
                 if (this.sceneModel.hasGuide) {
@@ -591,7 +591,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._guideIndex = 0;
             let datas = [];
             for (let i = 0; i < len; i++) {
-                if (this._gameEnded) break; // 游戏结束不再创建
+                if (this._gameEnded) break; // 训练结束不再创建
                 let fish = new Fish(this.fishPrefab);
                 fish.positionYIndex = 1;//len == 1 ? 1 : Math.floor(Math.random() * this.fishYs.length);
                 fish.setParent(this.fishParentNode);
@@ -707,8 +707,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _offsetX: number = 770;
     private _offsetX1: number = 770;
     moveFishes(fish: Fish, delay: number = 0) {
-        if (this._gameEnded) return; // 游戏结束不再移动鱼
-        if (this._isPaused) return; // 游戏暂停时不创建新的tween
+        if (this._gameEnded) return; // 训练结束不再移动鱼
+        if (this._isPaused) return; // 训练暂停时不创建新的tween
         if (fish.curTween) {
             fish.curTween.stop();
             fish.curTween = null;
@@ -1091,7 +1091,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     rePlayGame() {
         this.bgmClip = null;
         this.customsSendDataState = true;
-        this._gameEnded = false; // 重置游戏结束标志
+        this._gameEnded = false; // 重置训练结束标志
         this._clearBoo = false;
         this._isPaused = false; // 重置暂停状态
         this._pause = false; // 保持向后兼容
@@ -1100,7 +1100,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this.hasWangClick = false; // 重置网点击状态
         Global.isAgain = true;
         this.clearGameView();
-        // 重新设置游戏状态，因为clearGameView会设置_gameEnded为true
+        // 重新设置训练状态，因为clearGameView会设置_gameEnded为true
         this._gameEnded = false;
         this._clearBoo = false;
         this._startTime = TimeUtil.getNow();
@@ -1131,7 +1131,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private _guideIndex = -1;
     private _wangClick(data) {
-        // 如果游戏已经结束，不再处理渔网点击
+        // 如果训练已经结束，不再处理渔网点击
         if (this._gameEnded || this._clearBoo) {
             return;
         }
@@ -1179,7 +1179,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         wang.setPosition(new Vec3(0, 0, 0));
         wang.setWorldScale(new Vec3(0.5, 0.5, 0.5));
         // wang.setPosition(new Vec3(0, 0, 0));
-        // 游戏过程数据匹配
+        // 训练过程数据匹配
         this.sceneModel.gameMatch();
 
         let self = this;// -600.-520.-440.-360
@@ -1308,7 +1308,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     private async endCurHardGame() {
-        this._gameEnded = true; // 设置游戏结束标志
+        this._gameEnded = true; // 设置训练结束标志
         this.pauseTime(); // 停止倒计时
         this.clearGameView(); // 停止所有鱼和动画，确保结算面板弹出时鱼不再游动
         this.playAudio("music/win", true);
@@ -1428,8 +1428,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // 保存错题到本地存储
     private saveWrongQuestions(): void {
-        // 不再保存到localStorage，只在当前游戏中使用
-        console.log(`当前游戏中有${this.wrongQuestions.length}个错题`);
+        // 不再保存到localStorage，只在当前训练中使用
+        console.log(`当前训练中有${this.wrongQuestions.length}个错题`);
     }
 
     public onClickRetryGame() {
@@ -1463,7 +1463,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 显示订正界面
         this.answerView.active = true;
 
-        // 使用当前游戏中累积的错题
+        // 使用当前训练中累积的错题
         const wrongQuestions = this.wrongQuestions;
 
         // 取最后5道错题

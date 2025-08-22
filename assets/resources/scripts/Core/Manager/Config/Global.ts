@@ -15,14 +15,14 @@ export class Global {
     static prePanel:string = '';
 
     /**
-     * 是否是串烧游戏状态
-     * true  串烧游戏状态
-     * false 游戏大厅游戏状态
+     * 是否是串烧训练状态
+     * true  串烧训练状态
+     * false 训练大厅训练状态
      */
     static isSkewersGame:boolean = false;
 
     /**
-     * 当前游戏是否处于重玩
+     * 当前训练是否处于重玩
      */
     static isAgain:boolean = false;
 }
