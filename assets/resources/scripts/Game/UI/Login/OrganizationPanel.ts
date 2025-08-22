@@ -37,16 +37,12 @@ export class OrganizationPanel extends Component {
         this.initPasswordEye();
         this.initToggle();
     }
+
     initToggle(){
-        let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
-        if(isFirstLogin == "true"){
-            this.toggle.isChecked = false;
-            this.tips.active = true;
-         }else{
-            this.toggle.isChecked = true;
-            this.tips.active = false;
-         }
+        this.toggle.isChecked = LoginManager.getInstance().xieyiToggleFlag;
+        this.tips.active = !LoginManager.getInstance().xieyiToggleFlag;
     }
+
     initInstitutionCodeEditBox() {
         let institutionCode = LocalStorageUtil.get(LocalStorageKeyEnum.INSTITUTION_CODE);
         // 添加空值检查，如果为 null 则使用空字符串
@@ -56,11 +52,13 @@ export class OrganizationPanel extends Component {
         this.institutionCode.getComponent(EditBox).string = institutionCode;
         this.institutionCodeValue = institutionCode;
     }
+
     initPasswordEditBox() {
         let passwordEditBox = this.password.getComponent(EditBox);
         passwordEditBox.inputFlag = EditBox.InputFlag.PASSWORD; // 设置密码模式
         passwordEditBox.placeholder = "请输入密码";
     }
+    
     // 初始化密码眼睛图标
     async initPasswordEye() {
         try {
@@ -87,6 +85,7 @@ export class OrganizationPanel extends Component {
             flag: "Privacy"
         }); 
     }
+
     private _hasHandledFirstLogin: boolean = false;
     private toggleClickHandler() {
         if (!this._hasHandledFirstLogin) {
@@ -96,8 +95,10 @@ export class OrganizationPanel extends Component {
                 this._hasHandledFirstLogin = true;
             }
         }
-           this.tips.active = this.toggle.isChecked;   
+        this.tips.active = this.toggle.isChecked; 
+        LoginManager.getInstance().xieyiToggleFlag = !this.toggle.isChecked;
     }
+
     institutionCodeChangeFinished() {
         this.institutionCodeValue = this.institutionCode.getComponent(EditBox).string ;
         if (this.institutionCodeValue.length > 10) {
@@ -147,6 +148,7 @@ export class OrganizationPanel extends Component {
         });
         return promise;
     }
+    
     private promptAnimation(node: Node) {
         node.active = true;
         tween(node)
@@ -155,15 +157,18 @@ export class OrganizationPanel extends Component {
             .to(0.03, { scale: new Vec3(1.1, 1.1, 1.1) })
             .start();
     }
+
     stopPromptAnimation() {
         tween(this.institutionCodePrompt).stop();
         tween(this.passwordPrompt).stop();
     }
+
     private confirmHandler() {
         this.toggle.isChecked = true;
         this.tips.active = false;
-        // LoginManager.getInstance().requestLoginByInstitution(this.institutionCodeValue,this.userCodeValue,this.passwordValue);
+        LoginManager.getInstance().xieyiToggleFlag = true;
     }
+
     private async changeBtnFrame(index: number = 0): Promise<void> {
         let btnSprite = this.commitBtn.getComponent(Sprite);
         let url: string = "";
@@ -192,6 +197,7 @@ export class OrganizationPanel extends Component {
             });
         });
     }
+
     verifyAllInput() {
         let isVerify = true;
         if(this.institutionCodeValue.length > 10){
@@ -215,11 +221,12 @@ export class OrganizationPanel extends Component {
         if (!this.toggle.isChecked) {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
+            ad.message = "为了保证您的权益，请确认并勾选";
             ad.cancelButtonVisible = true;
             ad.cancelButtonText = "不接受"
             ad.confirmButtonText = "接受"
             ad.contentClickCb = this.showXieYi.bind(this);
-            AlertManager.getInstance().showUserAgreeAlert(ad);
+            AlertManager.getInstance().showAlert(ad);
             ad.confirmCb = this.confirmHandler.bind(this);
             ad.cancelCb = this.cancelHandler.bind(this);
             return;
