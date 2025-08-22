@@ -174,12 +174,11 @@ export class LoginPanel extends BasePanel {
         if (!this.toggle.isChecked) {
             let ad: AlertData = new AlertData();
             ad.title = "提示";
-            ad.message = "为了保证您的权益，请确认并勾选";
             ad.cancelButtonVisible = true;
             ad.cancelButtonText = "不接受"
             ad.confirmButtonText = "接受"
             ad.contentClickCb = this.showXieYi.bind(this);
-            AlertManager.getInstance().showAlert(ad);
+            AlertManager.getInstance().showUserAgreeAlert(ad);
             ad.confirmCb = this.clickconfirmHandler.bind(this);
             ad.cancelCb = this.cancelHandler.bind(this);
             return;
