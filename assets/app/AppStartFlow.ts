@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Component, JsonAsset, Label, director, sys, Node, UITransform, UIOpacity, tween, EventTouch, profiler } from 'cc';
+import { _decorator, assetManager, Component, JsonAsset, Label, director, sys, Node, UITransform, UIOpacity, tween, EventTouch, profiler, native } from 'cc';
 import { BundleManager, BundleVersionsConfig } from './BundleManager';
 import { PublishSettingConfig } from './PublishSettingConfig';
 
@@ -18,6 +18,11 @@ export class AppStartFlow extends Component {
     private state: StartStatus = StartStatus.CONNECTING_SOCKET;
     private socket: WebSocket | null = null;     // 服务器连接实例
     private bundleVersions!: BundleVersionsConfig; // 版本配置缓存
+    
+    // 重试机制配置
+    private readonly MAX_RETRY_COUNT = 3;
+    private readonly RETRY_INTERVAL = 4000; // 4秒
+    private retryCount: number = 0;
 
     @property(UIOpacity)
     iconOpacity: UIOpacity = null;
@@ -36,6 +41,9 @@ export class AppStartFlow extends Component {
 
     @property(Node)
     iconNode: Node = null;
+
+    @property(Node)
+    networkErrorAlert: Node = null;
 
     private interval: number = 2; // 最小启动间隔时间（秒）
     private startTime: number = 0; // 记录启动开始时间
@@ -109,17 +117,8 @@ export class AppStartFlow extends Component {
         this.startTime = Date.now();
         await PublishSettingConfig.getInstance().init(this.publishSettingConfig);
 
-        if (PublishSettingConfig.getInstance().getIsRemoteBundle()) {
-            this.updateVersionLabel();
-            this.connectToSocket();
-        } else {
-            let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
-            let bundleVersionFileName = BundleManager.getInstance().getBundleVersionFileName();
-            this.loadBundleVersionsConfig(remoteurl + bundleVersionFileName).finally(() => {
-                this.state = StartStatus.COMPLETE;
-                this.onNextStep();
-            });
-        }
+        this.updateVersionLabel();
+        this.connectToSocket();
     }
 
     private updateProgressText(message: string) {
@@ -150,58 +149,56 @@ export class AppStartFlow extends Component {
 
     // 网络连接管理 --------------------------------------------------
     private connectToSocket() {
-        this.updateProgressText('正在连接服务器...');
+        this.retryCount = 0;
+        this.connectToSocketWithRetry();
+    }
+
+    private connectToSocketWithRetry() {
+        this.updateProgressText(`正在连接服务器...${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
         this.socket = new WebSocket(PublishSettingConfig.getInstance().getApiUrl());
 
         // 连接成功回调
         this.socket.onopen = () => {
+            this.retryCount = 0; // 重置重试计数
             this.updateProgressText('连接成功\n开始下载版本配置...');
-            this.state = StartStatus.DOWNLOADING_VERSION;
-            this.onNextStep(); // 进入版本下载阶段
+            this.onNextStep(StartStatus.DOWNLOADING_VERSION); // 进入版本下载阶段
         };
 
         // 错误处理
         this.socket.onerror = (error) => {
-            this.updateProgressText('连接服务器失败\n正在重试...');
             console.error('网络连接异常:', error);
+            this.handleRetry('连接服务器失败', () => this.connectToSocketWithRetry());
         };
     }
 
+    // 通用重试处理机制
+    private handleRetry(errorMessage: string, retryFunction: () => void) {
+        this.retryCount++;
+        
+        if (this.retryCount <= this.MAX_RETRY_COUNT) {
+            this.updateProgressText(`${errorMessage}\n第${this.retryCount}次重试，${this.RETRY_INTERVAL / 1000}秒后重试...`);
+            setTimeout(() => {
+                retryFunction();
+            }, this.RETRY_INTERVAL);
+        } else {
+            this.updateProgressText(`${errorMessage}\n重试${this.MAX_RETRY_COUNT}次后仍然失败`);
+            this.showNetErrorAlert();
+        }
+    }
+
     // 状态机推进器 -------------------------------------------------
-    private onNextStep() {
-        switch (this.state) {
+    private onNextStep(targetState?: StartStatus) {
+        // 如果没有传入目标状态，使用当前状态
+        const currentState = targetState !== undefined ? targetState : this.state;
+        
+        switch (currentState) {
             case StartStatus.DOWNLOADING_VERSION:
-                let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
-                let bundleVersionFileName = BundleManager.getInstance().getBundleVersionFileName();
-                this.loadBundleVersionsConfig(remoteurl + bundleVersionFileName).then(() => {
-                    this.state = StartStatus.DOWNLOADING_RESOURCES;
-                    this.onNextStep();
-                    //this.createDebugButton(); // 创建调试按钮
-                });
+                this.retryCount = 0;
+                this.loadBundleVersionsConfigWithRetry();
                 break;
             case StartStatus.DOWNLOADING_RESOURCES:
-                // 直接下载指定资源包
-                const targetBundle = 'resources'; // 固定下载resources包
-                if (!this.bundleVersions?.bundles[targetBundle]) {
-                    console.error('配置中缺少resources资源包');
-                    return;
-                }
-
-                this.downloadBundle(targetBundle, this.bundleVersions.bundles[targetBundle])
-                    .then(() => {
-                        this.state = StartStatus.COMPLETE;
-                        this.onNextStep();
-                    })
-                    .catch(error => {
-                        this.reportBundleLoad({
-                            bundle: targetBundle,
-                            result: 0,
-                            error: 1,
-                            message: `resources资源包下载失败: ${error}`
-                        });
-                        console.error('resources资源包下载失败:', error);
-                    });
-
+                this.retryCount = 0;
+                this.downloadResourcesWithRetry();
                 break;
             case StartStatus.COMPLETE:
                 console.log('所有资源下载完成');
@@ -235,10 +232,25 @@ export class AppStartFlow extends Component {
     }
 
     // 版本配置加载器 ------------------------------------------------
+    private loadBundleVersionsConfigWithRetry() {
+        let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
+        let bundleVersionFileName = BundleManager.getInstance().getBundleVersionFileName();
+        this.loadBundleVersionsConfig(remoteurl + bundleVersionFileName)
+            .then(() => {
+                this.retryCount = 0; // 重置重试计数
+                this.onNextStep(StartStatus.DOWNLOADING_RESOURCES);
+                //this.createDebugButton(); // 创建调试按钮
+            })
+            .catch(error => {
+                console.error('版本配置加载失败:', error);
+                this.handleRetry('版本配置下载失败', () => this.loadBundleVersionsConfigWithRetry());
+            });
+    }
+
     // 在loadRemoteConfig调用处添加异常上报
     public async loadBundleVersionsConfig(remoteUrl: string) {
         try {
-            this.updateProgressText('正在下载版本配置...');
+            this.updateProgressText(`正在下载版本配置...${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
             try {
                 if (sys.isNative) {
                     // 清除旧缓存保证获取最新配置
@@ -261,10 +273,10 @@ export class AppStartFlow extends Component {
                     error: 1,
                     message: `版本配置加载失败: ${error}`
                 });
-                console.error('启动流程中断:', error);
+                throw error; // 重新抛出错误以便重试机制处理
             }
         } catch (error) {
-            console.error('启动流程中断:', error);
+            throw error; // 重新抛出错误以便重试机制处理
         }
     }
     // 远程配置加载核心逻辑
@@ -289,6 +301,32 @@ export class AppStartFlow extends Component {
             });
         });
     }
+    private downloadResourcesWithRetry() {
+        // 直接下载指定资源包
+        const targetBundle = 'resources'; // 固定下载resources包
+        if (!this.bundleVersions?.bundles[targetBundle]) {
+            console.error('配置中缺少resources资源包');
+            this.showNetErrorAlert();
+            return;
+        }
+
+        this.downloadBundle(targetBundle, this.bundleVersions.bundles[targetBundle])
+            .then(() => {
+                this.retryCount = 0; // 重置重试计数
+                this.onNextStep(StartStatus.COMPLETE);
+            })
+            .catch(error => {
+                this.reportBundleLoad({
+                    bundle: targetBundle,
+                    result: 0,
+                    error: 1,
+                    message: `resources资源包下载失败: ${error}`
+                });
+                console.error('resources资源包下载失败:', error);
+                this.handleRetry('资源包下载失败', () => this.downloadResourcesWithRetry());
+            });
+    }
+
     private async downloadBundle(bundleName: string, info: {
         md5: string,
         md5backup: string,
@@ -304,7 +342,7 @@ export class AppStartFlow extends Component {
 
             const progressHandler = (loaded: number, total: number) => {
                 const percent = Math.round(loaded / total * 100);
-                this.updateProgressText(`正在下载资源包... ${percent}%\n${loaded.toLocaleString()}/${total.toLocaleString()}字节`);
+                this.updateProgressText(`正在下载资源包... ${percent}%\n${loaded.toLocaleString()}/${total.toLocaleString()}字节${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
             };
 
             const loadWithRetry = (url: string, md5: string, isRetry = false) => {
@@ -418,5 +456,18 @@ export class AppStartFlow extends Component {
                     })
             )
             .start();
+    }
+
+    private showNetErrorAlert() {
+        if (this.networkErrorAlert) {
+            this.networkErrorAlert.active = true;
+        }
+    }
+
+    private exitApp() {
+        if(sys.isNative) {
+            console.log('APP Exit =============');
+            native.bridge.sendToNative('APP', 'exit');
+        }
     }
 }
