@@ -16,12 +16,16 @@ export class SumReportView extends Component {
     weekStatistics: Label = null;
 
     start() {
+        
+    }
+
+    protected onEnable(): void {
         ReportManager.getInstance().weekStatistics.addListener(this.onWeekStatisticsChange.bind(this));
         ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
         ReportManager.getInstance().reportDataListInitial.addListener(this.onReportDataListInitialChange.bind(this));
     }
 
-    protected onDestroy(): void {
+    protected onDisable(): void {
         ReportManager.getInstance().weekStatistics.removeAllListeners();
         ReportManager.getInstance().reportDataList.removeAllListeners();
         ReportManager.getInstance().reportDataListInitial.removeAllListeners();

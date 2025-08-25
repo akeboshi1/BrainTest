@@ -24,7 +24,7 @@ export class ReconnectPanel extends BasePanel {
         }
     }
 
-    onDestroy(): void {
+    onDisable(): void {
         EventManager.getInstance().off(this.en, this);
     }
 

@@ -31,6 +31,10 @@ export class SwitchLoginPanel extends BasePanel {
     private currentPanelName: string = "";
 
     start() {
+        
+    }
+
+    onEnable(): void {
         let defaultLoginStatus = LocalStorageUtil.get(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS);
         
         if(defaultLoginStatus == "1"){
@@ -47,7 +51,7 @@ export class SwitchLoginPanel extends BasePanel {
         EventManager.getInstance().on(LoginManager.LoginOrganizationResult, this.onGetOrganizationUsersResult, this);
     }
 
-    onDestroy(): void {
+    onDisable(): void {
         EventManager.getInstance().off(LoginManager.LoginOrganizationResult, this);
     }
 

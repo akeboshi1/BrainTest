@@ -23,17 +23,20 @@ export class OrganizationMemberSelectPanel extends Component {
     private clickBack: () => void;
 
     start() {
+        
+    }
+
+    protected onEnable(): void {
+        EventManager.getInstance().on(LoginManager.GetOrganizationUsersResult, this.onGetOrganizationUsersResult, this);
         let orgToken = LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_TOKEN);
         if (!orgToken) {
             return;
         }
-        EventManager.getInstance().on(LoginManager.GetOrganizationUsersResult, this.onGetOrganizationUsersResult, this);
-        LoginManager.getInstance().requestGetOrganizationUsers(orgToken);
-
         this.tips.string = "获取组织成员中...";
+        LoginManager.getInstance().requestGetOrganizationUsers(orgToken);
     }
 
-    onDestroy(): void {
+    protected onDisable(): void {
         EventManager.getInstance().off(LoginManager.GetOrganizationUsersResult, this);
     }
 

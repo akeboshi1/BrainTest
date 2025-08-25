@@ -21,11 +21,15 @@ export class OtherSummaryView extends Component {
     private _cogAbilityBriefData: DataProvider<CogAbilityBriefData> = null;
 
     start() {
+        
+    }
+    
+    protected onEnable(): void {
         this._cogAbilityBriefData = ReportManager.getInstance().getAbilityBriefData();
         this._cogAbilityBriefData.addListener(this.onCogAbilityBriefDataChange.bind(this));
     }
 
-    onDestroy(): void {
+    protected onDisable(): void {
         this._cogAbilityBriefData.removeAllListeners();
         this._cogAbilityBriefData = null;
     }
