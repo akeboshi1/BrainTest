@@ -80,21 +80,19 @@ export class IndexPageView extends AdaptComponent {
         } else {
             PersonalCenterManager.getInstance().requestUserInfo();
         }
-
-        this._listenerId = ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
-    }
-
-    protected onDestroy(): void {
-        ReportManager.getInstance().reportDataList.removeListenerById(this._listenerId);
     }
 
     onEnable() {
         EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
+
+        this._listenerId = ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
     }
 
     onDisable() {
         EventManager.getInstance().off(BundlePreloadEvent.FINISH, this);
         EventManager.getInstance().off(PersonalCenterManager.getUserInfoCallBack, this);
+
+        ReportManager.getInstance().reportDataList.removeListenerById(this._listenerId);
     }
 
     onReportDataListChange(data:ReportData[]) {

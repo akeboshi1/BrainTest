@@ -46,6 +46,10 @@ export class OtherChartView extends Component {
     private _dotAnimStarted: boolean = false;
 
     start() {
+        
+    }
+
+    onEnable(): void {
         this._currentAbilityType = ReportManager.getInstance().getCurrentAbilityType();
 
         this.width = this.lineChart.getComponent(UITransform).width - this.leftPadding;
@@ -57,7 +61,7 @@ export class OtherChartView extends Component {
         this.setDataProvider();
     }
 
-    onDestroy(): void {
+    onDisable(): void {
         if (this._currentDataProvider != null) {
             this._currentDataProvider.removeAllListeners();
             this._currentDataProvider = null;

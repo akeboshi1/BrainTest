@@ -422,12 +422,7 @@ export class VipPanel extends BasePanel {
         }
 
     }
-
-
-
-    onDestroy(): void {
-    }
-
+    
     backHandler() {
         if (this.addressNode.active) {
             if (this.newAddressNode.active) {

@@ -130,10 +130,14 @@ export class SumAnalyseView extends Component {
     fourthItemArrowIcon: Sprite = null;
 
     start() {
-        ReportManager.getInstance().userSumReport.addListener(this.onUserSumReportChange.bind(this));
+        
     }
     
-    onDestroy(): void {
+    onEnable(): void {
+        ReportManager.getInstance().userSumReport.addListener(this.onUserSumReportChange.bind(this));
+    }
+
+    onDisable(): void {
         ReportManager.getInstance().userSumReport.removeAllListeners();
     }
 
