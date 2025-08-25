@@ -22,9 +22,9 @@ export class SumReportView extends Component {
     }
 
     protected onDestroy(): void {
-        ReportManager.getInstance().weekStatistics.removeListener(this.onWeekStatisticsChange.bind(this));
-        ReportManager.getInstance().reportDataList.removeListener(this.onReportDataListChange.bind(this));
-        ReportManager.getInstance().reportDataListInitial.removeListener(this.onReportDataListInitialChange.bind(this));
+        ReportManager.getInstance().weekStatistics.removeAllListeners();
+        ReportManager.getInstance().reportDataList.removeAllListeners();
+        ReportManager.getInstance().reportDataListInitial.removeAllListeners();
     }
 
 
