@@ -59,7 +59,7 @@ export class OtherChartView extends Component {
 
     onDestroy(): void {
         if (this._currentDataProvider != null) {
-            this._currentDataProvider.removeListener(this.onDataChange.bind(this));
+            this._currentDataProvider.removeAllListeners();
             this._currentDataProvider = null;
         }
 
@@ -70,7 +70,7 @@ export class OtherChartView extends Component {
 
     setDataProvider() {
         if (this._currentDataProvider != null) {
-            this._currentDataProvider.removeListener(this.onDataChange.bind(this));
+            this._currentDataProvider.removeAllListeners();
         }
 
         this._currentDataProvider = ReportManager.getInstance().getWeeklyScoresDataProvider(this._currentAbilityType, this.currentIndex);

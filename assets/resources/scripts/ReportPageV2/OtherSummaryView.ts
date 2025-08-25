@@ -26,7 +26,7 @@ export class OtherSummaryView extends Component {
     }
 
     onDestroy(): void {
-        this._cogAbilityBriefData.removeListener(this.onCogAbilityBriefDataChange.bind(this));
+        this._cogAbilityBriefData.removeAllListeners();
         this._cogAbilityBriefData = null;
     }
 

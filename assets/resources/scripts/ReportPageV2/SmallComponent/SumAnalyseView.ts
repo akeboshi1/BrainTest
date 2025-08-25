@@ -134,7 +134,7 @@ export class SumAnalyseView extends Component {
     }
     
     onDestroy(): void {
-        ReportManager.getInstance().userSumReport.removeListener(this.onUserSumReportChange.bind(this));
+        ReportManager.getInstance().userSumReport.removeAllListeners();
     }
 
     onUserSumReportChange(data: UserSumReport) {

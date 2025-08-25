@@ -68,6 +68,8 @@ export class IndexPageView extends AdaptComponent {
     @property(Node)
     vipNode: Node = null;
 
+    private _listenerId: string = null;
+
     start() {
         super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
@@ -79,11 +81,11 @@ export class IndexPageView extends AdaptComponent {
             PersonalCenterManager.getInstance().requestUserInfo();
         }
 
-        ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
+        this._listenerId = ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
     }
 
     protected onDestroy(): void {
-        ReportManager.getInstance().reportDataList.removeListener(this.onReportDataListChange.bind(this));
+        ReportManager.getInstance().reportDataList.removeListenerById(this._listenerId);
     }
 
     onEnable() {
