@@ -104,15 +104,21 @@ export class AlertManager extends BaseManager {
         // 这里可以添加更多逻辑根据alertData设置弹窗内的文本内容、按钮显示及点击回调等
 
         // 假设弹窗内有对应的组件来设置标题、消息等内容，以下为示例代码（需根据实际预制体结构调整）
-        let titleLabel = alertNode.getChildByName("viewNode").getChildByName('titleLabel').getComponent(Label);
+        let bg = alertNode.getChildByName("viewNode").getChildByName("Bg");
+        let group:Node = alertNode.getChildByName("viewNode").getChildByName("group");
+        
+        let titleLabel = alertNode.getChildByName("viewNode").getChildByName("group").getChildByName('titleLabel').getComponent(Label);
         if (titleLabel) {
             titleLabel.string = alertData.title;
         }
 
-        let messageLabel = alertNode.getChildByName("viewNode").getChildByName('messageLabel').getComponent(Label);
+        let messageLabel = alertNode.getChildByName("viewNode").getChildByName("group").getChildByName('messageLabel').getComponent(Label);
         if (messageLabel) {
             messageLabel.string = alertData.message;
         }
+        
+        // 动态调整group高度以适应文本内容
+        this.adjustGroupHeight(bg,group, titleLabel, messageLabel);
 
         let self = this;
         let guideButton = alertNode.getChildByName("viewNode").getChildByName('guideButton').getComponent(Button);
@@ -128,7 +134,7 @@ export class AlertManager extends BaseManager {
             guideButton.node.getChildByName("Label").getComponent(Label).string = alertData.guideButtonText;
         }
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）
-        let cancelButton = alertNode.getChildByName("viewNode").getChildByName('cancelButton').getComponent(Button);
+        let cancelButton = alertNode.getChildByName("viewNode").getChildByName("group").getChildByName("btnGroup").getChildByName('cancelButton').getComponent(Button);
         if (cancelButton) {
             cancelButton.node.active = alertData.cancelButtonVisible;
             cancelButton.node.on('click', () => {
@@ -142,7 +148,7 @@ export class AlertManager extends BaseManager {
         }
 
         // 处理确认按钮相关逻辑，设置点击回调等（示例，需根据实际调整）
-        let confirmButton = alertNode.getChildByName("viewNode").getChildByName('confirmButton').getComponent(Button);
+        let confirmButton = alertNode.getChildByName("viewNode").getChildByName("group").getChildByName("btnGroup").getChildByName('confirmButton').getComponent(Button);
         if (confirmButton) {
             confirmButton.node.on('click', () => {
                 if (alertData.confirmCb) {
@@ -254,6 +260,27 @@ export class AlertManager extends BaseManager {
             }
         }
     }
+
+    /**
+     * 动态调整group高度以适应文本内容
+     * @param bg 背景节点
+     * @param group group节点
+     * @param titleLabel 标题标签
+     * @param messageLabel 消息标签
+     */
+    private adjustGroupHeight(bg: Node, group: Node, titleLabel: Label, messageLabel: Label) {
+        try {
+            const groupTransform = group.getComponent(UITransform);
+            if (!groupTransform) return;
+            
+            let messageHeight = messageLabel.string.length / 16 * 35
+            bg.getComponent(UITransform).height += messageHeight;
+            
+        } catch (error) {
+            DebugLog.instance.error(`[AlertManager] Failed to adjust group height: ${error}`);
+        }
+    }
+    
 
     /**
      * 使用项目中的ScreenAdapter对弹窗进行UI适配
