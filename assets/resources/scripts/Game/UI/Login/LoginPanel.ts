@@ -9,7 +9,7 @@ import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/E
 import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 import { TreatyView } from '../../../TreatyV2/TreatyView';
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
-import {XieYiPanel} from "db://assets/resources/scripts/Game/UI/Login/XieYiPanel";
+import { XieYiPanel } from "db://assets/resources/scripts/Game/UI/Login/XieYiPanel";
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -44,7 +44,7 @@ export class LoginPanel extends BasePanel {
     cleanNumberBtn: Button;
 
     @property(Node)
-    maskNode:Node;
+    maskNode: Node;
 
 
     // ===== 验证码
@@ -102,14 +102,14 @@ export class LoginPanel extends BasePanel {
         if (this.phoneNumberEdit.node) {
             this.phoneNumberEdit.node.on(Node.EventType.TOUCH_END, this.checkBoxHandler, this);
         }
-        EventManager.getInstance().on(LoginManager.FirstLoginXieYi,this.showAlert,this);
+        EventManager.getInstance().on(LoginManager.FirstLoginXieYi, this.showAlert, this);
         this.textChange();
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.initToggle();
     }
 
 
-    showAlert(){
+    showAlert() {
         let ad: AlertData = new AlertData();
         ad.title = "提示";
         ad.cancelButtonVisible = true;
@@ -121,9 +121,9 @@ export class LoginPanel extends BasePanel {
         ad.cancelCb = this.cancelHandler.bind(this);
     }
 
-    initToggle(){
+    initToggle() {
         let isFirstLogin = LocalStorageUtil.get(LocalStorageKeyEnum.IS_FIRST_LOGIN);
-        if(isFirstLogin == "true"){
+        if (isFirstLogin == "true") {
             this.toggle.isChecked = false;
             this.tips.active = true;
             this.maskNode.active = true;
@@ -136,7 +136,7 @@ export class LoginPanel extends BasePanel {
             AlertManager.getInstance().showUserAgreeAlert(ad);
             ad.confirmCb = this.confirmHandler.bind(this);
             ad.cancelCb = this.cancelHandler.bind(this);
-        }else{
+        } else {
             this.toggle.isChecked = LoginManager.getInstance().xieyiToggleFlag;
             this.tips.active = !LoginManager.getInstance().xieyiToggleFlag;
             this.maskNode.active = false;
@@ -152,7 +152,7 @@ export class LoginPanel extends BasePanel {
         if (this.phoneNumberEdit.node) this.phoneNumberEdit.node.off(Node.EventType.TOUCH_END, this.checkBoxHandler);
         EventManager.getInstance().off(this.login_send_mp_code, this);
         EventManager.getInstance().off(this.login_login_by_mp, this);
-        EventManager.getInstance().off(LoginManager.FirstLoginXieYi,this);
+        EventManager.getInstance().off(LoginManager.FirstLoginXieYi, this);
         if (this.timerCommonComponent) this.timerCommonComponent.off('timer-end', this.onTimerEnd, this);
     }
 
@@ -185,6 +185,21 @@ export class LoginPanel extends BasePanel {
         }
         if (this.phoneView.active) {
             const phoneNum = this.phoneNumberEdit.string;
+            let errorMessage = "";
+            const phoneRegex = /^[0-9]+$/;
+            if (!phoneRegex.test(phoneNum)) {
+                errorMessage = "账户只能包含数字";
+            }
+
+            if (phoneNum != "" && errorMessage !== "") {
+                const alertData: AlertData = new AlertData();
+                alertData.confirmCb = function () {
+                    AlertManager.getInstance().closeCurrentAlert();
+                }.bind(this);
+                alertData.message = errorMessage;
+                AlertManager.getInstance().showAlert(alertData);
+                return;
+            }
             LoginManager.getInstance().phoneNum = phoneNum;
 
             // 添加监听
@@ -247,7 +262,7 @@ export class LoginPanel extends BasePanel {
                 url = "textureV2/component/componentnormalbg/spriteFrame"
                 break;
         }
-        
+
         return new Promise<void>((resolve, reject) => {
             resources.load(url, SpriteFrame, (err, sp) => {
                 if (err) {
@@ -277,15 +292,15 @@ export class LoginPanel extends BasePanel {
         //     flag:"XieYi"
         // });
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
-            url:"https://colapai.xinjiaxianglao.com/xieyi.html"
+        UIManager.getInstance().showPanel(XieYiPanel.NAME, {
+            url: "https://colapai.xinjiaxianglao.com/xieyi.html"
         });
     }
 
     showPrivacy() {
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
-        UIManager.getInstance().showPanel(XieYiPanel.NAME,{
-            url:"https://colapai.xinjiaxianglao.com/privacy.html"
+        UIManager.getInstance().showPanel(XieYiPanel.NAME, {
+            url: "https://colapai.xinjiaxianglao.com/privacy.html"
         });
     }
 
@@ -331,10 +346,10 @@ export class LoginPanel extends BasePanel {
             len = characters.length;
         }
 
-        await this.btnEnableChange(len>=maxLen);
+        await this.btnEnableChange(len >= maxLen);
     }
 
-    private textChange1(){
+    private textChange1() {
         let btn = this.loginBtn.getComponent(Button);
         let len = 0;
         let maxLen = 4;
@@ -346,7 +361,7 @@ export class LoginPanel extends BasePanel {
             let characters = str.split('');
             len = characters.length;
         }
-        btn.enabled = len>=maxLen;
+        btn.enabled = len >= maxLen;
     }
 
     public async btnEnableChange(boo: boolean = false) {
@@ -477,7 +492,7 @@ export class LoginPanel extends BasePanel {
     }
 
     private loginStr = "立即登录";
-    private yanzhengStr= "获取验证码";
+    private yanzhengStr = "获取验证码";
     private retryStr = "重新获取";
     private errorYanZhenStr = "验证码错误";
     switchView(phoneViewBoo: boolean) {
@@ -499,10 +514,10 @@ export class LoginPanel extends BasePanel {
             this.loginBtn.active = true;
             this.btnEnableChange(false);
         }
-       this.setLoginBtnMessage(str);
+        this.setLoginBtnMessage(str);
     }
 
-    private setLoginBtnMessage(str:string){
+    private setLoginBtnMessage(str: string) {
         this.loginBtnLabel.string = str;
     }
 

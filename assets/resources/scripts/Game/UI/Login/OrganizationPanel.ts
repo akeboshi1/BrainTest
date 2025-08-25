@@ -230,6 +230,24 @@ export class OrganizationPanel extends Component {
             ad.cancelCb = this.cancelHandler.bind(this);
             return;
         }
+
+
+        let errorMessage = "";
+        const passwordRegex = /^[a-zA-Z0-9]+$/;
+        if (!passwordRegex.test(this.passwordValue)) {
+            errorMessage = "密码只能包含数字和字母";
+        }
+
+        if (errorMessage != "") {
+            const alertData: AlertData = new AlertData();
+            alertData.confirmCb = function () {
+                AlertManager.getInstance().closeCurrentAlert();
+            }.bind(this);
+            alertData.message = errorMessage;
+            AlertManager.getInstance().showAlert(alertData);
+            return;
+        }
+
         let md5Value = Md5.hashStr(this.passwordValue);
         LoginManager.getInstance().requestLoginOrganization(this.institutionCodeValue, md5Value);
 
