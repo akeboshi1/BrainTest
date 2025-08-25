@@ -236,7 +236,7 @@ export class AlterUserInfoView extends BasePanel {
             hasError = true;
         }
         if (hasError) return;
-        if (this.user_nick_name == "" || this.user_name == "" || this.user_sex == 0 || this.user_birthday == "") { this.errorAlert(); return; }
+        if (this.user_nick_name == "" || this.user_name == "" || this.user_sex == 0 || this.user_birthday == ""||this.user_education == 0) { this.errorAlert(); return; }
 
         const alertData: AlertData = new AlertData();
         alertData.title = "确定要修改个人信息吗？";
