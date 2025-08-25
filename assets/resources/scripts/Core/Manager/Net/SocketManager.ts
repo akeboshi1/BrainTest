@@ -21,6 +21,7 @@ export class SocketManager extends BaseManager {
     private api_url: string = "";
     private _socketDatas: Map<string, SocketData[]>;
     private _retryTimer = null;
+    private _reconnectPanel: Prefab = null;
 
     public static getInstance(): SocketManager {
         if (!SocketManager._instance) {
@@ -36,9 +37,11 @@ export class SocketManager extends BaseManager {
 
         // 注册重连面板 并且预加载
         UIManager.getInstance().registerPanel(ReconnectPanel.NAME, BundleName.RESOURCES, "prefab/Common/ReconnectPanel", ReconnectPanel);
-        resources.preload("prefab/Common/ReconnectPanel", Prefab, (err, asset) => {
+        resources.load("prefab/Common/ReconnectPanel", Prefab, (err, prefab: Prefab) => {
             if (err) {
                 DebugLog.instance.error('Prefab load error , url:' + "prefab/Common/ReconnectPanel");
+            }else{
+                this._reconnectPanel = prefab;
             }
         });
     }
