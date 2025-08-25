@@ -52,8 +52,9 @@ export class ChangePassword extends BasePanel {
 
 
     start() {
-        let organizationName = LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_NAME);
-        this.accountLabel.string = `请您为${organizationName}账号修改密码`;
+        this.accountLabel.node.active = false;
+        // let organizationName = LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_NAME);
+        // this.accountLabel.string = `请您为${organizationName}账号修改密码`;
     }
 
 
