@@ -227,9 +227,7 @@ export class SocketManager extends BaseManager {
             try {
                 await this.initSocket();
                 DebugLog.instance.error('Reconnected successfully.');
-                if (SceneManager.getInstance().getCurrentScene().name != "start") {
-                    SceneManager.getInstance().backToHall();
-                }
+                
                 UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
                 this._isReconnecting = false;
                 return true;
