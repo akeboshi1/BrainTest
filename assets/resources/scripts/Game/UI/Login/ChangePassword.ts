@@ -76,8 +76,8 @@ export class ChangePassword extends BasePanel {
         if (this.newPassword != this.confirmPassword) {
             errorMessage = "两次输入的密码不一致";
         }
-        if (this.newPassword.length < 10 || this.newPassword.length > 10) {
-            errorMessage = "密码长度为10位";
+        if (this.newPassword.length < 4 || this.newPassword.length > 10) {
+            errorMessage = "密码长度为4-10位";
         }
         if (this.oldPassword == this.newPassword) {
             errorMessage = "新密码不能与旧密码相同";
