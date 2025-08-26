@@ -6,6 +6,7 @@ import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { LocalStorageKeyEnum } from '../../../Core/Util/LocalStorageUtil';
 import { LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { Md5 } from '../../../Core/Util/md5';
+import { AlertData, AlertManager } from '../../../Core/Manager/Alert/AlertManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('OrganizationMemberLoginPanel')
@@ -95,6 +96,25 @@ export class OrganizationMemberLoginPanel extends BasePanel {
             this.passwordPrompt.active = true;
             this.promptAnimation(this.passwordPrompt);
         }else{
+
+            let errorMessage = "";
+            const passwordRegex = /^[a-zA-Z0-9]+$/;
+            if (!passwordRegex.test(this._password)) {
+                errorMessage = "密码只能包含数字和字母";
+            }
+    
+            if (errorMessage != "") {
+                const alertData: AlertData = new AlertData();
+                alertData.confirmCb = function () {
+                    AlertManager.getInstance().closeCurrentAlert();
+                }.bind(this);
+                alertData.message = errorMessage;
+                AlertManager.getInstance().showAlert(alertData);
+                return;
+            }
+    
+
+
             let md5password = Md5.hashStr(this._password);
             LoginManager.getInstance().requestLoginOrganizationAndUsername(LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_TOKEN), this._data.username, md5password);
         }

@@ -15,6 +15,7 @@ export class UserInfoData {
      * 是否完成初测  false 没完成  true 完成
      */
     public has_initial_tier:boolean = false;
+    public is_org_user:boolean = false;
     public is_member: boolean;
     public member_startTime: string = "";
     public member_endTime: string = "";
@@ -32,6 +33,7 @@ export class UserInfoData {
         this.trained_days = data["trained_days"];
         this.has_initial_tier = data["has_initial_tier"];
         this.is_member = data["is_member"];
+        this.is_org_user = data["is_org_user"];
         if(data["member"]){
             this.member_startTime = data["member"]["start_at"];
             this.member_endTime = data["member"]["expired_at"];

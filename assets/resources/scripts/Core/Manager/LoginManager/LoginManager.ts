@@ -65,6 +65,7 @@ export class LoginManager {
     private login_organization: string = "login.login_organization"
     private login_get_organization_users: string = "login.get_organization_users"
     private login_login_by_organization_and_username: string = "login.login_by_organization_and_username"
+    public static sign_out = "user.sign_out";
 
     private _phoneNum: string = "";
     private _xieyiToggleFlag: boolean = false;
