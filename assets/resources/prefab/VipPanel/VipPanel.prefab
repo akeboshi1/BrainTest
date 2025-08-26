@@ -3166,7 +3166,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 50,
     "_originalHeight": 0,
-    "_alignMode": 2,
+    "_alignMode": 1,
     "_lockFlags": 0,
     "_id": ""
   },
@@ -4534,7 +4534,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 50,
     "_originalHeight": 0,
-    "_alignMode": 2,
+    "_alignMode": 1,
     "_lockFlags": 0,
     "_id": ""
   },
@@ -5778,7 +5778,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 5.556640625,
+      "x": 0,
       "y": 0,
       "z": 0
     },
@@ -5819,7 +5819,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 11.11328125,
+      "width": 0,
       "height": 3
     },
     "_anchorPoint": {
@@ -5906,7 +5906,7 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 50,
     "_originalHeight": 0,
-    "_alignMode": 2,
+    "_alignMode": 1,
     "_lockFlags": 0,
     "_id": ""
   },
@@ -5941,7 +5941,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 11.11328125,
+      "width": 0,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -5977,7 +5977,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": " ",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
