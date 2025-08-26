@@ -12,11 +12,11 @@ const { ccclass, property } = _decorator;
 @ccclass('ChangePassword')
 export class ChangePassword extends BasePanel {
 
-    public oldPassword: string = null;
+    public oldPassword: string = "";
 
-    public newPassword: string = null;
+    public newPassword: string = "";
 
-    public confirmPassword: string = null;
+    public confirmPassword: string = "";
 
     @property(SpriteFrame)
     private eyeOpen: SpriteFrame;
@@ -42,23 +42,6 @@ export class ChangePassword extends BasePanel {
     @property(Sprite)
     public confirmPasswordEyeSprite: Sprite = null;
 
-    @property(Node)
-    public oldPasswordErrorNode:Node = null;
-
-    @property(Node)
-    public newPasswordErrorNode:Node = null;
-
-    @property(Node)
-    public confirmPasswordErrorNode:Node = null;
-
-    private oldPasswordErrorLabel:Label = null;
-
-    private newPasswordErrorLabel:Label = null;
-
-    private confirmPasswordErrorLabel:Label = null;
-
-
-
     public static NAME: string = "ChangePassword";
 
 
@@ -66,9 +49,7 @@ export class ChangePassword extends BasePanel {
 
 
     start() {
-        this.oldPasswordErrorLabel = this.oldPasswordErrorNode.getComponent(Label);
-        this.newPasswordErrorLabel = this.newPasswordErrorNode.getComponent(Label);
-        this.confirmPasswordErrorLabel = this.confirmPasswordErrorNode.getComponent(Label);
+
     }
 
 
@@ -77,50 +58,34 @@ export class ChangePassword extends BasePanel {
     }
 
     public confirmHandler() {
-        let errorMessage = "";
-        if (this.oldPassword == null || this.oldPassword == "") {
-            errorMessage = "请输入旧密码";
-            this.oldPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
-        if (this.oldPassword.length < 4 || this.oldPassword.length > 10) {
-            errorMessage = "密码长度为4-10位";
-            this.oldPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
-        if (this.newPassword == null || this.newPassword == "") {
-            errorMessage = "请输入新密码";
-            this.newPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
-        if (this.confirmPassword == null || this.confirmPassword == "") {
-            errorMessage = "请输入确认密码";
-            this.confirmPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
-        if (this.newPassword != this.confirmPassword) {
-            errorMessage = "两次输入的密码不一致";
-            this.confirmPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
-        if (this.newPassword.length < 4 || this.newPassword.length > 10) {
-            errorMessage = "密码长度为4-10位";
-            this.newPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
-        if (this.oldPassword == this.newPassword) {
-            errorMessage = "新密码不能与旧密码相同";
-            this.oldPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
+        // let errorMessage = "";
 
-        // 验证密码只能包含数字和字母
-        const passwordRegex = /^[a-zA-Z0-9]+$/;
-        if (!passwordRegex.test(this.newPassword)) {
-            errorMessage = "密码只能包含数字和字母";
-            this.newPasswordErrorLabel.string = "*"+errorMessage;
-            return;
-        }
+        // // 验证密码只能包含数字和字母
+        // const passwordRegex = /^[a-zA-Z0-9]+$/;
+        // if (this.oldPassword == null || this.oldPassword == "") {
+        //     errorMessage = "请输入旧密码";
+        // }
+        // else if (!passwordRegex.test(this.newPassword)) {
+        //     errorMessage = "密码只能包含数字和字母";
+        // }
+        // else if (this.oldPassword.length < 4 || this.oldPassword.length > 10) {
+        //     errorMessage = "密码长度为4-10位";
+        // }
+        // else if (this.newPassword == null || this.newPassword == "") {
+        //     errorMessage = "请输入新密码";
+        // }
+        // else if (this.confirmPassword == null || this.confirmPassword == "") {
+        //     errorMessage = "请输入确认密码";
+        // }
+        // else if (this.newPassword != this.confirmPassword) {
+        //     errorMessage = "两次输入的密码不一致";
+        // }
+        // else if (this.newPassword.length < 4 || this.newPassword.length > 10) {
+        //     errorMessage = "密码长度为4-10位";
+        // }
+        // else if (this.oldPassword == this.newPassword) {
+        //     errorMessage = "新密码不能与旧密码相同";
+        // }
 
         // if (errorMessage != "") {
         //     const alertData: AlertData = new AlertData();
@@ -147,7 +112,13 @@ export class ChangePassword extends BasePanel {
 
     private updatePasswordResultHandler(data: any) {
         if (data.status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            const alertData: AlertData = new AlertData();
+            alertData.confirmCb = function () {
+                AlertManager.getInstance().closeCurrentAlert();
+            }.bind(this);
+            alertData.message = data.message;
+            AlertManager.getInstance().showAlert(alertData);
+            // AlertManager.getInstance().showSocketAlert(data.message);
         } else {
             AlertManager.getInstance().showSocketAlert("修改成功");
             this.backHandler();
@@ -163,17 +134,14 @@ export class ChangePassword extends BasePanel {
 
     public oldPasswordInputHandler() {
         this.oldPassword = this.oldPasswordEdit.string;
-        this.oldPasswordErrorLabel.string = "";
     }
 
     public newPasswordInputHandler() {
         this.newPassword = this.newPasswordEdit.string;
-        this.newPasswordErrorLabel.string = "";
     }
 
     public confirmPasswordInputHandler() {
         this.confirmPassword = this.confirmPasswordEdit.string;
-        this.confirmPasswordErrorLabel.string = "";
     }
 
     public changeOldPasswordOutPutType() {
@@ -191,10 +159,10 @@ export class ChangePassword extends BasePanel {
     private _changeInputType(edit: EditBox, eyeSprite: Sprite) {
         if (edit.inputFlag == EditBox.InputFlag.PASSWORD) {
             edit.inputFlag = EditBox.InputFlag.DEFAULT;
-            eyeSprite.spriteFrame = this.eyeClose;
+            eyeSprite.spriteFrame = this.eyeOpen;
         } else {
             edit.inputFlag = EditBox.InputFlag.PASSWORD;
-            eyeSprite.spriteFrame = this.eyeOpen;
+            eyeSprite.spriteFrame = this.eyeClose;
         }
     }
 
