@@ -228,6 +228,9 @@ export class GameCenterManager {
 
     private static _settlementPanel: SettlementPanel = null;
 
+    // 保存GuidePanel的显示数据，用于退出时返回到GuidePanel
+    private _lastGuidePanelData: any = null;
+
     constructor() {
         GameDataFactory.registerGameType(GameType.GAME_CENTER, GameCenterSpecModel);
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
@@ -258,6 +261,9 @@ export class GameCenterManager {
             (scene as any).sceneModel = GameCenterManager.getInstance().gameSpecData;
             (scene as any).sceneModel.scene = scene as any;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
+            
+            // // 游戏场景加载成功，清理GuidePanel数据
+            // this.clearGuidePanelData();
             
             // 清理事件监听器
             this.cleanupPreloadEventListeners();
@@ -290,6 +296,23 @@ export class GameCenterManager {
 
     public exitGameCenter() {
         Global.isSkewersGame = true;
+    }
+
+    /**
+     * 保存GuidePanel的显示数据
+     * @param guidePanelData GuidePanel的显示数据
+     */
+    public saveGuidePanelData(guidePanelData: any): void {
+        this._lastGuidePanelData = guidePanelData;
+        DebugLog.instance.log('保存GuidePanel数据:', guidePanelData);
+    }
+
+    /**
+     * 清理GuidePanel的显示数据
+     */
+    public clearGuidePanelData(): void {
+        this._lastGuidePanelData = null;
+        DebugLog.instance.log('清理GuidePanel数据');
     }
 
     public get currentGame(): GameCenterData {
@@ -576,7 +599,24 @@ export class GameCenterManager {
         }
         Global.isAgain = false;
         GuideManager.getInstance().quitGame();
-        SceneManager.getInstance().backToGameCenter();
+        
+        // 如果有保存的GuidePanel数据，返回到GuidePanel；否则回到游戏大厅
+        if (this._lastGuidePanelData) {
+            DebugLog.instance.log('返回到GuidePanel');
+            // 先回到游戏大厅场景
+            SceneManager.getInstance().backToGameCenter().then(() => {
+                // 场景切换完成后显示GuidePanel
+                setTimeout(() => {
+                    UIManager.getInstance().showPanel("GuidePanel", this._lastGuidePanelData);
+                }, 100); // 延迟100ms确保场景切换完成
+            }).catch((error) => {
+                DebugLog.instance.error('返回游戏大厅失败，直接显示GuidePanel:', error);
+                UIManager.getInstance().showPanel("GuidePanel", this._lastGuidePanelData);
+            });
+        } else {
+            DebugLog.instance.log('没有GuidePanel数据，直接回到游戏大厅');
+            SceneManager.getInstance().backToGameCenter();
+        }
     }
 
     public static get settlementPanel(): SettlementPanel {
