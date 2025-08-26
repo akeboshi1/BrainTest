@@ -12,9 +12,6 @@ const { ccclass, property } = _decorator;
 @ccclass('ChangePassword')
 export class ChangePassword extends BasePanel {
 
-    @property(Label)
-    public accountLabel: Label = null;
-
     public oldPassword: string = null;
 
     public newPassword: string = null;
@@ -45,6 +42,23 @@ export class ChangePassword extends BasePanel {
     @property(Sprite)
     public confirmPasswordEyeSprite: Sprite = null;
 
+    @property(Node)
+    public oldPasswordErrorNode:Node = null;
+
+    @property(Node)
+    public newPasswordErrorNode:Node = null;
+
+    @property(Node)
+    public confirmPasswordErrorNode:Node = null;
+
+    private oldPasswordErrorLabel:Label = null;
+
+    private newPasswordErrorLabel:Label = null;
+
+    private confirmPasswordErrorLabel:Label = null;
+
+
+
     public static NAME: string = "ChangePassword";
 
 
@@ -52,9 +66,9 @@ export class ChangePassword extends BasePanel {
 
 
     start() {
-        this.accountLabel.node.active = false;
-        // let organizationName = LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_NAME);
-        // this.accountLabel.string = `请您为${organizationName}账号修改密码`;
+        this.oldPasswordErrorLabel = this.oldPasswordErrorNode.getComponent(Label);
+        this.newPasswordErrorLabel = this.newPasswordErrorNode.getComponent(Label);
+        this.confirmPasswordErrorLabel = this.confirmPasswordErrorNode.getComponent(Label);
     }
 
 
@@ -66,38 +80,57 @@ export class ChangePassword extends BasePanel {
         let errorMessage = "";
         if (this.oldPassword == null || this.oldPassword == "") {
             errorMessage = "请输入旧密码";
+            this.oldPasswordErrorLabel.string = "*"+errorMessage;
+            return;
+        }
+        if (this.oldPassword.length < 4 || this.oldPassword.length > 10) {
+            errorMessage = "密码长度为4-10位";
+            this.oldPasswordErrorLabel.string = "*"+errorMessage;
+            return;
         }
         if (this.newPassword == null || this.newPassword == "") {
             errorMessage = "请输入新密码";
+            this.newPasswordErrorLabel.string = "*"+errorMessage;
+            return;
         }
         if (this.confirmPassword == null || this.confirmPassword == "") {
             errorMessage = "请输入确认密码";
+            this.confirmPasswordErrorLabel.string = "*"+errorMessage;
+            return;
         }
         if (this.newPassword != this.confirmPassword) {
             errorMessage = "两次输入的密码不一致";
+            this.confirmPasswordErrorLabel.string = "*"+errorMessage;
+            return;
         }
-        if (this.newPassword.length < 10 || this.newPassword.length > 10) {
-            errorMessage = "密码长度为10位";
+        if (this.newPassword.length < 4 || this.newPassword.length > 10) {
+            errorMessage = "密码长度为4-10位";
+            this.newPasswordErrorLabel.string = "*"+errorMessage;
+            return;
         }
         if (this.oldPassword == this.newPassword) {
             errorMessage = "新密码不能与旧密码相同";
+            this.oldPasswordErrorLabel.string = "*"+errorMessage;
+            return;
         }
 
         // 验证密码只能包含数字和字母
         const passwordRegex = /^[a-zA-Z0-9]+$/;
         if (!passwordRegex.test(this.newPassword)) {
             errorMessage = "密码只能包含数字和字母";
-        }
-
-        if (errorMessage != "") {
-            const alertData: AlertData = new AlertData();
-            alertData.confirmCb = function () {
-                AlertManager.getInstance().closeCurrentAlert();
-            }.bind(this);
-            alertData.message = errorMessage;
-            AlertManager.getInstance().showAlert(alertData);
+            this.newPasswordErrorLabel.string = "*"+errorMessage;
             return;
         }
+
+        // if (errorMessage != "") {
+        //     const alertData: AlertData = new AlertData();
+        //     alertData.confirmCb = function () {
+        //         AlertManager.getInstance().closeCurrentAlert();
+        //     }.bind(this);
+        //     alertData.message = errorMessage;
+        //     AlertManager.getInstance().showAlert(alertData);
+        //     return;
+        // }
 
 
         EventManager.getInstance().on(ChangePassword.updatePasswordResult, this.updatePasswordResultHandler, this, true);
@@ -130,14 +163,17 @@ export class ChangePassword extends BasePanel {
 
     public oldPasswordInputHandler() {
         this.oldPassword = this.oldPasswordEdit.string;
+        this.oldPasswordErrorLabel.string = "";
     }
 
     public newPasswordInputHandler() {
         this.newPassword = this.newPasswordEdit.string;
+        this.newPasswordErrorLabel.string = "";
     }
 
     public confirmPasswordInputHandler() {
         this.confirmPassword = this.confirmPasswordEdit.string;
+        this.confirmPasswordErrorLabel.string = "";
     }
 
     public changeOldPasswordOutPutType() {
