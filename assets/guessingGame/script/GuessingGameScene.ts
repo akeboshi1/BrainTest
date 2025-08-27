@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, EventTouch, Label, Node, Sprite, AudioClip, ProgressBar } from 'cc';
+import { _decorator, Button, Color, EventTouch, Label,RichText, Node, Sprite, AudioClip, ProgressBar } from 'cc';
 import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
 import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
@@ -37,8 +37,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     @property(Node)
     private questionNode: Node = null;
 
-    @property(Label)
-    private questionLabel: Label = null;
+    @property(RichText)
+    private questionLabel: RichText = null;
 
     @property(Label)
     private progresslabel: Label = null;
@@ -93,6 +93,76 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     protected bundleName: string = 'guessingGame';
 
     private bgmClip: AudioClip;
+
+    /**
+     * 处理文本中的标点符号，智能处理逗号换行
+     * 如果逗号前后文字总长度小于10，则在同一行显示
+     * 如果逗号前后文字总长度大于等于10，则逗号前后文字分别显示在不同行
+     * @param text 原始文本
+     * @returns 处理后的文本
+     */
+    private processQuestionText(text: string): string {
+        if (!text) return text;
+        
+        // 按标点符号分割文本，保留标点符号
+        const segments: string[] = [];
+        let currentSegment = '';
+        
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            currentSegment += char;
+            
+            // 遇到标点符号时，将当前片段添加到数组
+            if (/[，。？！\n]/.test(char)) {
+                segments.push(currentSegment);
+                currentSegment = '';
+            }
+        }
+        
+        // 如果还有剩余文字，添加到数组
+        if (currentSegment) {
+            segments.push(currentSegment);
+        }
+        
+        // 处理数组中的每个元素，决定换行
+        const result: string[] = [];
+        let i = 0;
+        let loopCount = 0; // 添加循环计数器防止死循环
+        const maxLoops = segments.length * 2; // 最大循环次数
+        
+        while (i < segments.length && loopCount < maxLoops) {
+            loopCount++;
+            
+            if (i === segments.length - 1) {
+                // 最后一个元素，直接添加
+                result.push(segments[i]);
+                break;
+            }
+            
+            const currentLength = segments[i].length;
+            const nextLength = segments[i + 1].length;
+            
+            if (currentLength + nextLength <= 12) {
+                // 当前元素和下一个元素长度总和小于等于12，显示在同一行
+                result.push(segments[i] + segments[i + 1]);
+                i += 2; // 跳过下一个元素，因为它已经被合并
+            } else {
+                // 长度总和大于12，当前元素单独一行
+                result.push(segments[i]);
+                i += 1;
+            }
+        }
+        
+        // 容错处理：如果出现死循环或异常，回退到直接用标点符号切割
+        if (loopCount >= maxLoops) {
+            console.warn('文本处理出现异常，回退到标点符号切割模式');
+            return text.replace(/([，。？！])/g, '$1\n');
+        }
+        
+        // 将结果数组用换行符连接
+        return result.join('\n');
+    }
+
     onLoad() {
         this.audioUrls = ['audio/music/caimiBG', "audio/music/click", "audio/music/win"];
         let self = this;
@@ -194,7 +264,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // this.questionNode.active = true;
         const question: GuessingQuestion = data.question;
         this.currentQuestion = question;
-        this.questionLabel.string = question.questionText;
+        this.questionLabel.string = this.processQuestionText(question.questionText);
 
         for (var i = 0; i < this.options.length; i++) {
             let op: string = this.options[i];
@@ -212,7 +282,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (this._isInAnswerPhase && !this._replay) return;
         this.frameComponent.playAnimation("speak", 24, true, true);
         if (this.currentQuestion != null) {
-            this.questionLabel.string = this.currentQuestion.questionText;
+            this.questionLabel.string = this.processQuestionText(this.currentQuestion.questionText);
         }
 
         // 播放语音时隐藏重听按钮
