@@ -65,9 +65,9 @@ export class ChangePassword extends BasePanel {
         if (this.oldPassword == null || this.oldPassword == "") {
             errorMessage = "请输入旧密码";
         }
-        else if (this.oldPassword.length < 4 || this.oldPassword.length > 10) {
-            errorMessage = "密码长度为4-10位";
-        }
+        // else if (this.oldPassword.length < 4 || this.oldPassword.length > 10) {
+        //     errorMessage = "密码长度为4-10位";
+        // }
         else if (this.newPassword == null || this.newPassword == "") {
             errorMessage = "请输入新密码";
         }
