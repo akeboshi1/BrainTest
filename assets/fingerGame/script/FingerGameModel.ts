@@ -6,10 +6,20 @@ import { SocketData } from "../../resources/scripts/Core/Manager/Net/SocketData"
 import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
 import { IFingerActivity, IFingerActivityResult, IFingerActivityScore } from "./FingerGameProtocol";
 import { PersonalCenterManager } from "../../resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
+import { GameType } from "../../resources/scripts/Core/Scene/SceneModel/BaseGameModel";
+import { SceneManager } from "../../resources/scripts/Core/Manager/Scene/SceneManager";
+
+export enum FingerGameType {
+    //体验模式
+    EXPERIENCE_MODE = "FingerGameType.experienceMode",
+    //正式模式
+    OFFICIAL_MODE = "FingerGameType.officialMode"
+}
 
 export enum FingerGameModelEvent {
     GET_LIST_FINISHED = "FingerGameModelEvent.getlistFinished",
-    GET_ALL_TASK_ACTIVITIES_RESULT = "FingerGameModelEvent.getAllTaskActivitiesResult"
+    GET_ALL_TASK_ACTIVITIES_RESULT = "FingerGameModelEvent.getAllTaskActivitiesResult",
+    SELECT_EXPERIENCE_SECTION = "FingerGameModelEvent.selectExperienceSection"
 }
 export class FingerGameModel {
     private _videoClipCache: Map<string, VideoClip> = new Map();
@@ -20,11 +30,11 @@ export class FingerGameModel {
     private static START_TASK: string = "finger_exercise.start_task";//返回每一节的id
     private static START_TASK_ACTIVITY: string = "finger_exercise.start_task_activity";
     private static COMPLETE_TASK_ACTIVITY: string = "finger_exercise.complete_task_activity";
-    private static GET_TASK_ACTIVITIES: string = "finger_exercise.get_task_activities";
-
-    private _eventHandlers: Map<string, Function[]> = new Map();
+    private static GET_TASK_ACTIVITIES: string = "finger_exercise.get_task_activities";   private _eventHandlers: Map<string, Function[]> = new Map();
 
     public _ismember: boolean = false;   
+
+    private _isExperienceMode: boolean = false;
     
     public on(eventName: FingerGameModelEvent, callback: Function, target?: any) {
         if (!this._eventHandlers.has(eventName)) {
@@ -73,6 +83,8 @@ export class FingerGameModel {
         EventManager.getInstance().on(FingerGameModel.START_TASK_ACTIVITY, this.onStartTaskActivity, this);
         EventManager.getInstance().on(FingerGameModel.COMPLETE_TASK_ACTIVITY, this.onCompleteTaskActivity, this);
         EventManager.getInstance().on(FingerGameModel.GET_TASK_ACTIVITIES, this.onGetAllTaskActivitiesResult, this);
+
+        this._isExperienceMode = SceneManager.getInstance().getRestoreData().gametype === GameType.GAME_CENTER;
     }
 
     public dispose() {
@@ -147,6 +159,10 @@ export class FingerGameModel {
                 }
             });
         });
+    }
+
+    public isExperienceMode(): boolean {
+        return this._isExperienceMode;
     }
 
     public loadVideoClips(paths: string[]): Promise<VideoClip[]> {
