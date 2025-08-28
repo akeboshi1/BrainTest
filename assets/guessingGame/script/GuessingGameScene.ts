@@ -124,6 +124,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             segments.push(currentSegment);
         }
         
+        // 如果数组长度小于等于4，直接使用标点符号切割
+        if (segments.length <= 4) {
+            return text.replace(/([，。？！])/g, '$1\n');
+        }
+        
         // 处理数组中的每个元素，决定换行
         const result: string[] = [];
         let i = 0;
