@@ -92,7 +92,7 @@ export class BasePanel extends BaseObejct {
         });
     }
 
-    private isValidNode(): boolean {
+    protected isValidNode(): boolean {
         return this.node != null && this.node.isValid && this.node.parent != null;
     }
 

@@ -12,6 +12,7 @@ export interface SectionConfig {
     demoVideo: VideoConfig;     // 演示视频
     name: string;              // 节的名称
     icon?: string;             // 节的图标（可选）
+    handMode?: number;         // 手的模式 1分开(分左右手框)2 合并 (用一个大框)
 }
 
 export interface SetConfig {

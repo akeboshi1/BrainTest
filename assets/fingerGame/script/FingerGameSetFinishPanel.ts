@@ -92,12 +92,12 @@ export class FingerGameSetFinishPanel extends BasePanel {
         this.setSummaryComponent.node.active = false;
         this.finishNode.active = false;
         this.startGoonTimer();
+        this.waittingNode.active = false;
 
         if (data) {
             DebugLog.instance.log('Binding DataProvider FingerGameSetFinishPanel =============');
             data.addListener(this.onDataChange.bind(this));
         } else {
-            this.waittingNode.active = false;
             this.setSummaryComponent.node.active = false;
             this.finishNode.active = true;
         }
@@ -218,11 +218,11 @@ export class FingerGameSetFinishPanel extends BasePanel {
 
     private startGoonTimer() {
         let count = 6;
-        this.confirmWaitScoreLabel.string = `（${count}）秒后自动进入下一节\n如果你想查看评分，请点击按钮`;
+        this.nextBtnLabel.string = `下一节（${count}）`;
 
         this.schedule(() => {
             count--;
-            this.confirmWaitScoreLabel.string = `（${count}）秒后自动进入下一节\n如果你想查看评分，请点击按钮`;
+            this.nextBtnLabel.string = `下一节（${count}）`;
             if (count <= 0) {
                 this.onClickNext();
             }

@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "4206c075-f292-4333-a0b9-a7aab8991531",
+  "uuid": "280dfd56-f921-43e7-96a0-6e035db62ce2",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "FingerGameSelectSetPanel"
+    "syncNodeName": "FingerGameSectionsSelectPanel"
   }
 }

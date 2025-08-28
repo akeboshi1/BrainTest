@@ -20,13 +20,16 @@ export interface IFingerActivityScore {
 }
 
 export interface IFingerActivityResult {
-    task_id: number;           // 任务id
+    task_id: number;             // 任务id
+    left_overall_score: number;  // 左手总评分
+    right_overall_score: number; // 右手总评分
     activities: {
-        id: number;            // 活动id
-        seq: number;           // 序号
-        name: string;          // 动作名称
-        rating: number;        // 评价：1 优 2 良 3 中
-        score: number;         // 分数
-        completed_at: string;  // 完成时间
+        id: number;             // 活动id
+        seq: number;            // 序号
+        name: string;           // 动作名称
+        is_evaluable: boolean;  // 是否评分
+        left_score: number;     // 左手分数
+        right_score: number;    // 右手分数
+        completed_at: string;   //完成时间
     }[];
 }
