@@ -312,9 +312,9 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.frameComponent.playAnimation("idle", 16, true, true);
 
         // 语音播放结束后，隐藏问题标签
-        if (this.questionLabel) {
-            this.questionLabel.node.active = false;
-        }
+        // if (this.questionLabel) {
+        //     this.questionLabel.node.active = false;
+        // }
 
         // 语音播放完毕后，不启动答题倒计时，只显示重听按钮
         // 标记进入答题阶段（但不开启倒计时）
