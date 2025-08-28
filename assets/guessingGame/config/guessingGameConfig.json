@@ -1,3 +1,4 @@
+
 {
     "questionBank": [
         {
@@ -1224,7 +1225,7 @@
         },
         {
             "questionNumber": 95,
-            "questionText": "土里生，土里长，皮黄肉白心儿黄，煮熟香喷喷，生吃脆生生。",
+            "questionText": "土里生土里长，皮黄肉白心儿黄，煮熟香喷喷，生吃脆生生。",
             "options": {
                 "a": "花生",
                 "b": "萝卜",
@@ -1536,7 +1537,7 @@
         },
         {
             "questionNumber": 119,
-            "questionText": "小小铁嘴钢牙齿，咬住木头不松口，转一转，削一削，铅笔尖尖又尖尖。",
+            "questionText": "小小铁嘴钢牙齿，咬住木头不松口，转一转削一削，铅笔尖尖又尖尖。",
             "options": {
                 "a": "订书机",
                 "b": "橡皮",
@@ -1744,7 +1745,7 @@
         },
         {
             "questionNumber": 135,
-            "questionText": "兄弟俩，一般高，吃饭时候少不了，一个动来一个静，配合默契真奇妙。",
+            "questionText": "兄弟俩一般高，吃饭时候少不了，一个动来一个静，配合默契真奇妙。",
             "options": {
                 "a": "勺子",
                 "b": "筷子",
@@ -2771,7 +2772,7 @@
         },
         {
             "questionNumber": 214,
-            "questionText": "说像糖，它不甜，说像盐，它不咸，冬天有时会遇见，夏天谁也见不到。",
+            "questionText": "说像糖它不甜，说像盐它不咸，冬天有时会遇见，夏天谁也见不到。",
             "answer": "b",
             "audioSource": "audio/214",
             "options": {
@@ -3122,7 +3123,7 @@
         },
         {
             "questionNumber": 241,
-            "questionText": "溜溜圆，光闪闪，两根针，会动弹，一根长，一根短，嘀哒嘀哒转圈圈。",
+            "questionText": "溜溜圆光闪闪，两根针会动弹，一根长一根短，嘀哒嘀哒转圈圈。",
             "answer": "a",
             "audioSource": "audio/241",
             "options": {
@@ -3421,7 +3422,7 @@
         },
         {
             "questionNumber": 264,
-            "questionText": "身子像小逗点，大脑袋，摇着一根小尾巴，儿时无腿水中游，长大田里吃害虫。",
+            "questionText": "身子像小逗点，大脑袋摇着一根小尾巴，儿时无腿水中游，长大田里吃害虫。",
             "answer": "b",
             "audioSource": "audio/264",
             "options": {
@@ -4357,7 +4358,7 @@
         },
         {
             "questionNumber": 336,
-            "questionText": "说它像蛇，它不像，头和尾巴都一样，人们用它来健身，跳来跳去乐欢喜。",
+            "questionText": "说它像蛇它不像，头和尾巴都一样，人们用它来健身，跳来跳去乐欢喜。",
             "answer": "b",
             "audioSource": "audio/336",
             "options": {
@@ -4409,7 +4410,7 @@
         },
         {
             "questionNumber": 340,
-            "questionText": "正看八十八，倒看八十八，左看八十八，右看八十八，仔细一端详，好像一朵花。",
+            "questionText": "正看八十八倒看八十八，左看八十八右看八十八，仔细一端详好像一朵花。",
             "answer": "c",
             "audioSource": "audio/340",
             "options": {
