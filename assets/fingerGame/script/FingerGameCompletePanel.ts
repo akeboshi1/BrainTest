@@ -91,7 +91,7 @@ export class FingerGameCompletePanel extends BasePanel {
             this.finishButton.active = false;
             return;
         }
-        
+
         this.finishButton.active = true;
         this.stopFakeProgressAnim();
         this.totalLeftScoreLabel.string = this._getScoreString(data.data.left_overall_score);
@@ -109,6 +109,7 @@ export class FingerGameCompletePanel extends BasePanel {
         if (data.data && Array.isArray(data.data.activities)) {
             for (let i = 0; i < data.data.activities.length; i++) {
                 const activity = data.data.activities[i];
+                if (!activity.is_evaluable) continue;
                 // 实例化 detailPrefab
                 const detailNode = instantiate(this.detailPrefab);
                 // 可根据需要将 activity 数据传递给 detailNode 的组件
