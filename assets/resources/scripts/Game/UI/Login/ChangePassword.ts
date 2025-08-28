@@ -12,14 +12,11 @@ const { ccclass, property } = _decorator;
 @ccclass('ChangePassword')
 export class ChangePassword extends BasePanel {
 
-    @property(Label)
-    public accountLabel: Label = null;
+    public oldPassword: string = "";
 
-    public oldPassword: string = null;
+    public newPassword: string = "";
 
-    public newPassword: string = null;
-
-    public confirmPassword: string = null;
+    public confirmPassword: string = "";
 
     @property(SpriteFrame)
     private eyeOpen: SpriteFrame;
@@ -52,9 +49,7 @@ export class ChangePassword extends BasePanel {
 
 
     start() {
-        this.accountLabel.node.active = false;
-        // let organizationName = LocalStorageUtil.get(LocalStorageKeyEnum.ORGANIZATION_NAME);
-        // this.accountLabel.string = `请您为${organizationName}账号修改密码`;
+
     }
 
 
@@ -64,29 +59,32 @@ export class ChangePassword extends BasePanel {
 
     public confirmHandler() {
         let errorMessage = "";
-        if (this.oldPassword == null || this.oldPassword == "") {
-            errorMessage = "请输入旧密码";
-        }
-        if (this.newPassword == null || this.newPassword == "") {
-            errorMessage = "请输入新密码";
-        }
-        if (this.confirmPassword == null || this.confirmPassword == "") {
-            errorMessage = "请输入确认密码";
-        }
-        if (this.newPassword != this.confirmPassword) {
-            errorMessage = "两次输入的密码不一致";
-        }
-        if (this.newPassword.length < 10 || this.newPassword.length > 10) {
-            errorMessage = "密码长度为10位";
-        }
-        if (this.oldPassword == this.newPassword) {
-            errorMessage = "新密码不能与旧密码相同";
-        }
 
         // 验证密码只能包含数字和字母
         const passwordRegex = /^[a-zA-Z0-9]+$/;
-        if (!passwordRegex.test(this.newPassword)) {
+        if (this.oldPassword == null || this.oldPassword == "") {
+            errorMessage = "请输入旧密码";
+        }
+        else if (this.oldPassword.length < 4 || this.oldPassword.length > 10) {
+            errorMessage = "密码长度为4-10位";
+        }
+        else if (this.newPassword == null || this.newPassword == "") {
+            errorMessage = "请输入新密码";
+        }
+        else if (!passwordRegex.test(this.newPassword)) {
             errorMessage = "密码只能包含数字和字母";
+        }
+        else if (this.confirmPassword == null || this.confirmPassword == "") {
+            errorMessage = "请输入确认密码";
+        }
+        else if (this.newPassword != this.confirmPassword) {
+            errorMessage = "两次输入的密码不一致";
+        }
+        else if (this.newPassword.length < 4 || this.newPassword.length > 10) {
+            errorMessage = "密码长度为4-10位";
+        }
+        else if (this.oldPassword == this.newPassword) {
+            errorMessage = "新密码不能与旧密码相同";
         }
 
         if (errorMessage != "") {
@@ -114,7 +112,13 @@ export class ChangePassword extends BasePanel {
 
     private updatePasswordResultHandler(data: any) {
         if (data.status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            const alertData: AlertData = new AlertData();
+            alertData.confirmCb = function () {
+                AlertManager.getInstance().closeCurrentAlert();
+            }.bind(this);
+            alertData.message = data.message;
+            AlertManager.getInstance().showAlert(alertData);
+            // AlertManager.getInstance().showSocketAlert(data.message);
         } else {
             AlertManager.getInstance().showSocketAlert("修改成功");
             this.backHandler();
@@ -155,10 +159,10 @@ export class ChangePassword extends BasePanel {
     private _changeInputType(edit: EditBox, eyeSprite: Sprite) {
         if (edit.inputFlag == EditBox.InputFlag.PASSWORD) {
             edit.inputFlag = EditBox.InputFlag.DEFAULT;
-            eyeSprite.spriteFrame = this.eyeClose;
+            eyeSprite.spriteFrame = this.eyeOpen;
         } else {
             edit.inputFlag = EditBox.InputFlag.PASSWORD;
-            eyeSprite.spriteFrame = this.eyeOpen;
+            eyeSprite.spriteFrame = this.eyeClose;
         }
     }
 

@@ -55,6 +55,23 @@ export class GameCenterPageView extends Component {
         if(index== 6){
             let url = Global.RES_Root + BundleName.FINGERGAME;
             DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
+            
+            // 为手指操游戏创建GuidePanel数据
+            let guidePanelData = {
+                name: BundleName.FINGERGAME, 
+                callback: () => {
+                    DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
+                    EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+                    GameCenterManager.getInstance().perload(url, BundleName.FINGERGAME);
+                },
+                exitCallback: () => {
+                    this._clickBoo = false;
+                }
+            };
+            
+            // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
+            GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
+            
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
             GameCenterManager.getInstance().perload(url,BundleName.FINGERGAME);
             return;
@@ -104,7 +121,7 @@ export class GameCenterPageView extends Component {
             }
             let url = Global.RES_Root + sceneName;
             let self = this;
-            UIManager.getInstance().showPanel(GuidePanel.NAME, {
+            let guidePanelData = {
                 name: sceneName, callback: () => {
                     DebugLog.instance.log(`${sceneName} click perload`);
                     EventManager.getInstance().on(SceneManager.SCENE_ENTER, self.onSceneEnter.bind(self), self, true);
@@ -112,7 +129,12 @@ export class GameCenterPageView extends Component {
                 },exitCallback:()=>{
                     self._clickBoo = false;
                 }
-            });
+            };
+            
+            // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
+            GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
+            
+            UIManager.getInstance().showPanel(GuidePanel.NAME, guidePanelData);
 
             // BundlePreloadManager.getInstance().preload(sceneName as BundleName);
 
