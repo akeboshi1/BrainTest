@@ -118,11 +118,6 @@ export class FingerGameModel {
         return this._activities[this._currentSectionIndex];
     }
 
-    /** 获取手模式 1分开(分左右手框)2 合并 (用一个大框) */
-    public get handMode(): number {
-        return this._activities[this._currentSectionIndex].hand_mode;
-    }
-
     public getNextActivity(): IFingerActivity {
         return this._activities[this._currentSectionIndex + 1];
     }
