@@ -154,9 +154,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         });
     }
 
+    private textureLen = 469;
     start() {
         super.start();
-        for (let i = 1; i < 201; i++) {
+        for (let i = 1; i < this.textureLen; i++) {
             this.randomPlayIndex.push(i);
         }
         this.showSpriteNode.active = false;
