@@ -243,6 +243,7 @@ export class FingerGameScene extends Component {
         this._currentVideoDuration = config.previewVideo.duration;
         DebugLog.instance.log(`Playing preview video with duration: ${this._currentVideoDuration}`);
         this.videoPlayer.currentTime = 0;
+        this.videoPlayer.clip = null;
         this.videoPlayer.clip = previewClip;
         this.segmentProgressBar.setProgress(0);
         this.videoPlayer.play();
