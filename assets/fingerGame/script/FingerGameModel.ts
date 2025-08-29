@@ -144,6 +144,11 @@ export class FingerGameModel {
     public loadVideoClip(path: string): Promise<VideoClip> {
         const bundle = assetManager.getBundle(BundleName.FINGERGAME);
         return new Promise((resolve, reject) => {
+            if(this._videoClipCache.has(path)){
+                resolve(this._videoClipCache.get(path));
+                return;
+            }
+            
             bundle.load(path, VideoClip, (err, clip) => {
                 if (err) {
                     DebugLog.instance.error(`loadVideoClip error:${err},path:${path}`);
