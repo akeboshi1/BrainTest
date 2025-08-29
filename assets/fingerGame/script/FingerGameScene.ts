@@ -242,6 +242,7 @@ export class FingerGameScene extends Component {
         this._isPlayingPreview = true;
         this._currentVideoDuration = config.previewVideo.duration;
         DebugLog.instance.log(`Playing preview video with duration: ${this._currentVideoDuration}`);
+        this.videoPlayer.currentTime = 0;
         this.videoPlayer.clip = previewClip;
         this.segmentProgressBar.setProgress(0);
         this.videoPlayer.play();
@@ -397,17 +398,18 @@ export class FingerGameScene extends Component {
     }
 
     public onClickExit() {
+        this.gameViewNode.active = false;
         this.hideCameraPreview();
         this.hideImageOverlay();
         this.videoPlayer.node.active = false;
-        this.segmentProgressBar.setProgress(0);
         this.videoPlayer.stop();
+        this.segmentProgressBar.setProgress(0);
         this.stopRecorder(false);
         this.hideLoading();
         // 清理所有定时器
         this._timers.forEach(timer => clearTimeout(timer));
         this._timers = [];
-        
+
         this._model.getTaskList();
     }
 
