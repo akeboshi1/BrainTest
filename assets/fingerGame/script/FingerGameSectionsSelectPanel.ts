@@ -37,7 +37,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
 
     onClickStart(index: number) {
         this._model.emit(FingerGameModelEvent.SELECT_EXPERIENCE_SECTION, this._sectionDatas[index]);
-        UIManager.getInstance().hidePanel(FingerGameSectionsSelectPanel.name);
+        UIManager.getInstance().hidePanel(FingerGameSectionsSelectPanel.NAME);
     }
 
     onClickBack() {
