@@ -397,7 +397,18 @@ export class FingerGameScene extends Component {
     }
 
     public onClickExit() {
-        this.handleSummaryBack();
+        this.hideCameraPreview();
+        this.hideImageOverlay();
+        this.videoPlayer.node.active = false;
+        this.segmentProgressBar.setProgress(0);
+        this.videoPlayer.stop();
+        this.stopRecorder(false);
+        this.hideLoading();
+        // 清理所有定时器
+        this._timers.forEach(timer => clearTimeout(timer));
+        this._timers = [];
+        
+        this._model.getTaskList();
     }
 
     onDestroy() {
