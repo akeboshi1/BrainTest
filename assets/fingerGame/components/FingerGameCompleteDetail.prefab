@@ -893,7 +893,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 394.749,
+      "x": 37.78,
       "y": -36.905,
       "z": 0
     },
@@ -943,7 +943,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -240,
+      "x": 0,
       "y": 0,
       "z": 0
     },
@@ -1020,7 +1020,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "左手：",
+    "_string": "右手：",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
@@ -1102,7 +1102,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -120,
+      "x": 120,
       "y": 0,
       "z": 0
     },
@@ -1143,7 +1143,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 200,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1179,7 +1179,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "左手：",
+    "_string": "继续牡蛎！",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
@@ -1252,12 +1252,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 240,
+      "width": 320,
       "height": 100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 1,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
