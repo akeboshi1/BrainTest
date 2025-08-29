@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, UITransform, VideoPlayer, ProgressBar, tween, Vec3, UIOpacity, VideoClip, native, sys, Texture2D, Scene } from 'cc';
+import { _decorator, Component, Label, Node, UITransform, VideoPlayer, ProgressBar, tween, Vec3, UIOpacity, VideoClip, native, sys, Texture2D, Scene, macro } from 'cc';
 import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
 import { fingerGameConfig, SectionConfig, SetConfig } from '../config/fingerGameConfig';
 import { SegmentProgressBar } from './SegmentProgressBar';
@@ -54,6 +54,9 @@ export class FingerGameScene extends Component {
     private noticeNode: Node = null;
 
     @property(Label)
+    private loadingLabel: Label = null;
+
+    @property(Label)
     private debugLabel: Label = null;
 
     private _model: FingerGameModel = null;
@@ -67,6 +70,10 @@ export class FingerGameScene extends Component {
 
     private _absolutePath: string = '';
     private _isRecording: boolean = false;
+    
+    // 加载动画相关变量
+    private _loadingDotCount: number = 1;
+    private _loadingDotAnimStarted: boolean = false;
 
     private _finishPanelData: DataProvider<IFingerGameSetFinishPanelData> = null;
     private _completePanelData: DataProvider<IFingerGameCompletePanelData> = null;
@@ -186,10 +193,12 @@ export class FingerGameScene extends Component {
 
         // 加载视频
         try {
+            this.showLoading();
             await this._model.loadVideoClips([
                 config.previewVideo.path,
                 config.demoVideo.path
             ]);
+            this.hideLoading();
             // 开始播放预览视频
             this.playPreviewVideo(config);
         } catch (error) {
@@ -208,11 +217,12 @@ export class FingerGameScene extends Component {
 
         // 加载视频
         try {
+            this.showLoading();
             await this._model.loadVideoClips([
                 config.previewVideo.path,
                 config.demoVideo.path
             ]);
-
+            this.hideLoading();
             this.videoPlayer.node.active = true;
             // 开始播放预览视频
             this.playPreviewVideo(sectionConfig);
@@ -394,6 +404,9 @@ export class FingerGameScene extends Component {
         // 清理所有定时器
         this._timers.forEach(timer => clearTimeout(timer));
         this._timers = [];
+
+        // 停止加载动画
+        this._stopLoadingDotAnimation();
 
         // 停止视频播放
         if (this.videoPlayer && this.videoPlayer.isPlaying) {
@@ -596,6 +609,40 @@ export class FingerGameScene extends Component {
         } else {
             DebugLog.instance.error('VideoPlayer 未初始化或没有视频剪辑');
         }
+    }
+
+    public showLoading() {
+        this.loadingLabel.node.active = true;
+        this._startLoadingDotAnimation();
+    }
+    
+    
+    public hideLoading() {
+        this.loadingLabel.node.active = false;
+        this._stopLoadingDotAnimation();
+    }
+
+    /**
+     * 开始加载动画的点动画效果
+     */
+    private _startLoadingDotAnimation() {
+        if (!this._loadingDotAnimStarted) {
+            this._loadingDotAnimStarted = true;
+            this._loadingDotCount = 1;
+            this.schedule(() => {
+                this._loadingDotCount = (this._loadingDotCount % 3) + 1;
+                const dots = '.'.repeat(this._loadingDotCount);
+                this.loadingLabel.string = `视频加载中${dots}`;
+            }, 0.5, macro.REPEAT_FOREVER);
+        }
+    }
+
+    /**
+     * 停止加载动画的点动画效果
+     */
+    private _stopLoadingDotAnimation() {
+        this.unscheduleAllCallbacks();
+        this._loadingDotAnimStarted = false;
     }
 
     //debug------------------------------------------------------------------------------------------------
