@@ -682,10 +682,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     onClickDisturbPuzzleButton() {
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
-            this.selectedLevel = this.levelList[this.selectedLevelIndex];
-        }
+        this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
+        this.selectedLevel = this.levelList[this.selectedLevelIndex];
         this.randomSwapPuzzleChipsNTimes(this.selectedLevel.x * this.selectedLevel.y);
     }
 
