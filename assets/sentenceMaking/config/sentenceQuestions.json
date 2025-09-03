@@ -4850,6 +4850,2274 @@
                     "text": "。"
                 }
             ]
+        },
+        {
+            "sentence": [
+                "早晨",
+                "我",
+                "背着",
+                "书包",
+                "高高",
+                "兴兴",
+                "去",
+                "上学"
+            ],
+            "fixed": [
+                1,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妈妈",
+                "在",
+                "厨房里",
+                "煮着",
+                "香喷喷",
+                "的",
+                "鸡蛋"
+            ],
+            "fixed": [
+                1,
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "弟弟",
+                "坐在",
+                "地上",
+                "认真地",
+                "搭",
+                "积木"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "和",
+                "爸爸",
+                "骑着",
+                "自行车",
+                "去",
+                "郊外",
+                "玩"
+            ],
+            "fixed": [
+                5,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "树上的",
+                "小鸟",
+                "叽叽",
+                "喳喳地",
+                "唱着",
+                "歌"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "鱼缸里",
+                "的",
+                "小鱼",
+                "自由",
+                "自在地",
+                "游来",
+                "游去"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "马路上",
+                "汽车",
+                "来来",
+                "往往",
+                "跑得",
+                "飞快"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鸭子",
+                "在",
+                "池塘里",
+                "游水",
+                "嘎嘎地",
+                "叫着"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天",
+                "来了",
+                "小燕子",
+                "从",
+                "南方",
+                "飞回来",
+                "了"
+            ],
+            "fixed": [
+                1,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "大熊猫",
+                "抱着",
+                "竹子",
+                "津津",
+                "有味地",
+                "吃着"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "每天",
+                "坚持",
+                "锻炼",
+                "身体",
+                "才会",
+                "更",
+                "健康"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "团结",
+                "协作",
+                "是",
+                "完成",
+                "团队",
+                "任务",
+                "的",
+                "关键"
+            ],
+            "fixed": [
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "地上的",
+                "小草",
+                "绿油油",
+                "的",
+                "随风",
+                "摇摆"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷",
+                "在",
+                "院子里",
+                "种了",
+                "许多",
+                "绿油油",
+                "的",
+                "蔬菜"
+            ],
+            "fixed": [
+                1,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小狗",
+                "趴在",
+                "门口",
+                "眯着",
+                "眼睛",
+                "晒太阳"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "路边",
+                "的",
+                "柳树",
+                "长出了",
+                "嫩绿的",
+                "新芽"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小蜗牛",
+                "背着",
+                "重重的",
+                "壳",
+                "慢慢地",
+                "往前",
+                "爬"
+            ],
+            "fixed": [
+                0,
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "图书馆",
+                "的",
+                "书架上",
+                "摆满了",
+                "各种",
+                "各样的",
+                "书籍"
+            ],
+            "fixed": [
+                1,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "冬天,",
+                "屋顶上",
+                "的",
+                "雪",
+                "像",
+                "厚厚的",
+                "棉被"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小松鼠",
+                "把",
+                "松果",
+                "藏在了",
+                "树洞",
+                "里"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "那只",
+                "小狗",
+                "摇着",
+                "尾巴",
+                "向",
+                "主人",
+                "撒娇"
+            ],
+            "fixed": [
+                1,
+                3,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "学校",
+                "花坛里",
+                "的",
+                "郁金香",
+                "有",
+                "好几种",
+                "颜色"
+            ],
+            "fixed": [
+                1,
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "傍晚的",
+                "晚霞",
+                "像",
+                "一幅",
+                "美丽的",
+                "画"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋天的",
+                "稻田",
+                "像",
+                "一片",
+                "金色的",
+                "海洋"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鸟",
+                "在",
+                "树上",
+                "筑了",
+                "新的",
+                "鸟巢"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小朋友",
+                "在",
+                "雪地里",
+                "打",
+                "雪仗"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷",
+                "小时候",
+                "经常",
+                "在",
+                "河里",
+                "捉小鱼"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "萤火虫",
+                "提着",
+                "小灯笼",
+                "在",
+                "草丛中",
+                "飞舞"
+            ],
+            "fixed": [
+                2,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "燕子",
+                "的",
+                "尾巴",
+                "像",
+                "剪刀",
+                "一样"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "草原",
+                "上的",
+                "牛羊",
+                "悠闲地",
+                "吃着",
+                "草"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "建筑",
+                "工人",
+                "在",
+                "工地上",
+                "辛勤地",
+                "工作"
+            ],
+            "fixed": [
+                2,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "企鹅",
+                "在",
+                "冰面上",
+                "摇摇",
+                "摆摆地",
+                "走路"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "飞行员",
+                "驾驶",
+                "着",
+                "飞机",
+                "冲上",
+                "云霄"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋风",
+                "拂过",
+                "树林",
+                "树叶",
+                "沙沙",
+                "作响"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鸟",
+                "在",
+                "树上",
+                "搭了个",
+                "结实的",
+                "窝"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "窗户",
+                "上",
+                "结了",
+                "一层",
+                "美丽的",
+                "冰花"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天的",
+                "风",
+                "暖暖的",
+                "吹在",
+                "脸上",
+                "特别",
+                "舒服"
+            ],
+            "fixed": [
+                2,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妈妈",
+                "用",
+                "紫色的",
+                "毛线",
+                "给我",
+                "织了",
+                "一件",
+                "毛衣"
+            ],
+            "fixed": [
+                2,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "帮",
+                "妈妈",
+                "把",
+                "晒干的",
+                "衣服",
+                "收起来"
+            ],
+            "fixed": [
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷",
+                "每天",
+                "早上",
+                "都去",
+                "公园",
+                "打",
+                "太极拳"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鸡们",
+                "跟着",
+                "鸡妈妈",
+                "在",
+                "院子里",
+                "找虫子",
+                "吃"
+            ],
+            "fixed": [
+                2,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雨后的",
+                "小草",
+                "上面",
+                "挂着",
+                "晶莹的",
+                "水珠"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋天的",
+                "苹果",
+                "挂满",
+                "枝头",
+                "红红的",
+                "像",
+                "小灯笼"
+            ],
+            "fixed": [
+                1,
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "冬天的",
+                "梅花",
+                "在",
+                "寒冷的",
+                "天气里",
+                "也能",
+                "开花"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "植物",
+                "在",
+                "阳光",
+                "充足的",
+                "时候",
+                "长得",
+                "特别",
+                "旺盛"
+            ],
+            "fixed": [
+                1,
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天的",
+                "田野",
+                "像",
+                "一幅",
+                "彩色的",
+                "画"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "天上的",
+                "大雁",
+                "排成",
+                "整齐的",
+                "队伍",
+                "向南",
+                "飞"
+            ],
+            "fixed": [
+                1,
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鱼",
+                "在",
+                "鱼缸里",
+                "吐着",
+                "圆圆的",
+                "泡泡"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小狗",
+                "在",
+                "草地上",
+                "打滚",
+                "玩耍"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "火车",
+                "缓缓",
+                "驶进",
+                "车站",
+                "带来了",
+                "远方的",
+                "客人"
+            ],
+            "fixed": [
+                1,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天的",
+                "田野里",
+                "开满了",
+                "黄色的",
+                "油菜花"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "沙漠里",
+                "的",
+                "仙人掌",
+                "在",
+                "干旱中",
+                "顽强",
+                "生长"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "公园",
+                "的",
+                "长椅上",
+                "落满了",
+                "黄色的",
+                "枫叶"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜晚的",
+                "城市",
+                "灯火",
+                "辉煌",
+                "像",
+                "一片",
+                "星海"
+            ],
+            "fixed": [
+                0,
+                3,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "图书馆",
+                "的",
+                "书架上",
+                "摆满了",
+                "各种",
+                "书籍"
+            ],
+            "fixed": [
+                1,
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷",
+                "带我",
+                "去",
+                "菜园里",
+                "摘",
+                "新鲜的",
+                "蔬菜"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "同学们",
+                "的",
+                "琅琅",
+                "读书声",
+                "传遍了",
+                "每个",
+                "角落"
+            ],
+            "fixed": [
+                1,
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "山顶的",
+                "风景",
+                "美不",
+                "胜收",
+                "让人",
+                "流连",
+                "忘返"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妈妈",
+                "给我",
+                "端来",
+                "一碗",
+                "温热的",
+                "姜汤"
+            ],
+            "fixed": [
+                0,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "窗台的",
+                "仙人掌",
+                "开了",
+                "一朵",
+                "淡雅的",
+                "小花"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "那座",
+                "古老的",
+                "寺庙",
+                "隐藏",
+                "在",
+                "翠绿的",
+                "山林中"
+            ],
+            "fixed": [
+                4,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "厨房里",
+                "飘来",
+                "西红柿",
+                "炒鸡蛋",
+                "的",
+                "香味"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "路边的",
+                "小贩",
+                "在",
+                "卖",
+                "烤红薯"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "清晨",
+                "阳光",
+                "温柔地",
+                "洒在",
+                "窗台上"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雨滴",
+                "噼里",
+                "啪啦地",
+                "打在",
+                "窗户上"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "大象",
+                "用",
+                "长长的",
+                "鼻子",
+                "卷起",
+                "食物"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "鲸鱼",
+                "在",
+                "海里",
+                "自由",
+                "自在地",
+                "游弋"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "湖水",
+                "在",
+                "阳光的",
+                "照耀下",
+                "波光",
+                "粼粼"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "生日",
+                "那天",
+                "我",
+                "收到",
+                "很多",
+                "祝福"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "国庆节",
+                "大街",
+                "小巷",
+                "挂满",
+                "国旗"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷",
+                "喜欢",
+                "打",
+                "太极拳",
+                "动作",
+                "很",
+                "舒缓"
+            ],
+            "fixed": [
+                0,
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "考试的",
+                "时候",
+                "要",
+                "仔细",
+                "审题",
+                "认真",
+                "答题"
+            ],
+            "fixed": [
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "山上的",
+                "小溪",
+                "潺潺地",
+                "流着",
+                "清澈",
+                "见底"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爸爸的",
+                "鼓励",
+                "让我",
+                "充满",
+                "信心"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小狗",
+                "懒洋洋",
+                "地",
+                "趴在",
+                "门口",
+                "晒太阳"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "仙人掌",
+                "在",
+                "沙漠",
+                "中",
+                "顽强地",
+                "生长"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "奶奶",
+                "笑得",
+                "眼睛",
+                "都",
+                "眯成了",
+                "一条",
+                "缝"
+            ],
+            "fixed": [
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妈妈",
+                "细心地",
+                "为我",
+                "整理",
+                "书包"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "老师",
+                "在",
+                "黑板上",
+                "工整地",
+                "写着",
+                "板书"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "奶奶",
+                "做的",
+                "手擀面",
+                "口感",
+                "筋道",
+                "非常",
+                "好吃"
+            ],
+            "fixed": [
+                1,
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜晚的",
+                "城市",
+                "闪烁",
+                "着",
+                "明亮的",
+                "灯光"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "男孩",
+                "用力地",
+                "把",
+                "球",
+                "踢向",
+                "球门"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "一辆辆",
+                "汽车",
+                "在",
+                "马路上",
+                "有序地",
+                "行驶"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "暴雨",
+                "过后",
+                "天空",
+                "出现了",
+                "一道",
+                "绚丽的",
+                "彩虹"
+            ],
+            "fixed": [
+                1,
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "孩子们",
+                "在",
+                "公园",
+                "里",
+                "尽情",
+                "玩耍"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这只",
+                "小狗",
+                "很",
+                "温顺",
+                "从不",
+                "咬人"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夏天的",
+                "午后",
+                "常常",
+                "会下",
+                "一场",
+                "雷阵雨"
+            ],
+            "fixed": [
+                0,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "山上的",
+                "松树",
+                "一年",
+                "四季",
+                "都是",
+                "绿色的"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "含羞草",
+                "被",
+                "轻轻",
+                "一碰",
+                "叶子",
+                "立刻",
+                "合拢"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "走在",
+                "小路上",
+                "哼着",
+                "动听的",
+                "歌"
+            ],
+            "fixed": [
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "轮船",
+                "稳稳地",
+                "航行",
+                "在",
+                "蓝色的",
+                "海洋"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "汽车",
+                "飞快地",
+                "奔驰",
+                "在",
+                "高速",
+                "公路上"
+            ],
+            "fixed": [
+                3,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小蚂蚁",
+                "搬着",
+                "食物",
+                "排着",
+                "整齐的",
+                "队伍"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天",
+                "桃花",
+                "和",
+                "杏花",
+                "都开了",
+                "争奇",
+                "斗艳"
+            ],
+            "fixed": [
+                0,
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天的",
+                "小雨",
+                "淅淅",
+                "沥沥",
+                "滋润着",
+                "大地"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "遇到",
+                "困难",
+                "我们",
+                "要",
+                "迎难",
+                "而上"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他",
+                "爬树",
+                "像",
+                "猴子",
+                "一样",
+                "敏捷"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妹妹的",
+                "笑声",
+                "像",
+                "银铃",
+                "一样",
+                "清脆"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "弟弟",
+                "把",
+                "皮球",
+                "扔到了",
+                "屋顶上"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "挺拔的",
+                "白杨树",
+                "整齐地",
+                "排列",
+                "在",
+                "公路",
+                "两旁"
+            ],
+            "fixed": [
+                1,
+                3,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "风筝",
+                "在",
+                "广阔的",
+                "天空中",
+                "自由地",
+                "飞翔"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "远处的",
+                "山峦",
+                "在",
+                "云雾中",
+                "若隐",
+                "若现"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小猫",
+                "蜷缩",
+                "在",
+                "温暖的",
+                "壁炉",
+                "旁边"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他",
+                "用",
+                "相机",
+                "拍下了",
+                "许多",
+                "风景"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "烟囱里",
+                "的",
+                "青烟",
+                "在",
+                "晨雾中",
+                "消散"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
         }
     ],
     "level_1": [
@@ -7656,7 +9924,7 @@
                 "小朋友",
                 "来到",
                 "户外",
-                "游戏",
+                "训练",
                 "觉得",
                 "空气",
                 "特别",
@@ -10826,6 +13094,2944 @@
             "punctuationOptions": [
                 {
                     "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "弯弯的",
+                "月亮",
+                "像",
+                "一条",
+                "小船",
+                "静静地",
+                "在",
+                "夜空中",
+                "飘荡"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "大象",
+                "的",
+                "耳朵",
+                "好似",
+                "两把",
+                "大大的",
+                "蒲扇",
+                "一扇",
+                "一扇的"
+            ],
+            "fixed": [
+                1,
+                4,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜空中",
+                "的",
+                "星星",
+                "像",
+                "无数",
+                "颗",
+                "宝石",
+                "一闪",
+                "一闪地",
+                "发着",
+                "光"
+            ],
+            "fixed": [
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他的",
+                "心眼",
+                "比",
+                "针尖",
+                "还小",
+                "什么",
+                "事",
+                "都要",
+                "斤斤",
+                "计较"
+            ],
+            "fixed": [
+                1,
+                2,
+                5,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "在",
+                "期末",
+                "考试",
+                "结束",
+                "之后",
+                "大家",
+                "迎来了",
+                "愉快的",
+                "假期"
+            ],
+            "fixed": [
+                1,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋天",
+                "农民",
+                "伯伯",
+                "在",
+                "田地里",
+                "收割",
+                "金黄的",
+                "稻谷"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "图书馆",
+                "里",
+                "安静",
+                "极了",
+                "只能",
+                "听到",
+                "翻书的",
+                "声音"
+            ],
+            "fixed": [
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天",
+                "是",
+                "一个",
+                "万物",
+                "复苏、充满",
+                "希望的",
+                "季节"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "每当",
+                "夜幕",
+                "降临",
+                "繁星",
+                "闪烁",
+                "时",
+                "我",
+                "喜欢",
+                "仰望",
+                "天空",
+                "遐想"
+            ],
+            "fixed": [
+                0,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "如果",
+                "明天",
+                "天气",
+                "晴朗",
+                "我们",
+                "就去",
+                "郊外",
+                "放风筝"
+            ],
+            "fixed": [
+                0,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "穿着",
+                "新买的",
+                "运动鞋",
+                "在",
+                "草地上",
+                "蹦蹦",
+                "跳跳"
+            ],
+            "fixed": [
+                1,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夏天的",
+                "夜晚",
+                "青蛙",
+                "在",
+                "池塘里",
+                "呱呱地",
+                "叫个",
+                "不停"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "公园里",
+                "的",
+                "长椅",
+                "上",
+                "坐着",
+                "几位",
+                "聊天的",
+                "老人"
+            ],
+            "fixed": [
+                1,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雨后的",
+                "空气",
+                "里",
+                "藏着",
+                "青草",
+                "和",
+                "泥土的",
+                "香味"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "可爱的",
+                "小蜜蜂",
+                "在",
+                "花丛中",
+                "飞来",
+                "飞去",
+                "忙着",
+                "采",
+                "花蜜"
+            ],
+            "fixed": [
+                2,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雪花",
+                "落在",
+                "树上",
+                "像",
+                "给",
+                "树木",
+                "穿上了",
+                "白棉袄"
+            ],
+            "fixed": [
+                1,
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "花丛",
+                "中",
+                "蝴蝶",
+                "扇动",
+                "着",
+                "美丽的",
+                "翅膀",
+                "翩翩",
+                "起舞"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妈妈",
+                "做的",
+                "饼干",
+                "形状",
+                "各种",
+                "各样",
+                "味道",
+                "香脆",
+                "可口"
+            ],
+            "fixed": [
+                1,
+                3,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夏天的",
+                "池塘",
+                "里",
+                "荷叶",
+                "像",
+                "一把把",
+                "绿色的",
+                "小伞"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "发现",
+                "冬天",
+                "窗户上",
+                "的",
+                "冰花",
+                "形状",
+                "每天",
+                "都",
+                "不一样"
+            ],
+            "fixed": [
+                1,
+                4,
+                7,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "觉得",
+                "春天",
+                "垂到",
+                "水面的",
+                "柳条",
+                "像",
+                "小姑娘",
+                "的",
+                "辫子"
+            ],
+            "fixed": [
+                0,
+                3,
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "含羞草",
+                "一碰",
+                "就",
+                "卷起来",
+                "是",
+                "一种",
+                "保护",
+                "自己的",
+                "方式"
+            ],
+            "fixed": [
+                1,
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天的",
+                "田野上",
+                "农民",
+                "伯伯",
+                "在",
+                "播种",
+                "希望的",
+                "种子"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "只要",
+                "到了",
+                "夏天",
+                "树上的",
+                "知了",
+                "就会",
+                "不停地",
+                "唱歌"
+            ],
+            "fixed": [
+                1,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天的",
+                "山坡上",
+                "漫山",
+                "遍野",
+                "都是",
+                "五颜",
+                "六色的",
+                "野花"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "那辆",
+                "破旧的",
+                "自行车",
+                "承载",
+                "着",
+                "他",
+                "难忘的",
+                "童年",
+                "回忆"
+            ],
+            "fixed": [
+                1,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "下课铃",
+                "刚响",
+                "同学们",
+                "就像",
+                "快乐的",
+                "小鸟",
+                "一样",
+                "飞出",
+                "教室"
+            ],
+            "fixed": [
+                0,
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "寒风",
+                "呼呼地",
+                "吹着",
+                "光秃秃",
+                "的",
+                "树枝",
+                "在",
+                "风中",
+                "摇摇",
+                "晃晃"
+            ],
+            "fixed": [
+                2,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "弟弟",
+                "调皮",
+                "捣蛋",
+                "总是",
+                "把",
+                "家里",
+                "弄得",
+                "乱七",
+                "八糟"
+            ],
+            "fixed": [
+                2,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "花园里",
+                "的",
+                "玫瑰",
+                "竞相",
+                "开放",
+                "散发",
+                "着",
+                "浓郁的",
+                "香气"
+            ],
+            "fixed": [
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小猫",
+                "灵活地",
+                "爬上",
+                "树",
+                "转眼",
+                "就",
+                "不见了",
+                "踪影"
+            ],
+            "fixed": [
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这张",
+                "泛黄的",
+                "老照片",
+                "记录着",
+                "他们",
+                "青涩的",
+                "年华",
+                "和",
+                "纯真的",
+                "友谊"
+            ],
+            "fixed": [
+                0,
+                5,
+                7,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这条",
+                "小溪",
+                "清澈",
+                "见底",
+                "能",
+                "看到",
+                "水底",
+                "游动的",
+                "小鱼"
+            ],
+            "fixed": [
+                2,
+                5,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋天的",
+                "果园",
+                "硕果",
+                "累累",
+                "挂满了",
+                "各种",
+                "各样的",
+                "水果"
+            ],
+            "fixed": [
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妈妈",
+                "做的",
+                "饭菜",
+                "香气",
+                "扑鼻",
+                "让人",
+                "垂涎",
+                "欲滴"
+            ],
+            "fixed": [
+                1,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜晚的",
+                "星空",
+                "繁星",
+                "点点",
+                "像",
+                "无数颗",
+                "钻石",
+                "在",
+                "闪烁"
+            ],
+            "fixed": [
+                2,
+                5,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "老师",
+                "耐心地",
+                "讲解着",
+                "难题",
+                "直到",
+                "我们",
+                "都",
+                "听懂",
+                "为止"
+            ],
+            "fixed": [
+                0,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "天边的",
+                "晚霞",
+                "绚丽",
+                "多彩",
+                "像",
+                "一幅",
+                "美丽的",
+                "油画"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷",
+                "悠闲地",
+                "坐在",
+                "树荫下",
+                "一边",
+                "喝茶",
+                "一边",
+                "听",
+                "收音机"
+            ],
+            "fixed": [
+                0,
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "教室里",
+                "鸦雀",
+                "无声",
+                "同学们",
+                "都在",
+                "认真地",
+                "做着",
+                "练习题"
+            ],
+            "fixed": [
+                0,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妹妹",
+                "天真",
+                "烂漫的",
+                "话语",
+                "逗得",
+                "全家人",
+                "哈哈",
+                "大笑"
+            ],
+            "fixed": [
+                1,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "闹钟",
+                "一响",
+                "我就",
+                "立刻",
+                "从",
+                "床上",
+                "爬起来",
+                "生怕",
+                "上学",
+                "迟到"
+            ],
+            "fixed": [
+                0,
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "学习",
+                "不是",
+                "为了",
+                "别人",
+                "而是",
+                "为了",
+                "自己",
+                "能有",
+                "更多的",
+                "选择"
+            ],
+            "fixed": [
+                1,
+                2,
+                4,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "上课",
+                "铃声",
+                "一响",
+                "教室里",
+                "就",
+                "立刻",
+                "安静",
+                "下来"
+            ],
+            "fixed": [
+                0,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这家",
+                "超市",
+                "不但",
+                "商品",
+                "齐全",
+                "而且",
+                "价格",
+                "很",
+                "实惠"
+            ],
+            "fixed": [
+                0,
+                3,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "冬天的",
+                "梅花",
+                "在",
+                "寒风中",
+                "傲然",
+                "绽放",
+                "散发着",
+                "淡淡的",
+                "清香"
+            ],
+            "fixed": [
+                2,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "清晨的",
+                "露珠",
+                "在",
+                "草叶上",
+                "滚动",
+                "像",
+                "一颗颗",
+                "晶莹的",
+                "珍珠"
+            ],
+            "fixed": [
+                2,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜晚的",
+                "城市",
+                "灯火",
+                "辉煌",
+                "像",
+                "一片",
+                "璀璨的",
+                "星河"
+            ],
+            "fixed": [
+                0,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "园丁",
+                "师傅",
+                "精心地",
+                "修剪着",
+                "公园里",
+                "的",
+                "花草",
+                "树木"
+            ],
+            "fixed": [
+                2,
+                5,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "厚厚的",
+                "积雪",
+                "从",
+                "山上",
+                "滑落",
+                "像",
+                "奔腾的",
+                "白色",
+                "巨浪"
+            ],
+            "fixed": [
+                1,
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "美术",
+                "课上",
+                "我",
+                "用",
+                "彩纸",
+                "做了",
+                "一只",
+                "栩栩",
+                "如生的",
+                "小猫"
+            ],
+            "fixed": [
+                0,
+                4,
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "弟弟",
+                "把",
+                "玩具",
+                "扔得",
+                "乱七",
+                "八糟",
+                "妈妈",
+                "让他",
+                "自己",
+                "收拾",
+                "干净"
+            ],
+            "fixed": [
+                1,
+                4,
+                7,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "新年的",
+                "钟声",
+                "敲响",
+                "时",
+                "绚烂的",
+                "烟花",
+                "在",
+                "夜空",
+                "绽放"
+            ],
+            "fixed": [
+                3,
+                5,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜晚",
+                "小区的",
+                "路灯",
+                "发出",
+                "柔和的",
+                "光",
+                "照亮了",
+                "回家的",
+                "路"
+            ],
+            "fixed": [
+                0,
+                3,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "有",
+                "一个",
+                "带锁的",
+                "日记本",
+                "里面",
+                "写满了",
+                "我的",
+                "小秘密"
+            ],
+            "fixed": [
+                0,
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷家",
+                "的",
+                "小狗",
+                "生了",
+                "几只",
+                "小狗崽",
+                "毛茸茸",
+                "的",
+                "很",
+                "可爱"
+            ],
+            "fixed": [
+                1,
+                4,
+                7,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雨后的",
+                "彩虹",
+                "犹如",
+                "一座",
+                "彩色的",
+                "桥",
+                "横跨",
+                "在",
+                "天际"
+            ],
+            "fixed": [
+                1,
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小区里",
+                "的",
+                "桂花树",
+                "开了",
+                "走过去",
+                "满鼻子",
+                "都是",
+                "甜香"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "冰箱里",
+                "牛奶",
+                "快",
+                "过期了",
+                "妈妈",
+                "让我",
+                "今天",
+                "必须",
+                "喝完"
+            ],
+            "fixed": [
+                0
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "如果",
+                "我",
+                "能",
+                "穿越",
+                "时空",
+                "想去",
+                "看看",
+                "古代的",
+                "世界"
+            ],
+            "fixed": [
+                0,
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "如果",
+                "我",
+                "能",
+                "和",
+                "动物",
+                "对话",
+                "那该",
+                "多",
+                "有趣"
+            ],
+            "fixed": [
+                1,
+                3,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "希望",
+                "未来的",
+                "城市",
+                "没有",
+                "污染",
+                "到处",
+                "都是",
+                "绿色"
+            ],
+            "fixed": [
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "晨雾",
+                "渐渐",
+                "散去",
+                "远处的",
+                "山峦",
+                "清晰",
+                "可见"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "寒风",
+                "凛冽",
+                "吹在",
+                "脸上",
+                "像",
+                "刀割",
+                "一样",
+                "疼"
+            ],
+            "fixed": [
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋霜",
+                "染红了",
+                "枫叶",
+                "让",
+                "山林",
+                "变得",
+                "五彩",
+                "斑斓"
+            ],
+            "fixed": [
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春日",
+                "里",
+                "公园里",
+                "的",
+                "花朵",
+                "五彩",
+                "斑斓",
+                "吸引了",
+                "众多",
+                "游客"
+            ],
+            "fixed": [
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋天的",
+                "果园",
+                "里",
+                "硕果",
+                "累累",
+                "果农们",
+                "忙碌地",
+                "采摘着",
+                "果实"
+            ],
+            "fixed": [
+                2,
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "喜欢",
+                "骑",
+                "自行车",
+                "在",
+                "风中",
+                "自由",
+                "驰骋的",
+                "感觉",
+                "很棒"
+            ],
+            "fixed": [
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "操场上",
+                "热闹",
+                "极了",
+                "同学们",
+                "在",
+                "跑步、跳绳、做游戏"
+            ],
+            "fixed": [
+                4,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "奶奶",
+                "织的",
+                "毛衣",
+                "暖烘烘",
+                "穿在",
+                "身上",
+                "特别",
+                "舒服"
+            ],
+            "fixed": [
+                0,
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雨后的",
+                "水坑",
+                "像",
+                "一面",
+                "小镜子",
+                "倒映着",
+                "蓝蓝的",
+                "天"
+            ],
+            "fixed": [
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "坚持",
+                "就像",
+                "爬山",
+                "一步",
+                "一步",
+                "总能",
+                "到达",
+                "山顶"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "星空下",
+                "我们",
+                "躺在",
+                "草地上",
+                "数着",
+                "流星",
+                "一颗颗",
+                "划过"
+            ],
+            "fixed": [
+                0,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "故宫的",
+                "红墙",
+                "黄瓦",
+                "在",
+                "阳光下",
+                "闪闪",
+                "发亮"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雷声",
+                "轰隆隆",
+                "地",
+                "响",
+                "吓得",
+                "小狗",
+                "钻进了",
+                "桌子",
+                "底下"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "长城",
+                "像",
+                "一条",
+                "巨龙",
+                "蜿蜒",
+                "在",
+                "群山",
+                "之间"
+            ],
+            "fixed": [
+                2,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这道",
+                "数学题",
+                "有点",
+                "难",
+                "我",
+                "想了",
+                "很久",
+                "才",
+                "做出来"
+            ],
+            "fixed": [
+                0
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "弟弟",
+                "长高了",
+                "不少",
+                "去年的",
+                "衣服",
+                "都",
+                "穿不下",
+                "了"
+            ],
+            "fixed": [
+                3,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "商店里",
+                "的",
+                "玩具",
+                "琳琅",
+                "满目",
+                "让人",
+                "眼花",
+                "缭乱"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "尝试着",
+                "做",
+                "蛋糕",
+                "虽然",
+                "不好看",
+                "但",
+                "味道",
+                "不错"
+            ],
+            "fixed": [
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "田野里",
+                "的",
+                "稻草人",
+                "戴着",
+                "草帽",
+                "守护着",
+                "庄稼"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "看",
+                "恐怖",
+                "电影",
+                "时",
+                "她",
+                "吓得",
+                "瑟瑟",
+                "发抖"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "风筝",
+                "在",
+                "天空中",
+                "飘荡",
+                "像",
+                "一只",
+                "自由的",
+                "小鸟"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他的",
+                "笑声",
+                "爽朗",
+                "响亮",
+                "感染了",
+                "周围的",
+                "人"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "花园里",
+                "的",
+                "玫瑰",
+                "娇艳",
+                "欲滴",
+                "引来了",
+                "许多",
+                "蜜蜂"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这条",
+                "小路",
+                "弯弯",
+                "曲曲",
+                "通向",
+                "远处的",
+                "村庄"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "寂静的",
+                "山林",
+                "里面",
+                "偶尔",
+                "能",
+                "听到",
+                "隐约的",
+                "鸟叫声"
+            ],
+            "fixed": [
+                0,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "不知",
+                "为什么",
+                "他",
+                "怒气",
+                "冲冲地",
+                "走进了",
+                "教室"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "童年",
+                "无忧",
+                "无虑",
+                "充满着",
+                "欢声",
+                "笑语"
+            ],
+            "fixed": [
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "池塘里",
+                "的",
+                "荷花",
+                "亭亭",
+                "玉立",
+                "像",
+                "害羞的",
+                "少女"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "假期",
+                "结束",
+                "之前",
+                "我",
+                "恋恋",
+                "不舍地",
+                "离开了",
+                "外婆家"
+            ],
+            "fixed": [
+                0,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "老师",
+                "告诉",
+                "我们",
+                "学习",
+                "要像",
+                "蜜蜂",
+                "采蜜",
+                "一样",
+                "勤奋"
+            ],
+            "fixed": [
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "登山",
+                "队员",
+                "背着",
+                "沉重的",
+                "行囊",
+                "向着",
+                "山顶",
+                "缓慢",
+                "攀登"
+            ],
+            "fixed": [
+                2,
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "巨大的",
+                "摩天轮",
+                "在",
+                "热闹的",
+                "游乐园",
+                "里",
+                "缓缓地",
+                "转动着"
+            ],
+            "fixed": [
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "企鹅",
+                "在",
+                "寒冷的",
+                "南极",
+                "冰面上",
+                "摇晃地",
+                "走着",
+                "十分",
+                "有趣"
+            ],
+            "fixed": [
+                3,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爬山虎",
+                "沿着",
+                "墙壁",
+                "向上",
+                "攀爬",
+                "织成了",
+                "一片",
+                "绿色的",
+                "帘幕"
+            ],
+            "fixed": [
+                0,
+                5,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妹妹",
+                "拿着",
+                "彩色的",
+                "橡皮泥",
+                "捏出了",
+                "一只",
+                "栩栩",
+                "如生的",
+                "兔子"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "科学家",
+                "在",
+                "实验室",
+                "里",
+                "不断",
+                "探索着",
+                "未知的",
+                "科学",
+                "奥秘"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "熊猫",
+                "抱着",
+                "鲜嫩的",
+                "竹子",
+                "坐在",
+                "竹林里",
+                "悠闲地",
+                "啃食"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "路边",
+                "野花",
+                "散发着",
+                "淡雅的",
+                "芬芳",
+                "引来",
+                "蜜蜂",
+                "飞舞"
+            ],
+            "fixed": [
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "泉水",
+                "从",
+                "山涧中",
+                "流淌",
+                "出来",
+                "灌溉着",
+                "山下的",
+                "农田"
+            ],
+            "fixed": [
+                0,
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "那座",
+                "古老的",
+                "城堡",
+                "吸引了",
+                "无数的",
+                "游客",
+                "前来",
+                "参观"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "从",
+                "高耸的",
+                "山顶",
+                "望去",
+                "风景",
+                "美得",
+                "令人",
+                "窒息"
+            ],
+            "fixed": [
+                1,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小猫",
+                "在",
+                "沙发上",
+                "蜷成",
+                "一团",
+                "像",
+                "一团",
+                "柔软的",
+                "毛线球"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "即使",
+                "天气",
+                "很冷",
+                "环卫",
+                "工人",
+                "也要",
+                "按时",
+                "清扫",
+                "街道"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "傍晚",
+                "时分",
+                "天边的",
+                "晚霞",
+                "像",
+                "一幅",
+                "绚丽的",
+                "油画"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "想去",
+                "世界",
+                "各地",
+                "旅行",
+                "看看",
+                "不同的",
+                "风景"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爸爸",
+                "用",
+                "相机",
+                "记录了",
+                "生活中",
+                "的",
+                "美好",
+                "瞬间"
+            ],
+            "fixed": [
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我",
+                "第一次",
+                "坐",
+                "飞机",
+                "心里",
+                "既",
+                "兴奋",
+                "又",
+                "紧张"
+            ],
+            "fixed": [
+                6,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "天空中",
+                "的",
+                "云朵",
+                "一会儿",
+                "像",
+                "小羊",
+                "一会儿",
+                "像",
+                "棉花"
+            ],
+            "fixed": [
+                3,
+                4,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
                     "text": "。"
                 }
             ]
@@ -16403,6 +21609,3182 @@
                 },
                 {
                     "index": 13,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "树上的",
+                "苹果",
+                "像",
+                "一个个",
+                "红灯笼",
+                "在",
+                "绿叶的",
+                "衬托",
+                "下",
+                "格外",
+                "鲜艳"
+            ],
+            "fixed": [
+                1,
+                4,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鸟",
+                "在",
+                "枝头",
+                "欢快地",
+                "唱歌",
+                "仿佛",
+                "在",
+                "庆祝",
+                "美好的",
+                "一天"
+            ],
+            "fixed": [
+                2,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他",
+                "背着",
+                "沉重的",
+                "行囊",
+                "踏上了",
+                "未知的",
+                "旅程",
+                "眼神",
+                "里",
+                "满是",
+                "憧憬"
+            ],
+            "fixed": [
+                1,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "秋天",
+                "到了",
+                "稻穗",
+                "笑弯了",
+                "腰",
+                "仿佛",
+                "在向",
+                "人们",
+                "诉说",
+                "丰收的",
+                "喜悦"
+            ],
+            "fixed": [
+                0,
+                3,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "宁静的",
+                "夜晚",
+                "只有",
+                "天上的",
+                "星星",
+                "在",
+                "窃窃",
+                "私语",
+                "分享着",
+                "各自的",
+                "秘密"
+            ],
+            "fixed": [
+                1,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜市里",
+                "滚烫的",
+                "烤串",
+                "散发",
+                "着",
+                "诱人的",
+                "香气",
+                "引得",
+                "路人",
+                "频频",
+                "回头"
+            ],
+            "fixed": [
+                2,
+                4,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 0,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "花朵",
+                "在",
+                "微风中",
+                "频频",
+                "点头",
+                "好像",
+                "在跟",
+                "过往的",
+                "行人",
+                "打招呼"
+            ],
+            "fixed": [
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "向日葵",
+                "始终",
+                "朝着",
+                "太阳的",
+                "方向",
+                "露出",
+                "灿烂的",
+                "笑脸",
+                "并且",
+                "努力",
+                "生长"
+            ],
+            "fixed": [
+                0,
+                2,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他",
+                "跑得",
+                "比风",
+                "还快",
+                "瞬间",
+                "就",
+                "消失",
+                "在",
+                "我的",
+                "视线",
+                "里面"
+            ],
+            "fixed": [
+                1,
+                5,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "马路上",
+                "有序",
+                "行驶、穿梭",
+                "在",
+                "城市",
+                "之间",
+                "的",
+                "公交车",
+                "方便着",
+                "人们",
+                "出行"
+            ],
+            "fixed": [
+                1,
+                4,
+                6,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "因为",
+                "他",
+                "乐于",
+                "助人、真诚",
+                "善良的",
+                "性格",
+                "所以",
+                "大家",
+                "都",
+                "愿意",
+                "和他",
+                "做朋友"
+            ],
+            "fixed": [
+                0,
+                4,
+                8,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "老师",
+                "说",
+                "只要",
+                "认真",
+                "观察",
+                "就能",
+                "发现",
+                "生活中",
+                "的",
+                "很多",
+                "奥秘"
+            ],
+            "fixed": [
+                1,
+                5,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小松鼠",
+                "在",
+                "树枝间",
+                "跳跃",
+                "嘴里",
+                "还",
+                "叼着",
+                "一颗",
+                "饱满的",
+                "松果"
+            ],
+            "fixed": [
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "宇航员",
+                "穿着",
+                "宇航服",
+                "勇敢地",
+                "登上",
+                "月球",
+                "探索",
+                "宇宙的",
+                "奥秘"
+            ],
+            "fixed": [
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "清晨的",
+                "阳光",
+                "透过",
+                "树叶的",
+                "缝隙",
+                "洒下来",
+                "在",
+                "地上",
+                "形成",
+                "斑驳的",
+                "光影"
+            ],
+            "fixed": [
+                1,
+                4,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "即使",
+                "在",
+                "寒冷的",
+                "冬天",
+                "松树",
+                "也能",
+                "保持",
+                "翠绿的",
+                "姿态"
+            ],
+            "fixed": [
+                0
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "只要",
+                "掌握",
+                "正确的",
+                "学习",
+                "方法",
+                "就能",
+                "起到",
+                "事半",
+                "功倍的",
+                "效果"
+            ],
+            "fixed": [
+                0,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "因为",
+                "这本书",
+                "讲述了",
+                "很多",
+                "感人的",
+                "故事",
+                "所以",
+                "深受",
+                "同学们",
+                "喜爱"
+            ],
+            "fixed": [
+                1,
+                5,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "她",
+                "全神",
+                "贯注地",
+                "看着",
+                "乐谱",
+                "手指",
+                "在",
+                "钢琴上",
+                "灵活地",
+                "跳跃"
+            ],
+            "fixed": [
+                1,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小明",
+                "聚精",
+                "会神地",
+                "盯着",
+                "棋盘",
+                "思考着",
+                "下一步",
+                "棋",
+                "该",
+                "怎么走"
+            ],
+            "fixed": [
+                0,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这场",
+                "突如",
+                "其来的",
+                "大雨",
+                "让",
+                "路上的",
+                "行人",
+                "纷纷",
+                "撑起了",
+                "雨伞"
+            ],
+            "fixed": [
+                0,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "大家",
+                "都说",
+                "这家",
+                "店的",
+                "蛋糕",
+                "好吃",
+                "我",
+                "买来",
+                "尝了尝",
+                "果然",
+                "名不",
+                "虚传"
+            ],
+            "fixed": [
+                1,
+                3,
+                8,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爷爷",
+                "回忆",
+                "他",
+                "年轻时",
+                "在",
+                "生产队",
+                "挣工分",
+                "一天",
+                "能割",
+                "两亩地",
+                "的",
+                "麦子"
+            ],
+            "fixed": [
+                1,
+                5,
+                8,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "厨师们",
+                "在",
+                "厨房里",
+                "大显",
+                "身手",
+                "做出了",
+                "一道道",
+                "色香味",
+                "俱全的",
+                "菜肴"
+            ],
+            "fixed": [
+                0,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "因为",
+                "这棵",
+                "老槐树",
+                "能",
+                "遮住",
+                "半个",
+                "操场",
+                "所以",
+                "大家",
+                "都",
+                "爱在",
+                "树下",
+                "乘凉"
+            ],
+            "fixed": [
+                0,
+                3,
+                5,
+                8,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "只要",
+                "每天",
+                "坚持",
+                "做",
+                "五分钟",
+                "眼",
+                "保健操",
+                "就能",
+                "有效",
+                "预防",
+                "近视",
+                "加深"
+            ],
+            "fixed": [
+                2,
+                5,
+                7,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "警察",
+                "叔叔",
+                "在",
+                "路口",
+                "指挥",
+                "交通",
+                "确保",
+                "车辆",
+                "和",
+                "行人的",
+                "安全"
+            ],
+            "fixed": [
+                3,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "雨后的",
+                "竹林",
+                "里",
+                "冒出了",
+                "许多",
+                "鲜嫩的",
+                "竹笋",
+                "像",
+                "一个个",
+                "调皮的",
+                "孩子"
+            ],
+            "fixed": [
+                2,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鸭子",
+                "在",
+                "池塘里",
+                "游水",
+                "扁扁的",
+                "嘴巴",
+                "不停地",
+                "在",
+                "水里",
+                "觅食"
+            ],
+            "fixed": [
+                1,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "老师",
+                "预测",
+                "小明",
+                "能在",
+                "跑步",
+                "比赛中",
+                "夺冠",
+                "他",
+                "果然",
+                "不负",
+                "众望",
+                "拿到了",
+                "第一名"
+            ],
+            "fixed": [
+                1,
+                2,
+                4,
+                8,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "冬天的",
+                "湖面",
+                "结了",
+                "一层",
+                "厚厚的",
+                "冰",
+                "孩子们",
+                "在",
+                "上面",
+                "开心地",
+                "滑冰"
+            ],
+            "fixed": [
+                1,
+                4,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "摄影师",
+                "背着",
+                "沉重的",
+                "相机",
+                "四处",
+                "寻找",
+                "美丽的",
+                "风景",
+                "捕捉",
+                "精彩的",
+                "瞬间"
+            ],
+            "fixed": [
+                0,
+                5,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "老师",
+                "在",
+                "黑板上",
+                "写字",
+                "粉笔末",
+                "像",
+                "雪花",
+                "一样",
+                "纷纷",
+                "扬扬地",
+                "落下来"
+            ],
+            "fixed": [
+                1,
+                6,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小狗",
+                "摇着",
+                "尾巴",
+                "热情地",
+                "迎接",
+                "主人",
+                "回家",
+                "还",
+                "不停地",
+                "蹭着",
+                "主人的",
+                "裤腿"
+            ],
+            "fixed": [
+                0,
+                4,
+                7,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小鱼",
+                "在",
+                "清澈的",
+                "溪水里",
+                "游来",
+                "游去",
+                "时不时",
+                "吐出",
+                "几个",
+                "小小的",
+                "气泡"
+            ],
+            "fixed": [
+                2,
+                6,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "春天的",
+                "柳絮",
+                "随风",
+                "飘扬",
+                "像",
+                "漫天",
+                "飞舞的",
+                "雪花",
+                "轻轻",
+                "落在",
+                "人们",
+                "肩头"
+            ],
+            "fixed": [
+                1,
+                5,
+                8,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "说书人",
+                "坐在",
+                "茶馆里",
+                "手里",
+                "摇着",
+                "扇子",
+                "把",
+                "古老的",
+                "故事",
+                "讲得",
+                "绘声",
+                "绘色"
+            ],
+            "fixed": [
+                0,
+                4,
+                6,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "深秋的",
+                "霜",
+                "打在",
+                "菜叶上",
+                "青菜的",
+                "叶子",
+                "变得",
+                "清甜",
+                "像",
+                "撒了",
+                "一层",
+                "薄糖"
+            ],
+            "fixed": [
+                1,
+                4,
+                8,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "救生员",
+                "密切",
+                "关注着",
+                "泳池里",
+                "的",
+                "动静",
+                "随时",
+                "准备",
+                "应对",
+                "突发",
+                "情况"
+            ],
+            "fixed": [
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "除非",
+                "把",
+                "纱窗",
+                "关好",
+                "否则",
+                "夏夜的",
+                "蚊子",
+                "能",
+                "把人",
+                "叮得",
+                "满身包"
+            ],
+            "fixed": [
+                0,
+                5,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "自从",
+                "爸爸",
+                "学会了",
+                "网购",
+                "家里的",
+                "快递盒",
+                "就",
+                "堆得",
+                "像",
+                "小山",
+                "一样"
+            ],
+            "fixed": [
+                1,
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "马路上",
+                "的",
+                "汽车",
+                "来来",
+                "往往",
+                "交警",
+                "叔叔",
+                "站在",
+                "中间",
+                "认真地",
+                "指挥",
+                "交通"
+            ],
+            "fixed": [
+                0,
+                1,
+                6,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "每当",
+                "楼下",
+                "传来",
+                "收废品",
+                "的",
+                "铃铛声",
+                "奶奶",
+                "就会",
+                "找出",
+                "攒了",
+                "很久的",
+                "纸箱"
+            ],
+            "fixed": [
+                1,
+                4,
+                5,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我的",
+                "同桌",
+                "不仅",
+                "爱笑",
+                "还",
+                "特别",
+                "乐于",
+                "助人",
+                "经常",
+                "帮我",
+                "讲解",
+                "难题"
+            ],
+            "fixed": [
+                2,
+                6,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "奶奶",
+                "一边",
+                "纳着",
+                "鞋底",
+                "一边",
+                "给我",
+                "讲她",
+                "年轻时",
+                "纺线",
+                "织布的",
+                "故事"
+            ],
+            "fixed": [
+                0,
+                1,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "每当",
+                "柳絮",
+                "飘得",
+                "像",
+                "下雪的",
+                "时候",
+                "过敏的",
+                "同学",
+                "就会",
+                "戴上",
+                "口罩",
+                "去上学"
+            ],
+            "fixed": [
+                0,
+                2,
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "夜晚的",
+                "星空",
+                "格外",
+                "明亮",
+                "北斗",
+                "七星",
+                "像",
+                "一把",
+                "勺子",
+                "挂在",
+                "天上"
+            ],
+            "fixed": [
+                1,
+                7,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "自从",
+                "弟弟",
+                "学会了",
+                "系鞋带",
+                "每天",
+                "早上",
+                "就",
+                "再也",
+                "不用",
+                "妈妈",
+                "帮忙了"
+            ],
+            "fixed": [
+                0,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "公园里",
+                "的",
+                "月季花",
+                "竞相",
+                "开放",
+                "红的、黄的、粉的",
+                "看得",
+                "人",
+                "眼花",
+                "缭乱"
+            ],
+            "fixed": [
+                1,
+                3,
+                5
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "奶奶",
+                "做的",
+                "饺子",
+                "皮薄",
+                "馅大",
+                "咬一口",
+                "鲜美的",
+                "汤汁",
+                "就",
+                "流出",
+                "来了"
+            ],
+            "fixed": [
+                2,
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "傍晚的",
+                "天空",
+                "被",
+                "染成了",
+                "橘红色",
+                "云朵",
+                "也",
+                "变成了",
+                "各种",
+                "各样的",
+                "形状"
+            ],
+            "fixed": [
+                1,
+                4,
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "一群",
+                "蚂蚁",
+                "齐心",
+                "协力地",
+                "搬着",
+                "一块",
+                "面包屑",
+                "虽然",
+                "慢",
+                "但",
+                "一直",
+                "没有",
+                "放弃"
+            ],
+            "fixed": [
+                1,
+                3,
+                5,
+                7,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "晚饭的",
+                "时候",
+                "我给",
+                "爸爸",
+                "妈妈",
+                "讲",
+                "学校里",
+                "发生的",
+                "趣事",
+                "他们",
+                "听得",
+                "哈哈",
+                "大笑"
+            ],
+            "fixed": [
+                1,
+                3,
+                7,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "墙上的",
+                "挂钟",
+                "滴答",
+                "滴答地",
+                "走着",
+                "提醒",
+                "我们",
+                "要",
+                "珍惜",
+                "时间",
+                "认真",
+                "学习"
+            ],
+            "fixed": [
+                3,
+                6,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "深秋的",
+                "枫叶",
+                "红得",
+                "热烈",
+                "像",
+                "一团团",
+                "燃烧的",
+                "火焰",
+                "铺满了",
+                "整个",
+                "山坡"
+            ],
+            "fixed": [
+                0,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "那只",
+                "可爱的",
+                "小猫",
+                "蜷缩",
+                "在",
+                "温暖的",
+                "毛毯里",
+                "睡得",
+                "十分",
+                "香甜"
+            ],
+            "fixed": [
+                0,
+                3
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "我们",
+                "努力",
+                "学习",
+                "是为了",
+                "将来",
+                "能",
+                "探索",
+                "广阔的",
+                "世界",
+                "实现",
+                "崇高的",
+                "理想"
+            ],
+            "fixed": [
+                1,
+                3,
+                6,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "路边的",
+                "路灯",
+                "亮了",
+                "昏黄的",
+                "光",
+                "把",
+                "行人的",
+                "影子",
+                "拉得",
+                "长长的"
+            ],
+            "fixed": [
+                0,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "妈妈",
+                "教育",
+                "我要",
+                "勤俭",
+                "节约",
+                "所以",
+                "我把",
+                "零花钱",
+                "都",
+                "存了",
+                "起来"
+            ],
+            "fixed": [
+                2,
+                3,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "早上",
+                "出门时",
+                "忘了",
+                "带",
+                "钥匙",
+                "只好",
+                "在",
+                "楼下",
+                "等",
+                "妈妈",
+                "回来"
+            ],
+            "fixed": [
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他",
+                "专心",
+                "致志地",
+                "听",
+                "老师",
+                "讲课",
+                "连",
+                "窗外",
+                "小鸟的",
+                "叫声",
+                "都没",
+                "听见"
+            ],
+            "fixed": [
+                5,
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "经过",
+                "仔细",
+                "思考",
+                "我",
+                "终于",
+                "将",
+                "这道",
+                "难题",
+                "解答",
+                "出来了"
+            ],
+            "fixed": [
+                2,
+                5,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "就在",
+                "要",
+                "撞车的",
+                "千钧",
+                "一发",
+                "时刻",
+                "司机",
+                "紧急",
+                "刹住了",
+                "汽车"
+            ],
+            "fixed": [
+                5,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "路边",
+                "有",
+                "一只",
+                "小鸟",
+                "在",
+                "吃食",
+                "我",
+                "小心",
+                "翼翼地",
+                "走过",
+                "生怕",
+                "打扰了",
+                "它"
+            ],
+            "fixed": [
+                4,
+                9,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "坚固的",
+                "堤坝",
+                "抵挡着",
+                "汹涌的",
+                "洪水",
+                "保护着",
+                "下游的",
+                "农田",
+                "和",
+                "村庄"
+            ],
+            "fixed": [
+                2,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "绚烂的",
+                "晚霞",
+                "铺满",
+                "辽阔的",
+                "天空",
+                "将",
+                "云朵",
+                "染成了",
+                "橙红",
+                "与",
+                "紫粉的",
+                "渐变色"
+            ],
+            "fixed": [
+                1,
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "清澈",
+                "见底的",
+                "小溪里",
+                "五彩",
+                "斑斓的",
+                "鹅卵石",
+                "在",
+                "阳光下",
+                "闪烁着",
+                "耀眼的",
+                "光芒"
+            ],
+            "fixed": [
+                2,
+                7,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "她",
+                "做的",
+                "饭菜",
+                "香气",
+                "扑鼻",
+                "刚",
+                "端上桌",
+                "就被",
+                "大家",
+                "一抢",
+                "而空"
+            ],
+            "fixed": [
+                3,
+                5,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "美丽的",
+                "彩虹",
+                "在",
+                "雨后的",
+                "天空中",
+                "绚丽地",
+                "出现",
+                "像",
+                "一座",
+                "彩色的",
+                "桥梁"
+            ],
+            "fixed": [
+                1,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "尽管",
+                "前进的",
+                "道路上",
+                "布满",
+                "荆棘",
+                "但",
+                "我们",
+                "不能",
+                "退缩",
+                "要",
+                "勇敢地",
+                "向前走"
+            ],
+            "fixed": [
+                3,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "华丽的",
+                "舞台上",
+                "演员们",
+                "穿着",
+                "绚丽的",
+                "服装",
+                "表演着",
+                "精彩",
+                "绝伦的",
+                "节目"
+            ],
+            "fixed": [],
+            "punctuationOptions": [
+                {
+                    "index": 1,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "金黄的",
+                "银杏叶",
+                "在",
+                "凉爽的",
+                "秋风中",
+                "轻轻",
+                "飘落",
+                "给",
+                "地面",
+                "铺上了",
+                "一层",
+                "地毯"
+            ],
+            "fixed": [
+                1,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "她",
+                "在",
+                "工作中",
+                "表现得",
+                "极其",
+                "出色",
+                "很快",
+                "就",
+                "得到了",
+                "领导",
+                "的",
+                "提拔"
+            ],
+            "fixed": [
+                3,
+                6,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "瀑布",
+                "从",
+                "陡峭的",
+                "悬崖上",
+                "倾泻",
+                "而下",
+                "溅起",
+                "无数的",
+                "水花",
+                "发出",
+                "轰鸣的",
+                "声响"
+            ],
+            "fixed": [
+                0,
+                4,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这场",
+                "雨",
+                "下得",
+                "太大了",
+                "以至于",
+                "街道上",
+                "积起了",
+                "淹过",
+                "脚踝",
+                "的",
+                "水"
+            ],
+            "fixed": [
+                5,
+                8,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "尽管",
+                "岁月",
+                "在",
+                "老人",
+                "脸上",
+                "刻满了",
+                "皱纹",
+                "他的",
+                "眼睛",
+                "却",
+                "依然",
+                "像",
+                "孩童般",
+                "清澈"
+            ],
+            "fixed": [
+                1,
+                2,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 13,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "只要",
+                "细心地",
+                "观察",
+                "生活",
+                "就能",
+                "发现",
+                "平凡的",
+                "小事",
+                "中",
+                "蕴含着",
+                "深刻的",
+                "道理"
+            ],
+            "fixed": [
+                0,
+                5,
+                8,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "在",
+                "操场",
+                "东边",
+                "有",
+                "一棵",
+                "粗壮的",
+                "老槐树",
+                "是",
+                "我们",
+                "课间",
+                "休息的",
+                "乐园"
+            ],
+            "fixed": [
+                0,
+                1
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "每当",
+                "丰收的",
+                "季节",
+                "来临",
+                "田野里",
+                "就会",
+                "响起",
+                "农民",
+                "伯伯",
+                "欢快的",
+                "笑声"
+            ],
+            "fixed": [
+                1,
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这场",
+                "精彩的",
+                "演出",
+                "吸引了",
+                "众多",
+                "观众",
+                "以至于",
+                "现场的",
+                "气氛",
+                "热烈",
+                "掌声",
+                "不断"
+            ],
+            "fixed": [
+                0,
+                2,
+                6,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "那位",
+                "年轻的",
+                "老师",
+                "讲课",
+                "生动",
+                "有趣",
+                "深受",
+                "同学们",
+                "的",
+                "喜爱",
+                "和",
+                "尊敬"
+            ],
+            "fixed": [
+                8,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "生活",
+                "是",
+                "一场",
+                "旅行",
+                "不在乎",
+                "目的地",
+                "在乎的",
+                "是",
+                "沿途的",
+                "风景"
+            ],
+            "fixed": [
+                1,
+                5,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "以",
+                "这种",
+                "缓慢的",
+                "速度",
+                "前进",
+                "我们",
+                "天黑前",
+                "勉强",
+                "能",
+                "到达",
+                "目的地"
+            ],
+            "fixed": [
+                2,
+                6
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "小松鼠",
+                "在",
+                "树枝上",
+                "跳来",
+                "跳去",
+                "嘴里",
+                "还",
+                "叼着",
+                "一颗",
+                "松果",
+                "可爱",
+                "极了"
+            ],
+            "fixed": [
+                1,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他",
+                "在",
+                "篮球场",
+                "上",
+                "打球",
+                "投篮",
+                "动作",
+                "流畅",
+                "引来",
+                "阵阵",
+                "喝彩声"
+            ],
+            "fixed": [
+                1,
+                3,
+                7,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "马路上",
+                "车水",
+                "马龙",
+                "行人",
+                "来来",
+                "往往",
+                "大家",
+                "都在",
+                "为",
+                "生活",
+                "而",
+                "忙碌",
+                "奔波"
+            ],
+            "fixed": [
+                4,
+                6,
+                8,
+                10
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "定期",
+                "体检",
+                "可以",
+                "及时",
+                "发现",
+                "身体",
+                "问题",
+                "做到",
+                "早预防",
+                "早治疗"
+            ],
+            "fixed": [
+                1,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "爬山",
+                "虽然",
+                "很累",
+                "但",
+                "到达",
+                "山顶时",
+                "看到的",
+                "风景",
+                "让我",
+                "觉得",
+                "值得"
+            ],
+            "fixed": [
+                0,
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "早晨",
+                "被",
+                "闹钟",
+                "吵醒时",
+                "我",
+                "迷迷",
+                "糊糊",
+                "按掉",
+                "它",
+                "结果",
+                "又",
+                "睡过了",
+                "头"
+            ],
+            "fixed": [
+                1,
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "冰淇淋",
+                "在",
+                "嘴里",
+                "慢慢",
+                "融化",
+                "凉丝丝",
+                "的",
+                "甜味",
+                "从",
+                "舌尖",
+                "蔓延到",
+                "心底"
+            ],
+            "fixed": [
+                0
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "桂林的",
+                "山",
+                "像",
+                "一根根",
+                "竹笋",
+                "插在",
+                "地上",
+                "水清得",
+                "能",
+                "看见",
+                "水底的",
+                "石头"
+            ],
+            "fixed": [
+                1,
+                3,
+                8,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "第一次",
+                "吃榴莲",
+                "时",
+                "我",
+                "捏着",
+                "鼻子",
+                "皱着眉",
+                "结果",
+                "吃",
+                "一口",
+                "就",
+                "爱上了"
+            ],
+            "fixed": [
+                2,
+                4
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 2,
+                    "text": "，"
+                },
+                {
+                    "index": 6,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "一旦",
+                "你",
+                "养成了",
+                "良好的",
+                "阅读",
+                "习惯",
+                "就会",
+                "发现",
+                "读书",
+                "是",
+                "一种",
+                "享受"
+            ],
+            "fixed": [
+                0,
+                2
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "如果",
+                "你能",
+                "认真",
+                "听取",
+                "别人的",
+                "意见",
+                "就能",
+                "避免",
+                "很多",
+                "不必要",
+                "的",
+                "错误"
+            ],
+            "fixed": [
+                3,
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "哈尔滨",
+                "的",
+                "冰雪",
+                "大世界",
+                "里",
+                "冰雕",
+                "城堡",
+                "亮起",
+                "彩灯",
+                "像",
+                "童话里",
+                "的",
+                "仙境"
+            ],
+            "fixed": [
+                1,
+                4,
+                7,
+                11
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 8,
+                    "text": "，"
+                },
+                {
+                    "index": 12,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "这座",
+                "山",
+                "非常",
+                "陡峭",
+                "攀登",
+                "起来",
+                "异常",
+                "艰难",
+                "很多人",
+                "都",
+                "半途",
+                "而废了"
+            ],
+            "fixed": [
+                3,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 7,
+                    "text": "，"
+                },
+                {
+                    "index": 11,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "她的",
+                "歌声",
+                "如此",
+                "动听",
+                "台下的",
+                "观众",
+                "都",
+                "忍不住",
+                "跟着",
+                "哼唱",
+                "起来"
+            ],
+            "fixed": [
+                0,
+                7,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "除非",
+                "得到",
+                "老师的",
+                "允许",
+                "否则",
+                "学生",
+                "不能",
+                "擅自",
+                "离开",
+                "教室"
+            ],
+            "fixed": [
+                4,
+                7
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 9,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "只有",
+                "每天",
+                "坚持",
+                "锻炼",
+                "才能",
+                "保持",
+                "健康的",
+                "身体",
+                "和",
+                "充沛的",
+                "精力"
+            ],
+            "fixed": [
+                1,
+                6,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 3,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "他的",
+                "演讲",
+                "充满",
+                "激情",
+                "和",
+                "力量",
+                "赢得了",
+                "台下",
+                "阵阵",
+                "热烈的",
+                "掌声"
+            ],
+            "fixed": [
+                5,
+                8
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 5,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
+                    "text": "。"
+                }
+            ]
+        },
+        {
+            "sentence": [
+                "她",
+                "做的",
+                "饭菜",
+                "香气",
+                "扑鼻",
+                "刚",
+                "端上桌",
+                "就被",
+                "大家",
+                "一抢",
+                "而空"
+            ],
+            "fixed": [
+                2,
+                5,
+                7,
+                9
+            ],
+            "punctuationOptions": [
+                {
+                    "index": 4,
+                    "text": "，"
+                },
+                {
+                    "index": 10,
                     "text": "。"
                 }
             ]
