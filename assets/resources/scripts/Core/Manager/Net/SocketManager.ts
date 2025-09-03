@@ -3,12 +3,13 @@ import { DebugLog } from "../../Util/DebugLog";
 import { EventManager } from "../Event/EventManager";
 import { SocketData, SocketDataStatus } from "../../../Core/Manager/Net/SocketData";
 import { UIManager } from "../UI/UIManager";
-import { LoginManager } from "../LoginManager/LoginManager";
+import { LoginErrorCode, LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
 import { SceneManager } from "../Scene/SceneManager";
 import { Prefab, resources } from "cc";
+import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
@@ -155,6 +156,17 @@ export class SocketManager extends BaseManager {
 
         this._socketDatas.set(action, updatedDatas);
         if (tmpSocketData) {
+            if(jsonObj.status == 0 && jsonObj.error && LoginErrorCode[jsonObj.error]){
+                const alertData: AlertData = new AlertData();
+                alertData.message = LoginErrorCode[jsonObj.error];
+                alertData.confirmCb = function () {
+                    LoginManager.getInstance().loginout(() => {
+                        UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
+                    });
+                }.bind(this);
+                AlertManager.getInstance().showAlert(alertData);
+            }
+
             DebugLog.instance.log(`接收：${data.data}`);
             EventManager.getInstance().emit(jsonObj["action"], jsonObj);
         }

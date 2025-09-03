@@ -142,13 +142,6 @@ export class LoginManager {
 
     private onTokenVerificationCompleted(data, context) {
         if (data.status == 0) {
-            const alertData: AlertData = new AlertData();
-            alertData.message = LoginErrorCode[data.error] ? LoginErrorCode[data.error] : data.error;
-            alertData.confirmCb = function () {
-                UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
-            }.bind(this);
-            AlertManager.getInstance().showAlert(alertData);
-
             if (this._loginByTokenCb) {
                 this._loginByTokenCb(false);
                 this._loginByTokenCb = null;
@@ -347,7 +340,7 @@ export class LoginManager {
         SocketManager.getInstance().send(socketData);
     }
 
-    loginout() {
+    loginout(finishCb: () => void = null) {
         this._xieyiToggleFlag = true;
         LoginManager.getInstance().cleanUserToken();
         EventManager.getInstance().destory();
@@ -357,6 +350,9 @@ export class LoginManager {
         ReportManager.getInstance().clean();
         SceneManager.getInstance().changeScene("start", BundleName.RESOURCES).then(() => {
             DebugLog.instance.log(`start场景切换成功`);
+            if(finishCb){
+                finishCb();
+            }
         });
     }
 
