@@ -113,7 +113,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             currentSegment += char;
             
             // 遇到标点符号时，将当前片段添加到数组
-            if (/[，。？！\n]/.test(char)) {
+            if (/[，。？！,;\n]/.test(char)) {
                 segments.push(currentSegment);
                 currentSegment = '';
             }
@@ -126,7 +126,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         
         // 如果数组长度小于等于4，直接使用标点符号切割
         if (segments.length <= 4) {
-            return text.replace(/([，。？！])/g, '$1\n');
+            return text.replace(/([，。？！,;])/g, '$1\n');
         }
         
         // 处理数组中的每个元素，决定换行
@@ -161,7 +161,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 容错处理：如果出现死循环或异常，回退到直接用标点符号切割
         if (loopCount >= maxLoops) {
             console.warn('文本处理出现异常，回退到标点符号切割模式');
-            return text.replace(/([，。？！])/g, '$1\n');
+            return text.replace(/([，。？！,;])/g, '$1\n');
         }
         
         // 将结果数组用换行符连接
