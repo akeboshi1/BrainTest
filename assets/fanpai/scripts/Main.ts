@@ -37,6 +37,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(ProgressBar)
     progressBar: ProgressBar;
 
+    @property(Node)
+    goonBtn:Node = null;
 
     @property(Label)
     guankaLabel: Label;
@@ -107,6 +109,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     dataInit() {
         //数据初始化
+        if (this.goonBtn) {
+            this.goonBtn.active = false;
+        }
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.level = (this.sceneModel as any).level;
@@ -438,12 +443,15 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     replayGame() {
+        if (this.goonBtn) {
+            this.goonBtn.active = false;
+        }
         this.isAbleClick = true;
         this.isCardFlipping = false;
         this.lastClickTime = 0;
         this.closeAllCard();
         this.timerInit();
-        this.timerTick();
+        // 移除立即调用timerTick()，让previewCard()在预览结束后自动调用
         this.previewCard();
         this.playBgmAudio("music/bgMusic",true);
     }
@@ -904,6 +912,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     public onClickShowAnswer() {
         this.isAbleClick = false;
+        this.goonBtn.active = true;
         super.onClickShowAnswer();
         this.showAllCard();
 

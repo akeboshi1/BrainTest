@@ -132,7 +132,7 @@ export class Game extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         Game.Ins = this;
-        // PanelMgr.INS.layers = this.layers;
+        PanelMgr.INS.layers = this.layers;
         // PanelMgr.INS.clear();
         // 初始化FindingGlobal的事件监听器
         FindingGlobal.initEventListeners();
@@ -554,93 +554,37 @@ export class Game extends BaseScene<IBaseGameChild> {
 
     private _scale = 1.5;
     refreshGame(): void {
-        // 重新初始化关卡数据
-        this.initUI();
-
-        // 重置计时、分数、标记等状态
-        this._startTime = TimeUtil.getNow();
-        this._curCount = 0;
-        this._maxCount = this._counts[this._curHard - 1];
+        // 重置游戏状态
         this.gameOver = false;
+        this.pause = false;
+        this.canAddTime = true;
+        this._isSettling = false;
         this.resultList = [];
         this.tempList = [];
         this.hintIndex = 0;
         this.isStartCount = false;
         this.interval = 0;
-        this.pause = false;
-        this.canAddTime = true;
         this._pauseStartTime = 0;
         this._pauseDurTime = 0;
-        this.victory.active = false;
-        this.goonBtn.active = false;
-        this.plistNode.active = false;
+
+        // 重置UI状态
+        if (this.victory) {
+            this.victory.active = false;
+        }
+        if (this.goonBtn) {
+            this.goonBtn.active = false;
+        }
+        if (this.plistNode) {
+            this.plistNode.active = false;
+        }
 
         // 重置结算状态并恢复关闭按钮交互
-        this._isSettling = false;
         this.setQuitButtonInteractable(true);
 
-        // 清理不同点节点
-        this.framePostions = [];
-        this.frameList = [];
-        if (this.picture1) {
-            this.picture1.removeAllChildren();
-        }
-        if (this.picture2) {
-            this.picture2.removeAllChildren();
-        }
-        // 重新生成不同点区域和图片
-        let _level = GameConfig.level_order[this._checkPoint - 1];
-        let bundleName = "level" + _level;
-        let imageName = GameConfig.image_name.get(_level);
-        const bundle = assetManager.getBundle(BundleName.FINGING);
-        // 刷新两张图片
-        bundle.load(bundleName + `/image/${imageName}_1_32/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
-            if (!err && this.picture1) {
-                this.picture1.getComponent(Sprite).spriteFrame = spriteFrame;
-            }
-        });
-        bundle.load(bundleName + `/image/${imageName}_2_32/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
-            if (!err && this.picture2) {
-                this.picture2.getComponent(Sprite).spriteFrame = spriteFrame;
-            }
-        });
-        // 重新生成不同点区域
-        let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
-        let tmpDataList = tmpDatas.split("|");
-        let len = tmpDataList.length;
-        let uitransform = this.picture1.getComponent(UITransform);
-        for (let i = 0; i < len; i++) {
-            let node: Node = new Node();
-            let nodeUITransform = node.addComponent(UITransform);
-            let tempData = tmpDataList[i].split(",");
-            nodeUITransform.width = Number(tempData[2]);
-            nodeUITransform.height = Number(tempData[3]);
-            node.setPosition(Number(tempData[0]) * this._scale, uitransform.height - Number(tempData[1]) * this._scale);
-            nodeUITransform.setAnchorPoint(0, 1);
-            node.setScale(1.4, 1.4);
-            nodeUITransform.convertToWorldSpaceAR(node.position);
-            this.framePostions.push(node.position);
-            this.picture1.addChild(node);
-            this.frameList.push(nodeUITransform.getBoundingBox());
-            this.frameList[i].id = i + 1;
-        }
-        // 重置结果节点
-        for (let j = 0; j < this.resultNode.children.length; j++) {
-            let children = this.resultNode.children[j].getChildByName("right");
-            children.active = false;
-            if (j >= this._maxCount) {
-                this.resultNode.children[j].active = false;
-            } else {
-                this.resultNode.children[j].active = true;
-            }
-        }
-        // 重置倒计时
-        this.countDownTime = GameConfig.customTime;
-        this.tempCountDown = GameConfig.allTime;
-        this.countDown.string = Math.ceil(this.countDownTime) + "秒";
-        let levels = (this.sceneModel as any).levelLen
-        // 关卡标签
-        this.guankaLabel.getComponent(Label).string = `第${this._checkPoint}/${levels}关`;
+        // 重新初始化关卡数据
+        this.initUI();
+
+        
 
         // 重新绑定点击事件，恢复音效
         this.monitorEvent();
@@ -967,14 +911,7 @@ export class Game extends BaseScene<IBaseGameChild> {
 
     public onClickRetryGame() {
         Global.isAgain = true;
-        PanelMgr.INS.openPanel({
-            layer: Layer.gameLayer,
-            panel: HomeView,
-            param: CacheMgr.checkpoint
-        }).then(() => {
-
-            PanelMgr.INS.closePanel(GameView);
-        });
+        this.onAgain();
     }
 
     exitCallBack(context) {
