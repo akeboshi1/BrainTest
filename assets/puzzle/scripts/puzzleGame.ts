@@ -161,6 +161,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.randomPlayIndex.push(i);
         }
         this.showSpriteNode.active = false;
+        this.showResultContinueButton.active = false;
         this.cleanChipsCache();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             let game = (this.sceneModel as any).game;
@@ -517,6 +518,24 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.currentTexture2d = texture;
             this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
             this.updatePreviewSprite(this.currentTexture2d);
+            this.onClickDisturbPuzzleButton();
+            
+            // 重玩时重新开始倒计时
+            this._startTime = TimeUtil.getNow();
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
+                let skewersGameData = (this.sceneModel as any).game;
+                this.progressBar.progress = skewersGameData.progress;
+                this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
+            } else {
+                this.timerComponent.startTimer(this.gameLength.valueOf());
+                let level = (this.sceneModel as any).level;
+                this.progressBar.progress = 1;
+                this.guankaLabel.string = "第" + level + "关";
+            }
+            
+            // 重玩时也需要播放背景音乐
+            this.playBgmAudio("music/puzzleBG", true);
         });
     }
 
