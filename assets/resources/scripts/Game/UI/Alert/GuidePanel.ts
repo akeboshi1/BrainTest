@@ -66,7 +66,7 @@ export class GuidePanel extends BasePanel {
             let descStr = "";
             switch(this.gameName){
                 case BundleName.FINGING:
-                    descStr = "找茬训练:对比两幅高度相似的图片，找出细微差异（如颜色、形状、数量），锻炼细节观察力与专注度"
+                    descStr = "找茬训练:对比两幅高度相似的图片，找出细微差异（如颜色、形状、数量），锻炼细节判断力与专注度"
                     break;
                 case BundleName.FANPAI:
                     descStr = "翻牌训练:玩家通过记忆卡牌位置寻找相同图案或数字的配对牌，考验短期记忆力与空间定位能力"
