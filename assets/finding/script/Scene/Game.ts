@@ -581,6 +581,17 @@ export class Game extends BaseScene<IBaseGameChild> {
         // 重置结算状态并恢复关闭按钮交互
         this.setQuitButtonInteractable(true);
 
+        // 清理不同点节点
+        this.framePostions = [];
+        this.frameList = [];
+        if (this.picture1) {
+            this.picture1.removeAllChildren();
+        }
+        if (this.picture2) {
+            this.picture2.removeAllChildren();
+        }
+
+
         // 重新初始化关卡数据
         this.initUI();
 
