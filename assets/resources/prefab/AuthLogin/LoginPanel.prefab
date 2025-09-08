@@ -330,8 +330,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -158.503,
-      "y": 543.295,
+      "x": -390,
+      "y": 503,
       "z": 0
     },
     "_lrot": {
@@ -371,12 +371,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 480,
-      "height": 75.6
+      "width": 640,
+      "height": 100.8
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
@@ -410,10 +410,10 @@
     "_string": "欢迎登录派派智护",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 80,
+    "_fontSize": 80,
     "_fontFamily": "Arial",
-    "_lineHeight": 60,
+    "_lineHeight": 80,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,
@@ -659,7 +659,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -328,
+      "y": -444,
       "z": 0
     },
     "_lrot": {

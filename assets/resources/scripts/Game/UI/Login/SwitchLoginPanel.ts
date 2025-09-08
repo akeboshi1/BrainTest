@@ -6,6 +6,7 @@ import { OrganizationMemberSelectPanel } from './OrganizationMemberSelectPanel';
 import { LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { LocalStorageKeyEnum } from '../../../Core/Util/LocalStorageUtil';
 import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import { ScreenAdapter } from '../../../Adapter/ScreenAdapter';
 const { ccclass, property } = _decorator;
 
 const loginPanelConfig = {
@@ -75,6 +76,8 @@ export class SwitchLoginPanel extends BasePanel {
         const instance = instantiate(prefab);
         this.clearLoginContainer();
         this.loginContainer.addChild(instance);
+        // 对添加的实例进行屏幕适配
+        ScreenAdapter.getInstance().adaptPanelUI(instance);
         this.loginBtnsNode.active = true;
         this.currentPanelName = "authCodeLogin";
     }
@@ -94,6 +97,8 @@ export class SwitchLoginPanel extends BasePanel {
         const instance = instantiate(prefab);
         this.clearLoginContainer();
         this.loginContainer.addChild(instance);
+        // 对添加的实例进行屏幕适配
+        ScreenAdapter.getInstance().adaptPanelUI(instance);
         this.loginBtnsNode.active = true;
         this.currentPanelName = "orangizeLogin";
     }
@@ -106,6 +111,8 @@ export class SwitchLoginPanel extends BasePanel {
         const instance = instantiate(prefab);
         this.clearLoginContainer();
         this.loginContainer.addChild(instance);
+        // 对添加的实例进行屏幕适配
+        ScreenAdapter.getInstance().adaptPanelUI(instance);
         this.loginBtnsNode.active = false;
         this.currentPanelName = "orangizeSelect";
         instance.getComponent(OrganizationMemberSelectPanel).setOrgName(orgName);
