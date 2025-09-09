@@ -701,7 +701,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": "统计周期 xxxx至xxxx",
+    "_string": "",
     "_horizontalAlign": 2,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -2103,7 +2103,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -2139,7 +2139,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "关注力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -2337,7 +2337,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -2373,7 +2373,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -2636,7 +2636,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -2672,7 +2672,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "关注力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -2937,7 +2937,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -3297,7 +3297,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -3333,7 +3333,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "关注力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -3562,7 +3562,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -3598,7 +3598,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -3958,7 +3958,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -3994,7 +3994,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "关注力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -4223,7 +4223,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -4259,7 +4259,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -4619,7 +4619,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -4655,7 +4655,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "关注力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -4920,7 +4920,7 @@
       "b": 153,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
