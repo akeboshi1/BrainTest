@@ -11,6 +11,7 @@ import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
+import { PersonalCenterManager } from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 // import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 
 const { ccclass, property } = _decorator;
@@ -89,10 +90,60 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     // 添加状态标记，用于跟踪是否已经进入答题阶段
     private _isInAnswerPhase: boolean = false;
     private _hasClickedStartBtn: boolean = false; // 添加是否已点击开始按钮的状态
+    
+    // 添加阶段标记，用于机构用户的显示控制
+    private _currentPhase: 'listening' | 'answering' | 'result' = 'listening'; // 当前阶段：听题、答题、结算
 
     protected bundleName: string = 'guessingGame';
 
     private bgmClip: AudioClip;
+
+    /**
+     * 判断是否是机构用户
+     * @returns 是否是机构用户
+     */
+    private isOrgUser(): boolean {
+        const userInfoData = PersonalCenterManager.getInstance().userInfoData;
+        return userInfoData ? userInfoData.is_org_user : false;
+    }
+
+    /**
+     * 根据机构用户状态和当前阶段控制questionLabel的显示
+     * 注意：questionLabel 恢复原来的逻辑，不受机构用户影响
+     */
+    private updateQuestionLabelVisibility(): void {
+        if (!this.questionLabel) return;
+        
+        // questionLabel 恢复原来的逻辑，始终显示
+        this.questionLabel.node.active = true;
+    }
+
+    /**
+     * 根据机构用户状态和当前阶段控制optionsNode的显示
+     */
+    private updateOptionsNodeVisibility(): void {
+        if (!this.optionsNode) return;
+        
+        if (this.isOrgUser()) {
+            // 机构用户：听题阶段隐藏，答题阶段显示，结算阶段隐藏
+            const shouldShow = this._currentPhase === 'answering';
+            this.optionsNode.active = shouldShow;
+        } else {
+            // 普通用户：保持原有逻辑
+            this.optionsNode.active = true;
+        }
+    }
+
+    /**
+     * 设置当前阶段并更新显示状态
+     * @param phase 当前阶段
+     */
+    private setCurrentPhase(phase: 'listening' | 'answering' | 'result'): void {
+        this._currentPhase = phase;
+        // 只更新 optionsNode 的显示状态，questionLabel 保持原有逻辑
+        this.updateOptionsNodeVisibility();
+        DebugLog.instance.log(`[GuessingGameScene] 阶段切换为: ${phase}, 机构用户: ${this.isOrgUser()}`);
+    }
 
     /**
      * 处理文本中的标点符号，智能处理逗号换行
@@ -265,6 +316,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             }
         }
 
+        // 设置听题阶段
+        this.setCurrentPhase('listening');
 
         // this.questionNode.active = true;
         const question: GuessingQuestion = data.question;
@@ -439,7 +492,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         const result: boolean = ans && this.currentQuestion.answer == ans;
         this.setAnswerOptionsColor(ans);
 
-        // 答题完成后，显示问题标签
+        // 设置结算阶段
+        this.setCurrentPhase('result');
+
+        // 答题完成后，显示问题标签（恢复原来的逻辑）
         if (this.questionLabel) {
             this.questionLabel.node.active = true;
         }
@@ -653,10 +709,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this._clickStart = false;
         this._hasClickedStartBtn = false; // 重置点击开始按钮的状态
 
-        // 重置时显示问题标签
-        if (this.questionLabel) {
-            this.questionLabel.node.active = true;
-        }
+        // 设置听题阶段
+        this.setCurrentPhase('listening');
 
         // this.timerRT.node.active = false;
         // this.timerStartGame.node.active = false;
@@ -712,7 +766,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 设置已点击开始按钮的状态
         this._hasClickedStartBtn = true;
 
-        // 点击开始按钮后隐藏问题标签
+        // 设置答题阶段
+        this.setCurrentPhase('answering');
+
+        // 点击开始按钮后隐藏问题标签（恢复原来的逻辑）
         if (this.questionLabel) {
             this.questionLabel.node.active = false;
         }
@@ -749,6 +806,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     public onClickShowAnswer() {
         super.onClickShowAnswer();
+        
+        // 设置结算阶段
+        this.setCurrentPhase('result');
+        
         this.analysisNode.active = true;
         this.analysisLabel.string = this.currentQuestion.analysis;
         this.setCorrectOptionColor();
