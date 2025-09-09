@@ -561,7 +561,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 270,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -597,7 +597,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "加尔铁溶据",
+    "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -720,7 +720,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 458.953125,
+      "width": 0,
       "height": 56.826
     },
     "_anchorPoint": {
@@ -756,7 +756,7 @@
       "b": 119,
       "a": 255
     },
-    "_string": "手机号：2173970718",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
@@ -1595,7 +1595,7 @@
       "b": 208,
       "a": 255
     },
-    "_string": "开通会员",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -2140,7 +2140,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -259,
+      "y": -184,
       "z": 0
     },
     "_lrot": {
@@ -6457,7 +6457,7 @@
     "_target": null,
     "_left": 0,
     "_right": 0,
-    "_top": 895,
+    "_top": 820,
     "_bottom": 0,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,

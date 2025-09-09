@@ -2390,7 +2390,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -2426,7 +2426,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "语言力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -2622,7 +2622,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -2658,7 +2658,7 @@
       "b": 100,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -2957,7 +2957,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -336,
+      "x": -358,
       "y": 65,
       "z": 0
     },
@@ -3054,7 +3054,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -3090,7 +3090,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "语言力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -3319,7 +3319,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -3355,7 +3355,7 @@
       "b": 100,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -3715,7 +3715,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -3751,7 +3751,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "语言力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -3980,7 +3980,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -4016,7 +4016,7 @@
       "b": 100,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -4279,7 +4279,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 285,
+      "x": 255,
       "y": -245,
       "z": 0
     },
@@ -4376,7 +4376,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -4412,7 +4412,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "语言力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -4641,7 +4641,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -4677,7 +4677,7 @@
       "b": 100,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -5037,7 +5037,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162,
+      "width": 0,
       "height": 68.04
     },
     "_anchorPoint": {
@@ -5073,7 +5073,7 @@
       "b": 51,
       "a": 255
     },
-    "_string": "语言力",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -5302,7 +5302,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -5338,7 +5338,7 @@
       "b": 100,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -6811,7 +6811,7 @@
         "__id__": 295
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 310
