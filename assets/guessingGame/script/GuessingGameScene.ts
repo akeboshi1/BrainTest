@@ -340,6 +340,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     private onAudioStart() {
         //答题阶段，暂停回来不播放语音
         if (this._isInAnswerPhase && !this._replay) return;
+        this.frameComponent.node.active = true;
         this.frameComponent.playAnimation("speak", 24, true, true);
         if (this.currentQuestion != null) {
             this.questionLabel.string = this.processQuestionText(this.currentQuestion.questionText);

@@ -100,7 +100,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960,
+      "y": 960.0000000000002,
       "z": 0
     },
     "_lrot": {
@@ -185,7 +185,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 960.0000000000001,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -281,7 +281,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1920.0000000000002
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -384,7 +384,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -50.5,
-      "y": 647.5,
+      "y": 647.5000000000001,
       "z": 0
     },
     "_lrot": {
@@ -526,7 +526,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 135,
-      "y": -744,
+      "y": -744.0000000000001,
       "z": 0
     },
     "_lrot": {
@@ -735,7 +735,7 @@
         "__id__": 22
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 29
@@ -1216,7 +1216,7 @@
         "__id__": 47
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 55
@@ -2205,7 +2205,7 @@
     "_enabled": true,
     "__prefab": null,
     "_lineHeight": 120,
-    "_string": "念你你打实打\n阿萨大大念你\n阿萨大大念你\n念你你打实打",
+    "_string": "\n\n\n",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_fontSize": 80,
@@ -2248,7 +2248,7 @@
         "__id__": 85
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 93
@@ -5881,7 +5881,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1920.0000000000002
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
