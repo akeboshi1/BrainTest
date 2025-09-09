@@ -21,6 +21,14 @@ export class BrainTrain extends BasePanel {
 
     @property(Label)
     label: Label = null;
+
+    @property(Label)
+    descLabel:Label = null;
+
+    @property(Label)
+    buttonLabel :Label = null;
+
+
     private curTaskId: number = -1;
     onEnable(): void {
         if(this.curTaskId == -1){
@@ -40,7 +48,26 @@ export class BrainTrain extends BasePanel {
         if(data !=null)this.curTaskId = data;
     }
     start() {
-
+        if(!this._curTask){
+            this._curTask = TaskManager.getInstance().taskDic.get(this.curTaskId);
+        }
+        // 检测当前任务类型
+        if (this._curTask && this._curTask.type === TaskType.Review) {
+            // 如果是初评任务，设置相应的文本
+            if (this.descLabel) {
+                this.descLabel.string = "请进行初始测评，为您打造个性化训练组合";
+            }
+            if (this.buttonLabel) {
+                this.buttonLabel.string = "开始脑力测验";
+            }
+        }else{
+            if (this.descLabel) {
+                this.descLabel.string = "根据您以往的表现和测试，为您安排了如下健康锻炼任务。";
+            }
+            if (this.buttonLabel) {
+                this.buttonLabel.string = "开始今天任务";
+            }
+        }
     }
     private requestBranisTraining_listCallBack(data, context) {
         EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
