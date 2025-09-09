@@ -65,7 +65,7 @@ export class BrainTrain extends BasePanel {
                 this.descLabel.string = "根据您以往的表现和测试，为您安排了如下健康锻炼任务。";
             }
             if (this.buttonLabel) {
-                this.buttonLabel.string = "开始今天任务";
+                this.buttonLabel.string = "开始今日任务";
             }
         }
     }
