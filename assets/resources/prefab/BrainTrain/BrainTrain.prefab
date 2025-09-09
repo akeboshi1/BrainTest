@@ -9313,7 +9313,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1040,
+      "width": 0,
       "height": 75.6
     },
     "_anchorPoint": {
@@ -9349,7 +9349,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "根据您以往的表现和测试，为您安排了如下健康锻炼任务。",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
@@ -10470,6 +10470,12 @@
     ],
     "label": {
       "__id__": 408
+    },
+    "descLabel": {
+      "__id__": 385
+    },
+    "buttonLabel": {
+      "__id__": 418
     },
     "_id": ""
   },
