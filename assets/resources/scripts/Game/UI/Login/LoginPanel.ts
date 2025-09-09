@@ -1,4 +1,4 @@
-import { _decorator, Toggle, Node, Vec3, Label, EditBox, Button, Sprite, resources, SpriteFrame, Color } from 'cc';
+import { _decorator, Toggle, Node, Vec3, Label, EditBox, Button, Sprite, resources, SpriteFrame, Color, sys, native } from 'cc';
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { AlertManager, AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
@@ -118,7 +118,7 @@ export class LoginPanel extends BasePanel {
         ad.contentClickCb = this.showXieYi.bind(this);
         AlertManager.getInstance().showUserAgreeAlert(ad);
         ad.confirmCb = this.confirmHandler.bind(this);
-        ad.cancelCb = this.cancelHandler.bind(this);
+        ad.cancelCb = this.exitHandler.bind(this);
     }
 
     initToggle() {
@@ -135,7 +135,7 @@ export class LoginPanel extends BasePanel {
             ad.contentClickCb = this.showXieYi.bind(this);
             AlertManager.getInstance().showUserAgreeAlert(ad);
             ad.confirmCb = this.confirmHandler.bind(this);
-            ad.cancelCb = this.cancelHandler.bind(this);
+            ad.cancelCb = this.exitHandler.bind(this);
         } else {
             this.toggle.isChecked = LoginManager.getInstance().xieyiToggleFlag;
             this.tips.active = !LoginManager.getInstance().xieyiToggleFlag;
@@ -285,6 +285,15 @@ export class LoginPanel extends BasePanel {
     cancelHandler() {
         AlertManager.getInstance().closeCurrentAlert();
     }
+
+    exitHandler() {
+        if(sys.isNative){
+            native.bridge.sendToNative('APP', 'exit');
+        }else{
+            AlertManager.getInstance().closeCurrentAlert();
+        }
+    }
+
     // 显示协议
     showXieYi() {
         // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
