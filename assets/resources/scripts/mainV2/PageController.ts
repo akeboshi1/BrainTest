@@ -3,6 +3,7 @@ import { ColorUtil } from '../Core/Util/ColorUtil';
 import { DebugLog } from '../Core/Util/DebugLog'; 
 import { ReportManager } from '../ManagerV2/ReportManager';
 import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import {ScreenAdapter} from "db://assets/resources/scripts/Adapter/ScreenAdapter";
 
 const { ccclass, property } = _decorator;
 
@@ -94,7 +95,9 @@ export class PageController extends AdaptComponent {
             });
 
             const page = instantiate(prefab);
-            
+            // 对添加的实例进行屏幕适配
+            ScreenAdapter.getInstance().adaptPanelUI(page);
+
             // 如果有传入参数，遍历所有组件并设置参数
             if (params) {
                 const components = page.getComponents(Component);
@@ -123,6 +126,7 @@ export class PageController extends AdaptComponent {
     loadIndexPage(){
         this.loadPage('index');
         this.updateButtonColors(null,"0");
+
     }
 
     async loadReporterPage(params: any = null, data: any = null){
