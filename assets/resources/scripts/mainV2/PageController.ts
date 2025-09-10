@@ -96,7 +96,7 @@ export class PageController extends AdaptComponent {
 
             const page = instantiate(prefab);
             // 对添加的实例进行屏幕适配
-            ScreenAdapter.getInstance().adaptPanelUI(page);
+            // ScreenAdapter.getInstance().adaptPanelUI(page);
 
             // 如果有传入参数，遍历所有组件并设置参数
             if (params) {
