@@ -83,6 +83,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     private remainingTimeBeforePause: number = 0;
     private isInPreviewMode: boolean = false; // 是否在预览模式
 
+    // 全局翻转保护相关变量
+    private isGlobalFlipping: boolean = false; // 是否有卡片正在全局翻转（预览阶段）
+    private flippingCardCount: number = 0; // 正在翻转的卡片数量
+
     protected bundleName: string = BundleName.FANPAI;
 
 
@@ -92,7 +96,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         super();
     }
     onLoad(): void {
-       
+
     }
 
 
@@ -103,7 +107,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.dataInit();
         // ui初始化
         this.sceneInit();
-        
+
         // 添加应用前后台切换监听
         this.addAppStateListener();
     }
@@ -134,7 +138,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 独有初始化
         this.initCardView();
 
-       
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // this.successView.active = false;
             this.loadAudio().then(
@@ -151,12 +155,24 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     clickCardHandler(event, data) {
         // 基础检查
-        if (!this.isAbleClick) { 
+        if (!this.isAbleClick) {
             DebugLog.instance.log("训练未开始，无法点击卡片");
-            return; 
+            return;
         }
         if (!this.cardList || this._setTimeOutId != null) {
             DebugLog.instance.log("卡片列表为空或正在预览中，无法点击");
+            return;
+        }
+
+        // 检查是否在预览模式或有卡片正在全局翻转
+        if (this.isInPreviewMode || this.isGlobalFlipping) {
+            DebugLog.instance.log("预览阶段或卡片正在全局翻转中，无法点击");
+            return;
+        }
+
+        // 检查是否有卡片正在翻转
+        if (this.flippingCardCount > 0) {
+            DebugLog.instance.log("有卡片正在翻转中，忽略此次点击");
             return;
         }
 
@@ -167,7 +183,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
-        // 检查是否有卡片正在翻转
+        // 检查是否有卡片正在翻转（保留原有检查作为备用）
         if (this.isCardFlipping) {
             DebugLog.instance.log("有卡片正在翻转中，忽略此次点击");
             return;
@@ -186,13 +202,13 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 播放音效
         this.playAudio("music/fanpai", true);
-        
+
         let self = this;
         // 获取当前卡片
         const currentCard = this.cardPool.children[0].children[index];
         const card = currentCard.getChildByName("card")
         const sprite = card.getComponent(Sprite);
-        
+
         this.flipCardAnimation(card, () => {
             // 翻转到中间点时加载卡片图片
             const bundle = assetManager.getBundle(self.bundleName);
@@ -232,7 +248,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.currentCustomsSuccess();
                 return;
             }
-            this.showSpriteAnimation("texture/right", () => { 
+            this.showSpriteAnimation("texture/right", () => {
                 // 重置翻转状态
                 this.isCardFlipping = false;
             });
@@ -260,7 +276,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     });
                     this.cardList[card.index].isBacked = false;
                 });
-                
+
                 // 在错误动画完成后重置翻转状态
                 setTimeout(() => {
                     this.isCardFlipping = false;
@@ -284,8 +300,9 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 卡片翻转动画
      * @param cardNode 卡片节点
      * @param middleCallback 翻转到中间时的回调函数
+     * @param isGlobalFlip 是否为全局翻转（预览阶段）
      */
-    flipCardAnimation(cardNode: Node, middleCallback: () => void) {
+    flipCardAnimation(cardNode: Node, middleCallback: () => void, isGlobalFlip: boolean = false) {
         // 取消可能正在进行的动画
         tween(cardNode).stop();
 
@@ -294,6 +311,12 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 强制设置为标准缩放值
         cardNode.setScale(1, 1, 1);
+
+        // 增加翻转计数器
+        this.flippingCardCount++;
+        if (isGlobalFlip) {
+            this.isGlobalFlipping = true;
+        }
 
         // 监控变量，确保回调只执行一次
         let callbackExecuted = false;
@@ -321,6 +344,14 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 确保最终卡片缩放是正确的
                 cardNode.setScale(1, 1, 1);
 
+                // 减少翻转计数器
+                this.flippingCardCount = Math.max(0, this.flippingCardCount - 1);
+
+                // 如果是全局翻转且所有卡片翻转完成，重置全局翻转状态
+                if (isGlobalFlip && this.flippingCardCount === 0) {
+                    this.isGlobalFlipping = false;
+                }
+
                 // 设置一个较短的定时器，再次确认卡片缩放正确
                 setTimeout(() => {
                     if (cardNode && cardNode.isValid) {
@@ -342,6 +373,12 @@ export class Main extends BaseScene<IBaseGameChild> {
                 } catch (error) {
                     DebugLog.instance.error("超时保护触发的回调执行出错:", error);
                 }
+            }
+
+            // 减少翻转计数器（超时保护）
+            this.flippingCardCount = Math.max(0, this.flippingCardCount - 1);
+            if (isGlobalFlip && this.flippingCardCount === 0) {
+                this.isGlobalFlipping = false;
             }
 
             // 确保卡片最后是正确的缩放
@@ -377,6 +414,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     private resetClickProtection() {
         this.isCardFlipping = false;
         this.lastClickTime = 0;
+        this.isGlobalFlipping = false;
+        this.flippingCardCount = 0;
         DebugLog.instance.log("点击保护状态已重置");
     }
 
@@ -461,7 +500,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     onFailNextLevel(): void {
-        
+
         this.playNextCustoms();
     }
     onAgain(){
@@ -565,6 +604,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     async showAllCard() {
         let self = this;
+        // 设置全局翻转状态
+        this.isGlobalFlipping = true;
+        this.flippingCardCount = 0;
+
         this.cardList.forEach((cardItem, index) => {
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
@@ -574,7 +617,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
                 const sprite = card.getComponent(Sprite);
                 sprite.spriteFrame = null;
-                // 直接添加翻转动画，移除延迟
+                // 使用全局翻转标志
                 this.flipCardAnimation(cardNode, () => {
                     const bundle = assetManager.getBundle(self.bundleName);
                     bundle.load(cardItem.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
@@ -584,7 +627,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                         }
                         sprite.spriteFrame = sp;
                     })
-                });
+                }, true); // 标记为全局翻转
             }
         });
     }
@@ -593,6 +636,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearTimeout(this._setTimeOutId);
         this._setTimeOutId = null;
         let self = this;
+
+        // 设置全局翻转状态
+        this.isGlobalFlipping = true;
+        this.flippingCardCount = 0;
+
         this.cardList.forEach((card, index) => {
             card.isBacked = false;
             card.isDeleted = false;
@@ -602,7 +650,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 确保卡片处于正确的初始状态
                 card.setScale(1, 1, 1);
 
-                // 直接添加翻转动画，移除延迟
+                // 使用全局翻转标志
                 this.flipCardAnimation(cardNode, () => {
                     const sprite = card.getComponent(Sprite);
 
@@ -615,7 +663,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                         sprite.spriteFrame = sp;
                     })
 
-                });
+                }, true); // 标记为全局翻转
             }
         });
     }
@@ -623,16 +671,21 @@ export class Main extends BaseScene<IBaseGameChild> {
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
         clearInterval(this.intervalId);
-        
+
         // 重置点击保护状态
         this.isAbleClick = false;
         this.isCardFlipping = false;
         this.lastClickTime = 0;
-        
+
+        // 重置翻转保护状态
+        this.isGlobalFlipping = false;
+        this.flippingCardCount = 0;
+        this.isInPreviewMode = false;
+
         // 移除应用状态监听
         game.off(Game.EVENT_HIDE, this.onAppHide, this);
         game.off(Game.EVENT_SHOW, this.onAppShow, this);
-        
+
         super.onDestroy();
     }
 
@@ -650,10 +703,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.isCountdownPaused = false;
 
         await this.showAllCard();
-        
+
         const initialTime = this.seconds[this.hardIndex];
         const decimalPart = initialTime - Math.floor(initialTime); // 小数部分
-        
+
         // 如果有小数部分，先等待小数部分的时间过去（不显示倒计时）
         if (decimalPart > 0) {
             // 等待小数部分时间过去
@@ -661,7 +714,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 setTimeout(resolve, decimalPart * 1000);
             });
         }
-        
+
         // 现在开始显示倒计时，从整数秒开始
         const integerTime = Math.floor(initialTime);
         if (integerTime > 0) {
@@ -684,13 +737,13 @@ export class Main extends BaseScene<IBaseGameChild> {
                 if (remainTime >= 0) {
                     updateDisplay(remainTime);
                 }
-                
+
                 if (remainTime < 0) {
                     clearInterval(this.intervalId);
                     // 时间到0时显示"开始"并播放放大动画
                     this.countDownLabel.string = "开始";
                     this.countDownLabel.node.setScale(1, 1, 1);
-                    
+
                     // 播放放大动画
                     tween(this.countDownLabel.node)
                         .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
@@ -718,7 +771,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.countDownLabel.string = "开始";
                 this.countDownLabel.node.active = true;
                 this.countDownLabel.node.setScale(1, 1, 1);
-                
+
                 // 播放放大动画
                 tween(this.countDownLabel.node)
                     .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
@@ -726,12 +779,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     .call(() => {
                         // 动画完成后延迟一段时间再隐藏标签
                         setTimeout(() => {
-                            // 检查并修复可能存在的问题
-                            this.checkAndFixCardScales();
-
-                            this.closeAllCard();
-                            this.countDownLabel.node.active = false;
-                            this.timerTick();
+                            this.endPreview();
                         }, 300); // 给用户时间看到"开始"文字
                     })
                     .start();
@@ -742,19 +790,14 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.countDownLabel.node.active = true;
             this.countDownLabel.string = "开始";
             this.countDownLabel.node.setScale(1, 1, 1);
-            
+
             // 播放放大动画
             tween(this.countDownLabel.node)
                 .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                 .to(0.2, { scale: new Vec3(1, 1, 1) })
                 .call(() => {
                     setTimeout(() => {
-                        // 检查并修复可能存在的问题
-                        this.checkAndFixCardScales();
-
-                        this.closeAllCard();
-                        this.countDownLabel.node.active = false;
-                        this.timerTick();
+                        this.endPreview();
                     }, 300);
                 })
                 .start();
@@ -934,7 +977,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 监听应用回到前台
         game.on(Game.EVENT_SHOW, this.onAppShow, this);
     }
-    
+
     /**
      * 应用进入后台时的处理
      */
@@ -942,7 +985,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.error("应用进入后台，暂停倒计时");
         this.pauseCountdown();
     }
-    
+
     /**
      * 应用回到前台时的处理
      */
@@ -950,7 +993,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.error("应用回到前台，恢复倒计时");
         this.resumeCountdown();
     }
-    
+
     /**
      * 暂停倒计时
      */
@@ -958,7 +1001,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.isInPreviewMode && !this.isCountdownPaused) {
             this.isCountdownPaused = true;
             this.pauseStartTime = Date.now();
-            
+
             // 计算剩余时间
             if (this._setTimeOutId) {
                 // 清除当前的倒计时
@@ -969,25 +1012,25 @@ export class Main extends BaseScene<IBaseGameChild> {
                 clearInterval(this.intervalId);
                 this.intervalId = null;
             }
-            
+
             DebugLog.instance.log("倒计时已暂停");
         }
     }
-    
+
     /**
      * 恢复倒计时
      */
     private resumeCountdown() {
         if (this.isCountdownPaused && this.isInPreviewMode) {
             this.isCountdownPaused = false;
-            
+
             // 计算暂停的时长
             const pauseDuration = Date.now() - this.pauseStartTime;
             const pauseDurationSeconds = pauseDuration / 1000;
-            
+
             // 重新计算剩余时间
             const currentRemainingTime = this.seconds[this.hardIndex] - pauseDurationSeconds;
-            
+
             if (currentRemainingTime > 0) {
                 // 重新开始倒计时
                 this.restartCountdown(currentRemainingTime);
@@ -999,7 +1042,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
         }
     }
-    
+
     /**
      * 重新开始倒计时
      */
@@ -1057,7 +1100,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.endPreview();
         }, remainingTime * 1000);
     }
-    
+
     /**
      * 结束预览
      */
@@ -1076,11 +1119,35 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.closeAllCard();
         this.countDownLabel.node.active = false;
-        this.timerTick();
 
-        // 重置预览模式标志
-        this.isInPreviewMode = false;
-        this.isCountdownPaused = false;
+        // 等待所有卡片翻转完成后再开始游戏
+        this.waitForAllCardsFlipped(() => {
+            this.timerTick();
+            // 重置预览模式标志
+            this.isInPreviewMode = false;
+            this.isCountdownPaused = false;
+        });
+    }
+
+    /**
+     * 等待所有卡片翻转完成
+     * @param callback 所有卡片翻转完成后的回调
+     */
+    private waitForAllCardsFlipped(callback: () => void) {
+        const checkInterval = setInterval(() => {
+            // 检查是否还有卡片在翻转
+            if (this.flippingCardCount === 0 && !this.isGlobalFlipping) {
+                clearInterval(checkInterval);
+                callback();
+            }
+        }, 50); // 每50ms检查一次
+
+        // 设置最大等待时间，防止无限等待
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            DebugLog.instance.log("等待卡片翻转完成超时，强制开始游戏");
+            callback();
+        }, 2000); // 最多等待2秒
     }
 }
 
