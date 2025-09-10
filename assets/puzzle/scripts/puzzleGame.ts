@@ -16,7 +16,8 @@ import {
     Vec3,
     AudioClip,
     ProgressBar,
-    Label
+    Label,
+    Button
 } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
@@ -121,6 +122,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     // 添加一个新属性来控制是否允许拖拽
     private isDragEnabled: boolean = true;
+
+    // 添加一个属性来控制是否允许退出
+    private isQuitEnabled: boolean = true;
 
     protected audioUrls = ['music/puzzleBG', "music/drag", "music/win"];
 
@@ -369,6 +373,11 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     quitGame() {
+        // 如果退出被禁用，直接返回
+        if (!this.isQuitEnabled) {
+            return;
+        }
+
         this.resetDragState();
 
         super.quitGame({ parentNode: this.viewNode, context: this });
@@ -402,6 +411,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     processGameSuccess() {
         this.isDragEnabled = false;
+        
+        // 禁用退出按钮
+        this.setQuitButtonInteractable(false);
 
         if (this._timeID) {
             clearTimeout(this._timeID);
@@ -431,6 +443,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 // 显示底图（拼图块）
                 this.chipParentNode.active = true;
                 
+                // 重新启用退出按钮
+                this.setQuitButtonInteractable(true);
                
                 // 处理训练结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -449,8 +463,22 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.isDragEnabled = true;
     }
 
+    // 设置退出按钮的交互状态
+    private setQuitButtonInteractable(interactable: boolean): void {
+        if (this.quitBtn && this.quitBtn.isValid) {
+            const button = this.quitBtn.getComponent(Button);
+            if (button) {
+                button.interactable = interactable;
+            }
+        }
+        this.isQuitEnabled = interactable;
+    }
+
     onClickStartGame() {
         this.enableDragAndResetGame();
+        
+        // 确保退出按钮在游戏开始时是启用的
+        this.setQuitButtonInteractable(true);
 
         this._startTime = TimeUtil.getNow();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
