@@ -24,6 +24,7 @@ export class AlertManager extends BaseManager {
     private userAgreeAlertPrefab: Prefab = null;
     private alertQueue: AlertData[] = []; // 用于存储等待显示的alert数据队列
     private currentAlert: Node = null; // 当前正在显示的alert节点
+    private userAgreeAlert: Node = null; // 用户同意弹窗节点
 
     public async init() {
         SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
@@ -164,8 +165,7 @@ export class AlertManager extends BaseManager {
         }
     }
     public showUserAgreeAlert(alertData: AlertData) {
-        if (this.currentAlert) {
-            this.alertQueue.push(alertData);
+        if (this.userAgreeAlert) {
             return;
         }
         // 如果公共弹窗预制体未加载，则输出警告信息
@@ -185,7 +185,7 @@ export class AlertManager extends BaseManager {
         }
 
         rootNode.addChild(alertNode);
-        this.currentAlert = alertNode;
+        this.userAgreeAlert = alertNode;
 
         // 使用项目中的ScreenAdapter进行UI适配
         this.adaptAlertUI(alertNode);
@@ -195,27 +195,11 @@ export class AlertManager extends BaseManager {
             alertNode.setPosition(alertData.x, alertData.y);
         }
 
-        // 这里可以添加更多逻辑根据alertData设置弹窗内的文本内容、按钮显示及点击回调等
-
         // 假设弹窗内有对应的组件来设置标题、消息等内容，以下为示例代码（需根据实际预制体结构调整）
         let titleLabel = alertNode.getChildByName("viewNode").getChildByName('titleLabel').getComponent(Label);
         if (titleLabel) {
             titleLabel.string = alertData.title;
         }
-
-        // let messageLabel = alertNode.getChildByName('messageLabel').getComponent(Label);
-        // if (messageLabel) {
-        //     messageLabel.string = alertData.message;
-        //     messageLabel.color = new Color(alertData.messageFontColor);
-        //     messageLabel.node.on('click', () => {
-        //         console.log('contentClick');
-        //         if (alertData.contentClickCb) {
-        //             alertData.contentClickCb();
-        //         }
-        //         this.closeCurrentAlert();
-        //     });
-
-        // }
 
         let self = this;
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）
@@ -226,7 +210,7 @@ export class AlertManager extends BaseManager {
                 if (alertData.cancelCb) {
                     alertData.cancelCb();
                 }
-                self.closeCurrentAlert();
+                self.closeUserAgreeAlert();
             });
 
             cancelButton.node.getChildByName("Label").getComponent(Label).string = alertData.cancelButtonText;
@@ -239,7 +223,7 @@ export class AlertManager extends BaseManager {
                 if (alertData.confirmCb) {
                     alertData.confirmCb();
                 }
-                self.closeCurrentAlert();
+                self.closeUserAgreeAlert();
             });
 
             confirmButton.node.getChildByName("Label").getComponent(Label).string = alertData.confirmButtonText;
@@ -258,6 +242,13 @@ export class AlertManager extends BaseManager {
                 let nextAlertData = this.alertQueue.shift();
                 this.showAlert(nextAlertData);
             }
+        }
+    }
+
+    private closeUserAgreeAlert() {
+        if (this.userAgreeAlert) {
+            this.userAgreeAlert.destroy();
+            this.userAgreeAlert = null;
         }
     }
 
