@@ -5261,7 +5261,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -125,
+      "x": -137.394,
       "y": -40,
       "z": 0
     },
@@ -5302,7 +5302,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 252.0615234375,
+      "width": 0,
       "height": 52.92
     },
     "_anchorPoint": {
@@ -5338,7 +5338,7 @@
       "b": 100,
       "a": 255
     },
-    "_string": "超过80%同龄",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 42,
@@ -7754,7 +7754,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
