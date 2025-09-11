@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, EventTouch, Label,RichText, Node, Sprite, AudioClip, ProgressBar } from 'cc';
+import { _decorator, Button, Color, EventTouch, Label,RichText, Node, Sprite, AudioClip, ProgressBar, game, Game } from 'cc';
 import { GuessingGameEvent, GuessingGameModel } from './GuessingGameModel';
 import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
@@ -115,7 +115,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (!this.questionLabel) return;
         
         // 听题阶段和答题阶段显示，结算阶段隐藏
-        const shouldShow = this._currentPhase === 'listening' || this._currentPhase === 'answering';
+        const shouldShow = this._currentPhase === 'listening';// || this._currentPhase === 'answering';
         this.questionLabel.node.active = shouldShow;
     }
 
