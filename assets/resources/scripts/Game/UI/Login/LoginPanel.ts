@@ -283,14 +283,12 @@ export class LoginPanel extends BasePanel {
 
 
     cancelHandler() {
-        AlertManager.getInstance().closeCurrentAlert();
+        
     }
 
     exitHandler() {
         if(sys.isNative){
             native.bridge.sendToNative('APP', 'exit');
-        }else{
-            AlertManager.getInstance().closeCurrentAlert();
         }
     }
 
