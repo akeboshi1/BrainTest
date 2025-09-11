@@ -281,7 +281,7 @@ export class SumAnalyseView extends Component {
                 if (item.weekTier > 1) {
                     displayText = `在同龄组中超过了${(item.weekTier - 1) * 10}%的个体，高于平均水平`;
                 } else {
-                    displayText = `同龄组末位的10%`;
+                    displayText = `同龄组末位10%`;
                 }
             } else {
                 if (item.monthTierUp >= 3) {
@@ -291,7 +291,7 @@ export class SumAnalyseView extends Component {
                 } else if(item.monthTierUp >= 1){
                     displayText = `在同龄组中超过了${(item.weekTier - 1) * 10}%的个体，高于平均水平，较上月稳定提升`;
                 } else if(item.monthTierUp == 0){
-                    displayText = `位于同龄组末位的10%，与上周相同`;
+                    displayText = `位于同龄组末位10%，与上周相同`;
                 }
             }
             script.setText(displayText);
