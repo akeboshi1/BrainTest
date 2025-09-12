@@ -65,6 +65,7 @@ export class TimerCommonComponent extends Component {
         this.duration = duration;
         this.startTime = Date.now();
         this.elapsedTime = 0;
+        this._pauseTime = 0;
         this.isRunning = true;
     }
 
@@ -77,15 +78,17 @@ export class TimerCommonComponent extends Component {
     private elapsedTime: number = 0;
     // 暂停计时的方法
     public pauseTimer() {
-        this._pauseTime = Date.now();
-        this.elapsedTime += (this._pauseTime - this.startTime); // 记录已过时间
-        this.isRunning = false;
+        if (this.isRunning) {
+            this._pauseTime = Date.now();
+            this.elapsedTime += (this._pauseTime - this.startTime) / 1000; // 记录已过时间（秒）
+            this.isRunning = false;
+        }
     }
 
-    // 暂停计时的方法
+    // 恢复计时的方法
     public resumeTimer() {
         if (!this.isRunning && this.startTime > 0) {
-            this.startTime = Date.now()-this.elapsedTime;
+            this.startTime = Date.now() - (this.elapsedTime * 1000); // 将秒转换为毫秒
             this.isRunning = true;
             this._pauseTime = 0;
             this.elapsedTime = 0;
@@ -96,6 +99,8 @@ export class TimerCommonComponent extends Component {
     public resetTimer() {
         this.isRunning = false;
         this.startTime = 0;
+        this.elapsedTime = 0;
+        this._pauseTime = 0;
         if (this.timeLabel) {
             if (this.displayType === 1) {
                 this.timeLabel.string = '00:00';
