@@ -1,4 +1,4 @@
-import { _decorator, Node, director,Vec3,ProgressBar,Button,Sprite,find,Label,assetManager,instantiate,SpriteFrame,Color,UITransform,UIOpacity,tween,ParticleAsset,Rect,Prefab,ParticleSystem2D } from "cc";
+import { _decorator, Node, director,Vec3,ProgressBar,Button,Sprite,find,Label,assetManager,instantiate,SpriteFrame,Color,UITransform,UIOpacity,tween,ParticleAsset,Rect,Prefab,ParticleSystem2D, game, Game as CocosGame } from "cc";
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import PanelMgr, { Layer } from "../Common/manage/PanelMgr";
@@ -136,6 +136,9 @@ export class Game extends BaseScene<IBaseGameChild> {
         // PanelMgr.INS.clear();
         // 初始化FindingGlobal的事件监听器
         FindingGlobal.initEventListeners();
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
         this.init_OK();
         // Emit.instance().on(EventCode.PanelMgrInitOK, this.do_after_panelMgr_initOK, this)
         // Emit.instance().emit(EventCode.PanelMgrInitOK);
@@ -777,6 +780,12 @@ export class Game extends BaseScene<IBaseGameChild> {
     }
 
     goonHandler(context) {
+        // // 如果游戏在结算阶段，只关闭弹窗，不执行继续游戏操作
+        // if (context._isSettling || context.gameOver) {
+        //     DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
+        //     return;
+        // }
+        
         context.pause = false;
         context._pauseDurTime += context._pauseEndTime - TimeUtil.getNow();
         AudioMgr.audioSource.stop();
@@ -1469,5 +1478,53 @@ export class Game extends BaseScene<IBaseGameChild> {
         return node;
     }
 
+    protected onDestroy(): void {
+        // 移除应用状态监听
+        game.off(CocosGame.EVENT_HIDE, this.onAppHide, this);
+        game.off(CocosGame.EVENT_SHOW, this.onAppShow, this);
+        
+        super.onDestroy();
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on(CocosGame.EVENT_HIDE, this.onAppHide, this);
+        // 监听应用回到前台
+        game.on(CocosGame.EVENT_SHOW, this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        DebugLog.instance.log("应用进入后台，暂停游戏并显示退出弹窗");
+        
+        // 显示退出弹窗
+        this.showPauseAlert();
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        DebugLog.instance.log("应用回到前台，恢复游戏");
+        
+        // 如果游戏在结算阶段，不恢复倒计时
+        if (this._isSettling || this.gameOver) {
+            DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
+            return;
+        }
+        
+    }
+
+    /**
+     * 显示暂停弹窗
+     */
+    private showPauseAlert() {
+       this.backHandler();
+    }
 
 }
