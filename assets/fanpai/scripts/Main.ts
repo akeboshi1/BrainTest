@@ -90,6 +90,12 @@ export class Main extends BaseScene<IBaseGameChild> {
     // 退出状态相关变量
     private isQuitDialogOpen: boolean = false; // 退出对话框是否打开
 
+    // 倒计时保护相关变量
+    private isTimerStarted: boolean = false; // 倒计时是否已启动
+
+    // 游戏退出状态相关变量
+    private isGameExited: boolean = false; // 游戏是否已退出
+
     protected bundleName: string = BundleName.FANPAI;
 
 
@@ -419,6 +425,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.lastClickTime = 0;
         this.isGlobalFlipping = false;
         this.flippingCardCount = 0;
+        this.isTimerStarted = false; // 重置倒计时状态
+        this.isGameExited = false; // 重置退出状态
         DebugLog.instance.log("点击保护状态已重置");
     }
 
@@ -427,6 +435,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     currentCustomsSuccess() {
         this.isAbleClick = false;
         this.isCardFlipping = false;
+        this.isTimerStarted = false; // 重置倒计时状态
         this._endTime = TimeUtil.getNow();
         this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
@@ -678,6 +687,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         });
     }
     protected onDestroy(): void {
+        // 设置游戏退出状态
+        this.isGameExited = true;
+        
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
         clearInterval(this.intervalId);
@@ -691,6 +703,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.isGlobalFlipping = false;
         this.flippingCardCount = 0;
         this.isInPreviewMode = false;
+
+        // 重置倒计时状态
+        this.isTimerStarted = false;
 
         // 移除应用状态监听
         game.off(Game.EVENT_HIDE, this.onAppHide, this);
@@ -826,14 +841,31 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     timerInit() {
         this.timerComponent.resetTimer();
+        this.isTimerStarted = false; // 重置倒计时启动状态
     }
     timerTick() {
+        // 检查游戏是否已退出
+        if (this.isGameExited) {
+            DebugLog.instance.log("游戏已退出，不启动倒计时");
+            return;
+        }
+
+        // 检查倒计时是否已经启动，防止重复启动
+        if (this.isTimerStarted) {
+            DebugLog.instance.log("倒计时已经启动，忽略重复调用");
+            return;
+        }
+
         // 检查退出对话框是否打开，如果打开则不开始倒计时
         if (this.isQuitDialogOpen) {
             this._isTimerStop = true;
             DebugLog.instance.log("退出对话框已打开，不开始倒计时");
             return;
         }
+
+        // 标记倒计时已启动
+        this.isTimerStarted = true;
+        DebugLog.instance.log("开始倒计时");
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
@@ -863,6 +895,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         AudioManager.getInstance().stopBgm();
         this.isAbleClick = false;
         this.isCardFlipping = false;
+        this.isTimerStarted = false; // 重置倒计时状态
         let { complete, duration } = this.requestGameResult();
         // 倒计时结束，训练结束
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -935,9 +968,12 @@ export class Main extends BaseScene<IBaseGameChild> {
 
 
     exitCallBack(context) {
+        // 设置游戏退出状态
+        context.isGameExited = true;
+        
         // 重置退出对话框状态
         context.isQuitDialogOpen = false;
-        DebugLog.instance.log("用户确认退出，重置退出状态");
+        DebugLog.instance.log("用户确认退出，设置退出状态");
 
         clearTimeout(context._setTimeOutId);
         context._setTimeOutId = null;
@@ -1218,19 +1254,34 @@ export class Main extends BaseScene<IBaseGameChild> {
      * @param callback 所有卡片翻转完成后的回调
      */
     private waitForAllCardsFlipped(callback: () => void) {
+        let callbackExecuted = false; // 防止重复执行回调
+        
         const checkInterval = setInterval(() => {
+            // 检查游戏是否已退出
+            if (this.isGameExited) {
+                clearInterval(checkInterval);
+                DebugLog.instance.log("游戏已退出，取消等待卡片翻转完成");
+                return;
+            }
+            
             // 检查是否还有卡片在翻转
             if (this.flippingCardCount === 0 && !this.isGlobalFlipping) {
                 clearInterval(checkInterval);
-                callback();
+                if (!callbackExecuted && !this.isGameExited) {
+                    callbackExecuted = true;
+                    callback();
+                }
             }
         }, 50); // 每50ms检查一次
 
         // 设置最大等待时间，防止无限等待
         setTimeout(() => {
             clearInterval(checkInterval);
-            DebugLog.instance.log("等待卡片翻转完成超时，强制开始游戏");
-            callback();
+            if (!callbackExecuted && !this.isGameExited) {
+                callbackExecuted = true;
+                DebugLog.instance.log("等待卡片翻转完成超时，强制开始游戏");
+                callback();
+            }
         }, 2000); // 最多等待2秒
     }
 }
