@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager, game,Game, ParticleAsset } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, ProgressBar, Vec3, tween, assetManager, game, Game, ParticleAsset } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -6,10 +6,10 @@ import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/Tim
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
-import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
-import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import {SkewersGameType} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
-import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
+import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
+import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
+import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
 
 const { ccclass, property } = _decorator;
@@ -38,7 +38,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     progressBar: ProgressBar;
 
     @property(Node)
-    goonBtn:Node = null;
+    goonBtn: Node = null;
 
     @property(Label)
     guankaLabel: Label;
@@ -48,7 +48,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     timerComponent: TimerCommonComponent;
 
     @property(Label)
-    countDownLabel:Label;
+    countDownLabel: Label;
 
     @property(Sprite)
     private showSprite: Sprite;
@@ -87,10 +87,13 @@ export class Main extends BaseScene<IBaseGameChild> {
     private isGlobalFlipping: boolean = false; // 是否有卡片正在全局翻转（预览阶段）
     private flippingCardCount: number = 0; // 正在翻转的卡片数量
 
+    // 退出状态相关变量
+    private isQuitDialogOpen: boolean = false; // 退出对话框是否打开
+
     protected bundleName: string = BundleName.FANPAI;
 
 
-    protected audioUrls = ['music/bgMusic',"music/fanpai", "music/win","music/success","music/fail"];
+    protected audioUrls = ['music/bgMusic', "music/fanpai", "music/win", "music/success", "music/fail"];
 
     constructor() {
         super();
@@ -235,8 +238,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             const lastFrameComp = lastCardNode.getComponent(FrameComponent);
 
             // 播放star特效
-            currentFrameComp.playAnimation("star",48,false,false);
-            lastFrameComp.playAnimation("star",48,false,false);
+            currentFrameComp.playAnimation("star", 48, false, false);
+            lastFrameComp.playAnimation("star", 48, false, false);
 
             if (this.sceneModel.gameType != GameType.SKEWERS) {
                 if (!this.customsSendDataState) {
@@ -282,7 +285,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this.isCardFlipping = false;
                 }, 200); // 给错误动画足够的时间完成
             });
-            this.playAudio("music/fail",true);
+            this.playAudio("music/fail", true);
         }
 
         // 如果只有一张卡片被翻开，需要重置翻转状态
@@ -428,7 +431,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerComponent.pauseTimer();
         clearInterval(this.timerId);
 
-        this.playAudio("music/win",true);
+        this.playAudio("music/win", true);
         let obj = this.requestGameResult();
         // 非串烧训练
         if (this.sceneModel.gameType !== GameType.SKEWERS) {
@@ -471,6 +474,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.gameStartInit();
     }
     playNextCustoms() {
+        // 如果游戏在结算阶段，只关闭弹窗，不执行继续游戏操作
+        if (this.customsSendDataState) {
+            DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
+            return;
+        }
+
         this.isAbleClick = true;
         this.isCardFlipping = false;
         this.lastClickTime = 0;
@@ -492,10 +501,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.timerInit();
         // 移除立即调用timerTick()，让previewCard()在预览结束后自动调用
         this.previewCard();
-        this.playBgmAudio("music/bgMusic",true);
+        this.playBgmAudio("music/bgMusic", true);
     }
 
-    onSuccessNextLevel(){
+    onSuccessNextLevel() {
         this.playNextCustoms();
     }
 
@@ -503,7 +512,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.playNextCustoms();
     }
-    onAgain(){
+    onAgain() {
         this.replayGame();
     }
 
@@ -514,6 +523,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     gameStartInit() {
         // this.successView.active = false;
         this.customsSendDataState = false;
+        this.isQuitDialogOpen = false; // 重置退出对话框状态
         this.resetClickProtection();
         this.initCardView();
 
@@ -525,7 +535,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         this.previewCard();
 
-        this.playBgmAudio("music/bgMusic",true);
+        this.playBgmAudio("music/bgMusic", true);
     }
     // 初始化待显示的卡片主题
     initCardTheme() {
@@ -762,7 +772,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 if (this._setTimeOutId) {
                     clearTimeout(this._setTimeOutId);
                 }
-                if(this.intervalId){
+                if (this.intervalId) {
                     clearInterval(this.intervalId);
                 }
                 this._setTimeOutId = null;
@@ -812,10 +822,19 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     INIT_TIME = 90;
 
+    private _isTimerStop: boolean = false;
+
     timerInit() {
         this.timerComponent.resetTimer();
     }
     timerTick() {
+        // 检查退出对话框是否打开，如果打开则不开始倒计时
+        if (this.isQuitDialogOpen) {
+            this._isTimerStop = true;
+            DebugLog.instance.log("退出对话框已打开，不开始倒计时");
+            return;
+        }
+
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
         } else {
@@ -858,7 +877,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    dzgoonHandler(resuleBoo:boolean = true) {
+    dzgoonHandler(resuleBoo: boolean = true) {
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -867,13 +886,13 @@ export class Main extends BaseScene<IBaseGameChild> {
                 let self = this;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Memory;
-                if(!_boo){
+                if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
                     }, this, true);
                     this.clearGameView();
                     SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
-                }else{
+                } else {
                     (this.sceneModel as any).goonHandler(self, true);
                 }
             }
@@ -916,6 +935,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
 
     exitCallBack(context) {
+        // 重置退出对话框状态
+        context.isQuitDialogOpen = false;
+        DebugLog.instance.log("用户确认退出，重置退出状态");
+
         clearTimeout(context._setTimeOutId);
         context._setTimeOutId = null;
         super.exitCallBack(context);
@@ -964,7 +987,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.dzanswerHandler(this);
     }
 
-    public onClickRetryGame(){
+    public onClickRetryGame() {
         this.replayGame();
     }
 
@@ -982,8 +1005,43 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 应用进入后台时的处理
      */
     private onAppHide() {
-        DebugLog.instance.error("应用进入后台，暂停倒计时");
+        DebugLog.instance.error("应用进入后台，暂停游戏并显示退出弹窗");
+
+        // 暂停倒计时
         this.pauseCountdown();
+
+        // 暂停计时器
+        if (this.timerComponent) {
+            this.timerComponent.pauseTimer();
+        }
+
+        // 暂停游戏状态
+        this.isAbleClick = false;
+        this.isCardFlipping = false;
+
+        // 显示退出弹窗
+        this.showPauseAlert();
+    }
+
+    public resumeCallBack(context?: any) {
+        super.resumeCallBack(context);
+        // 重置退出对话框状态（用户可能取消了退出）
+        context.isQuitDialogOpen = false;
+    }
+
+    public resumeTime() {
+        if (this.timerComponent) {
+            if (this._isTimerStop) {
+                if (this.sceneModel.gameType == GameType.SKEWERS) {
+                    this.timerComponent.startTimer((this.sceneModel as any).game.timeLimit);
+                } else {
+                    this.timerComponent.startTimer(this.INIT_TIME);
+                }
+            } else {
+                this.timerComponent.resumeTimer();
+            }
+        }
+        this._isTimerStop = false;
     }
 
     /**
@@ -991,7 +1049,33 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
     private onAppShow() {
         DebugLog.instance.error("应用回到前台，恢复倒计时");
-        this.resumeCountdown();
+
+        // 如果游戏在结算阶段，不恢复倒计时
+        if (this.customsSendDataState) {
+            DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
+            return;
+        }
+
+        // 如果在预览阶段，恢复预览倒计时
+        if (this.isInPreviewMode) {
+            DebugLog.instance.log("预览阶段，恢复预览倒计时");
+            this.resumeCountdown();
+            return;
+        }
+
+        this.isAbleClick = true;
+    }
+
+    /**
+     * 显示暂停弹窗
+     */
+    private showPauseAlert() {
+        // 设置退出对话框打开状态
+        this.isQuitDialogOpen = true;
+        DebugLog.instance.log("退出对话框已打开，设置退出状态");
+
+        // 使用现有的quitGame方法显示退出弹窗
+        super.quitGame({ parentNode: this.mainView, context: this });
     }
 
     /**
