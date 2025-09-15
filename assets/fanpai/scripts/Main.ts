@@ -962,6 +962,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     quitGame() {
+        this.isQuitDialogOpen = true;
         super.quitGame({ parentNode: this.mainView, context: this });
         clearInterval(this.timerId);
     }
@@ -1063,6 +1064,19 @@ export class Main extends BaseScene<IBaseGameChild> {
         super.resumeCallBack(context);
         // 重置退出对话框状态（用户可能取消了退出）
         context.isQuitDialogOpen = false;
+        
+        // 如果在预览阶段，重新开始预览倒计时并重新打乱卡牌
+        if (context.isInPreviewMode) {
+            DebugLog.instance.log("预览阶段弹窗，重新开始预览倒计时并重新打乱卡牌");
+            // 重新初始化卡片数据（重新打乱）
+            context.initCardData();
+            // 重新开始预览
+            context.previewCard();
+        } else {
+            // 游戏阶段，恢复游戏状态
+            DebugLog.instance.log("游戏阶段弹窗，恢复游戏状态");
+            context.isAbleClick = true;
+        }
     }
 
     public resumeTime() {
@@ -1089,6 +1103,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 如果游戏在结算阶段，不恢复倒计时
         if (this.customsSendDataState) {
             DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
+            return;
+        }
+
+        // 如果游戏已退出，不恢复倒计时
+        if (this.isGameExited) {
+            DebugLog.instance.log("游戏已退出，不恢复倒计时");
             return;
         }
 
@@ -1225,6 +1245,12 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 结束预览
      */
     private endPreview() {
+        // 如果退出弹窗已打开，直接返回，不执行后续操作
+        if (this.isQuitDialogOpen) {
+            DebugLog.instance.log("退出弹窗已打开，endPreview直接返回");
+            return;
+        }
+
         if (this._setTimeOutId) {
             clearTimeout(this._setTimeOutId);
             this._setTimeOutId = null;
