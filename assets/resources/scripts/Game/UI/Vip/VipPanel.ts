@@ -296,6 +296,7 @@ export class VipPanel extends BasePanel {
             this._vipXieyiBoo = false;
             this.toggle.isChecked = false;
             this.toggleTips.active = true;
+            LocalStorageUtil.set(LocalStorageKeyEnum.VIP_XIEYI, "false");
         } else {
             this.toggle.isChecked = true;
             this._vipXieyiBoo = true;
