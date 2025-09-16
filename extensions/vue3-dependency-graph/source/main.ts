@@ -1,6 +1,5 @@
 // @ts-ignore
 import { join } from 'path';
-import packageJSON from '../package.json';
 import { generateBundleVersions } from './utils/generate-bundle-versions';
 import { checkExternalReferences } from './utils/check-external-references';
 import { BundleVersionManager } from './utils/bundle-version-manager';
@@ -15,15 +14,15 @@ export const methods: { [key: string]: (...args: any[]) => any } = { // 修正�
      * @zh 通过 message 触发的方法
      */
     openPanel() {
-        Editor.Panel.open(packageJSON.name);
+        Editor.Panel.open('vue3-dependency-graph');
     },
 
     openPublishProcessPanel() {
-        Editor.Panel.open(`${packageJSON.name}.publish-process`); // 使用模板字符串
+        Editor.Panel.open('vue3-dependency-graph.publish-process');
     },
 
     openTabsPanel() {
-        Editor.Panel.open(`${packageJSON.name}.open-tabspanel`); // 使用模板字符串
+        Editor.Panel.open('vue3-dependency-graph.open-tabspanel');
     },
 
 

@@ -1,7 +1,6 @@
 import { ProcessFlow, PublishProgress, FinishMethod } from './interfaces';
 import { CocosBuilderFlow, CocosBuilderParams } from './cocosBuilderFlow';
 import { PublishSettingFlow, PublishSettingParams } from './publishSettingFlow';
-import { BundleVersionsUpdateFlow, BundleVersionsUpdateParams } from './bundleVersionsUpdateFlow';
 import { GenerateBundleVersionFlow, GenerateBundleVersionParams } from './generateBundleVersionFlow';
 import { PublishBundleToServerFlow, PublishBundleToServerParams } from './publishBundleToServerFlow';
 import { BundleVersionsPushFlow, BundleVersionsPushParams } from './bundleVersionsPushFlow';
@@ -46,7 +45,6 @@ export interface FlowManagerConfig {
  */
 export enum FlowType {
     PUBLISH_SETTING = '修改发布设置',
-    BUNDLE_UPDATE = '更新Bundle版本库',
     COCOS_BUILD = 'Cocos Creator 发布',
     GENERATE_BUNDLE_VERSION = '生成Bundle版本',
     PUBLISH_TO_SERVER = '发布Bundle到服务器',
@@ -163,43 +161,6 @@ export class FlowManager {
         return this.flows.get(flowId)!;
     }
     
-    /**
-     * 获取Bundle版本更新流程
-     */
-    getBundleVersionsUpdateFlow(): ProcessFlow {
-        const flowId = 'bundle-versions-update';
-        
-        if (!this.flows.has(flowId)) {
-            // 创建新的Bundle版本更新流程
-            const flow = new BundleVersionsUpdateFlow();
-            
-            // 设置进度回调
-            if (this.config.onProgressUpdate) {
-                flow.setProgressCallback((progress, message) => {
-                    if (this.config.onProgressUpdate) {
-                        this.config.onProgressUpdate(FlowType.BUNDLE_UPDATE, progress, message);
-                    }
-                });
-            }
-            
-            // 设置完成回调
-            if (this.config.onFlowComplete) {
-                flow.setFinishedCallback((method, message) => {
-                    if (this.config.onFlowComplete) {
-                        this.config.onFlowComplete(
-                            FlowType.BUNDLE_UPDATE, 
-                            method === FinishMethod.SUCCESS,
-                            message
-                        );
-                    }
-                });
-            }
-            
-            this.flows.set(flowId, flow);
-        }
-        
-        return this.flows.get(flowId)!;
-    }
     
     /**
      * 获取生成Bundle版本流程
@@ -404,24 +365,6 @@ export class FlowManager {
         }
     }
     
-    /**
-     * 启动远程Bundle版本更新流程
-     */
-    async startBundleVersionsUpdate(): Promise<boolean> {
-        try {
-            const flow = this.getBundleVersionsUpdateFlow() as BundleVersionsUpdateFlow;
-            
-            const params: BundleVersionsUpdateParams = {
-                projectPath: this.config.projectPath
-            };
-            
-            await flow.start(params);
-            return true;
-        } catch (error) {
-            console.error('启动Bundle版本更新流程失败:', error);
-            return false;
-        }
-    }
     
     /**
      * 启动生成Bundle版本流程
@@ -582,43 +525,30 @@ export class FlowManager {
                     return false;
                 }
                 
-                // 2. 从Git更新Bundle版本信息
+                // 2. 执行Cocos发布
                 const step2Start = Date.now();
-                console.log('步骤2: 从Git更新Bundle版本信息');
-                // 临时关闭Bundle版本更新步骤
-                // const updateSuccess = await this.startBundleVersionsUpdate();
-                // if (!updateSuccess) {
-                //     console.error('步骤2失败: 无法更新Bundle版本，发布过程终止');
-                //     return false;
-                // }
-                console.log('步骤2: Bundle版本更新步骤已临时关闭');
-                const step2End = Date.now();
-                console.log(`[流程耗时] 步骤2(更新Bundle版本信息) 耗时: ${step2End - step2Start}ms`);
-                
-                // 3. 执行Cocos发布
-                const step3Start = Date.now();
-                console.log('步骤3: 执行Cocos Creator发布');
+                console.log('步骤2: 执行Cocos Creator发布');
                 const publishSuccess = await this.startPublish(
                     configType,
                     configPath,
                     debug
                 );
-                const step3End = Date.now();
-                console.log(`[流程耗时] 步骤3(Cocos Creator发布) 耗时: ${step3End - step3Start}ms`);
+                const step2End = Date.now();
+                console.log(`[流程耗时] 步骤2(Cocos Creator发布) 耗时: ${step2End - step2Start}ms`);
                 
                 if (!publishSuccess) {
-                    console.error('步骤3失败: Cocos发布失败，发布过程终止');
+                    console.error('步骤2失败: Cocos发布失败，发布过程终止');
                     return false;
                 }
                 
-                // 4. 生成Bundle版本文件
-                const step4Start = Date.now();
-                console.log('步骤4: 生成Bundle版本文件');
+                // 3. 生成Bundle版本文件
+                const step3Start = Date.now();
+                console.log('步骤3: 生成Bundle版本文件');
                 const generateSuccess = await this.startGenerateBundleVersion();
-                const step4End = Date.now();
-                console.log(`[流程耗时] 步骤4(生成Bundle版本文件) 耗时: ${step4End - step4Start}ms`);
+                const step3End = Date.now();
+                console.log(`[流程耗时] 步骤3(生成Bundle版本文件) 耗时: ${step3End - step3Start}ms`);
                 if (!generateSuccess) {
-                    console.error('步骤4失败: 生成Bundle版本失败，发布过程终止');
+                    console.error('步骤3失败: 生成Bundle版本失败，发布过程终止');
                     return false;
                 }
                 
