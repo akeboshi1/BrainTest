@@ -154,14 +154,14 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             // this.successView.active = false;
             this.loadAudio().then(
-                () => {
-                    this.startGameByAlert();
+                async () => {
+                    await this.startGameByAlert();
                 }
             );
 
         } else {
-            this.loadAudio().then(() => {
-                this.startGameByAlert();
+            this.loadAudio().then(async () => {
+                await this.startGameByAlert();
             });
         }
     }
@@ -456,24 +456,24 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    startGame() {
+    async startGame() {
         this.isAbleClick = true;
         this.isCardFlipping = false;
         this.lastClickTime = 0;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
-        this.gameStartInit();
+        await this.gameStartInit();
     }
 
-    startGameByAlert() {
+    async startGameByAlert() {
         this.isAbleClick = true;
         this.isCardFlipping = false;
         this.lastClickTime = 0;
         this.curHard = this.hards[this.hardIndex];
         this.cardTotalCount = this.calculCardTotalCount(this.hardIndex);
-        this.gameStartInit();
+        await this.gameStartInit();
     }
-    private _gamecenterNextGame() {
+    private async _gamecenterNextGame() {
         Global.isAgain = false;
         this.level = (this.sceneModel as any).game.level;
 
@@ -483,7 +483,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
         this.initCardView();
-        this.gameStartInit();
+        await this.gameStartInit();
     }
     playNextCustoms() {
         // 如果游戏在结算阶段，只关闭弹窗，不执行继续游戏操作
@@ -532,7 +532,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         return (index + 2) * 4;
     }
 
-    gameStartInit() {
+    async gameStartInit() {
         // this.successView.active = false;
         this.customsSendDataState = false;
         this.isQuitDialogOpen = false; // 重置退出对话框状态
@@ -545,6 +545,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.initCardTheme();
         this.initCardData();
 
+        // 预加载卡牌背面资源
+        await this.preloadCardBackResource();
 
         this.previewCard();
 
@@ -631,6 +633,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.isGlobalFlipping = true;
         this.flippingCardCount = 0;
 
+        // 先预加载所有卡牌资源
+        await this.preloadAllCardResources();
+
+        // 所有资源加载完成后，开始同步翻转所有卡牌
         this.cardList.forEach((cardItem, index) => {
             const cardNode = this.cardPool.children[0].children[index];
             if (cardNode) {
@@ -642,14 +648,14 @@ export class Main extends BaseScene<IBaseGameChild> {
                 sprite.spriteFrame = null;
                 // 使用全局翻转标志
                 this.flipCardAnimation(cardNode, () => {
+                    // 资源已经预加载，直接设置
                     const bundle = assetManager.getBundle(self.bundleName);
-                    bundle.load(cardItem.imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
-                        if (err) {
-                            DebugLog.instance.error(err);
-                            return;
-                        }
-                        sprite.spriteFrame = sp;
-                    })
+                    const spriteFrame = bundle.get(cardItem.imgUrl + "/spriteFrame", SpriteFrame);
+                    if (spriteFrame) {
+                        sprite.spriteFrame = spriteFrame;
+                    } else {
+                        DebugLog.instance.error(`卡牌资源未找到: ${cardItem.imgUrl}`);
+                    }
                 }, true); // 标记为全局翻转
             }
         });
@@ -678,14 +684,20 @@ export class Main extends BaseScene<IBaseGameChild> {
                     const sprite = card.getComponent(Sprite);
 
                     const bundle = assetManager.getBundle(self.bundleName);
-                    bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
-                        if (err) {
-                            DebugLog.instance.error(err);
-                            return;
-                        }
-                        sprite.spriteFrame = sp;
-                    })
-
+                    // 尝试从已加载的资源中获取，如果失败则异步加载
+                    const backSpriteFrame = bundle.get("texture/card/Card_back_d/spriteFrame", SpriteFrame);
+                    if (backSpriteFrame) {
+                        sprite.spriteFrame = backSpriteFrame;
+                    } else {
+                        // 如果资源未加载，异步加载
+                        bundle.load("texture/card/Card_back_d/spriteFrame", SpriteFrame, (err, sp) => {
+                            if (err) {
+                                DebugLog.instance.error(err);
+                                return;
+                            }
+                            sprite.spriteFrame = sp;
+                        });
+                    }
                 }, true); // 标记为全局翻转
             }
         });
@@ -1092,14 +1104,20 @@ export class Main extends BaseScene<IBaseGameChild> {
             context.wasInPreviewMode = false;
             // 重新初始化卡片数据（重新打乱）
             context.initCardData();
-            // 重新开始预览
-            context.previewCard();
+            // 预加载卡牌背面资源
+            context.preloadCardBackResource().then(() => {
+                // 重新开始预览
+                context.previewCard();
+            });
         } else if (context.isInPreviewMode) {
             DebugLog.instance.log("预览阶段弹窗，重新开始预览倒计时并重新打乱卡牌");
             // 重新初始化卡片数据（重新打乱）
             context.initCardData();
-            // 重新开始预览
-            context.previewCard();
+            // 预加载卡牌背面资源
+            context.preloadCardBackResource().then(() => {
+                // 重新开始预览
+                context.previewCard();
+            });
         } else {
             // 游戏阶段，恢复游戏状态
             DebugLog.instance.log("游戏阶段弹窗，恢复游戏状态");
@@ -1386,6 +1404,94 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
         
         DebugLog.instance.log("已停止预览倒计时");
+    }
+
+    /**
+     * 预加载所有卡牌资源
+     */
+    private async preloadAllCardResources(): Promise<void> {
+        if (!this.cardList || this.cardList.length === 0) {
+            return;
+        }
+
+        const bundle = assetManager.getBundle(this.bundleName);
+        if (!bundle) {
+            DebugLog.instance.error("资源包未找到");
+            return;
+        }
+
+        // 收集所有需要加载的资源URL
+        const resourceUrls = this.cardList.map(cardItem => cardItem.imgUrl + "/spriteFrame");
+        
+        // 去重
+        const uniqueUrls = [...new Set(resourceUrls)];
+
+        DebugLog.instance.log(`开始预加载 ${uniqueUrls.length} 个卡牌资源`);
+
+        // 使用Promise.all确保所有资源都加载完成
+        const loadPromises = uniqueUrls.map(url => {
+            return new Promise<void>((resolve, reject) => {
+                // 检查资源是否已经加载
+                const existingResource = bundle.get(url, SpriteFrame);
+                if (existingResource) {
+                    resolve();
+                    return;
+                }
+
+                // 加载资源
+                bundle.load(url, SpriteFrame, (err, spriteFrame) => {
+                    if (err) {
+                        DebugLog.instance.error(`加载卡牌资源失败: ${url}`, err);
+                        reject(err);
+                    } else {
+                        DebugLog.instance.log(`卡牌资源加载成功: ${url}`);
+                        resolve();
+                    }
+                });
+            });
+        });
+
+        try {
+            await Promise.all(loadPromises);
+            DebugLog.instance.log("所有卡牌资源预加载完成");
+        } catch (error) {
+            DebugLog.instance.error("卡牌资源预加载失败:", error);
+            // 即使部分资源加载失败，也继续执行，避免卡住游戏
+        }
+    }
+
+    /**
+     * 预加载卡牌背面资源
+     */
+    private async preloadCardBackResource(): Promise<void> {
+        const bundle = assetManager.getBundle(this.bundleName);
+        if (!bundle) {
+            DebugLog.instance.error("资源包未找到");
+            return;
+        }
+
+        const backResourceUrl = "texture/card/Card_back_d/spriteFrame";
+        
+        // 检查资源是否已经加载
+        const existingResource = bundle.get(backResourceUrl, SpriteFrame);
+        if (existingResource) {
+            DebugLog.instance.log("卡牌背面资源已加载");
+            return;
+        }
+
+        DebugLog.instance.log("开始预加载卡牌背面资源");
+
+        return new Promise<void>((resolve, reject) => {
+            bundle.load(backResourceUrl, SpriteFrame, (err, spriteFrame) => {
+                if (err) {
+                    DebugLog.instance.error(`加载卡牌背面资源失败: ${backResourceUrl}`, err);
+                    reject(err);
+                } else {
+                    DebugLog.instance.log("卡牌背面资源加载成功");
+                    resolve();
+                }
+            });
+        });
     }
 }
 
