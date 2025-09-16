@@ -1,4 +1,4 @@
-import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3, _decorator, Component, director, tween, Widget } from "cc";
+import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3, _decorator, RichText, director, tween, Widget } from "cc";
 import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
@@ -203,19 +203,18 @@ export class AlertManager extends BaseManager {
             titleLabel.string = alertData.title;
         }
 
-        // let messageLabel = alertNode.getChildByName('messageLabel').getComponent(Label);
-        // if (messageLabel) {
-        //     messageLabel.string = alertData.message;
-        //     messageLabel.color = new Color(alertData.messageFontColor);
-        //     messageLabel.node.on('click', () => {
-        //         console.log('contentClick');
-        //         if (alertData.contentClickCb) {
-        //             alertData.contentClickCb();
-        //         }
-        //         this.closeCurrentAlert();
-        //     });
+        let messageLabel =  alertNode.getChildByName("viewNode").getChildByName('messageLabel').getComponent(RichText);
+        if (messageLabel) {
+            messageLabel.string = alertData.message;
+            messageLabel.node.on('click', () => {
+                console.log('contentClick');
+                if (alertData.contentClickCb) {
+                    alertData.contentClickCb();
+                }
+                this.closeCurrentAlert();
+            });
 
-        // }
+        }
 
         let self = this;
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）

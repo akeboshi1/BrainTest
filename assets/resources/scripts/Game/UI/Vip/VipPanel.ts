@@ -1,10 +1,10 @@
 import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
 
-import { _decorator, Prefab, instantiate, Label, Node, ScrollView, Sprite, resources, SpriteFrame, tween, UIOpacity, Vec3, EditBox ,RichText } from "cc";
+import { _decorator, Prefab, instantiate, Label, Node, ScrollView, Sprite, resources, SpriteFrame, tween, UIOpacity, Vec3, EditBox, RichText, Toggle } from "cc";
 import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { DebugLog } from "db://assets/resources/scripts/Core/Util/DebugLog";
 import { SelectDate } from "./SelectDate";
-import { AlertManager } from "../../../Core/Manager/Alert/AlertManager";
+import { AlertData, AlertManager } from "../../../Core/Manager/Alert/AlertManager";
 import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
 import { VipEvent, VipModel, VipOrder, VipType } from "./VipModel";
 import { Global } from "../../../Core/Manager/Config/Global";
@@ -13,6 +13,10 @@ import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManag
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { TaskManager } from "../../Task/TaskManager";
 import { UserInfoData } from "../../PersonalCenterManager/UserInfoData";
+import { XieYiPanel } from "db://assets/resources/scripts/Game/UI/Login/XieYiPanel";
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import { LocalStorageKeyEnum, LocalStorageUtil } from "db://assets/resources/scripts/Core/Util/LocalStorageUtil";
+import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 const { ccclass, property } = _decorator;
 
 
@@ -109,6 +113,12 @@ export class VipPanel extends BasePanel {
     @property(Node)
     quanyiNode: Node;
 
+    @property(Toggle)
+    toggle: Toggle;
+
+    @property(Node)
+    toggleTips:Node;
+
     // ===== buy
     @property(Node)
     buyNode: Node;
@@ -190,16 +200,16 @@ export class VipPanel extends BasePanel {
     label1: Label;
 
     @property(Label)
-    label2:Label;
+    label2: Label;
 
     @property(Node)
-    timeNode:Node;
+    timeNode: Node;
 
     @property(Label)
-    timeLabel:Label;
+    timeLabel: Label;
 
     @property(Node)
-    gotoBtn:Node;
+    gotoBtn: Node;
 
 
     private _vipModel: VipModel;
@@ -262,16 +272,49 @@ export class VipPanel extends BasePanel {
                 this.descLabel.node.active = false;
             }
             this.permanentNode.active = true;
-            this.renewalBtnLabel.string = "点击续费";
+            this.renewalBtnLabel.string = "确认协议并续费";
         } else {
             // 非会员
             this.descLabel.node.active = false;
             this.quanyiNode.active = true;
             this.permanentNode.active = true;
             this.renewalBtnLabel.string = "确认协议并开通";
-
+            this.initToggle();
 
         }
+    }
+    cancelHandler() {
+        AlertManager.getInstance().closeCurrentAlert();
+    }
+    confirmHandler() {
+        LocalStorageUtil.set(LocalStorageKeyEnum.VIP_XIEYI, "true");
+    }
+    private _vipXieyiBoo = false;
+    private initToggle() {
+        let vipXieyi = LocalStorageUtil.get(LocalStorageKeyEnum.VIP_XIEYI);
+        if (vipXieyi != "true") {
+            this._vipXieyiBoo = false;
+            this.toggle.isChecked = false;
+            this.toggleTips.active = true;
+        } else {
+            this.toggle.isChecked = true;
+            this._vipXieyiBoo = true;
+            this.toggleTips.active = false;
+        }
+    }
+
+    private toggleClick() {
+        let vipXieyi = LocalStorageUtil.get(LocalStorageKeyEnum.VIP_XIEYI);
+        if (vipXieyi != "true") {
+            LocalStorageUtil.set(LocalStorageKeyEnum.VIP_XIEYI, "true");
+            this._vipXieyiBoo = true;
+            this.toggleTips.active = false;
+        } else {
+            LocalStorageUtil.set(LocalStorageKeyEnum.VIP_XIEYI, "false");
+            this._vipXieyiBoo = false;
+            this.toggleTips.active = true;
+        }
+
     }
 
     onEnable(): void {
@@ -293,23 +336,23 @@ export class VipPanel extends BasePanel {
      */
     private onVipGetData() {
         let vipDatas = this._vipModel.vipDatas;
-        console.log("vipDatas",vipDatas);
+        console.log("vipDatas", vipDatas);
         let len = vipDatas.length;
         for (let i: number = 0; i < len; i++) {
             let vipData = vipDatas[i];
             if (vipData.periodUnit == VipType.Day) {
-             // this.dayBtn.active = true;
-               this.dayPriceLabel.string = `${vipData.discountPrice}`;
-               this.dayNameLabel.string = `${vipData.name}`;
-               this.dayDiscountLabel.string = `¥${vipData.price}`;
-               this.dayFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
+                // this.dayBtn.active = true;
+                this.dayPriceLabel.string = `${vipData.discountPrice}`;
+                this.dayNameLabel.string = `${vipData.name}`;
+                this.dayDiscountLabel.string = `¥${vipData.price}`;
+                this.dayFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
             } else if (vipData.periodUnit == VipType.Mouth) {
                 // this.mouthBtn.active = true;
                 this.mouthPriceLabel.string = `${vipData.discountPrice}`;
                 this.mouthNameLabel.string = `${vipData.name}`;
                 this.mouthDiscountLabel.string = `¥${vipData.price}`;
                 this.mouthFreeGiveLabel.string = `额外赠送${vipData.bonusDay}天`;
-            }else if (vipData.periodUnit == VipType.Week) {
+            } else if (vipData.periodUnit == VipType.Week) {
                 this.weekPriceLabel.string = `${vipData.discountPrice}`;
                 this.weekNameLabel.string = `${vipData.name}`;
                 this.weekDiscountLabel.string = `¥${vipData.price}`;
@@ -318,13 +361,13 @@ export class VipPanel extends BasePanel {
         }
         let _vipData = this._vipModel.vipDatas[0];
         this._select = _vipData.id;
-        this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${_vipData.name}</size></b></color>模式`;        
+        this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${_vipData.name}</size></b></color>模式`;
         this.setBtnFrame(_vipData.periodUnit);
     }
     setBtnFrame(name: string) {
-        const selectedBtn = name == VipType.Mouth ? this.mouthBtn : 
-                          name == VipType.Week ? this.weekBtn : 
-                          this.dayBtn;
+        const selectedBtn = name == VipType.Mouth ? this.mouthBtn :
+            name == VipType.Week ? this.weekBtn :
+                this.dayBtn;
         let selectedBtnSprite = selectedBtn.getComponent(Sprite);
         this.changeBtnFrame(selectedBtnSprite, "textureV2/userCenter/member1/spriteFrame").then();
         [this.mouthBtn, this.weekBtn, this.dayBtn].forEach(btn => {
@@ -374,8 +417,8 @@ export class VipPanel extends BasePanel {
         this.gotoBtn.active = true;
         let btnLabel = this.gotoBtn.getChildByName("label").getComponent(Label);
         if (vipOrder.status == 1) {
-            
-            
+
+
             this.label1.node.active = true;
             this.label2.node.active = true;
             this.timeNode.active = true;
@@ -383,27 +426,27 @@ export class VipPanel extends BasePanel {
             this.createWaveTextAnimation(`你购买的会员天数:${vipOrder.validDays}天`, this.label0);
             this.label1.string = `${vipOrder.validStartDate} 至 ${vipOrder.validEndDate}`;
             this.timeLabel.string = `您的会员剩余:${vipOrder.validLostDays}天`;
-            if(!userData.has_initial_tier){
+            if (!userData.has_initial_tier) {
                 btnLabel.string = "立即开始初次评测";
-            }else{
+            } else {
                 btnLabel.string = "立即开始今日训练";
             }
             let icon = this.iconNode.getComponent(Sprite);
             if (icon) this.changeBtnFrame(icon, "textureV2/vip/completeIcon/spriteFrame").then(() => {
                 this.gotoBtn.on(Node.EventType.TOUCH_END, () => {
-                    if(TaskManager.getInstance().getCurTaskId == -1){
-                        if(!userData.has_initial_tier){  
-                            EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, ()=>{
+                    if (TaskManager.getInstance().getCurTaskId == -1) {
+                        if (!userData.has_initial_tier) {
+                            EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, () => {
                                 SceneManager.getInstance().backToSkewersGameCenter();
-                            }, this,true);
+                            }, this, true);
                             TaskManager.getInstance().requestInitLevalTask();
-                        }else{
-                            EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, ()=>{
+                        } else {
+                            EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, () => {
                                 SceneManager.getInstance().backToTaskProgress();
-                            }, this,true);
+                            }, this, true);
                             TaskManager.getInstance().requestTaskList();
                         }
-                    }else{
+                    } else {
                         SceneManager.getInstance().backToTaskProgress();
                     }
                 }, this);
@@ -413,7 +456,7 @@ export class VipPanel extends BasePanel {
             this.label1.node.active = false;
             this.label2.node.active = false;
             this.timeNode.active = false;
-           
+
             btnLabel.string = "返回首页";
             this.gotoBtn.on(Node.EventType.TOUCH_END, () => {
                 SceneManager.getInstance().backToHall();
@@ -422,7 +465,7 @@ export class VipPanel extends BasePanel {
         }
 
     }
-    
+
     backHandler() {
         if (this.addressNode.active) {
             if (this.newAddressNode.active) {
@@ -441,10 +484,29 @@ export class VipPanel extends BasePanel {
     }
 
     buyHandler() {
+        let ad: AlertData = new AlertData();
+        ad.title = "提示";
+        if (this._vipXieyiBoo == false) {
+            ad.message = "请勾选“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”";
+            ad.cancelButtonVisible = true;
+            ad.cancelButtonText = "取消"
+            ad.confirmButtonText = "确定"
+            ad.contentClickCb = this.showvipxieyi.bind(this);
+            ad.confirmCb = this.showvipxieyi.bind(this);
+            ad.cancelCb = this.cancelHandler.bind(this);
+            AlertManager.getInstance().showUserAgreeAlert(ad);
+            return;
+        }
 
-        // 先发起请求创建订单
-        this._vipModel.requestCreateOrder(this._select);
-
+        
+        ad.message = "我已阅读“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”，<br/>知晓并同意会员付费内容。";
+        ad.cancelButtonVisible = true;
+        ad.cancelButtonText = "取消"
+        ad.confirmButtonText = "继续购买"
+        AlertManager.getInstance().showUserAgreeAlert(ad);
+        ad.contentClickCb = this.showvipxieyi.bind(this);
+        ad.confirmCb = this._requestCreateOrder.bind(this);
+        ad.cancelCb = this.cancelHandler.bind(this);
 
 
         // // 如果buyNode已经激活，直接调用showSettleMent
@@ -463,6 +525,12 @@ export class VipPanel extends BasePanel {
         // this.addressNode.active = false;
         // this.buyNode.active = true;
         // this.settlementNode.active = false;
+    }
+
+    private _requestCreateOrder() {
+        this.toggle.isChecked = true;
+        this._vipModel.requestCreateOrder(this._select);
+        this._vipXieyiBoo = true;
     }
 
     showAddress() {
@@ -538,7 +606,7 @@ export class VipPanel extends BasePanel {
         this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${vipData.name}</size></b></color>模式`;
 
         this.setBtnFrame(vipData.periodUnit);
-    
+
         // let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
         // let yearBtnSprite = this.yearBtn.getComponent(Sprite);
 
@@ -566,6 +634,15 @@ export class VipPanel extends BasePanel {
 
         this.playSelectOpenAnimation();
     }
+
+    showvipxieyi() {
+        UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
+        UIManager.getInstance().showPanel(XieYiPanel.NAME, {
+            url: "https://colapai.xinjiaxianglao.com/membership.html"
+        });
+    }
+
+
 
     okClick() {
         // 获取选择的地址数据
