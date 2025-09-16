@@ -736,6 +736,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     private intervalId;
     async previewCard() {
         let self = this;
+        // 先清理之前的定时器，防止重复启动
+        this.stopPreviewCountdown();
+        
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
 
@@ -1096,6 +1099,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         super.resumeCallBack(context);
         // 重置退出对话框状态（用户可能取消了退出）
         context.isQuitDialogOpen = false;
+        
+        // 先停止所有可能正在运行的定时器和动画
+        context.stopPreviewCountdown();
+        context.stopAllCardAnimations();
         
         // 检查是否是从预览阶段中断的
         if (context.wasInPreviewMode) {
