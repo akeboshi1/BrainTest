@@ -22,7 +22,7 @@ export function scanImports(filePath: string): string[] {
         return importPath; 
     }
 
-    ts.forEachChild(sourceFile, node => {
+    ts.forEachChild(sourceFile, (node: ts.Node) => {
         if (ts.isImportDeclaration(node)) {
             const rawPath = node.moduleSpecifier.getText().slice(1, -1);
             const resolvedPath = resolveImport(rawPath);

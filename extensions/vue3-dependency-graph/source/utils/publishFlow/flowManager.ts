@@ -67,11 +67,8 @@ export const FLOW_CONFIG: Record<PublishConfigType, FlowType[]> = {
     ],
     [PublishConfigType.REMOTE_BUNDLES]: [
         FlowType.PUBLISH_SETTING,
-        FlowType.BUNDLE_UPDATE,
         FlowType.COCOS_BUILD,
-        FlowType.GENERATE_BUNDLE_VERSION,
-        FlowType.PUBLISH_TO_SERVER,
-        FlowType.PUSH_VERSION
+        FlowType.GENERATE_BUNDLE_VERSION
     ]
 };
 
@@ -624,38 +621,6 @@ export class FlowManager {
                     console.error('步骤4失败: 生成Bundle版本失败，发布过程终止');
                     return false;
                 }
-                
-                // 5. 发布Bundle到服务器
-                const step5Start = Date.now();
-                console.log('步骤5: 发布Bundle到服务器');
-                //const publishToServerSuccess = false;
-                const publishToServerSuccess = await this.startPublishBundleToServer(
-                    environment || 'DEVELOPMENT',
-                    isFullUpload
-                );
-                const step5End = Date.now();
-                console.log(`[流程耗时] 步骤5(发布Bundle到服务器) 耗时: ${step5End - step5Start}ms`);
-                
-                if (!publishToServerSuccess) {
-                    console.error('步骤5失败: 发布Bundle到服务器失败，发布过程终止');
-                    return false;
-                }
-                
-                // 6. 提交Bundle版本到Git
-                const step6Start = Date.now();
-                console.log('步骤6: 提交Bundle版本到Git');
-                // 临时关闭Bundle版本推送步骤
-                // const pushSuccess = await this.startBundleVersionsPush(
-                //     `更新Bundle版本 [${environment}] v${appVersion}`
-                // );
-                
-                // if (!pushSuccess) {
-                //     console.error('步骤6失败: 提交Bundle版本失败，发布过程终止');
-                //     return false;
-                // }
-                console.log('步骤6: Bundle版本推送步骤已临时关闭');
-                const step6End = Date.now();
-                console.log(`[流程耗时] 步骤6(提交Bundle版本到Git) 耗时: ${step6End - step6Start}ms`);
                 
                 const totalEnd = Date.now();
                 console.log(`[流程耗时] 所有流程执行完成，REMOTE_BUNDLES发布成功，总耗时: ${totalEnd - startTime}ms`);
