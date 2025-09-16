@@ -1,4 +1,4 @@
-import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3, _decorator, Component, director, tween, Widget } from "cc";
+import { Button, instantiate, Label, Node, Prefab, resources, Color, UITransform, Vec3, _decorator, RichText, director, tween, Widget } from "cc";
 import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
@@ -199,6 +199,19 @@ export class AlertManager extends BaseManager {
         let titleLabel = alertNode.getChildByName("viewNode").getChildByName('titleLabel').getComponent(Label);
         if (titleLabel) {
             titleLabel.string = alertData.title;
+        }
+
+        let messageLabel =  alertNode.getChildByName("viewNode").getChildByName('messageLabel').getComponent(RichText);
+        if (messageLabel) {
+            messageLabel.string = alertData.message;
+            messageLabel.node.on('click', () => {
+                console.log('contentClick');
+                if (alertData.contentClickCb) {
+                    alertData.contentClickCb();
+                }
+                this.closeCurrentAlert();
+            });
+
         }
 
         let self = this;

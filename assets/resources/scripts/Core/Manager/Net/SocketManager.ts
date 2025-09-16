@@ -156,10 +156,7 @@ export class SocketManager extends BaseManager {
 
         this._socketDatas.set(action, updatedDatas);
         if (tmpSocketData) {
-            if(jsonObj.status == 0 && jsonObj.error 
-                && LoginErrorCode[jsonObj.error]
-                && (LoginErrorCode[jsonObj.error] == LoginErrorCode.INVALID_TOKEN
-                || LoginErrorCode[jsonObj.error] == LoginErrorCode.USER_NOT_FOUND)){
+            if(jsonObj.status == 0 && jsonObj.error && LoginErrorCode[jsonObj.error]){
                 const alertData: AlertData = new AlertData();
                 alertData.message = LoginErrorCode[jsonObj.error];
                 alertData.confirmCb = function () {

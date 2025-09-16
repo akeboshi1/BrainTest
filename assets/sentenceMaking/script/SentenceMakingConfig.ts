@@ -151,20 +151,9 @@ export class SentenceMakingConfig {
             return isValid;
         });
 
-        // 去重并排序，确保保持number[]类型
-        const uniqueNewFixed: number[] = [];
-        const seen = new Set<number>();
-        for (const num of validNewFixed) {
-            if (!seen.has(num)) {
-                seen.add(num);
-                uniqueNewFixed.push(num);
-            }
-        }
-        uniqueNewFixed.sort((a, b) => a - b);
-
         return {
             modifiedSentence: sentence,
-            newFixed: uniqueNewFixed,
+            newFixed: [...new Set(validNewFixed)].sort((a, b) => a - b),
             adjustedPunctuations
         };
     }

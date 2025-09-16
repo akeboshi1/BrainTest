@@ -74,7 +74,7 @@ export class RadiaGraph extends Component {
             if (item.tier > 1) {
                 this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string = `优于${(item.tier-1) * 10}%同龄`;
             } else {
-                this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string = `同龄组末位10%`;
+                this.labelsNode[index].getChildByName('detailLable').getComponent(Label).string = `同龄组末位的10%`;
             }
         }
     }

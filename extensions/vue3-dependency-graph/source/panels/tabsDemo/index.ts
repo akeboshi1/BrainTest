@@ -65,9 +65,6 @@ interface MyComponent {
     uploadProductionConfig(): Promise<void>;
     configUploadStatus: 'idle' | 'uploading' | 'success' | 'failed';
     configUploadStatusText: Record<string, string>;
-    changedBundlesDisplayText: string;
-    copyChangedBundles(): void;
-    fallbackCopyToClipboard(text: string): void;
 }
 
 module.exports = Editor.Panel.define({
@@ -222,16 +219,13 @@ module.exports = Editor.Panel.define({
                             </div>
                         </div>
                     </div>
-                    <!-- 变更Bundle信息窗口 -->
+                    <!-- 变更Bundle信息窗口（调试日志见控制台） -->
                     <div class="changed-bundles-info" style="margin-top: 24px; padding: 12px; border: 1px solid #e0e0e0; background: #fafbfc; border-radius: 6px;">
                         <h4 style="margin: 0 0 8px 0;">本次发布变更的 Bundle：</h4>
                         <div v-if="lastChangedBundles.length > 0">
-                            <div class="changed-bundles-content">
-                                <div class="bundles-display">{{ changedBundlesDisplayText }}</div>
-                                <button @click="copyChangedBundles" class="copy-btn" title="复制到剪贴板">
-                                    复制
-                                </button>
-                            </div>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li v-for="name in lastChangedBundles" :key="name">{{ name }}</li>
+                            </ul>
                         </div>
                         <div v-else style="color: #888;">无变更</div>
                     </div>
@@ -305,13 +299,6 @@ module.exports = Editor.Panel.define({
                      */
                     currentEnvironmentText(this: MyComponent): string {
                         return this.PublishEnvironmentTitle[this.publishSettings.environment] || '未知环境';
-                    },
-                    
-                    /**
-                     * 变更Bundle显示文本（逗号分隔）
-                     */
-                    changedBundlesDisplayText(this: MyComponent): string {
-                        return this.lastChangedBundles.join(', ');
                     }
                 },
                 methods: {
@@ -664,64 +651,6 @@ module.exports = Editor.Panel.define({
                         } catch (error) {
                             this.configUploadStatus = 'failed';
                             Editor.Dialog.error(`正式配置上传失败: ${error instanceof Error ? error.message : String(error)}`);
-                        }
-                    },
-                    
-                    /**
-                     * 复制变更的Bundle列表到剪贴板
-                     */
-                    copyChangedBundles(this: MyComponent) {
-                        try {
-                            const textToCopy = this.changedBundlesDisplayText;
-                            if (textToCopy) {
-                                // 使用navigator.clipboard API（现代浏览器）
-                                if (navigator.clipboard && navigator.clipboard.writeText) {
-                                    navigator.clipboard.writeText(textToCopy).then(() => {
-                                        Editor.Dialog.info('已复制到剪贴板');
-                                    }).catch((error) => {
-                                        console.error('复制失败:', error);
-                                        this.fallbackCopyToClipboard(textToCopy);
-                                    });
-                                } else {
-                                    // 降级方案
-                                    this.fallbackCopyToClipboard(textToCopy);
-                                }
-                            } else {
-                                Editor.Dialog.warn('没有可复制的内容');
-                            }
-                        } catch (error) {
-                            console.error('复制到剪贴板失败:', error);
-                            Editor.Dialog.error('复制失败');
-                        }
-                    },
-                    
-                    /**
-                     * 降级复制方案
-                     */
-                    fallbackCopyToClipboard(this: MyComponent, text: string) {
-                        try {
-                            // 创建临时文本区域
-                            const textArea = document.createElement('textarea');
-                            textArea.value = text;
-                            textArea.style.position = 'fixed';
-                            textArea.style.left = '-999999px';
-                            textArea.style.top = '-999999px';
-                            document.body.appendChild(textArea);
-                            textArea.focus();
-                            textArea.select();
-                            
-                            // 执行复制命令
-                            const successful = document.execCommand('copy');
-                            document.body.removeChild(textArea);
-                            
-                            if (successful) {
-                                Editor.Dialog.info('已复制到剪贴板');
-                            } else {
-                                Editor.Dialog.error('复制失败');
-                            }
-                        } catch (error) {
-                            console.error('降级复制方案失败:', error);
-                            Editor.Dialog.error('复制失败');
                         }
                     }
                 },

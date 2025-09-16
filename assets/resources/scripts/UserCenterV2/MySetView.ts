@@ -2,7 +2,9 @@ import { _decorator, Component, Node } from 'cc';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import { BasePanel } from '../Core/UI/BasePanel';
+import { TreatyView } from '../TreatyV2/TreatyView';
 import {XieYiPanel} from "db://assets/resources/scripts/Game/UI/Login/XieYiPanel";
+import {VerifyPanel} from "db://assets/resources/scripts/Game/UI/Login/VerifyPanel";
 import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
@@ -16,19 +18,27 @@ export class MySetView extends BasePanel {
     start() {
 
     }
-
     handleTreatClick(){
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
         UIManager.getInstance().showPanel(XieYiPanel.NAME,{
             url:"https://colapai.xinjiaxianglao.com/xieyi.html"
         });
+        // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        // UIManager.getInstance().showPanel(TreatyView.NAME,{
+        //     flag:"XieYi"
+        // });
     }
+
 
     handlePrivacyClick(){
         UIManager.getInstance().registerPanel(XieYiPanel.NAME, BundleName.RESOURCES, '/prefab/XieYiPanel', XieYiPanel);
         UIManager.getInstance().showPanel(XieYiPanel.NAME,{
             url:"https://colapai.xinjiaxianglao.com/privacy.html"
         });
+        // UIManager.getInstance().registerPanel(TreatyView.NAME, BundleName.RESOURCES, '/prefabV2/treatyPrefab', TreatyView);
+        // UIManager.getInstance().showPanel(TreatyView.NAME,{
+        //     flag:"Privacy"
+        // });
     }
 
     showXieYi() {
@@ -37,6 +47,7 @@ export class MySetView extends BasePanel {
              url:"https://beian.miit.gov.cn/"
         });
     }
+
 
     onClickDeletAccount(){
         const alertData: AlertData = new AlertData();
