@@ -96,6 +96,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     // 游戏退出状态相关变量
     private isGameExited: boolean = false; // 游戏是否已退出
 
+    // 预览阶段中断相关变量
+    private wasInPreviewMode: boolean = false; // 是否在预览阶段被中断
+
     protected bundleName: string = BundleName.FANPAI;
 
 
@@ -533,6 +536,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // this.successView.active = false;
         this.customsSendDataState = false;
         this.isQuitDialogOpen = false; // 重置退出对话框状态
+        this.wasInPreviewMode = false; // 重置预览中断标志
         this.resetClickProtection();
         this.initCardView();
 
@@ -1044,8 +1048,24 @@ export class Main extends BaseScene<IBaseGameChild> {
     private onAppHide() {
         DebugLog.instance.error("应用进入后台，暂停游戏并显示退出弹窗");
 
-        // 暂停倒计时
-        this.pauseCountdown();
+        // 如果在预览阶段，记录中断状态
+        if (this.isInPreviewMode) {
+            DebugLog.instance.log("预览阶段进入后台，记录中断状态");
+            this.wasInPreviewMode = true;
+            
+            // 停止所有卡牌翻转动画
+            this.stopAllCardAnimations();
+            
+            // 停止预览倒计时
+            this.stopPreviewCountdown();
+            
+            // 重置预览状态
+            this.isInPreviewMode = false;
+            this.isCountdownPaused = false;
+        } else {
+            // 非预览阶段，暂停倒计时
+            this.pauseCountdown();
+        }
 
         // 暂停计时器
         if (this.timerComponent) {
@@ -1065,8 +1085,16 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 重置退出对话框状态（用户可能取消了退出）
         context.isQuitDialogOpen = false;
         
-        // 如果在预览阶段，重新开始预览倒计时并重新打乱卡牌
-        if (context.isInPreviewMode) {
+        // 检查是否是从预览阶段中断的
+        if (context.wasInPreviewMode) {
+            DebugLog.instance.log("从预览阶段中断恢复，重新开始预览过程");
+            // 重置中断标志
+            context.wasInPreviewMode = false;
+            // 重新初始化卡片数据（重新打乱）
+            context.initCardData();
+            // 重新开始预览
+            context.previewCard();
+        } else if (context.isInPreviewMode) {
             DebugLog.instance.log("预览阶段弹窗，重新开始预览倒计时并重新打乱卡牌");
             // 重新初始化卡片数据（重新打乱）
             context.initCardData();
@@ -1309,6 +1337,55 @@ export class Main extends BaseScene<IBaseGameChild> {
                 callback();
             }
         }, 2000); // 最多等待2秒
+    }
+
+    /**
+     * 停止所有卡牌翻转动画
+     */
+    private stopAllCardAnimations() {
+        // 停止所有卡片的翻转动画
+        if (this.cardPool && this.cardPool.children[0]) {
+            const cards = this.cardPool.children[0].children;
+            for (let i = 0; i < cards.length; i++) {
+                if (cards[i] && cards[i].isValid) {
+                    // 停止当前卡片的动画
+                    tween(cards[i]).stop();
+                    
+                    // 确保卡片处于正确的状态
+                    cards[i].setScale(1, 1, 1);
+                }
+            }
+        }
+        
+        // 重置翻转状态
+        this.isGlobalFlipping = false;
+        this.flippingCardCount = 0;
+        this.isCardFlipping = false;
+        
+        DebugLog.instance.log("已停止所有卡牌翻转动画");
+    }
+
+    /**
+     * 停止预览倒计时
+     */
+    private stopPreviewCountdown() {
+        // 清除倒计时定时器
+        if (this._setTimeOutId) {
+            clearTimeout(this._setTimeOutId);
+            this._setTimeOutId = null;
+        }
+        
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        
+        // 隐藏倒计时标签
+        if (this.countDownLabel) {
+            this.countDownLabel.node.active = false;
+        }
+        
+        DebugLog.instance.log("已停止预览倒计时");
     }
 }
 
