@@ -158,7 +158,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         });
     }
 
-    private textureLen = 458;
+    private textureLen = 463;
     start() {
         super.start();
         for (let i = 1; i < this.textureLen; i++) {

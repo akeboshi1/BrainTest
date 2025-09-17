@@ -100,7 +100,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960.0000000000002,
+      "y": 960,
       "z": 0
     },
     "_lrot": {
@@ -185,7 +185,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960.0000000000001,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -281,7 +281,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -384,7 +384,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -50.5,
-      "y": 647.5000000000001,
+      "y": 647.5,
       "z": 0
     },
     "_lrot": {
@@ -526,7 +526,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 135,
-      "y": -744.0000000000001,
+      "y": -744,
       "z": 0
     },
     "_lrot": {
@@ -2185,7 +2185,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 511.2
+      "height": 151.2
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2205,7 +2205,7 @@
     "_enabled": true,
     "__prefab": null,
     "_lineHeight": 120,
-    "_string": "\n\n\n",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_fontSize": 80,
@@ -3978,7 +3978,7 @@
         "__id__": 113
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 121
@@ -3988,7 +3988,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 225,
+      "y": 240,
       "z": 0
     },
     "_lrot": {
@@ -4039,7 +4039,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 0,
+      "y": 313.20000000000005,
       "z": 0
     },
     "_lrot": {
@@ -4078,12 +4078,12 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 600
+      "height": 511
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
       "x": 0.5,
-      "y": 0.5
+      "y": 1
     },
     "_id": "0eVeNZP0xOB5Bxz8WD4O1f"
   },
@@ -4108,7 +4108,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "591e40ad-aba4-4ac8-9fc5-cdf9dfa9472f@f9941",
+      "__uuid__": "5c6f3069-f400-44aa-bcb3-c7177d37c6f6@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -4141,7 +4141,7 @@
     "_left": 0,
     "_right": 0,
     "_top": 0,
-    "_bottom": 0,
+    "_bottom": 112.20000000000005,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
     "_isAbsLeft": true,
@@ -4178,7 +4178,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 122.127,
+      "y": 175.7,
       "z": 0
     },
     "_lrot": {
@@ -4217,7 +4217,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 750,
-      "height": 149.16
+      "height": 208.64
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4241,9 +4241,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 0,
+      "g": 0,
+      "b": 0,
       "a": 255
     },
     "_string": "因为谢谢谢谢谢谢xxxxxx\n所以但按时xxxxxxxxxxxxxxx",
@@ -4252,14 +4252,14 @@
     "_actualFontSize": 60,
     "_fontSize": 60,
     "_fontFamily": "Arial",
-    "_lineHeight": 66,
+    "_lineHeight": 64,
     "_overflow": 3,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_isItalic": false,
-    "_isBold": false,
+    "_isBold": true,
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
@@ -4317,7 +4317,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -197.185,
+      "y": -115,
       "z": 0
     },
     "_lrot": {
@@ -4613,7 +4613,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 900,
-      "height": 600
+      "height": 620
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5881,7 +5881,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920.0000000000002
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
