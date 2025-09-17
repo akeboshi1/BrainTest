@@ -128,7 +128,12 @@ export class SentenceMakingModel {
             this.postSentenceMakingEvaluate(user_answer);
         }
         if (this._view.sceneModel.gameType == GameType.SKEWERS) {
-            this._view.requestSkewersGameComplete(complete, duration);
+            // 串烧游戏上报结果之前停留3秒钟
+            this._view.showAnimHupai();
+            setTimeout(() => {
+                this._view.hideAnimHupai();
+                this._view.requestSkewersGameComplete(complete, duration);
+            }, 3000);
         } else {
             let curGame = (this._view.sceneModel as any).game;
             // levelmode=1得时候，如何传递level和难度给服务器
