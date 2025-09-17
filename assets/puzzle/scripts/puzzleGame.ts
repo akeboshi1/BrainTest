@@ -17,7 +17,9 @@ import {
     AudioClip,
     ProgressBar,
     Label,
-    Button
+    Button,
+    game,
+    Game
 } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
@@ -94,6 +96,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private chipsInstances: Node[] = [];
     //数据 矩形区域 rect 位置编号 position
     private chipsDataMap: Map<number, Object> = new Map();
+    
+    // 游戏结算状态
+    private _isGameCompleted: boolean = false;
 
     private dragStartPos: Vec2 = new Vec2(); //触点起始位置
     private dragObjectStartPos: Vec3 = new Vec3();
@@ -166,6 +171,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
         this.showSpriteNode.active = false;
         this.showResultContinueButton.active = false;
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
         this.cleanChipsCache();
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             let game = (this.sceneModel as any).game;
@@ -228,6 +236,11 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.resetDragState();
         this.loadTextureRejector = null;
         this.loadTextureResolver = null;
+        
+        // 移除应用状态监听
+        game.off(Game.EVENT_HIDE, this.onAppHide, this);
+        game.off(Game.EVENT_SHOW, this.onAppShow, this);
+        
         super.onDestroy();
     }
 
@@ -411,6 +424,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     processGameSuccess() {
         this.isDragEnabled = false;
+        this._isGameCompleted = true; // 设置游戏完成状态
         
         // 禁用退出按钮
         this.setQuitButtonInteractable(false);
@@ -445,6 +459,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 
                 // 重新启用退出按钮
                 this.setQuitButtonInteractable(true);
+                
+                // 重置游戏完成状态，允许继续操作
+                this._isGameCompleted = false;
                
                 // 处理训练结果
                 if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -461,6 +478,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // 启用拖拽功能和重置训练状态
     private enableDragAndResetGame() {
         this.isDragEnabled = true;
+        this._isGameCompleted = false; // 重置游戏完成状态
     }
 
     // 设置退出按钮的交互状态
@@ -498,6 +516,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     goonHandler() {
+        // 如果游戏在结算阶段且动画还在进行中，只关闭弹窗，不执行继续游戏操作
+        if (this._isGameCompleted && this.showSpriteNode.active) {
+            DebugLog.instance.log("游戏在结算阶段且动画进行中，只关闭弹窗");
+            return;
+        }
+        
         this.enableDragAndResetGame();
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -882,6 +906,65 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
     onSuccessNextLevel(): void {
         this.gameCenterGoonHandler();
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on(Game.EVENT_HIDE, this.onAppHide, this);
+        // 监听应用回到前台
+        game.on(Game.EVENT_SHOW, this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        DebugLog.instance.log("应用进入后台，暂停游戏并显示退出弹窗");
+        
+        // 暂停计时器
+        if (this.timerComponent) {
+            this.timerComponent.pauseTimer();
+        }
+        
+        
+        
+        // 显示退出弹窗
+        this.showPauseAlert();
+        // 暂停拖拽功能
+        this.isQuitEnabled = false;
+        this.resetDragState();
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        DebugLog.instance.log("应用回到前台，恢复游戏");
+        
+        // 如果游戏在结算阶段，不恢复倒计时
+        if (this._isGameCompleted) {
+            DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
+            return;
+        }
+        
+        // // 恢复计时器
+        // if (this.timerComponent) {
+        //     this.timerComponent.resumeTimer();
+        // }
+        
+        // 恢复游戏状态
+        this.isQuitEnabled = true;
+    }
+
+    /**
+     * 显示暂停弹窗
+     */
+    private showPauseAlert() {
+        // 使用现有的quitGame方法显示退出弹窗
+        this.quitGame();
     }
 
 }
