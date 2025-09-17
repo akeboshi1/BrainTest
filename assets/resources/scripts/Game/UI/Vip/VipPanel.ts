@@ -292,6 +292,7 @@ export class VipPanel extends BasePanel {
         this.toggleTips.active = false;
         LocalStorageUtil.set(LocalStorageKeyEnum.VIP_XIEYI, "true");
         AlertManager.getInstance().closeCurrentAlert();
+        this._requestCreateOrder();
     }
     private _vipXieyiBoo = false;
     private initToggle() {
@@ -492,7 +493,7 @@ export class VipPanel extends BasePanel {
         let ad: AlertData = new AlertData();
         ad.title = "提示";
         if (this._vipXieyiBoo == false) {
-            ad.message = "请勾选“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”";
+            ad.message = "我已阅读并同意“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”";
             ad.cancelButtonVisible = false;
             ad.closeBtnVisible = true;
             // ad.cancelButtonText = "取消"
@@ -504,16 +505,16 @@ export class VipPanel extends BasePanel {
             return;
         }
 
-        
-        ad.message = "我已阅读“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”，<br/>知晓并同意会员付费内容。";
-        // ad.cancelButtonVisible = true;
-        // ad.cancelButtonText = "取消"
-        ad.closeBtnVisible = true;
-        ad.confirmButtonText = "继续购买"
-        AlertManager.getInstance().showUserAgreeAlert(ad);
-        ad.contentClickCb = this.showvipxieyi.bind(this);
-        ad.confirmCb = this._requestCreateOrder.bind(this);
-        ad.cancelCb = this.cancelHandler.bind(this);
+        this._requestCreateOrder();
+        // ad.message = "我已阅读並同意“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”<br/>";
+        // // ad.cancelButtonVisible = true;
+        // // ad.cancelButtonText = "取消"
+        // ad.closeBtnVisible = true;
+        // ad.confirmButtonText = "继续购买"
+        // AlertManager.getInstance().showUserAgreeAlert(ad);
+        // ad.contentClickCb = this.showvipxieyi.bind(this);
+        // ad.confirmCb = this._requestCreateOrder.bind(this);
+        // ad.cancelCb = this.cancelHandler.bind(this);
 
 
         // // 如果buyNode已经激活，直接调用showSettleMent
