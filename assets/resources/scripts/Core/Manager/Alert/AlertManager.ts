@@ -202,7 +202,7 @@ export class AlertManager extends BaseManager {
         }
 
         let messageLabel =  alertNode.getChildByName("viewNode").getChildByName('messageLabel').getComponent(RichText);
-        if (messageLabel) {
+        if (messageLabel && alertData.message !="") {
             messageLabel.string = alertData.message;
             messageLabel.node.on('click', () => {
                 console.log('contentClick');
