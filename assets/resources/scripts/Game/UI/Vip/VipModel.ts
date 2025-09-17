@@ -379,6 +379,8 @@ export class VipModel {
         }
         let orderId = payData.order_id;
         if (orderId == this._preResultID) {
+            //手动更新人物信息
+            PersonalCenterManager.getInstance().requestUserInfo();
             EventManager.getInstance().emit(VipEvent.VIP_PAY_RESULT, orderId);
         } else {
             AlertManager.getInstance().showSocketAlert("当前订单过期");

@@ -287,7 +287,11 @@ export class VipPanel extends BasePanel {
         AlertManager.getInstance().closeCurrentAlert();
     }
     confirmHandler() {
+        this.toggle.isChecked = true;
+        this._vipXieyiBoo = true;
+        this.toggleTips.active = false;
         LocalStorageUtil.set(LocalStorageKeyEnum.VIP_XIEYI, "true");
+        AlertManager.getInstance().closeCurrentAlert();
     }
     private _vipXieyiBoo = false;
     private initToggle() {
@@ -489,11 +493,12 @@ export class VipPanel extends BasePanel {
         ad.title = "提示";
         if (this._vipXieyiBoo == false) {
             ad.message = "请勾选“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”";
-            ad.cancelButtonVisible = true;
-            ad.cancelButtonText = "取消"
+            ad.cancelButtonVisible = false;
+            ad.closeBtnVisible = true;
+            // ad.cancelButtonText = "取消"
             ad.confirmButtonText = "确定"
             ad.contentClickCb = this.showvipxieyi.bind(this);
-            ad.confirmCb = this.showvipxieyi.bind(this);
+            ad.confirmCb = this.confirmHandler.bind(this);
             ad.cancelCb = this.cancelHandler.bind(this);
             AlertManager.getInstance().showUserAgreeAlert(ad);
             return;
@@ -501,8 +506,9 @@ export class VipPanel extends BasePanel {
 
         
         ad.message = "我已阅读“<color=#2462cf><b><on click=\"showvipxieyi\">会员服务协议</on></b></color>”，<br/>知晓并同意会员付费内容。";
-        ad.cancelButtonVisible = true;
-        ad.cancelButtonText = "取消"
+        // ad.cancelButtonVisible = true;
+        // ad.cancelButtonText = "取消"
+        ad.closeBtnVisible = true;
         ad.confirmButtonText = "继续购买"
         AlertManager.getInstance().showUserAgreeAlert(ad);
         ad.contentClickCb = this.showvipxieyi.bind(this);
