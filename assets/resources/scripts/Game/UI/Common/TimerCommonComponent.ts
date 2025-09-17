@@ -25,6 +25,11 @@ export class TimerCommonComponent extends Component {
         return this.isRunning;
     }
 
+    // 检查倒计时是否曾经启动过
+    public hasStarted(): boolean {
+        return this.startTime > 0;
+    }
+
     update(deltaTime: number) {
         if (this.isRunning) {
             const elapsedTime = (Date.now() - this.startTime) / 1000;
