@@ -30,4 +30,7 @@ export enum LocalStorageKeyEnum {
     ORGANIZATION_TOKEN = "user.organizationToken",
     ORGANIZATION_TOKEN_EXPIREDTIME = "user.organizationToken.EXPIREDTIME",
     ORGANIZATION_NAME = "user.organizationName",
+    GAME_STATE = "game.state",
+    PENDING_REQUESTS = "game.pendingRequests",
+    VIP_XIEYI = "user.vipXieyi",
 }

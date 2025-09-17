@@ -165,6 +165,7 @@ export class AlertManager extends BaseManager {
         }
     }
     public showUserAgreeAlert(alertData: AlertData) {
+        let self = this;
         if (this.userAgreeAlert) {
             return;
         }
@@ -209,12 +210,22 @@ export class AlertManager extends BaseManager {
                 if (alertData.contentClickCb) {
                     alertData.contentClickCb();
                 }
-                this.closeCurrentAlert();
+                self.closeCurrentAlert();
             });
 
         }
 
-        let self = this;
+        let closeBtn = alertNode.getChildByName("viewNode").getChildByName('close').getComponent(Button);
+        if(alertData.closeBtnVisible){
+            closeBtn.node.active = true;
+        }
+        if (closeBtn) {
+            closeBtn.node.on('click', () => {
+                self.closeUserAgreeAlert();
+            });
+        }
+
+       
         // 处理取消按钮相关逻辑，设置显示隐藏及点击回调等（示例，需根据实际调整）
         let cancelButton = alertNode.getChildByName("viewNode").getChildByName('cancelButton').getComponent(Button);
         if (cancelButton) {
@@ -401,6 +412,7 @@ export class AlertData {
     public title: string = "提示";
     public message: string = "";
     public messageFontColor: string = "#FFFFFF";
+    public closeBtnVisible: boolean = false;
     public cancelCb: () => void = null;
     public confirmCb: () => void = null;
     public contentClickCb: () => void = null;

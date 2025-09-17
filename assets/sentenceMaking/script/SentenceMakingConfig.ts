@@ -21,34 +21,71 @@ export class SentenceMakingConfig {
     private levelQuestions: { [key: string]: SentenceMakingQuestion[] } = {};
 
     async loadConfig() {
+        // 检查 bundle 是否存在
         let bundle = assetManager.getBundle(BundleName.SENTENCEMAKING);
+        if (!bundle) {
+            throw new Error(`Bundle ${BundleName.SENTENCEMAKING} 不存在，请检查资源加载状态`);
+        }
+
         let self = this;
         await new Promise<void>((resolve, reject) => {
             bundle.load(this.jsonFilePath, JsonAsset, (err: Error | null, data: JsonAsset) => {
                 if (err) {
-                    DebugLog.instance.warn("加载配置文件失败:" + err);
-                    reject(err);
+                    DebugLog.instance.error("加载配置文件失败:" + err);
+                    reject(new Error(`配置文件加载失败: ${err.message}`));
+                } else if (!data || !data.json) {
+                    DebugLog.instance.error("配置文件数据无效");
+                    reject(new Error("配置文件数据无效"));
                 } else {
-                    const rawData = data.json;
-                    for (let level in rawData) {
-                        if (rawData.hasOwnProperty(level)) {
-                            self.levelQuestions[level] = [];
-                            const levelData = rawData[level];
-                            for (let question of levelData) {
-                                // 核心处理逻辑
-                                const { modifiedSentence, newFixed, adjustedPunctuations } = this.processQuestion(question);
+                    try {
+                        const rawData = data.json;
+                        let loadedQuestionCount = 0;
+                        
+                        for (let level in rawData) {
+                            if (rawData.hasOwnProperty(level)) {
+                                self.levelQuestions[level] = [];
+                                const levelData = rawData[level];
+                                
+                                if (!Array.isArray(levelData)) {
+                                    DebugLog.instance.warn(`关卡数据格式错误: ${level}`);
+                                    continue;
+                                }
+                                
+                                for (let question of levelData) {
+                                    if (!question || !question.sentence || !Array.isArray(question.sentence)) {
+                                        DebugLog.instance.warn(`问题数据格式错误: ${level}`);
+                                        continue;
+                                    }
+                                    
+                                    try {
+                                        // 核心处理逻辑
+                                        const { modifiedSentence, newFixed, adjustedPunctuations } = this.processQuestion(question);
 
-                                // 创建问题实例时使用处理后的数据
-                                const newQuestion = new SentenceMakingQuestion(
-                                    modifiedSentence,
-                                    newFixed,
-                                    adjustedPunctuations // 使用调整后的标点选项
-                                );
-                                self.levelQuestions[level].push(newQuestion);
+                                        // 创建问题实例时使用处理后的数据
+                                        const newQuestion = new SentenceMakingQuestion(
+                                            modifiedSentence,
+                                            newFixed,
+                                            adjustedPunctuations // 使用调整后的标点选项
+                                        );
+                                        self.levelQuestions[level].push(newQuestion);
+                                        loadedQuestionCount++;
+                                    } catch (processError) {
+                                        DebugLog.instance.error(`处理问题数据时发生错误: ${level}`, processError);
+                                    }
+                                }
                             }
                         }
+                        
+                        if (loadedQuestionCount === 0) {
+                            reject(new Error("没有成功加载任何问题数据"));
+                        } else {
+                            DebugLog.instance.log(`成功加载 ${loadedQuestionCount} 个问题`);
+                            resolve();
+                        }
+                    } catch (parseError) {
+                        DebugLog.instance.error("解析配置文件时发生错误", parseError);
+                        reject(new Error(`解析配置文件失败: ${parseError.message}`));
                     }
-                    resolve();
                 }
             });
         });
@@ -151,9 +188,20 @@ export class SentenceMakingConfig {
             return isValid;
         });
 
+        // 去重并排序，确保保持number[]类型
+        const uniqueNewFixed: number[] = [];
+        const seen = new Set<number>();
+        for (const num of validNewFixed) {
+            if (!seen.has(num)) {
+                seen.add(num);
+                uniqueNewFixed.push(num);
+            }
+        }
+        uniqueNewFixed.sort((a, b) => a - b);
+
         return {
             modifiedSentence: sentence,
-            newFixed: [...new Set(validNewFixed)].sort((a, b) => a - b),
+            newFixed: uniqueNewFixed,
             adjustedPunctuations
         };
     }

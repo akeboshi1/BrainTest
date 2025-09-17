@@ -156,7 +156,10 @@ export class SocketManager extends BaseManager {
 
         this._socketDatas.set(action, updatedDatas);
         if (tmpSocketData) {
-            if(jsonObj.status == 0 && jsonObj.error && LoginErrorCode[jsonObj.error]){
+            if(jsonObj.status == 0 && jsonObj.error 
+                && LoginErrorCode[jsonObj.error]
+                && (LoginErrorCode[jsonObj.error] == LoginErrorCode.INVALID_TOKEN
+                || LoginErrorCode[jsonObj.error] == LoginErrorCode.USER_NOT_FOUND)){
                 const alertData: AlertData = new AlertData();
                 alertData.message = LoginErrorCode[jsonObj.error];
                 alertData.confirmCb = function () {
@@ -333,6 +336,7 @@ export class SocketManager extends BaseManager {
                 cancelButtonText: "退出",
                 cancelButtonVisible: false, // 隐藏退出按钮
                 guideButtonVisible: false,
+                closeBtnVisible:false,
                 guideButtonText: '玩法介绍',
                 x: 0,
                 y: 0,
