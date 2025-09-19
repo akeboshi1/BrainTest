@@ -310,7 +310,7 @@ export class IndexPageView extends AdaptComponent {
                     const currentPos = this.titleIcon.position;
                     this.titleIcon.setPosition(
                         currentPos.x + 40 ,
-                        currentPos.y + 250,
+                        currentPos.y + 260,
                         currentPos.z
                     );
                     this.titleIcon.getComponent(Sprite).spriteFrame = icon0Sprite;

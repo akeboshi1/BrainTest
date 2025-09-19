@@ -12,7 +12,7 @@
                 "bg3_color":"#CFF9FF",
                 "width":302,
                 "height":217,
-                "word_color": "#FFFFFF",
+                "word_color": "#0077B5",
                 "word_out_color":"#000000",
                 "click_function_name": "showBrainTrainingPanel"
             },
@@ -27,7 +27,7 @@
                 "bg3_color":"#CFF9FF",
                 "width":302,
                 "height":217,
-                "word_color": "#FFFFFF",
+                "word_color": "#0077B5",
                 "word_out_color":"#000000",
                 "click_function_name": "navigatetoFingerGame"
             }

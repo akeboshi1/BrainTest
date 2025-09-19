@@ -68,6 +68,11 @@ export class TaskItemController extends Component {
 
     setTaskTitle(title: string) {
         this.taskTitle.string = title;
+        if(ThemeConfig.getInstance().getThemeTitle() == "normal"){
+            this.taskTitle.isBold = false;
+        }else{
+            this.taskTitle.isBold = false;
+        }
     }
 
     setTaskContent(content: string) {
@@ -109,6 +114,15 @@ export class TaskItemController extends Component {
 
     async setTaskWordColor(wordcolor:string) {
         this.taskWord.color = new Color(wordcolor);
+        DebugLog.instance.log(`设置文本颜色: ${wordcolor}`);
+        
+        // 在normal主题下不使用outline效果
+        if(ThemeConfig.getInstance().getThemeTitle() == "normal"){
+            this.taskWord.isBold = false;
+            DebugLog.instance.log("normal主题下仅设置文本颜色，不使用outline效果");
+        }else{
+            this.taskWord.isBold = true;
+        }
     }
 
     /**
@@ -116,9 +130,18 @@ export class TaskItemController extends Component {
      * @param outlineColor 外发光颜色
      */
     setTaskWordOutline(outlineColor: string) {
+        // 在normal主题下不使用outline效果
+        if(ThemeConfig.getInstance().getThemeTitle() == "normal"){
+            DebugLog.instance.log("normal主题下不使用outline效果");
+            this.taskWord.enableOutline = false;
+            return;
+        }
+        
         if (outlineColor) {
+            this.taskWord.enableOutline = true;
             this.taskWord.outlineColor = ColorUtil.hexToColor(outlineColor);
             this.taskWord.outlineWidth = 4; // 默认宽度
+            DebugLog.instance.log(`设置文本外发光效果: ${outlineColor}`);
         }
     }
 
@@ -132,6 +155,9 @@ export class TaskItemController extends Component {
         DebugLog.instance.log(`bg0_color: ${bg0_color} -> R:${color0.r}, G:${color0.g}, B:${color0.b}, A:${color0.a}`);
         DebugLog.instance.log(`bg1_color: ${bg1_color} -> R:${color1.r}, G:${color1.g}, B:${color1.b}, A:${color1.a}`);
         
+
+        this.taskTitle.color = color0;
+
         // 确保Sprite组件存在
         if (this.taskBG0) {
             this.taskBG0.color = color0;
