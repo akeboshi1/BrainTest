@@ -3,6 +3,7 @@ import { BaseManager } from '../Core/Manager/BaseManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { SocketData } from '../Core/Manager/Net/SocketData';
 import { SocketManager } from '../Core/Manager/Net/SocketManager';
+import { ThemeConfig } from './ThemeConfig';
 
 export class GlobalConfigManager extends BaseManager {
     private static _instance: GlobalConfigManager = null;
@@ -23,6 +24,8 @@ export class GlobalConfigManager extends BaseManager {
             EventManager.getInstance().on(GlobalConfigManager.GETGLOBALCONFIG,(data)=>{
                 if(data.status == 1 && data.data){
                     this.asr_audios_url = data.data.asr_audios_url;
+                    // 初始化主题配置
+                    if(data.data.theme)ThemeConfig.getInstance().init(data.data.theme);
                     resolve();
                 }else{
                     reject();
