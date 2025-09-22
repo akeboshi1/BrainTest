@@ -65,7 +65,7 @@ export class PageController extends AdaptComponent {
         }
     }
 
-    public async loadPage(pageName: string, params?: any) {
+    public async loadPage(pageName: string, params?: any, showImmediately: boolean = true) {
         if (!this._pageNode) {
             DebugLog.instance.error('Page node not initialized!');
             return;
@@ -108,6 +108,11 @@ export class PageController extends AdaptComponent {
                 });
             }
             
+            // 如果不立即显示，先隐藏页面
+            if (!showImmediately) {
+                page.active = false;
+            }
+            
             this._pageNode.addChild(page);
             this._currentPage = pageName;
             
@@ -123,10 +128,88 @@ export class PageController extends AdaptComponent {
         return this._currentPage;
     }
 
+    /**
+     * 显示当前页面
+     */
+    public showCurrentPage() {
+        if (this._pageNode && this._pageNode.children.length > 0) {
+            const currentPage = this._pageNode.children[0];
+            currentPage.active = true;
+            DebugLog.instance.log(`Page ${this._currentPage} is now visible`);
+        }
+    }
+
+    /**
+     * 隐藏当前页面
+     */
+    public hideCurrentPage() {
+        if (this._pageNode && this._pageNode.children.length > 0) {
+            const currentPage = this._pageNode.children[0];
+            currentPage.active = false;
+            DebugLog.instance.log(`Page ${this._currentPage} is now hidden`);
+        }
+    }
+
+    /**
+     * 等待页面数据加载完成后显示页面
+     * @param pageName 页面名称
+     * @param params 页面参数
+     * @param dataLoadCallback 数据加载回调函数，返回Promise
+     */
+    public async loadPageWithData(pageName: string, params?: any, dataLoadCallback?: () => Promise<void>) {
+        // 先加载页面但不显示
+        await this.loadPage(pageName, params, false);
+        
+        // 如果有数据加载回调，等待数据加载完成
+        if (dataLoadCallback) {
+            try {
+                await dataLoadCallback();
+                DebugLog.instance.log(`Data loading completed for page ${pageName}`);
+            } catch (error) {
+                DebugLog.instance.error(`Data loading failed for page ${pageName}:`, error);
+            }
+        } else {
+            // 如果没有提供数据加载回调，等待页面自身的数据加载完成
+            await this.waitForPageDataLoad();
+        }
+        
+        // 数据加载完成后显示页面
+        this.showCurrentPage();
+    }
+
+    /**
+     * 等待页面自身的数据加载完成
+     * 通过检查页面是否实现了数据加载完成通知机制
+     */
+    private async waitForPageDataLoad(): Promise<void> {
+        if (!this._pageNode || this._pageNode.children.length === 0) {
+            return;
+        }
+
+        const currentPage = this._pageNode.children[0];
+        const components = currentPage.getComponents(Component);
+        
+        // 查找实现了数据加载完成通知的组件
+        for (const component of components) {
+            if (typeof component['waitForDataLoad'] === 'function') {
+                try {
+                    await component['waitForDataLoad']();
+                    DebugLog.instance.log(`Page data loading completed via waitForDataLoad`);
+                    return;
+                } catch (error) {
+                    DebugLog.instance.error(`Page data loading failed:`, error);
+                }
+            }
+        }
+
+        // 如果没有找到数据加载方法，等待一个短暂的时间让页面完成初始化
+        await new Promise(resolve => setTimeout(resolve, 100));
+        DebugLog.instance.log(`Page data loading completed with default timeout`);
+    }
+
     loadIndexPage(){
         this.loadPage('index');
         this.updateButtonColors(null,"0");
-
     }
 
     async loadReporterPage(params: any = null, data: any = null){
@@ -141,6 +224,38 @@ export class PageController extends AdaptComponent {
 
     loadGameCenterPage(){
         this.loadPage('gameCenter');
+        this.updateButtonColors(null,"1");
+    }
+
+    /**
+     * 加载首页并等待数据加载完成
+     */
+    async loadIndexPageWithData(dataLoadCallback?: () => Promise<void>){
+        await this.loadPageWithData('index', null, dataLoadCallback);
+        this.updateButtonColors(null,"0");
+    }
+
+    /**
+     * 加载报告页面并等待数据加载完成
+     */
+    async loadReporterPageWithData(params: any = null, data: any = null, dataLoadCallback?: () => Promise<void>){
+        await this.loadPageWithData('reporter', data, dataLoadCallback);
+        this.updateButtonColors(null,"2");
+    }
+
+    /**
+     * 加载个人中心页面并等待数据加载完成
+     */
+    async loadPersonalCenterPageWithData(dataLoadCallback?: () => Promise<void>){
+        await this.loadPageWithData('personalCenter', null, dataLoadCallback);
+        this.updateButtonColors(null,"3");
+    }
+
+    /**
+     * 加载游戏中心页面并等待数据加载完成
+     */
+    async loadGameCenterPageWithData(dataLoadCallback?: () => Promise<void>){
+        await this.loadPageWithData('gameCenter', null, dataLoadCallback);
         this.updateButtonColors(null,"1");
     }
 } 
