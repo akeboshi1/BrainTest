@@ -93,6 +93,12 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
     
     // 添加阶段标记，用于机构用户的显示控制
     private _currentPhase: 'listening' | 'answering' | 'result' = 'listening'; // 当前阶段：听题、答题、结算
+    
+    // 倒计时暂停状态
+    private _isTimerPaused: boolean = false; // 倒计时是否被暂停
+    
+    // 退出弹窗状态标记
+    private _isExitAlertShowing: boolean = false; // 退出弹窗是否正在显示
 
     protected bundleName: string = 'guessingGame';
 
@@ -232,6 +238,10 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     start() {
         super.start();
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
+        
         if (!this.bInit) {
             // 优化：异步初始化模型，避免阻塞主线程
             this.guessingGameModel.init(this).then(() => {
@@ -278,6 +288,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             this.guessingGameModel.dispose();
             this.guessingGameModel = null;
         }
+        
+        // 移除应用状态监听
+        game.off(Game.EVENT_HIDE, this.onAppHide, this);
+        game.off(Game.EVENT_SHOW, this.onAppShow, this);
+        
         super.onDestroy();
     }
 
@@ -556,6 +571,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 停止背景音乐
         AudioManager.getInstance().stopBgm();
         context.guessingGameModel.stopAudio();
+        
+        // 重置退出弹窗状态标记
+        context._isExitAlertShowing = false;
+        DebugLog.instance.log("退出弹窗关闭，重置状态标记为false");
+        
         super.exitCallBack(context);
     }
 
@@ -674,6 +694,18 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
             // 确保frameComponent处于待机状态
             context.frameComponent.playAnimation("idle", 16, true, true);
         }
+        
+        // 如果倒计时被暂停，恢复倒计时
+        if (context._isTimerPaused) {
+            context.resumeTimer();
+            context._isTimerPaused = false;
+            DebugLog.instance.log("用户点击继续，恢复倒计时");
+        }
+        
+        // 重置退出弹窗状态标记
+        context._isExitAlertShowing = false;
+        DebugLog.instance.log("用户点击继续，重置退出弹窗状态标记为false");
+        
         super.resumeCallBack(context);
     }
 
@@ -681,6 +713,15 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         AudioManager.getInstance().resumeBgm();
         this.timerRT.resumeTimer();
         // this.timerStartGame.resumeTimer();
+    }
+
+    /**
+     * 恢复倒计时
+     */
+    private resumeTimer() {
+        if (this.timerRT) {
+            this.timerRT.resumeTimer();
+        }
     }
 
     pauseTime() {
@@ -706,6 +747,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this._replay = false;
         this._clickStart = false;
         this._hasClickedStartBtn = false; // 重置点击开始按钮的状态
+        this._isTimerPaused = false; // 重置倒计时暂停状态
+        this._isExitAlertShowing = false; // 重置退出弹窗状态标记
 
         // 设置听题阶段
         this.setCurrentPhase('listening');
@@ -803,6 +846,11 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         // 设置结算阶段
         this.setCurrentPhase('result');
         
+        // 显示questionlabel
+        if (this.questionLabel) {
+            this.questionLabel.node.active = true;
+        }
+        
         this.analysisNode.active = true;
         this.analysisLabel.string = this.currentQuestion.analysis;
         this.setCorrectOptionColor();
@@ -853,5 +901,98 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
                 opnode.getComponent(Button).interactable = interactable;
             }
         }
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on(Game.EVENT_HIDE, this.onAppHide, this);
+        // 监听应用回到前台
+        game.on(Game.EVENT_SHOW, this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        DebugLog.instance.log("应用进入后台，暂停游戏并显示退出弹窗");
+        
+        // 如果退出弹窗已经在显示，不再重复弹出
+        if (this._isExitAlertShowing) {
+            DebugLog.instance.log("退出弹窗已在显示，跳过重复弹出");
+            return;
+        }
+        
+        // 如果在答题阶段，标记倒计时为暂停状态
+        if (this._currentPhase === 'answering') {
+            this._isTimerPaused = true;
+            DebugLog.instance.log("答题阶段，标记倒计时为暂停状态");
+        }
+        
+        // 暂停计时器
+        if (this.timerRT) {
+            this.timerRT.pauseTimer();
+        }
+        
+        // 暂停游戏状态
+        this.setOptionsInteractable(false);
+        
+        // 暂停背景音乐
+        AudioManager.getInstance().pauseBgm();
+        
+        // 暂停音效
+        this.guessingGameModel.stopAudio();
+        
+        // 设置frameComponent为待机动作
+        if (this.frameComponent) {
+            this.frameComponent.playAnimation("idle", 16, true, true);
+        }
+        
+        // 显示退出弹窗
+        this.showPauseAlert();
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        DebugLog.instance.log("应用回到前台，恢复游戏");
+        
+        // 如果在听题阶段（预览阶段），恢复背景音乐但不恢复倒计时
+        if (this._currentPhase === 'listening') {
+            DebugLog.instance.log("听题阶段，恢复背景音乐但不恢复倒计时");
+            AudioManager.getInstance().resumeBgm();
+            return;
+        }
+        
+        // 如果在答题阶段，只恢复背景音乐，不恢复倒计时（需要用户点击继续）
+        if (this._currentPhase === 'answering') {
+            DebugLog.instance.log("答题阶段，恢复背景音乐但不恢复倒计时（需要用户点击继续）");
+            // 恢复背景音乐
+            AudioManager.getInstance().resumeBgm();
+            // 不恢复倒计时，保持暂停状态
+            return;
+        }
+        
+        // 如果在结算阶段，只恢复背景音乐
+        if (this._currentPhase === 'result') {
+            DebugLog.instance.log("结算阶段，只恢复背景音乐");
+            AudioManager.getInstance().resumeBgm();
+            return;
+        }
+    }
+
+    /**
+     * 显示暂停弹窗
+     */
+    private showPauseAlert() {
+        // 标记退出弹窗正在显示
+        this._isExitAlertShowing = true;
+        DebugLog.instance.log("显示退出弹窗，设置状态标记为true");
+        
+        // 使用现有的quitGame方法显示退出弹窗
+        super.quitGame({ parentNode: this.viewNode, context: this });
     }
 }

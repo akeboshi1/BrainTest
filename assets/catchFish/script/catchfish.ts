@@ -15,7 +15,9 @@ import {
     Vec3,
     resources,
     AudioClip,
-    ProgressBar
+    ProgressBar,
+    game,
+    Game
 } from 'cc';
 import { ColorUtil } from '../../resources/scripts/Core/Util/ColorUtil';
 import { Fish } from './Fish';
@@ -145,6 +147,11 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _moveSpeed: number = 200; // 像素/秒
 
     private _pause = false;
+    private _isEffectPlaying = false; // 特效播放中标志
+    
+    // 退出弹窗状态标记
+    private _isExitAlertShowing: boolean = false; // 退出弹窗是否正在显示
+    
     private _waveConfig = {
         amplitude: 30,   // 波动幅度
         frequency: 0.002 // 波动频率
@@ -184,6 +191,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     start() {
         super.start();
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
+        
         // let logoSprite = this.logoNode.getComponent(Sprite);
         // const bundle = assetManager.getBundle(this.bundleName);
         // if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -237,12 +248,33 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
     goonHandler() {
+        // 如果游戏在结算阶段，需要重置状态并继续游戏
+        if (this._gameEnded) {
+            DebugLog.instance.log("游戏在结算阶段，重置状态并继续游戏");
+            // 重置游戏结束标志
+            this._gameEnded = false;
+            // 重置退出弹窗状态标记
+            this._isExitAlertShowing = false;
+            // 重置特效标志
+            this._isEffectPlaying = false;
+            // 重置暂停状态
+            this._isPaused = false;
+            this._pause = false;
+        }
+        
         this.node.active = false;
         super.goonHandler(this);
     }
 
 
     dzgoonHandler(resuleBoo: boolean = true) {
+        // 重置游戏状态，确保能正常继续
+        this._gameEnded = false;
+        this._isExitAlertShowing = false;
+        this._isEffectPlaying = false;
+        this._isPaused = false;
+        this._pause = false;
+        
         this.clearGameView();
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -271,6 +303,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
 
     exitCallBack(context: any): void {
+        // 重置退出弹窗状态标记
+        context._isExitAlertShowing = false;
+        DebugLog.instance.log("退出弹窗关闭，重置状态标记为false");
+        
         super.exitCallBack(context);
     }
 
@@ -285,6 +321,51 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     resumeCallBack(context) {
         context.setGamePause(false);
+        
+        // 重置特效标志，确保状态正确
+        context._isEffectPlaying = false;
+        
+        // 容错保护：强制重置所有可能影响鱼移动的状态
+        context._isPaused = false;
+        context._pause = false;
+        context._clearBoo = false;
+        
+        // 重置退出弹窗状态标记
+        context._isExitAlertShowing = false;
+        DebugLog.instance.log("用户点击继续，重置退出弹窗状态标记为false");
+        
+        // 恢复倒计时
+        if (context.timerComponent) {
+            context.timerComponent.resumeTimer();
+            DebugLog.instance.log("用户点击继续，恢复倒计时");
+        }
+        
+        // 恢复鱼的移动
+        if (context.fishs && context.fishs.length > 0) {
+            DebugLog.instance.log(`恢复${context.fishs.length}条鱼的移动`);
+            context.fishs.forEach((fish, index) => {
+                if (fish && !context._gameEnded) {
+                    // 强制重置鱼的暂停状态
+                    fish.pause = false;
+                    // 停止现有动画
+                    if (fish.curTween) {
+                        fish.curTween.stop();
+                        fish.curTween = null;
+                    }
+                    // 重新创建鱼的移动tween
+                    DebugLog.instance.log(`恢复第${index + 1}条鱼的移动`);
+                    context.moveFishes(fish, 0);
+                }
+            });
+        }
+        
+        // 恢复背景鱼群动画
+        context._fishTweens.forEach(tween => {
+            if (tween) {
+                tween.start();
+            }
+        });
+        
         super.resumeCallBack(context);
     }
 
@@ -321,6 +402,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         super.clearGameView();
         this._clearBoo = true;
         this._gameEnded = true; // 确保训练彻底结束
+        this._isPaused = false; // 重置暂停状态
         if (this._wangTween) {
             this._wangTween.stop();
             this._wangTween = null;
@@ -368,10 +450,17 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
 
     startGame() {
-        Tween.stopAll();
+        this.clearGameView();
         this.customsSendDataState = false;
         this._clearBoo = false;
         this._gameEnded = false; // 重置训练结束标志
+        this._isEffectPlaying = false; // 重置特效标志
+        this._isExitAlertShowing = false; // 重置退出弹窗状态标记
+        
+        // 容错保护：强制重置所有暂停相关状态
+        this._isPaused = false;
+        this._pause = false;
+        this.hasWangClick = false;
 
         // 确保鱼群动画重置并启动
         this.resetAndStartFishMovement();
@@ -556,6 +645,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._pause = isPaused; // 保持向后兼容
         
         if (isPaused) {
+            // 暂停倒计时
+            if (this.timerComponent) {
+                this.timerComponent.pauseTimer();
+                DebugLog.instance.log("游戏暂停，倒计时已暂停");
+            }
+            
             // 暂停背景鱼群动画
             this._fishTweens.forEach(tween => tween.stop());
             // 暂停所有鱼的移动，移除tween
@@ -570,7 +665,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._fishTweens.forEach(tween => tween.start());
             // 恢复所有鱼的移动，重新创建tween
             this.fishs.forEach(fish => {
-                if (!fish.pause && !this._gameEnded) {
+                if (fish && !this._gameEnded) {
+                    // 重置鱼的暂停状态
+                    fish.pause = false;
                     // 重新创建鱼的移动tween
                     this.moveFishes(fish, 0);
                 }
@@ -597,6 +694,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 fish.setParent(this.fishParentNode);
                 this.randomFish(fish);
                 this.fishs.push(fish);
+                
+                // 容错保护：确保鱼创建后能正常移动
+                DebugLog.instance.log(`创建第${i + 1}条鱼，准备移动`);
                 this.moveFishes(fish, i * SHOOT_INTERVAL);
                 if (i == 0 || i == 2) {
                     datas.push({ root: this.node, fish: fish, wang: this._wangPosList[fish.currentIndex] });
@@ -707,8 +807,21 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     private _offsetX: number = 770;
     private _offsetX1: number = 770;
     moveFishes(fish: Fish, delay: number = 0) {
+        // 容错保护：确保鱼对象有效
+        if (!fish) {
+            DebugLog.instance.error("moveFishes: 鱼对象无效");
+            return;
+        }
+        
         if (this._gameEnded) return; // 训练结束不再移动鱼
         if (this._isPaused) return; // 训练暂停时不创建新的tween
+        
+        // 容错保护：强制重置暂停状态，防止状态残留
+        if (fish.pause) {
+            DebugLog.instance.log("moveFishes: 检测到鱼暂停状态，强制重置");
+            fish.pause = false;
+        }
+        
         if (fish.curTween) {
             fish.curTween.stop();
             fish.curTween = null;
@@ -1095,6 +1208,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._clearBoo = false;
         this._isPaused = false; // 重置暂停状态
         this._pause = false; // 保持向后兼容
+        this._isEffectPlaying = false; // 重置特效标志
+        this._isExitAlertShowing = false; // 重置退出弹窗状态标记
         this.hasGuide = false; // 重置引导状态
         this.isGuide = false; // 重置引导状态
         this.hasWangClick = false; // 重置网点击状态
@@ -1211,6 +1326,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         question.hasChose = true;
 
         if (this._wangTween) this._wangTween.stop();
+        
+        // 设置特效播放标志
+        this._isEffectPlaying = true;
+        
         // 启动动画 - 网飞向鱼的视觉中心
         this._wangTween = tween(wang).parallel(
             tween().to(0.4 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
@@ -1241,9 +1360,12 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                        
                         // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
+                            // 最后一条鱼，会弹出结算弹窗，不重置特效标志
                             self.endCurHardGame();
                         }else{
                             self.showResultRightEffect(self.wangCount - 1);
+                            // 不是最后一条鱼，重置特效标志
+                            self._isEffectPlaying = false;
                         }
                         if (self._clearBoo || self._gameEnded) return;
 
@@ -1309,6 +1431,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private async endCurHardGame() {
         this._gameEnded = true; // 设置训练结束标志
+        this._isEffectPlaying = false; // 重置特效标志
         this.pauseTime(); // 停止倒计时
         this.clearGameView(); // 停止所有鱼和动画，确保结算面板弹出时鱼不再游动
         this.playAudio("music/win", true);
@@ -1598,6 +1721,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         EventManager.getInstance().off(Fish.FishClick, this);
         EventManager.getInstance().off(CatchFishGuide.GUIDECLICK, this);
 
+        // 移除应用状态监听
+        game.off(Game.EVENT_HIDE, this.onAppHide, this);
+        game.off(Game.EVENT_SHOW, this.onAppShow, this);
+
         // 调用父类的onDestroy方法
         super.onDestroy();
     }
@@ -1643,6 +1770,109 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType != GameType.SKEWERS) {
             (this.sceneModel as any).showSuccessView();
         }
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on(Game.EVENT_HIDE, this.onAppHide, this);
+        // 监听应用回到前台
+        game.on(Game.EVENT_SHOW, this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        DebugLog.instance.log("应用进入后台，暂停游戏并显示退出弹窗");
+        
+        // 如果游戏在结算阶段，不弹出退出弹窗
+        if (this._gameEnded) {
+            DebugLog.instance.log("游戏在结算阶段，不弹出退出弹窗");
+            return;
+        }
+        
+        // 如果退出弹窗已经在显示，不再重复弹出
+        if (this._isExitAlertShowing) {
+            DebugLog.instance.log("退出弹窗已在显示，跳过重复弹出");
+            return;
+        }
+        
+        // 暂停计时器
+        if (this.timerComponent) {
+            this.timerComponent.pauseTimer();
+        }
+        
+        // 暂停游戏状态
+        this._pause = true;
+        this._isPaused = true;
+        
+        // 停止所有鱼的移动
+        this.fishs.forEach(fish => {
+            if (fish && fish.curTween) {
+                fish.curTween.stop();
+                fish.curTween = null;
+                fish.pause = true;
+            }
+        });
+        
+        // 停止背景鱼群动画
+        this._fishTweens.forEach(tween => {
+            if (tween) {
+                tween.stop();
+            }
+        });
+        
+        // 如果特效正在播放中，延迟显示退出弹窗
+        if (this._isEffectPlaying) {
+            DebugLog.instance.log("特效播放中，延迟显示退出弹窗");
+            // 延迟1秒后显示退出弹窗，确保特效完成
+            this.scheduleOnce(() => {
+                this.showPauseAlert();
+            }, 1.0);
+        } else {
+            // 立即显示退出弹窗
+            this.showPauseAlert();
+        }
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        DebugLog.instance.log("应用回到前台，保持暂停状态");
+        
+        // 如果游戏在结算阶段，不恢复倒计时
+        if (this._gameEnded) {
+            DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
+            // 重置特效标志，防止状态混乱
+            this._isEffectPlaying = false;
+            return;
+        }
+        
+        // 如果特效正在播放中，重置特效标志，防止状态混乱
+        if (this._isEffectPlaying) {
+            DebugLog.instance.log("特效播放中，重置特效标志");
+            this._isEffectPlaying = false;
+        }
+        
+        // 应用回到前台时保持暂停状态，不自动恢复倒计时
+        // 只有用户点击"继续"按钮时才会恢复倒计时
+        DebugLog.instance.log("应用回到前台，倒计时保持暂停状态，等待用户点击继续");
+    }
+
+    /**
+     * 显示暂停弹窗
+     */
+    private showPauseAlert() {
+        // 标记退出弹窗正在显示
+        this._isExitAlertShowing = true;
+        DebugLog.instance.log("显示退出弹窗，设置状态标记为true");
+        
+        // 使用现有的quitGame方法显示退出弹窗
+        super.quitGame({ parentNode: this.mainView, context: this });
     }
 }
 
