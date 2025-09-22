@@ -155,8 +155,9 @@ export class PageController extends AdaptComponent {
      * @param pageName 页面名称
      * @param params 页面参数
      * @param dataLoadCallback 数据加载回调函数，返回Promise
+     * @param buttonIndex 按钮索引，用于更新按钮状态
      */
-    public async loadPageWithData(pageName: string, params?: any, dataLoadCallback?: () => Promise<void>) {
+    public async loadPageWithData(pageName: string, params?: any, dataLoadCallback?: () => Promise<void>, buttonIndex?: string) {
         // 先加载页面但不显示
         await this.loadPage(pageName, params, false);
         
@@ -175,6 +176,12 @@ export class PageController extends AdaptComponent {
         
         // 数据加载完成后显示页面
         this.showCurrentPage();
+        
+        // 如果提供了按钮索引，在数据加载完成后更新按钮状态
+        if (buttonIndex !== undefined) {
+            this.updateButtonColors(null, buttonIndex);
+            DebugLog.instance.log(`Button colors updated for page ${pageName} with index ${buttonIndex}`);
+        }
     }
 
     /**
@@ -231,31 +238,27 @@ export class PageController extends AdaptComponent {
      * 加载首页并等待数据加载完成
      */
     async loadIndexPageWithData(dataLoadCallback?: () => Promise<void>){
-        await this.loadPageWithData('index', null, dataLoadCallback);
-        this.updateButtonColors(null,"0");
+        await this.loadPageWithData('index', null, dataLoadCallback, "0");
     }
 
     /**
      * 加载报告页面并等待数据加载完成
      */
     async loadReporterPageWithData(params: any = null, data: any = null, dataLoadCallback?: () => Promise<void>){
-        await this.loadPageWithData('reporter', data, dataLoadCallback);
-        this.updateButtonColors(null,"2");
+        await this.loadPageWithData('reporter', data, dataLoadCallback, "2");
     }
 
     /**
      * 加载个人中心页面并等待数据加载完成
      */
     async loadPersonalCenterPageWithData(dataLoadCallback?: () => Promise<void>){
-        await this.loadPageWithData('personalCenter', null, dataLoadCallback);
-        this.updateButtonColors(null,"3");
+        await this.loadPageWithData('personalCenter', null, dataLoadCallback, "3");
     }
 
     /**
      * 加载游戏中心页面并等待数据加载完成
      */
     async loadGameCenterPageWithData(dataLoadCallback?: () => Promise<void>){
-        await this.loadPageWithData('gameCenter', null, dataLoadCallback);
-        this.updateButtonColors(null,"1");
+        await this.loadPageWithData('gameCenter', null, dataLoadCallback, "1");
     }
 } 
