@@ -41,6 +41,11 @@ export class PersonalCenterManager {
     //报告数据
     private _reportDataList= [];
 
+    // 数据缓存和请求状态管理
+    private _isRequestingUserInfo: boolean = false;
+    private _userInfoRequestPromise: Promise<void> | null = null;
+    private _userInfoRequestResolve: Function | null = null;
+
     constructor() {
     }
 
@@ -56,26 +61,63 @@ export class PersonalCenterManager {
         //初始化个人中心
     }
     //请求个人中心数据
-    public requestUserInfo() {
+    public requestUserInfo(): Promise<void> {
+        // 如果数据已存在，直接返回Promise
+        if (this._userInfoData) {
+            DebugLog.instance.log("用户信息已缓存，直接返回");
+            return Promise.resolve();
+        }
+
+        // 如果正在请求中，返回现有的Promise
+        if (this._isRequestingUserInfo && this._userInfoRequestPromise) {
+            DebugLog.instance.log("用户信息正在请求中，返回现有Promise");
+            return this._userInfoRequestPromise;
+        }
+
+        // 创建新的请求Promise
+        this._isRequestingUserInfo = true;
+        this._userInfoRequestPromise = new Promise<void>((resolve) => {
+            this._userInfoRequestResolve = resolve;
+        });
+
         EventManager.getInstance().on(this.user_get_info, this.requestUserInfoCallback, this, true);
         let requestStartUserInfoSocket: SocketData = new SocketData({
             action: this.user_get_info,
             skipDebounce:true
         });
         SocketManager.getInstance().send(requestStartUserInfoSocket);
+
+        return this._userInfoRequestPromise;
     }
 
 
     public requestUserInfoCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.user_get_info,context);
         DebugLog.instance.log("请求个人中心数据", data);
+        
+        // 重置请求状态
+        this._isRequestingUserInfo = false;
+        
         if (data.status == 0) {
-            DebugLog.instance.error(data.message);
-            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {data});
+            DebugLog.instance.error("请求用户信息失败:", data.message);
+            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack, {error: data.message});
         } else {
-            this._userInfoData = new UserInfoData(data.data);
-            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack);
+            if (this._userInfoData) {
+                // 如果已存在用户数据，更新现有数据
+                this._userInfoData.updateData(data.data);
+            } else {
+                // 如果不存在用户数据，创建新实例
+                this._userInfoData = new UserInfoData(data.data);
+                EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack);
+            }
         }
+
+        // 解析Promise
+        if (this._userInfoRequestResolve) {
+            this._userInfoRequestResolve();
+            this._userInfoRequestResolve = null;
+        }
+        this._userInfoRequestPromise = null;
     }
     //更新个人中心数据
     public updateUserInfo(nick_name: string, full_name: string, gender: number, birthday: string, education: number) {
@@ -98,13 +140,14 @@ export class PersonalCenterManager {
         if (data.status == 0) {
             DebugLog.instance.error(data.message);
         } else {
-            this._userInfoData.nickname=data.data.nickname;
-            this._userInfoData.gender = data.data.gender;
-            this._userInfoData.full_name = data.data.full_name;
-            this._userInfoData.birthday = data.data.birthday;
-            this._userInfoData.education = data.data.education;
-            // DebugLog.instance.log("更新个人中心数据", this._userInfoData);
-            EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack );
+            if (this._userInfoData) {
+                // 使用updateData方法更新数据，会自动触发数据变化事件
+                this._userInfoData.updateData(data.data);
+            } else {
+                // 如果用户数据不存在，创建新实例
+                this._userInfoData = new UserInfoData(data.data);
+                EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack);
+            }
         }
     }
     //获取个人报告
@@ -182,6 +225,39 @@ export class PersonalCenterManager {
         }
         return "";
     }
+    /**
+     * 清除用户信息缓存，强制重新请求
+     */
+    public clearUserInfoCache() {
+        this._userInfoData = null;
+        this._isRequestingUserInfo = false;
+        this._userInfoRequestPromise = null;
+        this._userInfoRequestResolve = null;
+        DebugLog.instance.log("用户信息缓存已清除");
+    }
+
+    /**
+     * 强制刷新用户信息（清除缓存后重新请求）
+     */
+    public refreshUserInfo(): Promise<void> {
+        this.clearUserInfoCache();
+        return this.requestUserInfo();
+    }
+
+    /**
+     * 当UserInfoData发生变化时调用
+     * @param updatedUserInfoData 更新后的用户信息数据
+     */
+    public onUserInfoDataChanged(updatedUserInfoData: UserInfoData): void {
+        // 更新缓存的用户信息数据
+        this._userInfoData = updatedUserInfoData;
+        
+        // 触发用户信息变化事件，通知所有监听者
+        EventManager.getInstance().emit(PersonalCenterManager.getUserInfoCallBack);
+        
+        DebugLog.instance.log("用户信息数据已更新并刷新缓存");
+    }
+
     clean(){
         if(this._userInfoData){
             this._userInfoData = null;
@@ -189,6 +265,10 @@ export class PersonalCenterManager {
         if(this._reportDataList){
             this._reportDataList = null;
         }
+        // 清除请求状态
+        this._isRequestingUserInfo = false;
+        this._userInfoRequestPromise = null;
+        this._userInfoRequestResolve = null;
     }
 }
 
