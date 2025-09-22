@@ -1,5 +1,6 @@
 import { StringUtil } from "../../Core/Util/StringUtil";
 import { TimeUtil } from "../../Core/Util/TimeUtil";
+import { PersonalCenterManager } from "./PersonalCenterManager";
 
 export class UserInfoData {
     public id: string = "";
@@ -20,6 +21,11 @@ export class UserInfoData {
     public member_startTime: string = "";
     public member_endTime: string = "";
     public member_Expired: boolean = false;
+    
+    // 首页配置缓存
+    public indexPageConfigCache: any = null;
+    public indexPageConfigCacheTime: number = 0; // 缓存时间戳
+    
 
     constructor(data) {
         this.id = data["id"];
@@ -42,6 +48,98 @@ export class UserInfoData {
 
         // 判断会员是否过期
         this.checkMemberExpired();
+    }
+
+    /**
+     * 更新用户信息数据
+     * @param newData 新的数据对象
+     */
+    public updateData(newData: any): void {
+
+        // 更新所有字段
+        if (newData["id"] !== undefined) this.id = newData["id"];
+        if (newData["nickname"] !== undefined) this.nickname = newData["nickname"];
+        if (newData["gender"] !== undefined) this.gender = newData["gender"];
+        if (newData["full_name"] !== undefined) this.full_name = newData["full_name"];
+        if (newData["mp_no"] !== undefined) this.mp_no = newData["mp_no"];
+        if (newData["is_invited"] !== undefined) this.is_invited = newData["is_invited"];
+        if (newData["birthday"] !== undefined) this.birthday = newData["birthday"];
+        if (newData["education"] !== undefined) this.education = newData["education"];
+        if (newData["trained_days"] !== undefined) this.trained_days = newData["trained_days"];
+        if (newData["has_initial_tier"] !== undefined) this.has_initial_tier = newData["has_initial_tier"];
+        if (newData["is_member"] !== undefined) this.is_member = newData["is_member"];
+        if (newData["is_org_user"] !== undefined) this.is_org_user = newData["is_org_user"];
+
+        // 更新会员信息
+        if (newData["member"]) {
+            if (newData["member"]["start_at"] !== undefined) {
+                this.member_startTime = newData["member"]["start_at"];
+            }
+            if (newData["member"]["expired_at"] !== undefined) {
+                this.member_endTime = newData["member"]["expired_at"];
+            }
+        }
+        
+        // 更新首页配置缓存
+        if (newData["indexPageConfigCache"] !== undefined) {
+            this.indexPageConfigCache = newData["indexPageConfigCache"];
+        }
+        if (newData["indexPageConfigCacheTime"] !== undefined) {
+            this.indexPageConfigCacheTime = newData["indexPageConfigCacheTime"];
+        }
+
+        // 重新检查会员过期状态
+        this.checkMemberExpired();
+        // 通知PersonalCenterManager数据已更新
+        this.notifyDataChanged();
+    }
+
+    /**
+     * 设置首页配置缓存
+     * @param config 配置数据
+     */
+    public setIndexPageConfigCache(config: any): void {
+        this.indexPageConfigCache = config;
+        this.indexPageConfigCacheTime = Date.now();
+        this.notifyDataChanged();
+    }
+
+    /**
+     * 获取首页配置缓存
+     * @param maxAge 最大缓存时间（毫秒），默认24小时
+     * @returns 配置数据或null
+     */
+    public getIndexPageConfigCache(maxAge: number = 24 * 60 * 60 * 1000): any {
+        if (!this.indexPageConfigCache || !this.indexPageConfigCacheTime) {
+            return null;
+        }
+        
+        const now = Date.now();
+        if (now - this.indexPageConfigCacheTime > maxAge) {
+            // 缓存过期，清除缓存
+            this.indexPageConfigCache = null;
+            this.indexPageConfigCacheTime = 0;
+            return null;
+        }
+        
+        return this.indexPageConfigCache;
+    }
+
+    /**
+     * 清除首页配置缓存
+     */
+    public clearIndexPageConfigCache(): void {
+        this.indexPageConfigCache = null;
+        this.indexPageConfigCacheTime = 0;
+        this.notifyDataChanged();
+    }
+
+    /**
+     * 通知PersonalCenterManager数据已变化
+     */
+    private notifyDataChanged(): void {
+        // 触发数据变化事件，让PersonalCenterManager知道数据已更新
+        PersonalCenterManager.getInstance().onUserInfoDataChanged(this);
     }
 
     /**

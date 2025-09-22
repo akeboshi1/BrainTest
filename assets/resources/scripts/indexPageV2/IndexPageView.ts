@@ -85,6 +85,7 @@ export class IndexPageView extends AdaptComponent {
     private _listenerId: string = null;
     private _dataLoadPromise: Promise<void> = null;
     private _dataLoadResolve: Function = null;
+    private _configApplied: boolean = false; // 防止重复应用配置
 
     async start() {
         super.start();
@@ -96,9 +97,6 @@ export class IndexPageView extends AdaptComponent {
             this._dataLoadResolve = resolve;
         });
         
-        // 加载首页配置
-        await this.indexPageConfig.loadConfig();
-        
         // 使用缓存机制请求用户信息
         PersonalCenterManager.getInstance().requestUserInfo().then(() => {
             this.getUserInfoCallBack();
@@ -108,7 +106,8 @@ export class IndexPageView extends AdaptComponent {
     }
 
     onEnable() {
-        EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
+        // 注意：getUserInfoCallBack已经在start()中通过Promise方式调用，这里不需要重复监听
+        // EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
 
         this._listenerId = ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
     }
@@ -277,14 +276,47 @@ export class IndexPageView extends AdaptComponent {
      * 应用首页配置到UI
      */
     async applyIndexPageConfig() {
-        await this.indexPageConfig.loadConfig();
-        let type = this.getCurrentConfigType(); // 动态获取配置类型
-        let config;
+        // 防止重复调用
+        if (this._configApplied) {
+            DebugLog.instance.log("配置已经应用过，跳过重复调用");
+            return;
+        }
         
-        if (type === "normal") {
-            config = this.indexPageConfig.normalConfig;
-        } else {
-            config = ThemeConfig.getInstance().getConfig();
+        DebugLog.instance.log("IndexPageView开始应用首页配置");
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        let config = null;
+        
+        // 优先从用户信息缓存中获取配置
+        if (userData) {
+            const cachedConfig = userData.getIndexPageConfigCache();
+            if (cachedConfig) {
+                DebugLog.instance.log("使用缓存的首页配置");
+                config = cachedConfig;
+            }
+        }
+        
+        // 如果缓存中没有配置，则重新加载
+        if (!config) {
+            DebugLog.instance.log("缓存中没有配置，重新加载首页配置");
+            await this.indexPageConfig.loadConfig();
+            let type = this.getCurrentConfigType(); // 动态获取配置类型
+            
+            if (type === "normal") {
+                config = this.indexPageConfig.normalConfig;
+            } else {
+                config = ThemeConfig.getInstance().getConfig();
+            }
+            
+            // 将配置存储到用户信息缓存中
+            if (userData && config) {
+                // 确保缓存包含任务配置
+                const cacheData = {
+                    ...config,
+                    tasks: config.tasks || (type === "normal" ? this.taskConfig.normalTaskData : ThemeConfig.getInstance().getTasksConfig())
+                };
+                userData.setIndexPageConfigCache(cacheData);
+                DebugLog.instance.log("首页配置已缓存到用户信息中");
+            }
         }
         if (config && config.ui) {
             // 应用UI配置
@@ -326,16 +358,36 @@ export class IndexPageView extends AdaptComponent {
                 DebugLog.instance.log("应用图标1配置:", config.ui.title);
             }
         }
+        
+        // 标记配置已应用
+        this._configApplied = true;
+        DebugLog.instance.log("IndexPageView配置应用完成");
     }
 
     async generateTask() {
-        await this.taskConfig.loadConfig();
-        let type = this.getCurrentConfigType(); // 使用相同的动态类型判断
-        let taskdata;
-        if(type == "normal"){
-            taskdata = this.taskConfig.normalTaskData;
-        } else {
-            taskdata = ThemeConfig.getInstance().getTasksConfig();
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        let taskdata = null;
+        
+        // 优先从用户信息缓存中获取任务配置
+        if (userData) {
+            const cachedConfig = userData.getIndexPageConfigCache();
+            if (cachedConfig && cachedConfig.tasks) {
+                DebugLog.instance.log("使用缓存的任务配置");
+                taskdata = cachedConfig.tasks;
+            }
+        }
+        
+        // 如果缓存中没有任务配置，则重新加载
+        if (!taskdata) {
+            DebugLog.instance.log("缓存中没有任务配置，重新加载");
+            await this.taskConfig.loadConfig();
+            let type = this.getCurrentConfigType(); // 使用相同的动态类型判断
+            
+            if(type == "normal"){
+                taskdata = this.taskConfig.normalTaskData;
+            } else {
+                taskdata = ThemeConfig.getInstance().getTasksConfig();
+            }
         }
         
         
@@ -430,6 +482,24 @@ export class IndexPageView extends AdaptComponent {
         EventManager.getInstance().emit('onShowReport', data);
     }
 
+
+    /**
+     * 强制刷新首页配置
+     * 清除缓存并重新加载配置
+     */
+    async refreshIndexPageConfig(): Promise<void> {
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        if (userData) {
+            userData.clearIndexPageConfigCache();
+            DebugLog.instance.log("已清除首页配置缓存，将重新加载");
+        }
+        
+        // 重置配置应用标志
+        this._configApplied = false;
+        
+        // 重新应用配置
+        await this.applyIndexPageConfig();
+    }
 
     /**
      * 等待数据加载完成
