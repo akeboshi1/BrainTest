@@ -143,9 +143,12 @@ export class SceneManager extends BaseManager {
     async backToHall(): Promise<void> {
         let self = this;
         return new Promise((resolve, reject) => {
-            SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then(() => {
+            SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then(async () => {
                 DebugLog.instance.log('返回大厅');
-               
+                let node = find("Canvas");
+                let mainScene = node.getComponent("MainSceneController");
+                // 使用默认首页加载方法
+                await mainScene["loadDefaultIndexPage"]();
                 resolve();
             }).catch(err => {
                 reject(err);
@@ -155,12 +158,12 @@ export class SceneManager extends BaseManager {
 
     async backToGameCenter(): Promise<void> {
         return new Promise((resolve, reject) => {
-            SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then((scene) => {
+            SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES).then(async (scene) => {
                 DebugLog.instance.log('返回训练大厅');
                 let node = find("Canvas");
                 let mainScene = node.getComponent("MainSceneController");
-                 mainScene["showGameCenter"]();
-                // mainScene['setCurrentIndex'](MainSceneView.GameCenter);
+                // 使用showGameCenterWithData确保数据加载完成后再更新按钮状态
+                await mainScene["showGameCenterWithData"]();
                 resolve();
             }).catch(err => {
                 reject(err);
@@ -209,11 +212,12 @@ export class SceneManager extends BaseManager {
 
     async showPingcePanel(): Promise<void> {
         return new Promise((resolve, reject) => {
-            SceneManager.getInstance().changeScene("mainV2",BundleName.RESOURCES).then((scene) => {
+            SceneManager.getInstance().changeScene("mainV2",BundleName.RESOURCES).then(async (scene) => {
                 DebugLog.instance.log('返回串烧训练界面');
                 let node = find("Canvas");
                 let mainScene = node.getComponent("MainSceneController");
-                mainScene["showReport"]();
+                // 使用showReportWithData确保数据加载完成后再更新按钮状态
+                await mainScene["showReportWithData"]();
                 resolve();
             }).catch(err => {
                 reject(err);

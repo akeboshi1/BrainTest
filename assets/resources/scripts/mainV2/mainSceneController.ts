@@ -20,8 +20,9 @@ export class MainSceneController extends AdaptComponent {
         // 初始化 PageController
         // this.pageController = this.getComponent(PageController);
         this.pageController.init(this.pageContainer);
-        // 使用延迟显示的方式加载首页
-        this.loadIndexPageWithData();
+        // 不在这里自动加载首页，而是根据实际需要加载
+        // 这样可以避免与后续的页面切换产生按钮状态冲突
+        DebugLog.instance.log("MainSceneController onLoad完成，等待具体页面加载指令");
     }
     onEnable(){
         EventManager.getInstance().on('onShowReport', this.onShowReport, this);
@@ -81,6 +82,21 @@ export class MainSceneController extends AdaptComponent {
     }
 
     /**
+     * 从游戏返回时加载首页，确保按钮状态正确更新
+     * 这个方法专门处理从游戏场景返回时的延迟问题
+     */
+    async loadIndexPageFromGame(){
+        DebugLog.instance.log("从游戏返回，开始加载首页");
+        await this.pageController.loadIndexPageWithData(async () => {
+            // 等待用户信息数据加载完成
+            await PersonalCenterManager.getInstance().requestUserInfo();
+            // 加载报告数据
+            await this.loadReportData();
+            DebugLog.instance.log("从游戏返回首页数据加载完成");
+        });
+    }
+
+    /**
      * 加载游戏中心页面并等待数据加载完成
      */
     async showGameCenterWithData(){
@@ -114,6 +130,28 @@ export class MainSceneController extends AdaptComponent {
         });
     }
 
+    /**
+     * 公共方法：从游戏返回时显示首页
+     * 这个方法确保按钮状态在数据加载完成后正确更新
+     */
+    async showIndexPageFromGame(){
+        await this.loadIndexPageFromGame();
+    }
 
+    /**
+     * 公共方法：显示首页（普通情况）
+     */
+    async showIndexPage(){
+        await this.loadIndexPageWithData();
+    }
+
+    /**
+     * 默认加载首页（当场景加载完成但没有特定页面需要显示时）
+     * 这个方法用于处理直接进入mainV2场景的情况
+     */
+    async loadDefaultIndexPage(){
+        DebugLog.instance.log("加载默认首页");
+        await this.loadIndexPageWithData();
+    }
 
 }
