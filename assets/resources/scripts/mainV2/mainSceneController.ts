@@ -26,12 +26,22 @@ export class MainSceneController extends AdaptComponent {
     }
     onEnable(){
         EventManager.getInstance().on('onShowReport', this.onShowReport, this);
+        EventManager.getInstance().on('loadIndexPage', this.loadIndexPage, this);
     }
     onDisable(){
         EventManager.getInstance().off('onShowReport', this);
+        EventManager.getInstance().off('loadIndexPage', this);
     }
     onShowReport(data){
         this.showReportWithData(data);
+    }
+
+    /**
+     * 加载首页事件处理
+     */
+    loadIndexPage(){
+        DebugLog.instance.log("收到加载首页事件");
+        this.pageController.loadIndexPage();
     }
 
     start() {

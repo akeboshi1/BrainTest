@@ -439,6 +439,22 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
     backToParent() {
         UIManager.getInstance().hidePanel(TaskAndNotificationPanelCtrl.NAME);
         EventManager.getInstance().emit(TaskAndNotificationPanelCtrl.TaskAndNotificationHide,this);
+        
+        // 返回首页
+        this.loadIndexPage();
+    }
+
+    /**
+     * 加载首页
+     */
+    private loadIndexPage() {
+        DebugLog.instance.log("返回首页");
+        try {
+            // 通过事件系统触发首页加载
+            EventManager.getInstance().emit('loadIndexPage');
+        } catch (error) {
+            DebugLog.instance.error("返回首页失败:", error);
+        }
     }
 }
 
