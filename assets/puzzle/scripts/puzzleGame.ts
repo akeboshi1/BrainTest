@@ -32,6 +32,7 @@ import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
+import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -131,17 +132,47 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // 添加一个属性来控制是否允许退出
     private isQuitEnabled: boolean = true;
 
+    // 加载状态管理
+    private isLoading: boolean = false;
+    private loadingTimeoutId: any = null;
+    private readonly LOADING_TIMEOUT: number = 10000; // 10秒超时
+
     protected audioUrls = ['music/puzzleBG', "music/drag", "music/win"];
 
     private bgmClip: AudioClip;
 
     private async loadPuzzleTexture(id: number): Promise<Texture2D> {
+        // 设置加载状态
+        this.isLoading = true;
+        this.setQuitButtonInteractable(false);
+        
+        // 清除之前的超时定时器
+        if (this.loadingTimeoutId) {
+            clearTimeout(this.loadingTimeoutId);
+            this.loadingTimeoutId = null;
+        }
+
         const bundle = assetManager.getBundle(this.bundleName);
         return new Promise<Texture2D>((resolve, reject) => {
             this.loadTextureResolver = resolve;
             this.loadTextureRejector = reject;
 
+            // 设置超时检测
+            this.loadingTimeoutId = setTimeout(() => {
+                this.handleLoadingTimeout();
+            }, this.LOADING_TIMEOUT);
+
             bundle.load("texture/pintu" + (id).toString() + "/texture", Texture2D, (err, data) => {
+                // 清除超时定时器
+                if (this.loadingTimeoutId) {
+                    clearTimeout(this.loadingTimeoutId);
+                    this.loadingTimeoutId = null;
+                }
+
+                // 重置加载状态
+                this.isLoading = false;
+                this.setQuitButtonInteractable(true);
+
                 if (err) {
                     if (this.loadTextureRejector) {
                         this.loadTextureRejector(err);
@@ -236,6 +267,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.resetDragState();
         this.loadTextureRejector = null;
         this.loadTextureResolver = null;
+        
+        // 清理加载超时定时器
+        if (this.loadingTimeoutId) {
+            clearTimeout(this.loadingTimeoutId);
+            this.loadingTimeoutId = null;
+        }
         
         // 移除应用状态监听
         game.off(Game.EVENT_HIDE, this.onAppHide, this);
@@ -386,8 +423,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     }
 
     quitGame() {
-        // 如果退出被禁用，直接返回
-        if (!this.isQuitEnabled) {
+        // 如果退出被禁用或正在加载中，直接返回
+        if (!this.isQuitEnabled || this.isLoading) {
             return;
         }
 
@@ -929,7 +966,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.timerComponent.pauseTimer();
         }
         
-        
+        // 如果正在加载中，暂停加载超时检测
+        if (this.isLoading && this.loadingTimeoutId) {
+            clearTimeout(this.loadingTimeoutId);
+            this.loadingTimeoutId = null;
+            DebugLog.instance.log("应用进入后台，暂停加载超时检测");
+        }
         
         // 显示退出弹窗
         this.showPauseAlert();
@@ -950,6 +992,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             return;
         }
         
+        // 如果正在加载中，恢复加载超时检测
+        if (this.isLoading && !this.loadingTimeoutId) {
+            this.restartLoadingTimeout();
+            DebugLog.instance.log("应用回到前台，恢复加载超时检测");
+        }
+        
         // // 恢复计时器
         // if (this.timerComponent) {
         //     this.timerComponent.resumeTimer();
@@ -965,6 +1013,117 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private showPauseAlert() {
         // 使用现有的quitGame方法显示退出弹窗
         this.quitGame();
+    }
+
+    /**
+     * 处理加载超时
+     */
+    private handleLoadingTimeout() {
+        DebugLog.instance.error(`[puzzleGame] 加载超时，超过${this.LOADING_TIMEOUT}ms`);
+        
+        // 完全重置所有状态，确保用户可以正常交互
+        this.resetAllStatesAfterTimeout();
+        
+        // 检查应用是否在前台，只有在前台时才显示超时弹窗
+        if (game.isPaused) {
+            DebugLog.instance.log("应用在后台，延迟显示超时弹窗");
+            // 应用在后台，延迟显示弹窗，等待应用回到前台
+            this.scheduleOnce(() => {
+                this.showLoadingTimeoutAlert();
+            }, 0.1);
+        } else {
+            // 应用在前台，直接显示超时弹窗
+            this.showLoadingTimeoutAlert();
+        }
+    }
+
+    /**
+     * 显示加载超时弹窗
+     */
+    private showLoadingTimeoutAlert() {
+        const alertData: AlertData = new AlertData();
+        alertData.title = "加载超时";
+        alertData.message = '资源加载超时，请检查网络连接后重试。';
+        alertData.messageFontColor = "#FFFFFF";
+        alertData.confirmButtonText = "重试";
+        alertData.cancelButtonText = "退出";
+        alertData.cancelButtonVisible = true;
+        alertData.guideButtonVisible = false;
+        alertData.x = 0;
+        alertData.y = 0;
+        alertData.confirmCb = () => {
+            // 用户选择重试，重新加载当前关卡
+            DebugLog.instance.log("用户选择重试加载");
+            this.retryLoadingCurrentLevel();
+        }
+        alertData.cancelCb = () => {
+            // 用户选择退出，执行退出游戏逻辑
+            DebugLog.instance.log("用户选择退出游戏");
+            this.quitGame();
+        };
+        alertData.contentClickCb = null;
+        alertData.guideCallBack = null;
+
+        AlertManager.getInstance().showAlert(alertData);
+    }
+
+    /**
+     * 重试加载当前关卡
+     */
+    private retryLoadingCurrentLevel() {
+        DebugLog.instance.log("开始重试加载当前关卡");
+        
+        // 确保所有状态都已重置
+        this.resetAllStatesAfterTimeout();
+        
+        // 重新加载当前关卡
+        this.onClickRetryCurrentLevel();
+    }
+
+    /**
+     * 恢复加载超时检测
+     */
+    private restartLoadingTimeout() {
+        if (this.isLoading && !this.loadingTimeoutId) {
+            this.loadingTimeoutId = setTimeout(() => {
+                this.handleLoadingTimeout();
+            }, this.LOADING_TIMEOUT);
+            DebugLog.instance.log("恢复加载超时检测，超时时间：" + this.LOADING_TIMEOUT + "ms");
+        }
+    }
+
+    /**
+     * 超时后重置所有状态
+     */
+    private resetAllStatesAfterTimeout() {
+        DebugLog.instance.log("开始重置超时后的所有状态");
+        
+        // 重置加载状态
+        this.isLoading = false;
+        
+        // 清除超时定时器
+        if (this.loadingTimeoutId) {
+            clearTimeout(this.loadingTimeoutId);
+            this.loadingTimeoutId = null;
+        }
+        
+        // 重置拖拽状态
+        this.resetDragState();
+        
+        // 恢复退出按钮交互
+        this.setQuitButtonInteractable(true);
+        
+        // 恢复拖拽功能
+        this.isDragEnabled = true;
+        
+        // 确保游戏完成状态为false，允许重新开始
+        this._isGameCompleted = false;
+        
+        // 清理加载相关的Promise状态
+        this.loadTextureResolver = null;
+        this.loadTextureRejector = null;
+        
+        DebugLog.instance.log("超时后状态重置完成");
     }
 
 }
