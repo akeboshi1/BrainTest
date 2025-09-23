@@ -121,6 +121,12 @@ export class Game extends BaseScene<IBaseGameChild> {
     private _isSettling: boolean = false;
 
     /**
+     * 游戏完成回调是否已执行
+     * @private
+     */
+    private _isCallbackCompleted: boolean = false;
+
+    /**
      * 找茬个数
      * @private
      */
@@ -562,6 +568,7 @@ export class Game extends BaseScene<IBaseGameChild> {
         this.pause = false;
         this.canAddTime = true;
         this._isSettling = false;
+        this._isCallbackCompleted = false; // 重置回调完成标志
         this.resultList = [];
         this.tempList = [];
         this.hintIndex = 0;
@@ -606,16 +613,31 @@ export class Game extends BaseScene<IBaseGameChild> {
     }
 
     onSuccessNextLevel(): void {
+        // 如果游戏完成回调未执行，不允许进入下一关
+        if (this._isCallbackCompleted) {
+            DebugLog.instance.log("游戏完成回调未执行，不允许进入下一关");
+            return;
+        }
         CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
         this.refreshGame();
     }
 
     onFailNextLevel(): void {
+        // 如果游戏完成回调未执行，不允许进入下一关
+        if (this._isCallbackCompleted) {
+            DebugLog.instance.log("游戏完成回调未执行，不允许进入下一关");
+            return;
+        }
         CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
         this.refreshGame();
     }
 
     onAgain(): void {
+        // 如果游戏完成回调未执行，不允许重玩
+        if (this._isCallbackCompleted) {
+            DebugLog.instance.log("游戏完成回调未执行，不允许重玩");
+            return;
+        }
         this.refreshGame();
     }
 
@@ -759,10 +781,12 @@ export class Game extends BaseScene<IBaseGameChild> {
 
 
     requestGameCompleteCallBack() {
-        this.updateSkewersGameList();
+        // 设置回调完成标志，允许用户操作
+        this._isCallbackCompleted = true;
 
         // 串烧训练结算完成后恢复关闭按钮交互
         if (this.sceneModel.gameType == GameType.SKEWERS) {
+            this.updateSkewersGameList();
             this.setQuitButtonInteractable(true);
             this._isSettling = false;
         }
