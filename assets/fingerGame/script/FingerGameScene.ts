@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, UITransform, VideoPlayer, ProgressBar, tween, Vec3, UIOpacity, VideoClip, native, sys, Texture2D, Scene, macro, Sprite, assetManager, ImageAsset, SpriteFrame } from 'cc';
+import { _decorator, Component, Label, Node, UITransform, VideoPlayer, Prefab, tween, Vec3, UIOpacity, VideoClip, native, sys, Texture2D, Scene, macro, Sprite, assetManager, ImageAsset, SpriteFrame } from 'cc';
 import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
 import { fingerGameConfig, SectionConfig, SetConfig } from '../config/fingerGameConfig';
 import { SegmentProgressBar } from './SegmentProgressBar';
@@ -62,15 +62,6 @@ export class FingerGameScene extends Component {
     @property(Label)
     private debugLabel: Label = null;
 
-    @property(Node)
-    private titleBg: Node = null;
-
-    @property(Node)
-    private titleIcon: Node = null;
-
-    @property(Node)
-    private titleText: Node = null;
-
     private _model: FingerGameModel = null;
     private _currentSetIndex: number = -1;
     private _currentSectionIndex: number = -1;
@@ -100,6 +91,34 @@ export class FingerGameScene extends Component {
     private indexPageConfig: IndexPageConfig = new IndexPageConfig();
     private _configApplied: boolean = false; // 防止重复应用配置
 
+
+    async onLoad() {
+        // 注册面板
+        UIManager.getInstance().registerPanel(FingerGameCompletePanel.NAME, BundleName.FINGERGAME, "panel/FingerGameCompletePanel", FingerGameCompletePanel);
+        UIManager.getInstance().registerPanel(FingerGameSetFinishPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSetFinishPanel", FingerGameSetFinishPanel);
+        UIManager.getInstance().registerPanel(FingerGameSectionsPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSectionsPanel", FingerGameSectionsPanel);
+        UIManager.getInstance().registerPanel(FingerGameSectionsSelectPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSectionsSelectPanel", FingerGameSectionsSelectPanel);
+        UIManager.getInstance().registerPanel(FingerGameAnimationPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameAnimationPanel", FingerGameAnimationPanel);
+
+        // 预加载所有面板预制体
+        const panelNames = [
+            FingerGameCompletePanel.NAME,
+            FingerGameSetFinishPanel.NAME,
+            FingerGameSectionsPanel.NAME,
+            FingerGameSectionsSelectPanel.NAME,
+            FingerGameAnimationPanel.NAME
+        ];
+
+        try {
+            const result = await UIManager.getInstance().preloadPanels(panelNames);
+            DebugLog.instance.log(`FingerGame面板预加载完成 - 成功: ${result.success.length}, 失败: ${result.failed.length}`);
+        } catch (error) {
+            DebugLog.instance.error('FingerGame面板预加载过程中出现错误:', error);
+        }
+    }
+
+
+
     start() {
         this.gameViewNode.active = false;
         this._model = new FingerGameModel();
@@ -107,11 +126,7 @@ export class FingerGameScene extends Component {
         // 获取相机权限
         this.getCameraPremission();
 
-        UIManager.getInstance().registerPanel(FingerGameCompletePanel.NAME, BundleName.FINGERGAME, "panel/FingerGameCompletePanel", FingerGameCompletePanel);
-        UIManager.getInstance().registerPanel(FingerGameSetFinishPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSetFinishPanel", FingerGameSetFinishPanel);
-        UIManager.getInstance().registerPanel(FingerGameSectionsPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSectionsPanel", FingerGameSectionsPanel);
-        UIManager.getInstance().registerPanel(FingerGameSectionsSelectPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSectionsSelectPanel", FingerGameSectionsSelectPanel);
-        UIManager.getInstance().registerPanel(FingerGameAnimationPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameAnimationPanel", FingerGameAnimationPanel);
+      
 
         if (sys.platform === 'ANDROID') {
             NativeEventManager.getInstance().on(NativeEvent.CAMERARECORDERRESULT, this.onCameraRecorderResult, this);
@@ -122,9 +137,6 @@ export class FingerGameScene extends Component {
         this._model.on(FingerGameModelEvent.GET_LIST_FINISHED, this.onGetTaskListFinished, this);
         this._model.on(FingerGameModelEvent.GET_ALL_TASK_ACTIVITIES_RESULT, this.onGetAllTaskActivitiesResult, this);
         this._model.on(FingerGameModelEvent.SELECT_EXPERIENCE_SECTION, this.onSelectExperienceSection, this);
-
-        // 应用首页配置
-        this.applyIndexPageConfig();
 
         this._model.getTaskList();
     }
@@ -165,13 +177,14 @@ export class FingerGameScene extends Component {
         }
         let self = this;
 
+        // 游戏大厅
         if (this._model.isExperienceMode()) {
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,false,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = true;
             });
         } else {
-            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, sectionData).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, sectionData,false,null,false,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = true;
             });
@@ -377,7 +390,7 @@ export class FingerGameScene extends Component {
             }
             let self = this;
 
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,false,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = true;
             });
@@ -879,124 +892,6 @@ export class FingerGameScene extends Component {
                 completeHD(spriteFrame);
             }
         );
-    }
-
-    /**
-     * 应用首页配置到UI
-     */
-    async applyIndexPageConfig() {
-        // 防止重复调用
-        if (this._configApplied) {
-            DebugLog.instance.log("FingerGameScene配置已经应用过，跳过重复调用");
-            return;
-        }
-        
-        DebugLog.instance.log("FingerGameScene开始应用首页配置");
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        let config = null;
-        
-        // 优先从用户信息缓存中获取配置
-        if (userData) {
-            DebugLog.instance.log("FingerGameScene用户数据存在，检查缓存");
-            const cachedConfig = userData.getIndexPageConfigCache();
-            if (cachedConfig) {
-                DebugLog.instance.log("FingerGameScene使用缓存的首页配置");
-                config = cachedConfig;
-            } else {
-                DebugLog.instance.log("FingerGameScene缓存中没有配置");
-            }
-        } else {
-            DebugLog.instance.log("FingerGameScene用户数据不存在");
-        }
-        
-        // 如果缓存中没有配置，则重新加载
-        if (!config) {
-            DebugLog.instance.log("FingerGameScene缓存中没有配置，重新加载首页配置");
-            await this.indexPageConfig.loadConfig();
-            let type = this.getCurrentConfigType(); // 动态获取配置类型
-            
-            if (type === "normal") {
-                config = this.indexPageConfig.normalConfig;
-            } else {
-                config = ThemeConfig.getInstance().getConfig();
-            }
-            
-            // 将配置存储到用户信息缓存中
-            if (userData && config) {
-                userData.setIndexPageConfigCache(config);
-                DebugLog.instance.log("FingerGameScene首页配置已缓存到用户信息中");
-            }
-        }
-        
-        if (config && config.ui) {
-            DebugLog.instance.log("FingerGameScene配置存在，开始应用UI配置");
-            // 应用UI配置
-            if (config.ui.bg) {
-                DebugLog.instance.log("FingerGameScene开始加载背景图片:", config.ui.bg);
-                // 设置标题背景 - 统一使用远程加载
-                const titleSprite = await this.loadRemoteSprite(config.ui.bg);
-                
-                if (this.titleBg && titleSprite) {
-                    this.titleBg.getComponent(Sprite).spriteFrame = titleSprite;
-                    DebugLog.instance.log("FingerGameScene成功应用标题背景配置");
-                } else {
-                    DebugLog.instance.log("FingerGameScene标题背景节点或图片不存在", this.titleBg, titleSprite);
-                }
-                DebugLog.instance.log("FingerGameScene应用标题配置:", config.ui.bg);
-            } else {
-                DebugLog.instance.log("FingerGameScene配置中没有背景图片");
-            }
-            if (config.ui.middle) {
-                // 设置图标0 - 统一使用远程加载
-                const icon0Sprite = await this.loadRemoteSprite(config.ui.middle);
-
-                if (this.titleIcon && icon0Sprite) {
-                    const transform = this.titleIcon.getComponent(Sprite).node.getComponent(UITransform);
-                    // 调整尺寸
-                    transform.width = icon0Sprite.width;
-                    transform.height = icon0Sprite.height;
-                    // 调整位置 - 保持图片中心位置不变
-                    const currentPos = this.titleIcon.position;
-                    this.titleIcon.setPosition(
-                        currentPos.x + 40 ,
-                        currentPos.y + 260,
-                        currentPos.z
-                    );
-                    this.titleIcon.getComponent(Sprite).spriteFrame = icon0Sprite;
-                }
-            }
-            if (config.ui.title) {
-                // 设置图标1 - 统一使用远程加载
-                const icon1Sprite = await this.loadRemoteSprite(config.ui.title);
-                
-                if (this.titleText && icon1Sprite) {
-                    this.titleText.getComponent(Sprite).spriteFrame = icon1Sprite;
-                }
-                DebugLog.instance.log("FingerGameScene应用图标1配置:", config.ui.title);
-            }
-        }
-        
-        // 标记配置已应用
-        this._configApplied = true;
-        DebugLog.instance.log("FingerGameScene配置应用完成");
-    }
-
-    /**
-     * 强制刷新首页配置
-     * 清除缓存并重新加载配置
-     */
-    async refreshIndexPageConfig(): Promise<void> {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        if (userData) {
-            userData.clearIndexPageConfigCache();
-            DebugLog.instance.log("FingerGameScene已清除首页配置缓存，将重新加载");
-        }
-        
-        // 重置配置应用标志
-        this._configApplied = false;
-        
-        // 重新应用配置
-        await this.applyIndexPageConfig();
     }
 }
 
