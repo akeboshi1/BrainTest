@@ -55,11 +55,20 @@ export class BasePanel extends BaseObejct {
     }
 
     // 显示面板
-    async showPanel() {
+    async showPanel(skipTween: boolean = false) {
         if (!this.isValidNode()) {
             DebugLog.instance.warn('节点已销毁，终止显示动画');
             return;
         }
+
+        if (skipTween) {
+            // 直接显示，不播放动画
+            this.node.setPosition(new Vec3(0, 0, 0));
+            this.state = PanelState.SHOW;
+            return;
+        }
+
+        // 播放进入动画
         await new Promise<void>((resolve, reject) => {
             const screenWidth = screen.windowSize.width;
             const startPos = new Vec3(screenWidth, 0, 0);

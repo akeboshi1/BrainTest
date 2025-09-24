@@ -37,6 +37,10 @@ export class UIManager extends BaseManager {
     private screenLockerPrefab: Prefab = null;
     private screenLockerTimer = null;
 
+    // 预加载相关属性
+    private preloadedPanels: Map<string, Prefab> = new Map(); // 已预加载的面板预制体
+    private preloadingPanels: Set<string> = new Set(); // 正在预加载中的面板集合
+
     async init() {
         this.maps = {};
         SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
@@ -72,14 +76,163 @@ export class UIManager extends BaseManager {
     }
 
     /**
+     * 预加载指定面板的预制体
+     * @param name 面板名称
+     * @returns Promise<boolean> 预加载是否成功
+     */
+    async preloadPanel(name: string): Promise<boolean> {
+        const panelInfo = this.panelRegisterConfig.get(name);
+        if (!panelInfo) {
+            DebugLog.instance.error(`Panel did not register into UIManager === name : ${name}`);
+            return false;
+        }
+
+        // 检查是否已经预加载过
+        if (this.preloadedPanels.has(name)) {
+            DebugLog.instance.log(`Panel already preloaded: ${name}`);
+            return true;
+        }
+
+        // 检查是否正在预加载中
+        if (this.preloadingPanels.has(name)) {
+            DebugLog.instance.log(`Panel is already preloading: ${name}`);
+            return true;
+        }
+
+        // 检查资源包是否已加载
+        const isBundleLoaded = BundlePreloadManager.getInstance().isBundleLoaded(panelInfo.bundleName);
+        if (!isBundleLoaded) {
+            DebugLog.instance.error(`Bundle is not Loaded === bundleName : ${panelInfo.bundleName}`);
+            return false;
+        }
+
+        // 标记为正在预加载
+        this.preloadingPanels.add(name);
+
+        try {
+            let bundle = resources;
+            if (panelInfo.bundleName != BundleName.RESOURCES) {
+                bundle = assetManager.getBundle(panelInfo.bundleName);
+            }
+
+            if (!bundle) {
+                DebugLog.instance.error(`Cannot get bundle: ${panelInfo.bundleName}`);
+                this.preloadingPanels.delete(name);
+                return false;
+            }
+
+            // 预加载预制体
+            const prefab = await new Promise<Prefab>((resolve, reject) => {
+                bundle.preload(panelInfo.prefabUrl, Prefab, null, (err: Error, data: any) => {
+                    if (err) {
+                        DebugLog.instance.error(`Prefab preload error, url: ${panelInfo.prefabUrl}`, err);
+                        reject(err);
+                    } else {
+                        // preload返回的是RequestItem[]，我们需要重新加载获取Prefab
+                        bundle.load(panelInfo.prefabUrl, Prefab, null, (loadErr: Error, prefabData: Prefab) => {
+                            if (loadErr) {
+                                DebugLog.instance.error(`Prefab load error after preload, url: ${panelInfo.prefabUrl}`, loadErr);
+                                reject(loadErr);
+                            } else {
+                                resolve(prefabData);
+                            }
+                        });
+                    }
+                });
+            });
+
+            if (prefab) {
+                this.preloadedPanels.set(name, prefab);
+                DebugLog.instance.log(`Panel preloaded successfully: ${name}`);
+                return true;
+            } else {
+                DebugLog.instance.error(`Prefab preload failed: ${name}`);
+                return false;
+            }
+        } catch (error) {
+            DebugLog.instance.error(`Panel preload error for ${name}:`, error);
+            return false;
+        } finally {
+            // 清理预加载状态
+            this.preloadingPanels.delete(name);
+        }
+    }
+
+    /**
+     * 批量预加载多个面板
+     * @param panelNames 面板名称数组
+     * @returns Promise<{success: string[], failed: string[]}> 预加载结果
+     */
+    async preloadPanels(panelNames: string[]): Promise<{success: string[], failed: string[]}> {
+        const success: string[] = [];
+        const failed: string[] = [];
+
+        DebugLog.instance.log(`开始批量预加载面板: ${panelNames.join(', ')}`);
+
+        // 并行预加载所有面板
+        const preloadPromises = panelNames.map(async (name) => {
+            const result = await this.preloadPanel(name);
+            if (result) {
+                success.push(name);
+            } else {
+                failed.push(name);
+            }
+        });
+
+        await Promise.all(preloadPromises);
+
+        DebugLog.instance.log(`批量预加载完成 - 成功: ${success.length}, 失败: ${failed.length}`);
+        if (success.length > 0) {
+            DebugLog.instance.log(`成功预加载的面板: ${success.join(', ')}`);
+        }
+        if (failed.length > 0) {
+            DebugLog.instance.log(`预加载失败的面板: ${failed.join(', ')}`);
+        }
+
+        return { success, failed };
+    }
+
+    /**
+     * 检查面板是否已预加载
+     * @param name 面板名称
+     * @returns boolean
+     */
+    isPanelPreloaded(name: string): boolean {
+        return this.preloadedPanels.has(name);
+    }
+
+    /**
+     * 检查面板是否正在预加载中
+     * @param name 面板名称
+     * @returns boolean
+     */
+    isPanelPreloading(name: string): boolean {
+        return this.preloadingPanels.has(name);
+    }
+
+    /**
+     * 获取预加载状态信息
+     * @returns {preloadedCount: number, preloadingCount: number, totalRegistered: number}
+     */
+    getPreloadStatus(): {preloadedCount: number, preloadingCount: number, totalRegistered: number} {
+        return {
+            preloadedCount: this.preloadedPanels.size,
+            preloadingCount: this.preloadingPanels.size,
+            totalRegistered: this.panelRegisterConfig.size
+        };
+    }
+
+    /**
     * 异步显示指定名称的面板。
     * @param name - 要显示的面板的名称，此名称需与之前通过`registerPanel`方法注册的面板名称一致，用于从已注册的面板配置中查找对应的面板信息。
     * @param rdata - 传递给面板组件的恢复数据，类型为`any`，默认值是`null`。该数据可用于在显示面板时恢复面板的某些状态或填充初始内容。
     * @param needPreload - 一个布尔值，指示是否需要预加载面板预制体，默认值为`false`。如果设置为`true`，会在正式加载预制体之前先进行预加载操作，常用于优化加载性能。
     * @param parentNode - 面板要挂载的父节点，类型为`Node | null`，默认值是`null`。如果传入`null`，会使用`LayerUtil.getPanelLayer()`获取默认的面板挂载层作为父节点。指定父节点可以灵活控制面板在场景中的层级关系。
+    * @param showTouchMask - 是否显示触摸遮罩，默认值为`true`。
+    * @param skipTween - 是否跳过tween动画直接显示，默认值为`false`。如果设置为`true`，面板将直接显示而不播放进入动画。
     * @returns - 返回一个`Promise<boolean>`，`true`表示面板成功显示，`false`表示在显示过程中出现错误，例如面板未注册、资源包未加载、预制体加载失败等情况。
     */
-    async showPanel(name: string, rdata: any = null, needPreload: boolean = false, parentNode: Node | null = null, showTouchMask: boolean = true): Promise<boolean> {
+    async showPanel(name: string, rdata: any = null, needPreload: boolean = false, parentNode: Node | null = null, showTouchMask: boolean = true, skipTween: boolean = false): Promise<boolean> {
         let panelInfo = this.panelRegisterConfig.get(name);
         if (!panelInfo) {
             DebugLog.instance.error('Panel did not register into UIManager === name : ' + name);
@@ -118,11 +271,31 @@ export class UIManager extends BaseManager {
                 this.openScreenLocker();
             }
 
-            if (needPreload) {
-                await new Promise((resolve, reject) => {
-                    bundle.preload(panelInfo.prefabUrl, Prefab, null, (err: Error, data) => {
+            let prefab: Prefab = null;
+
+            // 优先使用预加载的预制体
+            if (this.preloadedPanels.has(name)) {
+                prefab = this.preloadedPanels.get(name);
+                DebugLog.instance.log(`Using preloaded prefab for panel: ${name}`);
+            } else {
+                // 如果没有预加载，则正常加载
+                if (needPreload) {
+                    await new Promise((resolve, reject) => {
+                        bundle.preload(panelInfo.prefabUrl, Prefab, null, (err: Error, data) => {
+                            if (err) {
+                                DebugLog.instance.error('Prefab preload error , url:' + panelInfo.prefabUrl);
+                                reject(err);
+                            } else {
+                                resolve(data);
+                            }
+                        });
+                    });
+                }
+
+                prefab = await new Promise<Prefab>((resolve, reject) => {
+                    bundle.load(panelInfo.prefabUrl, Prefab, null, (err: Error, data: Prefab) => {
                         if (err) {
-                            DebugLog.instance.error('Prefab preload error , url:' + panelInfo.prefabUrl);
+                            DebugLog.instance.error('Prefab load error , url:' + panelInfo.prefabUrl);
                             reject(err);
                         } else {
                             resolve(data);
@@ -130,17 +303,6 @@ export class UIManager extends BaseManager {
                     });
                 });
             }
-
-            let prefab = await new Promise<Prefab>((resolve, reject) => {
-                bundle.load(panelInfo.prefabUrl, Prefab, null, (err: Error, data: Prefab) => {
-                    if (err) {
-                        DebugLog.instance.error('Prefab load error , url:' + panelInfo.prefabUrl);
-                        reject(err);
-                    } else {
-                        resolve(data);
-                    }
-                });
-            });
 
             if (!prefab) {
                 this.closeSceenLocker();
@@ -184,7 +346,7 @@ export class UIManager extends BaseManager {
 
             let comp = compNode.getComponent(panelInfo.comp);
             comp.restore(rdata);
-            await comp.showPanel();
+            await comp.showPanel(skipTween);
 
             this.closeSceenLocker();
 
@@ -301,6 +463,10 @@ export class UIManager extends BaseManager {
 
         this.activePanelMap.clear();
         this.loadingPanelSet.clear(); // 清理所有正在加载的面板状态
+        
+        // 清理预加载状态
+        this.preloadedPanels.clear();
+        this.preloadingPanels.clear();
     }
 
     isPanelActive(name: string): boolean {
