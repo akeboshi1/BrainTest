@@ -347,6 +347,12 @@ export class GameCenterManager {
     public settleMentPanelShow: boolean = false;
 
     showSuccessView() {
+        // 防止重复弹出SettlementPanel
+        if (this.settleMentPanelShow || UIManager.getInstance().isPanelActive(SettlementPanel.NAME)) {
+            DebugLog.instance.warn('SettlementPanel is already showing, skip duplicate show');
+            return;
+        }
+
         let self = this;
         this.settleMentPanelShow = true;
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
@@ -360,6 +366,12 @@ export class GameCenterManager {
     }
 
     showFailView() {
+        // 防止重复弹出SettlementPanel
+        if (this.settleMentPanelShow || UIManager.getInstance().isPanelActive(SettlementPanel.NAME)) {
+            DebugLog.instance.warn('SettlementPanel is already showing, skip duplicate show');
+            return;
+        }
+
         let self = this;
         this.settleMentPanelShow = true;
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
@@ -566,18 +578,27 @@ export class GameCenterManager {
      * @param context
      */
     public quitGame(parentNode: Node, goon_callback: Function, exit_callback: Function, context) {
+        // 防止重复弹出SettlementPanel
+        if (this.settleMentPanelShow || UIManager.getInstance().isPanelActive(SettlementPanel.NAME)) {
+            DebugLog.instance.warn('SettlementPanel is already showing, skip duplicate show');
+            return;
+        }
+
+        this.settleMentPanelShow = true;
         // 使用SettlementPanel替代BrainTrainAlert
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: null, // 设置为null表示退出确认模式
             // title: "是否退出当前训练？",
             againHandler: () => {
                 // 继续训练
+                this.settleMentPanelShow = false;
                 if (goon_callback) {
                     goon_callback(context);
                 }
             },
             nextHandler: () => {
                 // 退出训练
+                this.settleMentPanelShow = false;
                 if (exit_callback) {
                     exit_callback(context);
                 }
