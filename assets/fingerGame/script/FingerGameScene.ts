@@ -62,6 +62,15 @@ export class FingerGameScene extends Component {
     @property(Label)
     private debugLabel: Label = null;
 
+    @property(Node)
+    private titleBg: Node = null;
+
+    @property(Node)
+    private titleIcon: Node = null;
+
+    @property(Node)
+    private titleText: Node = null;
+
     private _model: FingerGameModel = null;
     private _currentSetIndex: number = -1;
     private _currentSectionIndex: number = -1;
@@ -126,7 +135,8 @@ export class FingerGameScene extends Component {
         // 获取相机权限
         this.getCameraPremission();
 
-      
+        // 应用首页配置
+        this.applyIndexPageConfig();
 
         if (sys.platform === 'ANDROID') {
             NativeEventManager.getInstance().on(NativeEvent.CAMERARECORDERRESULT, this.onCameraRecorderResult, this);
@@ -134,6 +144,7 @@ export class FingerGameScene extends Component {
             NativeEventManager.getInstance().on(NativeEvent.POSTVIDEODATAERROR, this.onPostVideoDataError, this);
         }
 
+        this._model.on(FingerGameModelEvent.SKEWERSGAME_NEXT, this.onSkewersGameNext, this);
         this._model.on(FingerGameModelEvent.GET_LIST_FINISHED, this.onGetTaskListFinished, this);
         this._model.on(FingerGameModelEvent.GET_ALL_TASK_ACTIVITIES_RESULT, this.onGetAllTaskActivitiesResult, this);
         this._model.on(FingerGameModelEvent.SELECT_EXPERIENCE_SECTION, this.onSelectExperienceSection, this);
@@ -148,6 +159,12 @@ export class FingerGameScene extends Component {
     onSelectExperienceSection(sectionConfig: SectionConfig) {
         DebugLog.instance.log('onSelectExperienceSection ============= sectionConfig=' + sectionConfig.name);
         this._sectionConfig = sectionConfig;
+
+        this.noticeNode.active = true;
+    }
+
+    private onSkewersGameNext(){
+        this.noticeNode.active = true;
     }
 
     onGetAllTaskActivitiesResult(data: IFingerActivityResult) {
@@ -179,14 +196,14 @@ export class FingerGameScene extends Component {
 
         // 游戏大厅
         if (this._model.isExperienceMode()) {
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,false,true).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
                 self.gameViewNode.active = true;
-                self.noticeNode.active = true;
+                self.noticeNode.active = false;
             });
         } else {
-            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, sectionData,false,null,false,true).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, {sectionDatas:sectionData,model: this._model}).then(() => {
                 self.gameViewNode.active = true;
-                self.noticeNode.active = true;
+                self.noticeNode.active = false;
             });
         }
     }
@@ -390,9 +407,9 @@ export class FingerGameScene extends Component {
             }
             let self = this;
 
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,false,true).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
                 self.gameViewNode.active = true;
-                self.noticeNode.active = true;
+                self.noticeNode.active = false;
             });
         } else {
             let isLastSection = this._model.isLastSection;
@@ -847,6 +864,107 @@ export class FingerGameScene extends Component {
             currentFestival = "normal";
         }
         return currentFestival;
+    }
+
+    /**
+     * 应用首页配置到UI
+     */
+    async applyIndexPageConfig() {
+        // 防止重复调用
+        if (this._configApplied) {
+            DebugLog.instance.log("FingerGameScene配置已经应用过，跳过重复调用");
+            return;
+        }
+        
+        DebugLog.instance.log("FingerGameScene开始应用首页配置");
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        let config = null;
+        
+        // 优先从用户信息缓存中获取配置
+        if (userData) {
+            DebugLog.instance.log("FingerGameScene用户数据存在，检查缓存");
+            const cachedConfig = userData.getIndexPageConfigCache();
+            if (cachedConfig) {
+                DebugLog.instance.log("FingerGameScene使用缓存的首页配置");
+                config = cachedConfig;
+            } else {
+                DebugLog.instance.log("FingerGameScene缓存中没有配置");
+            }
+        } else {
+            DebugLog.instance.log("FingerGameScene用户数据不存在");
+        }
+        
+        // 如果缓存中没有配置，则重新加载
+        if (!config) {
+            DebugLog.instance.log("FingerGameScene缓存中没有配置，重新加载首页配置");
+            await this.indexPageConfig.loadConfig();
+            let type = this.getCurrentConfigType(); // 动态获取配置类型
+            
+            if (type === "normal") {
+                config = this.indexPageConfig.normalConfig;
+            } else {
+                config = ThemeConfig.getInstance().getConfig();
+            }
+            
+            // 将配置存储到用户信息缓存中
+            if (userData && config) {
+                userData.setIndexPageConfigCache(config);
+                DebugLog.instance.log("FingerGameScene首页配置已缓存到用户信息中");
+            }
+        }
+        
+        if (config && config.ui) {
+            // 应用UI配置
+            if (config.ui.bg && this.titleBg) {
+                try {
+                    const bgSpriteFrame = await this.loadRemoteSprite(config.ui.bg);
+                    if (bgSpriteFrame && this.titleBg.getComponent(Sprite)) {
+                        this.titleBg.getComponent(Sprite).spriteFrame = bgSpriteFrame;
+                        DebugLog.instance.log("FingerGameScene背景图标配置应用成功");
+                    }
+                } catch (error) {
+                    DebugLog.instance.error("FingerGameScene背景图标配置应用失败:", error);
+                }
+            }
+
+            if (config.ui.middle && this.titleIcon) {
+                try {
+                    const titleSpriteFrame = await this.loadRemoteSprite(config.ui.middle);
+                    if (titleSpriteFrame && this.titleIcon.getComponent(Sprite)) {
+                        const transform = this.titleIcon.getComponent(Sprite).node.getComponent(UITransform);
+                        // 调整尺寸
+                        transform.width = titleSpriteFrame.width;
+                        transform.height = titleSpriteFrame.height;
+                        // 调整位置 - 保持图片中心位置不变
+                        const currentPos = this.titleIcon.position;
+                        this.titleIcon.setPosition(
+                            currentPos.x + 40 ,
+                            currentPos.y + 260,
+                            currentPos.z
+                        );
+                        this.titleIcon.getComponent(Sprite).spriteFrame = titleSpriteFrame;
+                        DebugLog.instance.log("FingerGameScene标题图标配置应用成功");
+                    }
+                } catch (error) {
+                    DebugLog.instance.error("FingerGameScene标题图标配置应用失败:", error);
+                }
+            }
+            
+            if (config.ui.title && this.titleText) {
+                try {
+                    const textSpriteFrame = await this.loadRemoteSprite(config.ui.title);
+                    if (textSpriteFrame && this.titleText.getComponent(Sprite)) {
+                        this.titleText.getComponent(Sprite).spriteFrame = textSpriteFrame;
+                        DebugLog.instance.log("FingerGameScene文字图标配置应用成功");
+                    }
+                } catch (error) {
+                    DebugLog.instance.error("FingerGameScene文字图标配置应用失败:", error);
+                }
+            }
+        }
+        
+        this._configApplied = true;
+        DebugLog.instance.log("FingerGameScene首页配置应用完成");
     }
 
     /**

@@ -52,7 +52,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
         }
         
         // 应用首页配置
-        this.applyIndexPageConfig();
+        // this.applyIndexPageConfig();
     }
 
     onClickStart(index: number) {

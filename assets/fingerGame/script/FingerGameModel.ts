@@ -19,7 +19,8 @@ export enum FingerGameType {
 export enum FingerGameModelEvent {
     GET_LIST_FINISHED = "FingerGameModelEvent.getlistFinished",
     GET_ALL_TASK_ACTIVITIES_RESULT = "FingerGameModelEvent.getAllTaskActivitiesResult",
-    SELECT_EXPERIENCE_SECTION = "FingerGameModelEvent.selectExperienceSection"
+    SELECT_EXPERIENCE_SECTION = "FingerGameModelEvent.selectExperienceSection",
+    SKEWERSGAME_NEXT = "FingerGameModelEvent.skewersGameNext"
 }
 export class FingerGameModel {
     private _videoClipCache: Map<string, VideoClip> = new Map();
