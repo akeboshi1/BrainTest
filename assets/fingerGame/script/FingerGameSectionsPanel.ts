@@ -9,6 +9,7 @@ import { PersonalCenterManager } from '../../resources/scripts/Game/PersonalCent
 import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageConfig';
 import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
+import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameSectionsPanel')
@@ -31,6 +32,8 @@ export class FingerGameSectionsPanel extends BasePanel {
     @property(Node)
     private titleText: Node = null;
 
+    private _model: FingerGameModel = null;
+
     // 首页配置相关属性
     private indexPageConfig: IndexPageConfig = new IndexPageConfig();
     private _configApplied: boolean = false; // 防止重复应用配置
@@ -39,18 +42,23 @@ export class FingerGameSectionsPanel extends BasePanel {
 
     }
 
-    restore(data: SectionConfig[]) {
-        for (let i = 0; i < data.length; i++) {
+
+    restore(data: { sectionDatas: SectionConfig[], model: FingerGameModel }) {
+        this._model = data.model;
+        for (let i = 0; i < data.sectionDatas.length; i++) {
             const item = instantiate(this.itemPrefab);
             item.setParent(this.itemContainer);
             item.getComponent(SectionItem).setData(data[i]);
         }
         
         // 应用首页配置
-        this.applyIndexPageConfig();
+        // this.applyIndexPageConfig();
     }
 
+
+
     onClickGoNext() {
+        this._model.emit(FingerGameModelEvent.SKEWERSGAME_NEXT);
         UIManager.getInstance().hidePanel(FingerGameSectionsPanel.NAME);
     }
 
