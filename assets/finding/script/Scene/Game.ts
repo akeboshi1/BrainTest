@@ -48,6 +48,10 @@ export class Game extends BaseScene<IBaseGameChild> {
 
     private picture2: Node = null;
 
+    private loadNode1:Node = null;
+
+    private loadNode2:Node = null;
+
     private pictureList: Node[] = [];
 
     private frameList = [];
@@ -275,6 +279,7 @@ export class Game extends BaseScene<IBaseGameChild> {
             let imageName = GameConfig.image_name.get(_level);
             let pictureSprite1 = this.picture1.getComponent(Sprite);
             let pictureSprite2 = this.picture2.getComponent(Sprite);
+
             let self = this;
             const bundle = assetManager.getBundle(BundleName.FINGING);
             let spriteFrame1 = null;
@@ -310,6 +315,9 @@ export class Game extends BaseScene<IBaseGameChild> {
                 pictureSprite2.spriteFrame = spriteFrame2;
                 pictureSprite1.node.active = true;
                 pictureSprite2.node.active = true;
+
+                this.loadNode1.active = false;
+                this.loadNode2.active = false;
 
                 let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
                 let tmpDataList = tmpDatas.split("|");
@@ -1312,6 +1320,12 @@ export class Game extends BaseScene<IBaseGameChild> {
         if (this.picture2) {
             this.pictureList.push(this.picture2);
         }
+
+        this.loadNode1 = viewNode.getChildByName("pictureBg")?.getChildByName("loadNode");
+        this.loadNode2 = viewNode.getChildByName("picture2Bg")?.getChildByName("loadNode");
+
+        this.loadNode1.active = true;
+        this.loadNode2.active = true;
 
         // 从viewNode中获取结果列表节点
         this.resultNode = viewNode.getChildByName("resultList");
