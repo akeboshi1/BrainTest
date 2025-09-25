@@ -22,5 +22,6 @@ export enum NativeEvent {
     POSTVIDEO = 'POSTVIDEO',
     WXPAY = 'PAYMENT:WXPAY',
     PAYMENTResult = 'PAYMENTResult',
+    LOGIN = 'LOGIN',
     APP = 'APP',
 }
