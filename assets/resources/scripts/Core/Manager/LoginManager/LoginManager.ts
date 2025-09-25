@@ -325,7 +325,7 @@ export class LoginManager {
         if(sys.platform === sys.Platform.ANDROID){
             DebugLog.instance.error(`发送机构登录成功事件到native`);
             let org_code = LocalStorageUtil.get(LocalStorageKeyEnum.INSTITUTION_CODE);
-            native.bridge.sendToNative(NativeEvent.LOGIN, JSON.stringify({"org_code": org_code,"uesername":data.data['username']}));
+            native.bridge.sendToNative(NativeEvent.LOGIN, JSON.stringify({"org_code": org_code,"username":data.data['username']}));
         }
 
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
