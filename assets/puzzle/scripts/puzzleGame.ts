@@ -49,6 +49,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private chipParentNode: Node;
 
     @property(Node)
+    private bigLoadNode:Node;
+
+    @property(Node)
+    private smallLoadNode:Node;
+
+    @property(Node)
     quitBtn: Node;
 
 
@@ -145,6 +151,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         // 设置加载状态
         this.isLoading = true;
         this.setQuitButtonInteractable(false);
+        this.bigLoadNode.active = true;
+        this.smallLoadNode.active = true;
         
         // 清除之前的超时定时器
         if (this.loadingTimeoutId) {
@@ -171,6 +179,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
                 // 重置加载状态
                 this.isLoading = false;
+                this.bigLoadNode.active = false;
+                this.smallLoadNode.active = false;
                 this.setQuitButtonInteractable(true);
 
                 if (err) {
@@ -333,6 +343,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             node.destroy();
         }
         this.chipsDataMap.clear();
+        this.previewSprite.spriteFrame = null;
+        this.showSprite.spriteFrame = null;
     }
 
     onTouchStart(event: EventTouch) {
