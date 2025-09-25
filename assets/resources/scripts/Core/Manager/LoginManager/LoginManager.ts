@@ -333,6 +333,8 @@ export class LoginManager {
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "1");
 
+        GlobalConfigManager.getInstance().init();
+
         SceneManager.getInstance().backToHall();
     }
 
