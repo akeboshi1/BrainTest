@@ -54,12 +54,16 @@ export class BasePanel extends BaseObejct {
 
     }
 
+    private _skipTween: boolean = false;
+
     // 显示面板
     async showPanel(skipTween: boolean = false) {
         if (!this.isValidNode()) {
             DebugLog.instance.warn('节点已销毁，终止显示动画');
             return;
         }
+
+        this._skipTween = skipTween;
 
         if (skipTween) {
             // 直接显示，不播放动画
@@ -89,6 +93,14 @@ export class BasePanel extends BaseObejct {
             DebugLog.instance.warn('节点已销毁，终止隐藏动画');
             return;
         }
+
+        if (this._skipTween) {
+            // 直接隐藏，不播放动画
+            this.state = PanelState.HIDE;
+            this.node.removeFromParent();
+            return;
+        }
+
         await new Promise<void>((resolve, reject) => {
             const screenWidth = screen.windowSize.width;
             tween(this.node)
