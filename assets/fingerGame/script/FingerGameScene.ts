@@ -198,12 +198,12 @@ export class FingerGameScene extends Component {
 
         // 游戏大厅
         if (this._model.isExperienceMode()) {
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
             });
         } else {
-            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, {sectionDatas:sectionData,model: this._model}).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, {sectionDatas:sectionData,model: this._model},false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
             });
@@ -411,7 +411,7 @@ export class FingerGameScene extends Component {
             }
             let self = this;
 
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
             });
