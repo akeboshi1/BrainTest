@@ -130,6 +130,8 @@ export class FingerGameScene extends Component {
 
     start() {
         this.gameViewNode.active = false;
+        this.segmentProgressBar.node.active = false;
+        this.skipButton.active = false;
         this._model = new FingerGameModel();
         this._model.init();
         // 获取相机权限
@@ -393,6 +395,8 @@ export class FingerGameScene extends Component {
     }
 
     private onAnimationPanelHide() {
+        this.segmentProgressBar.node.active = false;
+        this.skipButton.active = false;
         if (this._model.isExperienceMode()) {
             const setIndex = 0; // 默认第一套
             this._currentSetIndex = setIndex;
@@ -449,6 +453,8 @@ export class FingerGameScene extends Component {
 
     public onClickExit() {
         this.gameViewNode.active = false;
+        this.segmentProgressBar.node.active = false;
+        this.skipButton.active = false;
         this.hideCameraPreview();
         this.hideImageOverlay();
         this.videoPlayer.node.active = false;
@@ -495,6 +501,7 @@ export class FingerGameScene extends Component {
 
     onClickComfirmedNotice() {
         this.noticeNode.active = false;
+        this.segmentProgressBar.node.active = true;
         if (this._model.isExperienceMode()) {
             this.restoreSceneDataWithSectionConfig(this._sectionConfig);
         } else {
