@@ -11,7 +11,7 @@ import { Global } from "./Core/Manager/Config/Global";
 import { TaskManager } from "db://assets/resources/scripts/Game/Task/TaskManager";
 import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 import { ChatFlowModel } from './Game/UI/ChatPanel/Model/ChatFlowModel';
-import  {AlertManager, AlertData } from './Core/Manager/Alert/AlertManager';
+import { AlertManager, AlertData } from './Core/Manager/Alert/AlertManager';
 import { BundlePreloadManager } from './Core/Manager/Load/BundlePreloadManager';
 import { AudioManager } from './Core/Manager/Audio/AudioManager';
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
@@ -19,6 +19,7 @@ import FeatureTogglesSetting from './FeatureTogglesSetting';
 import { NativeEventManager } from './Core/Manager/Event/NativeEventManager';
 import { AdaptComponent } from './mainV2/AdaptComponent';
 import { PublishSettingConfig } from '../../app/PublishSettingConfig';
+import { SocketUtil } from './Core/Manager/Net/SocketUtil';
 
 const { ccclass, property } = _decorator;
 
@@ -65,7 +66,7 @@ export class App extends AdaptComponent {
     fsr: WebView;
 
     @property(Node)
-    event:Node;
+    event: Node;
 
 
     // ai
@@ -169,6 +170,7 @@ export class App extends AdaptComponent {
             SocketManager.getInstance().initSocket(publishSetting.getApiUrl()).then(() => {
                 this.socketOnHandler();
             }).catch(() => {
+                DebugLog.instance.error("网络连接异常：", SocketUtil.getInstance().socketType);
                 const alertData: AlertData = new AlertData();
                 alertData.title = "连接失败";
                 alertData.message = '网络链接失败，请检查网络环境';
@@ -199,7 +201,7 @@ export class App extends AdaptComponent {
                 };
                 alertData.contentClickCb = null;
                 alertData.guideCallBack = null;
-                
+
                 AlertManager.getInstance().showAlert(alertData);
             });
         }
@@ -223,6 +225,8 @@ export class App extends AdaptComponent {
             this.asr.url = "./webview/asr.html";
             this.fsr.url = "./webview/fsr.html";
         }
+
+        DebugLog.instance.error("网络链接成功：", SocketUtil.getInstance().socketType);
 
         LoginManager.getInstance().start();
     }
@@ -275,7 +279,7 @@ export class App extends AdaptComponent {
             };
             alertData.contentClickCb = null;
             alertData.guideCallBack = null;
-            
+
             AlertManager.getInstance().showAlert(alertData);
         });
     }

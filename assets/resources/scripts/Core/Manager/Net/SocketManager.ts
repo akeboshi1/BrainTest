@@ -9,6 +9,7 @@ import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
 import { Prefab, resources, Node, instantiate, Label, UITransform } from "cc";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
+import { SocketUtil } from "./SocketUtil";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
 
@@ -332,12 +333,14 @@ export class SocketManager extends BaseManager {
 
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
+        DebugLog.instance.error("网络断开：", SocketUtil.getInstance().socketType);
         this.clearProcessingTimeout(); // 断开连接时取消计时
         this.processReconnectFlow();
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.error('onSocketError !');
+        DebugLog.instance.error("网络错误：", SocketUtil.getInstance().socketType);
         this.clearProcessingTimeout(); // 连接错误时取消计时
         this.processReconnectFlow();
     }
@@ -352,6 +355,8 @@ export class SocketManager extends BaseManager {
         let eventName: string = 'Socket.reconnectCountChange';
 
         await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
+
+        DebugLog.instance.error("网络重连：", SocketUtil.getInstance().socketType);
 
         for (let attempt = 1; attempt <= this._reconnectMaxCount; attempt++) {
             EventManager.getInstance().emit(eventName);

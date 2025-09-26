@@ -33,6 +33,7 @@ import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers
 import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
 import {AlertData, AlertManager} from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
+import {SocketUtil} from "db://assets/resources/scripts/Core/Manager/Net/SocketUtil";
 
 const { ccclass, property } = _decorator;
 @ccclass('puzzleGame')
@@ -1039,6 +1040,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
      * 显示加载超时弹窗
      */
     private showLoadingTimeoutAlert() {
+        DebugLog.instance.error("网络加载超时：", SocketUtil.getInstance().socketType);
         const alertData: AlertData = new AlertData();
         alertData.title = "加载超时";
         alertData.message = '资源加载超时，请检查网络连接后重试。';
