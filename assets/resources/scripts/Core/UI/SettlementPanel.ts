@@ -1,4 +1,4 @@
-import {Node,Label,_decorator,v3,Vec3,tween, UI} from 'cc';
+import {Node,Label,_decorator,v3,Vec3,tween, UI, Button} from 'cc';
 import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
 import { UIManager } from '../Manager/UI/UIManager';
 const { ccclass, property } = _decorator;
@@ -51,6 +51,12 @@ export class SettlementPanel extends BasePanel{
 
     // public title: string = ""; // 添加自定义标题支持
 
+    /**
+     * 按钮是否已被点击禁用
+     * @private
+     */
+    private _isButtonDisabled: boolean = false;
+
     public static NAME: string = 'SettlementPanel';
 
     constructor(){
@@ -64,6 +70,9 @@ export class SettlementPanel extends BasePanel{
             this.nextHandler = data.nextHandler;
             // this.title = data.title || ""; // 获取自定义标题
         }
+        
+        // 重置按钮状态
+        this.enableButtons();
     }
 
     start(){
@@ -133,11 +142,29 @@ export class SettlementPanel extends BasePanel{
     }
 
     public onClickNext() {
+        // 如果按钮已被禁用，忽略此次点击
+        if (this._isButtonDisabled) {
+            console.log("SettlementPanel: 按钮已被禁用，忽略此次点击");
+            return;
+        }
+        
+        // 禁用按钮
+        this.disableButtons();
+        
         if(this.nextHandler)this.nextHandler();
         this.closeEnd();
     }
 
     public onClickAgain() {
+        // 如果按钮已被禁用，忽略此次点击
+        if (this._isButtonDisabled) {
+            console.log("SettlementPanel: 按钮已被禁用，忽略此次点击");
+            return;
+        }
+        
+        // 禁用按钮
+        this.disableButtons();
+        
         if(this.againHandler)this.againHandler();
         this.closeEnd();
     }
@@ -171,5 +198,57 @@ export class SettlementPanel extends BasePanel{
             points.unshift(v3(x + Math.random() * randomScope, y + Math.random() * randomScope, 0));
         }
         return points;
+    }
+
+    /**
+     * 禁用所有按钮
+     * @private
+     */
+    private disableButtons(): void {
+        this._isButtonDisabled = true;
+        
+        // 禁用按钮1
+        if (this.btn1Node) {
+            const button1 = this.btn1Node.getComponent(Button);
+            if (button1) {
+                button1.interactable = false;
+            }
+        }
+        
+        // 禁用按钮2
+        if (this.btn2Node) {
+            const button2 = this.btn2Node.getComponent(Button);
+            if (button2) {
+                button2.interactable = false;
+            }
+        }
+        
+        console.log("SettlementPanel: 按钮已禁用");
+    }
+
+    /**
+     * 启用所有按钮
+     * @private
+     */
+    private enableButtons(): void {
+        this._isButtonDisabled = false;
+        
+        // 启用按钮1
+        if (this.btn1Node) {
+            const button1 = this.btn1Node.getComponent(Button);
+            if (button1) {
+                button1.interactable = true;
+            }
+        }
+        
+        // 启用按钮2
+        if (this.btn2Node) {
+            const button2 = this.btn2Node.getComponent(Button);
+            if (button2) {
+                button2.interactable = true;
+            }
+        }
+        
+        console.log("SettlementPanel: 按钮已启用");
     }
 }
