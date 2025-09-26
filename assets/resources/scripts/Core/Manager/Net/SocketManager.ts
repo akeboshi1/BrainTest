@@ -29,7 +29,7 @@ export class SocketManager extends BaseManager {
     private _socketScreenLockerPrefab: Prefab = null;
     public static SCREEN_LOCKER_PREFAB_PATH: string = "prefab/Common/SocketScreenLocker";
 
-    private _socketProcessingTimeout: number = 3;// 消息处理超时时间，单位秒
+    private _socketProcessingTimeout: number = 6;// 消息处理超时时间，单位秒
     private _processingTimeoutTimer: NodeJS.Timeout | null = null; // 消息处理超时定时器
 
     // ScreenLocker 相关属性
@@ -109,16 +109,16 @@ export class SocketManager extends BaseManager {
         if (this._processingSocketData) {
             DebugLog.instance.error(`消息处理超时，清空处理中的消息: ${this._processingSocketData.action}, uid: ${this._processingSocketData.uid}`);
 
-            this._processingSocketData = null;
+            this._processingSocketData.refreshUid();
             // 关闭 ScreenLocker
             this.closeSocketScreenLocker();
 
             const alertData: AlertData = new AlertData();
             alertData.message = "网络状况差，请检查网络环境";
+            alertData.confirmButtonText = "重试";
             alertData.confirmCb = () => {
-                LoginManager.getInstance().loginout(() => {
-                    UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
-                });
+                this.openSocketScreenLocker();
+                this.sendMessageToSocket(this._processingSocketData);
             };
             AlertManager.getInstance().showAlert(alertData);
         }

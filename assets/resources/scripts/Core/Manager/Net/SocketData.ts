@@ -1,8 +1,8 @@
-import {TimeUtil} from "../../../Core/Util/TimeUtil";
-import {Global} from "../../../Core/Manager/Config/Global";
-import {SocketManager} from "db://assets/resources/scripts/Core/Manager/Net/SocketManager";
-import {AlertManager, AlertData } from "../../../Core/Manager/Alert/AlertManager";
-import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
+import { TimeUtil } from "../../../Core/Util/TimeUtil";
+import { Global } from "../../../Core/Manager/Config/Global";
+import { SocketManager } from "db://assets/resources/scripts/Core/Manager/Net/SocketManager";
+import { AlertManager, AlertData } from "../../../Core/Manager/Alert/AlertManager";
+import { LoginManager } from "db://assets/resources/scripts/Core/Manager/LoginManager/LoginManager";
 
 /**
  * SocketData使用示例：
@@ -24,7 +24,7 @@ import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginMana
  * SocketManager.getInstance().send(skipDebounceData);
  */
 
-export enum SocketDataStatus{
+export enum SocketDataStatus {
     None,
     request,
     complete
@@ -35,39 +35,42 @@ export enum SocketDataStatus{
  */
 export class SocketData {
 
-    public uid:string;
+    public uid: string;
 
-    public action:string;
+    public action: string;
 
-    public token:string;
+    public token: string;
 
-    public status:number = 0; // 0失败 1成功
+    public status: number = 0; // 0失败 1成功
 
-    public message:string;
+    public message: string;
 
 
     /**
      * 当前数据，如果是流式得数据，则data是最新收到得流式样数据
      */
-    public data:any;
+    public data: any;
 
     /**
      * socket数据请求状态
      */
-    public netStatus:number = SocketDataStatus.None;
+    public netStatus: number = SocketDataStatus.None;
 
     /**
      * 是否跳过防抖处理（废弃了，暂时不删除）
      */
-    public skipDebounce:boolean = false;
+    public skipDebounce: boolean = false;
 
-    constructor(data:any) {
+    constructor(data: any) {
         this.action = data.action;
         this.data = data.data;
         //==== 通用数据默认处理
-        this.uid = data.uid||TimeUtil.getNow();
+        this.uid = data.uid || TimeUtil.getNow().toString();
         this.token = Global.userData.token;
         this.skipDebounce = data.skipDebounce || false;
     }
 
+    refreshUid(): void {
+        this.uid = TimeUtil.getNow().toString();
+    }
 }
