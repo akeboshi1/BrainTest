@@ -48,7 +48,7 @@ export class FingerGameSectionsPanel extends BasePanel {
         for (let i = 0; i < data.sectionDatas.length; i++) {
             const item = instantiate(this.itemPrefab);
             item.setParent(this.itemContainer);
-            item.getComponent(SectionItem).setData(data[i]);
+            item.getComponent(SectionItem).setData(data.sectionDatas[i]);
         }
         
         // 应用首页配置

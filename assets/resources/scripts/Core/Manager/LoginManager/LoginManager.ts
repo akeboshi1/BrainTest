@@ -149,6 +149,12 @@ export class LoginManager {
             return;
         }
 
+
+        if(sys.platform === sys.Platform.ANDROID){
+            DebugLog.instance.error(`发送个人登录成功事件到native`);
+            native.bridge.sendToNative(NativeEvent.LOGIN, JSON.stringify({"mp_no": data['data']['mp_no']}));
+        }
+
         Global.userData.token = data.data['token'];
         Global.userData.tokenExpires = data.data['expires'];
         Global.userData.phoneNumber = data.data['mp_no'];
@@ -203,6 +209,11 @@ export class LoginManager {
             DebugLog.instance.error(`手机号不匹配`);
             AlertManager.getInstance().showSocketAlert(`${data['data']['mp_no']} 手机号不匹配`);
             return;
+        }
+
+        if(sys.platform === sys.Platform.ANDROID){
+            DebugLog.instance.error(`发送个人登录成功事件到native`);
+            native.bridge.sendToNative(NativeEvent.LOGIN, JSON.stringify({"mp_no": data['data']['mp_no']}));
         }
 
         Global.userData.token = data.data['token'];
@@ -310,10 +321,19 @@ export class LoginManager {
         DebugLog.instance.log(`${data} ====`);
         Global.userData.tokenExpires = data.data['expires'];
 
+
+        if(sys.platform === sys.Platform.ANDROID){
+            DebugLog.instance.error(`发送机构登录成功事件到native`);
+            let org_code = LocalStorageUtil.get(LocalStorageKeyEnum.INSTITUTION_CODE);
+            native.bridge.sendToNative(NativeEvent.LOGIN, JSON.stringify({"org_code": org_code,"username":data.data['username']}));
+        }
+
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN, Global.userData.token);
         const expiredTime: number = TimeUtil.getNow() + Number(Global.userData.tokenExpires) * 1000;
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_TOKEN_EXPIREDTIME, expiredTime.toString());
         LocalStorageUtil.set(LocalStorageKeyEnum.USER_DEFAULT_LOGIN_STATUS, "1");
+
+        GlobalConfigManager.getInstance().init();
 
         SceneManager.getInstance().backToHall();
     }

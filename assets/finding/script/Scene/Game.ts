@@ -48,6 +48,10 @@ export class Game extends BaseScene<IBaseGameChild> {
 
     private picture2: Node = null;
 
+    private loadNode1:Node = null;
+
+    private loadNode2:Node = null;
+
     private pictureList: Node[] = [];
 
     private frameList = [];
@@ -125,6 +129,12 @@ export class Game extends BaseScene<IBaseGameChild> {
      * @private
      */
     private _isCallbackCompleted: boolean = false;
+
+    /**
+     * 倒计时是否已开始
+     * @private
+     */
+    private _isCountdownStarted: boolean = false;
 
     /**
      * 找茬个数
@@ -218,9 +228,10 @@ export class Game extends BaseScene<IBaseGameChild> {
             // 使用统一的方法获取viewNode中的UI元素
             this.getViewNodeElements();
 
-            // 设置倒计时和进度条初始值
-            // this.countDownTime = GameConfig.customTime;
-            // this.tempCountDown = GameConfig.allTime;
+            // 初始化倒计时标志
+            this._isCountdownStarted = false;
+            
+            // 设置游戏配置，但不立即开始倒计时
             let loopLevel = 0;
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 this._checkPoint = FindingGlobal.curSkewersGameIndex;
@@ -231,6 +242,7 @@ export class Game extends BaseScene<IBaseGameChild> {
                 this._checkPoint = loopLevel % GameConfig.allCheckPoint;
                 this.guankaLabel.getComponent(Label).string = "第" + skewersGameData.progressStr + "关";
                 this.progress.progress = skewersGameData.progress;
+                // 保存倒计时配置，但不立即开始
                 this.tempCountDown = skewersGameData.timeLimit;
                 this.countDownTime = skewersGameData.timeLimit;
             } else {
@@ -252,7 +264,7 @@ export class Game extends BaseScene<IBaseGameChild> {
                 //     this._curHard = _hard % 3;
                 // }
 
-                // 重置倒计时
+                // 保存倒计时配置，但不立即开始
                 this.countDownTime = GameConfig.customTime;
                 this.tempCountDown = GameConfig.allTime;
                 loopLevel = this._checkPoint % GameConfig.allCheckPoint;
@@ -275,6 +287,7 @@ export class Game extends BaseScene<IBaseGameChild> {
             let imageName = GameConfig.image_name.get(_level);
             let pictureSprite1 = this.picture1.getComponent(Sprite);
             let pictureSprite2 = this.picture2.getComponent(Sprite);
+
             let self = this;
             const bundle = assetManager.getBundle(BundleName.FINGING);
             let spriteFrame1 = null;
@@ -288,9 +301,6 @@ export class Game extends BaseScene<IBaseGameChild> {
                     res(spriteFrame);
                 });
             });
-
-
-            this.countDown.string = Math.ceil(this.countDownTime) + "秒";
 
             let flow2 = new AbortablePromise((res, rej) => {
                 bundle.load(bundleName + `/image/${imageName}_2_32/spriteFrame`, SpriteFrame, (err: Error, spriteFrame: SpriteFrame) => {
@@ -310,6 +320,9 @@ export class Game extends BaseScene<IBaseGameChild> {
                 pictureSprite2.spriteFrame = spriteFrame2;
                 pictureSprite1.node.active = true;
                 pictureSprite2.node.active = true;
+
+                this.loadNode1.active = false;
+                this.loadNode2.active = false;
 
                 let tmpDatas = GameConfig.level_rect.get(`${imageName}`);
                 let tmpDataList = tmpDatas.split("|");
@@ -363,6 +376,11 @@ export class Game extends BaseScene<IBaseGameChild> {
                 this.tempList = [];
                 this.clockTime = GameConfig.clockTime;
                 this.monitorEvent();
+                
+                // 图片加载完成后，开始倒计时
+                this._isCountdownStarted = true;
+                this.countDown.string = Math.ceil(this.countDownTime) + "秒";
+                
                 resolve();
             }).catch((err) => {
                 DebugLog.instance.error(err);
@@ -448,6 +466,7 @@ export class Game extends BaseScene<IBaseGameChild> {
 
     public gameCountDown(dt) {
         if (this.countDownTime == null) return;
+        if (!this._isCountdownStarted) return; // 只有在图片加载完成后才开始倒计时
         if (this.pause) return;
         if (this.gameOver) return;
         if (Math.ceil(this.countDownTime) <= 0) {
@@ -569,6 +588,7 @@ export class Game extends BaseScene<IBaseGameChild> {
         this.canAddTime = true;
         this._isSettling = false;
         this._isCallbackCompleted = false; // 重置回调完成标志
+        this._isCountdownStarted = false; // 重置倒计时开始标志
         this.resultList = [];
         this.tempList = [];
         this.hintIndex = 0;
@@ -1312,6 +1332,12 @@ export class Game extends BaseScene<IBaseGameChild> {
         if (this.picture2) {
             this.pictureList.push(this.picture2);
         }
+
+        this.loadNode1 = viewNode.getChildByName("pictureBg")?.getChildByName("loadNode");
+        this.loadNode2 = viewNode.getChildByName("picture2Bg")?.getChildByName("loadNode");
+
+        this.loadNode1.active = true;
+        this.loadNode2.active = true;
 
         // 从viewNode中获取结果列表节点
         this.resultNode = viewNode.getChildByName("resultList");

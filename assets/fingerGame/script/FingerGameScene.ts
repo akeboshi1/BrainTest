@@ -21,6 +21,7 @@ import { FingerGameAnimationPanel } from './FingerGameAnimationPanel';
 import { PersonalCenterManager } from '../../resources/scripts/Game/PersonalCenterManager/PersonalCenterManager';
 import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageConfig';
 import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
+import { Environment, PublishSettingConfig } from '../../app/PublishSettingConfig';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameScene')
@@ -198,12 +199,12 @@ export class FingerGameScene extends Component {
 
         // 游戏大厅
         if (this._model.isExperienceMode()) {
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
             });
         } else {
-            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, {sectionDatas:sectionData,model: this._model}).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, {sectionDatas:sectionData,model: this._model},false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
             });
@@ -411,7 +412,7 @@ export class FingerGameScene extends Component {
             }
             let self = this;
 
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model }).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
             });
@@ -600,6 +601,7 @@ export class FingerGameScene extends Component {
                 activity_id: this._model.activity.id,
                 group_size: group_size,
                 absolutePath: this._absolutePath,
+                is_production: PublishSettingConfig.getInstance().getEnvironment() === Environment.PRODUCTION,
             }
             let json = JSON.stringify(post_data);
             DebugLog.instance.log('PostVideoData json =============');
