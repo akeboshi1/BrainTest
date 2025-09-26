@@ -10,6 +10,7 @@ import { AlertManager, AlertData } from "../Alert/AlertManager";
 import { SceneManager } from "../Scene/SceneManager";
 import { Prefab, resources } from "cc";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
+import { SocketUtil } from "./SocketUtil";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
@@ -34,7 +35,7 @@ export class SocketManager extends BaseManager {
 
     init() {
         this._socketDatas = new Map();
-        this.startRetryCheck();
+        // this.startRetryCheck();
 
         // 注册重连面板 并且预加载
         UIManager.getInstance().registerPanel(ReconnectPanel.NAME, BundleName.RESOURCES, "prefab/Common/ReconnectPanel", ReconnectPanel);
@@ -236,6 +237,8 @@ export class SocketManager extends BaseManager {
         let eventName: string = 'Socket.reconnectCountChange';
 
         await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
+
+        DebugLog.instance.error("网络重连：", SocketUtil.getInstance().socketType);
 
         for (let attempt = 1; attempt <= this._reconnectMaxCount; attempt++) {
             EventManager.getInstance().emit(eventName);
