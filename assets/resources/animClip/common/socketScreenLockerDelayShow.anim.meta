@@ -1,0 +1,13 @@
+{
+  "ver": "2.0.3",
+  "importer": "animation-clip",
+  "imported": true,
+  "uuid": "21711d71-c8dd-4a94-a7a2-97a06b5cfb62",
+  "files": [
+    ".cconb"
+  ],
+  "subMetas": {},
+  "userData": {
+    "name": "socketScreenLockerDelayShow"
+  }
+}
