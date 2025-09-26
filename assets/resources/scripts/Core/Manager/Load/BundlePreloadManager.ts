@@ -124,9 +124,6 @@ export class BundlePreloadManager extends BaseManager {
         } catch (err) {
             DebugLog.instance.error(`加载资源包 ${bundleName} 出错: ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
-            
-            // 加载失败时关闭LoadPanel并回到训练大厅
-            await this.handleLoadError(bundleName, err);
             return;
         }
 
@@ -135,7 +132,6 @@ export class BundlePreloadManager extends BaseManager {
         let loadedAssets = 0;
         let totalAssets = 0;
 
-       
 
         // 预加载场景
         try {
@@ -164,13 +160,12 @@ export class BundlePreloadManager extends BaseManager {
                 `加载场景 ${preloadScene} 超时`
             );
         } catch (err) {
-            DebugLog.instance.error(`加载场景 ${bundleName} 出错: ${err}`);
+            DebugLog.instance.error(`加载场景出错 ${bundleName} : ${err}`);
             EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
-            
-            // 加载失败时关闭LoadPanel并回到训练大厅
-            await this.handleLoadError(bundleName, err);
             return;
         }
+
+        EventManager.getInstance().emit(BundlePreloadEvent.SCENE_LOADED, { bundleName, sceneName: preloadScene });
 
         // 预加载其他资源
         for (const assetConfig of preloadAssets) {
@@ -204,9 +199,6 @@ export class BundlePreloadManager extends BaseManager {
                 } catch (err) {
                     DebugLog.instance.error(`加载资源 ${assetPath} 出错: ${err}`);
                     EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
-                    
-                    // 加载失败时关闭LoadPanel并回到训练大厅
-                    await this.handleLoadError(bundleName, err);
                     return;
                 }
             }
@@ -215,18 +207,6 @@ export class BundlePreloadManager extends BaseManager {
         DebugLog.instance.debug(`全部预加载完成！`);
         if (this.loadedBundle.indexOf(bundleName) < 0) {
             this.loadedBundle.push(bundleName);
-        }
-        
-        // 预加载完成后，开始加载场景资源
-        try {
-            await this.loadSceneResources(bundleName);
-        } catch (error) {
-            DebugLog.instance.error(`加载场景资源失败: ${error}`);
-            EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { bundleName });
-            
-            // 加载失败
-            await this.handleLoadError(bundleName, error);
-            return;
         }
         
         DebugLog.instance.debug(`所有资源加载完成，开始倒计时动画`);
@@ -275,210 +255,6 @@ export class BundlePreloadManager extends BaseManager {
 
     public isBundleLoaded(bundleName: BundleName) {
         return assetManager.getBundle(bundleName) != null;
-    }
-
-    /**
-     * 加载场景资源但不切换场景
-     * 在预加载完成后调用，用于加载场景资源到内存中
-     * @param bundleName 资源包名称
-     * @param sceneName 场景名称（可选，如果不提供则使用配置中的场景名）
-     */
-    public async loadSceneResources(bundleName: BundleName, sceneName?: string) {
-        if (!this.bInit) {
-            DebugLog.instance.error("BundlePreloadManager尚未初始化，请先调用init方法");
-            return;
-        }
-
-        const bundle = assetManager.getBundle(bundleName);
-        if (!bundle) {
-            DebugLog.instance.error(`资源包 ${bundleName} 未加载，请先调用preload方法`);
-            return;
-        }
-
-        // 确定要加载的场景名称
-        let targetSceneName = sceneName;
-        if (!targetSceneName) {
-            const isBundleConfigExist = this.config.getGameModuleNames().indexOf(bundleName) >= 0;
-            if (isBundleConfigExist) {
-                targetSceneName = this.config.getPreloadScene(bundleName);
-            } else {
-                targetSceneName = bundleName.valueOf();
-            }
-        }
-
-        DebugLog.instance.debug(`开始加载场景资源: ${targetSceneName}`);
-
-        try {
-            // 更新LoadPanel显示场景资源加载进度
-            const loadPanelInfo = UIManager.getInstance().getActivePanel(LoadPanel.NAME);
-            if (loadPanelInfo && loadPanelInfo.comp) {
-                const loadPanel = loadPanelInfo.comp as LoadPanel;
-                loadPanel.setProgress(`加载场景资源中...`);
-            }
-
-            // 使用assetManager.loadBundle加载场景资源到内存中
-            const sceneResourceLoadPromise = new Promise<void>((resolve, reject) => {
-                bundle.loadScene(targetSceneName, (err) => {
-                    if (err) {
-                        DebugLog.instance.error(`加载场景资源 ${targetSceneName} 失败: ${err}`);
-                        reject(err);
-                    } else {
-                        DebugLog.instance.debug(`场景资源 ${targetSceneName} 加载完成`);
-                        resolve();
-                    }
-                });
-            });
-
-            // 添加超时处理
-            await this.createTimeoutPromise(
-                sceneResourceLoadPromise,
-                BundlePreloadManager.SCENE_LOAD_TIMEOUT,
-                `加载场景资源 ${targetSceneName} 超时`
-            );
-
-            // 更新LoadPanel显示场景资源加载完成
-            if (loadPanelInfo && loadPanelInfo.comp) {
-                const loadPanel = loadPanelInfo.comp as LoadPanel;
-                loadPanel.setProgress(`场景资源加载完成`);
-            }
-
-            // 触发场景资源加载完成事件
-            EventManager.getInstance().emit(BundlePreloadEvent.SCENE_LOADED, { 
-                bundleName, 
-                sceneName: targetSceneName 
-            });
-
-        } catch (error) {
-            DebugLog.instance.error(`加载场景资源 ${targetSceneName} 出错: ${error}`);
-            EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { 
-                bundleName, 
-                sceneName: targetSceneName,
-                error 
-            });
-            
-            // 加载失败时关闭LoadPanel并回到训练大厅
-            await this.handleLoadError(bundleName, error);
-        }
-    }
-
-    /**
-     * 检查场景资源是否已加载
-     * @param bundleName 资源包名称
-     * @param sceneName 场景名称（可选）
-     * @returns 是否已加载
-     */
-    public isSceneLoaded(bundleName: BundleName, sceneName?: string): boolean {
-        const bundle = assetManager.getBundle(bundleName);
-        if (!bundle) {
-            return false;
-        }
-
-        let targetSceneName = sceneName;
-        if (!targetSceneName) {
-            const isBundleConfigExist = this.config.getGameModuleNames().indexOf(bundleName) >= 0;
-            if (isBundleConfigExist) {
-                targetSceneName = this.config.getPreloadScene(bundleName);
-            } else {
-                targetSceneName = bundleName.valueOf();
-            }
-        }
-
-        // 检查场景是否已加载到内存中
-        return bundle.getSceneInfo(targetSceneName) !== null;
-    }
-
-    /**
-     * 处理加载错误
-     * 派发相应的事件通知外部处理
-     * @param bundleName 失败的资源包名称
-     * @param error 错误信息
-     */
-    private async handleLoadError(bundleName: BundleName, error: any) {
-        DebugLog.instance.error(`处理加载错误: ${bundleName}`, error);
-        
-        // 检查是否为超时错误
-        const isTimeoutError = error && error.message && error.message.includes('超时');
-        
-        try {
-            // 关闭LoadPanel
-            // await UIManager.getInstance().hidePanel(LoadPanel.NAME);
-            
-            // 获取当前场景名称
-            const currentScene = director.getScene();
-            const currentSceneName = currentScene ? currentScene.name : '';
-            
-            DebugLog.instance.debug(`当前场景: ${currentSceneName}, 加载失败的资源包: ${bundleName}, 是否超时: ${isTimeoutError}`);
-            
-            // 触发相应的错误事件，让外部处理弹窗显示
-            if (isTimeoutError) {
-                EventManager.getInstance().emit(BundlePreloadEvent.TIMEOUT, { 
-                    bundleName, 
-                    error,
-                    currentSceneName 
-                });
-            } else {
-                EventManager.getInstance().emit(BundlePreloadEvent.FAILED, { 
-                    bundleName, 
-                    error,
-                    currentSceneName 
-                });
-            }
-            
-            // 触发加载错误已处理事件
-            EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
-                bundleName, 
-                error,
-                currentSceneName,
-                handledSuccessfully: true,
-                isTimeout: isTimeoutError
-            });
-            
-        } catch (backError) {
-            DebugLog.instance.error(`处理加载错误失败: ${backError}`);
-            // 如果处理失败，尝试回到主场景
-            try {
-                await SceneManager.getInstance().changeScene("mainV2", BundleName.RESOURCES);
-                
-                // 触发加载错误已处理事件（降级处理）
-                EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
-                    bundleName, 
-                    error,
-                    currentSceneName: 'mainV2',
-                    handledSuccessfully: true,
-                    fallbackUsed: true,
-                    isTimeout: isTimeoutError
-                });
-                
-            } catch (finalError) {
-                DebugLog.instance.error(`回到主场景也失败: ${finalError}`);
-                
-                // 触发加载错误已处理事件（完全失败）
-                EventManager.getInstance().emit(BundlePreloadEvent.LOAD_ERROR_HANDLED, { 
-                    bundleName, 
-                    error,
-                    currentSceneName: 'unknown',
-                    handledSuccessfully: false,
-                    finalError,
-                    isTimeout: isTimeoutError
-                });
-            }
-        }
-    }
-
-    /**
-     * 回到训练大厅
-     */
-    private async backToGameCenter(): Promise<void> {
-        DebugLog.instance.log('回到训练大厅');
-        await SceneManager.getInstance().backToGameCenter();
-    }
-
-    /**
-     * 回到串烧任务大厅
-     */
-    private async backToSkewersGameCenter(): Promise<void> {
-        DebugLog.instance.log('回到串烧任务大厅');
-        await SceneManager.getInstance().backToSkewersGameCenter();
     }
 }
 

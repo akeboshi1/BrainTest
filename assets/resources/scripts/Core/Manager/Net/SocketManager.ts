@@ -7,23 +7,33 @@ import { LoginErrorCode, LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
-import { SceneManager } from "../Scene/SceneManager";
-import { Prefab, resources } from "cc";
+import { Prefab, resources, Node, instantiate, Label, UITransform } from "cc";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
 import { SocketUtil } from "./SocketUtil";
+import { LayerUtil } from "../../Util/LayerUtil";
+import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
 
 export class SocketManager extends BaseManager {
     private static _instance: SocketManager;
 
     private _socket: WebSocket;
-    private _reSendTime: number = 500; //防抖500毫秒
     private _reconnectInterval: number = 5; // 重连尝试间隔，单位秒
     private _reconnectMaxCount: number = 5; // 重连最大尝试次数
     private _isReconnecting: boolean = false;
     private api_url: string = "";
-    private _socketDatas: Map<string, SocketData[]>;
-    private _retryTimer = null;
+
+    // 重构后的数据结构
+    private _processingSocketData: SocketData | null = null; // 当前正在处理的消息
+    private _pendingSocketDatas: SocketData[] = []; // 待处理的消息队列
     private _reconnectPanel: Prefab = null;
+    private _socketScreenLockerPrefab: Prefab = null;
+    public static SCREEN_LOCKER_PREFAB_PATH: string = "prefab/Common/SocketScreenLocker";
+
+    private _socketProcessingTimeout: number = 3;// 消息处理超时时间，单位秒
+    private _processingTimeoutTimer: NodeJS.Timeout | null = null; // 消息处理超时定时器
+
+    // ScreenLocker 相关属性
+    private _socketScreenLockerNode: Node = null;
 
     public static getInstance(): SocketManager {
         if (!SocketManager._instance) {
@@ -34,147 +44,250 @@ export class SocketManager extends BaseManager {
     }
 
     init() {
-        this._socketDatas = new Map();
-        // this.startRetryCheck();
+        this._processingSocketData = null;
+        this._pendingSocketDatas = [];
+        this._processingTimeoutTimer = null;
+        this._socketScreenLockerNode = null;
 
         // 注册重连面板 并且预加载
         UIManager.getInstance().registerPanel(ReconnectPanel.NAME, BundleName.RESOURCES, "prefab/Common/ReconnectPanel", ReconnectPanel);
         resources.load("prefab/Common/ReconnectPanel", Prefab, (err, prefab: Prefab) => {
             if (err) {
                 DebugLog.instance.error('Prefab load error , url:' + "prefab/Common/ReconnectPanel");
-            }else{
+            } else {
                 this._reconnectPanel = prefab;
             }
         });
-    }
 
-    update() {
-        // 检查重试
-        this.checkRetry();
-    }
-
-    cleanSocketDatas() {
-        this._socketDatas = new Map();
-    }
-
-    cleanRetryTimer() {
-        if (this._retryTimer) {
-            clearInterval(this._retryTimer);
-        }
-    }
-
-    destroy() {
-        this.cleanSocketDatas();
-        this.cleanRetryTimer();
-        if (this._socket) {
-            this._socket.close();
-            this._socket = null;
-        }
-    }
-
-    private startRetryCheck() {
-        // 每秒检查一次需要重试的请求
-        this._retryTimer = setInterval(() => {
-            this.checkRetry();
-        }, 1000);
-    }
-
-    private checkRetry() {
-        if (!this._socket || this._socket.readyState !== WebSocket.OPEN) {
-            return;
-        }
-
-        this._socketDatas.forEach((datas, action) => {
-            datas.forEach((socketData: SocketData) => {
-                if (socketData.netStatus === SocketDataStatus.request && socketData.needRetry()) {
-                    socketData.recordSendTime();
-                    this.resendSocketData(socketData);
-                    DebugLog.instance.error(`重试请求: ${action}, 当前重试次数: ${socketData.getCurrentRetryCount()}, 剩余超时时间: ${socketData.getRemainingTimeout()}ms`);
-                }
-            });
+        resources.load(SocketManager.SCREEN_LOCKER_PREFAB_PATH, Prefab, null, (err: Error, prefab: Prefab) => {
+            if (err) {
+                DebugLog.instance.error('Prefab load error , url:' + SocketManager.SCREEN_LOCKER_PREFAB_PATH);
+            } else {
+                this._socketScreenLockerPrefab = prefab;
+            }
         });
     }
 
-    private resendSocketData(socketData: SocketData) {
-        socketData.incrementRetryCount(); // 增加重试次数
-        const jsonStr = JSON.stringify(socketData);
-        this._socket.send(jsonStr);
-        DebugLog.instance.error(`重试发送：${jsonStr}`);
+    cleanSocketDatas() {
+        this._processingSocketData = null;
+        this._pendingSocketDatas = [];
+        this.clearProcessingTimeout();
+        this.closeSocketScreenLocker();
+    }
+
+
+    destroy() {
+        //不会被调用
+    }
+
+    /**
+     * 开始消息处理超时计时
+     */
+    private startProcessingTimeout(): void {
+        this.clearProcessingTimeout(); // 先清除之前的定时器
+
+        this._processingTimeoutTimer = setTimeout(() => {
+            DebugLog.instance.error(`消息处理超时: ${this._processingSocketData?.action}, uid: ${this._processingSocketData?.uid}`);
+            this.handleProcessingTimeout();
+        }, this._socketProcessingTimeout * 1000);
+    }
+
+    /**
+     * 清除消息处理超时计时
+     */
+    private clearProcessingTimeout(): void {
+        if (this._processingTimeoutTimer) {
+            clearTimeout(this._processingTimeoutTimer);
+            this._processingTimeoutTimer = null;
+        }
+    }
+
+    /**
+     * 处理消息超时
+     */
+    private handleProcessingTimeout(): void {
+        if (this._processingSocketData) {
+            DebugLog.instance.error(`消息处理超时，清空处理中的消息: ${this._processingSocketData.action}, uid: ${this._processingSocketData.uid}`);
+
+            this._processingSocketData = null;
+            // 关闭 ScreenLocker
+            this.closeSocketScreenLocker();
+
+            const alertData: AlertData = new AlertData();
+            alertData.message = "网络状况差，请检查网络环境";
+            alertData.confirmCb = () => {
+                LoginManager.getInstance().loginout(() => {
+                    UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
+                });
+            };
+            AlertManager.getInstance().showAlert(alertData);
+        }
     }
 
     private onSocketMessage(data) {
-        let jsonObj = JSON.parse(data.data);
+        const jsonObj = JSON.parse(data.data);
         const action = jsonObj.action;
-        let updatedDatas = [];
-        let tmpSocketData: SocketData = null;
+        const isEventMessage = action === "event";
 
-        // 服务的主动推送数据 action = event
-        if (action == "event") {
-            let streamstatus = -1;
-            if (jsonObj.hasOwnProperty('finish_reason')) {
-                streamstatus = jsonObj['finish_reason'] || 0;
-            }
-            tmpSocketData = new SocketData({ action: action, uid: jsonObj.uid, data: jsonObj.data });
-            tmpSocketData.netStatus = SocketDataStatus.complete;
-            if (streamstatus != null) {
-                tmpSocketData.isStream = true;
-                if (streamstatus != 1) {
-                    updatedDatas.push(tmpSocketData);
-                }
-            } else {
-                updatedDatas.push(tmpSocketData);
-            }
+        let socketData: SocketData = null;
+
+        if (isEventMessage) {
+            // 处理服务端主动推送的事件消息
+            socketData = this.handleEventMessage(jsonObj);
         } else {
-            const _tmpDatas = this._socketDatas.get(action);
-            if (!_tmpDatas) {
-                DebugLog.instance.error(`${action} is not in data`);
-                return;
-            }
-
-            const uid = jsonObj['uid'];
-            let streamstatus = -1;
-            if (jsonObj.hasOwnProperty('finish_reason')) {
-                streamstatus = jsonObj['finish_reason'] || 0;
-            }
-
-            for (let i: number = 0; i < _tmpDatas.length; i++) {
-                let socketData: SocketData = _tmpDatas[i];
-                if (socketData.uid == uid) {
-                    tmpSocketData = socketData;
-                    tmpSocketData.netStatus = SocketDataStatus.complete;
-                    tmpSocketData.resetRetry(); // 重置重试状态
-                    if (streamstatus != null) {
-                        tmpSocketData.isStream = true;
-                        if (streamstatus != 1) {
-                            updatedDatas.push(tmpSocketData);
-                        }
-                    }
-                } else {
-                    updatedDatas.push(socketData);
-                }
-            }
+            // 处理请求响应消息
+            socketData = this.handleResponseMessage(jsonObj);
         }
 
-        this._socketDatas.set(action, updatedDatas);
-        if (tmpSocketData) {
-            if(jsonObj.status == 0 && jsonObj.error 
-                && LoginErrorCode[jsonObj.error]
-                && (LoginErrorCode[jsonObj.error] == LoginErrorCode.INVALID_TOKEN
-                || LoginErrorCode[jsonObj.error] == LoginErrorCode.USER_NOT_FOUND)){
+        if (socketData) {
+            this.processSocketData(socketData, jsonObj);
+        }
+    }
+
+
+    /**
+     * 处理事件消息（服务端主动推送）
+     * @param jsonObj 消息对象
+     * @returns 处理后的SocketData
+     */
+    private handleEventMessage(jsonObj: any): SocketData {
+        const socketData = new SocketData({
+            action: jsonObj.action,
+            uid: jsonObj.uid,
+            data: jsonObj.data
+        });
+        socketData.netStatus = SocketDataStatus.complete;
+
+        return socketData;
+    }
+
+    /**
+     * 处理响应消息（请求的回复）
+     * @param jsonObj 消息对象
+     * @returns 处理后的SocketData
+     */
+    private handleResponseMessage(jsonObj: any): SocketData {
+        const uid = jsonObj.uid;
+
+        // 检查是否是当前正在处理的消息的回复
+        if (!this._processingSocketData || this._processingSocketData.uid !== uid) {
+            DebugLog.instance.error(`No matching processing request found for uid: ${uid}`);
+            return null;
+        }
+
+        const socketData = this._processingSocketData;
+        socketData.netStatus = SocketDataStatus.complete;
+
+        // 清除超时计时
+        this.clearProcessingTimeout();
+
+        // 处理完成后，开始处理下一个待处理的消息
+        this.processNextPendingMessage();
+
+        return socketData;
+    }
+
+
+    /**
+     * 处理SocketData的后续逻辑
+     * @param socketData 处理后的SocketData
+     * @param jsonObj 原始消息对象
+     */
+    private processSocketData(socketData: SocketData, jsonObj: any): void {
+        // 处理登录错误
+        this.handleLoginErrors(jsonObj);
+
+        // 记录日志并发送事件
+        DebugLog.instance.log(`接收：${JSON.stringify(jsonObj)}`);
+        EventManager.getInstance().emit(jsonObj.action, jsonObj);
+    }
+
+    /**
+     * 处理登录相关错误
+     * @param jsonObj 消息对象
+     */
+    private handleLoginErrors(jsonObj: any): void {
+        if (jsonObj.status === 0 && jsonObj.error && LoginErrorCode[jsonObj.error]) {
+            const errorCode = LoginErrorCode[jsonObj.error];
+            if (errorCode === LoginErrorCode.INVALID_TOKEN || errorCode === LoginErrorCode.USER_NOT_FOUND) {
                 const alertData: AlertData = new AlertData();
-                alertData.message = LoginErrorCode[jsonObj.error];
-                alertData.confirmCb = function () {
+                alertData.message = errorCode;
+                alertData.confirmCb = () => {
                     LoginManager.getInstance().loginout(() => {
                         UIManager.getInstance().showPanel(SwitchLoginPanel.NAME);
                     });
-                }.bind(this);
+                };
                 AlertManager.getInstance().showAlert(alertData);
             }
-
-            DebugLog.instance.log(`接收：${data.data}`);
-            EventManager.getInstance().emit(jsonObj["action"], jsonObj);
         }
     }
+
+    /**
+     * 处理下一个待处理的消息
+     */
+    private processNextPendingMessage(): void {
+        // 清空当前正在处理的消息
+        this._processingSocketData = null;
+
+        // 如果还有待处理的消息，取出第一个进行处理
+        if (this._pendingSocketDatas.length > 0) {
+            const nextMessage = this._pendingSocketDatas.shift();
+            this._processingSocketData = nextMessage;
+            this.openSocketScreenLocker(); // 开始处理下一个消息时打开 ScreenLocker
+            this.sendMessageToSocket(nextMessage);
+        } else {
+            // 所有消息都处理完了，关闭 ScreenLocker
+            this.closeSocketScreenLocker();
+        }
+    }
+
+    /**
+     * 打开 Socket ScreenLocker
+     */
+    private openSocketScreenLocker(): void {
+        // 防止重复调用
+        if (this._socketScreenLockerNode != null) {
+            DebugLog.instance.log("SocketScreenLocker 已经存在，跳过创建");
+            return;
+        }
+
+        if (!this._socketScreenLockerPrefab) {
+            DebugLog.instance.warn("SocketScreenLocker.prefab 没有正确加载");
+            return;
+        }
+
+        let sl = instantiate(this._socketScreenLockerPrefab);
+
+        // 设置屏幕适配尺寸
+        const screenSize = ScreenSizeUtil.getUISize();
+        const slTransform = sl.getComponent(UITransform);
+        if (slTransform && screenSize) {
+            slTransform.setContentSize(screenSize.width, screenSize.height);
+        }
+
+        let parent = LayerUtil.getLoaderLayer();
+        if (!parent) {
+            DebugLog.instance.error('get LoaderLayer failed');
+            return;
+        } else {
+            parent.addChild(sl);
+        }
+
+        this._socketScreenLockerNode = sl;
+        DebugLog.instance.log("SocketScreenLocker 已创建");
+    }
+
+    /**
+     * 关闭 Socket ScreenLocker
+     */
+    private closeSocketScreenLocker(): void {
+        if (this._socketScreenLockerNode) {
+            this._socketScreenLockerNode.removeFromParent();
+            this._socketScreenLockerNode = null;
+            DebugLog.instance.log("SocketScreenLocker 已关闭");
+        }
+    }
+
 
     async connectSocket(url: string = null): Promise<WebSocket> {
         return new Promise<WebSocket>((resolve, reject) => {
@@ -220,17 +333,20 @@ export class SocketManager extends BaseManager {
 
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
+        this.clearProcessingTimeout(); // 断开连接时取消计时
         this.processReconnectFlow();
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.error('onSocketError !');
-        this._isReconnecting = false;
+        this.clearProcessingTimeout(); // 连接错误时取消计时
         this.processReconnectFlow();
     }
 
     //重连成功返回true
     async processReconnectFlow(): Promise<boolean> {
+        this.closeSocketScreenLocker();
+
         if (this._isReconnecting) return;
         this._isReconnecting = true;
 
@@ -245,7 +361,14 @@ export class SocketManager extends BaseManager {
             try {
                 await this.initSocket();
                 DebugLog.instance.error('Reconnected successfully.');
-                
+
+                // 重连成功后，如果有正在处理的消息，重新发送
+                if (this._processingSocketData) {
+                    DebugLog.instance.log(`重连成功，重新发送处理中的消息: ${this._processingSocketData.action}, uid: ${this._processingSocketData.uid}`);
+                    this.openSocketScreenLocker();
+                    this.sendMessageToSocket(this._processingSocketData); // sendMessageToSocket 会自动开始超时计时
+                }
+
                 UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
                 this._isReconnecting = false;
                 return true;
@@ -282,48 +405,46 @@ export class SocketManager extends BaseManager {
             return;
         }
 
-        let _tmpDatas: SocketData[] = this._socketDatas.get(data.action);
-        if (!_tmpDatas) {
-            _tmpDatas = [];
-        }
-
-        // 如果设置了跳过防抖，则不进行防抖检查
-        if (!data.skipDebounce) {
-            for (let i = 0; i < _tmpDatas.length; i++) {
-                let _tmpData: SocketData = _tmpDatas[i];
-                if (_tmpData.uid == data.uid || Number(data.uid) - Number(_tmpData.uid) <= this._reSendTime) {
-                    AlertManager.getInstance().showSocketAlert('请勿频繁操作');
-                    DebugLog.instance.error(`${data.action},已经发送过了，请等待回复`);
-                    return;
-                }
+        // 如果当前有正在处理的消息，检查是否需要防止重复
+        if (this._processingSocketData) {
+            // 如果新消息的 action 与正在处理的消息的 action 一致，则拒绝发送
+            if (this._processingSocketData.action === data.action) {
+                DebugLog.instance.warn(`消息被拒绝：action "${data.action}" 正在处理中，请等待回复后再发送`);
+                return;
             }
+
+            // 检查待处理队列中是否已有相同 action 的消息
+            const hasSameActionInQueue = this._pendingSocketDatas.some(pendingData => pendingData.action === data.action);
+            if (hasSameActionInQueue) {
+                DebugLog.instance.warn(`消息被拒绝：action "${data.action}" 已在待处理队列中`);
+                return;
+            }
+
+            // 将新消息加入待处理队列
+            this._pendingSocketDatas.push(data);
+            DebugLog.instance.log(`消息已加入待处理队列: ${data.action}, uid: ${data.uid}, 队列长度: ${this._pendingSocketDatas.length}`);
+            return;
         }
 
-        _tmpDatas.push(data);
+        // 如果没有正在处理的消息，直接发送
+        this._processingSocketData = data;
+        this.openSocketScreenLocker(); // 开始处理消息时打开 ScreenLocker
+        this.sendMessageToSocket(data);
+    }
+
+    /**
+     * 发送消息到Socket
+     * @param data SocketData对象
+     */
+    private sendMessageToSocket(data: SocketData): void {
         const jsonStr = JSON.stringify(data);
         DebugLog.instance.log(data);
         this._socket.send(jsonStr);
         data.netStatus = SocketDataStatus.request;
-        data.recordSendTime(); // 记录发送时间
         DebugLog.instance.log(`发送：${jsonStr}`);
-        this._socketDatas.set(data.action, _tmpDatas);
-    }
 
-    /**
-     * 移除指定的SocketData
-     * @param socketData 要移除的SocketData
-     */
-    public removeSocketData(socketData: SocketData): void {
-        const datas = this._socketDatas.get(socketData.action);
-        if (datas) {
-            const index = datas.findIndex(data => data.uid === socketData.uid);
-            if (index !== -1) {
-                datas.splice(index, 1);
-                if (datas.length === 0) {
-                    this._socketDatas.delete(socketData.action);
-                }
-            }
-        }
+        // 开始消息处理超时计时
+        this.startProcessingTimeout();
     }
 
     /**
@@ -339,7 +460,7 @@ export class SocketManager extends BaseManager {
                 cancelButtonText: "退出",
                 cancelButtonVisible: false, // 隐藏退出按钮
                 guideButtonVisible: false,
-                closeBtnVisible:false,
+                closeBtnVisible: false,
                 guideButtonText: '玩法介绍',
                 x: 0,
                 y: 0,
