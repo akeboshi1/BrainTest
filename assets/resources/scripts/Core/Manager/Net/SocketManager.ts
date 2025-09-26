@@ -333,12 +333,14 @@ export class SocketManager extends BaseManager {
 
     private onSocketClose() {
         DebugLog.instance.log('Socket is closed : start reconnect !');
+        DebugLog.instance.error("网络断开：", SocketUtil.getInstance().socketType);
         this.clearProcessingTimeout(); // 断开连接时取消计时
         this.processReconnectFlow();
     }
 
     private onSocketError(wb: WebSocket, ev: Event) {
         DebugLog.instance.error('onSocketError !');
+        DebugLog.instance.error("网络错误：", SocketUtil.getInstance().socketType);
         this.clearProcessingTimeout(); // 连接错误时取消计时
         this.processReconnectFlow();
     }
