@@ -9,6 +9,7 @@ import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
 import { Prefab, resources, Node, instantiate, Label, UITransform } from "cc";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
+import { SocketUtil } from "./SocketUtil";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
 
@@ -352,6 +353,8 @@ export class SocketManager extends BaseManager {
         let eventName: string = 'Socket.reconnectCountChange';
 
         await UIManager.getInstance().showPanel(ReconnectPanel.NAME, { eventName }, false);
+
+        DebugLog.instance.error("网络重连：", SocketUtil.getInstance().socketType);
 
         for (let attempt = 1; attempt <= this._reconnectMaxCount; attempt++) {
             EventManager.getInstance().emit(eventName);
