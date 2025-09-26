@@ -116,7 +116,7 @@ export class LoadPanel extends BasePanel {
 
       onSceneLoaded(data: any) {
             this.setTitle("进入场景中");
-            this.setProgress(`场景资源加载完成: ${data.sceneName}`);
+            this.setProgress(`场景资源加载完成!`);
       }
 
       onBundleLoadFinish() {

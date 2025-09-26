@@ -3,7 +3,6 @@ import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
 import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import {GameCenterManager} from "db://assets/resources/scripts/Game/GameCenter/GameCenterManager";
 import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
-import {VideoControlPanel} from "./VideoControlPanel";
 import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
 import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
 import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";

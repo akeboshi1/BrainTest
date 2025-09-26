@@ -368,14 +368,4 @@ export class SceneManager extends BaseManager {
             });
         });
     }
-
-    /**
-     * 检查场景是否已预加载完成
-     * @param bundleName 资源包名称
-     * @param sceneName 场景名称（可选）
-     * @returns 是否已预加载完成
-     */
-    public isScenePreloaded(bundleName: BundleName, sceneName?: string): boolean {
-        return BundlePreloadManager.getInstance().isSceneLoaded(bundleName, sceneName);
-    }
 }
