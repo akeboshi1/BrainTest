@@ -93,6 +93,12 @@ export class GameAlert extends AdaptComponent {
     private iconLoading: boolean = false;
     private iconLoaded: boolean = false;
 
+    /**
+     * 按钮是否已被点击禁用
+     * @private
+     */
+    private _isButtonDisabled: boolean = false;
+
     private async loadAudio() {
         // 创建一个数组，存放每个异步加载的 Promise
         const loadPromises = this.audioUrls.map(audioUrl => {
@@ -430,6 +436,15 @@ export class GameAlert extends AdaptComponent {
     }
 
     exitHandler() {
+        // 如果按钮已被禁用，忽略此次点击
+        if (this._isButtonDisabled) {
+            DebugLog.instance.log("GameAlert: 按钮已被禁用，忽略此次点击");
+            return;
+        }
+        
+        // 禁用按钮
+        this.disableButtons();
+        
         // DebugLog.instance.error("exitCallBack",this.context)
         AudioManager.getInstance().stopLongSound();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
@@ -446,6 +461,15 @@ export class GameAlert extends AdaptComponent {
      * 继续
      */
     goHandler() {
+        // 如果按钮已被禁用，忽略此次点击
+        if (this._isButtonDisabled) {
+            DebugLog.instance.log("GameAlert: 按钮已被禁用，忽略此次点击");
+            return;
+        }
+        
+        // 禁用按钮
+        this.disableButtons();
+        
         //DebugLog.instance.error("goonCallBack",this.context)
         AudioManager.getInstance().resumeLongSound();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
@@ -466,6 +490,10 @@ export class GameAlert extends AdaptComponent {
     bindCallBack(goonCallBack: Function, exitCallBack: Function, context: any) {
         this.reset();
         this.context = context;
+        
+        // 重置按钮状态
+        this.enableButtons();
+        
         if (goonCallBack) {
             this.goonCallBack = goonCallBack.bind(context);
         }
@@ -478,6 +506,9 @@ export class GameAlert extends AdaptComponent {
         this.context = null;
         this.goonCallBack = null;
         this.exitCallBack = null;
+        
+        // 重置按钮状态
+        this.enableButtons();
     }
 
     /**
@@ -594,6 +625,56 @@ export class GameAlert extends AdaptComponent {
             // 图标不存在，直接显示按钮
             this.startBtn.node.active = true;
         }
+    }
+
+    /**
+     * 禁用所有按钮
+     * @private
+     */
+    private disableButtons(): void {
+        this._isButtonDisabled = true;
+        
+        // 禁用退出按钮
+        if (this.exitBtn) {
+            this.exitBtn.interactable = false;
+        }
+        
+        // 禁用开始按钮
+        if (this.startBtn) {
+            this.startBtn.interactable = false;
+        }
+        
+        // 禁用引导按钮
+        if (this.guideBtn) {
+            this.guideBtn.interactable = false;
+        }
+        
+        DebugLog.instance.log("GameAlert: 按钮已禁用");
+    }
+
+    /**
+     * 启用所有按钮
+     * @private
+     */
+    private enableButtons(): void {
+        this._isButtonDisabled = false;
+        
+        // 启用退出按钮
+        if (this.exitBtn) {
+            this.exitBtn.interactable = true;
+        }
+        
+        // 启用开始按钮
+        if (this.startBtn) {
+            this.startBtn.interactable = true;
+        }
+        
+        // 启用引导按钮
+        if (this.guideBtn) {
+            this.guideBtn.interactable = true;
+        }
+        
+        DebugLog.instance.log("GameAlert: 按钮已启用");
     }
 
 }
