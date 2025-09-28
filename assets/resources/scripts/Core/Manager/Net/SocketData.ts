@@ -45,6 +45,9 @@ export class SocketData {
 
     public message: string;
 
+    public needTimeout: boolean = true;
+
+    public needTouchMask: boolean = true;
 
     /**
      * 当前数据，如果是流式得数据，则data是最新收到得流式样数据
@@ -68,6 +71,8 @@ export class SocketData {
         this.uid = data.uid || TimeUtil.getNow().toString();
         this.token = Global.userData.token;
         this.skipDebounce = data.skipDebounce || false;
+        this.needTimeout = data.needTimeout === undefined ? true : data.needTimeout;
+        this.needTouchMask = data.needTouchMask === undefined ? true : data.needTouchMask;
     }
 
     refreshUid(): void {
