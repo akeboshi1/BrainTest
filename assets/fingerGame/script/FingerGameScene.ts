@@ -240,6 +240,9 @@ export class FingerGameScene extends Component {
             return;
         }
 
+        // 重新激活进度条
+        this.segmentProgressBar.node.active = true;
+
         // 显示相机预览
         this.showCameraPreview();
 
@@ -263,6 +266,9 @@ export class FingerGameScene extends Component {
         let title = "益脑手指操";
         this.titleLabel.string = title;
         const config = sectionConfig;
+
+        // 重新激活进度条
+        this.segmentProgressBar.node.active = true;
 
         // 显示相机预览
         this.showCameraPreview();
