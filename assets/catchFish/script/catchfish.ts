@@ -148,10 +148,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     private _pause = false;
     private _isEffectPlaying = false; // 特效播放中标志
-    
+
     // 退出弹窗状态标记
     private _isExitAlertShowing: boolean = false; // 退出弹窗是否正在显示
-    
+
     private _waveConfig = {
         amplitude: 30,   // 波动幅度
         frequency: 0.002 // 波动频率
@@ -191,10 +191,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     start() {
         super.start();
-        
+
         // 添加应用前后台切换监听
         this.addAppStateListener();
-        
+
         // let logoSprite = this.logoNode.getComponent(Sprite);
         // const bundle = assetManager.getBundle(this.bundleName);
         // if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -261,21 +261,27 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._isPaused = false;
             this._pause = false;
         }
-        
+
         this.node.active = false;
         super.goonHandler(this);
     }
 
 
-    dzgoonHandler(resuleBoo: boolean = true) {
+    dzgoonHandler(resuleBoo: boolean = true, isFromAnswer: boolean = false) {
         // 重置游戏状态，确保能正常继续
         this._gameEnded = false;
         this._isExitAlertShowing = false;
         this._isEffectPlaying = false;
         this._isPaused = false;
         this._pause = false;
-        
-        this.clearGameView();
+
+        // 如果是从订正界面恢复，不清空错题，只清空游戏视图
+        if (isFromAnswer) {
+            this.clearGameViewOnly();
+        } else {
+            this.clearGameView();
+        }
+
         if (this.sceneModel) {
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
@@ -306,7 +312,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 重置退出弹窗状态标记
         context._isExitAlertShowing = false;
         DebugLog.instance.log("退出弹窗关闭，重置状态标记为false");
-        
+
         super.exitCallBack(context);
     }
 
@@ -321,25 +327,25 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     resumeCallBack(context) {
         context.setGamePause(false);
-        
+
         // 重置特效标志，确保状态正确
         context._isEffectPlaying = false;
-        
+
         // 容错保护：强制重置所有可能影响鱼移动的状态
         context._isPaused = false;
         context._pause = false;
         context._clearBoo = false;
-        
+
         // 重置退出弹窗状态标记
         context._isExitAlertShowing = false;
         DebugLog.instance.log("用户点击继续，重置退出弹窗状态标记为false");
-        
+
         // 恢复倒计时
         if (context.timerComponent) {
             context.timerComponent.resumeTimer();
             DebugLog.instance.log("用户点击继续，恢复倒计时");
         }
-        
+
         // 恢复鱼的移动
         if (context.fishs && context.fishs.length > 0) {
             DebugLog.instance.log(`恢复${context.fishs.length}条鱼的移动`);
@@ -358,14 +364,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 }
             });
         }
-        
+
         // 恢复背景鱼群动画
         context._fishTweens.forEach(tween => {
             if (tween) {
                 tween.start();
             }
         });
-        
+
         super.resumeCallBack(context);
     }
 
@@ -381,7 +387,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         if (this.wangCount !== this.wangMaxCount) {
             this._gameEnded = true;
-            this.clearGameView(); // 训练失败时也立即停止所有鱼和动画
+            this.clearGameViewOnly(); // 训练失败时只清空游戏视图，保留错题
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 //上报数据
                 this._requestSkewersGameComplete();
@@ -444,6 +450,62 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             }
             this.fishs = [];
         }
+
+        // 清空错题列表（只在游戏切换或重玩时）
+        this.clearWrongQuestions();
+    }
+
+    /**
+     * 只清空游戏视图，保留错题列表
+     */
+    private clearGameViewOnly() {
+        super.clearGameView();
+        this._clearBoo = true;
+        this._gameEnded = true; // 确保训练彻底结束
+        this._isPaused = false; // 重置暂停状态
+        if (this._wangTween) {
+            this._wangTween.stop();
+            this._wangTween = null;
+        }
+
+        // 清理所有渔网节点
+        this.clearAllWangNodes();
+
+        // 停止所有动画
+        Tween.stopAll();
+        this._fishTweens.forEach(tween => {
+            if (tween) {
+                tween.stop();
+            }
+        });
+        this._fishTweens = [];
+
+        EventManager.getInstance().off(Fish.FishClick, this);
+
+        // 停止所有鱼的动画并移除
+        if (this.fishs && this.fishParentNode) {
+            let len = this.fishs.length;
+            for (let i: number = 0; i < len; i++) {
+                let fish = this.fishs[i];
+                if (fish) {
+                    if (fish.curTween) {
+                        fish.curTween.stop();
+                        fish.curTween = null;
+                    }
+                    // // 确保鱼节点存在且有效
+                    const fishNode = fish.getFishNode();
+                    if (fishNode && fishNode.isValid && this.fishParentNode.isValid) {
+                        if (fishNode.parent === this.fishParentNode) {
+                            this.fishParentNode.removeChild(fishNode);
+                        }
+                    }
+                    fish = null;
+                }
+            }
+            this.fishs = [];
+        }
+
+        // 注意：这里不清空错题列表，保留错题用于订正
     }
 
     // ================== 捕鱼训练逻辑 ===================
@@ -456,7 +518,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._gameEnded = false; // 重置训练结束标志
         this._isEffectPlaying = false; // 重置特效标志
         this._isExitAlertShowing = false; // 重置退出弹窗状态标记
-        
+
         // 容错保护：强制重置所有暂停相关状态
         this._isPaused = false;
         this._pause = false;
@@ -469,7 +531,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // this.gameBeforeView.active = false;
         // this.gameStartView.active = true;
         this.wangCount = 0;
-        // 清空错题列表
+        // 清空错题列表（游戏开始时清空）
         this.clearWrongQuestions();
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
@@ -643,14 +705,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     setGamePause(isPaused: boolean) {
         this._isPaused = isPaused;
         this._pause = isPaused; // 保持向后兼容
-        
+
         if (isPaused) {
             // 暂停倒计时
             if (this.timerComponent) {
                 this.timerComponent.pauseTimer();
                 DebugLog.instance.log("游戏暂停，倒计时已暂停");
             }
-            
+
             // 暂停背景鱼群动画
             this._fishTweens.forEach(tween => tween.stop());
             // 暂停所有鱼的移动，移除tween
@@ -661,6 +723,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 }
             });
         } else {
+            // 重置清理标志，确保游戏能正常恢复
+            this._clearBoo = false;
+
             // 恢复背景鱼群动画
             this._fishTweens.forEach(tween => tween.start());
             // 恢复所有鱼的移动，重新创建tween
@@ -694,7 +759,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 fish.setParent(this.fishParentNode);
                 this.randomFish(fish);
                 this.fishs.push(fish);
-                
+
                 // 容错保护：确保鱼创建后能正常移动
                 DebugLog.instance.log(`创建第${i + 1}条鱼，准备移动`);
                 this.moveFishes(fish, i * SHOOT_INTERVAL);
@@ -812,16 +877,16 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             DebugLog.instance.error("moveFishes: 鱼对象无效");
             return;
         }
-        
+
         if (this._gameEnded) return; // 训练结束不再移动鱼
         if (this._isPaused) return; // 训练暂停时不创建新的tween
-        
+
         // 容错保护：强制重置暂停状态，防止状态残留
         if (fish.pause) {
             DebugLog.instance.log("moveFishes: 检测到鱼暂停状态，强制重置");
             fish.pause = false;
         }
-        
+
         if (fish.curTween) {
             fish.curTween.stop();
             fish.curTween = null;
@@ -829,17 +894,17 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         let self = this;
         const upDistance = 8; // 上下浮动的距离+
-        
+
         // 使用固定速度计算duration，确保鱼的速度一致
         const baseSpeed = 50; // 基础速度（像素/秒）- 调整为更慢的速度
-        
+
         // 计算鱼需要移动的总距离，确保速度一致
         let targetX = -600; // 目标位置
         let distance = Math.abs(fish.position.x - targetX);
         const duration = distance / baseSpeed;
-        
+
         DebugLog.instance.log("fish position:" + fish.position.x + ", target:" + targetX + ", distance:" + distance + ", duration:" + duration);
-        
+
         // 定义上下移动的幅度（即上下移动的范围大小），可根据实际需求调整
         const floatAmplitude = 0.08;
         const phase = 0; // The initial phase of the wave
@@ -1089,6 +1154,18 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                             self.clearWangNubmer();
                             self._curFish = null;
                         }
+
+                        // 当鱼游出边界未被回答时，记录为错题
+                        const fishData = fish.getData();
+                        if (fishData && !fishData.hasChose) {
+                            // 避免重复添加同一个题目
+                            if (!self.wrongQuestions.some(q => q.question === fishData.question)) {
+                                self.wrongQuestions.push(fishData);
+                                console.log("边界错题已保存:", fishData.question);
+                            }
+                        }
+
+
                         self.randomFish(fish);
                         self.moveFishes(fish, fish.positionYIndex * SHOOT_INTERVAL);
                     })
@@ -1220,7 +1297,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._clearBoo = false;
         this._startTime = TimeUtil.getNow();
         this.wangCount = 0;
-        // 清空错题列表
+        // 清空错题列表（重玩时清空）
         this.clearWrongQuestions();
 
         this.initResultNode();
@@ -1290,7 +1367,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         // 获取当前索引对应的wang
         let wang = this.wang[index];
-        wang.active=true;
+        wang.active = true;
         wang.setPosition(new Vec3(0, 0, 0));
         wang.setWorldScale(new Vec3(0.5, 0.5, 0.5));
         // wang.setPosition(new Vec3(0, 0, 0));
@@ -1326,10 +1403,10 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         question.hasChose = true;
 
         if (this._wangTween) this._wangTween.stop();
-        
+
         // 设置特效播放标志
         this._isEffectPlaying = true;
-        
+
         // 启动动画 - 网飞向鱼的视觉中心
         this._wangTween = tween(wang).parallel(
             tween().to(0.4 - offsetTime, { scale: new Vec3(3, 3, 3) }, { easing: 'bounceIn' }),
@@ -1354,15 +1431,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                         self._wangTween = null;
                         // self.hasWangClick = false;
                         // 移除wangPrefab
-                        wang.active=false;
+                        wang.active = false;
                         if (self._clearBoo || self._gameEnded) return;
                         self.wangCount++;
-                       
+
                         // self.catchLabel.getComponent(Label).string = `${self.wangCount}/${self.wangMaxCount}`;
                         if (self.wangCount == self.wangMaxCount) {
                             // 最后一条鱼，会弹出结算弹窗，不重置特效标志
                             self.endCurHardGame();
-                        }else{
+                        } else {
                             self.showResultRightEffect(self.wangCount - 1);
                             // 不是最后一条鱼，重置特效标志
                             self._isEffectPlaying = false;
@@ -1433,15 +1510,15 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         this._gameEnded = true; // 设置训练结束标志
         this._isEffectPlaying = false; // 重置特效标志
         this.pauseTime(); // 停止倒计时
-        this.clearGameView(); // 停止所有鱼和动画，确保结算面板弹出时鱼不再游动
+        this.clearGameViewOnly(); // 停止所有鱼和动画，但保留错题用于订正
         this.playAudio("music/win", true);
         // 保存错题
         this.saveWrongQuestions();
 
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-             // 确保请求发送
-             this.showAllResultRightAndSettle();
-             this._requestSkewersGameComplete();
+            // 确保请求发送
+            this.showAllResultRightAndSettle();
+            this._requestSkewersGameComplete();
         } else {
             if (!this.customsSendDataState) {
                 this._requestGameCenterComplete();
@@ -1561,7 +1638,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
 
     onclickContinue() {
-        (this.sceneModel as any).dzanswerHandler(this);
+        // 标记这是从订正界面恢复，不清空错题
+        this.dzgoonHandler(true, true);
     }
 
 
@@ -1612,6 +1690,43 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 如果错题不足5道，隐藏多余的节点
         for (let i = len; i < this.answerNodes.length; i++) {
             this.answerNodes[i].active = false;
+        }
+    }
+
+    /**
+     * 关闭订正界面并恢复游戏
+     */
+    public onClickCloseAnswer(): void {
+        // 关闭订正界面
+        this.answerView.active = false;
+
+        // 恢复游戏状态，但不清空错题
+        this._isPaused = false;
+        this._gameEnded = false;
+        this._clearBoo = false;
+
+        // 重置并重启鱼群背景动画
+        this.resetAndStartFishMovement();
+
+        // 恢复鱼的动画
+        if (this.fishs) {
+            this.fishs.forEach(fish => {
+                if (fish) {
+                    fish.pause = false;
+                    // 如果鱼没有动画，重新创建动画
+                    if (!fish.curTween) {
+                        this.moveFishes(fish, 0);
+                    } else {
+                        // 如果有动画，继续执行
+                        fish.curTween.start();
+                    }
+                }
+            });
+        }
+
+        // 恢复倒计时
+        if (this.timerComponent) {
+            this.timerComponent.resumeTimer();
         }
     }
 
@@ -1682,7 +1797,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         Tween.stopAllByTarget(this.fishes1);
         Tween.stopAllByTarget(this.fishes2);
         Tween.stopAllByTarget(this.fishes3);
-        for(let i = 0; i < this.wangs.length; i++){
+        for (let i = 0; i < this.wangs.length; i++) {
             Tween.stopAllByTarget(this.wangs[i]);
         }
 
@@ -1746,7 +1861,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         if (index < 0 || index >= this.resultNode.children.length) {
             return;
         }
-        
+
         let resultNode = this.resultNode.children[index];
         let rightNode = resultNode.getChildByName("right");
         if (rightNode) {
@@ -1765,7 +1880,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         for (let i = 0; i < this.wangCount; i++) {
             this.showResultRightEffect(i);
         }
-        
+
         // 立即显示结算界面，不等待动画完成
         if (this.sceneModel.gameType != GameType.SKEWERS) {
             (this.sceneModel as any).showSuccessView();
@@ -1781,34 +1896,34 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 监听应用回到前台
         game.on(Game.EVENT_SHOW, this.onAppShow, this);
     }
-    
+
     /**
      * 应用进入后台时的处理
      */
     private onAppHide() {
         DebugLog.instance.log("应用进入后台，暂停游戏并显示退出弹窗");
-        
+
         // 如果游戏在结算阶段，不弹出退出弹窗
         if (this._gameEnded) {
             DebugLog.instance.log("游戏在结算阶段，不弹出退出弹窗");
             return;
         }
-        
+
         // 如果退出弹窗已经在显示，不再重复弹出
         if (this._isExitAlertShowing) {
             DebugLog.instance.log("退出弹窗已在显示，跳过重复弹出");
             return;
         }
-        
+
         // 暂停计时器
         if (this.timerComponent) {
             this.timerComponent.pauseTimer();
         }
-        
+
         // 暂停游戏状态
         this._pause = true;
         this._isPaused = true;
-        
+
         // 停止所有鱼的移动
         this.fishs.forEach(fish => {
             if (fish && fish.curTween) {
@@ -1817,14 +1932,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 fish.pause = true;
             }
         });
-        
+
         // 停止背景鱼群动画
         this._fishTweens.forEach(tween => {
             if (tween) {
                 tween.stop();
             }
         });
-        
+
         // 如果特效正在播放中，延迟显示退出弹窗
         if (this._isEffectPlaying) {
             DebugLog.instance.log("特效播放中，延迟显示退出弹窗");
@@ -1837,13 +1952,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this.showPauseAlert();
         }
     }
-    
+
     /**
      * 应用回到前台时的处理
      */
     private onAppShow() {
         DebugLog.instance.log("应用回到前台，保持暂停状态");
-        
+
         // 如果游戏在结算阶段，不恢复倒计时
         if (this._gameEnded) {
             DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
@@ -1851,13 +1966,13 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._isEffectPlaying = false;
             return;
         }
-        
+
         // 如果特效正在播放中，重置特效标志，防止状态混乱
         if (this._isEffectPlaying) {
             DebugLog.instance.log("特效播放中，重置特效标志");
             this._isEffectPlaying = false;
         }
-        
+
         // 应用回到前台时保持暂停状态，不自动恢复倒计时
         // 只有用户点击"继续"按钮时才会恢复倒计时
         DebugLog.instance.log("应用回到前台，倒计时保持暂停状态，等待用户点击继续");
@@ -1870,7 +1985,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 标记退出弹窗正在显示
         this._isExitAlertShowing = true;
         DebugLog.instance.log("显示退出弹窗，设置状态标记为true");
-        
+
         // 使用现有的quitGame方法显示退出弹窗
         super.quitGame({ parentNode: this.mainView, context: this });
     }
