@@ -117,7 +117,6 @@ export class SocketManager extends BaseManager {
             alertData.message = "网络状况差，请检查网络环境";
             alertData.confirmButtonText = "重试";
             alertData.confirmCb = () => {
-                this.openSocketScreenLocker();
                 this.sendMessageToSocket(this._processingSocketData);
             };
             AlertManager.getInstance().showAlert(alertData);
@@ -233,7 +232,7 @@ export class SocketManager extends BaseManager {
         if (this._pendingSocketDatas.length > 0) {
             const nextMessage = this._pendingSocketDatas.shift();
             this._processingSocketData = nextMessage;
-            this.openSocketScreenLocker(); // 开始处理下一个消息时打开 ScreenLocker
+            
             this.sendMessageToSocket(nextMessage);
         } else {
             // 所有消息都处理完了，关闭 ScreenLocker
@@ -367,7 +366,6 @@ export class SocketManager extends BaseManager {
                 // 重连成功后，如果有正在处理的消息，重新发送
                 if (this._processingSocketData) {
                     DebugLog.instance.log(`重连成功，重新发送处理中的消息: ${this._processingSocketData.action}, uid: ${this._processingSocketData.uid}`);
-                    this.openSocketScreenLocker();
                     this.sendMessageToSocket(this._processingSocketData); // sendMessageToSocket 会自动开始超时计时
                 }
 
@@ -430,7 +428,6 @@ export class SocketManager extends BaseManager {
 
         // 如果没有正在处理的消息，直接发送
         this._processingSocketData = data;
-        this.openSocketScreenLocker(); // 开始处理消息时打开 ScreenLocker
         this.sendMessageToSocket(data);
     }
 
@@ -445,8 +442,14 @@ export class SocketManager extends BaseManager {
         data.netStatus = SocketDataStatus.request;
         DebugLog.instance.log(`发送：${jsonStr}`);
 
+        // 开始处理消息时打开 ScreenLocker
+        if (data.needTouchMask) {
+            this.openSocketScreenLocker(); 
+        }
         // 开始消息处理超时计时
-        this.startProcessingTimeout();
+        if (data.needTimeout) {
+            this.startProcessingTimeout();
+        }
     }
 
     /**

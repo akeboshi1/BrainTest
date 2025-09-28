@@ -31,7 +31,8 @@ export class FingerGameModel {
     private static START_TASK: string = "finger_exercise.start_task";//返回每一节的id
     private static START_TASK_ACTIVITY: string = "finger_exercise.start_task_activity";
     private static COMPLETE_TASK_ACTIVITY: string = "finger_exercise.complete_task_activity";
-    private static GET_TASK_ACTIVITIES: string = "finger_exercise.get_task_activities";   private _eventHandlers: Map<string, Function[]> = new Map();
+    private static GET_TASK_ACTIVITIES: string = "finger_exercise.get_task_activities";   
+    private _eventHandlers: Map<string, Function[]> = new Map();
 
     public _ismember: boolean = false;   
 
@@ -231,7 +232,9 @@ export class FingerGameModel {
             action: FingerGameModel.GET_TASK_ACTIVITIES,
             data:{
                 task_id:this._currentTaskId
-            }
+            },
+            needTimeout: false,
+            needTouchMask: false
         });
         SocketManager.getInstance().send(socketData);
     }
