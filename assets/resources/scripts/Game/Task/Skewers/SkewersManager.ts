@@ -726,12 +726,12 @@ export class SkewersManager {
         
         if (isTimeout) {
             // 超时错误提示
-            alertData.title = "加载超时";
-            alertData.message = `训练 ${sceneName} 加载超时，请检查网络连接后重试`;
+            alertData.title = "网络不稳定";
+            alertData.message = `加载资源超时，请检查网络连接后重试`;
         } else {
             // 其他错误提示
-            alertData.title = "加载失败";
-            alertData.message = `训练 ${sceneName} 加载失败，请稍后重试`;
+            alertData.title = "网络不稳定";
+            alertData.message = `请检查网络连接后重试`;
         }
         
         alertData.cancelButtonVisible = true;
