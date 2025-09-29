@@ -41,60 +41,12 @@ export class App extends AdaptComponent {
     @property({ type: false })
     isPad = false;
 
-    /**
-     * debug标记
-     */
-    @property({ type: false })
-    debug = true;
-
-    /**
-     * 用于本地调试tts/asr接口
-     */
-    @property({ type: false })
-    isWebView = true;
-
-    @property(Node)
-    webView: Node;
-
-    @property(WebView)
-    tts: WebView;
-
-    @property(WebView)
-    asr: WebView;
-
-    @property(WebView)
-    fsr: WebView;
-
-    @property(Node)
-    event: Node;
-
-
-    // ai
-    // game
-    // usercenter
-    // other
-
     onLoad() {
         super.onLoad();
         DebugLog.instance.log('onLoad');
         // 用户数据
         Global.userData = new UserData();
 
-
-        DebugLog.instance.log('sys.os = ', sys.os);
-        DebugLog.instance.log('sys.platform=', sys.platform);
-
-        this.isWebView = sys.platform != 'ANDROID';
-
-        if (this.isWebView) {
-            this.webView.active = true;
-            // 增加常驻节点
-            director.addPersistRootNode(this.webView);
-        } else {
-            this.webView.active = false;
-            // 移除常驻节点
-            director.removePersistRootNode(this.webView);
-        }
 
         this.initManager();
 
@@ -112,31 +64,11 @@ export class App extends AdaptComponent {
 
     start() {
         super.start();
-        // Global.isSkewersGame = false;
-        DebugLog.instance.log("常驻节点", director.isPersistRootNode(this.webView));
     }
-
 
     onDestroy() {
         super.destroy();
     }
-
-
-    /**
-     * socket连接成功回调   
-     * debug环境下tts 连接成功回调
-     */
-    ttsComplete() {
-        DebugLog.instance.log("ttsComplete");
-    }
-
-    /**
-     * debug环境下asr 连接成功回调
-     */
-    asrComplete() {
-        DebugLog.instance.log("asrComplete");
-    }
-
 
     private async initManager() {
         EventManager.getInstance().init();
@@ -219,12 +151,6 @@ export class App extends AdaptComponent {
      */
     private async socketOnHandler() {
         DebugLog.instance.log("socket connected");
-
-        if (this.isWebView) {
-            this.tts.url = "./webview/tts.html";
-            this.asr.url = "./webview/asr.html";
-            this.fsr.url = "./webview/fsr.html";
-        }
 
         DebugLog.instance.error("网络链接成功：", SocketUtil.getInstance().socketType);
 
