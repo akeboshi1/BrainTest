@@ -1,13 +1,11 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label, resources, SpriteFrame, Sprite, Button, UITransform, Texture2D, assetManager, ImageAsset, Rect, view } from 'cc';
+import { _decorator, Node, Prefab, instantiate, Label, resources, SpriteFrame, Sprite, UITransform, Texture2D, assetManager, ImageAsset, Rect, view } from 'cc';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
-
 import { ReportData, ReportManager } from '../ManagerV2/ReportManager';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import { VipPanel } from "db://assets/resources/scripts/Game/UI/Vip/VipPanel";
-
 import { RadiaGraph } from './RadiaGraph';
 import { TaskItemController } from './TaskItemController';
 import { TaskContainerConfig } from './TaskContainerConfig';
@@ -22,8 +20,6 @@ import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptCompon
 import { VipAlert } from '../Game/UI/Vip/VipAlert';
 import { GameType } from '../Core/Scene/SceneModel/BaseGameModel';
 import { ThemeConfig } from '../Config/ThemeConfig';
-import { ScreenAdapter } from '../Adapter/ScreenAdapter';
-import { ScreenSizeUtil } from '../Adapter/ScreenSizeUtil';
 
 
 const { ccclass, property } = _decorator;
@@ -110,6 +106,7 @@ export class IndexPageView extends AdaptComponent {
         // EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
 
         this._listenerId = ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
+        
     }
 
     onDisable() {

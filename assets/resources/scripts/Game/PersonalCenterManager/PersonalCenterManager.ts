@@ -63,10 +63,10 @@ export class PersonalCenterManager {
     //请求个人中心数据
     public requestUserInfo(): Promise<void> {
         // 如果数据已存在，直接返回Promise
-        if (this._userInfoData) {
-            DebugLog.instance.log("用户信息已缓存，直接返回");
-            return Promise.resolve();
-        }
+        // if (this._userInfoData) {
+        //     DebugLog.instance.log("用户信息已缓存，直接返回");
+        //     return Promise.resolve();
+        // }
 
         // 如果正在请求中，返回现有的Promise
         if (this._isRequestingUserInfo && this._userInfoRequestPromise) {
