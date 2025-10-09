@@ -758,7 +758,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     onSuccess(){
         this._isGameCompleted = true; // 设置游戏完成状态
-        this.mainView.active = false;
+        this.mainView.active = true;
         this.playAudio("music/win");
         
         // 记录成功，可以在这里添加分数统计等逻辑
