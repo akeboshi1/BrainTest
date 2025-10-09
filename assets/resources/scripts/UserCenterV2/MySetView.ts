@@ -41,7 +41,7 @@ export class MySetView extends BasePanel {
         if(data.error){
             DebugLog.instance.log('onVersionInfo error', data.error);
         }else{
-            this.versionLabel.string = data.longVersionCode;
+            this.versionLabel.string = data.versionName;
         }
     }
 
