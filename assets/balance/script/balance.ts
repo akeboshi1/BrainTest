@@ -19,7 +19,9 @@ import {
     EventTouch,
     Vec2,
     input,
-    Input
+    Input,
+    game,
+    Game
 } from 'cc';
 
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
@@ -91,7 +93,10 @@ export class balance extends BaseScene<IBaseGameChild> {
     private _rightPanOriginalPos: Vec3 = new Vec3();
 
     // 添加难度相关属性
-    gameDifficulty: number = 3; // 1: 简单, 2: 中等, 3: 困难
+    gameDifficulty: number = 1; // 1: 简单, 2: 中等, 3: 困难
+    
+    // 游戏结算状态
+    private _isGameCompleted: boolean = false;
 
     // 难度配置
     private readonly DIFFICULTY_CONFIG = {
@@ -145,6 +150,9 @@ export class balance extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         this.generateQuestion();
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
     }
 
     quitGame() {
@@ -848,6 +856,7 @@ export class balance extends BaseScene<IBaseGameChild> {
      * 训练完成回调
      */
     private onGameCompleted() {
+        this._isGameCompleted = true; // 设置游戏完成状态
         // 播放成功音效
         this.playAudio("music/balance");
         
@@ -868,6 +877,7 @@ export class balance extends BaseScene<IBaseGameChild> {
     public restartGame() {
         // 重置所有砝码位置
         this.resetAllFamas();
+        this._isGameCompleted = false; // 重置游戏完成状态
         
         // 生成新题目（从题库中随机选择）
         this.generateQuestion();
@@ -1123,6 +1133,67 @@ export class balance extends BaseScene<IBaseGameChild> {
         this.node.off(Node.EventType.TOUCH_MOVE, this.onSceneTouchMove, this);
         this.node.off(Node.EventType.TOUCH_END, this.onSceneTouchEnd, this);
 
+        // 移除应用状态监听
+        game.off(Game.EVENT_HIDE, this.onAppHide, this);
+        game.off(Game.EVENT_SHOW, this.onAppShow, this);
+
         super.onDestroy();
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on(Game.EVENT_HIDE, this.onAppHide, this);
+        // 监听应用回到前台
+        game.on(Game.EVENT_SHOW, this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        console.log("应用进入后台，暂停游戏并显示退出弹窗");
+        
+        // 暂停计时器
+        if (this.timerComponent) {
+            this.timerComponent.pauseTimer();
+        }
+        
+        // 暂停拖拽功能
+        this._draggingNode = null;
+        
+        // 显示退出弹窗
+        this.showPauseAlert();
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        console.log("应用回到前台，恢复游戏");
+        
+        // 如果游戏在结算阶段，不恢复倒计时
+        if (this._isGameCompleted) {
+            console.log("游戏在结算阶段，不恢复倒计时");
+            return;
+        }
+        
+        // 恢复计时器
+        if (this.timerComponent) {
+            this.timerComponent.resumeTimer();
+        }
+        
+        // 恢复游戏状态
+        this._draggingNode = null; // 重置拖拽状态，允许重新开始拖拽
+    }
+
+    /**
+     * 显示暂停弹窗
+     */
+    private showPauseAlert() {
+        // 使用现有的quitGame方法显示退出弹窗
+        this.quitGame();
     }
 }

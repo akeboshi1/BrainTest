@@ -31,7 +31,7 @@ export class GameCenterPageView extends Component {
     @property(Node)
     private titleText: Node = null;
 
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句',"手指操"];
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句',"手指操","天平","24点"];
 
     // 首页配置相关属性
     private indexPageConfig: IndexPageConfig = new IndexPageConfig();
@@ -106,13 +106,20 @@ export class GameCenterPageView extends Component {
             GameCenterManager.getInstance().perload(url,BundleName.FINGERGAME);
             return;
         }
-        // if(index== 7){
-        //     let url = Global.RES_Root + BundleName.BALANCE;
-        //     DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
-        //     EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-        //     GameCenterManager.getInstance().perload(url,BundleName.BALANCE);
-        //     return;
-        // }
+        if(index== 7){
+            let url = Global.RES_Root + BundleName.BALANCE;
+            DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.BALANCE);
+            return;
+        }
+        if(index== 8){
+            let url = Global.RES_Root + BundleName.MATH24;
+            DebugLog.instance.log(`${BundleName.MATH24} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.MATH24);
+            return;
+        }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
                 this._clickBoo = false;

@@ -3,7 +3,7 @@
         "tasks": [
             {
                 "title": "今日份训练",
-                "txt": "专为老年人设计的脑力训练，通过认知挑战延缓阿尔茨海默症。",
+                "txt": "专为老年人设计的脑力训练",
                 "icon": "",
                 "icon_bg": "textureV2/indexPage/rect1/spriteFrame",
                 "bg0_color":"#139636",
@@ -18,7 +18,7 @@
             },
             {
                 "title": "益脑手指操",
-                "txt": "视频引导手指操，训练手部运动协同锻炼，科学延缓认知衰退。",
+                "txt": "训练手部运动协同锻炼",
                 "icon": "",
                 "icon_bg": "textureV2/indexPage/rect1/spriteFrame",
                 "bg0_color":"#E62265",

@@ -70,11 +70,14 @@ export class ThemeConfig {
                             // 根据任务索引设置默认的点击函数名
                             if (index === 0) {
                                 task.click_function_name = "showBrainTrainingPanel";
+                                task.txt = "专为老年人设计的脑力训练";
                             } else if (index === 1) {
                                 task.click_function_name = "navigatetoFingerGame";
+                                task.txt = "训练手部运动协同锻炼";
                             } else {
                                 // 如果超过2个任务，默认使用第一个
                                 task.click_function_name = "showBrainTrainingPanel";
+                                task.txt = "专为老年人设计的脑力训练";
                             }
                         }
                     });
