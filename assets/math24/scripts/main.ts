@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tween, resources, assetManager, Color, game, Game } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tween, resources, assetManager, Color, game, Game, AudioClip } from 'cc';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {TimerCommonComponent} from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
@@ -10,6 +10,7 @@ import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneMa
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
+import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -26,6 +27,9 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     @property([Node])
     cards: Node[] = [];
+
+    @property(Button)
+    nextQuestionBtn: Button = null;
 
     private hards: number[] = [1, 2, 3];
 
@@ -76,8 +80,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     // 游戏结算状态
     private _isGameCompleted: boolean = false;
 
+    protected audioUrls = ['music/24_bgm', "music/win","music/fail"];
+
+    private bgmClip: AudioClip;
+
     onLoad(): void {
-        this.loadAudio().then();
+        this.loadAudio().then(()=>{
+            this.playBgmAudio("music/24_bgm", true);
+        });
         
         // 获取题库管理器实例
         this.math24Database = Math24Database.getInstance();
@@ -712,7 +722,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             } else {
                 this.onFail();
             }
-        }, 1000);
+        }, 800);
     }
 
     refreshFunc(){
@@ -749,7 +759,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     onSuccess(){
         this._isGameCompleted = true; // 设置游戏完成状态
         this.mainView.active = false;
-        this.playAudio("success");
+        this.playAudio("music/win");
         
         // 记录成功，可以在这里添加分数统计等逻辑
         DebugLog.instance.log('成功解决题目:', this.currentQuestion);
@@ -789,7 +799,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     onFail(){
         this._isGameCompleted = true; // 设置游戏完成状态
-        this.playAudio("fail");
+        this.playAudio("music/fail");
         
         // 可以在这里显示正确解法
         DebugLog.instance.log('题目解法:', this.currentQuestion?.solutions);
@@ -921,6 +931,87 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         // 重新加载题目
         this.loadNewQuestion();
+    }
+
+    /**
+     * 切换到下一题（增加难度）
+     */
+    // nextQuestion() {
+    //     DebugLog.instance.log('切换到下一题...');
+        
+    //     // 重置训练状态
+    //     this.resetCardStatus();
+    //     this._isGameCompleted = false; // 重置游戏完成状态
+        
+    //     // 增加难度（循环切换）
+    //     this.hardIndex = (this.hardIndex + 1) % 3; // 0->1->2->0 循环
+        
+    //     // 加载新题目
+    //     this.loadNewQuestion();
+        
+    //     // 刷新卡牌显示
+    //     this.forceRefreshCardDisplay();
+        
+    //     DebugLog.instance.log('切换到难度:', this.hardIndex + 1);
+    // }
+
+    /**
+     * 切换到下一题（保持当前难度）
+     */
+    nextQuestionSameDifficulty() {
+        DebugLog.instance.log('切换到下一题（保持当前难度）...');
+        
+        // 重置训练状态
+        this.resetCardStatus();
+        this._isGameCompleted = false; // 重置游戏完成状态
+        
+        // 保持当前难度不变
+        // this.hardIndex 保持不变
+        
+        // 加载新题目
+        this.loadNewQuestion();
+        
+        // 刷新卡牌显示
+        this.forceRefreshCardDisplay();
+        
+        DebugLog.instance.log('保持难度:', this.hardIndex + 1);
+    }
+
+    /**
+     * 显示答案
+     */
+    showAnswer() {
+        DebugLog.instance.log('显示答案...');
+        
+        if (!this.currentQuestion || !this.currentQuestion.solutions || this.currentQuestion.solutions.length === 0) {
+            DebugLog.instance.warn('当前没有题目或没有解法');
+            return;
+        }
+        
+        // 获取第一个解法作为答案
+        const answer = this.currentQuestion.solutions[0];
+        const cardNumbers = this.currentQuestion.numbers.join(', ');
+        
+        // 创建Alert数据
+        const alertData = new AlertData();
+        alertData.title = "题目答案";
+        alertData.message = `题目数字：${cardNumbers}\n\n解法：${answer}`;
+        alertData.cancelButtonVisible = false;
+        alertData.confirmButtonText = "知道了";
+        alertData.confirmCb = () => {
+            DebugLog.instance.log('用户查看了答案');
+        };
+        
+        // 显示Alert
+        AlertManager.getInstance().showAlert(alertData);
+    }
+
+    /**
+     * 下一题按钮点击事件
+     */
+    onClickNextQuestion() {
+        DebugLog.instance.log('点击下一题按钮');
+        this.nextQuestionSameDifficulty();
     }
 
     private _time = null;
