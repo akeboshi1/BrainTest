@@ -722,7 +722,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             } else {
                 this.onFail();
             }
-        }, 800);
+        }, 500);
     }
 
     refreshFunc(){
@@ -758,7 +758,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     onSuccess(){
         this._isGameCompleted = true; // 设置游戏完成状态
-        this.mainView.active = false;
+        this.mainView.active = true;
         this.playAudio("music/win");
         
         // 记录成功，可以在这里添加分数统计等逻辑
@@ -770,28 +770,14 @@ export class Main extends BaseScene<IBaseGameChild> {
             nextHandler: () => {
                 // 增加难度
                 this.hardIndex = (this.hardIndex + 1) % 3; // 0->1->2->0 循环
-                
-                // 重置训练视图
-                this.mainView.active = true;
-                
-                // 加载新题目
+
                 this.loadNewQuestion();
-                
-                // 刷新卡牌显示
-                this.forceRefreshCardDisplay();
-                
+
                 DebugLog.instance.log('切换到难度:', this.hardIndex + 1);
             },
             againHandler: () => {
-                // 重新开始当前难度
-                this.mainView.active = true;
-                
-                // 加载新题目
-                this.loadNewQuestion();
-                
-                // 刷新卡牌显示
-                this.forceRefreshCardDisplay();
-                
+                this.onAgain();
+
                 DebugLog.instance.log('重新开始当前难度:', this.hardIndex + 1);
             }
         });
@@ -814,28 +800,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: false,
             nextHandler: () => {
-                // 重置训练视图
-                this.mainView.active = true;
-                
-                // 加载新题目，保持当前难度不变
                 this.loadNewQuestion();
-                
-                // 刷新卡牌显示
-                this.forceRefreshCardDisplay();
             },
             againHandler: () => {
-                // 重新开始当前难度
-                this.mainView.active = true;
 
-                // 加载新题目，保持当前难度不变
-                this.loadNewQuestion();
-                
-                // 刷新卡牌显示
-                this.forceRefreshCardDisplay();
-                
+                this.onAgain();
                 DebugLog.instance.log('重新开始当前难度:', this.hardIndex + 1);
             }
         });
+    }
+
+    onAgain(): void {
+        DebugLog.instance.log('重新玩当前局...');
+        // 重新玩当前局
+        this.refreshFunc();
     }
 
     onTimerEnd() {
@@ -926,34 +904,10 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 清空当前操作，重新开始
      */
     clearFunc() {
-        // 重置训练状态
-        this.resetCardStatus();
-        
         // 重新加载题目
         this.loadNewQuestion();
     }
 
-    /**
-     * 切换到下一题（增加难度）
-     */
-    // nextQuestion() {
-    //     DebugLog.instance.log('切换到下一题...');
-        
-    //     // 重置训练状态
-    //     this.resetCardStatus();
-    //     this._isGameCompleted = false; // 重置游戏完成状态
-        
-    //     // 增加难度（循环切换）
-    //     this.hardIndex = (this.hardIndex + 1) % 3; // 0->1->2->0 循环
-        
-    //     // 加载新题目
-    //     this.loadNewQuestion();
-        
-    //     // 刷新卡牌显示
-    //     this.forceRefreshCardDisplay();
-        
-    //     DebugLog.instance.log('切换到难度:', this.hardIndex + 1);
-    // }
 
     /**
      * 切换到下一题（保持当前难度）
@@ -970,9 +924,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         // 加载新题目
         this.loadNewQuestion();
-        
-        // 刷新卡牌显示
-        this.forceRefreshCardDisplay();
         
         DebugLog.instance.log('保持难度:', this.hardIndex + 1);
     }
