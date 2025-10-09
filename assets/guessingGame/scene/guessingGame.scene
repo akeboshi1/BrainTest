@@ -1452,7 +1452,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 132.5,
+      "x": 70,
       "y": 0,
       "z": 0
     },
@@ -1491,7 +1491,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 450,
+      "width": 320,
       "height": 84
     },
     "_anchorPoint": {
@@ -1521,8 +1521,8 @@
       "b": 255,
       "a": 255
     },
-    "_string": "重听一遍2",
-    "_horizontalAlign": 0,
+    "_string": "重听",
+    "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 70,
     "_fontSize": 70,
