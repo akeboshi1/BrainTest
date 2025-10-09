@@ -28,6 +28,8 @@ export class Math24CardData{
                 return preValue + this.value;
             case SymbolsType.SUBTRACT:
                 return preValue - this.value;
+
+                
             case SymbolsType.MULTIPLY:
                 return preValue * this.value;
             case SymbolsType.DIVIDE:

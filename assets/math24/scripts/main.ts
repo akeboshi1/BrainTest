@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tween, resources, assetManager, Color } from 'cc';
+import { _decorator, Button, Label, Node, Sprite, SpriteFrame, Texture2D,Vec3,tween, resources, assetManager, Color, game, Game } from 'cc';
 import {BaseScene} from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import {GameType, IBaseGameChild} from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import {TimerCommonComponent} from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
@@ -8,47 +8,24 @@ import {Math24Database} from "db://assets/math24/scripts/Math24Database";
 import {Math24Question} from "db://assets/math24/scripts/Math24Generator";
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
+import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
+import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
 export class Main extends BaseScene<IBaseGameChild> {
 
     @property(Node)
-    viewNode: Node;
-
-    @property(Node)
-    successView: Node;
-
-    @property(Node)
-    failView: Node;
-
-    @property(Node)
-    bigWin: Node;
+    mainView: Node;
 
     @property(TimerCommonComponent)
     timerComponent: TimerCommonComponent = null;
-    // ============== viewNode
+    // ============== mainView
     @property(Label)
     label:Label = null;
 
     @property([Node])
     cards: Node[] = [];
-
-    // ============== successView
-    @property(Node)
-    topTitle1:Node = null;
-
-    @property(Node)
-    topTitle2:Node = null;
-
-    @property(Node)
-    topTxt1:Node = null;
-
-    @property(Node)
-    topTxt2:Node = null;
-
-    @property([Node])
-    lights: Node[] = [];
 
     private hards: number[] = [1, 2, 3];
 
@@ -76,11 +53,13 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     // 当前题目
     private currentQuestion: Math24Question = null;
+
+
     
     // 题库管理器
     private math24Database: Math24Database = null;
 
-    // 重构状态变量，简化游戏逻辑
+    // 重构状态变量，简化训练逻辑
     private selectedCards: number[] = [];  // 存储已选择的卡片索引
     private selectedValues: number[] = []; // 存储已选择的卡片值
     private operators: string[] = [];      // 存储已选择的运算符
@@ -93,21 +72,27 @@ export class Main extends BaseScene<IBaseGameChild> {
     private bracketMode: number = 0;  // 括号模式：0表示无括号，1-n表示不同的括号组合
     private usedCardIndices: Set<number> = new Set(); // 已使用的卡牌索引
     private hasBrackets: boolean = false; // 是否已添加括号
+    
+    // 游戏结算状态
+    private _isGameCompleted: boolean = false;
 
     onLoad(): void {
         this.loadAudio().then();
         
         // 获取题库管理器实例
         this.math24Database = Math24Database.getInstance();
+        
+        // 注册结算面板
+        UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
     }
 
     start() {
         super.start();
-        this.successView.active = false;
-        this.failView.active = false;
-        this.bigWin.active = false;
         // this.dataInit();
         this.sceneInit();
+        
+        // 添加应用前后台切换监听
+        this.addAppStateListener();
     }
 
     dataInit(){
@@ -547,16 +532,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     refreshView(){
-        this.viewNode.active = true;
+        this.mainView.active = true;
 
         this.setLabel("");
         // this.label.string = "";
         if (this.sceneModel.gameType == GameType.SKEWERS) {
-            this.successView.active = false;
-            this.showStartAlert({ parentNode: this.viewNode, start: this.startGameByAlert, context: this });
+            this.showStartAlert({ parentNode: this.mainView, start: this.startGameByAlert, context: this });
         } else {
-            this.successView.active = true;
-            this.updatePopupTitle();
+
         }
     }
 
@@ -646,15 +629,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     startGameByAlert(){
-        this.successView.active = false;
-        this.failView.active = false;
-        // 串烧游戏时间配置
+        // 串烧训练时间配置
         this.startTime(this.time);
     }
 
     startGameCenterGame(){
-        this.successView.active = false;
-        this.failView.active = false;
         this.flipCard();
     }
 
@@ -737,10 +716,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     refreshFunc(){
-        DebugLog.instance.log('刷新游戏状态...');
+        DebugLog.instance.log('刷新训练状态...');
         
-        // 重置游戏状态，但保留当前题目
+        // 重置训练状态，但保留当前题目
         this.resetCardStatus();
+        this._isGameCompleted = false; // 重置游戏完成状态
         
         // 记录已刷新状态，防止重复操作
         DebugLog.instance.log('刷新前状态检查:');
@@ -763,40 +743,52 @@ export class Main extends BaseScene<IBaseGameChild> {
     quitGame(){
         this.pauseTime();
         SceneManager.getInstance().backToHall();
-        //super.quitGame({parentNode:this.viewNode,context:this})
+        //super.quitGame({parentNode:this.mainView,context:this})
     }
 
     onSuccess(){
-        this.viewNode.active = false;
-        this.failView.active = false;
-        this.successView.active = true;
+        this._isGameCompleted = true; // 设置游戏完成状态
+        this.mainView.active = false;
         this.playAudio("success");
         
         // 记录成功，可以在这里添加分数统计等逻辑
         DebugLog.instance.log('成功解决题目:', this.currentQuestion);
         
-        // 延迟一段时间后切换到下一题
-        setTimeout(() => {
-            // 增加难度
-            this.hardIndex = (this.hardIndex + 1) % 3; // 0->1->2->0 循环
-            
-            // 重置游戏视图
-            this.viewNode.active = true;
-            this.successView.active = false;
-            
-            // 加载新题目
-            this.loadNewQuestion();
-            
-            // 刷新卡牌显示
-            this.forceRefreshCardDisplay();
-            
-            DebugLog.instance.log('切换到难度:', this.hardIndex + 1);
-        }, 2000); // 2秒后切换
+        // 使用游戏大厅的结算界面
+        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+            result: true,
+            nextHandler: () => {
+                // 增加难度
+                this.hardIndex = (this.hardIndex + 1) % 3; // 0->1->2->0 循环
+                
+                // 重置训练视图
+                this.mainView.active = true;
+                
+                // 加载新题目
+                this.loadNewQuestion();
+                
+                // 刷新卡牌显示
+                this.forceRefreshCardDisplay();
+                
+                DebugLog.instance.log('切换到难度:', this.hardIndex + 1);
+            },
+            againHandler: () => {
+                // 重新开始当前难度
+                this.mainView.active = true;
+                
+                // 加载新题目
+                this.loadNewQuestion();
+                
+                // 刷新卡牌显示
+                this.forceRefreshCardDisplay();
+                
+                DebugLog.instance.log('重新开始当前难度:', this.hardIndex + 1);
+            }
+        });
     }
 
     onFail(){
-        this.successView.active = false;
-        this.failView.active = true;
+        this._isGameCompleted = true; // 设置游戏完成状态
         this.playAudio("fail");
         
         // 可以在这里显示正确解法
@@ -808,24 +800,32 @@ export class Main extends BaseScene<IBaseGameChild> {
             solutionText = `正确解法: ${this.currentQuestion.solutions[0]}`;
         }
         
-        // 查找失败界面中的解法标签
-        const solutionLabel = this.failView.getChildByName("SolutionLabel")?.getComponent(Label);
-        if (solutionLabel) {
-            solutionLabel.string = solutionText;
-        }
-        
-        // 延迟一段时间后重新开始
-        setTimeout(() => {
-            // 重置游戏视图
-            this.viewNode.active = true;
-            this.failView.active = false;
-            
-            // 加载新题目，保持当前难度不变
-            this.loadNewQuestion();
-            
-            // 刷新卡牌显示
-            this.forceRefreshCardDisplay();
-        }, 3000); // 3秒后重新开始
+        // 使用游戏大厅的结算界面
+        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+            result: false,
+            nextHandler: () => {
+                // 重置训练视图
+                this.mainView.active = true;
+                
+                // 加载新题目，保持当前难度不变
+                this.loadNewQuestion();
+                
+                // 刷新卡牌显示
+                this.forceRefreshCardDisplay();
+            },
+            againHandler: () => {
+                // 重新开始当前难度
+                this.mainView.active = true;
+
+                // 加载新题目，保持当前难度不变
+                this.loadNewQuestion();
+                
+                // 刷新卡牌显示
+                this.forceRefreshCardDisplay();
+                
+                DebugLog.instance.log('重新开始当前难度:', this.hardIndex + 1);
+            }
+        });
     }
 
     onTimerEnd() {
@@ -835,7 +835,6 @@ export class Main extends BaseScene<IBaseGameChild> {
             this._requestSkewersGameComplete();
         } else {
             this._requestGameCenterComplete();
-            this.failView.active = true;
         }
 
     }
@@ -848,12 +847,6 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     }
 
-    private updatePopupTitle() {
-        let titleNode = this.successView.getChildByName("top_Title1");
-        titleNode.active = true;
-        let title = titleNode.getComponent(Label);
-        title.string =this.level + 1 + "";
-    }
 
     /**
      * 加载新题目
@@ -923,7 +916,7 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 清空当前操作，重新开始
      */
     clearFunc() {
-        // 重置游戏状态
+        // 重置训练状态
         this.resetCardStatus();
         
         // 重新加载题目
@@ -1342,5 +1335,70 @@ export class Main extends BaseScene<IBaseGameChild> {
         } else {
             this.currentResult = this.selectedValues.length > 0 ? this.selectedValues[0] : 0;
         }
+    }
+
+    protected onDestroy(): void {
+        // 移除应用状态监听
+        game.off(Game.EVENT_HIDE, this.onAppHide, this);
+        game.off(Game.EVENT_SHOW, this.onAppShow, this);
+        
+        super.onDestroy();
+    }
+
+    /**
+     * 添加应用前后台切换监听
+     */
+    private addAppStateListener() {
+        // 监听应用进入后台
+        game.on(Game.EVENT_HIDE, this.onAppHide, this);
+        // 监听应用回到前台
+        game.on(Game.EVENT_SHOW, this.onAppShow, this);
+    }
+    
+    /**
+     * 应用进入后台时的处理
+     */
+    private onAppHide() {
+        DebugLog.instance.log("应用进入后台，暂停游戏并显示退出弹窗");
+        
+        // 暂停计时器
+        if (this.timerComponent) {
+            this.timerComponent.pauseTimer();
+        }
+        
+        // 暂停游戏状态
+        // this.isAbleClick = false;
+        
+        // 显示退出弹窗
+        this.showPauseAlert();
+    }
+    
+    /**
+     * 应用回到前台时的处理
+     */
+    private onAppShow() {
+        DebugLog.instance.log("应用回到前台，恢复游戏");
+        
+        // 如果游戏在结算阶段，不恢复倒计时
+        if (this._isGameCompleted) {
+            DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
+            return;
+        }
+        
+        // 恢复计时器
+        if (this.timerComponent) {
+            this.timerComponent.resumeTimer();
+        }
+        
+        // 恢复游戏状态
+        // this.isAbleClick = true;
+    }
+
+    /**
+     * 显示暂停弹窗
+     */
+    private showPauseAlert() {
+        // 使用现有的quitGame方法显示退出弹窗
+        // this.quitGame({ parentNode: this.mainView, context: this });
     }
 }

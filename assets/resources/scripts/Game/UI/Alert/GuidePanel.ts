@@ -41,6 +41,9 @@ export class GuidePanel extends BasePanel {
     @property(Node)
     btnNode3:Node = null;
 
+    @property(Node)
+    btnStart:Node = null;
+
     @property(Label)
     descLabel:Label = null;
 
@@ -105,8 +108,18 @@ export class GuidePanel extends BasePanel {
 
             }
             this.descLabel.string = descStr;
-            this.btnNode2.active= this.btnNode3.active = this.gameName != BundleName.GUESSINGGAME;
-            this.selectHard(null,"0");
+            this.btnNode.active = this.btnNode2.active= this.btnNode3.active = this.gameName != BundleName.GUESSINGGAME;
+            this.btnStart.active = this.gameName == BundleName.GUESSINGGAME;
+
+
+            let btnSprite1:Sprite = this.btnNode.getComponent(Sprite);
+            let btnSprite2:Sprite = this.btnNode2.getComponent(Sprite);
+            let btnSprite3:Sprite = this.btnNode3.getComponent(Sprite);
+            btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+            btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+            btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+
+            // this.selectHard(null,"0");
 
             // 应用首页配置
             this.applyIndexPageConfig();
@@ -307,27 +320,28 @@ export class GuidePanel extends BasePanel {
     }
 
     selectHard(event,data){
-        let btnSprite1:Sprite = this.btnNode.getComponent(Sprite);
-        let btnSprite2:Sprite = this.btnNode2.getComponent(Sprite);
-        let btnSprite3:Sprite = this.btnNode3.getComponent(Sprite);
-        switch(data){
-            case "0":
-                btnSprite1.color = OptionButtonColorMap[OptionButtonColor.SELECT];
-                btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                break;
-            case "1":
-                btnSprite2.color = OptionButtonColorMap[OptionButtonColor.SELECT];
-                btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                break;
-            case "2":
-                btnSprite3.color = OptionButtonColorMap[OptionButtonColor.SELECT];
-                btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
-                break;
-        }
+        // let btnSprite1:Sprite = this.btnNode.getComponent(Sprite);
+        // let btnSprite2:Sprite = this.btnNode2.getComponent(Sprite);
+        // let btnSprite3:Sprite = this.btnNode3.getComponent(Sprite);
+        // switch(data){
+        //     case "0":
+        //         btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         break;
+        //     case "1":
+        //         btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         break;
+        //     case "2":
+        //         btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
+        //         break;
+        // }
         GameCenterManager.getInstance().setDifficulty(Number(data)+1);
+        this.startGame();
     }
 
     startGame(){
