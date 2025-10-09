@@ -3325,7 +3325,7 @@
       "__id__": 123
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 143
@@ -3416,7 +3416,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练注意力",
+    "_string": "找茬",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -4441,7 +4441,7 @@
       "__id__": 168
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 188
@@ -4532,7 +4532,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练记忆力",
+    "_string": "翻牌",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -5557,7 +5557,7 @@
       "__id__": 213
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 233
@@ -5648,7 +5648,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练执行力",
+    "_string": "拼图",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -6673,7 +6673,7 @@
       "__id__": 258
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 278
@@ -6764,7 +6764,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练计算力",
+    "_string": "捕鱼",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -7789,7 +7789,7 @@
       "__id__": 303
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 323
@@ -7880,7 +7880,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练理解力",
+    "_string": "猜谜",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -8905,7 +8905,7 @@
       "__id__": 348
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 368
@@ -8996,7 +8996,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练语言力",
+    "_string": "麻将组句",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -10797,7 +10797,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "天平",
+    "_string": "计算力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -11137,7 +11137,7 @@
       "__id__": 438
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 458
@@ -11228,7 +11228,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练计算能力",
+    "_string": "天平",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
@@ -11913,7 +11913,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "24点",
+    "_string": "计算力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -12253,7 +12253,7 @@
       "__id__": 483
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 503
@@ -12344,7 +12344,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "训练计算能力",
+    "_string": "24点",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
