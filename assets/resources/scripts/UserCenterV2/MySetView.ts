@@ -1,4 +1,4 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Label, native, Node, sys } from 'cc';
 import { UIManager } from '../Core/Manager/UI/UIManager';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import { BasePanel } from '../Core/UI/BasePanel';
@@ -8,13 +8,41 @@ import {LoginManager} from "db://assets/resources/scripts/Core/Manager/LoginMana
 import {EventManager} from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
 import {SocketData} from "db://assets/resources/scripts/Core/Manager/Net/SocketData";
 import {SocketManager} from "db://assets/resources/scripts/Core/Manager/Net/SocketManager";
+import { NativeEventManager } from '../Core/Manager/Event/NativeEventManager';
+import { NativeEvent } from '../Core/Manager/Event/NativeEvent';
+import { DebugLog } from '../Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
 
 @ccclass('MySetView')
 export class MySetView extends BasePanel {
     public static NAME = 'MySetView';
-    start() {
 
+    @property(Label)
+    private versionLabel: Label = null;
+
+    start() {
+        
+    }
+
+    onEnable(): void {
+        if(sys.platform === 'ANDROID'){
+            NativeEventManager.getInstance().on(NativeEvent.VERSIONInfo, this.onVersionInfo, this);
+            native.bridge.sendToNative(NativeEvent.VERSION, 'info');
+        }
+    }
+
+    onDisable(): void {
+        if(sys.platform === 'ANDROID'){
+            NativeEventManager.getInstance().off(NativeEvent.VERSIONInfo, this);
+        }
+    }
+    
+    private onVersionInfo(data:any){
+        if(data.error){
+            DebugLog.instance.log('onVersionInfo error', data.error);
+        }else{
+            this.versionLabel.string = data.longVersionCode;
+        }
     }
 
     handleTreatClick(){

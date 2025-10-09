@@ -24,4 +24,6 @@ export enum NativeEvent {
     PAYMENTResult = 'PAYMENTResult',
     LOGIN = 'LOGIN',
     APP = 'APP',
+    VERSION = 'VERSION',
+    VERSIONInfo = 'VERSIONInfo',
 }
