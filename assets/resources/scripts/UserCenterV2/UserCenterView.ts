@@ -405,8 +405,8 @@ export class UserCenterPanel extends AdaptComponent {
                // 调整位置 - 保持图片中心位置不变
                const currentPos = this.titleIcon.position;
                this.titleIcon.setPosition(
-                  currentPos.x + 40 ,
-                  currentPos.y + 260,
+                  currentPos.x + 25 ,
+                  currentPos.y + 140,
                   currentPos.z
                );
                this.titleIcon.getComponent(Sprite).spriteFrame = icon0Sprite;
