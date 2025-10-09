@@ -15,6 +15,7 @@ export class Math24Generator {
     private static readonly MAX_NUMBER = 10;  // 牌面最大数字
     private static readonly MIN_NUMBER = 1;   // 牌面最小数字
     private static readonly TARGET = 24;      // 目标数字
+    private static readonly PRECISION = 0.000001;  // 浮点数比较精度
 
     // 所有可能的运算符
     private static readonly OPERATORS = ['+', '-', '*', '/'];
@@ -170,15 +171,15 @@ export class Math24Generator {
         
         for (const op1 of this.OPERATORS) {
             const result1 = this.calculate(a, b, op1);
-            if (!isFinite(result1)) continue;
+            if (!isFinite(result1) || !Number.isInteger(result1)) continue;
             
             for (const op2 of this.OPERATORS) {
                 const result2 = this.calculate(result1, c, op2);
-                if (!isFinite(result2)) continue;
+                if (!isFinite(result2) || !Number.isInteger(result2)) continue;
                 
                 for (const op3 of this.OPERATORS) {
                     const result3 = this.calculate(result2, d, op3);
-                    if (Math.abs(result3 - this.TARGET) < 1e-6) {
+                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
                         return true;
                     }
                 }
@@ -225,15 +226,15 @@ export class Math24Generator {
         // 优先尝试简单的顺序计算：((a op1 b) op2 c) op3 d
         for (const op1 of this.OPERATORS) {
             const result1 = this.calculate(a, b, op1);
-            if (!isFinite(result1)) continue;
+            if (!isFinite(result1) || !Number.isInteger(result1)) continue;
             
             for (const op2 of this.OPERATORS) {
                 const result2 = this.calculate(result1, c, op2);
-                if (!isFinite(result2)) continue;
+                if (!isFinite(result2) || !Number.isInteger(result2)) continue;
                 
                 for (const op3 of this.OPERATORS) {
                     const result3 = this.calculate(result2, d, op3);
-                    if (Math.abs(result3 - this.TARGET) < 1e-6) {
+                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`((${a}${op1}${b})${op2}${c})${op3}${d}`);
                     }
                 }
@@ -248,15 +249,15 @@ export class Math24Generator {
         // (a op1 b) op2 (c op3 d)
         for (const op1 of this.OPERATORS) {
             const result1 = this.calculate(a, b, op1);
-            if (!isFinite(result1)) continue;
+            if (!isFinite(result1) || !Number.isInteger(result1)) continue;
             
             for (const op3 of this.OPERATORS) {
                 const result2 = this.calculate(c, d, op3);
-                if (!isFinite(result2)) continue;
+                if (!isFinite(result2) || !Number.isInteger(result2)) continue;
                 
                 for (const op2 of this.OPERATORS) {
                     const result3 = this.calculate(result1, result2, op2);
-                    if (Math.abs(result3 - this.TARGET) < 1e-6) {
+                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`(${a}${op1}${b})${op2}(${c}${op3}${d})`);
                     }
                 }
@@ -266,15 +267,15 @@ export class Math24Generator {
         // (a op1 (b op2 c)) op3 d
         for (const op2 of this.OPERATORS) {
             const result1 = this.calculate(b, c, op2);
-            if (!isFinite(result1)) continue;
+            if (!isFinite(result1) || !Number.isInteger(result1)) continue;
             
             for (const op1 of this.OPERATORS) {
                 const result2 = this.calculate(a, result1, op1);
-                if (!isFinite(result2)) continue;
+                if (!isFinite(result2) || !Number.isInteger(result2)) continue;
                 
                 for (const op3 of this.OPERATORS) {
                     const result3 = this.calculate(result2, d, op3);
-                    if (Math.abs(result3 - this.TARGET) < 1e-6) {
+                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`(${a}${op1}(${b}${op2}${c}))${op3}${d}`);
                     }
                 }
@@ -284,15 +285,15 @@ export class Math24Generator {
         // a op1 ((b op2 c) op3 d)
         for (const op2 of this.OPERATORS) {
             const result1 = this.calculate(b, c, op2);
-            if (!isFinite(result1)) continue;
+            if (!isFinite(result1) || !Number.isInteger(result1)) continue;
             
             for (const op3 of this.OPERATORS) {
                 const result2 = this.calculate(result1, d, op3);
-                if (!isFinite(result2)) continue;
+                if (!isFinite(result2) || !Number.isInteger(result2)) continue;
                 
                 for (const op1 of this.OPERATORS) {
                     const result3 = this.calculate(a, result2, op1);
-                    if (Math.abs(result3 - this.TARGET) < 1e-6) {
+                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`${a}${op1}((${b}${op2}${c})${op3}${d})`);
                     }
                 }
@@ -302,15 +303,15 @@ export class Math24Generator {
         // a op1 (b op2 (c op3 d))
         for (const op3 of this.OPERATORS) {
             const result1 = this.calculate(c, d, op3);
-            if (!isFinite(result1)) continue;
+            if (!isFinite(result1) || !Number.isInteger(result1)) continue;
             
             for (const op2 of this.OPERATORS) {
                 const result2 = this.calculate(b, result1, op2);
-                if (!isFinite(result2)) continue;
+                if (!isFinite(result2) || !Number.isInteger(result2)) continue;
                 
                 for (const op1 of this.OPERATORS) {
                     const result3 = this.calculate(a, result2, op1);
-                    if (Math.abs(result3 - this.TARGET) < 1e-6) {
+                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`${a}${op1}(${b}${op2}(${c}${op3}${d}))`);
                     }
                 }
@@ -330,7 +331,11 @@ export class Math24Generator {
             case '+': return a + b;
             case '-': return a - b;
             case '*': return a * b;
-            case '/': return b !== 0 ? a / b : Infinity;
+            case '/': 
+                if (b === 0) return Infinity;
+                const result = a / b;
+                // 检查是否为整数，如果不是整数则返回NaN（表示无效计算）
+                return Number.isInteger(result) ? result : NaN;
             default: return NaN;
         }
     }
