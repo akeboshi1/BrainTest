@@ -106,6 +106,7 @@ export class LoginPanel extends BasePanel {
         this.textChange();
         this.numNodes = [this.num0, this.num1, this.num2, this.num3];
         this.initToggle();
+        this.yanzhengView.active = false;
     }
 
 
