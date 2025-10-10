@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, Component, instantiate, Label, Node, Prefab, resources } from 'cc';
+import { _decorator, Button, Color, Component, instantiate, Label, Node, Prefab, resources, tween, Vec3, UIOpacity } from 'cc';
 import { BasePanel } from '../../../Core/UI/BasePanel';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
 import { LoginManager } from '../../../Core/Manager/LoginManager/LoginManager';
@@ -142,6 +142,41 @@ export class SwitchLoginPanel extends BasePanel {
                     resolve(prefab);
                 }
             });
+        });
+    }
+
+    async showPanel(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            // 设置面板位置到原点
+            this.node.setPosition(Vec3.ZERO);
+            
+            // 获取或添加UIOpacity组件
+            let uiOpacity = this.node.getComponent(UIOpacity);
+            if (!uiOpacity) {
+                uiOpacity = this.node.addComponent(UIOpacity);
+            }
+            
+            // 设置初始透明度为0
+            uiOpacity.opacity = 0;
+            
+            // 执行淡入动画，持续0.2秒
+            tween(uiOpacity)
+                .to(0.1, { opacity: 255 })
+                .call(() => {
+                    resolve();
+                })
+                .start();
+        });
+    }
+
+    async hidePanel(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            tween(this.node.getComponent(UIOpacity))
+                .to(0.1, { opacity: 0 })
+                .call(() => {
+                    resolve();
+                })
+                .start();
         });
     }
 }
