@@ -763,11 +763,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         const integerTime = Math.floor(initialTime);
         if (integerTime > 0) {
             this.countDownLabel.node.active = true;
-            this.countDownLabel.string = `${integerTime}.0s`;
+            this.countDownLabel.string = `${integerTime}`;
             this.countDownLabel.node.setScale(1, 1, 1);
 
             const updateDisplay = (time) => {
-                self.countDownLabel.string = `${Math.floor(time)}.0s`;
+                self.countDownLabel.string = `${Math.floor(time)}`;
                 tween(self.countDownLabel.node)
                     .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
                     .to(0.25, { scale: new Vec3(1, 1, 1) })
@@ -786,7 +786,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     clearInterval(this.intervalId);
                     // 时间到0时显示"开始"并播放放大动画
                     this.countDownLabel.string = "开始";
-                    this.countDownLabel.node.setScale(1, 1, 1);
+                    this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
                     // 播放放大动画
                     tween(this.countDownLabel.node)
@@ -814,7 +814,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 确保显示"开始"并播放放大动画
                 this.countDownLabel.string = "开始";
                 this.countDownLabel.node.active = true;
-                this.countDownLabel.node.setScale(1, 1, 1);
+                this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
                 // 播放放大动画
                 tween(this.countDownLabel.node)
@@ -833,7 +833,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 如果整数部分为0，直接显示"开始"
             this.countDownLabel.node.active = true;
             this.countDownLabel.string = "开始";
-            this.countDownLabel.node.setScale(1, 1, 1);
+            this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
             // 播放放大动画
             tween(this.countDownLabel.node)

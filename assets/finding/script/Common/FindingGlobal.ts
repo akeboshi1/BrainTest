@@ -10,6 +10,8 @@ export default class FindingGlobal {
     public static skewersGameLevel:number = 0;
     public static gameCenterGameLevel:number = 0;
 
+    public static isCallbackCompleted: boolean = false; // 是否完成回调
+
     public static reset(){
         FindingGlobal.curSkewersGameIndex = 0;
         FindingGlobal.gameCenterGameLevel = 0;
@@ -25,6 +27,7 @@ export default class FindingGlobal {
             // 更新本地进度变量
             CacheMgr.checkpoint = data.level;
             FindingGlobal.gameCenterGameLevel = data.level;
+            FindingGlobal.isCallbackCompleted = true;
             console.log("训练大厅进度已更新:", data.level);
         }, FindingGlobal);
     }

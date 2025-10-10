@@ -1,6 +1,8 @@
-import {Node,Label,_decorator,v3,Vec3,tween, UI, Button} from 'cc';
+import {Node,Label,_decorator,v3,Vec3,tween, UI, Button, AudioClip, resources} from 'cc';
 import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
 import { UIManager } from '../Manager/UI/UIManager';
+import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('SettlementPanel')
@@ -49,6 +51,9 @@ export class SettlementPanel extends BasePanel{
 
     public nextHandler: Function = null;
 
+    private audioUrls = ["music/rest"];
+    private audioMap: Map<string, AudioClip> = new Map();
+
     // public title: string = ""; // 添加自定义标题支持
 
     /**
@@ -61,6 +66,40 @@ export class SettlementPanel extends BasePanel{
 
     constructor(){
         super();
+    }
+
+    onEnable(){
+        this.loadAudio();
+    }
+
+    private async loadAudio() {
+        // 创建一个数组，存放每个异步加载的 Promise
+        const loadPromises = this.audioUrls.map(audioUrl => {
+            return new Promise((resolve, reject) => {
+                let self = this;
+                // 检查audioMap中是否已经加载过此音效
+                if (self.audioMap.has(audioUrl)) {
+                    // 如果已加载，直接返回缓存的音效资源
+                    resolve(self.audioMap.get(audioUrl));
+                    return;
+                }
+                resources.load(audioUrl, AudioClip,(err, audioRes) => {
+                    if(err){
+                        DebugLog.instance.error(err);
+                        reject(err);
+                        return;
+                    }
+                    self.audioMap.set(audioUrl, audioRes);
+                    resolve(audioRes);
+                });
+            });
+        });
+        try {
+            const assets = await Promise.all(loadPromises);
+            DebugLog.instance.log('All gamealert audio loaded:', assets);
+        } catch (error) {
+            DebugLog.instance.error('Error loading gamealert audio:', error);
+        }
     }
 
     restore(data){
@@ -100,6 +139,7 @@ export class SettlementPanel extends BasePanel{
             if (this.btn2Label) {
                 this.btn2Label.string = "退出训练";
             }
+            AudioManager.getInstance().playRest();
         } else if (this.result) {
             // 成功模式
             // this.bg0.active = false;
@@ -138,6 +178,8 @@ export class SettlementPanel extends BasePanel{
             if (this.btn2Label) {
                 this.btn2Label.string = "下一关";
             }
+
+            AudioManager.getInstance().playRest();
         }
     }
 
