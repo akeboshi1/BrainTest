@@ -157,7 +157,7 @@ export class SwitchLoginPanel extends BasePanel {
             }
             
             // 设置初始透明度为0
-            uiOpacity.opacity = 0;
+            uiOpacity.opacity = 10;
             
             // 执行淡入动画，持续0.2秒
             tween(uiOpacity)
@@ -172,7 +172,7 @@ export class SwitchLoginPanel extends BasePanel {
     async hidePanel(): Promise<void> {
         return new Promise<void>((resolve) => {
             tween(this.node.getComponent(UIOpacity))
-                .to(0.1, { opacity: 0 })
+                .to(0.1, { opacity: 10 })
                 .call(() => {
                     resolve();
                 })
