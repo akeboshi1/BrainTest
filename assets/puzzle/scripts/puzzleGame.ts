@@ -156,10 +156,10 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.smallLoadNode.active = true;
         
         // 清除之前的超时定时器
-        if (this.loadingTimeoutId) {
-            clearTimeout(this.loadingTimeoutId);
-            this.loadingTimeoutId = null;
-        }
+        // if (this.loadingTimeoutId) {
+        //     clearTimeout(this.loadingTimeoutId);
+        //     this.loadingTimeoutId = null;
+        // }
 
         const bundle = assetManager.getBundle(this.bundleName);
         return new Promise<Texture2D>((resolve, reject) => {
@@ -167,9 +167,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.loadTextureRejector = reject;
 
             // 设置超时检测
-            this.loadingTimeoutId = setTimeout(() => {
-                this.handleLoadingTimeout();
-            }, this.LOADING_TIMEOUT);
+            // this.loadingTimeoutId = setTimeout(() => {
+            //     this.handleLoadingTimeout();
+            // }, this.LOADING_TIMEOUT);
 
             bundle.load("texture/pintu" + (id).toString() + "/texture", Texture2D, (err, data) => {
                 // 清除超时定时器

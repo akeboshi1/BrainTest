@@ -10034,6 +10034,22 @@
       {
         "__uuid__": "dd4a0768-dfb1-4f6c-948d-2976050fa232@f9941",
         "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "0179dad5-5f8d-4bd2-988d-e4950f11dcdd@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "e8635700-6578-4d69-91fe-3090afd14b60@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "64082312-b865-49e2-bc7f-e48857baabe8@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "74c9da1c-8df1-41cd-b6a0-9efcd1ad340f@f9941",
+        "__expectedType__": "cc.SpriteFrame"
       }
     ],
     "answerNodes": [

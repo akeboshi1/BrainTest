@@ -170,7 +170,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // ====================== 继承basescene ===================
     onLoad() {
-        this.audioUrls = ["music/fishBG", "music/fishCatch", "music/win"];
+        this.audioUrls = ["music/fishBG", "music/fishCatch", "music/win","music/success"];
         this.bundleName = BundleName.CATCHFISH;
         let self = this;
         this.loadAudio().then(() => {
@@ -1406,6 +1406,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
         // 设置特效播放标志
         this._isEffectPlaying = true;
+
+        this.playAudio("music/success", true);
 
         // 启动动画 - 网飞向鱼的视觉中心
         this._wangTween = tween(wang).parallel(

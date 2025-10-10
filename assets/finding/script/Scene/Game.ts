@@ -124,11 +124,6 @@ export class Game extends BaseScene<IBaseGameChild> {
      */
     private _isSettling: boolean = false;
 
-    /**
-     * 游戏完成回调是否已执行
-     * @private
-     */
-    private _isCallbackCompleted: boolean = false;
 
     /**
      * 倒计时是否已开始
@@ -587,7 +582,7 @@ export class Game extends BaseScene<IBaseGameChild> {
         this.pause = false;
         this.canAddTime = true;
         this._isSettling = false;
-        this._isCallbackCompleted = false; // 重置回调完成标志
+        FindingGlobal.isCallbackCompleted  = false; // 重置回调完成标志
         this._isCountdownStarted = false; // 重置倒计时开始标志
         this.resultList = [];
         this.tempList = [];
@@ -633,31 +628,52 @@ export class Game extends BaseScene<IBaseGameChild> {
     }
 
     onSuccessNextLevel(): void {
+        // 如果游戏正在结算中，不允许进入下一关
+        if (this._isSettling) {
+            DebugLog.instance.log("游戏正在结算中，不允许进入下一关");
+            return;
+        }
+        
         // 如果游戏完成回调未执行，不允许进入下一关
-        if (this._isCallbackCompleted) {
+        if (!FindingGlobal.isCallbackCompleted) {
             DebugLog.instance.log("游戏完成回调未执行，不允许进入下一关");
             return;
         }
+        
         CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
         this.refreshGame();
     }
 
     onFailNextLevel(): void {
+        // 如果游戏正在结算中，不允许进入下一关
+        if (this._isSettling) {
+            DebugLog.instance.log("游戏正在结算中，不允许进入下一关");
+            return;
+        }
+        
         // 如果游戏完成回调未执行，不允许进入下一关
-        if (this._isCallbackCompleted) {
+        if (!FindingGlobal.isCallbackCompleted) {
             DebugLog.instance.log("游戏完成回调未执行，不允许进入下一关");
             return;
         }
+        
         CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
         this.refreshGame();
     }
 
     onAgain(): void {
+        // 如果游戏正在结算中，不允许重玩
+        if (this._isSettling) {
+            DebugLog.instance.log("游戏正在结算中，不允许重玩");
+            return;
+        }
+        
         // 如果游戏完成回调未执行，不允许重玩
-        if (this._isCallbackCompleted) {
+        if (!FindingGlobal.isCallbackCompleted) {
             DebugLog.instance.log("游戏完成回调未执行，不允许重玩");
             return;
         }
+        
         this.refreshGame();
     }
 
@@ -801,9 +817,6 @@ export class Game extends BaseScene<IBaseGameChild> {
 
 
     requestGameCompleteCallBack() {
-        // 设置回调完成标志，允许用户操作
-        this._isCallbackCompleted = true;
-
         // 串烧训练结算完成后恢复关闭按钮交互
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.updateSkewersGameList();

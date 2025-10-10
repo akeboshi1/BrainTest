@@ -26,7 +26,7 @@ export class AudioManager extends BaseManager {
     // 创建一个事件目标对象，用于触发和监听自定义事件
     private eventTarget: EventTarget = new EventTarget();
 
-    private audioUrls=["music/win","music/fail","music/cheer",'music/tick'];
+    private audioUrls=["music/win","music/fail",'music/tick',"music/fire","music/rest","music/cheer"];
     private audioMap:Map<string,AudioClip> = new Map();
     
     // 保存绑定后的函数引用
@@ -112,6 +112,10 @@ export class AudioManager extends BaseManager {
 
     public playCheer(){
         this.playShortSound("music/cheer");
+    }
+
+    public playRest(){
+        this.playShortSound("music/rest");
     }
 
     public get shortAudioSource() {
