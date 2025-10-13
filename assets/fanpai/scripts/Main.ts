@@ -487,10 +487,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     playNextCustoms() {
         // 如果游戏在结算阶段，只关闭弹窗，不执行继续游戏操作
-        if (this.customsSendDataState) {
-            DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
-            return;
-        }
+        // if (this.customsSendDataState) {
+        //     DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
+        //     return;
+        // }
 
         this.isAbleClick = true;
         this.isCardFlipping = false;
