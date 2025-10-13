@@ -391,7 +391,6 @@ export class Game extends BaseScene<IBaseGameChild> {
         }
 
         this.pause = true;
-        FindingGlobal.reset();
         this.quitGame({
             parentNode: this.viewNode,
             context: this
@@ -663,16 +662,16 @@ export class Game extends BaseScene<IBaseGameChild> {
 
     onAgain(): void {
         // 如果游戏正在结算中，不允许重玩
-        if (this._isSettling) {
-            DebugLog.instance.log("游戏正在结算中，不允许重玩");
-            return;
-        }
+        // if (this._isSettling) {
+        //     DebugLog.instance.log("游戏正在结算中，不允许重玩");
+        //     return;
+        // }
         
         // 如果游戏完成回调未执行，不允许重玩
-        if (!FindingGlobal.isCallbackCompleted) {
-            DebugLog.instance.log("游戏完成回调未执行，不允许重玩");
-            return;
-        }
+        // if (!FindingGlobal.isCallbackCompleted) {
+        //     DebugLog.instance.log("游戏完成回调未执行，不允许重玩");
+        //     return;
+        // }
         
         this.refreshGame();
     }
@@ -849,26 +848,26 @@ export class Game extends BaseScene<IBaseGameChild> {
         super.goonHandler(context);
     }
 
-    dzgoonHandler(resuleBoo: boolean = true) {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    dzgoonHandler(context,resuleBoo: boolean = true) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
-                let self = this;
+                let self = context;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Judgment;
                 if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
-                    }, this, true);
-                    this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                    }, self, true);
+                    self.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(self.complete, self.duration);
                 } else {
                     // 串烧训练类型不匹配时，恢复关闭按钮交互
-                    this.setQuitButtonInteractable(true);
-                    this._isSettling = false;
-                    (this.sceneModel as any).goonHandler(self, true);
+                    self.setQuitButtonInteractable(true);
+                    self._isSettling = false;
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
@@ -979,10 +978,10 @@ export class Game extends BaseScene<IBaseGameChild> {
         }
     }
 
-    public onClickShowAnswer() {
-        super.onClickShowAnswer();
-        this.goonBtn.active = true;
-        this.showAllPoint();
+    public onClickShowAnswer(context) {
+        super.onClickShowAnswer(context);
+        context.goonBtn.active = true;
+        context.showAllPoint();
     }
 
 

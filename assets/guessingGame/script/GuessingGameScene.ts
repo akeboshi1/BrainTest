@@ -588,45 +588,45 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this.onClickContinueGame();
     }
 
-    goonHandler() {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    goonHandler(context) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 if (SkewersManager.getInstance().isRunOver()) {
-                    this.analysisNode.active = false;
-                    this.showNextSuccessHandler();
+                    context.analysisNode.active = false;
+                    context.showNextSuccessHandler();
                 } else {
                     if (SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null) {
-                        (this.sceneModel as any).goonHandler(this, true);
-                        this.clearGameView();
+                        (context.sceneModel as any).goonHandler(context, true);
+                        context.clearGameView();
                     } else {
-                        (this.sceneModel as any).goonHandler(this, false);
-                        if (!this.guessingGameModel.isRunOver) this.onClickContinueGame();
+                        (context.sceneModel as any).goonHandler(context, false);
+                        if (!context.guessingGameModel.isRunOver) context.onClickContinueGame();
                     }
                 }
             } else {
-                this.sceneModel.goonHandler();
+                context.sceneModel.goonHandler();
             }
         }
     }
 
-    dzgoonHandler(resuleBoo: boolean = true) {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    dzgoonHandler(context,resuleBoo: boolean = true) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
-                let self = this;
+                let self = context;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Comprehension;
                 if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
-                    }, this, true);
-                    this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                    }, context, true);
+                    self.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(context.complete, context.duration);
                 } else {
-                    (this.sceneModel as any).goonHandler(self, true);
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
@@ -872,32 +872,32 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         this._replay = false;
     }
 
-    public onClickShowAnswer() {
-        super.onClickShowAnswer();
+    public onClickShowAnswer(context) {
+        super.onClickShowAnswer(context);
         
         // 设置结算阶段
-        this.setCurrentPhase('result');
+        context.setCurrentPhase('result');
         
         // 显示questionlabel
-        if (this.questionLabel) {
-            this.questionLabel.node.active = true;
+        if (context.questionLabel) {
+            context.questionLabel.node.active = true;
         }
         
-        this.analysisNode.active = true;
-        this.analysisLabel.string = this.currentQuestion.analysis;
-        this.setCorrectOptionColor();
-        if (this.currentQuestion) {
-            for (var i = 0; i < this.options.length; i++) {
-                let op: string = this.options[i];
-                let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
+        context.analysisNode.active = true;
+        context.analysisLabel.string = context.currentQuestion.analysis;
+        context.setCorrectOptionColor();
+        if (context.currentQuestion) {
+            for (var i = 0; i < context.options.length; i++) {
+                let op: string = context.options[i];
+                let opnode: Node = context.optionsNode.getChildByName("choosen_" + op);
                 if (opnode) {
-                    opnode.getChildByName("Label").getComponent(Label).string = this.currentQuestion.options[op];
+                    opnode.getChildByName("Label").getComponent(Label).string = context.currentQuestion.options[op];
                 }
             }
         }
-        for (let i = 0; i < this.options.length; i++) {
-            let op: string = this.options[i];
-            let opnode: Node = this.optionsNode.getChildByName("choosen_" + op);
+        for (let i = 0; i < context.options.length; i++) {
+            let op: string = context.options[i];
+            let opnode: Node = context.optionsNode.getChildByName("choosen_" + op);
             if (opnode) {
                 opnode.getComponent(Button).interactable = false;
             }

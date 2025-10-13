@@ -146,10 +146,11 @@ export class BrainTrain extends BasePanel {
             this.backToCenteter();
             return;
         }
-        let curTask = TaskManager.getInstance().getTaskByID(TaskManager.getInstance().getCurTaskId);
-        let isRevise = curTask && curTask.type == TaskType.Revise;
-        let nextGameStr = isRevise?SkewersManager.getInstance().nextSkewersGameDZStr:SkewersManager.getInstance().nextSkewersGameStr;
-        SkewersManager.getInstance().showGameAlert(this.node, AlertType.Next, nextGameStr, '', 0, 0, this._alertNext, null, this);
+        this._alertNext();
+        // let curTask = TaskManager.getInstance().getTaskByID(TaskManager.getInstance().getCurTaskId);
+        // let isRevise = curTask && curTask.type == TaskType.Revise;
+        // let nextGameStr = isRevise?SkewersManager.getInstance().nextSkewersGameDZStr:SkewersManager.getInstance().nextSkewersGameStr;
+        // SkewersManager.getInstance().showGameAlert(this.node, AlertType.Next, nextGameStr, '', 0, 0, this._alertNext, null, this);
     }
     private _alertNext() {
         TaskManager.getInstance().requestStartTask(this.curTaskId);

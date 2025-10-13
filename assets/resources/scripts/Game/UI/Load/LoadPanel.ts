@@ -76,9 +76,9 @@ export class LoadPanel extends BasePanel {
       }
 
       onEnable(): void {
-            EventManager.getInstance().on(BundlePreloadEvent.PROGRESS, this.processBundleProcess.bind(this), this);
-            EventManager.getInstance().on(BundlePreloadEvent.SCENE_LOADED, this.onSceneLoaded.bind(this), this);
-            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onBundleLoadFinish.bind(this), this);
+            EventManager.getInstance().on(BundlePreloadEvent.PROGRESS, this.processBundleProcess.bind(this), this,true);
+            EventManager.getInstance().on(BundlePreloadEvent.SCENE_LOADED, this.onSceneLoaded.bind(this), this,true);
+            EventManager.getInstance().on(BundlePreloadEvent.FINISH, this.onBundleLoadFinish.bind(this), this,true);
             this.startRotate();
       }
 
@@ -255,7 +255,7 @@ export class LoadPanel extends BasePanel {
                 .start();
       }
 
-      async showPanel(): Promise<void> {
+      async showPanel(skipTween: boolean = false): Promise<void> {
             this.startRotate();
       }
 

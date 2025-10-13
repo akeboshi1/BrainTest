@@ -487,10 +487,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     playNextCustoms() {
         // 如果游戏在结算阶段，只关闭弹窗，不执行继续游戏操作
-        if (this.customsSendDataState) {
-            DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
-            return;
-        }
+        // if (this.customsSendDataState) {
+        //     DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
+        //     return;
+        // }
 
         this.isAbleClick = true;
         this.isCardFlipping = false;
@@ -929,23 +929,23 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    dzgoonHandler(resuleBoo: boolean = true) {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    dzgoonHandler(context,resuleBoo: boolean = true) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
-                let self = this;
+                let self = context;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Memory;
                 if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
-                    }, this, true);
-                    this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                    }, self, true);
+                    self.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(self.complete, self.duration);
                 } else {
-                    (this.sceneModel as any).goonHandler(self, true);
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
@@ -1032,11 +1032,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         });
     }
 
-    public onClickShowAnswer() {
-        this.isAbleClick = false;
-        this.goonBtn.active = true;
-        super.onClickShowAnswer();
-        this.showAllCard();
+    public onClickShowAnswer(context) {
+        context.isAbleClick = false;
+        context.goonBtn.active = true;
+        super.onClickShowAnswer(context);
+        context.showAllCard();
 
     }
     public onclickContinue() {

@@ -14,20 +14,20 @@ interface CallBackFunction {
 }
 
 export enum AlertType {
-    Normal,
-    Normal1,
-    Sucess_Normal,
-    Sucess_Small,
-    Sucess_Big,
+    Normal, // 串烧某一维度的某一小关完成弹窗
+    Normal1, // 串烧游戏暂停弹窗
+    Sucess_Normal, // 串烧胜利首个弹窗，显示某个维度完成
+    Sucess_Small, // 串烧胜利中间弹窗，显示下一维度
+    Sucess_Big, // 串烧任务全部完成弹窗
     Failed,
     Game_Center,
-    Init,
-    Next,
-    Revise,
-    Revise_Success,
-    Revise_Fail,
-    Revise_Complete,
-    Answer
+    Init, // 串烧游戏初始弹窗
+    Next, 
+    Revise, // 串烧游戏订正弹窗
+    Revise_Success, // 串烧订正成功结算弹窗
+    Revise_Fail, // 串烧订正失败结算弹窗
+    Revise_Complete, // 串烧订正全部完成弹窗
+    Answer // 订正显示答案弹窗
 
 
 }
@@ -52,6 +52,9 @@ export class GameAlert extends AdaptComponent {
 
     @property(Button)
     startBtn: Button = null;
+
+    @property(Label)
+    startLabel:Label = null;
 
     @property(Button)
     guideBtn: Button = null;
@@ -79,7 +82,7 @@ export class GameAlert extends AdaptComponent {
 
     public exitCallBack: Function = null;
 
-    private audioUrls = ["music/cheer"];
+    private audioUrls = ["music/cheer","music/rest"];
     private audioMap: Map<string, AudioClip> = new Map();
 
     /**
@@ -98,6 +101,24 @@ export class GameAlert extends AdaptComponent {
      * @private
      */
     private _isButtonDisabled: boolean = false;
+
+    /**
+     * 倒计时定时器
+     * @private
+     */
+    private _countdownTimer: any = null;
+
+    /**
+     * 倒计时剩余时间
+     * @private
+     */
+    private _countdownTime: number = 0;
+    
+
+    /**
+     * 倒计时默认3秒
+     */
+    private _countdownDelay:number = 3;
 
     private async loadAudio() {
         // 创建一个数组，存放每个异步加载的 Promise
@@ -147,15 +168,19 @@ export class GameAlert extends AdaptComponent {
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
                 startBtnUITransform.width = 300;
+                AudioManager.getInstance().playRest();
                 break;
             case AlertType.Sucess_Normal:
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
                 this.guideBtn.node.active = false;
-                this.progressBar.node.active = true;
+                this.progressBar.node.active = false;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
-                this.decLabel.node.active = false;
+                this.decLabel.node.active = true;
+
+                // 启动3秒倒计时
+                this.startCountdown(this._countdownDelay);
                 startBtnUITransform.width = 900;
                 break;
             case AlertType.Normal:
@@ -167,6 +192,8 @@ export class GameAlert extends AdaptComponent {
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
                 startBtnUITransform.width = 900;
+                // 启动3秒倒计时
+                this.startCountdown(this._countdownDelay);
                 break;
             case AlertType.Next:
                 this.titleLabel.node.active = true;
@@ -470,6 +497,9 @@ export class GameAlert extends AdaptComponent {
         // 禁用按钮
         this.disableButtons();
         
+        // 清除倒计时定时器
+        this.clearCountdownTimer();
+        
         //DebugLog.instance.error("goonCallBack",this.context)
         AudioManager.getInstance().resumeLongSound();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
@@ -478,6 +508,68 @@ export class GameAlert extends AdaptComponent {
             this.goonCallBack(this.context);
         }else{
             DebugLog.instance.error("goonCallBack is null",this.context)
+        }
+    }
+
+    /**
+     * 开始倒计时
+     * @param duration 倒计时时长（秒）
+     */
+    private startCountdown(duration: number = 3) {
+        this.clearCountdownTimer();
+        this._countdownTime = duration;
+        
+        // 更新按钮文本显示倒计时
+        this.updateCountdownDisplay();
+        
+        this._countdownTimer = setInterval(() => {
+            this._countdownTime--;
+            this.updateCountdownDisplay();
+            
+            if (this._countdownTime < 0) {
+                this.clearCountdownTimer();
+                // 倒计时结束，自动调用goHandler
+                this.goHandler();
+            }
+        }, 1000);
+    }
+
+    /**
+     * 清除倒计时定时器
+     */
+    private clearCountdownTimer() {
+        if (this._countdownTimer) {
+            clearInterval(this._countdownTimer);
+            this._countdownTimer = null;
+        }
+    }
+
+    /**
+     * 更新倒计时显示
+     */
+    private updateCountdownDisplay() {
+        // 根据AlertType确定显示文本
+        let displayText = "";
+        if (this._type === AlertType.Sucess_Normal) {
+            displayText = `下一维度 (${this._countdownTime})`;
+        } else if (this._type === AlertType.Normal) {
+            displayText = `下一关 (${this._countdownTime})`;
+        } else {
+            displayText = `继续 (${this._countdownTime})`;
+        }
+
+        // 优先使用startLabel属性
+        if (this.startLabel) {
+            this.startLabel.string = displayText;
+        } else if (this.startBtn && this.startBtn.node) {
+            // 备用方案：通过子节点获取Label
+            const label = this.startBtn.node.getChildByName("Label");
+            if (label) {
+                const labelComponent = label.getComponent(Label);
+                if (labelComponent) {
+                    labelComponent.string = displayText;
+                }
+            }
         }
     }
 
@@ -675,6 +767,13 @@ export class GameAlert extends AdaptComponent {
         }
         
         DebugLog.instance.log("GameAlert: 按钮已启用");
+    }
+
+    /**
+     * 组件销毁时清理资源
+     */
+    onDestroy() {
+        this.clearCountdownTimer();
     }
 
 }
