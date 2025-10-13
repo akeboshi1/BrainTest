@@ -565,43 +565,43 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.playBgmAudio("music/puzzleBG", true);
     }
 
-    goonHandler() {
+    goonHandler(context) {
         // 如果游戏在结算阶段且动画还在进行中，只关闭弹窗，不执行继续游戏操作
-        if (this._isGameCompleted && this.showSpriteNode.active) {
+        if (context._isGameCompleted && context.showSpriteNode.active) {
             DebugLog.instance.log("游戏在结算阶段且动画进行中，只关闭弹窗");
             return;
         }
         
-        this.enableDragAndResetGame();
+        context.enableDragAndResetGame();
 
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            (this.sceneModel as any).goonHandler(this);
+        if (context.sceneModel.gameType == GameType.SKEWERS) {
+            (context.sceneModel as any).goonHandler(context);
             return;
         }
 
-        this.onClickChangeLevel().then(() => {
-            this.startGameMask.active = true;
-            this.timerComponent.resetTimer();
+        context.onClickChangeLevel().then(() => {
+            context.startGameMask.active = true;
+            context.timerComponent.resetTimer();
         });
     }
 
-    dzgoonHandler(resuleBoo: boolean = true) {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    dzgoonHandler(context,resuleBoo: boolean = true) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
-                let self = this;
+                let self = context;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Executionability;
                 if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
-                    }, this, true);
-                    this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                    }, self, true);
+                    self.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(self.complete, self.duration);
                 } else {
-                    (this.sceneModel as any).goonHandler(self, true);
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
@@ -873,22 +873,22 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onTimerEnd();
     }
 
-    public onClickShowAnswer() {
-        super.onClickShowAnswer();
-        this.showResultContinueButton.active = true;
-        this.touchMask.active = true;
+    public onClickShowAnswer(context) {
+        super.onClickShowAnswer(context);
+        context.showResultContinueButton.active = true;
+        context.touchMask.active = true;
         // 遍历所有拼图块
-        for (let [key, value] of this.chipsDataMap.entries()) {
+        for (let [key, value] of context.chipsDataMap.entries()) {
             const currentPos = value["puzzlePos"];
             const correctPos = key;
 
             // 如果当前位置不是正确位置，则交换
             if (currentPos !== correctPos) {
                 // 找到当前在正确位置的拼图块
-                const chipAtCorrectPos = this.getChipDataByPuzzlePos(correctPos);
+                const chipAtCorrectPos = context.getChipDataByPuzzlePos(correctPos);
                 if (chipAtCorrectPos) {
                     // 交换两个拼图块的位置
-                    this.swapPuzzleChips(currentPos, correctPos);
+                    context.swapPuzzleChips(currentPos, correctPos);
                 }
             }
         }

@@ -54,11 +54,15 @@ export class SkewersManager {
 
 
     public get currentSkewersCompleteGameStr(): string {
-        return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}训练`
+        return `恭喜完成${Global.userData.curSkewerGameData.TypeName}维度训练`
     }
 
     public get currentSkewersCompleteGameDZStr(): string {
-        return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}订正`
+        return `恭喜完成${Global.userData.curSkewerGameData.TypeName}维度订正`
+    }
+
+    public get nextGameCompleteStr(): string {
+        return `恭喜完成${Global.userData.curSkewerGameData.TypeName}维度训练\n接下进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}维度训练`
     }
 
     public get nextSkewersGameStr(): string {
@@ -596,6 +600,35 @@ export class SkewersManager {
 
     public get gameDatasLength(): number {
         return this._gameDatas.length;
+    }
+
+    /**
+     * 显示所有任务完成弹窗
+     * @param parentNode 父节点
+     * @param context 上下文
+     */
+    public showAllTasksCompleteAlert(parentNode: Node, context: any) {
+        const alertData = new AlertData();
+        alertData.title = "恭喜！所有任务已完成！";
+        alertData.message = "感谢您的努力训练！";
+        alertData.confirmButtonText = "确定";
+        alertData.cancelButtonVisible = false;
+        alertData.enableCountdown = true; // 启用倒计时功能
+        alertData.countdown = 5; // 5秒倒计时
+        alertData.countdownCb = () => {
+            // 倒计时结束后的回调
+            if (context.exitCallBack) {
+                context.exitCallBack();
+            }
+        };
+        alertData.confirmCb = () => {
+            // 点击确定按钮的回调
+            if (context.exitCallBack) {
+                context.exitCallBack();
+            }
+        };
+        
+        AlertManager.getInstance().showAlert(alertData);
     }
 
 

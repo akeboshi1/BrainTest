@@ -1085,7 +1085,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         super.resumeCallBack(context);
     }
 
-    goonHandler() {
+    goonHandler(context) {
         // 如果游戏在结算阶段，只关闭弹窗，不执行继续游戏操作
         // if (this._isGameCompleted) {
         //     DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
@@ -1099,22 +1099,22 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         //     return;
         // }
         
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 if (SkewersManager.getInstance().isRunOver()) {
-                    this.correctAnswerNode.active = false;
-                    this.showNextSuccessHandler();
+                    context.correctAnswerNode.active = false;
+                    context.showNextSuccessHandler();
                 } else {
                     if (SkewersManager.getInstance().curGame && SkewersManager.getInstance().curGame.getCurTrainData() == null) {
-                        (this.sceneModel as any).goonHandler(this, true);
+                        (context.sceneModel as any).goonHandler(context, true);
                     } else {
-                        (this.sceneModel as any).goonHandler(this, this.model.isRunOver);
-                        if (!this.model.isRunOver) this.clickNextLeve();
+                        (context.sceneModel as any).goonHandler(context, context.model.isRunOver);
+                        if (!context.model.isRunOver) context.clickNextLeve();
                     }
                 }
             } else {
-                this.sceneModel.goonHandler();
+                context.sceneModel.goonHandler(context);
             }
         }
     }
@@ -1125,27 +1125,27 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
 
-    dzgoonHandler(win: boolean = true) {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    dzgoonHandler(context,win: boolean = true) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 使用模型中的运行结果
 
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Language;
                 if (!_boo) {
-                    let self = this;
+                    let self = context;
 
                     // 直接向服务器发送请求，但不处理回调
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         // 请求完成后不做弹窗处理
                         // 然后直接继续下一个训练
-                        (self.sceneModel as any).goonHandler(this, this.model.isRunOver);
-                    }, this, true);
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                        (self.sceneModel as any).goonHandler(self, self.model.isRunOver);
+                    }, self, true);
+                    SkewersManager.getInstance().requestGameComplete(self.complete, self.duration);
                 } else {
-                    (this.sceneModel as any).goonHandler(self, true);
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
@@ -1228,16 +1228,16 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.startGameFlow();
     }
 
-    public onClickShowAnswer() {
-        super.onClickShowAnswer();
-        this.correctAnswerNode.active = true;
-        const question = this.model.getCurrentQuestion();
+    public onClickShowAnswer(context) {
+        super.onClickShowAnswer(context);
+        context.correctAnswerNode.active = true;
+        const question = context.model.getCurrentQuestion();
         let fixed: number[] = question.fixed;
         let correctAnswerText: string = "";
         let lineItemCount = 0; // 当前行元素计数（标点算0.5） 
 
         for (let i = 0; i < question.sentence.length; i++) {
-            if (lineItemCount > (this.rawMaxNum - 1)) {
+            if (lineItemCount > (context.rawMaxNum - 1)) {
                 correctAnswerText += "\n";
                 lineItemCount = 0;
             }
@@ -1250,7 +1250,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             lineItemCount = lineItemCount + (isPunctuation ? 0.5 : 1);
         }
 
-        this.correctAnswerLabel.string = correctAnswerText;
+        context.correctAnswerLabel.string = correctAnswerText;
     }
 
     /**

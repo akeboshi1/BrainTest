@@ -54,7 +54,14 @@ export class BrainTrainTipPanel extends BasePanel {
         this.progressLabel.string = `当前训练进度:${curProgress}`;
     }
 
-    async showPanel(): Promise<void> {
+    async showPanel(skipTween: boolean = false): Promise<void> {
+        if (skipTween) {
+            // 直接显示，不播放动画
+            this.node.setPosition(new Vec3(0, 0, 0));
+            this.state = PanelState.SHOW;
+            return;
+        }
+
         await new Promise<void>((resolve, reject) => {
             const sch = LayerUtil.getPanelLayer().getComponent(UITransform).height;
             const startPos = new Vec3(0, sch, 0);

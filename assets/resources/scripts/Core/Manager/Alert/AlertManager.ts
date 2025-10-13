@@ -25,6 +25,8 @@ export class AlertManager extends BaseManager {
     private alertQueue: AlertData[] = []; // 用于存储等待显示的alert数据队列
     private currentAlert: Node = null; // 当前正在显示的alert节点
     private userAgreeAlert: Node = null; // 用户同意弹窗节点
+    private countdownTimer: any = null; // 倒计时定时器
+    private currentCountdown: number = 0; // 当前倒计时剩余时间
 
     public async init() {
         SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
@@ -163,6 +165,11 @@ export class AlertManager extends BaseManager {
                 confirmButton.node.setPosition(0, confirmButton.node.position.y);
             }
         }
+
+        // 处理倒计时功能
+        if (alertData.enableCountdown && alertData.countdown > 0) {
+            this.startCountdown(alertData.countdown, confirmButton, alertData.countdownCb);
+        }
     }
     public showUserAgreeAlert(alertData: AlertData) {
         let self = this;
@@ -259,6 +266,8 @@ export class AlertManager extends BaseManager {
 
     public closeCurrentAlert() {
         if (this.currentAlert) {
+            // 清除倒计时定时器
+            this.clearCountdownTimer();
             this.currentAlert.destroy();
             this.currentAlert = null;
             // 检查队列中是否还有等待显示的alert，如果有则弹出下一个显示
@@ -406,6 +415,64 @@ export class AlertManager extends BaseManager {
             .start();
     }
 
+    /**
+     * 开始倒计时
+     * @param duration 倒计时时长（秒）
+     * @param confirmButton 确认按钮
+     * @param countdownCb 倒计时结束回调
+     */
+    private startCountdown(duration: number, confirmButton: Button, countdownCb?: () => void) {
+        this.clearCountdownTimer();
+        this.currentCountdown = duration;
+        
+        // 更新按钮文本显示倒计时
+        this.updateCountdownDisplay(confirmButton);
+        
+        this.countdownTimer = setInterval(() => {
+            this.currentCountdown--;
+            this.updateCountdownDisplay(confirmButton);
+            
+            if (this.currentCountdown <= 0) {
+                this.clearCountdownTimer();
+                // 倒计时结束，调用回调并关闭弹窗
+                if (countdownCb) {
+                    countdownCb();
+                }
+                this.closeCurrentAlert();
+            }
+        }, 1000);
+    }
+
+    /**
+     * 清除倒计时定时器
+     */
+    private clearCountdownTimer() {
+        if (this.countdownTimer) {
+            clearInterval(this.countdownTimer);
+            this.countdownTimer = null;
+        }
+    }
+
+    /**
+     * 更新倒计时显示
+     * @param confirmButton 确认按钮
+     */
+    private updateCountdownDisplay(confirmButton: Button) {
+        if (confirmButton && confirmButton.node) {
+            const label = confirmButton.node.getChildByName("Label");
+            if (label) {
+                const labelComponent = label.getComponent(Label);
+                if (labelComponent) {
+                    if (this.currentCountdown > 0) {
+                        labelComponent.string = `确定 (${this.currentCountdown})`;
+                    } else {
+                        labelComponent.string = "确定";
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 export class AlertData {
@@ -424,4 +491,7 @@ export class AlertData {
     public confirmButtonText: string = "确认";
     public x: number = 0; // 弹窗x坐标，默认为0表示使用默认位置
     public y: number = 0; // 弹窗y坐标，默认为0表示使用默认位置
+    public countdown: number = 0; // 倒计时秒数，0表示不启用倒计时
+    public enableCountdown: boolean = false; // 是否启用倒计时功能
+    public countdownCb: () => void = null; // 倒计时结束回调
 }
