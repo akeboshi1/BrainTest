@@ -7,6 +7,7 @@ import { SceneManager } from "../../../Core/Manager/Scene/SceneManager";
 import { UIManager } from "../../../Core/Manager/UI/UIManager";
 import { BasePanel } from "../../../Core/UI/BasePanel";
 import { SkewersManager } from "../../Task/Skewers/SkewersManager";
+import { GameCenterManager } from "../../GameCenter/GameCenterManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameScoreAlert')
@@ -37,13 +38,47 @@ export class GameScoreAlert extends BasePanel {
 
 
     private _scoreDatas;
+    private _activeTweens: any[] = []; // 存储活跃的tween动画
+
+
+    constructor(){
+        super();
+    }
 
     restore(data) {
         if (data != null) this._scoreDatas = data;
     }
 
-    start() {
+    onEnable(){
+        super.onEnable();
+    }
 
+    onDestroy() {
+        super.onDestroy();
+        // 清理所有定时器
+        this.unscheduleAllCallbacks();
+        // 清理所有tween动画
+        this.stopAllTweens();
+    }
+
+    /**
+     * 停止所有tween动画
+     */
+    private stopAllTweens() {
+        // 停止所有活跃的tween动画
+        for (let i = 0; i < this._activeTweens.length; i++) {
+            if (this._activeTweens[i]) {
+                this._activeTweens[i].stop();
+            }
+        }
+        this._activeTweens = [];
+        
+    }
+
+    start() {
+        if(!this._scoreDatas || this._scoreDatas.length == 0){
+            return;
+        }
         this.nextNode.active = false;
         let map = TaskManager.getInstance().getTodayUnCompleteTask();
         if (map.size > 0) this.nextNode.active = true;
@@ -62,7 +97,7 @@ export class GameScoreAlert extends BasePanel {
             if (!scoreNode) continue;
             scoreNode.active = false;
             if (this._scoreDatas[i]) {
-                let iconSprite = scoreNode.getChildByName("icon").getComponent(Sprite);
+                // let iconSprite = scoreNode.getChildByName("icon").getComponent(Sprite);
                 let nameLabel = scoreNode.getChildByName("name").getComponent(Label);
                 let scoreLabel = scoreNode.getChildByName("score").getComponent(Label);
 
@@ -150,7 +185,7 @@ export class GameScoreAlert extends BasePanel {
         scoreNode.setScale(startScale);
 
         // 创建敲图章动画序列
-        tween(scoreNode)
+        const tweenAnimation = tween(scoreNode)
             .to(0.1, {
                 position: new Vec3(originalPosition.x, originalPosition.y - 10, originalPosition.z),
                 scale: new Vec3(0.9, 0.9, 1)
@@ -162,23 +197,35 @@ export class GameScoreAlert extends BasePanel {
             .to(0.1, {
                 scale: new Vec3(1, 1, 1)
             }, { easing: 'backOut' })
+            .call(() => {
+                // 动画完成后从数组中移除
+                const index = this._activeTweens.indexOf(tweenAnimation);
+                if (index > -1) {
+                    this._activeTweens.splice(index, 1);
+                }
+            })
             .start();
+            
+        // 将tween动画添加到活跃列表中
+        this._activeTweens.push(tweenAnimation);
     }
 
 
     backToIndexPage() {
+        UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
         SceneManager.getInstance().backToHall().then(() => {
-            UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
         });
     }
 
 
     gotoNextTask() {
-        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.requestTaskListCallback, this, true);
+        UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
+        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.requestTaskListCallback.bind(this), this, true);
         TaskManager.getInstance().requestTaskList();
     }
 
     private requestTaskListCallback() {
+        UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
         const taskManager = TaskManager.getInstance();
         const taskDatas: TaskData[] = taskManager.taskList || [];
 
@@ -220,7 +267,6 @@ export class GameScoreAlert extends BasePanel {
             this.backToIndexPage();
             return;
         }
-
         taskManager.setCurTaskId(nextTask.id);
         taskManager.requestStartTaskContinue(nextTask.id);
     }

@@ -51,7 +51,7 @@ export class InfoListPopCtrl extends BasePanel {
 
     private gotaskListCallBack() {
         EventManager.getInstance().off(SkewersManager.TASK_GET_BRAIN_TRAININGS, this);
-        SceneManager.getInstance().backToSkewersGameCenter().then();
+        SceneManager.getInstance().backToHall().then();
     }
 
     updateInfoList(InfoData) {

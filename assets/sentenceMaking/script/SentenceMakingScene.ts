@@ -1219,6 +1219,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     public hideAnimHupai() {
         this.animShow.node.active = false;
+        this.animShow.stop();
+        this.animRotate.stop();
     }
 
     public onClickRetryGame() {

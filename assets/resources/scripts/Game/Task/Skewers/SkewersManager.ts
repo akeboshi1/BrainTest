@@ -21,6 +21,7 @@ import {GameDataFactory} from "db://assets/resources/scripts/Core/Scene/SceneMod
 import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
 import { LoadPanel } from "../../UI/Load/LoadPanel";
 import { GameScoreAlert } from "../../UI/Alert/GameScoreAlert";
+import { TaskManager } from "../TaskManager";
 /**
  * 脑力串烧管理器
  */
@@ -384,11 +385,12 @@ export class SkewersManager {
         Global.isAgain = false;
         Global.isSkewersGame = false;
         GuideManager.getInstance().quitGame();
-        if (SkewersManager.getInstance().isRunOver()) {
-            SceneManager.getInstance().backToTaskProgress();
-        } else {
-            SceneManager.getInstance().backToSkewersGameCenter();
-        }
+        SceneManager.getInstance().backToHall();
+        // if (SkewersManager.getInstance().isRunOver()) {
+        //     SceneManager.getInstance().backToTaskProgress();
+        // } else {
+        //     SceneManager.getInstance().backToSkewersGameCenter();
+        // }
     }
 
     public remoteExitCallBack() {
@@ -426,7 +428,7 @@ export class SkewersManager {
                 
                 return;
             }
-            let curGame;
+            let curGame:SkewersGameData;
             for (let i = 0; i < this._gameDatas.length; i++) {
                 curGame = this._gameDatas[i];
                 if (curGame.status == TaskStatus.UnComplete) {
@@ -445,6 +447,12 @@ export class SkewersManager {
 
             // 如果是最后一个串烧任务，服务端会发送一些完成数据
             this._skewersGames_complete = data.data.task_completed;
+            if(this._skewersGames_complete){
+                let curTaskData = TaskManager.getInstance().curTask;
+                if(curTaskData){
+                    curTaskData.status = TaskStatus.Completed;
+                }
+            }
             // 每个维度的分数
             if(data.data["task_scores"]){
                 this._skewersGames_scores = data.data["task_scores"];
@@ -903,7 +911,7 @@ export class SkewersManager {
         
         // 回到串烧训练大厅
         try {
-            await SceneManager.getInstance().backToSkewersGameCenter();
+            await SceneManager.getInstance().backToHall();
             DebugLog.instance.log("已回到串烧训练大厅");
         } catch (error) {
             DebugLog.instance.error("回到串烧训练大厅失败:", error);
