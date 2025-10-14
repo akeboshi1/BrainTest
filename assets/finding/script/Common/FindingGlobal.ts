@@ -25,6 +25,8 @@ export default class FindingGlobal {
      * 初始化事件监听器，监听训练大厅进度更新事件
      */
     public static initEventListeners() {
+
+
         // 监听训练大厅进度更新事件
         EventManager.getInstance().on("GAME_CENTER_LEVEL_UPDATE", (data) => {
             // 更新本地进度变量

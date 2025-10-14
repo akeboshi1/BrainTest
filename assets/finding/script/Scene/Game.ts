@@ -1488,7 +1488,7 @@ export class Game extends BaseScene<IBaseGameChild> {
     protected offTouchEnd(target: Node) {
         if (!target) {
             GameLog.error("target 为空 ")
-            return
+            return;
         }
         let targetName: string = target.name
         if (this._touchEndList[targetName]) {
