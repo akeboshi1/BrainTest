@@ -296,17 +296,61 @@ export class TaskManager extends BaseManager {
 
 
     /**
-     * 获取当天未完成的任务
+     * 获取当天未完成的脑力保健任务
      */
-    public getTodayUnCompleteTask() {
+    public getTodayUnCompleteTask():Map<number, TaskData> {
         let tmpDic: Map<number, TaskData> = new Map();
         this._taskDic.forEach((task: TaskData) => {
-            if (task.status <= 1) {
+            if (task.status <= 1 && task.type == TaskType.Brains) {
                 tmpDic.set(task.id, task);
             }
         })
         return tmpDic;
     }
+
+    public requestStartTaskContinue(id:number){
+        let task = this._taskDic.get(id);
+        if (!task) {
+            DebugLog.instance.error(`id：${id} 任务不存在！`);
+            return;
+        }
+        let message = "";
+        let ad:AlertData;
+        Global.userData.curTaskData = task;
+        switch (task.status) {
+            case TaskStatus.Expired:
+                message = `id：${id} 任务已经过期！`;
+                DebugLog.instance.log(message);
+                ad = new AlertData();
+                ad.title = "提示";
+                ad.message = message;
+                AlertManager.getInstance().showAlert(ad);
+                ad.cancelButtonVisible = false;
+                ad.confirmCb = this.backToSkewersGameCenter.bind(this);
+                break;
+            case TaskStatus.Completed:
+                message = `id：${id} 任务已经完成！`;
+                DebugLog.instance.log(message);
+                ad = new AlertData();
+                ad.title = "提示";
+                ad.message = message;
+                AlertManager.getInstance().showAlert(ad);
+                ad.cancelButtonVisible = false;
+                ad.confirmCb = this.backToSkewersGameCenter.bind(this);
+                break;
+            case TaskStatus.Processing:
+                DebugLog.instance.log(`id：${id} 任务正在进行中！`);
+                SkewersManager.getInstance().start(id);
+                break;
+            case TaskStatus.UnComplete:
+                EventManager.getInstance().on(this.task_start_task, this.requestStartTaskContinueCallback.bind(this), this,true);
+                let requestStartTaskSocket: SocketData = new SocketData({ action: this.task_start_task, data: { task_id: id } });
+                SocketManager.getInstance().send(requestStartTaskSocket);
+                break;
+        }
+    }
+
+
 
     /**
      * 请求开启任务
@@ -356,6 +400,43 @@ export class TaskManager extends BaseManager {
 
     private backToSkewersGameCenter(){
         SceneManager.getInstance().backToSkewersGameCenter();
+    }
+
+    private requestStartTaskContinueCallback(data:SocketData,context:any){
+        if(!context){
+            DebugLog.instance.error("context为空");
+            return;
+        }
+        let status = data.status;
+        if (status == 0) {
+            DebugLog.instance.error(data.message);
+            AlertManager.getInstance().showSocketAlert(data.message);
+            return;
+        } else {
+            let id = data.data['task_id'];
+            let task = context._taskDic.get(id);
+            if (!task) {
+                DebugLog.instance.error(`id为：${id}的任务不存在`);
+                return;
+            }
+            let type = task.type;
+            switch (type) {
+                case TaskType.Remind:
+                case TaskType.Review:
+                case TaskType.Brains:
+                case TaskType.Revise:
+                    task.status = TaskStatus.Processing;
+                    EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTrainingContinue_listCallBack.bind(this, id), this,true);
+                    SkewersManager.getInstance().requestBranisTraining_list(id);
+                    break;
+                case TaskType.Interavtive:
+                    break;
+            }
+        }
+    }
+
+    private requestBranisTrainingContinue_listCallBack(id: number){
+        SkewersManager.getInstance().start(id);
     }
 
     private requestStartTaskCallback(data: SocketData, context: any) {

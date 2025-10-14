@@ -6,7 +6,7 @@ import { SkewersGameStatus } from "../../../Core/Data/GameState";
 import { SocketManager } from "../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../Core/Manager/Net/SocketData";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
-import { AlertType, GameAlert } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
+import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
 import { Canvas, director, instantiate, Node, Prefab, resources, UITransform, Vec3 } from "cc";
 import { TaskStatus } from "db://assets/resources/scripts/Game/Task/TaskData";
 import {AlertManager,  AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
@@ -20,6 +20,7 @@ import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/Base
 import {GameDataFactory} from "db://assets/resources/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
 import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
 import { LoadPanel } from "../../UI/Load/LoadPanel";
+import { GameScoreAlert } from "../../UI/Alert/GameScoreAlert";
 /**
  * 脑力串烧管理器
  */
@@ -139,6 +140,7 @@ export class SkewersManager {
         this._iconUrlMap.set(SkewersGameType.Judgment, "texture/game/icon/findingIcon");
         this._iconUrlMap.set(SkewersGameType.Memory, "texture/game/icon/memoryicon");
 
+        UIManager.getInstance().registerPanel(GameScoreAlert.NAME, BundleName.RESOURCES, "prefab/BrainTrain/BrainTrainScoreAlert", GameScoreAlert, false);
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
     }
 
@@ -183,6 +185,29 @@ export class SkewersManager {
             Global.userData.skewerGameDatas = this._gameDatas;
         }
         EventManager.getInstance().emit(SkewersManager.TASK_GET_BRAIN_TRAININGS, this._gameDatas);
+    }
+
+    public getTotalSkewersGamesCount():number{
+        if (!Global.userData||!Global.userData.skewerGameDatas ||!Global.userData.skewerGameDatas || Global.userData.skewerGameDatas.length === 0) {
+            return 0;
+        }
+        
+        let totalCount = 0;
+        for (let i = 0; i < Global.userData.skewerGameDatas.length; i++) {
+            const gameData = Global.userData.skewerGameDatas[i];
+            if (gameData && gameData.trains) {
+                totalCount += gameData.trains.length;
+            }
+        }
+        
+        return totalCount;
+    }
+
+    public getTotalSkewersCount():number{
+        if (!Global.userData||!Global.userData.skewerGameDatas ||!Global.userData.skewerGameDatas) {
+            return 0;
+        }
+        return Global.userData.skewerGameDatas.length
     }
 
     // /**
@@ -274,7 +299,7 @@ export class SkewersManager {
      * @param context
      */
     public quitGame(parentNode: Node, curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context) {
-        resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+        resources.load("prefab/BrainTrain/BrainTrainAlert",Prefab,(err,resource)=>{
             if(err){
                 DebugLog.instance.error(err);
                 return;
@@ -314,7 +339,7 @@ export class SkewersManager {
             parentNode = canvas.node;
         }
 
-        resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+        resources.load("prefab/BrainTrain/BrainTrainAlert",Prefab,(err,resource)=>{
             if(err){
                 DebugLog.instance.error(err);
                 return;
@@ -398,6 +423,7 @@ export class SkewersManager {
                 DebugLog.instance.log("当前串烧训练已经全部完成");
                 Global.isSkewersGame = false;
                 this._curIndex = -1;
+                
                 return;
             }
             let curGame;
@@ -416,9 +442,59 @@ export class SkewersManager {
                 return;
             }
             Global.userData.curSkewerGameData.is_correction = data.data.is_correction;
-            EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
+
+            // 如果是最后一个串烧任务，服务端会发送一些完成数据
+            this._skewersGames_complete = data.data.task_completed;
+            // 每个维度的分数
+            if(data.data["task_scores"]){
+                this._skewersGames_scores = data.data["task_scores"];
+            }
+            // 该串烧任务总分
+            if(data.data["task_total_score"]){
+               this._skewersGames_total_score = data.data["task_total_score"];
+            }
+            // 该串烧任务所用时间
+            if(data.data["task_duration"]){
+                this._skewersGames_duration = data.data["task_duration"];
+            }  
+
+            
+            if(this._skewersGames_complete){
+               UIManager.getInstance().showPanel(GameScoreAlert.NAME,this._skewersGames_scores);
+            }else{
+               EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
+            }
         }
     }
+
+
+    /**
+     * 当前所有串烧任务是否已经完成
+     */
+    private _skewersGames_complete:boolean = false;
+
+    public get curTaskComplete():boolean{
+        return this._skewersGames_complete;
+    }
+
+    private _skewersGames_scores 
+
+    public get curTaskScores():any{
+        return this._skewersGames_scores;
+    }
+
+    private _skewersGames_duration:number = 0;
+    
+    public get curTaskDuration():number{
+        return this._skewersGames_duration;
+    }
+
+    private _skewersGames_total_score:number = 0;
+    
+    public get curTaskTotalScore():number{
+        return this._skewersGames_total_score;
+    }
+
 
     private _game;
 
@@ -433,13 +509,13 @@ export class SkewersManager {
             return;
         }
         this._game = this.getUnCompleteGameData();
-        this._game.taskID = id;
         if (!this._game) {
             this._curIndex = -1;
             DebugLog.instance.error("当前脑力训练已经全部完成！");
             //   SceneManager.getInstance().backToHall();
             return;
         }
+        this._game.taskID = id;
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
