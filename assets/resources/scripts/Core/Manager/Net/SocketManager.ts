@@ -457,7 +457,7 @@ export class SocketManager extends BaseManager {
      */
     private async showReconnectFailedAlert(): Promise<void> {
         return new Promise<void>((resolve) => {
-            const alertData: AlertData = {
+            const alertData = {
                 title: "连接失败",
                 message: "网络连接失败，请检查网络设置后重试",
                 messageFontColor: "#FFFFFF",
@@ -481,7 +481,7 @@ export class SocketManager extends BaseManager {
                 guideCallBack: null
             };
 
-            AlertManager.getInstance().showAlert(alertData);
+            AlertManager.getInstance().showAlert(alertData as any);
         });
     }
 }

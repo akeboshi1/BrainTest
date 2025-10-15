@@ -374,11 +374,17 @@ export class IndexPageView extends AdaptComponent {
                 taskdata = cachedConfig.tasks;
             }
         }
+        await this.taskConfig.loadConfig();
+        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this._taskListCallBack.bind(this,taskdata), this, true);
+        TaskManager.getInstance().requestTaskList();
 
+    }
+
+    private async _taskListCallBack(taskdata){
         // 如果缓存中没有任务配置，则重新加载
         if (!taskdata) {
             DebugLog.instance.log("缓存中没有任务配置，重新加载");
-            await this.taskConfig.loadConfig();
+
             let type = this.getCurrentConfigType(); // 使用相同的动态类型判断
 
             if (type == "normal") {
@@ -395,6 +401,14 @@ export class IndexPageView extends AdaptComponent {
             taskController.setTaskIndex(i);
             taskController.setTaskTitle(taskdata[i].title);
             taskController.setTaskContent(taskdata[i].txt);
+            if(i == 0){
+                TaskManager.getInstance().getFirstUnCompleteTask();
+                if(TaskManager.getInstance().getFirstUnCompleteTask()){
+                    taskController.setIsComplete(false);
+                }else{
+                    taskController.setIsComplete(true);
+                }
+            }
             await taskController.setTaskBg(taskdata[i].icon_bg, taskdata[i].width, taskdata[i].height);
             await taskController.setbgColor(taskdata[i].bg0_color, taskdata[i].bg1_color, taskdata[i].bg2_color, taskdata[i].bg3_color);
 
@@ -441,30 +455,16 @@ export class IndexPageView extends AdaptComponent {
      * 显示所有任务完成提示弹窗
      */
     private showAllTasksCompleteAlert() {
-        const alertData = new AlertData();
-        alertData.title = "任务完成";
-        alertData.message = "今日份任务已经全部完成，3秒后自动关闭";
-        alertData.confirmButtonText = "确定";
-        alertData.cancelButtonVisible = false;
-        alertData.enableCountdown = true; // 启用倒计时功能
-        alertData.countdown = 3; // 3秒倒计时
-        alertData.countdownCb = () => {
-            // 倒计时结束后的回调
-            AlertManager.getInstance().closeCurrentAlert();
-        };
-        alertData.confirmCb = () => {
-            // 点击确定按钮的回调
-            AlertManager.getInstance().closeCurrentAlert();
-        };
-
-        AlertManager.getInstance().showAlert(alertData);
+        AlertManager.getInstance().showSocketAlert("今日份任务已经全部完成，3秒后自动关闭");
     }
 
     showBrainTrainingPanel() {
         let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
         if (is_member) {
-            EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this, true);
-            TaskManager.getInstance().requestTaskList();
+            // EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this, true);
+            // TaskManager.getInstance().requestTaskList();
+            this.taskListRequestCallBack();
+
             // UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
             // UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
         } else {

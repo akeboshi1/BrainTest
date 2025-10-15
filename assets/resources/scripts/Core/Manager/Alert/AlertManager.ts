@@ -402,7 +402,86 @@ export class AlertManager extends BaseManager {
 
         // 创建渐隐动画
         tween(alertNode)
-            .delay(1.8) // 延迟2秒
+            .delay(3) // 延迟2秒
+            .to(0.3, { scale: new Vec3(0.8, 0.8, 0.8) }) // 先缩小
+            .to(0.1, { scale: new Vec3(0, 0, 0) }) // 再完全消失
+            .call(() => {
+                // 动画结束后销毁节点
+                if (this.currentAlert === alertNode) {
+                    this.currentAlert = null;
+                }
+                alertNode.destroy();
+            })
+            .start();
+    }
+
+    /**
+     * 显示3秒倒计时弹窗
+     * @param message 提示消息
+     * @param onComplete 倒计时结束回调
+     */
+    public showCountdownAlert(message: string, onComplete?: () => void) {
+        if (!this._socketAlertPrefab) {
+            DebugLog.instance.error("Socket Alert prefab not loaded!");
+            return;
+        }
+
+        // 实例化预制体
+        let alertNode = instantiate(this._socketAlertPrefab);
+
+        // 如果找不到弹窗层，则输出错误信息
+        let rootNode: Node = LayerUtil.createTopLayer('AlertLayer');
+        if (!rootNode) {
+            DebugLog.instance.error("Can not create top layer for alert!");
+            return;
+        }
+
+        rootNode.addChild(alertNode);
+        this.currentAlert = alertNode;
+
+        // 设置提示内容
+        const messageLabel = alertNode.getComponentInChildren(Label);
+        if (messageLabel) {
+            messageLabel.string = message;
+        }
+
+        // 添加倒计时显示
+        let countdownLabel: Label = null;
+        const countdownNode = new Node("CountdownLabel");
+        countdownLabel = countdownNode.addComponent(Label);
+        countdownLabel.string = "3";
+        countdownLabel.fontSize = 48;
+        countdownLabel.color = new Color(255, 255, 255, 255);
+        alertNode.addChild(countdownNode);
+        
+        // 设置倒计时标签位置（在消息下方）
+        countdownNode.setPosition(0, -130);
+
+        // 开始倒计时
+        let countdown = 3;
+        const countdownTimer = setInterval(() => {
+            countdown--;
+            // if (countdownLabel) {
+            //     countdownLabel.string = countdown.toString();
+            // }
+            
+            if (countdown <= 0) {
+                clearInterval(countdownTimer);
+                // 倒计时结束，执行回调
+                if (onComplete) {
+                    onComplete();
+                }
+                // 销毁弹窗
+                if (this.currentAlert === alertNode) {
+                    this.currentAlert = null;
+                }
+                alertNode.destroy();
+            }
+        }, 1000);
+
+        // 添加渐隐动画（在倒计时结束后）
+        tween(alertNode)
+            .delay(3) // 等待3秒倒计时结束
             .to(0.3, { scale: new Vec3(0.8, 0.8, 0.8) }) // 先缩小
             .to(0.1, { scale: new Vec3(0, 0, 0) }) // 再完全消失
             .call(() => {
