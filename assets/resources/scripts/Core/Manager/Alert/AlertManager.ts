@@ -461,9 +461,9 @@ export class AlertManager extends BaseManager {
         let countdown = 3;
         const countdownTimer = setInterval(() => {
             countdown--;
-            // if (countdownLabel) {
-            //     countdownLabel.string = countdown.toString();
-            // }
+            if (countdownLabel) {
+                countdownLabel.string = countdown.toString();
+            }
             
             if (countdown <= 0) {
                 clearInterval(countdownTimer);
@@ -570,7 +570,7 @@ export class AlertData {
     public confirmButtonText: string = "确认";
     public x: number = 0; // 弹窗x坐标，默认为0表示使用默认位置
     public y: number = 0; // 弹窗y坐标，默认为0表示使用默认位置
-    public countdown: number = 0; // 倒计时秒数，0表示不启用倒计时
-    public enableCountdown: boolean = false; // 是否启用倒计时功能
-    public countdownCb: () => void = null; // 倒计时结束回调
+    public countdown?: number = 0; // 倒计时秒数，0表示不启用倒计时
+    public enableCountdown?: boolean = false; // 是否启用倒计时功能
+    public countdownCb?: () => void = null; // 倒计时结束回调
 }
