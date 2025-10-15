@@ -94,7 +94,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             SkewersManager.getInstance().quitGame(config.parentNode, curCount, maxCount,
                 config.context.resumeCallBack, config.context.exitCallBack, config.context);
         }else{
-            SceneManager.getInstance().backToTaskProgress();
+            SceneManager.getInstance().backToHall();
         }
     }
 

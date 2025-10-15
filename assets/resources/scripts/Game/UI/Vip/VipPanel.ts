@@ -443,17 +443,17 @@ export class VipPanel extends BasePanel {
                     if (TaskManager.getInstance().getCurTaskId == -1) {
                         if (!userData.has_initial_tier) {
                             EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, () => {
-                                SceneManager.getInstance().backToSkewersGameCenter();
+                                SceneManager.getInstance().backToHall();
                             }, this, true);
                             TaskManager.getInstance().requestInitLevalTask();
                         } else {
                             EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, () => {
-                                SceneManager.getInstance().backToTaskProgress();
+                                SceneManager.getInstance().backToHall();
                             }, this, true);
                             TaskManager.getInstance().requestTaskList();
                         }
                     } else {
-                        SceneManager.getInstance().backToTaskProgress();
+                        SceneManager.getInstance().backToHall();
                     }
                 }, this);
             });
