@@ -294,7 +294,7 @@ export class TaskItemController extends Component {
     }
 
     setIsComplete(isComplete: boolean) {
-        this.buttonText.string = isComplete ? "完成" : "去完成";
+        this.buttonText.string = isComplete ? "已完成" : "去完成";
     }
 
     update(deltaTime: number) {
