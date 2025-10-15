@@ -212,20 +212,18 @@ export class GameScoreAlert extends BasePanel {
 
 
     backToIndexPage() {
-        UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
         SceneManager.getInstance().backToHall().then(() => {
+            UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
         });
     }
 
 
     gotoNextTask() {
-        UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.requestTaskListCallback.bind(this), this, true);
         TaskManager.getInstance().requestTaskList();
     }
 
     private requestTaskListCallback() {
-        UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
         const taskManager = TaskManager.getInstance();
         const taskDatas: TaskData[] = taskManager.taskList || [];
 
@@ -267,7 +265,12 @@ export class GameScoreAlert extends BasePanel {
             this.backToIndexPage();
             return;
         }
+        EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTrainingCallBack.bind(this), this, true);
         taskManager.setCurTaskId(nextTask.id);
         taskManager.requestStartTaskContinue(nextTask.id);
+    }
+
+    private requestBranisTrainingCallBack(){
+        UIManager.getInstance().hidePanel(GameScoreAlert.NAME);
     }
 }
