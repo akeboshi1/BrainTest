@@ -478,10 +478,13 @@ export class SocketManager extends BaseManager {
                 },
                 cancelCb: null,
                 contentClickCb: null,
-                guideCallBack: null
+                guideCallBack: null,
+                countdown: 0,// 倒计时秒数，0表示不启用倒计时
+                enableCountdown:false, // 是否启用倒计时功能
+                countdownCb: () => {}// 倒计时结束回调
             };
 
-            AlertManager.getInstance().showAlert(alertData as any);
+            AlertManager.getInstance().showAlert(alertData);
         });
     }
 }
