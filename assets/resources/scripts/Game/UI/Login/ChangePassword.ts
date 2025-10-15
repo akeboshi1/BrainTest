@@ -118,9 +118,9 @@ export class ChangePassword extends BasePanel {
             }.bind(this);
             alertData.message = data.message;
             AlertManager.getInstance().showAlert(alertData);
-            // AlertManager.getInstance().showSocketAlert(data.message);
+            // AlertManager.getInstance().showToastAlert(data.message);
         } else {
-            AlertManager.getInstance().showSocketAlert("修改成功");
+            AlertManager.getInstance().showToastAlert("修改成功");
             this.backHandler();
         }
 

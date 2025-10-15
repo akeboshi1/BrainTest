@@ -58,7 +58,7 @@ export class MySetView extends BasePanel {
 
     private signOutCallBack(data){
         if(data.status == 0){
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
         }else{
             LoginManager.getInstance().loginout();
         }

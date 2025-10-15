@@ -207,7 +207,7 @@ export class LoginPanel extends BasePanel {
             EventManager.getInstance().on('login.send_mp_code', (data) => {
                 if (data['status'] == 0) {
                     // 请求失败，不进行操作
-                    AlertManager.getInstance().showSocketAlert('请求失败重新再试');
+                    AlertManager.getInstance().showToastAlert('请求失败重新再试');
                     return;
                 }
                 // 请求成功，显示验证码面板
@@ -235,7 +235,7 @@ export class LoginPanel extends BasePanel {
             } else {
                 if (characters.length != 4) {
                     DebugLog.instance.error("请正确输入验证码");
-                    AlertManager.getInstance().showSocketAlert('请正确输入验证码');
+                    AlertManager.getInstance().showToastAlert('请正确输入验证码');
                     return;
                 }
                 let codeStr = "";
@@ -445,7 +445,7 @@ export class LoginPanel extends BasePanel {
             this.editBox.setFocus(); // 重新获取焦点
             // this.timerCommonComponent.startTimer(30);
             this.btnEnableChange(false);
-            AlertManager.getInstance().showSocketAlert(this.errorYanZhenStr);
+            AlertManager.getInstance().showToastAlert(this.errorYanZhenStr);
             return;
         }
     }
@@ -482,7 +482,7 @@ export class LoginPanel extends BasePanel {
         if (data['status'] == 0) {
             let errStr = `请求${data['action']}失败，${data.message}`;
             DebugLog.instance.error(errStr);
-            AlertManager.getInstance().showSocketAlert("请求验证码失败");
+            AlertManager.getInstance().showToastAlert("请求验证码失败");
             this.phoneView.active = true;
             this.yanzhengView.active = false;
             return;

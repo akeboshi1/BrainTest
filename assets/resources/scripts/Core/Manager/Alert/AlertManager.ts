@@ -375,7 +375,7 @@ export class AlertManager extends BaseManager {
         this.closeCurrentAlert();
     }
 
-    public showSocketAlert(message: string) {
+    public showToastAlert(message: string) {
         if (!this._socketAlertPrefab) {
             DebugLog.instance.error("Socket Alert prefab not loaded!");
             return;
