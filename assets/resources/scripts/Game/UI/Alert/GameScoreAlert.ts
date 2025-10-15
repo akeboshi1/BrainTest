@@ -88,7 +88,10 @@ export class GameScoreAlert extends BasePanel {
         this.titleLabel.string = TaskManager.getInstance().curTask.name;
         this.descLabel.string = `总关卡数：${scoreLen}个维度，共${SkewersManager.getInstance().getTotalSkewersGamesCount()}关`;
         this.totalScoreLabel.string = SkewersManager.getInstance().curTaskTotalScore + "";
-        this.timeLabel.string = "本次任务耗时:" + SkewersManager.getInstance().curTaskDuration + "秒";
+        const duration = SkewersManager.getInstance().curTaskDuration;
+        const minutes = Math.floor(duration / 60);
+        const seconds = Math.floor(duration % 60);
+        this.timeLabel.string = `本次任务耗时: ${minutes}分${seconds}秒`;
 
         // 初始化所有scoreNode为隐藏状态
         let len = this.scoreNodes.length;
