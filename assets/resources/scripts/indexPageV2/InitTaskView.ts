@@ -1,9 +1,7 @@
 import { _decorator, Component, Node } from 'cc';
 import { TaskManager } from '../Game/Task/TaskManager';
-import { UIManager } from '../Core/Manager/UI/UIManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
-import { BrainTrain } from '../Game/UI/BrainTrain/BrainTrain';
-import { BundleName } from '../Core/Manager/Load/BundleName';
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('InitTaskView')
@@ -24,8 +22,14 @@ export class InitTaskView extends Component {
   }
 
   requestInitTaskCallback() {
-    UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
-    UIManager.getInstance().showPanel(BrainTrain.NAME);
+    // UIManager.getInstance().registerPanel(BrainTrain.NAME, BundleName.RESOURCES, "/prefab/BrainTrain/BrainTrain", BrainTrain);
+    // UIManager.getInstance().showPanel(BrainTrain.NAME);
+    EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack.bind(this), this, true);
+    SkewersManager.getInstance().requestBranisTraining_list(TaskManager.getInstance().getCurTaskId);
+  }
+
+  private requestBranisTraining_listCallBack(data, context) {
+    TaskManager.getInstance().requestStartTask(TaskManager.getInstance().getCurTaskId);
   }
 
   update(deltaTime: number) {
