@@ -384,12 +384,6 @@ export class Game extends BaseScene<IBaseGameChild> {
     }
 
     private backHandler() {
-        // 如果训练正在结算中，阻止退出操作
-        if (this._isSettling) {
-            DebugLog.instance.log("[GameView] 训练结算中，无法退出训练");
-            return;
-        }
-
         this.pause = true;
         this.quitGame({
             parentNode: this.viewNode,
@@ -627,12 +621,7 @@ export class Game extends BaseScene<IBaseGameChild> {
     }
 
     onSuccessNextLevel(): void {
-        // 如果游戏正在结算中，不允许进入下一关
-        if (this._isSettling) {
-            DebugLog.instance.log("游戏正在结算中，不允许进入下一关");
-            return;
-        }
-        
+
         // 如果游戏完成回调未执行，不允许进入下一关
         if (!FindingGlobal.isCallbackCompleted) {
             DebugLog.instance.log("游戏完成回调未执行，不允许进入下一关");
@@ -644,12 +633,7 @@ export class Game extends BaseScene<IBaseGameChild> {
     }
 
     onFailNextLevel(): void {
-        // 如果游戏正在结算中，不允许进入下一关
-        if (this._isSettling) {
-            DebugLog.instance.log("游戏正在结算中，不允许进入下一关");
-            return;
-        }
-        
+
         // 如果游戏完成回调未执行，不允许进入下一关
         if (!FindingGlobal.isCallbackCompleted) {
             DebugLog.instance.log("游戏完成回调未执行，不允许进入下一关");

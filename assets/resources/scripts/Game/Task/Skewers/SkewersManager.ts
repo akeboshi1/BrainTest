@@ -520,7 +520,7 @@ export class SkewersManager {
         if (!this._game) {
             this._curIndex = -1;
             DebugLog.instance.error("当前脑力训练已经全部完成！");
-            //   SceneManager.getInstance().backToHall();
+            SceneManager.getInstance().backToHall();
             return;
         }
         this._game.taskID = id;
