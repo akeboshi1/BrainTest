@@ -408,7 +408,7 @@ export class GameCenterManager {
         let gsData = this._callbackDic.get(GameCenterManager.GAMESTART);
         let status = data.status;
         if (status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             DebugLog.instance.error(data.message);
             
             // 触发训练大厅加载错误事件
@@ -519,7 +519,7 @@ export class GameCenterManager {
     private gamePassLevelCallBack(data, context) {
         let status = data.status;
         if (status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             DebugLog.instance.error(data.message);
             
             // 触发训练大厅加载错误事件

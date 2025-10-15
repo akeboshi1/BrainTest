@@ -156,7 +156,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         } else {
             let results = data.data['result'];
@@ -204,11 +204,11 @@ export class TaskManager extends BaseManager {
     public requestInitLevalCallback(data: SocketData, context: any) {
         EventManager.getInstance().off(this.get_initial_eval_task, context);
         if (data.status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             DebugLog.instance.error(data.message);
         } else {
             if (!data.data) {
-                AlertManager.getInstance().showSocketAlert("初始评测任务数据为空");
+                AlertManager.getInstance().showToastAlert("初始评测任务数据为空");
                 return;
             }
             this._curTaskId = data.data.id;
@@ -250,7 +250,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         } else {
             let results = data.data['result'];
@@ -412,7 +412,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         } else {
             let id = data.data['task_id'];
@@ -449,7 +449,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         } else {
             let id = data.data['task_id'];
@@ -491,7 +491,7 @@ export class TaskManager extends BaseManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         } else {
             // DebugLog.instance.log(`获取通知成功`);

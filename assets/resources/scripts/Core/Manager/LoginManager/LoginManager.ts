@@ -177,7 +177,7 @@ export class LoginManager {
 
     private setInviteCodeCallBack(data: any) {
         if (data.status == 0) {
-            AlertManager.getInstance().showSocketAlert("无效邀请码");
+            AlertManager.getInstance().showToastAlert("无效邀请码");
             return;
         }
 
@@ -189,7 +189,7 @@ export class LoginManager {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
             DebugLog.instance.error(`请求${data['action']}失败，${data.message}`);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         }
         this._phoneNum = data['data']['mp_no'];
@@ -199,7 +199,7 @@ export class LoginManager {
     private requestLoginByMpHandler(data: any) {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
-            AlertManager.getInstance().showSocketAlert(`${data['message']}`);
+            AlertManager.getInstance().showToastAlert(`${data['message']}`);
             DebugLog.instance.error(`请求${data['action']}失败，请重新再试`);
             return;
         }
@@ -207,7 +207,7 @@ export class LoginManager {
         // 如果返回的数据中的手机号与当前用户的手机号不匹配，表示登录失败
         if (data['data']['mp_no'] != this.phoneNum) {
             DebugLog.instance.error(`手机号不匹配`);
-            AlertManager.getInstance().showSocketAlert(`${data['data']['mp_no']} 手机号不匹配`);
+            AlertManager.getInstance().showToastAlert(`${data['data']['mp_no']} 手机号不匹配`);
             return;
         }
 
@@ -278,7 +278,7 @@ export class LoginManager {
     
     private requestLoginOrganizationHandler(data: any) {
         if (data['status'] == 0) {
-            AlertManager.getInstance().showSocketAlert(`${data.message}`);
+            AlertManager.getInstance().showToastAlert(`${data.message}`);
             return;
         }
 
@@ -299,7 +299,7 @@ export class LoginManager {
     private requestGetOrganizationUsersHandler(data: any) {
         DebugLog.instance.log(data);
         if (data['status'] == 0) {
-            AlertManager.getInstance().showSocketAlert(`${data.message}`);
+            AlertManager.getInstance().showToastAlert(`${data.message}`);
             return;
         }
 
@@ -314,7 +314,7 @@ export class LoginManager {
 
     private requestLoginOrganizationAndUsernameHandler(data: any) {
         if (data['status'] == 0) {
-            AlertManager.getInstance().showSocketAlert(`${data.message}`);
+            AlertManager.getInstance().showToastAlert(`${data.message}`);
             return;
         }
         Global.userData.token = data.data['token'];

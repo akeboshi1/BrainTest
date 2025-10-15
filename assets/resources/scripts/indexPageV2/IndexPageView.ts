@@ -455,7 +455,7 @@ export class IndexPageView extends AdaptComponent {
      * 显示所有任务完成提示弹窗
      */
     private showAllTasksCompleteAlert() {
-        AlertManager.getInstance().showSocketAlert("今日份任务已经全部完成");
+        AlertManager.getInstance().showToastAlert("今日份任务已经全部完成");
     }
 
     showBrainTrainingPanel() {
