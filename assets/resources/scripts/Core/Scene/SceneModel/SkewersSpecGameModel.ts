@@ -259,7 +259,7 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                     maxCount: 0
                 },
                 [AlertType.Sucess_Normal]: {
-                    title: manager.singleCompleteStr,
+                    title: manager.failCompleteStr,
                     desc: manager.nextGameCompleteStr, // 新增空描述
                     handlers: [context.showNextFailHandler, context.exitCallBack],
                     curCount: 0,
