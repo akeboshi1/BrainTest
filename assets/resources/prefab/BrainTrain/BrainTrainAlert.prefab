@@ -2429,7 +2429,7 @@
         "__id__": 98
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 104
@@ -2818,7 +2818,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 250,
+      "x": 0,
       "y": 0,
       "z": 0
     },
@@ -3018,7 +3018,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 300,
+      "width": 900,
       "height": 160
     },
     "_anchorPoint": {
@@ -3176,7 +3176,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 800,
+      "width": 900,
       "height": 200
     },
     "_anchorPoint": {
