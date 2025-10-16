@@ -20,6 +20,9 @@ export class OrganizationMemberSelectPanel extends Component {
     @property(Label)
     private tips: Label;
 
+    @property(Node)
+    private clearNode: Node;
+
     @property(EditBox)
     selectUserInput: EditBox;
 
@@ -76,6 +79,11 @@ export class OrganizationMemberSelectPanel extends Component {
 
     public async textChange() {
         this._findUser = this.selectUserInput.string;
+        if(this._findUser && this._findUser.length > 0){
+            this.clearNode.active = true;
+        }else{
+            this.clearNode.active = false;
+        }
         this.searchUsers();
     }
 

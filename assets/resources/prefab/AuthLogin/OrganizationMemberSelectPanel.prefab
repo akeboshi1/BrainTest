@@ -1265,13 +1265,13 @@
     },
     "_string": "",
     "_horizontalAlign": 0,
-    "_verticalAlign": 0,
+    "_verticalAlign": 1,
     "_actualFontSize": 50,
     "_fontSize": 50,
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
-    "_enableWrapText": true,
+    "_enableWrapText": false,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
@@ -1430,7 +1430,7 @@
     "_fontFamily": "Arial",
     "_lineHeight": 50,
     "_overflow": 1,
-    "_enableWrapText": true,
+    "_enableWrapText": false,
     "_font": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
@@ -1582,7 +1582,7 @@
     "_tabIndex": 0,
     "_backgroundImage": null,
     "_inputFlag": 5,
-    "_inputMode": 0,
+    "_inputMode": 6,
     "_maxLength": 11,
     "_id": ""
   },
@@ -2064,7 +2064,7 @@
       "__id__": 35
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 83
@@ -3403,6 +3403,9 @@
     },
     "tips": {
       "__id__": 30
+    },
+    "clearNode": {
+      "__id__": 82
     },
     "selectUserInput": {
       "__id__": 59
