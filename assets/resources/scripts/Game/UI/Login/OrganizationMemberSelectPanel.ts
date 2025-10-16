@@ -97,8 +97,8 @@ export class OrganizationMemberSelectPanel extends Component {
         const searchTerm = this._findUser.toLowerCase();
 
         return this._memberList.filter(user => {
-            const nickname = user.nickname || '';
-            return nickname.toLowerCase().includes(searchTerm);
+            const fullname = user.full_name || '';
+            return fullname.toLowerCase().includes(searchTerm);
         });
     }
 
@@ -123,6 +123,11 @@ export class OrganizationMemberSelectPanel extends Component {
             memberItem.getComponent(OrganizationMember).setData(memberList[i]);
             this.memberItemContainer.addChild(memberItem);
         }
+    }
+
+    public clearSerch(){
+        this.selectUserInput.string = "";
+        this.textChange();
     }
 
 
