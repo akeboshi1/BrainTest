@@ -125,6 +125,11 @@ export class OrganizationMemberSelectPanel extends Component {
         }
     }
 
+    public clearSerch(){
+        this.selectUserInput.string = "";
+        this.textChange();
+    }
+
 
 
 }
