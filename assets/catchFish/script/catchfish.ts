@@ -35,6 +35,7 @@ import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global
 import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 
 
@@ -404,8 +405,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
 
-    public clearGameView() {
-        super.clearGameView();
+    public clearGameView(clearwang:boolean = true) {
+        AudioManager.getInstance().stopLongSound();
+        AudioManager.getInstance().stopBgm();
         this._clearBoo = true;
         this._gameEnded = true; // 确保训练彻底结束
         this._isPaused = false; // 重置暂停状态
@@ -414,8 +416,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._wangTween = null;
         }
 
-        // 清理所有渔网节点
-        this.clearAllWangNodes();
+        // // 清理所有渔网节点
+        if(clearwang)this.clearAllWangNodes();
 
         // 停止所有动画
         Tween.stopAll();
@@ -1515,20 +1517,14 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         for (let i = 0; i < this.wang.length && i < this._wangPosList.length; i++) {
             const wangNode = this.wang[i];
             const originalPos = this._wangPosList[i];
-            
+            if(!wangNode) continue;
             // 恢复原始位置
-            wangNode.setPosition(originalPos.x, originalPos.y, wangNode.position.z);
+            wangNode.setPosition(originalPos.x, originalPos.y);
             
             // 恢复原始缩放
             wangNode.setScale(1, 1, 1);
 
             wangNode.active = false;
-            
-            // 恢复原始颜色（如果需要的话）
-            const sprite = wangNode.getComponent(Sprite);
-            if (sprite) {
-                sprite.color = this.unSelectColor;
-            }
         }
     }
 
@@ -1866,8 +1862,11 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         game.off(Game.EVENT_HIDE, this.onAppHide, this);
         game.off(Game.EVENT_SHOW, this.onAppShow, this);
 
-        // 调用父类的onDestroy方法
-        super.onDestroy();
+        this.complete = 0;
+        this.duration = 0;
+        this.clearGameView(false);
+        EventManager.getInstance().disableContext(this);
+        this.sceneModel.destory();
     }
 
 
