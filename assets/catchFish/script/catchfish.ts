@@ -170,7 +170,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // ====================== 继承basescene ===================
     onLoad() {
-        this.audioUrls = ["music/fishBG", "music/fishCatch", "music/win","music/success"];
+        this.audioUrls = ["music/fishBG", "music/fishCatch", "music/win","music/success","music/correct","music/error"];
         this.bundleName = BundleName.CATCHFISH;
         let self = this;
         this.loadAudio().then(() => {
@@ -1334,6 +1334,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         let len = this.wangs.length;
 
         if (index !== this._curFish.currentIndex) {
+            this.playAudio("music/error");
             for (let i = 0; i < len; i++) {
                 // 如果当前索引等于传入的索引，则调用selectWang方法
                 if (i == index) {
@@ -1407,7 +1408,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 设置特效播放标志
         this._isEffectPlaying = true;
 
-        this.playAudio("music/success", true);
+        this.playAudio("music/correct", true);
 
         // 启动动画 - 网飞向鱼的视觉中心
         this._wangTween = tween(wang).parallel(
@@ -1505,7 +1506,30 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // 清理所有渔网节点
     private clearAllWangNodes() {
-        return;
+        // 停止所有wang节点的动画
+        for (let i = 0; i < this.wang.length; i++) {
+            Tween.stopAllByTarget(this.wang[i]);
+        }
+        
+        // 将所有wang节点恢复到原始位置
+        for (let i = 0; i < this.wang.length && i < this._wangPosList.length; i++) {
+            const wangNode = this.wang[i];
+            const originalPos = this._wangPosList[i];
+            
+            // 恢复原始位置
+            wangNode.setPosition(originalPos.x, originalPos.y, wangNode.position.z);
+            
+            // 恢复原始缩放
+            wangNode.setScale(1, 1, 1);
+
+            wangNode.active = false;
+            
+            // 恢复原始颜色（如果需要的话）
+            const sprite = wangNode.getComponent(Sprite);
+            if (sprite) {
+                sprite.color = this.unSelectColor;
+            }
+        }
     }
 
     private async endCurHardGame() {
