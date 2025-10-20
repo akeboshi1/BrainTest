@@ -200,7 +200,9 @@ export class ChatPanel extends BasePanel {
             this.animateCharactorToState1();
         } else {
             this.showSubline();
-            this.animateCharactorToState2();
+            this.scheduleOnce(()=>{
+                this.animateCharactorToState2();
+            },0);
         }
         this._sublineShowState = !this._sublineShowState;
     }
@@ -212,7 +214,7 @@ export class ChatPanel extends BasePanel {
             this._sublineShowState = !this._sublineShowState;
         }
     }
-
+    
     showSubline() {
         this.sublineBtnLabel.string = this._sublineBtnTurnOffStr;
         this.sublineScrollView.node.active = true;
@@ -280,9 +282,7 @@ export class ChatPanel extends BasePanel {
 
         this._charactorAnimating = true;
 
-        // 获取屏幕高度
-        const screenHeight = view.getVisibleSize().height;
-        const targetY = screenHeight / 2 - 80;
+        const targetY = this.sublineScrollView.node.position.y + 180;
 
         // 目标位置和缩放
         const targetPosition = new Vec3(-300, targetY, 0);
