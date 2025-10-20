@@ -769,8 +769,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             const updateDisplay = (time) => {
                 self.countDownLabel.string = `${Math.floor(time)}`;
                 tween(self.countDownLabel.node)
-                    .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
-                    .to(0.25, { scale: new Vec3(1, 1, 1) })
+                    // .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
+                    // .to(0.25, { scale: new Vec3(1, 1, 1) })
                     .start();
             };
 

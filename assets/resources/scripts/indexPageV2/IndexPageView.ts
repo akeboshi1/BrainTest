@@ -19,8 +19,9 @@ import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/B
 import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptComponent";
 import { VipAlert } from '../Game/UI/Vip/VipAlert';
 import { GameType } from '../Core/Scene/SceneModel/BaseGameModel';
-import { ThemeConfig } from '../Config/ThemeConfig';
+import { ThemeConfig, ThemeConfigData } from '../Config/ThemeConfig';
 import { SkewersManager } from '../Game/Task/Skewers/SkewersManager';
+import { GlobalConfigManager } from '../Config/GlobalConfigManager';
 
 
 const { ccclass, property } = _decorator;
@@ -253,22 +254,6 @@ export class IndexPageView extends AdaptComponent {
         UIManager.getInstance().showPanel(VipPanel.NAME);
     }
 
-    /**
-     * 获取当前应该使用的配置类型
-     * @returns 配置类型：'normal' 或节日名称
-     */
-    getCurrentConfigType(): string {
-        // 可以根据实际需求来判断，比如：
-        // 1. 根据当前日期判断节日
-        // 2. 根据用户设置
-        // 3. 根据服务器配置等
-
-        let currentFestival = ThemeConfig.getInstance().getThemeTitle();
-        if (currentFestival == "" || currentFestival == null) {
-            currentFestival = "normal";
-        }
-        return currentFestival;
-    }
 
     /**
      * 应用首页配置到UI
@@ -280,82 +265,13 @@ export class IndexPageView extends AdaptComponent {
             return;
         }
 
-        DebugLog.instance.log("IndexPageView开始应用首页配置");
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        let config = null;
-
-        // 优先从用户信息缓存中获取配置
-        if (userData) {
-            const cachedConfig = userData.getIndexPageConfigCache();
-            if (cachedConfig) {
-                DebugLog.instance.log("使用缓存的首页配置");
-                config = cachedConfig;
-            }
-        }
-
-        // 如果缓存中没有配置，则重新加载
-        if (!config) {
-            DebugLog.instance.log("缓存中没有配置，重新加载首页配置");
-            await this.indexPageConfig.loadConfig();
-            let type = this.getCurrentConfigType(); // 动态获取配置类型
-
-            if (type === "normal") {
-                config = this.indexPageConfig.normalConfig;
-            } else {
-                config = ThemeConfig.getInstance().getConfig();
-            }
-
-            // 将配置存储到用户信息缓存中
-            if (userData && config) {
-                // 确保缓存包含任务配置
-                const cacheData = {
-                    ...config,
-                    tasks: config.tasks || (type === "normal" ? this.taskConfig.normalTaskData : ThemeConfig.getInstance().getTasksConfig())
-                };
-                userData.setIndexPageConfigCache(cacheData);
-                DebugLog.instance.log("首页配置已缓存到用户信息中");
-            }
-        }
-        if (config && config.ui) {
-            // 应用UI配置
-            if (config.ui.bg) {
-                // 设置标题背景 - 统一使用远程加载
-                const titleSprite = await this.loadRemoteSprite(config.ui.bg);
-
-                if (this.titleBg && titleSprite) {
-                    this.titleBg.getComponent(Sprite).spriteFrame = titleSprite;
-                }
-                DebugLog.instance.log("应用标题配置:", config.ui.bg);
-            }
-            if (config.ui.middle) {
-                // 设置图标0 - 统一使用远程加载`
-                const icon0Sprite = await this.loadRemoteSprite(config.ui.middle);
-
-                if (this.titleIcon && icon0Sprite) {
-                    const transform = this.titleIcon.getComponent(Sprite).node.getComponent(UITransform);
-                    // 调整尺寸
-                    transform.width = icon0Sprite.width;
-                    transform.height = icon0Sprite.height;
-                    // 调整位置 - 保持图片中心位置不变
-                    const currentPos = this.titleIcon.position;
-                    this.titleIcon.setPosition(
-                        currentPos.x + 40,
-                        currentPos.y + 260,
-                        currentPos.z
-                    );
-                    this.titleIcon.getComponent(Sprite).spriteFrame = icon0Sprite;
-                }
-            }
-            if (config.ui.title) {
-                // 设置图标1 - 统一使用远程加载
-                const icon1Sprite = await this.loadRemoteSprite(config.ui.title);
-
-                if (this.titleText && icon1Sprite) {
-                    this.titleText.getComponent(Sprite).spriteFrame = icon1Sprite;
-                }
-                DebugLog.instance.log("应用图标1配置:", config.ui.title);
-            }
-        }
+        // 使用GlobalConfigManager的公共方法
+        await GlobalConfigManager.getInstance().applyIndexPageConfig(
+            this.titleBg,
+            this.titleIcon,
+            this.titleText,
+            this.loadRemoteSprite.bind(this)
+        );
 
         // 标记配置已应用
         this._configApplied = true;
@@ -363,38 +279,25 @@ export class IndexPageView extends AdaptComponent {
     }
 
     async generateTask() {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        let taskdata = null;
-
-        // 优先从用户信息缓存中获取任务配置
-        if (userData) {
-            const cachedConfig = userData.getIndexPageConfigCache();
-            if (cachedConfig && cachedConfig.tasks) {
-                DebugLog.instance.log("使用缓存的任务配置");
-                taskdata = cachedConfig.tasks;
-            }
-        }
+        // 使用GlobalConfigManager获取任务配置
+        const taskdata = await GlobalConfigManager.getInstance().getTaskConfig();
+        
         await this.taskConfig.loadConfig();
         EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this._taskListCallBack.bind(this,taskdata), this, true);
         TaskManager.getInstance().requestTaskList();
-
     }
 
     private async _taskListCallBack(taskdata){
         // 如果缓存中没有任务配置，则重新加载
         if (!taskdata) {
             DebugLog.instance.log("缓存中没有任务配置，重新加载");
-
-            let type = this.getCurrentConfigType(); // 使用相同的动态类型判断
-
-            if (type == "normal") {
-                taskdata = this.taskConfig.normalTaskData;
-            } else {
-                taskdata = ThemeConfig.getInstance().getTasksConfig();
-            }
+            taskdata = await GlobalConfigManager.getInstance().getTaskConfig();
         }
 
-
+        let iconPath =[
+            "textureV2/indexPage/brainIcon/spriteFrame",
+            "textureV2/indexPage/handIcon/spriteFrame",
+            "textureV2/indexPage/talkIcon/spriteFrame"];
         for (let i = 0; i < taskdata.length; i++) {
             let taskItem = instantiate(this.taskPrefab);
             let taskController = taskItem.getComponent(TaskItemController);
@@ -409,18 +312,19 @@ export class IndexPageView extends AdaptComponent {
                     taskController.setIsComplete(true);
                 }
             }
-            await taskController.setTaskBg(taskdata[i].icon_bg, taskdata[i].width, taskdata[i].height);
-            await taskController.setbgColor(taskdata[i].bg0_color, taskdata[i].bg1_color, taskdata[i].bg2_color, taskdata[i].bg3_color);
+            await taskController.setTaskBg(taskdata[i].btn);
+            await taskController.setTaskIcon(iconPath[i], taskdata[i].icon_color);
+            await taskController.setbgColor(taskdata[i].bg0_color, taskdata[i].bg1_color);
 
             //设置文本颜色
-            if (taskdata[i].word_color) {
-                taskController.setTaskWordColor(taskdata[i].word_color);
-            }
+            // if (taskdata[i].word_color) {
+            //     taskController.setTaskWordColor(taskdata[i].word_color);
+            // }
 
-            // 设置文本外发光效果
-            if (taskdata[i].word_out_color) {
-                taskController.setTaskWordOutline(taskdata[i].word_out_color);
-            }
+            // // 设置文本外发光效果
+            // if (taskdata[i].word_out_color) {
+            //     taskController.setTaskWordOutline(taskdata[i].word_out_color);
+            // }
 
             // taskController.setIsComplete(taskdata[i].is_complete);
             taskController.setClickCallback(this[taskdata[i].click_function_name].bind(this))
@@ -493,6 +397,10 @@ export class IndexPageView extends AdaptComponent {
         }
     }
 
+    showAIChatPanel(){
+
+    }
+
     private _clickBoo = false;
     goToFingerCame() {
         if (this._clickBoo) {
@@ -534,11 +442,8 @@ export class IndexPageView extends AdaptComponent {
      * 清除缓存并重新加载配置
      */
     async refreshIndexPageConfig(): Promise<void> {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        if (userData) {
-            userData.clearIndexPageConfigCache();
-            DebugLog.instance.log("已清除首页配置缓存，将重新加载");
-        }
+        // 使用GlobalConfigManager清除缓存
+        await GlobalConfigManager.getInstance().refreshIndexPageConfig();
 
         // 重置配置应用标志
         this._configApplied = false;
