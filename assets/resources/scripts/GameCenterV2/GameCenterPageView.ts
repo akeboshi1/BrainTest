@@ -11,6 +11,7 @@ import { GuidePanel } from "db://assets/resources/scripts/Game/UI/Alert/GuidePan
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { IndexPageConfig } from '../indexPageV2/IndexPageConfig';
 import { ThemeConfig } from '../Config/ThemeConfig';
+import { ChatPanel } from '../Game/UI/ChatPanel/ChatPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameCenterPageView')
@@ -396,6 +397,11 @@ export class GameCenterPageView extends Component {
         if (this._dataLoadPromise) {
             await this._dataLoadPromise;
         }
+    }
+
+    onClickStartChatBtn(){
+        UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
+        UIManager.getInstance().showPanel(ChatPanel.NAME);
     }
 }
 
