@@ -124,7 +124,7 @@ export class ChatPanel extends BasePanel {
 
     onAiSpeakerStatueChanged(state: AISpeakingState) {
         console.log("刷新测试界面：AI说话状态： " + state);
-        this.talkingAnimNode.active = state == AISpeakingState.FINISHED;
+        this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
         this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
     }
 
@@ -191,6 +191,7 @@ export class ChatPanel extends BasePanel {
             this.talkingLabel.string = "";
         }
         this.microBtnMask.active = state == MicrophoneState.PENDING;
+        this.talkingAnimNode.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.FINISHED && state == MicrophoneState.OPEN;
     }
 
     onClickShowSublineBtn() {
@@ -202,6 +203,14 @@ export class ChatPanel extends BasePanel {
             this.animateCharactorToState2();
         }
         this._sublineShowState = !this._sublineShowState;
+    }
+
+    onClickCharactorBtn(){
+        if (this._sublineShowState) {
+            this.hideSubline();
+            this.animateCharactorToState1();
+            this._sublineShowState = !this._sublineShowState;
+        }
     }
 
     showSubline() {
