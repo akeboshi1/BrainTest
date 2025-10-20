@@ -9,10 +9,12 @@ import { IndexPageConfig } from '../indexPageV2/IndexPageConfig';
 import { ThemeConfig } from '../Config/ThemeConfig';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { GlobalConfigManager } from '../Config/GlobalConfigManager';
+import { ImageLoaderUtil } from '../Core/Util/ImageLoaderUtil';
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 const { ccclass, property } = _decorator;
 
 @ccclass('ReportPageController')
-export class ReportPageController extends Component {
+export class ReportPageController extends AdaptComponent {
     @property(TopNavBarController)
     topNavBarController: TopNavBarController = null;
 
@@ -49,6 +51,7 @@ export class ReportPageController extends Component {
     }
 
     async start() {
+        super.start();
         // 创建数据加载Promise
         this._dataLoadPromise = new Promise<void>((resolve) => {
             this._dataLoadResolve = resolve;
@@ -139,50 +142,6 @@ export class ReportPageController extends Component {
     }
 
 
-    /**
-     * 从远程URL加载图片并转换为SpriteFrame
-     * @param url 远程图片URL
-     * @returns Promise<SpriteFrame>
-     */
-    async loadRemoteSprite(url: string): Promise<SpriteFrame> {
-        return new Promise((resolve, reject) => {
-            this.wwwLoadSpriteFrame(url,(spriteFrame: SpriteFrame) => {
-                if (spriteFrame) {
-                    resolve(spriteFrame);
-                } else {
-                    reject(new Error(`远程图片加载失败: ${url}`));
-                }
-            });
-        });
-    }
-
-    /**
-     * 使用assetManager加载远程图片
-     * @param path 远程图片路径
-     * @param completeHD 完成回调函数
-     */
-    public wwwLoadSpriteFrame(path: string,completeHD?: Function) {
-        assetManager.loadRemote<ImageAsset>(path,
-            {
-                xhrResponseType: "blob",
-                xhrHeader: { 'Content-Type': 'application/octet-stream' }
-            },
-            (err, imageAsset: ImageAsset) => {
-                if (err) {
-                    DebugLog.instance.error("load error  ");
-                    DebugLog.instance.log(err);
-                    completeHD(null);
-                    return;
-                }
-                const spriteFrame = new SpriteFrame();
-                const texture = new Texture2D();
-                texture.image = imageAsset;
-                spriteFrame.texture = texture;
-                
-                completeHD(spriteFrame);
-            }
-        );
-    }
 
     /**
      * 应用首页配置到UI
@@ -198,8 +157,7 @@ export class ReportPageController extends Component {
         await GlobalConfigManager.getInstance().applyIndexPageConfig(
             this.titleBg,
             this.titleIcon,
-            this.titleText,
-            this.loadRemoteSprite.bind(this)
+            this.titleText
         );
 
         // 标记配置已应用

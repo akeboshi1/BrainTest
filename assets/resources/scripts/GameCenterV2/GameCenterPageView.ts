@@ -11,11 +11,12 @@ import { GuidePanel } from "db://assets/resources/scripts/Game/UI/Alert/GuidePan
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { GlobalConfigManager } from '../Config/GlobalConfigManager';
 import { ChatPanel } from '../Game/UI/ChatPanel/ChatPanel';
+import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 
 const { ccclass, property } = _decorator;
 
 @ccclass('GameCenterPageView')
-export class GameCenterPageView extends Component {
+export class GameCenterPageView extends AdaptComponent {
 
     // ====================== 训练大厅
     public static NAME: string = "GameCenter";
@@ -49,6 +50,7 @@ export class GameCenterPageView extends Component {
     }
 
     async start() {
+        super.start();
         await this.gameCenterInit();
     }
 
@@ -226,50 +228,6 @@ export class GameCenterPageView extends Component {
     }
 
 
-    /**
-     * 从远程URL加载图片并转换为SpriteFrame
-     * @param url 远程图片URL
-     * @returns Promise<SpriteFrame>
-     */
-    async loadRemoteSprite(url: string): Promise<SpriteFrame> {
-        return new Promise((resolve, reject) => {
-            this.wwwLoadSpriteFrame(url,(spriteFrame: SpriteFrame) => {
-                if (spriteFrame) {
-                    resolve(spriteFrame);
-                } else {
-                    reject(new Error(`远程图片加载失败: ${url}`));
-                }
-            });
-        });
-    }
-
-    /**
-     * 使用assetManager加载远程图片
-     * @param path 远程图片路径
-     * @param completeHD 完成回调函数
-     */
-    public wwwLoadSpriteFrame(path: string,completeHD?: Function) {
-        assetManager.loadRemote<ImageAsset>(path,
-            {
-                xhrResponseType: "blob",
-                xhrHeader: { 'Content-Type': 'application/octet-stream' }
-            },
-            (err, imageAsset: ImageAsset) => {
-                if (err) {
-                    DebugLog.instance.error("load error  ");
-                    DebugLog.instance.log(err);
-                    completeHD(null);
-                    return;
-                }
-                const spriteFrame = new SpriteFrame();
-                const texture = new Texture2D();
-                texture.image = imageAsset;
-                spriteFrame.texture = texture;
-                
-                completeHD(spriteFrame);
-            }
-        );
-    }
 
     /**
      * 应用首页配置到UI
@@ -281,8 +239,7 @@ export class GameCenterPageView extends Component {
         await GlobalConfigManager.getInstance().applyIndexPageConfig(
             this.titleBg,
             this.titleIcon,
-            this.titleText,
-            this.loadRemoteSprite.bind(this)
+            this.titleText
         );
 
         DebugLog.instance.log("GameCenter配置应用完成");

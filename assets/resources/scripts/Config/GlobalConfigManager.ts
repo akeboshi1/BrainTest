@@ -9,6 +9,7 @@ import { IndexPageConfig } from '../indexPageV2/IndexPageConfig';
 import { TaskContainerConfig } from '../indexPageV2/TaskContainerConfig';
 import { DebugLog } from '../Core/Util/DebugLog';
 import { SpriteFrame, Sprite, UITransform, Node } from 'cc';
+import { ImageLoaderUtil } from '../Core/Util/ImageLoaderUtil';
 
 export class GlobalConfigManager extends BaseManager {
     private static _instance: GlobalConfigManager = null;
@@ -78,13 +79,11 @@ export class GlobalConfigManager extends BaseManager {
      * @param titleBg 标题背景节点
      * @param titleIcon 标题图标节点
      * @param titleText 标题文本节点
-     * @param loadRemoteSprite 远程图片加载函数
      */
     async applyIndexPageConfig(
         titleBg: Node, 
         titleIcon: Node, 
-        titleText: Node, 
-        loadRemoteSprite: (url: string) => Promise<SpriteFrame>
+        titleText: Node
     ): Promise<void> {
         DebugLog.instance.log("GlobalConfigManager开始应用首页配置");
         const userData = PersonalCenterManager.getInstance().userInfoData;
@@ -127,7 +126,7 @@ export class GlobalConfigManager extends BaseManager {
             // 应用UI配置
             if (config.theme.ui.bg) {
                 // 设置标题背景 - 统一使用远程加载
-                const titleSprite = await loadRemoteSprite(config.theme.ui.bg);
+                const titleSprite = await ImageLoaderUtil.getInstance().loadRemoteSprite(config.theme.ui.bg);
 
                 if (titleBg && titleSprite) {
                     titleBg.getComponent(Sprite).spriteFrame = titleSprite;
@@ -136,7 +135,7 @@ export class GlobalConfigManager extends BaseManager {
             }
             if (config.theme.ui.middle) {
                 // 设置图标0 - 统一使用远程加载
-                const icon0Sprite = await loadRemoteSprite(config.theme.ui.middle);
+                const icon0Sprite = await ImageLoaderUtil.getInstance().loadRemoteSprite(config.theme.ui.middle);
 
                 if (titleIcon && icon0Sprite) {
                     const transform = titleIcon.getComponent(Sprite).node.getComponent(UITransform);
@@ -155,7 +154,7 @@ export class GlobalConfigManager extends BaseManager {
             }
             if (config.theme.ui.title) {
                 // 设置图标1 - 统一使用远程加载
-                const icon1Sprite = await loadRemoteSprite(config.theme.ui.title);
+                const icon1Sprite = await ImageLoaderUtil.getInstance().loadRemoteSprite(config.theme.ui.title);
 
                 if (titleText && icon1Sprite) {
                     titleText.getComponent(Sprite).spriteFrame = icon1Sprite;

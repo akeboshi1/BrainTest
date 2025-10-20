@@ -551,7 +551,7 @@ export class GameAlert extends AdaptComponent {
         // 根据AlertType确定显示文本
         let displayText = "";
         if (this._type === AlertType.Sucess_Normal) {
-            displayText = `下一维度 (${this._countdownTime})`;
+            displayText = `进入下一游戏 (${this._countdownTime})`;
         } else if (this._type === AlertType.Normal) {
             displayText = `下一关 (${this._countdownTime})`;
         } else {

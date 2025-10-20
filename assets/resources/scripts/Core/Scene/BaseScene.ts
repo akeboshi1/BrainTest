@@ -339,13 +339,13 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
     }
 
     // ========== 播放音频 ==========
-    public playAudio(url: string, isShot: boolean = false, isLoop: boolean = false):AudioClip {
+    public playAudio(url: string, isShot: boolean = false, isLoop: boolean = false,volume: number = 1.0):AudioClip {
         let audioRes = this.audioMap.get(url);
         if (audioRes != null) {
             if (isShot) {
-                AudioManager.getInstance().playShortSound(audioRes);
+                AudioManager.getInstance().playShortSound(audioRes,volume);
             } else {
-                AudioManager.getInstance().playLongSound(audioRes, isLoop);
+                AudioManager.getInstance().playLongSound(audioRes, isLoop,volume);
             }
             return audioRes;
         }else{
