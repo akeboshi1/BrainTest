@@ -8,6 +8,7 @@ import { VipAlert } from '../Game/UI/Vip/VipAlert';
 import { IndexPageConfig } from '../indexPageV2/IndexPageConfig';
 import { ThemeConfig } from '../Config/ThemeConfig';
 import { DebugLog } from '../Core/Util/DebugLog';
+import { GlobalConfigManager } from '../Config/GlobalConfigManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('ReportPageController')
@@ -28,7 +29,6 @@ export class ReportPageController extends Component {
     private pageParams: any = null;
 
     // 首页配置相关属性
-    private indexPageConfig: IndexPageConfig = new IndexPageConfig();
     private _configApplied: boolean = false; // 防止重复应用配置
 
     // 数据加载完成通知相关属性
@@ -138,17 +138,6 @@ export class ReportPageController extends Component {
 
     }
 
-    /**
-     * 获取当前应该使用的配置类型
-     * @returns 配置类型：'normal' 或节日名称
-     */
-    getCurrentConfigType(): string {
-        let currentFestival = ThemeConfig.getInstance().getThemeTitle();
-        if(currentFestival == "" || currentFestival == null){
-            currentFestival = "normal";
-        }
-        return currentFestival;
-    }
 
     /**
      * 从远程URL加载图片并转换为SpriteFrame
@@ -204,92 +193,15 @@ export class ReportPageController extends Component {
             DebugLog.instance.log("ReportPage配置已经应用过，跳过重复调用");
             return;
         }
-        
-        DebugLog.instance.log("ReportPage开始应用首页配置");
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        let config = null;
-        
-        // 优先从用户信息缓存中获取配置
-        if (userData) {
-            DebugLog.instance.log("ReportPage用户数据存在，检查缓存");
-            const cachedConfig = userData.getIndexPageConfigCache();
-            if (cachedConfig) {
-                DebugLog.instance.log("ReportPage使用缓存的首页配置");
-                config = cachedConfig;
-            } else {
-                DebugLog.instance.log("ReportPage缓存中没有配置");
-            }
-        } else {
-            DebugLog.instance.log("ReportPage用户数据不存在");
-        }
-        
-        // 如果缓存中没有配置，则重新加载
-        if (!config) {
-            DebugLog.instance.log("ReportPage缓存中没有配置，重新加载首页配置");
-            await this.indexPageConfig.loadConfig();
-            let type = this.getCurrentConfigType(); // 动态获取配置类型
-            
-            if (type === "normal") {
-                config = this.indexPageConfig.normalConfig;
-            } else {
-                config = ThemeConfig.getInstance().getConfig();
-            }
-            
-            // 将配置存储到用户信息缓存中
-            if (userData && config) {
-                userData.setIndexPageConfigCache(config);
-                DebugLog.instance.log("ReportPage首页配置已缓存到用户信息中");
-            }
-        }
-        
-        if (config && config.ui) {
-            DebugLog.instance.log("ReportPage配置存在，开始应用UI配置");
-            // 应用UI配置
-            if (config.ui.bg) {
-                DebugLog.instance.log("ReportPage开始加载背景图片:", config.ui.bg);
-                // 设置标题背景 - 统一使用远程加载
-                const titleSprite = await this.loadRemoteSprite(config.ui.bg);
-                
-                if (this.titleBg && titleSprite) {
-                    this.titleBg.getComponent(Sprite).spriteFrame = titleSprite;
-                    DebugLog.instance.log("ReportPage成功应用标题背景配置");
-                } else {
-                    DebugLog.instance.log("ReportPage标题背景节点或图片不存在", this.titleBg, titleSprite);
-                }
-                DebugLog.instance.log("ReportPage应用标题配置:", config.ui.bg);
-            } else {
-                DebugLog.instance.log("ReportPage配置中没有背景图片");
-            }
-            if (config.ui.middle) {
-                // 设置图标0 - 统一使用远程加载
-                const icon0Sprite = await this.loadRemoteSprite(config.ui.middle);
 
-                if (this.titleIcon && icon0Sprite) {
-                    const transform = this.titleIcon.getComponent(Sprite).node.getComponent(UITransform);
-                    // 调整尺寸
-                    transform.width = icon0Sprite.width;
-                    transform.height = icon0Sprite.height;
-                    // 调整位置 - 保持图片中心位置不变
-                    const currentPos = this.titleIcon.position;
-                    this.titleIcon.setPosition(
-                        currentPos.x + 40 ,
-                        currentPos.y + 260,
-                        currentPos.z
-                    );
-                    this.titleIcon.getComponent(Sprite).spriteFrame = icon0Sprite;
-                }
-            }
-            if (config.ui.title) {
-                // 设置图标1 - 统一使用远程加载
-                // const icon1Sprite = await this.loadRemoteSprite(config.ui.title);
-                
-                // if (this.titleText && icon1Sprite) {
-                //     this.titleText.getComponent(Sprite).spriteFrame = icon1Sprite;
-                // }
-                // DebugLog.instance.log("ReportPage应用图标1配置:", config.ui.title);
-            }
-        }
-        
+        // 使用GlobalConfigManager的公共方法
+        await GlobalConfigManager.getInstance().applyIndexPageConfig(
+            this.titleBg,
+            this.titleIcon,
+            this.titleText,
+            this.loadRemoteSprite.bind(this)
+        );
+
         // 标记配置已应用
         this._configApplied = true;
         DebugLog.instance.log("ReportPage配置应用完成");
@@ -300,11 +212,8 @@ export class ReportPageController extends Component {
      * 清除缓存并重新加载配置
      */
     async refreshIndexPageConfig(): Promise<void> {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        if (userData) {
-            userData.clearIndexPageConfigCache();
-            DebugLog.instance.log("ReportPage已清除首页配置缓存，将重新加载");
-        }
+        // 使用GlobalConfigManager清除缓存
+        await GlobalConfigManager.getInstance().refreshIndexPageConfig();
         
         // 重置配置应用标志
         this._configApplied = false;

@@ -4,32 +4,29 @@
             {
                 "title": "今日份训练",
                 "txt": "专为老年人设计的脑力训练",
-                "icon": "",
-                "icon_bg": "textureV2/indexPage/rect1/spriteFrame",
-                "bg0_color":"#139636",
-                "bg1_color":"#C7F7D3",
-                "bg2_color":"#0077B5",
-                "bg3_color":"#CFF9FF",
-                "width":302,
-                "height":217,
-                "word_color": "#0077B5",
-                "word_out_color":"#000000",
+                "icon_color": "",
+                "btn": "textureV2/indexPage/index_normal_btn/spriteFrame",
+                "bg0_color":"124DE5",
+                "bg1_color":"E0E0E0",
                 "click_function_name": "showBrainTrainingPanel"
             },
             {
                 "title": "益脑手指操",
                 "txt": "训练手部运动协同锻炼",
-                "icon": "",
-                "icon_bg": "textureV2/indexPage/rect1/spriteFrame",
-                "bg0_color":"#E62265",
-                "bg1_color":"#ECCDD8",
-                "bg2_color":"#0077B5",
-                "bg3_color":"#CFF9FF",
-                "width":302,
-                "height":217,
-                "word_color": "#0077B5",
-                "word_out_color":"#000000",
-                "click_function_name": "navigateToFingerGame"
+                "icon_color": "",
+                "btn": "textureV2/indexPage/index_normal_btn/spriteFrame",
+                "bg0_color":"124DE5",
+                "bg1_color":"E0E0E0",
+                "click_function_name": "navigatetoFingerGame"
+            },
+            {
+                "title": "数字人陪聊",
+                "txt": "数字人智能陪聊，缓解孤独感，提升情绪健康。",
+                "icon_color": "",
+                "btn": "textureV2/indexPage/index_normal_btn/spriteFrame",
+                "bg0_color":"124DE5",
+                "bg1_color":"E0E0E0",
+                "click_function_name": "showAIChatPanel"
             }
         ]
     }

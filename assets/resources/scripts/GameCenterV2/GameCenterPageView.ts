@@ -9,9 +9,9 @@ import { BundlePreloadEvent } from '../Core/Manager/Load/BundlePreloadManager';
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { GuidePanel } from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
-import { IndexPageConfig } from '../indexPageV2/IndexPageConfig';
-import { ThemeConfig } from '../Config/ThemeConfig';
+import { GlobalConfigManager } from '../Config/GlobalConfigManager';
 import { ChatPanel } from '../Game/UI/ChatPanel/ChatPanel';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('GameCenterPageView')
@@ -32,10 +32,8 @@ export class GameCenterPageView extends Component {
     @property(Node)
     private titleText: Node = null;
 
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句',"手指操"];
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句',"手指操","天平","24点"];
 
-    // 首页配置相关属性
-    private indexPageConfig: IndexPageConfig = new IndexPageConfig();
 
     // 数据加载完成通知相关属性
     private _dataLoadPromise: Promise<void> = null;
@@ -107,20 +105,20 @@ export class GameCenterPageView extends Component {
             GameCenterManager.getInstance().perload(url,BundleName.FINGERGAME);
             return;
         }
-        // if(index== 7){
-        //     let url = Global.RES_Root + BundleName.BALANCE;
-        //     DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
-        //     EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-        //     GameCenterManager.getInstance().perload(url,BundleName.BALANCE);
-        //     return;
-        // }
-        // if(index== 8){
-        //     let url = Global.RES_Root + BundleName.MATH24;
-        //     DebugLog.instance.log(`${BundleName.MATH24} click perload`);
-        //     EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-        //     GameCenterManager.getInstance().perload(url,BundleName.MATH24);
-        //     return;
-        // }
+        if(index== 7){
+            let url = Global.RES_Root + BundleName.BALANCE;
+            DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.BALANCE);
+            return;
+        }
+        if(index== 8){
+            let url = Global.RES_Root + BundleName.MATH24;
+            DebugLog.instance.log(`${BundleName.MATH24} click perload`);
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url,BundleName.MATH24);
+            return;
+        }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
                 this._clickBoo = false;
@@ -227,17 +225,6 @@ export class GameCenterPageView extends Component {
         });
     }
 
-    /**
-     * 获取当前应该使用的配置类型
-     * @returns 配置类型：'normal' 或节日名称
-     */
-    getCurrentConfigType(): string {
-        let currentFestival = ThemeConfig.getInstance().getThemeTitle();
-        if(currentFestival == "" || currentFestival == null){
-            currentFestival = "normal";
-        }
-        return currentFestival;
-    }
 
     /**
      * 从远程URL加载图片并转换为SpriteFrame
@@ -289,89 +276,16 @@ export class GameCenterPageView extends Component {
      */
     async applyIndexPageConfig() {
         DebugLog.instance.log("GameCenter开始应用首页配置");
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        let config = null;
         
-        // 优先从用户信息缓存中获取配置
-        if (userData) {
-            DebugLog.instance.log("GameCenter用户数据存在，检查缓存");
-            const cachedConfig = userData.getIndexPageConfigCache();
-            if (cachedConfig) {
-                DebugLog.instance.log("GameCenter使用缓存的首页配置");
-                config = cachedConfig;
-            } else {
-                DebugLog.instance.log("GameCenter缓存中没有配置");
-            }
-        } else {
-            DebugLog.instance.log("GameCenter用户数据不存在");
-        }
-        
-        // 如果缓存中没有配置，则重新加载
-        if (!config) {
-            DebugLog.instance.log("GameCenter缓存中没有配置，重新加载首页配置");
-            await this.indexPageConfig.loadConfig();
-            let type = this.getCurrentConfigType(); // 动态获取配置类型
-            
-            if (type === "normal") {
-                config = this.indexPageConfig.normalConfig;
-            } else {
-                config = ThemeConfig.getInstance().getConfig();
-            }
-            
-            // 将配置存储到用户信息缓存中
-            if (userData && config) {
-                userData.setIndexPageConfigCache(config);
-                DebugLog.instance.log("GameCenter首页配置已缓存到用户信息中");
-            }
-        }
-        
-        if (config && config.ui) {
-            DebugLog.instance.log("GameCenter配置存在，开始应用UI配置");
-            // 应用UI配置
-            if (config.ui.bg) {
-                DebugLog.instance.log("GameCenter开始加载背景图片:", config.ui.bg);
-                // 设置标题背景 - 统一使用远程加载
-                const titleSprite = await this.loadRemoteSprite(config.ui.bg);
-                
-                if (this.titleBg && titleSprite) {
-                    this.titleBg.getComponent(Sprite).spriteFrame = titleSprite;
-                    DebugLog.instance.log("GameCenter成功应用标题背景配置");
-                } else {
-                    DebugLog.instance.log("GameCenter标题背景节点或图片不存在", this.titleBg, titleSprite);
-                }
-                DebugLog.instance.log("GameCenter应用标题配置:", config.ui.bg);
-            } else {
-                DebugLog.instance.log("GameCenter配置中没有背景图片");
-            }
-            if (config.ui.middle) {
-                // 设置图标0 - 统一使用远程加载
-                const icon0Sprite = await this.loadRemoteSprite(config.ui.middle);
+        // 使用GlobalConfigManager的公共方法
+        await GlobalConfigManager.getInstance().applyIndexPageConfig(
+            this.titleBg,
+            this.titleIcon,
+            this.titleText,
+            this.loadRemoteSprite.bind(this)
+        );
 
-                if (this.titleIcon && icon0Sprite) {
-                    const transform = this.titleIcon.getComponent(Sprite).node.getComponent(UITransform);
-                    // 调整尺寸
-                    transform.width = icon0Sprite.width;
-                    transform.height = icon0Sprite.height;
-                    // 调整位置 - 保持图片中心位置不变
-                    const currentPos = this.titleIcon.position;
-                    this.titleIcon.setPosition(
-                        currentPos.x + 40 ,
-                        currentPos.y + 260,
-                        currentPos.z
-                    );
-                    this.titleIcon.getComponent(Sprite).spriteFrame = icon0Sprite;
-                }
-            }
-            if (config.ui.title) {
-                // 设置图标1 - 统一使用远程加载
-                // const icon1Sprite = await this.loadRemoteSprite(config.ui.title);
-                
-                // if (this.titleText && icon1Sprite) {
-                //     this.titleText.getComponent(Sprite).spriteFrame = icon1Sprite;
-                // }
-                // DebugLog.instance.log("GameCenter应用图标1配置:", config.ui.title);
-            }
-        }
+        DebugLog.instance.log("GameCenter配置应用完成");
     }
 
     /**
@@ -379,11 +293,8 @@ export class GameCenterPageView extends Component {
      * 清除缓存并重新加载配置
      */
     async refreshIndexPageConfig(): Promise<void> {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        if (userData) {
-            userData.clearIndexPageConfigCache();
-            DebugLog.instance.log("GameCenter已清除首页配置缓存，将重新加载");
-        }
+        // 使用GlobalConfigManager清除缓存
+        await GlobalConfigManager.getInstance().refreshIndexPageConfig();
         
         // 重新应用配置
         await this.applyIndexPageConfig();

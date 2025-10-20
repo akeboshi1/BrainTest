@@ -583,8 +583,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -53.284000000000006,
-      "y": -36.835,
+      "x": -350,
+      "y": -56.835,
       "z": 0
     },
     "_lrot": {
@@ -624,12 +624,12 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 610,
-      "height": 40
+      "width": 450,
+      "height": 80
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": ""
@@ -660,7 +660,7 @@
       "b": 0,
       "a": 173
     },
-    "_string": "专为老年人设计的脑力训练",
+    "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 35,
@@ -882,7 +882,7 @@
     },
     "_type": 0,
     "_fillType": 0,
-    "_sizeMode": 1,
+    "_sizeMode": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",
       "x": 0,
