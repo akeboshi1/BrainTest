@@ -394,7 +394,10 @@ export class IndexPageView extends AdaptComponent {
             }
         }
 
-
+        let iconPath =[
+            "textureV2/indexPage/brainIcon/spriteFrame",
+            "textureV2/indexPage/handIcon/spriteFrame",
+            "textureV2/indexPage/talkIcon/spriteFrame"];
         for (let i = 0; i < taskdata.length; i++) {
             let taskItem = instantiate(this.taskPrefab);
             let taskController = taskItem.getComponent(TaskItemController);
@@ -409,18 +412,19 @@ export class IndexPageView extends AdaptComponent {
                     taskController.setIsComplete(true);
                 }
             }
-            await taskController.setTaskBg(taskdata[i].icon_bg, taskdata[i].width, taskdata[i].height);
-            await taskController.setbgColor(taskdata[i].bg0_color, taskdata[i].bg1_color, taskdata[i].bg2_color, taskdata[i].bg3_color);
+            await taskController.setTaskBg(taskdata[i].btn);
+            await taskController.setTaskIcon(iconPath[i], taskdata[i].icon_color);
+            await taskController.setbgColor(taskdata[i].bg0_color, taskdata[i].bg1_color);
 
             //设置文本颜色
-            if (taskdata[i].word_color) {
-                taskController.setTaskWordColor(taskdata[i].word_color);
-            }
+            // if (taskdata[i].word_color) {
+            //     taskController.setTaskWordColor(taskdata[i].word_color);
+            // }
 
-            // 设置文本外发光效果
-            if (taskdata[i].word_out_color) {
-                taskController.setTaskWordOutline(taskdata[i].word_out_color);
-            }
+            // // 设置文本外发光效果
+            // if (taskdata[i].word_out_color) {
+            //     taskController.setTaskWordOutline(taskdata[i].word_out_color);
+            // }
 
             // taskController.setIsComplete(taskdata[i].is_complete);
             taskController.setClickCallback(this[taskdata[i].click_function_name].bind(this))
@@ -478,7 +482,7 @@ export class IndexPageView extends AdaptComponent {
         }
     }
 
-    navigatetoFingerGame() {
+    navigateToFingerGame() {
         let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
         if (is_member) {
             this.goToFingerCame();
@@ -491,6 +495,10 @@ export class IndexPageView extends AdaptComponent {
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
         }
+    }
+
+    showAIChatPanel(){
+
     }
 
     private _clickBoo = false;
