@@ -3588,7 +3588,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -290,
+      "x": -285,
       "y": 795,
       "z": 0
     },
@@ -3658,7 +3658,7 @@
       "a": 255
     },
     "_string": "语言力训练",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
     "_fontSize": 48,
@@ -3943,7 +3943,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -10,
+      "x": -22,
       "y": 708,
       "z": 0
     },
