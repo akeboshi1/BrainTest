@@ -50,8 +50,11 @@ export class ChatPanel extends BasePanel {
     @property(Node)
     private charactorNode: Node = null;
 
-    @property(FrameComponent)
-    private charactorFrame: FrameComponent = null;
+    @property(Label)
+    private loadingLabel: Label = null;
+
+    @property(Node)
+    private frameComponentNode: Node = null;
 
     @property(Node)
     private thinkingBubbleNode: Node = null;
@@ -71,6 +74,9 @@ export class ChatPanel extends BasePanel {
     private _thinkingBubbleState: boolean = false;
     private _thinkingBubbleAnimating: boolean = false;
 
+    private _loadingDotCount: number = 0;
+    private _loadingAnimationRunning: boolean = false;
+
     onEnable(): void {
         this._chatModel = ChatModel.getInstance();
         this._chatModel.init();
@@ -83,7 +89,7 @@ export class ChatPanel extends BasePanel {
         this._chatModel.getRecordingPermission();
 
         this.sublineScrollView.node.active = this._sublineShowState;
-        this.charactorFrame.playAnimation("frame", 22, true, true);
+        this.loadFrameComponent();
     }
 
     onDisable(): void {
@@ -95,6 +101,33 @@ export class ChatPanel extends BasePanel {
 
         this._chatModel.endChat();
         this._chatModel.reset();
+    }
+
+    loadFrameComponent(){
+        this.showLoadingAnimation();
+        resources.load('texture/chatpanel/v2/charactor/denglijun', Prefab, (err, prefab) => {
+            if (err) {
+                console.log("loadFrameComponent error: " + err);
+                this.hideLoadingAnimation();
+                return;
+            }
+            const frameComponent = instantiate(prefab);
+            this.frameComponentNode.addChild(frameComponent);
+            frameComponent.getComponent(FrameComponent).playAnimation("frame", 22, true, true);
+            this.hideLoadingAnimation();
+        });
+    }
+
+    showLoadingAnimation(){
+        this.loadingLabel.string = "形象加载中";
+        this.loadingNode.active = true;
+        this.startLoadingDotAnimation();
+    }
+
+    hideLoadingAnimation(){
+        this.stopLoadingDotAnimation();
+        this.loadingLabel.string = "";
+        this.loadingNode.active = false;
     }
 
     onSubtitleListChanged(subtitleList: SubtitleItem[]) {
@@ -487,6 +520,45 @@ export class ChatPanel extends BasePanel {
             this._thinkingBubbleAnimating = false;
             console.log('思考气泡动画已停止');
         }
+    }
+
+    /**
+     * 开始加载点动画
+     */
+    private startLoadingDotAnimation(): void {
+        this.stopLoadingDotAnimation(); // 先停止之前的动画
+        this._loadingDotCount = 0;
+        this._loadingAnimationRunning = true;
+        this.updateLoadingText();
+        
+        this.schedule(this.updateLoadingDots, 0.5); // 每0.5秒更新一次
+    }
+
+    /**
+     * 更新加载点的定时器回调
+     */
+    private updateLoadingDots(): void {
+        if (!this._loadingAnimationRunning) {
+            return;
+        }
+        this._loadingDotCount = (this._loadingDotCount + 1) % 4; // 0, 1, 2, 3 循环
+        this.updateLoadingText();
+    }
+
+    /**
+     * 停止加载点动画
+     */
+    private stopLoadingDotAnimation(): void {
+        this._loadingAnimationRunning = false;
+        this.unschedule(this.updateLoadingDots);
+    }
+
+    /**
+     * 更新加载文本
+     */
+    private updateLoadingText(): void {
+        const dots = '.'.repeat(this._loadingDotCount);
+        this.loadingLabel.string = `形象加载中${dots}`;
     }
 }
 
