@@ -64,6 +64,9 @@ export class SkewersManager {
     }
 
     public get nextGameCompleteStr(): string {
+        if(!Global.userData.curSkewerGameData||!SkewersManager.getInstance().getUnCompleteGameData()){
+            return SkewersManager.getInstance().totalCompleteStr;
+        }
         return `恭喜完成${Global.userData.curSkewerGameData.TypeName}维度训练\n接下进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}维度训练`
     }
 
@@ -330,7 +333,7 @@ export class SkewersManager {
      * @param exitCallBack 退出回调
      * @param context 上下文
      */
-    public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
+    public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "",win = true, curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
         let gameType = type == AlertType.Next ? SkewersManager.getInstance().getUnCompleteGameData().type : Global.userData.curSkewerGameData.type;
         let iconUrl = this._iconUrlMap.get(gameType);
         let position = new Vec3(0, 0, 0);
@@ -356,6 +359,7 @@ export class SkewersManager {
             alert['bindCallBack'](goonCallBack, exitCallBack, context);
             alert["setTitle"](title);
             alert["setDec"](desc);
+            alert["showWinLose"](win);
             
             // 异步加载图标，然后显示弹窗
             if (iconUrl) {
