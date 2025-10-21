@@ -268,6 +268,8 @@ export class IndexPageView extends AdaptComponent {
                 }else{
                     taskController.setIsComplete(true);
                 }
+            }else if(i == 2){
+                taskController.setButtonStr("去聊天");
             }
             await taskController.setTaskBg(taskdata[i].btn);
             await taskController.setTaskIcon(iconPath[i], taskdata[i].icon_color);

@@ -242,6 +242,10 @@ export class TaskItemController extends Component {
         this.buttonText.string = isComplete ? "已完成" : "去完成";
     }
 
+    setButtonStr(str:string=""){
+        this.buttonText.string = str;
+    }
+
     update(deltaTime: number) {
 
     }
