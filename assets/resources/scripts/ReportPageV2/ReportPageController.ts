@@ -14,7 +14,7 @@ import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponen
 const { ccclass, property } = _decorator;
 
 @ccclass('ReportPageController')
-export class ReportPageController extends AdaptComponent {
+export class ReportPageController extends Component {
     @property(TopNavBarController)
     topNavBarController: TopNavBarController = null;
 
@@ -51,7 +51,6 @@ export class ReportPageController extends AdaptComponent {
     }
 
     async start() {
-        super.start();
         // 创建数据加载Promise
         this._dataLoadPromise = new Promise<void>((resolve) => {
             this._dataLoadResolve = resolve;
