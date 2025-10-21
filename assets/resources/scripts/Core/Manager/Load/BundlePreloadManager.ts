@@ -89,7 +89,12 @@ export class BundlePreloadManager extends BaseManager {
 
         // 触发预加载开始事件，通知外部预加载操作即将开始
         EventManager.getInstance().emit(BundlePreloadEvent.START, { bundleName });
-        await UIManager.getInstance().showPanel(LoadPanel.NAME);
+        
+        // 只有当当前场景与目标场景不同时才显示LoadPanel
+        const currentSceneName = director.getScene().name;
+        if (currentSceneName !== preloadScene) {
+            await UIManager.getInstance().showPanel(LoadPanel.NAME);
+        }
         let bundle: AssetManager.Bundle = null;
 
         try {
