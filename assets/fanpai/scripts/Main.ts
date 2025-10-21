@@ -770,7 +770,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 self.countDownLabel.string = `${Math.floor(time)}`;
                 tween(self.countDownLabel.node)
                     // .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
-                    // .to(0.25, { scale: new Vec3(1, 1, 1) })
+                    .to(0.25, { scale: new Vec3(1, 1, 1) })
                     .start();
             };
 
@@ -786,11 +786,11 @@ export class Main extends BaseScene<IBaseGameChild> {
                     clearInterval(this.intervalId);
                     // 时间到0时显示"开始"并播放放大动画
                     this.countDownLabel.string = "开始";
-                    this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
+                    // this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
                     // 播放放大动画
                     tween(this.countDownLabel.node)
-                        .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                        // .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                         .to(0.2, { scale: new Vec3(1, 1, 1) })
                         .call(() => {
                             // 动画完成后停止定时器
@@ -814,11 +814,11 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 确保显示"开始"并播放放大动画
                 this.countDownLabel.string = "开始";
                 this.countDownLabel.node.active = true;
-                this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
+                // this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
                 // 播放放大动画
                 tween(this.countDownLabel.node)
-                    .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                    // .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                     .to(0.2, { scale: new Vec3(1, 1, 1) })
                     .call(() => {
                         // 动画完成后延迟一段时间再隐藏标签
@@ -833,11 +833,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 如果整数部分为0，直接显示"开始"
             this.countDownLabel.node.active = true;
             this.countDownLabel.string = "开始";
-            this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
+            // this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
             // 播放放大动画
             tween(this.countDownLabel.node)
-                .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                // .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                 .to(0.2, { scale: new Vec3(1, 1, 1) })
                 .call(() => {
                     setTimeout(() => {

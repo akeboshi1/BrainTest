@@ -4,6 +4,7 @@ import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { SceneManager } from "../Scene/SceneManager";
 import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
+import { TimeUtil } from "../../Util/TimeUtil";
 const { ccclass, property } = _decorator;
 
 @ccclass('AlertManager')
@@ -27,6 +28,7 @@ export class AlertManager extends BaseManager {
     private userAgreeAlert: Node = null; // 用户同意弹窗节点
     private countdownTimer: any = null; // 倒计时定时器
     private currentCountdown: number = 0; // 当前倒计时剩余时间
+    private _countdownButtonRef: Button = null; // 当前倒计时关联的按钮
 
     public async init() {
         SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
@@ -502,30 +504,24 @@ export class AlertManager extends BaseManager {
      */
     private startCountdown(duration: number, confirmButton: Button, countdownCb?: () => void) {
         this.clearCountdownTimer();
-        this.currentCountdown = duration;
-        
-        // 更新按钮文本显示倒计时
-        this.updateCountdownDisplay(confirmButton);
-        
-        this.countdownTimer = setInterval(() => {
-            this.currentCountdown--;
-            this.updateCountdownDisplay(confirmButton);
-            
-            if (this.currentCountdown <= 0) {
-                this.clearCountdownTimer();
-                // 倒计时结束，调用回调并关闭弹窗
-                if (countdownCb) {
-                    countdownCb();
-                }
-                this.closeCurrentAlert();
+        this._countdownButtonRef = confirmButton;
+        TimeUtil.startButtonCountdown(confirmButton, duration, "确定", undefined, () => {
+            // 倒计时结束，调用回调并关闭弹窗
+            if (countdownCb) {
+                countdownCb();
             }
-        }, 1000);
+            this.closeCurrentAlert();
+        });
     }
 
     /**
      * 清除倒计时定时器
      */
     private clearCountdownTimer() {
+        if (this._countdownButtonRef) {
+            TimeUtil.stopButtonCountdown(this._countdownButtonRef, "确定");
+            this._countdownButtonRef = null;
+        }
         if (this.countdownTimer) {
             clearInterval(this.countdownTimer);
             this.countdownTimer = null;
@@ -537,19 +533,7 @@ export class AlertManager extends BaseManager {
      * @param confirmButton 确认按钮
      */
     private updateCountdownDisplay(confirmButton: Button) {
-        if (confirmButton && confirmButton.node) {
-            const label = confirmButton.node.getChildByName("Label");
-            if (label) {
-                const labelComponent = label.getComponent(Label);
-                if (labelComponent) {
-                    if (this.currentCountdown > 0) {
-                        labelComponent.string = `确定 (${this.currentCountdown})`;
-                    } else {
-                        labelComponent.string = "确定";
-                    }
-                }
-            }
-        }
+        // 已改用 TimeUtil 统一处理按钮文案更新
     }
 
 }

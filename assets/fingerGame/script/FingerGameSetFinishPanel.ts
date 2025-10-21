@@ -10,6 +10,7 @@ import { PersonalCenterManager } from '../../resources/scripts/Game/PersonalCent
 import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageConfig';
 import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
 import { GlobalConfigManager } from '../../resources/scripts/Config/GlobalConfigManager';
+import { ImageLoaderUtil } from '../../resources/scripts/Core/Util/ImageLoaderUtil';
 const { ccclass, property } = _decorator;
 
 export interface IFingerGameSetFinishPanelData {
@@ -317,50 +318,6 @@ export class FingerGameSetFinishPanel extends BasePanel {
     }
 
 
-    /**
-     * 从远程URL加载图片并转换为SpriteFrame
-     * @param url 远程图片URL
-     * @returns Promise<SpriteFrame>
-     */
-    async loadRemoteSprite(url: string): Promise<SpriteFrame> {
-        return new Promise((resolve, reject) => {
-            this.wwwLoadSpriteFrame(url,(spriteFrame: SpriteFrame) => {
-                if (spriteFrame) {
-                    resolve(spriteFrame);
-                } else {
-                    reject(new Error(`远程图片加载失败: ${url}`));
-                }
-            });
-        });
-    }
-
-    /**
-     * 使用assetManager加载远程图片
-     * @param path 远程图片路径
-     * @param completeHD 完成回调函数
-     */
-    public wwwLoadSpriteFrame(path: string,completeHD?: Function) {
-        assetManager.loadRemote<ImageAsset>(path,
-            {
-                xhrResponseType: "blob",
-                xhrHeader: { 'Content-Type': 'application/octet-stream' }
-            },
-            (err, imageAsset: ImageAsset) => {
-                if (err) {
-                    DebugLog.instance.error("load error  ");
-                    DebugLog.instance.log(err);
-                    completeHD(null);
-                    return;
-                }
-                const spriteFrame = new SpriteFrame();
-                const texture = new Texture2D();
-                texture.image = imageAsset;
-                spriteFrame.texture = texture;
-                
-                completeHD(spriteFrame);
-            }
-        );
-    }
 
     /**
      * 应用首页配置到UI
@@ -378,8 +335,7 @@ export class FingerGameSetFinishPanel extends BasePanel {
         await GlobalConfigManager.getInstance().applyIndexPageConfig(
             this.titleBg,
             this.titleIcon,
-            this.titleText,
-            this.loadRemoteSprite.bind(this)
+            this.titleText
         );
         
         // 标记配置已应用

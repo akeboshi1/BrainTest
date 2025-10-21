@@ -6406,7 +6406,7 @@
         "__id__": 281
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 297
@@ -7123,7 +7123,7 @@
     "_paddingTop": 0,
     "_paddingBottom": 0,
     "_spacingX": 0,
-    "_spacingY": 30,
+    "_spacingY": 15,
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_constraint": 0,
@@ -7145,6 +7145,8 @@
       "__id__": 0
     },
     "fileId": "0fBn8dWP9MWaDf29lwJ4zM",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -7233,6 +7235,8 @@
       "__id__": 0
     },
     "fileId": "9fCVkuoztDU5CrwXA/aJR6",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {

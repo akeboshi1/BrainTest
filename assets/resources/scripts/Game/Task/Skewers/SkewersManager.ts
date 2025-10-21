@@ -8,7 +8,7 @@ import { SocketData } from "../../../Core/Manager/Net/SocketData";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
 import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
 import { Canvas, director, instantiate, Node, Prefab, resources, UITransform, Vec3 } from "cc";
-import { TaskStatus } from "db://assets/resources/scripts/Game/Task/TaskData";
+import {TaskStatus, TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
 import {AlertManager,  AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "db://assets/resources/scripts/Core/Manager/Load/BundlePreloadManager";
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
@@ -467,7 +467,7 @@ export class SkewersManager {
             }  
 
             
-            if(this._skewersGames_complete){
+            if(this._skewersGames_complete && TaskManager.getInstance().curTask&& TaskManager.getInstance().curTask.type != TaskType.Review){
                UIManager.getInstance().showPanel(GameScoreAlert.NAME,this._skewersGames_scores);
             }else{
                EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);

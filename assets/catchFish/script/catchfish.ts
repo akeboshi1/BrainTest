@@ -1410,7 +1410,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 设置特效播放标志
         this._isEffectPlaying = true;
 
-        this.playAudio("music/correct", true);
+        // this.playAudio("music/correct", true);
 
         // 启动动画 - 网飞向鱼的视觉中心
         this._wangTween = tween(wang).parallel(
@@ -1421,7 +1421,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 const scaleUp = 1.3; // 放大到2倍
                 const scaleDown = 1.0; // 恢复到原始大小
                 const duration = 0.06; // 每次放大和缩小的时长
-                self.playAudio("music/fishCatch", true);
+                self.playAudio("music/fishCatch", true,false,3);
                 console.log("wangclick 0");
                 tween(self._curFish.getFishNode())
                     .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
