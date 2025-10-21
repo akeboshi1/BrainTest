@@ -29,6 +29,8 @@ export interface OrganizationUser {
     nickname: string;
     /** 姓名（显示） */
     full_name: string;
+    /** 姓名拼音 */
+    full_name_pinyin:[string];
     /** 性别 1-男 2-女 */
     gender: number;
     /** 当天是否训练 */
