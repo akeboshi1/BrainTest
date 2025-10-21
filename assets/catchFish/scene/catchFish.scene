@@ -1440,7 +1440,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -290,
+      "x": -280,
       "y": 795,
       "z": 0
     },
@@ -1510,7 +1510,7 @@
       "a": 255
     },
     "_string": "计算力训练",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
     "_fontSize": 48,
@@ -9974,7 +9974,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -103,
+      "x": -114,
       "y": 708,
       "z": 0
     },

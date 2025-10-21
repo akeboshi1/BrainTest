@@ -1347,7 +1347,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -290,
+      "x": -285,
       "y": 795,
       "z": 0
     },
@@ -1417,7 +1417,7 @@
       "a": 255
     },
     "_string": "记忆力训练",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
     "_fontSize": 48,
@@ -8969,7 +8969,7 @@
       "a": 255
     },
     "_string": "记住并找到相同的牌面，两两翻转配对",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 45,
     "_fontSize": 45,

@@ -115,14 +115,14 @@ export class GlobalConfigManager extends BaseManager {
                 // 确保缓存包含任务配置
                 const cacheData = {
                     ...config,
-                    tasks: config.theme.tasks || (type === "normal" ? this.taskConfig.normalTaskData : ThemeConfig.getInstance().getTasksConfig())
+                    tasks: config.theme && config.theme.tasks || (type === "normal" ? this.taskConfig.normalTaskData : ThemeConfig.getInstance().getTasksConfig())
                 };
                 userData.setIndexPageConfigCache(cacheData);
                 DebugLog.instance.log("首页配置已缓存到用户信息中");
             }
         }
 
-        if (config && config.theme.ui) {
+        if (config &&  config.theme && config.theme.ui) {
             // 应用UI配置
             if (config.theme.ui.bg) {
                 // 设置标题背景 - 统一使用远程加载

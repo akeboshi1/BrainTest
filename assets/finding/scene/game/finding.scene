@@ -5275,7 +5275,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -292,
+      "x": -280,
       "y": 795,
       "z": 0
     },
@@ -5345,7 +5345,7 @@
       "a": 255
     },
     "_string": "判断力训练",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 48,
     "_fontSize": 48,
@@ -5700,7 +5700,7 @@
       "a": 255
     },
     "_string": "用手指点出找两张图里不同之处",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 45,
     "_fontSize": 45,
