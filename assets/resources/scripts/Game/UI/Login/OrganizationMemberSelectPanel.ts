@@ -105,8 +105,22 @@ export class OrganizationMemberSelectPanel extends Component {
         const searchTerm = this._findUser.toLowerCase();
 
         return this._memberList.filter(user => {
+            // 1. 首先检查姓名匹配
             const fullname = user.full_name || '';
-            return fullname.toLowerCase().includes(searchTerm);
+            if (fullname.toLowerCase().includes(searchTerm)) {
+                return true;
+            }
+
+            // 2. 检查拼音匹配
+            if (user.full_name_pinyin && user.full_name_pinyin.length > 0) {
+                for (const pinyin of user.full_name_pinyin) {
+                    if (pinyin && pinyin.toLowerCase().includes(searchTerm)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         });
     }
 
