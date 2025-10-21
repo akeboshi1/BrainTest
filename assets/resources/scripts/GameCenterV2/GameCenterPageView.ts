@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from 'cc';
+import { _decorator, Component, Node, Label, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame, view, Widget } from 'cc';
 import { Global } from '../Core/Manager/Config/Global';
 import { BundleName } from '../Core/Manager/Load/BundleName';
 import { SceneManager } from '../Core/Manager/Scene/SceneManager';
@@ -11,18 +11,22 @@ import { GuidePanel } from "db://assets/resources/scripts/Game/UI/Alert/GuidePan
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { GlobalConfigManager } from '../Config/GlobalConfigManager';
 import { ChatPanel } from '../Game/UI/ChatPanel/ChatPanel';
-import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptComponent";
+import { ScreenSizeUtil } from '../Adapter/ScreenSizeUtil';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('GameCenterPageView')
-export class GameCenterPageView extends AdaptComponent {
+export class GameCenterPageView extends Component {
 
     // ====================== 训练大厅
     public static NAME: string = "GameCenter";
 
     @property({ type: [Node] })
     gameList: Node[] = [];
+
+    @property(Node)
+    private bg: Node = null;
 
     @property(Node)
     private titleBg: Node = null;
@@ -33,16 +37,16 @@ export class GameCenterPageView extends AdaptComponent {
     @property(Node)
     private titleText: Node = null;
 
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句',"手指操","天平","24点"];
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句', "手指操", "天平", "24点"];
 
 
     // 数据加载完成通知相关属性
     private _dataLoadPromise: Promise<void> = null;
     private _dataLoadResolve: Function = null;
 
-    onLoad(){
+    onLoad() {
         UIManager.getInstance().registerPanel(GuidePanel.NAME, BundleName.RESOURCES, "prefab/GuidePanel/GuidePanel", GuidePanel);
-        
+
         // 创建数据加载Promise
         this._dataLoadPromise = new Promise<void>((resolve) => {
             this._dataLoadResolve = resolve;
@@ -50,8 +54,50 @@ export class GameCenterPageView extends AdaptComponent {
     }
 
     async start() {
-        super.start();
+        // 适配背景尺寸到屏幕尺寸
+        this.adaptBackgroundToScreen();
         await this.gameCenterInit();
+    }
+
+    /**
+     * 适配背景到屏幕尺寸，使用Widget组件实现全屏拉伸
+     */
+    private adaptBackgroundToScreen() {
+        if (!this.node) {
+            DebugLog.instance.warn('GameCenterPageView: bg节点未设置');
+            return;
+        }
+
+        try {
+            // 获取屏幕尺寸
+            const screenSize = ScreenSizeUtil.getUISize();
+            const screenWidth = screenSize.width;
+            const screenHeight = screenSize.height;
+            this.node.getComponent(UITransform).setContentSize(screenWidth, screenHeight);
+
+            // 获取或添加Widget组件
+            let widget = this.bg.getComponent(Widget);
+            if (widget) {
+                // 启用Widget
+                widget.enabled = true;
+                widget.updateAlignment();
+            }
+
+
+
+            // 获取UITransform组件并设置尺寸
+            const bgTransform = this.bg.getComponent(UITransform);
+            if (bgTransform) {
+                bgTransform.setContentSize(screenWidth, screenHeight);
+            }
+
+            // 设置背景位置为屏幕中心
+            this.bg.setPosition(0, 0);
+
+            DebugLog.instance.log(`GameCenterPageView: 背景全屏适配完成 - 屏幕尺寸: ${screenWidth}x${screenHeight}`);
+        } catch (error) {
+            DebugLog.instance.error(`GameCenterPageView: 背景适配失败: ${error}`);
+        }
     }
 
     async gameCenterInit() {
@@ -83,13 +129,13 @@ export class GameCenterPageView extends AdaptComponent {
         }
         this._clickBoo = true;
         let index = Number(data);
-        if(index== 6){
+        if (index == 6) {
             let url = Global.RES_Root + BundleName.FINGERGAME;
             DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
-            
+
             // 为手指操游戏创建GuidePanel数据
             let guidePanelData = {
-                name: BundleName.FINGERGAME, 
+                name: BundleName.FINGERGAME,
                 callback: () => {
                     DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
                     EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
@@ -99,26 +145,26 @@ export class GameCenterPageView extends AdaptComponent {
                     this._clickBoo = false;
                 }
             };
-            
+
             // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
             GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
-            
+
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-            GameCenterManager.getInstance().perload(url,BundleName.FINGERGAME);
+            GameCenterManager.getInstance().perload(url, BundleName.FINGERGAME);
             return;
         }
-        if(index== 7){
+        if (index == 7) {
             let url = Global.RES_Root + BundleName.BALANCE;
             DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-            GameCenterManager.getInstance().perload(url,BundleName.BALANCE);
+            GameCenterManager.getInstance().perload(url, BundleName.BALANCE);
             return;
         }
-        if(index== 8){
+        if (index == 8) {
             let url = Global.RES_Root + BundleName.MATH24;
             DebugLog.instance.log(`${BundleName.MATH24} click perload`);
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-            GameCenterManager.getInstance().perload(url,BundleName.MATH24);
+            GameCenterManager.getInstance().perload(url, BundleName.MATH24);
             return;
         }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
@@ -164,14 +210,14 @@ export class GameCenterPageView extends AdaptComponent {
                     DebugLog.instance.log(`${sceneName} click perload`);
                     EventManager.getInstance().on(SceneManager.SCENE_ENTER, self.onSceneEnter.bind(self), self, true);
                     GameCenterManager.getInstance().perload(url, sceneName);
-                },exitCallback:()=>{
+                }, exitCallback: () => {
                     self._clickBoo = false;
                 }
             };
-            
+
             // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
             GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
-            
+
             UIManager.getInstance().showPanel(GuidePanel.NAME, guidePanelData);
 
             // BundlePreloadManager.getInstance().preload(sceneName as BundleName);
@@ -221,7 +267,7 @@ export class GameCenterPageView extends AdaptComponent {
                 });
             };
             EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, callback, this, true);
-            
+
             // 请求用户信息
             PersonalCenterManager.getInstance().requestUserInfo();
         });
@@ -234,7 +280,7 @@ export class GameCenterPageView extends AdaptComponent {
      */
     async applyIndexPageConfig() {
         DebugLog.instance.log("GameCenter开始应用首页配置");
-        
+
         // 使用GlobalConfigManager的公共方法
         await GlobalConfigManager.getInstance().applyIndexPageConfig(
             this.titleBg,
@@ -252,7 +298,7 @@ export class GameCenterPageView extends AdaptComponent {
     async refreshIndexPageConfig(): Promise<void> {
         // 使用GlobalConfigManager清除缓存
         await GlobalConfigManager.getInstance().refreshIndexPageConfig();
-        
+
         // 重新应用配置
         await this.applyIndexPageConfig();
     }
@@ -267,10 +313,10 @@ export class GameCenterPageView extends AdaptComponent {
         }
     }
 
-    onClickStartChatBtn(){
-        UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
-        UIManager.getInstance().showPanel(ChatPanel.NAME);
-    }
+    // onClickStartChatBtn(){
+    //     UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
+    //     UIManager.getInstance().showPanel(ChatPanel.NAME);
+    // }
 }
 
 

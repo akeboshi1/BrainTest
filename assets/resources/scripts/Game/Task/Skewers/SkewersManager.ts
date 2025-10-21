@@ -313,7 +313,7 @@ export class SkewersManager {
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0, 0, 0);
-            alert["setTitle"]("退出");
+            alert["setTitle"]("暂停");
             alert["setDec"]("");
             alert["showView"](AlertType.Normal1);
             alert['setProgress'](curCount, maxCount);

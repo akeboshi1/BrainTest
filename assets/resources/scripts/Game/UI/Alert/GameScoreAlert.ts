@@ -46,7 +46,9 @@ export class GameScoreAlert extends BasePanel {
     }
 
     restore(data) {
-        if (data != null) this._scoreDatas = data;
+        if (data != null){
+            this._scoreDatas = data.reverse();
+        } 
     }
 
     onEnable(){
