@@ -183,9 +183,6 @@ export class TimeUtil {
         };
         TimeUtil._buttonCountdownMap.set(button, state);
 
-        // 禁用按钮交互
-        button.interactable = false;
-
         const tick = () => {
             if (state.label) {
                 state.label.string = state.remaining > 0 ? `${baseText} (${state.remaining})` : baseText;
@@ -216,9 +213,6 @@ export class TimeUtil {
             clearInterval(state.timer);
         }
         TimeUtil._buttonCountdownMap.delete(button);
-
-        // 恢复按钮交互
-        button.interactable = state.wasInteractable;
 
         // 恢复文案
         if (state.label) {
