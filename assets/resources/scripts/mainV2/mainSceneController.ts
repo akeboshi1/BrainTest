@@ -85,8 +85,6 @@ export class MainSceneController extends AdaptComponent {
         await this.pageController.loadIndexPageWithData(async () => {
             // 等待用户信息数据加载完成
             await PersonalCenterManager.getInstance().requestUserInfo();
-            // 加载报告数据
-            await this.loadReportData();
             DebugLog.instance.log("首页数据加载完成");
         });
     }
@@ -100,8 +98,6 @@ export class MainSceneController extends AdaptComponent {
         await this.pageController.loadIndexPageWithData(async () => {
             // 等待用户信息数据加载完成
             await PersonalCenterManager.getInstance().requestUserInfo();
-            // 加载报告数据
-            await this.loadReportData();
             DebugLog.instance.log("从游戏返回首页数据加载完成");
         });
     }
@@ -123,8 +119,6 @@ export class MainSceneController extends AdaptComponent {
         await this.pageController.loadReporterPageWithData(null, data, async () => {
             // 等待用户信息数据加载完成
             await PersonalCenterManager.getInstance().requestUserInfo();
-            // 加载报告数据
-            await this.loadReportData();
             DebugLog.instance.log("报告页面数据加载完成");
         });
     }
