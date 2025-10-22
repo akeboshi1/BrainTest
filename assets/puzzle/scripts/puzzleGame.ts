@@ -995,8 +995,18 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         while (attempts < maxAttempts) {
             // 随机选择另一个非原位块的索引
             let targetIndex = Math.floor(Math.random() * maxPos);
-            while (targetIndex === inPlaceIndex) {
+            let retryCount = 0;
+            const maxRetries = 10; // 防止内层while死循环
+            
+            while (targetIndex === inPlaceIndex && retryCount < maxRetries) {
                 targetIndex = Math.floor(Math.random() * maxPos);
+                retryCount++;
+            }
+            
+            // 如果仍然等于原位块索引，跳过这次尝试
+            if (targetIndex === inPlaceIndex) {
+                attempts++;
+                continue;
             }
             
             // 检查交换后是否安全
@@ -1063,10 +1073,19 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         for (const inPlaceIndex of remainingInPlaceBlocks) {
             const maxPos = this.selectedLevel.x * this.selectedLevel.y;
             let targetIndex = Math.floor(Math.random() * maxPos);
+            let retryCount = 0;
+            const maxRetries = 10; // 防止while死循环
             
             // 确保不与自己交换
-            while (targetIndex === inPlaceIndex) {
+            while (targetIndex === inPlaceIndex && retryCount < maxRetries) {
                 targetIndex = Math.floor(Math.random() * maxPos);
+                retryCount++;
+            }
+            
+            // 如果仍然等于原位块索引，使用下一个位置
+            if (targetIndex === inPlaceIndex) {
+                targetIndex = (inPlaceIndex + 1) % maxPos;
+                DebugLog.instance.warn(`[puzzleGame] 强制调整：使用备用位置${targetIndex}替代随机位置`);
             }
             
             // 执行强制交换
