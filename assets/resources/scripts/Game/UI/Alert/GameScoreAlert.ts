@@ -135,11 +135,11 @@ export class GameScoreAlert extends BasePanel {
 
                 // 根据分数设置文本颜色
                 const score = parseInt(this._scoreDatas[i]["score"]);
-                if (score > 65) {
-                    // 分数大于65分，设置为蓝色 #0060F0
+                if (score >= 60) {
+                    // 分数大于等于60分，设置为蓝色 #0060F0
                     scoreLabel.color = new Color(0, 96, 240, 255);
                 } else {
-                    // 分数小于等于65分，设置为红色 #FF5733
+                    // 分数小于60分，设置为红色 #FF5733
                     scoreLabel.color = new Color(255, 87, 51, 255);
                 }
             }

@@ -76,6 +76,9 @@ export class IndexPageView extends AdaptComponent {
     @property(Node)
     private titleText: Node = null;
 
+    @property(Node)
+    private titleLeft: Node = null;
+
     private taskConfig: TaskContainerConfig = new TaskContainerConfig();
     private indexPageConfig: IndexPageConfig = new IndexPageConfig();
 
@@ -357,8 +360,19 @@ export class IndexPageView extends AdaptComponent {
     }
 
     showAIChatPanel(){
-        UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
-        UIManager.getInstance().showPanel(ChatPanel.NAME);
+        let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
+        if (is_member) {
+            UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
+            UIManager.getInstance().showPanel(ChatPanel.NAME);
+            return;
+        }
+        const alertData: AlertData = new AlertData();
+        alertData.title = "去解锁会员,畅玩更多功能";
+        alertData.cancelButtonVisible = true;
+        alertData.confirmCb = function () {
+            this.cofirmGoToVip();
+        }.bind(this);
+        AlertManager.getInstance().showAlert(alertData);
     }
 
     private _clickBoo = false;
