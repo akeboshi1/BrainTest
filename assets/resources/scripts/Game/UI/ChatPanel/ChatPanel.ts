@@ -103,7 +103,7 @@ export class ChatPanel extends BasePanel {
         this._chatModel.reset();
     }
 
-    loadFrameComponent(){
+    loadFrameComponent() {
         this.showLoadingAnimation();
         resources.load('texture/chatpanel/v2/charactor/denglijun', Prefab, (err, prefab) => {
             if (err) {
@@ -118,13 +118,13 @@ export class ChatPanel extends BasePanel {
         });
     }
 
-    showLoadingAnimation(){
+    showLoadingAnimation() {
         this.loadingLabel.string = "形象加载中";
         this.loadingNode.active = true;
         this.startLoadingDotAnimation();
     }
 
-    hideLoadingAnimation(){
+    hideLoadingAnimation() {
         this.stopLoadingDotAnimation();
         this.loadingLabel.string = "";
         this.loadingNode.active = false;
@@ -138,34 +138,47 @@ export class ChatPanel extends BasePanel {
             return;
         }
 
-        // 获取最后一条字幕
+        // 获取最后一条字幕和上一条字幕
         const lastSubtitle = subtitleList[subtitleList.length - 1];
+        const beforeSubtitle = subtitleList.length > 1 ? subtitleList[subtitleList.length - 2] : null;
 
-        // 实例化新的字幕节点
-        const newNode = instantiate(this.sublinePrefab);
+        // 判断是否是新段落：最新一条的speaker和上一条的不一样
+        const isNewParagraph = !beforeSubtitle || lastSubtitle.speaker !== beforeSubtitle.speaker;
+
+        if (isNewParagraph) {
+            // 新段落：创建新的字幕节点
+            const newNode = instantiate(this.sublinePrefab);
             newNode.active = true;
-        const label = newNode.getChildByName("sublineLabel").getComponent(Label);
-        label.string = lastSubtitle.text;
-        label.color = lastSubtitle.speaker == "assistant" ? this.aiSublineColor : this.userSublineColor;
+            const label = newNode.getChildByName("sublineLabel").getComponent(Label);
+            label.string = lastSubtitle.text;
+            label.color = lastSubtitle.speaker == "assistant" ? this.aiSublineColor : this.userSublineColor;
             this.sublineContainer.addChild(newNode);
-        newNode.setPosition(0, 0);
+            newNode.setPosition(0, 0);
 
-        let iconUrl = '';
-        if (lastSubtitle.speaker == "assistant") {
-            iconUrl = 'texture/chatpanel/icon/icon_1/spriteFrame';
-            if(this._thinkingBubbleState){
-                this.hideThinkingBubble();
+            let iconUrl = '';
+            if (lastSubtitle.speaker == "assistant") {
+                iconUrl = 'texture/chatpanel/icon/icon_1/spriteFrame';
+                if (this._thinkingBubbleState) {
+                    this.hideThinkingBubble();
+                }
+            } else {
+                let userData = PersonalCenterManager.getInstance().userInfoData;
+                iconUrl = userData.gender == 1 ? 'textureV2/indexPage/male/spriteFrame' : 'textureV2/indexPage/female/spriteFrame';
+                this.showThinkingBubble();
             }
-        } else {
-            let userData = PersonalCenterManager.getInstance().userInfoData;
-            iconUrl = userData.gender == 1 ? 'textureV2/indexPage/male/spriteFrame' : 'textureV2/indexPage/female/spriteFrame';
-            this.showThinkingBubble();
-        }
 
-        const sprite = newNode.getChildByName("icon").getComponent(Sprite);
-        this.loadSprite(iconUrl).then(spriteFrame => {
-            sprite.spriteFrame = spriteFrame;
-        });
+            const sprite = newNode.getChildByName("icon").getComponent(Sprite);
+            this.loadSprite(iconUrl).then(spriteFrame => {
+                sprite.spriteFrame = spriteFrame;
+            });
+        } else {
+            // 同一段落：在最后一个字幕节点中追加文本
+            const lastChild = this.sublineContainer.children[this.sublineContainer.children.length - 1];
+            if (lastChild) {
+                const label = lastChild.getChildByName("sublineLabel").getComponent(Label);
+                label.string += lastSubtitle.text;
+            }
+        }
 
         // 检查子节点数量，如果超过20个，移除头部的节点
         while (this.sublineContainer.children.length > 20) {
@@ -176,7 +189,7 @@ export class ChatPanel extends BasePanel {
         // 延迟一帧调用，确保UI布局更新完成后再进行滚动判断
         this.scheduleOnce(() => {
             this.scrollToBottomIfNeeded();
-        }, 0);
+        }, 0.1);
     }
 
     async loadSprite(path: string): Promise<SpriteFrame> {
@@ -196,25 +209,25 @@ export class ChatPanel extends BasePanel {
         })
     }
 
-    showThinkingBubble(){
+    showThinkingBubble() {
         // 如果已经在显示状态，直接返回
         if (this._thinkingBubbleState) {
             return;
         }
-        
+
         // 如果正在播放动画，先中断当前动画
         if (this._thinkingBubbleAnimating) {
             this.stopThinkingBubbleAnimation();
         }
-        
+
         this._thinkingBubbleState = true;
         this._thinkingBubbleAnimating = true;
         this.thinkingBubbleNode.active = true;
-        
+
         // 设置初始状态：缩放为0，透明度为0
         this.thinkingBubbleNode.setScale(0, 0, 1);
         this.thinkingBubbleNode.getComponent(UIOpacity).opacity = 0;
-        
+
         // 弹出动画：缩放 + 淡入
         tween(this.thinkingBubbleNode)
             .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
@@ -223,27 +236,27 @@ export class ChatPanel extends BasePanel {
                 console.log('思考气泡弹出动画完成');
             })
             .start();
-            
+
         // 淡入动画
         tween(this.thinkingBubbleNode.getComponent(UIOpacity))
             .to(0.25, { opacity: 255 })
             .start();
     }
-    
-    hideThinkingBubble(){
+
+    hideThinkingBubble() {
         // 如果已经在隐藏状态，直接返回
         if (!this._thinkingBubbleState) {
             return;
         }
-        
+
         // 如果正在播放动画，先中断当前动画
         if (this._thinkingBubbleAnimating) {
             this.stopThinkingBubbleAnimation();
         }
-        
+
         this._thinkingBubbleState = false;
         this._thinkingBubbleAnimating = true;
-        
+
         // 缩回动画：缩放 + 淡出
         tween(this.thinkingBubbleNode)
             .to(0.25, { scale: new Vec3(0, 0, 1) }, { easing: 'backIn' })
@@ -253,7 +266,7 @@ export class ChatPanel extends BasePanel {
                 console.log('思考气泡缩回动画完成');
             })
             .start();
-            
+
         // 淡出动画
         tween(this.thinkingBubbleNode.getComponent(UIOpacity))
             .to(0.2, { opacity: 0 })
@@ -530,7 +543,7 @@ export class ChatPanel extends BasePanel {
         this._loadingDotCount = 0;
         this._loadingAnimationRunning = true;
         this.updateLoadingText();
-        
+
         this.schedule(this.updateLoadingDots, 0.5); // 每0.5秒更新一次
     }
 
