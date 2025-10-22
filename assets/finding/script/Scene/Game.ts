@@ -627,29 +627,12 @@ export class Game extends BaseScene<IBaseGameChild> {
 
     onFailNextLevel(): void {
 
-        // 如果游戏完成回调未执行，不允许进入下一关
-        if (!FindingGlobal.isCallbackCompleted) {
-            DebugLog.instance.log("游戏完成回调未执行，不允许进入下一关");
-            return;
-        }
         
         CacheMgr.checkpoint = CacheMgr.checkpoint + 1;
         this.refreshGame();
     }
 
     onAgain(): void {
-        // 如果游戏正在结算中，不允许重玩
-        // if (this._isSettling) {
-        //     DebugLog.instance.log("游戏正在结算中，不允许重玩");
-        //     return;
-        // }
-        
-        // 如果游戏完成回调未执行，不允许重玩
-        // if (!FindingGlobal.isCallbackCompleted) {
-        //     DebugLog.instance.log("游戏完成回调未执行，不允许重玩");
-        //     return;
-        // }
-        
         this.refreshGame();
     }
 
