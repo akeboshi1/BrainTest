@@ -76,7 +76,8 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
 
     private replayCount: number = -1;
 
-    private timeLimit = 30;
+    private _timeLimit:number= 60;
+    private timeLimit = 0;
 
     private options: string[] = ['a', 'b', 'c', 'd'];
 
@@ -353,7 +354,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.timeLimit = (this.sceneModel as any).game.timeLimit;
         } else {
-            this.timeLimit = 30;
+            this.timeLimit = this._timeLimit;
         }
         this.timerRT.startTimer(this.timeLimit);
         DebugLog.instance.log(`[GuessingGameScene] 开始听题，开启倒计时: ${this.timeLimit}秒`);
@@ -780,7 +781,7 @@ export class GuessingGameScene extends BaseScene<IBaseGameChild> {
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.timeLimit = (this.sceneModel as any).game.timeLimit;
         } else {
-            this.timeLimit = 30;
+            this.timeLimit = this._timeLimit;
         }
         this.timerRT.startTimer(this.timeLimit);
         DebugLog.instance.log(`[GuessingGameScene] 重置面板，开启倒计时: ${this.timeLimit}秒`);
