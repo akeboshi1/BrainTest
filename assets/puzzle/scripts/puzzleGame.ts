@@ -139,12 +139,15 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // 添加一个属性来控制是否允许退出
     private isQuitEnabled: boolean = true;
 
+    // 记录上一次的正确拼图块数量，用于营销判断
+    private lastCorrectCount: number = 0;
+
     // 加载状态管理
     private isLoading: boolean = false;
     private loadingTimeoutId: any = null;
     private readonly LOADING_TIMEOUT: number = 10000; // 10秒超时
 
-    protected audioUrls = ['music/puzzleBG', "music/drag", "music/win"];
+    protected audioUrls = ['music/puzzleBG', "music/drag", "music/win", "music/pop"];
 
     private bgmClip: AudioClip;
 
@@ -423,8 +426,20 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
 
         this.dragInstance = null;
-        DebugLog.instance.log("当前数量：" + this.getCorrentCounts());
+        
+        // 获取当前正确拼图块数量
+        const currentCorrectCount = this.getCorrentCounts();
+        DebugLog.instance.log("当前数量：" + currentCorrectCount);
         DebugLog.instance.log('总数', this.chipsInstances.length);
+
+        // 营销判断：如果正确拼图块数量增加了，播放pop音效
+        if (currentCorrectCount > this.lastCorrectCount) {
+            DebugLog.instance.log(`[puzzleGame] 正确拼图块数量从${this.lastCorrectCount}增加到${currentCorrectCount}，播放pop音效`);
+            this.playAudio("music/pop", true);
+        }
+        
+        // 更新记录的正确数量
+        this.lastCorrectCount = currentCorrectCount;
     }
 
     onTouchCancel(event: EventTouch) {
@@ -551,6 +566,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     onClickStartGame() {
         this.enableDragAndResetGame();
         
+        // 重置正确拼图块数量记录
+        this.lastCorrectCount = 0;
+        
         // 确保退出按钮在游戏开始时是启用的
         this.setQuitButtonInteractable(true);
 
@@ -627,8 +645,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.currentTexture2d = texture;
             this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
             this.updatePreviewSprite(this.currentTexture2d);
-            this.onClickDisturbPuzzleButton();
-            
             // 调用开始游戏方法，这会隐藏startGameMask并启动游戏
             this.onClickStartGame();
         });
