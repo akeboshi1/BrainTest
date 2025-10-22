@@ -1,6 +1,6 @@
-import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, ProgressBar,Label, Node, Prefab, Rect, RichText, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3, view, game, Game } from 'cc';
+import { _decorator, AnimationComponent, AudioClip, Button, EventTouch, instantiate, ProgressBar, Label, Node, Prefab, Rect, RichText, Sprite, SpriteFrame, tween, UITransform, Vec2, Vec3, view, game, Game } from 'cc';
 import { SentenceMakingModel } from './SentenceMakingModel';
-import {AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { SentenceMakingQuestion } from './SentenceMakingConfig';
 import { CardCtrl } from './CardCtrl';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
@@ -12,7 +12,7 @@ import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
-import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
 const { ccclass, property } = _decorator;
 
@@ -60,6 +60,9 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     @property(AnimationComponent)
     animShow: AnimationComponent;
 
+    @property(Node)
+    failNode: Node = null;
+
     @property(AnimationComponent)
     animRotate: AnimationComponent;
 
@@ -97,7 +100,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     private isDragging = false;
     private startDragPos: Vec2;
-    
+
     // 游戏结算状态
     private _isGameCompleted: boolean = false;
     private startDragObjectPos: Vec2;
@@ -107,8 +110,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private correctDragCount: number = 0;
     private winCount: number = 0;
 
-    private bgmClip:AudioClip;
-    
+    private bgmClip: AudioClip;
+
     // 弹窗状态标志
     private _isPauseAlertShown: boolean = false;
 
@@ -119,17 +122,17 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         const uiSize = ScreenSizeUtil.getUISize();
         const screenWidth = uiSize.width;
         const totalItemsWidth = this.rawMaxNum * this.itemWidth + (this.rawMaxNum - 1) * this.paddingX;
-        this.leftOffset = (screenWidth - totalItemsWidth) / 2  - 40;
+        this.leftOffset = (screenWidth - totalItemsWidth) / 2 - 40;
         DebugLog.instance.log(`屏幕宽度: ${screenWidth}, 计算得到的leftOffset: ${this.leftOffset}`);
     }
 
     onLoad() {
-        this.audioUrls = ["audio/majiangbgm","audio/majiang"];
+        this.audioUrls = ["audio/majiangbgm", "audio/majiang"];
         this.bundleName = BundleName.SENTENCEMAKING;
         let self = this;
-        this.loadAudio().then(()=>{
-            if(!self.bgmClip){
-                self.bgmClip = self.playBgmAudio("audio/majiangbgm",true);
+        this.loadAudio().then(() => {
+            if (!self.bgmClip) {
+                self.bgmClip = self.playBgmAudio("audio/majiangbgm", true);
             }
         }).catch((error) => {
             DebugLog.instance.error("音频加载失败，但游戏继续执行", error);
@@ -145,10 +148,10 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
         this.viewNode = LayerUtil.getPanelLayer();
-        
+
         // 动态计算左侧留白
         this.calculateLeftOffset();
-        
+
         // 添加应用前后台切换监听
         this.addAppStateListener();
 
@@ -166,7 +169,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             if (!this.validateResources()) {
                 throw new Error("关键资源验证失败");
             }
-            
+
             // 如果是串烧任务，直接开始训练流程，不显示提示
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 this.startGameFlow();
@@ -176,7 +179,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             }
         } catch (error) {
             DebugLog.instance.error(`初始化失败，重试次数: ${retryCount}`, error);
-            
+
             if (retryCount < maxRetries) {
                 // 等待一段时间后重试
                 setTimeout(() => {
@@ -198,7 +201,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             DebugLog.instance.error("cardModel 预制体未加载");
             return false;
         }
-        
+
         if (!this.emptyModel) {
             DebugLog.instance.error("emptyModel 预制体未加载");
             return false;
@@ -290,43 +293,43 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         const expectedCount = question.sentence.length;
         const actualSourceCount = this.sourceContainerMap.size;
         const actualResultCount = this.resultContainerMap.size;
-        
+
         DebugLog.instance.log(`卡片实例化验证: 期望总数=${expectedCount}, 源容器=${actualSourceCount}, 结果容器=${actualResultCount}`);
-        
+
         // 检查总数是否正确
         if (actualSourceCount + actualResultCount !== expectedCount) {
             DebugLog.instance.error(`卡片总数不匹配: 期望=${expectedCount}, 实际=${actualSourceCount + actualResultCount}`);
             return false;
         }
-        
+
         // 检查源容器中的卡片是否都有有效的CardCtrl组件
         for (let [key, node] of this.sourceContainerMap) {
             if (!node || !node.isValid) {
                 DebugLog.instance.error(`源容器中索引 ${key} 的卡片无效`);
                 return false;
             }
-            
+
             const cardCtrl = node.getComponent(CardCtrl);
             if (!cardCtrl) {
                 DebugLog.instance.error(`源容器中索引 ${key} 的卡片缺少CardCtrl组件`);
                 return false;
             }
         }
-        
+
         // 检查结果容器中的卡片是否都有有效的CardCtrl组件
         for (let [key, node] of this.resultContainerMap) {
             if (!node || !node.isValid) {
                 DebugLog.instance.error(`结果容器中索引 ${key} 的卡片无效`);
                 return false;
             }
-            
+
             const cardCtrl = node.getComponent(CardCtrl);
             if (!cardCtrl) {
                 DebugLog.instance.error(`结果容器中索引 ${key} 的卡片缺少CardCtrl组件`);
                 return false;
             }
         }
-        
+
         DebugLog.instance.log("卡片实例化验证通过");
         return true;
     }
@@ -351,11 +354,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.resultContainerEmptyInstance.clear();
 
         this.model.dispose();
-        
+
         // 移除应用状态监听
         game.off(Game.EVENT_HIDE, this.onAppHide, this);
         game.off(Game.EVENT_SHOW, this.onAppShow, this);
-        
+
         super.onDestroy();
     }
 
@@ -461,7 +464,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     //     AlertManager.getInstance().showAlert(ad);
     // }
 
-    public hideGuide(){
+    public hideGuide() {
         super.hideGuide();
         this.startGameFlow();
     }
@@ -471,7 +474,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     private async startGameFlow() {
         // 重置弹窗状态
         this._isPauseAlertShown = false;
-        
+
         // this.btn_nextlevel.node.active = false;
         this.btn_commitresult.node.active = true;
         this.correctAnswerNode.active = false;
@@ -484,16 +487,16 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (!question) return;
 
 
-        if((this.sceneModel as any).gameType == GameType.SKEWERS){
+        if ((this.sceneModel as any).gameType == GameType.SKEWERS) {
             let skewersGameData = (this.sceneModel as any).game;
             this.progressBar.progress = skewersGameData.progress;
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
-        }else{
+        } else {
             let level = (this.sceneModel as any).level;
-            if(!Global.isAgain){
+            if (!Global.isAgain) {
                 let maxNum = (this.sceneModel as any).levelLen;
                 this.progressBar.progress = level / maxNum;
-                this.guankaLabel.string = "第" + level + "/"+ maxNum + "关";
+                this.guankaLabel.string = "第" + level + "/" + maxNum + "关";
             }
         }
 
@@ -501,8 +504,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.initRects(question);
 
         await this.initCardsInstance(question);
-        if(!this.bgmClip){
-            this.bgmClip = this.playBgmAudio("audio/majiangbgm",true);
+        if (!this.bgmClip) {
+            this.bgmClip = this.playBgmAudio("audio/majiangbgm", true);
         }
     }
 
@@ -585,7 +588,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                     DebugLog.instance.error(`cardModel 预制体无效，无法创建第 ${i} 个卡片`);
                     continue;
                 }
-                
+
                 try {
                     inst = instantiate(this.cardModel);
                     if (!inst) {
@@ -991,14 +994,12 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         if (isSuccess) {
             // 处理训练成功逻辑，例如弹出成功提示，解锁下一关等
             DebugLog.instance.log("训练成功！");
-            // if (this.sceneModel.gameType != GameType.SKEWERS) {
-            //     this.showAnimHupai();
-            // }else{
-                
-            // }
-            if(this.sceneModel.gameType == GameType.SKEWERS){
 
-            }else{
+
+            if (this.sceneModel.gameType == GameType.SKEWERS) {
+                // 显示成功动画
+                this.showAnimHupai();
+            } else {
                 (this.sceneModel as any).showSuccessView();
             }
 
@@ -1014,15 +1015,19 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 }
             }
             DebugLog.instance.log("训练失败！");
+
+
             this.playFail();
             if (this.sceneModel.gameType == GameType.SKEWERS) {
                 showAlert = false;
-            }else{
+                // 显示失败节点
+                this.failNode.active = true;
+            } else {
                 (this.sceneModel as any).showFailView();
             }
             // ad.title = "可惜";
             // ad.message = "挑战失败了";
-            
+
         }
 
         if (showAlert) {
@@ -1066,8 +1071,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
 
     resumeCallBack(context?: any): void {
         // 重置弹窗状态
-        if(context)context._isPauseAlertShown = false;
-        
+        if (context) context._isPauseAlertShown = false;
+
         // 恢复倒计时
         if (context.timerComponent) {
             // 检查倒计时是否曾经启动过
@@ -1081,7 +1086,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 DebugLog.instance.log("用户点击继续，启动倒计时");
             }
         }
-        
+
         super.resumeCallBack(context);
     }
 
@@ -1091,14 +1096,14 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         //     DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
         //     return;
         // }
-        
+
         // 如果弹窗已显示，只关闭弹窗，不执行继续游戏操作
         // if (this._isPauseAlertShown) {
         //     DebugLog.instance.log("弹窗已显示，只关闭弹窗，不执行继续游戏操作");
         //     this._isPauseAlertShown = false;
         //     return;
         // }
-        
+
         context.clearGameView();
         if (context.sceneModel) {
             if (context.sceneModel.gameType == GameType.SKEWERS) {
@@ -1125,7 +1130,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     }
 
 
-    dzgoonHandler(context,win: boolean = true) {
+    dzgoonHandler(context, win: boolean = true) {
         context.clearGameView();
         if (context.sceneModel) {
             if (context.sceneModel.gameType == GameType.SKEWERS) {
@@ -1163,7 +1168,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
     onTimerEnd() {
         // 设置游戏完成状态
         this._isGameCompleted = true;
-        
+
         this.playFail();
         if (this.sceneModel.gameType != GameType.SKEWERS) {
             (this.sceneModel as any).showFailView();
@@ -1193,7 +1198,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
                 let currentIndex = cardCtrl.getid();
                 let expectedText = this.model.getCurrentQuestion().sentence[i];
                 let actualText = this.model.getCurrentQuestion().sentence[currentIndex];
-                
+
                 // 比较文本内容而不是索引
                 if (expectedText !== actualText) {
                     DebugLog.instance.log('fail', this.correctDragCount++);
@@ -1221,6 +1226,8 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         this.animShow.node.active = false;
         this.animShow.stop();
         this.animRotate.stop();
+        // 同时隐藏失败节点
+        this.failNode.active = false;
     }
 
     public onClickRetryGame() {
@@ -1264,40 +1271,40 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
         // 监听应用回到前台
         game.on(Game.EVENT_SHOW, this.onAppShow, this);
     }
-    
+
     /**
      * 应用进入后台时的处理
      */
     private onAppHide() {
         DebugLog.instance.log("应用进入后台，暂停游戏并显示退出弹窗");
-        
+
         // 暂停计时器
         if (this.timerComponent) {
             this.timerComponent.pauseTimer();
         }
-        
+
         // 暂停拖拽功能
         this.isDragging = false;
-        
+
         // 标记弹窗已显示
         this._isPauseAlertShown = true;
-        
+
         // 显示退出弹窗
         this.showPauseAlert();
     }
-    
+
     /**
      * 应用回到前台时的处理
      */
     private onAppShow() {
         DebugLog.instance.log("应用回到前台，保持暂停状态");
-        
+
         // 如果游戏在结算阶段，不恢复倒计时
         if (this._isGameCompleted) {
             DebugLog.instance.log("游戏在结算阶段，不恢复倒计时");
             return;
         }
-        
+
         // 如果弹窗已显示，保持暂停状态，不自动恢复倒计时
         if (this._isPauseAlertShown) {
             DebugLog.instance.log("弹窗已显示，倒计时保持暂停状态，等待用户点击继续");
@@ -1305,11 +1312,11 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             this.isDragging = false;
             return;
         }
-        
+
         // 应用回到前台时保持暂停状态，不自动恢复倒计时
         // 只有用户点击"继续"按钮时才会恢复倒计时
         DebugLog.instance.log("应用回到前台，倒计时保持暂停状态，等待用户点击继续");
-        
+
         // 重置拖拽状态，允许重新开始拖拽
         this.isDragging = false;
     }
@@ -1327,7 +1334,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
      */
     public exitCallBack(context?: any): void {
         // 重置弹窗状态
-        if(context)context._isPauseAlertShown = false;
+        if (context) context._isPauseAlertShown = false;
         super.exitCallBack(context);
     }
 

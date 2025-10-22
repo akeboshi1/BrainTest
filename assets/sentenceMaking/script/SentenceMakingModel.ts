@@ -128,8 +128,8 @@ export class SentenceMakingModel {
             this.postSentenceMakingEvaluate(user_answer);
         }
         if (this._view.sceneModel.gameType == GameType.SKEWERS) {
-            // 串烧游戏上报结果之前停留3秒钟
-            this._view.showAnimHupai();
+            // // 串烧游戏上报结果之前停留3秒钟
+            // this._view.showAnimHupai();
             setTimeout(() => {
                 this._view.hideAnimHupai();
                 this._view.requestSkewersGameComplete(complete, duration);
