@@ -166,7 +166,7 @@ export class FingerGameScene extends Component {
     onSelectExperienceSection(sectionConfig: SectionConfig) {
         DebugLog.instance.log('onSelectExperienceSection ============= sectionConfig=' + sectionConfig.name);
         this._sectionConfig = sectionConfig;
-
+        this.btnExit.active = true;
         this.noticeNode.active = true;
     }
 
