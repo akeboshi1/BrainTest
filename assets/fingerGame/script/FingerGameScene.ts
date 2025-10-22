@@ -74,6 +74,9 @@ export class FingerGameScene extends Component {
     @property(Node)
     private titleText: Node = null;
 
+    @property(Node)
+    private btnExit:Node = null;
+
     private _model: FingerGameModel = null;
     private _currentSetIndex: number = -1;
     private _currentSectionIndex: number = -1;
@@ -169,6 +172,7 @@ export class FingerGameScene extends Component {
 
     private onSkewersGameNext(){
         this.noticeNode.active = true;
+        this.btnExit.active = true;
     }
 
     onGetAllTaskActivitiesResult(data: IFingerActivityResult) {
@@ -203,11 +207,13 @@ export class FingerGameScene extends Component {
             UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
+                self.btnExit.active = false;
             });
         } else {
             UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, {sectionDatas:sectionData,model: this._model},false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
+                self.btnExit.active = false;
             });
         }
     }
