@@ -32,6 +32,9 @@ export class FingerGameSectionsPanel extends BasePanel {
     @property(Node)
     private titleText: Node = null;
 
+    @property(Node)
+    private btnExit:Node = null;
+
     private _model: FingerGameModel = null;
 
     // 首页配置相关属性
@@ -52,7 +55,7 @@ export class FingerGameSectionsPanel extends BasePanel {
         }
         
         // 应用首页配置
-        // this.applyIndexPageConfig();
+        this.applyIndexPageConfig();
     }
 
 
