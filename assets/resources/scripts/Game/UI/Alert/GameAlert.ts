@@ -182,13 +182,25 @@ export class GameAlert extends AdaptComponent {
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
                 this.guideBtn.node.active = false;
-                this.progressBar.node.active = false;
-                this.titleLabel.node.active = false;
+                this.progressBar.node.active = true;
+                this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
+                this.winNode.active = false;
+                this.loseNode.active = false;
+                startBtnUITransform.width = 900;
                 // 启动3秒倒计时
                 this.startCountdown(this._countdownDelay);
-                startBtnUITransform.width = 900;
+                // this.exitBtn.node.active = false;
+                // this.startBtn.node.active = true;
+                // this.guideBtn.node.active = false;
+                // this.progressBar.node.active = false;
+                // this.titleLabel.node.active = false;
+                // this.iconConNode.active = false;
+                // this.decLabel.node.active = false;
+                // // 启动3秒倒计时
+                // this.startCountdown(this._countdownDelay);
+                // startBtnUITransform.width = 900;
                 break;
             case AlertType.Normal:
                 this.exitBtn.node.active = false;
