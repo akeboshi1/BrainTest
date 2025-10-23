@@ -74,12 +74,6 @@ export class GameAlert extends AdaptComponent {
     @property(Node)
     iconConNode: Node = null;
 
-    @property(Node)
-    winNode: Node = null;
-
-    @property(Node)
-    loseNode: Node = null;
-
     public static ALERT_GOON: string = "ALERT_GOON";
 
     public static ALERT_EXIT: string = "ALERT_EXIT";
@@ -173,8 +167,6 @@ export class GameAlert extends AdaptComponent {
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 startBtnUITransform.width = 300;
                 AudioManager.getInstance().playRest();
                 break;
@@ -186,8 +178,6 @@ export class GameAlert extends AdaptComponent {
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 startBtnUITransform.width = 900;
                 // 启动3秒倒计时
                 this.startCountdown(this._countdownDelay);
@@ -210,8 +200,6 @@ export class GameAlert extends AdaptComponent {
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 startBtnUITransform.width = 900;
                 // 启动3秒倒计时
                 this.startCountdown(this._countdownDelay);
@@ -225,8 +213,6 @@ export class GameAlert extends AdaptComponent {
                 this.decLabel.node.active = false;
                 this.completeIcon.active = false;
                 this.progressBar.node.active = false;
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 startBtnUITransform.width = 300;
                 break;
             case AlertType.Sucess_Small:
@@ -238,8 +224,6 @@ export class GameAlert extends AdaptComponent {
                 this.iconConNode.active = true;
                 this.decLabel.node.active = false;
                 this.progressBar.node.active = false;
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 // 确保图标显示正常并有动画效果
                 this.handleSuccessSmallIcon();
                 
@@ -252,8 +236,6 @@ export class GameAlert extends AdaptComponent {
                 this.titleLabel.node.active = true;
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.exitBtn.node.active = Global.userData.curTaskData.type == TaskType.Review;
                 if(!PersonalCenterManager.getInstance().userInfoData.has_initial_tier){
                     this.startBtn.node.active = false;
@@ -269,8 +251,6 @@ export class GameAlert extends AdaptComponent {
                 // todo
                 break;
             case AlertType.Init:
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.startBtn.node.active = true;
                 this.decLabel.node.active = false;
                 this.guideBtn.node.active = false;
@@ -282,8 +262,6 @@ export class GameAlert extends AdaptComponent {
                 startBtnUITransform.width = 900;
                 break;
             case AlertType.Game_Center:
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.startBtn.node.active = true;
                 this.guideBtn.node.active = false;
                 this.decLabel.node.active = false;
@@ -295,8 +273,6 @@ export class GameAlert extends AdaptComponent {
                 break;
             case AlertType.Revise:
                 // 订正弹窗
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.startBtn.node.active = true;
                 this.guideBtn.node.active = false;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = TaskManager.getInstance().curTask.isCorrection ? "订正" : "继续";
@@ -310,8 +286,6 @@ export class GameAlert extends AdaptComponent {
                 break;
             case AlertType.Revise_Success:
                 // 订正结算弹窗
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.exitBtn.node.active = false;
                 this.guideBtn.node.active = false;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
@@ -324,8 +298,6 @@ export class GameAlert extends AdaptComponent {
                 break;
             case AlertType.Revise_Fail:
                 // 订正结算弹窗
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.exitBtn.node.active = true;
                 this.guideBtn.node.active = false;
                 this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "重试";
@@ -338,8 +310,6 @@ export class GameAlert extends AdaptComponent {
                 this.decLabel.node.active = false;
                 break;
             case AlertType.Revise_Complete:
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.startBtn.node.active = false;
                 this.guideBtn.node.active = false;
                 this.decLabel.node.active = false;
@@ -351,8 +321,6 @@ export class GameAlert extends AdaptComponent {
                 break;
             case AlertType.Answer:
                 // 查看答案弹窗
-                this.winNode.active = false;
-                this.loseNode.active = false;
                 this.startBtn.node.active = true;
                 this.startBtn.node.getChildByName("Label").getComponent(Label).string = "继续";
                 this.guideBtn.node.active = false;
@@ -390,8 +358,6 @@ export class GameAlert extends AdaptComponent {
 
 
     showWinLose(win: boolean) {
-        this.winNode.active = win;
-        this.loseNode.active = !win;
     }
 
     /**
