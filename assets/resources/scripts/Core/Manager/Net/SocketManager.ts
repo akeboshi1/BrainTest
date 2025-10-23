@@ -29,7 +29,7 @@ export class SocketManager {
     private _socketScreenLockerPrefab: Prefab = null;
     public static SCREEN_LOCKER_PREFAB_PATH: string = "prefab/Common/SocketScreenLocker";
 
-    private _socketProcessingTimeout: number = 3;// 消息处理超时时间，单位秒
+    private _socketProcessingTimeout: number = 6;// 消息处理超时时间，单位秒
     private _processingTimeoutTimer: NodeJS.Timeout | null = null; // 消息处理超时定时器
 
     // ScreenLocker 相关属性
