@@ -400,29 +400,33 @@ export class SocketManager extends BaseManager {
 
 
     public send(data: SocketData) {
+        let pendingBool = false;
         if (!this._socket || this._socket.readyState != this._socket.OPEN) {
-            DebugLog.instance.warn('socket state is error! can not send message!');
-            return;
+            console.warn('socket state is error! can not send message!');
+            pendingBool = true
         }
 
         // 如果当前有正在处理的消息，检查是否需要防止重复
         if (this._processingSocketData) {
             // 如果新消息的 action 与正在处理的消息的 action 一致，则拒绝发送
             if (this._processingSocketData.action === data.action) {
-                DebugLog.instance.warn(`消息被拒绝：action "${data.action}" 正在处理中，请等待回复后再发送`);
+                DebugLog.instance.error(`消息被拒绝：action "${data.action}" 正在处理中，请等待回复后再发送`);
                 return;
             }
+            pendingBool = true;
+        }
 
+        if(pendingBool){
             // 检查待处理队列中是否已有相同 action 的消息
             const hasSameActionInQueue = this._pendingSocketDatas.some(pendingData => pendingData.action === data.action);
             if (hasSameActionInQueue) {
-                DebugLog.instance.warn(`消息被拒绝：action "${data.action}" 已在待处理队列中`);
+                DebugLog.instance.error(`消息被拒绝：action "${data.action}" 已在待处理队列中`);
                 return;
             }
-
+            
             // 将新消息加入待处理队列
             this._pendingSocketDatas.push(data);
-            DebugLog.instance.log(`消息已加入待处理队列: ${data.action}, uid: ${data.uid}, 队列长度: ${this._pendingSocketDatas.length}`);
+            console.log(`消息已加入待处理队列: ${data.action}, uid: ${data.uid}, 队列长度: ${this._pendingSocketDatas.length}`);
             return;
         }
 
