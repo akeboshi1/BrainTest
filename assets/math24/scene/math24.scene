@@ -4088,8 +4088,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 122.16796875,
-      "height": 126
+      "width": 130,
+      "height": 81.9
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4113,18 +4113,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 78,
-      "g": 78,
-      "b": 78,
+      "r": 0,
+      "g": 0,
+      "b": 0,
       "a": 255
     },
-    "_string": "(  )",
+    "_string": "调整",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 100,
-    "_fontSize": 100,
+    "_actualFontSize": 65,
+    "_fontSize": 65,
     "_fontFamily": "Arial",
-    "_lineHeight": 100,
+    "_lineHeight": 65,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,

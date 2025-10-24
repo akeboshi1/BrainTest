@@ -273,7 +273,7 @@ export class VipModel {
     private requestGetVipDataCallBack(data: SocketData) {
         let status = data.status;
         if (status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         }
 
@@ -305,7 +305,7 @@ export class VipModel {
     private requestCreateOrderCallBack(data: SocketData) {
         let status = data.status;
         if (status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         }
         let id = data.data["order_id"];
@@ -374,7 +374,7 @@ export class VipModel {
         let payData = JSON.parse(data);
         let status = payData.result;
         if (status == 0) {
-            AlertManager.getInstance().showSocketAlert("支付失败");
+            AlertManager.getInstance().showToastAlert("支付失败");
             return;
         }
         let orderId = payData.order_id;
@@ -383,7 +383,7 @@ export class VipModel {
             PersonalCenterManager.getInstance().requestUserInfo();
             EventManager.getInstance().emit(VipEvent.VIP_PAY_RESULT, orderId);
         } else {
-            AlertManager.getInstance().showSocketAlert("当前订单过期");
+            AlertManager.getInstance().showToastAlert("当前订单过期");
         }
     }
 
@@ -406,7 +406,7 @@ export class VipModel {
     private requestGetOrderCallBack(data: SocketData) {
         let _status = data.status;
         if (_status == 0) {
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         }
         let vipOrder = new VipOrder();

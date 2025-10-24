@@ -139,12 +139,15 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     // 添加一个属性来控制是否允许退出
     private isQuitEnabled: boolean = true;
 
+    // 记录上一次的正确拼图块数量，用于营销判断
+    private lastCorrectCount: number = 0;
+
     // 加载状态管理
     private isLoading: boolean = false;
     private loadingTimeoutId: any = null;
     private readonly LOADING_TIMEOUT: number = 10000; // 10秒超时
 
-    protected audioUrls = ['music/puzzleBG', "music/drag", "music/win"];
+    protected audioUrls = ['music/puzzleBG', "music/drag", "music/win", "music/pop"];
 
     private bgmClip: AudioClip;
 
@@ -397,28 +400,46 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             const targetChipData = selectedObjectIndex !== -1 ? this.getChipDataByPuzzlePos(selectedObjectIndex) : null;
 
             if (!dragChipData || (selectedObjectIndex !== -1 && !targetChipData)) {
-                DebugLog.instance.error(`[puzzleGame] getChipDataByPuzzlePos 报错，拖拽图片返回原位置`);
+                DebugLog.instance.log(`[puzzleGame] getChipDataByPuzzlePos 报错，拖拽图片返回原位置`);
                 this.processTouchCancel();
                 this.dragInstance = null;
                 return;
             }
 
-            if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex) {
+            if (this.chipsInstances.indexOf(this.dragInstance) != selectedObjectIndex && selectedObjectIndex != -1) {
                 this.swapPuzzleChips(selectedObjectIndex, this.chipsInstances.indexOf(this.dragInstance));
+                
+                // 更新所有chipNode的border状态
+                this.updateAllChipBorders();
+                
                 if (this.checkPuzzleResult()) {
                     this.processGameSuccess();
                 }
             } else {
                 this.processTouchCancel();
+                this.dragInstance = null;
             }
         } catch (error) {
             DebugLog.instance.debug(`[puzzleGame] onTouchEnd 发生错误: ${error}，拖拽图片返回原位置`);
             this.processTouchCancel();
+            this.dragInstance = null;
         }
 
         this.dragInstance = null;
-        DebugLog.instance.log("当前数量：" + this.getCorrentCounts());
+        
+        // 获取当前正确拼图块数量
+        const currentCorrectCount = this.getCorrentCounts();
+        DebugLog.instance.log("当前数量：" + currentCorrectCount);
         DebugLog.instance.log('总数', this.chipsInstances.length);
+
+        // 营销判断：如果正确拼图块数量增加了，播放pop音效
+        if (currentCorrectCount > this.lastCorrectCount) {
+            DebugLog.instance.log(`[puzzleGame] 正确拼图块数量从${this.lastCorrectCount}增加到${currentCorrectCount}，播放pop音效`);
+            this.playAudio("music/pop", true);
+        }
+        
+        // 更新记录的正确数量
+        this.lastCorrectCount = currentCorrectCount;
     }
 
     onTouchCancel(event: EventTouch) {
@@ -545,6 +566,9 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     onClickStartGame() {
         this.enableDragAndResetGame();
         
+        // 重置正确拼图块数量记录
+        this.lastCorrectCount = 0;
+        
         // 确保退出按钮在游戏开始时是启用的
         this.setQuitButtonInteractable(true);
 
@@ -561,47 +585,48 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.guankaLabel.string = "第" + level + "关";
         }
         this.onClickDisturbPuzzleButton();
+        
         this.startGameMask.active = false;
         this.playBgmAudio("music/puzzleBG", true);
     }
 
-    goonHandler() {
+    goonHandler(context) {
         // 如果游戏在结算阶段且动画还在进行中，只关闭弹窗，不执行继续游戏操作
-        if (this._isGameCompleted && this.showSpriteNode.active) {
+        if (context._isGameCompleted && context.showSpriteNode.active) {
             DebugLog.instance.log("游戏在结算阶段且动画进行中，只关闭弹窗");
             return;
         }
         
-        this.enableDragAndResetGame();
+        context.enableDragAndResetGame();
 
-        if (this.sceneModel.gameType == GameType.SKEWERS) {
-            (this.sceneModel as any).goonHandler(this);
+        if (context.sceneModel.gameType == GameType.SKEWERS) {
+            (context.sceneModel as any).goonHandler(context);
             return;
         }
 
-        this.onClickChangeLevel().then(() => {
-            this.startGameMask.active = true;
-            this.timerComponent.resetTimer();
+        context.onClickChangeLevel().then(() => {
+            context.startGameMask.active = true;
+            context.timerComponent.resetTimer();
         });
     }
 
-    dzgoonHandler(resuleBoo: boolean = true) {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    dzgoonHandler(context,resuleBoo: boolean = true) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
-                let self = this;
+                let self = context;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Executionability;
                 if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
-                    }, this, true);
-                    this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                    }, self, true);
+                    self.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(self.complete, self.duration);
                 } else {
-                    (this.sceneModel as any).goonHandler(self, true);
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
@@ -620,8 +645,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.currentTexture2d = texture;
             this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
             this.updatePreviewSprite(this.currentTexture2d);
-            this.onClickDisturbPuzzleButton();
-            
             // 调用开始游戏方法，这会隐藏startGameMask并启动游戏
             this.onClickStartGame();
         });
@@ -654,11 +677,23 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
     private checkTouchedObjectIndex(currentPos: Vec2): number {
         //先确定触摸的格子
         var puzzlePos = -1;
+        var positionIndex = -1;
+        
         for (let [key, value] of this.chipsDataMap.entries()) {
             const rect: Rect = value["rect"];
             if (rect.contains(new Vec2(currentPos.x, currentPos.y))) {
                 puzzlePos = value["puzzlePos"];
+                positionIndex = key;
                 break;
+            }
+        }
+
+        // 如果检测到位置，检查该位置上的拼图块是否已在正确位置
+        if (puzzlePos !== -1 && positionIndex !== -1) {
+            // 检查当前在positionIndex位置的拼图块是否就是应该在这个位置的拼图块
+            if (puzzlePos === positionIndex) {
+                DebugLog.instance.log(`[puzzleGame] 触摸到位置${positionIndex}的拼图块${puzzlePos}已在正确位置，返回-1`);
+                return -1; // 拼图块已在正确位置，返回-1避免重复操作
             }
         }
 
@@ -689,8 +724,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
 
             const targetPosition2 = chipData1["objectPos"];
             tween(this.chipsInstances[puzzlePos2]).to(duration, { position: targetPosition2 }).start();
-
-            this.outputMapData();
         } catch (error) {
             DebugLog.instance.error(`[puzzleGame] swapPuzzleChips 发生错误: ${error}`);
             // 如果交换过程中出现错误，尝试让拖拽的图片返回原位置
@@ -699,8 +732,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             }
         }
     }
-
-    // private _difficulty:number = 0;
 
     private get offsetX() {
         const uiSize = ScreenSizeUtil.getUISize();
@@ -733,19 +764,6 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
     }
 
-    private outputMapData() {
-        let outputString = "";
-        let lineCount = 0;
-        for (let [key, value] of this.chipsDataMap.entries()) {
-            if (lineCount % this.selectedLevel.x == 0) {
-                DebugLog.instance.log("outputMapData  ---- " + outputString);
-                outputString = "";
-            }
-            outputString += " " + value["puzzlePos"];
-            lineCount++;
-        }
-    }
-
     private checkPuzzleResult(): boolean {
         let index = 0;
         for (let [key, value] of this.chipsDataMap.entries()) {
@@ -759,6 +777,41 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         return true;
     }
 
+    // 检测并更新所有chipNode的border状态
+    private updateAllChipBorders() {
+        for (let i = 0; i < this.chipsInstances.length; i++) {
+            this.updateChipBorder(i);
+        }
+    }
+
+    // 检测单个chipNode是否在正确位置并更新border状态
+    private updateChipBorder(chipIndex: number) {
+        const chipNode = this.chipsInstances[chipIndex];
+        if (!chipNode || !chipNode.isValid) {
+            DebugLog.instance.warn(`[puzzleGame] chipNode[${chipIndex}] 无效`);
+            return;
+        }
+        // 获取border子节点
+        const borderNode = chipNode.getChildByName("border");
+        if (!borderNode) {
+            DebugLog.instance.warn(`[puzzleGame] chipNode[${chipIndex}] 没有找到border子节点`);
+            return;
+        }
+        
+        // 遍历chipsDataMap，找到位置chipIndex对应的数据
+        let isInCorrectPosition = false;
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            if (key === chipIndex) {
+                // 检查当前在位置chipIndex的拼图块是否就是应该在这个位置的拼图块
+                isInCorrectPosition = value["puzzlePos"] == chipIndex;
+                break;
+            }
+        }
+        
+        // 更新border节点的active状态
+        borderNode.active = isInCorrectPosition;
+    }
+
     private getCorrentCounts() {
         let counts = 0;
         for (let [key, value] of this.chipsDataMap.entries()) {
@@ -768,17 +821,80 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
         return counts;
     }
-    // 随机交换拼图位置n次的方法
-    private randomSwapPuzzleChipsNTimes(n: number) {
+
+    // 优化后的智能交换方法，确保每次交换都不会让元素回到原位
+    private smartSwapPuzzleChipsNTimes(n: number) {
         const maxPos = this.selectedLevel.x * this.selectedLevel.y;
-        let positions: number[] = [];
+        
+        // 如果只有1个拼图块，无法打乱
+        if (maxPos <= 1) {
+            return;
+        }
+        
+        // 记录每个位置当前存放的拼图块索引
+        let currentPositions: number[] = [];
         for (let i = 0; i < maxPos; i++) {
-            positions.push(i);
+            currentPositions.push(i);
         }
-        this.shuffleArray(positions);
+        
+        // 执行n次智能交换
         for (let i = 0; i < n; i++) {
-            this.swapPuzzleChips(positions[i], positions[(i + 1) % maxPos]);
+            // 找到两个可以安全交换的位置
+            const swapPositions = this.findSafeSwapPositions(currentPositions);
+            
+            if (swapPositions.length === 2) {
+                const [pos1, pos2] = swapPositions;
+                
+                // 执行交换
+                this.swapPuzzleChips(pos1, pos2);
+                
+                // 更新位置记录
+                [currentPositions[pos1], currentPositions[pos2]] = [currentPositions[pos2], currentPositions[pos1]];
+            } else {
+                // 如果找不到安全交换位置，跳过这次交换
+                DebugLog.instance.log(`[puzzleGame] 第${i+1}次交换：找不到安全交换位置，跳过`);
+            }
         }
+    }
+
+    // 找到两个可以安全交换的位置（交换后两个元素都不会回到原位）
+    private findSafeSwapPositions(currentPositions: number[]): number[] {
+        const maxPos = currentPositions.length;
+        const candidates: number[] = [];
+        
+        // 收集所有可以安全交换的位置对
+        for (let i = 0; i < maxPos; i++) {
+            for (let j = i + 1; j < maxPos; j++) {
+                // 检查交换后两个元素是否都不会回到原位
+                if (this.isSafeSwap(currentPositions, i, j)) {
+                    candidates.push(i, j);
+                }
+            }
+        }
+        
+        // 如果找到候选位置，随机选择一个
+        if (candidates.length >= 2) {
+            const randomIndex = Math.floor(Math.random() * (candidates.length / 2)) * 2;
+            return [candidates[randomIndex], candidates[randomIndex + 1]];
+        }
+        
+        return [];
+    }
+
+    // 检查交换两个位置是否安全（两个元素都不会回到原位）
+    private isSafeSwap(currentPositions: number[], pos1: number, pos2: number): boolean {
+        // 获取当前位置的拼图块
+        const chipAtPos1 = currentPositions[pos1];
+        const chipAtPos2 = currentPositions[pos2];
+        
+        // 检查交换后是否会导致任何一张图片回到原本位置
+        // 拼图块chipAtPos1原本在位置chipAtPos1，交换后到位置pos2，不能等于chipAtPos1
+        // 拼图块chipAtPos2原本在位置chipAtPos2，交换后到位置pos1，不能等于chipAtPos2
+        if (pos2 === chipAtPos1 || pos1 === chipAtPos2) {
+            return false; // 有拼图块会回到原本位置，不安全
+        }
+        
+        return true; // 安全，可以交换
     }
 
     private shuffleArray(array: number[]) {
@@ -788,10 +904,230 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         }
     }
 
+    // 检测拼图打乱结果
+    private checkPuzzleShuffleResult() {
+        const maxPos = this.selectedLevel.x * this.selectedLevel.y;
+        let correctCount = 0;
+        let totalCount = maxPos;
+        let shuffleInfo = "";
+        
+        // 统计正确位置的拼图块数量
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            const currentPos = value["puzzlePos"];
+            const correctPos = key;
+            
+            if (currentPos === correctPos) {
+                correctCount++;
+            }
+            
+            // 构建打乱信息字符串
+            if (shuffleInfo) {
+                shuffleInfo += ", ";
+            }
+            shuffleInfo += `位置${key}: 拼图块${currentPos}`;
+        }
+        
+        // 计算打乱程度
+        const shuffleRate = ((totalCount - correctCount) / totalCount * 100).toFixed(2);
+        const isFullyShuffled = correctCount === 0;
+        
+        // 输出检测结果
+        DebugLog.instance.log(`[puzzleGame] 拼图打乱检测结果:`);
+        DebugLog.instance.log(`- 总拼图块数: ${totalCount}`);
+        DebugLog.instance.log(`- 正确位置数: ${correctCount}`);
+        DebugLog.instance.log(`- 打乱程度: ${shuffleRate}%`);
+        DebugLog.instance.log(`- 是否完全打乱: ${isFullyShuffled ? "是" : "否"}`);
+        DebugLog.instance.log(`- 打乱详情: ${shuffleInfo}`);
+        
+        // 如果完全打乱，输出成功信息
+        if (isFullyShuffled) {
+            DebugLog.instance.log(`[puzzleGame] ✅ 拼图已完全打乱，所有拼图块都不在正确位置`);
+        } else {
+            DebugLog.instance.log(`[puzzleGame] ⚠️ 拼图未完全打乱，仍有 ${correctCount} 个拼图块在正确位置`);
+        }
+        
+        return {
+            totalCount,
+            correctCount,
+            shuffleRate: parseFloat(shuffleRate),
+            isFullyShuffled,
+            shuffleInfo
+        };
+    }
+
+    // 调整原位块，确保完全打乱
+    private adjustInPlaceBlocks() {
+        DebugLog.instance.log(`[puzzleGame] 开始调整原位块...`);
+        
+        // 找出所有原位块
+        const inPlaceBlocks: number[] = [];
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            const currentPos = value["puzzlePos"];
+            const correctPos = key;
+            if (currentPos === correctPos) {
+                inPlaceBlocks.push(key);
+            }
+        }
+        
+        const K = inPlaceBlocks.length;
+        DebugLog.instance.log(`[puzzleGame] 发现 ${K} 个原位块: [${inPlaceBlocks.join(', ')}]`);
+        
+        if (K === 0) {
+            // 情况1：无原位块，直接返回
+            DebugLog.instance.log(`[puzzleGame] 无原位块，无需调整`);
+            return;
+        } else if (K === 1) {
+            // 情况2：有1个原位块
+            this.adjustSingleInPlaceBlock(inPlaceBlocks[0]);
+        } else {
+            // 情况3：有≥2个原位块
+            this.adjustMultipleInPlaceBlocks(inPlaceBlocks);
+        }
+        
+        // 调整完成后再次检测
+        DebugLog.instance.log(`[puzzleGame] 原位块调整完成，开始最终检测...`);
+        const finalResult = this.checkPuzzleShuffleResult();
+        DebugLog.instance.log(`[puzzleGame] 原位块调整完成，最终结果: ${finalResult.isFullyShuffled ? "完全打乱" : "仍有原位块"}`);
+        
+        // 如果仍未完全打乱，进行最后一次强制调整
+        if (!finalResult.isFullyShuffled) {
+            DebugLog.instance.warn(`[puzzleGame] 调整后仍有原位块，进行强制调整...`);
+            this.forceAdjustRemainingBlocks();
+            
+            // 最终检测
+            const ultimateResult = this.checkPuzzleShuffleResult();
+            DebugLog.instance.log(`[puzzleGame] 强制调整完成，最终结果: ${ultimateResult.isFullyShuffled ? "完全打乱" : "仍有原位块"}`);
+        }
+    }
+
+    // 调整单个原位块
+    private adjustSingleInPlaceBlock(inPlaceIndex: number) {
+        DebugLog.instance.log(`[puzzleGame] 调整单个原位块: 位置${inPlaceIndex}`);
+        
+        const maxPos = this.selectedLevel.x * this.selectedLevel.y;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (attempts < maxAttempts) {
+            // 随机选择另一个非原位块的索引
+            let targetIndex = Math.floor(Math.random() * maxPos);
+            let retryCount = 0;
+            const maxRetries = 10; // 防止内层while死循环
+            
+            while (targetIndex === inPlaceIndex && retryCount < maxRetries) {
+                targetIndex = Math.floor(Math.random() * maxPos);
+                retryCount++;
+            }
+            
+            // 如果仍然等于原位块索引，跳过这次尝试
+            if (targetIndex === inPlaceIndex) {
+                attempts++;
+                continue;
+            }
+            
+            // 检查交换后是否安全
+            const targetChipData = this.getChipDataByPuzzlePos(targetIndex);
+            if (targetChipData && targetChipData["puzzlePos"] !== inPlaceIndex) {
+                // 执行交换
+                this.swapPuzzleChips(inPlaceIndex, targetIndex);
+                DebugLog.instance.log(`[puzzleGame] 交换位置${inPlaceIndex}和位置${targetIndex}`);
+                return;
+            }
+            
+            attempts++;
+        }
+        
+        DebugLog.instance.warn(`[puzzleGame] 调整单个原位块失败，已达到最大尝试次数`);
+    }
+
+    // 调整多个原位块
+    private adjustMultipleInPlaceBlocks(inPlaceBlocks: number[]) {
+        DebugLog.instance.log(`[puzzleGame] 调整多个原位块: [${inPlaceBlocks.join(', ')}]`);
+        
+        const K = inPlaceBlocks.length;
+        
+        // 两两交换
+        for (let i = 0; i < K - 1; i += 2) {
+            const pos1 = inPlaceBlocks[i];
+            const pos2 = inPlaceBlocks[i + 1];
+            this.swapPuzzleChips(pos1, pos2);
+            DebugLog.instance.log(`[puzzleGame] 交换位置${pos1}和位置${pos2}`);
+        }
+        
+        // 如果K为奇数，处理最后一个原位块
+        if (K % 2 === 1) {
+            const lastInPlaceIndex = inPlaceBlocks[K - 1];
+            // 与列表中任意一个已交换的块再次交换
+            const swapTarget = inPlaceBlocks[0];
+            this.swapPuzzleChips(lastInPlaceIndex, swapTarget);
+            DebugLog.instance.log(`[puzzleGame] 处理奇数情况，交换位置${lastInPlaceIndex}和位置${swapTarget}`);
+        }
+    }
+
+    // 强制调整剩余的原位块
+    private forceAdjustRemainingBlocks() {
+        DebugLog.instance.log(`[puzzleGame] 开始强制调整剩余原位块...`);
+        
+        // 找出所有剩余的原位块
+        const remainingInPlaceBlocks: number[] = [];
+        for (let [key, value] of this.chipsDataMap.entries()) {
+            const currentPos = value["puzzlePos"];
+            const correctPos = key;
+            if (currentPos === correctPos) {
+                remainingInPlaceBlocks.push(key);
+            }
+        }
+        
+        DebugLog.instance.log(`[puzzleGame] 发现 ${remainingInPlaceBlocks.length} 个剩余原位块: [${remainingInPlaceBlocks.join(', ')}]`);
+        
+        if (remainingInPlaceBlocks.length === 0) {
+            DebugLog.instance.log(`[puzzleGame] 无剩余原位块，强制调整完成`);
+            return;
+        }
+        
+        // 强制调整策略：将每个原位块与随机位置交换
+        for (const inPlaceIndex of remainingInPlaceBlocks) {
+            const maxPos = this.selectedLevel.x * this.selectedLevel.y;
+            let targetIndex = Math.floor(Math.random() * maxPos);
+            let retryCount = 0;
+            const maxRetries = 10; // 防止while死循环
+            
+            // 确保不与自己交换
+            while (targetIndex === inPlaceIndex && retryCount < maxRetries) {
+                targetIndex = Math.floor(Math.random() * maxPos);
+                retryCount++;
+            }
+            
+            // 如果仍然等于原位块索引，使用下一个位置
+            if (targetIndex === inPlaceIndex) {
+                targetIndex = (inPlaceIndex + 1) % maxPos;
+                DebugLog.instance.warn(`[puzzleGame] 强制调整：使用备用位置${targetIndex}替代随机位置`);
+            }
+            
+            // 执行强制交换
+            this.swapPuzzleChips(inPlaceIndex, targetIndex);
+            DebugLog.instance.log(`[puzzleGame] 强制交换位置${inPlaceIndex}和位置${targetIndex}`);
+        }
+        
+        DebugLog.instance.log(`[puzzleGame] 强制调整完成`);
+    }
+
     onClickDisturbPuzzleButton() {
         this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
         this.selectedLevel = this.levelList[this.selectedLevelIndex];
-        this.randomSwapPuzzleChipsNTimes(this.selectedLevel.x * this.selectedLevel.y);
+        // 使用智能交换方法，确保每次交换都不会让图片回到原本位置
+        this.smartSwapPuzzleChipsNTimes(this.selectedLevel.x * this.selectedLevel.y);
+        
+        // 打乱完成后检测是否完全打乱
+        const shuffleResult = this.checkPuzzleShuffleResult();
+        
+        // 如果未完全打乱，进行原位块调整
+        if (!shuffleResult.isFullyShuffled) {
+            this.adjustInPlaceBlocks();
+        }
+        
+        // 更新所有chipNode的border状态
+        this.updateAllChipBorders();
     }
 
     onClickChangeLevel(): Promise<void> {
@@ -873,22 +1209,22 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         this.onTimerEnd();
     }
 
-    public onClickShowAnswer() {
-        super.onClickShowAnswer();
-        this.showResultContinueButton.active = true;
-        this.touchMask.active = true;
+    public onClickShowAnswer(context) {
+        super.onClickShowAnswer(context);
+        context.showResultContinueButton.active = true;
+        context.touchMask.active = true;
         // 遍历所有拼图块
-        for (let [key, value] of this.chipsDataMap.entries()) {
+        for (let [key, value] of context.chipsDataMap.entries()) {
             const currentPos = value["puzzlePos"];
             const correctPos = key;
 
             // 如果当前位置不是正确位置，则交换
             if (currentPos !== correctPos) {
                 // 找到当前在正确位置的拼图块
-                const chipAtCorrectPos = this.getChipDataByPuzzlePos(correctPos);
+                const chipAtCorrectPos = context.getChipDataByPuzzlePos(correctPos);
                 if (chipAtCorrectPos) {
                     // 交换两个拼图块的位置
-                    this.swapPuzzleChips(currentPos, correctPos);
+                    context.swapPuzzleChips(currentPos, correctPos);
                 }
             }
         }

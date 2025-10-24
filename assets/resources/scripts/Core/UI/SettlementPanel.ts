@@ -3,6 +3,7 @@ import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
 import { UIManager } from '../Manager/UI/UIManager';
 import {DebugLog} from "db://assets/resources/scripts/Core/Util/DebugLog";
 import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
+import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
 const { ccclass, property } = _decorator;
 
 @ccclass('SettlementPanel')
@@ -159,6 +160,16 @@ export class SettlementPanel extends BasePanel{
             if (this.btn2Label) {
                 this.btn2Label.string = "下一关";
             }
+
+            // 下一关按钮增加3秒倒计时
+            if (this.btn2Node) {
+                const btn2 = this.btn2Node.getComponent(Button);
+                if (btn2) {
+                    TimeUtil.startButtonCountdown(btn2, 3, "下一关", this.btn2Label, () => {
+                        this.onClickNext();
+                    });
+                }
+            }
         } else {
             // 失败模式
             // this.bg0.active = false;
@@ -177,6 +188,16 @@ export class SettlementPanel extends BasePanel{
             }
             if (this.btn2Label) {
                 this.btn2Label.string = "下一关";
+            }
+
+            // 下一关按钮增加3秒倒计时
+            if (this.btn2Node) {
+                const btn2 = this.btn2Node.getComponent(Button);
+                if (btn2) {
+                    TimeUtil.startButtonCountdown(btn2, 3, "下一关", this.btn2Label, () => {
+                        this.onClickNext();
+                    });
+                }
             }
 
             AudioManager.getInstance().playRest();

@@ -35,6 +35,7 @@ import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global
 import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
 import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
+import {AudioManager} from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 const { ccclass, property } = _decorator;
 
 
@@ -170,7 +171,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // ====================== 继承basescene ===================
     onLoad() {
-        this.audioUrls = ["music/fishBG", "music/fishCatch", "music/win","music/success"];
+        this.audioUrls = ["music/fishBG", "music/fishCatch", "music/win","music/success","music/correct","music/error"];
         this.bundleName = BundleName.CATCHFISH;
         let self = this;
         this.loadAudio().then(() => {
@@ -247,64 +248,64 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         super.failCompleteHanlder(this);
     }
 
-    goonHandler() {
+    goonHandler(context) {
         // 如果游戏在结算阶段，需要重置状态并继续游戏
-        if (this._gameEnded) {
+        if (context._gameEnded) {
             DebugLog.instance.log("游戏在结算阶段，重置状态并继续游戏");
             // 重置游戏结束标志
-            this._gameEnded = false;
+            context._gameEnded = false;
             // 重置退出弹窗状态标记
-            this._isExitAlertShowing = false;
+            context._isExitAlertShowing = false;
             // 重置特效标志
-            this._isEffectPlaying = false;
+            context._isEffectPlaying = false;
             // 重置暂停状态
-            this._isPaused = false;
-            this._pause = false;
+            context._isPaused = false;
+            context._pause = false;
         }
 
-        this.node.active = false;
-        super.goonHandler(this);
+        context.node.active = false;
+        super.goonHandler(context);
     }
 
 
-    dzgoonHandler(resuleBoo: boolean = true, isFromAnswer: boolean = false) {
+    dzgoonHandler(context,resuleBoo: boolean = true, isFromAnswer: boolean = false) {
         // 重置游戏状态，确保能正常继续
-        this._gameEnded = false;
-        this._isExitAlertShowing = false;
-        this._isEffectPlaying = false;
-        this._isPaused = false;
-        this._pause = false;
+        context._gameEnded = false;
+        context._isExitAlertShowing = false;
+        context._isEffectPlaying = false;
+        context._isPaused = false;
+        context._pause = false;
 
         // 如果是从订正界面恢复，不清空错题，只清空游戏视图
         if (isFromAnswer) {
-            this.clearGameViewOnly();
+            context.clearGameViewOnly();
         } else {
-            this.clearGameView();
+            context.clearGameView();
         }
 
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
-                let self = this;
+                let self = context;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Calculator;
                 if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
-                    }, this, true);
-                    this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                    }, self, true);
+                    self.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(self.complete, self.duration);
                 } else {
-                    (this.sceneModel as any).goonHandler(self, true);
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
     }
 
 
-    nextHandler() {
-        super.nextHandler(this);
+    nextHandler(context) {
+        super.nextHandler(context);
     }
 
 
@@ -404,8 +405,9 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     }
 
 
-    public clearGameView() {
-        super.clearGameView();
+    public clearGameView(clearwang:boolean = true) {
+        AudioManager.getInstance().stopLongSound();
+        AudioManager.getInstance().stopBgm();
         this._clearBoo = true;
         this._gameEnded = true; // 确保训练彻底结束
         this._isPaused = false; // 重置暂停状态
@@ -414,8 +416,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this._wangTween = null;
         }
 
-        // 清理所有渔网节点
-        this.clearAllWangNodes();
+        // // 清理所有渔网节点
+        if(clearwang)this.clearAllWangNodes();
 
         // 停止所有动画
         Tween.stopAll();
@@ -1334,6 +1336,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         let len = this.wangs.length;
 
         if (index !== this._curFish.currentIndex) {
+            this.playAudio("music/error");
             for (let i = 0; i < len; i++) {
                 // 如果当前索引等于传入的索引，则调用selectWang方法
                 if (i == index) {
@@ -1407,7 +1410,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         // 设置特效播放标志
         this._isEffectPlaying = true;
 
-        this.playAudio("music/success", true);
+        // this.playAudio("music/correct", true);
 
         // 启动动画 - 网飞向鱼的视觉中心
         this._wangTween = tween(wang).parallel(
@@ -1418,7 +1421,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
                 const scaleUp = 1.3; // 放大到2倍
                 const scaleDown = 1.0; // 恢复到原始大小
                 const duration = 0.06; // 每次放大和缩小的时长
-                self.playAudio("music/fishCatch", true);
+                self.playAudio("music/fishCatch", true,false,3);
                 console.log("wangclick 0");
                 tween(self._curFish.getFishNode())
                     .to(duration, { scale: new Vec3(scaleUp, scaleUp, scaleUp) }, { easing: 'bounceOut' }) // 放大
@@ -1505,7 +1508,24 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     // 清理所有渔网节点
     private clearAllWangNodes() {
-        return;
+        // 停止所有wang节点的动画
+        for (let i = 0; i < this.wang.length; i++) {
+            Tween.stopAllByTarget(this.wang[i]);
+        }
+        
+        // 将所有wang节点恢复到原始位置
+        for (let i = 0; i < this.wang.length && i < this._wangPosList.length; i++) {
+            const wangNode = this.wang[i];
+            const originalPos = this._wangPosList[i];
+            if(!wangNode) continue;
+            // 恢复原始位置
+            wangNode.setPosition(originalPos.x, originalPos.y);
+            
+            // 恢复原始缩放
+            wangNode.setScale(1, 1, 1);
+
+            wangNode.active = false;
+        }
     }
 
     private async endCurHardGame() {
@@ -1641,21 +1661,21 @@ export class catchfish extends BaseScene<IBaseGameChild> {
 
     onclickContinue() {
         // 标记这是从订正界面恢复，不清空错题
-        this.dzgoonHandler(true, true);
+        this.dzgoonHandler(this,true, true);
     }
 
 
     // 显示订正界面
-    public onClickShowAnswer(): void {
-        super.onClickShowAnswer();
+    public onClickShowAnswer(context): void {
+        super.onClickShowAnswer(context);
 
         // 暂停鱼群动画
-        this._isPaused = true;
-        this._fishTweens.forEach(tween => tween.stop());
+        context._isPaused = true;
+        context._fishTweens.forEach(tween => tween.stop());
 
         // 如果有鱼的动画正在进行，也需要停止
-        if (this.fishs) {
-            this.fishs.forEach(fish => {
+        if (context.fishs) {
+            context.fishs.forEach(fish => {
                 if (fish && fish.curTween) {
                     fish.curTween.stop();
                     fish.pause = true;
@@ -1664,18 +1684,18 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
 
         // 显示订正界面
-        this.answerView.active = true;
+        context.answerView.active = true;
 
         // 使用当前训练中累积的错题
-        const wrongQuestions = this.wrongQuestions;
+        const wrongQuestions = context.wrongQuestions;
 
         // 取最后5道错题
         const questionsToShow = wrongQuestions.slice(-5);
 
         // 显示到answerNodes上
-        let len = Math.min(questionsToShow.length, this.answerNodes.length);
+        let len = Math.min(questionsToShow.length, context.answerNodes.length);
         for (let i = 0; i < len; i++) {
-            const node = this.answerNodes[i];
+            const node = context.answerNodes[i];
             node.active = true;
 
             // 获取题目和答案
@@ -1690,8 +1710,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         }
 
         // 如果错题不足5道，隐藏多余的节点
-        for (let i = len; i < this.answerNodes.length; i++) {
-            this.answerNodes[i].active = false;
+        for (let i = len; i < context.answerNodes.length; i++) {
+            context.answerNodes[i].active = false;
         }
     }
 
@@ -1842,8 +1862,11 @@ export class catchfish extends BaseScene<IBaseGameChild> {
         game.off(Game.EVENT_HIDE, this.onAppHide, this);
         game.off(Game.EVENT_SHOW, this.onAppShow, this);
 
-        // 调用父类的onDestroy方法
-        super.onDestroy();
+        this.complete = 0;
+        this.duration = 0;
+        this.clearGameView(false);
+        EventManager.getInstance().disableContext(this);
+        this.sceneModel.destory();
     }
 
 

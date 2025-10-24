@@ -6,9 +6,9 @@ import { SkewersGameStatus } from "../../../Core/Data/GameState";
 import { SocketManager } from "../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../Core/Manager/Net/SocketData";
 import { EventManager } from "../../../Core/Manager/Event/EventManager";
-import { AlertType, GameAlert } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
+import { AlertType } from "db://assets/resources/scripts/Game/UI/Alert/GameAlert";
 import { Canvas, director, instantiate, Node, Prefab, resources, UITransform, Vec3 } from "cc";
-import { TaskStatus } from "db://assets/resources/scripts/Game/Task/TaskData";
+import {TaskStatus, TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
 import {AlertManager,  AlertData } from "db://assets/resources/scripts/Core/Manager/Alert/AlertManager";
 import { BundlePreloadEvent, BundlePreloadManager } from "db://assets/resources/scripts/Core/Manager/Load/BundlePreloadManager";
 import { GuideManager } from "db://assets/resources/scripts/Core/Manager/Guide/GuideManager";
@@ -20,6 +20,8 @@ import {GameType} from "db://assets/resources/scripts/Core/Scene/SceneModel/Base
 import {GameDataFactory} from "db://assets/resources/scripts/Core/Scene/SceneModelFactory/GameDataFactory";
 import {GuidePanel} from "db://assets/resources/scripts/Game/UI/Alert/GuidePanel";
 import { LoadPanel } from "../../UI/Load/LoadPanel";
+import { GameScoreAlert } from "../../UI/Alert/GameScoreAlert";
+import { TaskManager } from "../TaskManager";
 /**
  * 脑力串烧管理器
  */
@@ -54,11 +56,18 @@ export class SkewersManager {
 
 
     public get currentSkewersCompleteGameStr(): string {
-        return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}训练`
+        return `恭喜完成${Global.userData.curSkewerGameData.TypeName}维度训练`
     }
 
     public get currentSkewersCompleteGameDZStr(): string {
-        return `恭喜你完成${Global.userData.curSkewerGameData.TypeName}订正`
+        return `恭喜完成${Global.userData.curSkewerGameData.TypeName}维度订正`
+    }
+
+    public get nextGameCompleteStr(): string {
+        if(!Global.userData.curSkewerGameData||!SkewersManager.getInstance().getUnCompleteGameData()){
+            return SkewersManager.getInstance().totalCompleteStr;
+        }
+        return `恭喜完成${Global.userData.curSkewerGameData.TypeName}维度训练\n接下进入${SkewersManager.getInstance().getUnCompleteGameData().TypeName}维度训练`
     }
 
     public get nextSkewersGameStr(): string {
@@ -135,6 +144,7 @@ export class SkewersManager {
         this._iconUrlMap.set(SkewersGameType.Judgment, "texture/game/icon/findingIcon");
         this._iconUrlMap.set(SkewersGameType.Memory, "texture/game/icon/memoryicon");
 
+        UIManager.getInstance().registerPanel(GameScoreAlert.NAME, BundleName.RESOURCES, "prefab/BrainTrain/BrainTrainScoreAlert", GameScoreAlert, false);
         UIManager.getInstance().registerPanel(BrainTrainTipPanel.NAME, BundleName.RESOURCES, "prefab/Common/BrainTrainTipPanel", BrainTrainTipPanel, false);
     }
 
@@ -164,7 +174,7 @@ export class SkewersManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         } else {
             let result = data.data['result'];
@@ -179,6 +189,29 @@ export class SkewersManager {
             Global.userData.skewerGameDatas = this._gameDatas;
         }
         EventManager.getInstance().emit(SkewersManager.TASK_GET_BRAIN_TRAININGS, this._gameDatas);
+    }
+
+    public getTotalSkewersGamesCount():number{
+        if (!Global.userData||!Global.userData.skewerGameDatas ||!Global.userData.skewerGameDatas || Global.userData.skewerGameDatas.length === 0) {
+            return 0;
+        }
+        
+        let totalCount = 0;
+        for (let i = 0; i < Global.userData.skewerGameDatas.length; i++) {
+            const gameData = Global.userData.skewerGameDatas[i];
+            if (gameData && gameData.trains) {
+                totalCount += gameData.trains.length;
+            }
+        }
+        
+        return totalCount;
+    }
+
+    public getTotalSkewersCount():number{
+        if (!Global.userData||!Global.userData.skewerGameDatas ||!Global.userData.skewerGameDatas) {
+            return 0;
+        }
+        return Global.userData.skewerGameDatas.length
     }
 
     // /**
@@ -270,7 +303,7 @@ export class SkewersManager {
      * @param context
      */
     public quitGame(parentNode: Node, curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context) {
-        resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+        resources.load("prefab/BrainTrain/BrainTrainAlert",Prefab,(err,resource)=>{
             if(err){
                 DebugLog.instance.error(err);
                 return;
@@ -280,7 +313,7 @@ export class SkewersManager {
             parentNode.addChild(alertNode);
             let alert = alertNode.getComponent("GameAlert");
             alertNode.setPosition(0, 0, 0);
-            alert["setTitle"]("退出");
+            alert["setTitle"]("暂停");
             alert["setDec"]("");
             alert["showView"](AlertType.Normal1);
             alert['setProgress'](curCount, maxCount);
@@ -300,7 +333,7 @@ export class SkewersManager {
      * @param exitCallBack 退出回调
      * @param context 上下文
      */
-    public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "", curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
+    public showGameAlert(parentNode: Node = null, type: AlertType, title = "", desc = "",win = true, curCount: number, maxCount: number, goonCallBack: Function, exitCallBack: Function, context: any) {
         let gameType = type == AlertType.Next ? SkewersManager.getInstance().getUnCompleteGameData().type : Global.userData.curSkewerGameData.type;
         let iconUrl = this._iconUrlMap.get(gameType);
         let position = new Vec3(0, 0, 0);
@@ -310,7 +343,7 @@ export class SkewersManager {
             parentNode = canvas.node;
         }
 
-        resources.load("prefab/BrainTrainAlert",Prefab,(err,resource)=>{
+        resources.load("prefab/BrainTrain/BrainTrainAlert",Prefab,(err,resource)=>{
             if(err){
                 DebugLog.instance.error(err);
                 return;
@@ -326,6 +359,7 @@ export class SkewersManager {
             alert['bindCallBack'](goonCallBack, exitCallBack, context);
             alert["setTitle"](title);
             alert["setDec"](desc);
+            alert["showWinLose"](win);
             
             // 异步加载图标，然后显示弹窗
             if (iconUrl) {
@@ -355,11 +389,12 @@ export class SkewersManager {
         Global.isAgain = false;
         Global.isSkewersGame = false;
         GuideManager.getInstance().quitGame();
-        if (SkewersManager.getInstance().isRunOver()) {
-            SceneManager.getInstance().backToTaskProgress();
-        } else {
-            SceneManager.getInstance().backToSkewersGameCenter();
-        }
+        SceneManager.getInstance().backToHall();
+        // if (SkewersManager.getInstance().isRunOver()) {
+        //     SceneManager.getInstance().backToTaskProgress();
+        // } else {
+        //     SceneManager.getInstance().backToSkewersGameCenter();
+        // }
     }
 
     public remoteExitCallBack() {
@@ -387,16 +422,17 @@ export class SkewersManager {
         let status = data.status;
         if (status == 0) {
             DebugLog.instance.error(data.message);
-            AlertManager.getInstance().showSocketAlert(data.message);
+            AlertManager.getInstance().showToastAlert(data.message);
             return;
         } else {
             if (!this._gameDatas || this._gameDatas.length <= 0) {
                 DebugLog.instance.log("当前串烧训练已经全部完成");
                 Global.isSkewersGame = false;
                 this._curIndex = -1;
+                
                 return;
             }
-            let curGame;
+            let curGame:SkewersGameData;
             for (let i = 0; i < this._gameDatas.length; i++) {
                 curGame = this._gameDatas[i];
                 if (curGame.status == TaskStatus.UnComplete) {
@@ -412,9 +448,65 @@ export class SkewersManager {
                 return;
             }
             Global.userData.curSkewerGameData.is_correction = data.data.is_correction;
-            EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
+
+            // 如果是最后一个串烧任务，服务端会发送一些完成数据
+            this._skewersGames_complete = data.data.task_completed;
+            if(this._skewersGames_complete){
+                let curTaskData = TaskManager.getInstance().curTask;
+                if(curTaskData){
+                    curTaskData.status = TaskStatus.Completed;
+                }
+            }
+            // 每个维度的分数
+            if(data.data["task_scores"]){
+                this._skewersGames_scores = data.data["task_scores"];
+            }
+            // 该串烧任务总分
+            if(data.data["task_total_score"]){
+               this._skewersGames_total_score = data.data["task_total_score"];
+            }
+            // 该串烧任务所用时间
+            if(data.data["task_duration"]){
+                this._skewersGames_duration = data.data["task_duration"];
+            }  
+
+            
+            if(this._skewersGames_complete && TaskManager.getInstance().curTask&& TaskManager.getInstance().curTask.type != TaskType.Review){
+               UIManager.getInstance().showPanel(GameScoreAlert.NAME,this._skewersGames_scores);
+            }else{
+               EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
+            }
         }
     }
+
+
+    /**
+     * 当前所有串烧任务是否已经完成
+     */
+    private _skewersGames_complete:boolean = false;
+
+    public get curTaskComplete():boolean{
+        return this._skewersGames_complete;
+    }
+
+    private _skewersGames_scores 
+
+    public get curTaskScores():any{
+        return this._skewersGames_scores;
+    }
+
+    private _skewersGames_duration:number = 0;
+    
+    public get curTaskDuration():number{
+        return this._skewersGames_duration;
+    }
+
+    private _skewersGames_total_score:number = 0;
+    
+    public get curTaskTotalScore():number{
+        return this._skewersGames_total_score;
+    }
+
 
     private _game;
 
@@ -429,13 +521,13 @@ export class SkewersManager {
             return;
         }
         this._game = this.getUnCompleteGameData();
-        this._game.taskID = id;
         if (!this._game) {
             this._curIndex = -1;
             DebugLog.instance.error("当前脑力训练已经全部完成！");
-            //   SceneManager.getInstance().backToHall();
+            SceneManager.getInstance().backToHall();
             return;
         }
+        this._game.taskID = id;
         const sceneName = this._game.gameCode;
         let url = Global.RES_Root + sceneName;
         Global.userData.curSkewerGameData = this._game;
@@ -596,6 +688,35 @@ export class SkewersManager {
 
     public get gameDatasLength(): number {
         return this._gameDatas.length;
+    }
+
+    /**
+     * 显示所有任务完成弹窗
+     * @param parentNode 父节点
+     * @param context 上下文
+     */
+    public showAllTasksCompleteAlert(parentNode: Node, context: any) {
+        const alertData = new AlertData();
+        alertData.title = "恭喜！所有任务已完成！";
+        alertData.message = "感谢您的努力训练！";
+        alertData.confirmButtonText = "确定";
+        alertData.cancelButtonVisible = false;
+        alertData.enableCountdown = true; // 启用倒计时功能
+        alertData.countdown = 5; // 5秒倒计时
+        alertData.countdownCb = () => {
+            // 倒计时结束后的回调
+            if (context.exitCallBack) {
+                context.exitCallBack();
+            }
+        };
+        alertData.confirmCb = () => {
+            // 点击确定按钮的回调
+            if (context.exitCallBack) {
+                context.exitCallBack();
+            }
+        };
+        
+        AlertManager.getInstance().showAlert(alertData);
     }
 
 
@@ -794,7 +915,7 @@ export class SkewersManager {
         
         // 回到串烧训练大厅
         try {
-            await SceneManager.getInstance().backToSkewersGameCenter();
+            await SceneManager.getInstance().backToHall();
             DebugLog.instance.log("已回到串烧训练大厅");
         } catch (error) {
             DebugLog.instance.error("回到串烧训练大厅失败:", error);

@@ -19,7 +19,11 @@ import { BundlePreloadEvent, BundlePreloadManager } from '../Core/Manager/Load/B
 import { AdaptComponent } from "db://assets/resources/scripts/mainV2/AdaptComponent";
 import { VipAlert } from '../Game/UI/Vip/VipAlert';
 import { GameType } from '../Core/Scene/SceneModel/BaseGameModel';
-import { ThemeConfig } from '../Config/ThemeConfig';
+import { ThemeConfig, ThemeConfigData } from '../Config/ThemeConfig';
+import { SkewersManager } from '../Game/Task/Skewers/SkewersManager';
+import { GlobalConfigManager } from '../Config/GlobalConfigManager';
+import { ImageLoaderUtil } from '../Core/Util/ImageLoaderUtil';
+import {ChatPanel} from "db://assets/resources/scripts/Game/UI/ChatPanel/ChatPanel";
 
 
 const { ccclass, property } = _decorator;
@@ -72,6 +76,9 @@ export class IndexPageView extends AdaptComponent {
     @property(Node)
     private titleText: Node = null;
 
+    @property(Node)
+    private titleLeft: Node = null;
+
     private taskConfig: TaskContainerConfig = new TaskContainerConfig();
     private indexPageConfig: IndexPageConfig = new IndexPageConfig();
 
@@ -87,12 +94,12 @@ export class IndexPageView extends AdaptComponent {
         super.start();
         UIManager.getInstance().registerPanel(VipPanel.NAME, BundleName.RESOURCES, '/prefab/VipPanel/VipPanel', VipPanel);
         UIManager.getInstance().registerPanel(VipAlert.NAME, BundleName.RESOURCES, "/prefab/VipPanel/VipAlert", VipAlert);
-        
+
         // 创建数据加载Promise
         this._dataLoadPromise = new Promise<void>((resolve) => {
             this._dataLoadResolve = resolve;
         });
-        
+
         // 使用缓存机制请求用户信息
         PersonalCenterManager.getInstance().requestUserInfo().then(() => {
             this.getUserInfoCallBack();
@@ -106,7 +113,7 @@ export class IndexPageView extends AdaptComponent {
         // EventManager.getInstance().on(PersonalCenterManager.getUserInfoCallBack, this.getUserInfoCallBack, this);
 
         this._listenerId = ReportManager.getInstance().reportDataList.addListener(this.onReportDataListChange.bind(this));
-        
+
     }
 
     onDisable() {
@@ -116,7 +123,7 @@ export class IndexPageView extends AdaptComponent {
         ReportManager.getInstance().reportDataList.removeListenerById(this._listenerId);
     }
 
-    onReportDataListChange(data:ReportData[]) {
+    onReportDataListChange(data: ReportData[]) {
         const values = data.map(item => item.tier);
         this.radarMap.getComponent(RadiaGraph).setValues(values);
         this.radarMap.getComponent(RadiaGraph).updateView(data);
@@ -142,8 +149,8 @@ export class IndexPageView extends AdaptComponent {
 
         this.setDayLabel(userData.trained_days);
 
-         // 当会员时间还剩余1天，显示续费入口
-         if (userData.getMemberRemainingDays() == 1) {
+        // 当会员时间还剩余1天，显示续费入口
+        if (userData.getMemberRemainingDays() == 1) {
             this.vipNode.active = true;
         } else {
             this.vipNode.active = false;
@@ -188,50 +195,6 @@ export class IndexPageView extends AdaptComponent {
         })
     }
 
-    /**
-     * 从远程URL加载图片并转换为SpriteFrame
-     * @param url 远程图片URL
-     * @returns Promise<SpriteFrame>
-     */
-    async loadRemoteSprite(url: string): Promise<SpriteFrame> {
-        return new Promise((resolve, reject) => {
-            this.wwwLoadSpriteFrame(url,(spriteFrame: SpriteFrame) => {
-                if (spriteFrame) {
-                    resolve(spriteFrame);
-                } else {
-                    reject(new Error(`远程图片加载失败: ${url}`));
-                }
-            });
-        });
-    }
-
-    /**
-     * 使用assetManager加载远程图片
-     * @param path 远程图片路径
-     * @param completeHD 完成回调函数
-     */
-    public wwwLoadSpriteFrame(path: string,completeHD?: Function) {
-        assetManager.loadRemote<ImageAsset>(path,
-            {
-                xhrResponseType: "blob",
-                xhrHeader: { 'Content-Type': 'application/octet-stream' }
-            },
-            (err, imageAsset: ImageAsset) => {
-                if (err) {
-                    DebugLog.instance.error("load error  ");
-                    DebugLog.instance.log(err);
-                    completeHD(null);
-                    return;
-                }
-                const spriteFrame = new SpriteFrame();
-                const texture = new Texture2D();
-                texture.image = imageAsset;
-                spriteFrame.texture = texture;
-                
-                completeHD(spriteFrame);
-            }
-        );
-    }
 
     buyHandler() {
         UIManager.getInstance().showPanel(VipPanel.NAME);
@@ -247,27 +210,11 @@ export class IndexPageView extends AdaptComponent {
     setDayLabel(day: number) {
         this.dayLabel.string = `${day}天`;
     }
-    
+
     renewalHandler() {
         UIManager.getInstance().showPanel(VipPanel.NAME);
     }
 
-    /**
-     * 获取当前应该使用的配置类型
-     * @returns 配置类型：'normal' 或节日名称
-     */
-    getCurrentConfigType(): string {
-        // 可以根据实际需求来判断，比如：
-        // 1. 根据当前日期判断节日
-        // 2. 根据用户设置
-        // 3. 根据服务器配置等
-        
-        let currentFestival = ThemeConfig.getInstance().getThemeTitle();
-        if(currentFestival == "" || currentFestival == null){
-            currentFestival = "normal";
-        }
-        return currentFestival;
-    }
 
     /**
      * 应用首页配置到UI
@@ -278,146 +225,114 @@ export class IndexPageView extends AdaptComponent {
             DebugLog.instance.log("配置已经应用过，跳过重复调用");
             return;
         }
-        
-        DebugLog.instance.log("IndexPageView开始应用首页配置");
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        let config = null;
-        
-        // 优先从用户信息缓存中获取配置
-        if (userData) {
-            const cachedConfig = userData.getIndexPageConfigCache();
-            if (cachedConfig) {
-                DebugLog.instance.log("使用缓存的首页配置");
-                config = cachedConfig;
-            }
-        }
-        
-        // 如果缓存中没有配置，则重新加载
-        if (!config) {
-            DebugLog.instance.log("缓存中没有配置，重新加载首页配置");
-            await this.indexPageConfig.loadConfig();
-            let type = this.getCurrentConfigType(); // 动态获取配置类型
-            
-            if (type === "normal") {
-                config = this.indexPageConfig.normalConfig;
-            } else {
-                config = ThemeConfig.getInstance().getConfig();
-            }
-            
-            // 将配置存储到用户信息缓存中
-            if (userData && config) {
-                // 确保缓存包含任务配置
-                const cacheData = {
-                    ...config,
-                    tasks: config.tasks || (type === "normal" ? this.taskConfig.normalTaskData : ThemeConfig.getInstance().getTasksConfig())
-                };
-                userData.setIndexPageConfigCache(cacheData);
-                DebugLog.instance.log("首页配置已缓存到用户信息中");
-            }
-        }
-        if (config && config.ui) {
-            // 应用UI配置
-            if (config.ui.bg) {
-                // 设置标题背景 - 统一使用远程加载
-                const titleSprite = await this.loadRemoteSprite(config.ui.bg);
-                
-                if (this.titleBg && titleSprite) {
-                    this.titleBg.getComponent(Sprite).spriteFrame = titleSprite;
-                }
-                DebugLog.instance.log("应用标题配置:", config.ui.bg);
-            }
-            if (config.ui.middle) {
-                    // 设置图标0 - 统一使用远程加载`
-                const icon0Sprite = await this.loadRemoteSprite(config.ui.middle);
 
-                if (this.titleIcon && icon0Sprite) {
-                    const transform = this.titleIcon.getComponent(Sprite).node.getComponent(UITransform);
-                    // 调整尺寸
-                    transform.width = icon0Sprite.width;
-                    transform.height = icon0Sprite.height;
-                    // 调整位置 - 保持图片中心位置不变
-                    const currentPos = this.titleIcon.position;
-                    this.titleIcon.setPosition(
-                        currentPos.x + 40 ,
-                        currentPos.y + 260,
-                        currentPos.z
-                    );
-                    this.titleIcon.getComponent(Sprite).spriteFrame = icon0Sprite;
-                }
-            }
-            if (config.ui.title) {
-                // 设置图标1 - 统一使用远程加载
-                const icon1Sprite = await this.loadRemoteSprite(config.ui.title);
-                
-                if (this.titleText && icon1Sprite) {
-                    this.titleText.getComponent(Sprite).spriteFrame = icon1Sprite;
-                }
-                DebugLog.instance.log("应用图标1配置:", config.ui.title);
-            }
-        }
-        
+        // 使用GlobalConfigManager的公共方法
+        await GlobalConfigManager.getInstance().applyIndexPageConfig(
+            this.titleBg,
+            this.titleIcon,
+            this.titleText
+        );
+
         // 标记配置已应用
         this._configApplied = true;
         DebugLog.instance.log("IndexPageView配置应用完成");
     }
 
     async generateTask() {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        let taskdata = null;
+        // 使用GlobalConfigManager获取任务配置
+        const taskdata = await GlobalConfigManager.getInstance().getTaskConfig();
         
-        // 优先从用户信息缓存中获取任务配置
-        if (userData) {
-            const cachedConfig = userData.getIndexPageConfigCache();
-            if (cachedConfig && cachedConfig.tasks) {
-                DebugLog.instance.log("使用缓存的任务配置");
-                taskdata = cachedConfig.tasks;
-            }
-        }
-        
+        await this.taskConfig.loadConfig();
+        EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this._taskListCallBack.bind(this,taskdata), this, true);
+        TaskManager.getInstance().requestTaskList();
+    }
+
+    private async _taskListCallBack(taskdata){
         // 如果缓存中没有任务配置，则重新加载
         if (!taskdata) {
             DebugLog.instance.log("缓存中没有任务配置，重新加载");
-            await this.taskConfig.loadConfig();
-            let type = this.getCurrentConfigType(); // 使用相同的动态类型判断
-            
-            if(type == "normal"){
-                taskdata = this.taskConfig.normalTaskData;
-            } else {
-                taskdata = ThemeConfig.getInstance().getTasksConfig();
-            }
+            taskdata = await GlobalConfigManager.getInstance().getTaskConfig();
         }
-        
-        
+
+        let iconPath =[
+            "textureV2/indexPage/brainIcon/spriteFrame",
+            "textureV2/indexPage/handIcon/spriteFrame",
+            "textureV2/indexPage/talkIcon/spriteFrame"];
         for (let i = 0; i < taskdata.length; i++) {
             let taskItem = instantiate(this.taskPrefab);
             let taskController = taskItem.getComponent(TaskItemController);
             taskController.setTaskIndex(i);
             taskController.setTaskTitle(taskdata[i].title);
             taskController.setTaskContent(taskdata[i].txt);
-            await taskController.setTaskBg(taskdata[i].icon_bg, taskdata[i].width, taskdata[i].height);
-            await taskController.setbgColor(taskdata[i].bg0_color,taskdata[i].bg1_color,taskdata[i].bg2_color,taskdata[i].bg3_color);
+            if(i == 0){
+                TaskManager.getInstance().getFirstUnCompleteTask();
+                if(TaskManager.getInstance().getFirstUnCompleteTask()){
+                    taskController.setIsComplete(false);
+                }else{
+                    taskController.setIsComplete(true);
+                }
+            }else if(i == 2){
+                taskController.setButtonStr("去聊天");
+            }
+            await taskController.setTaskBg(taskdata[i].btn);
+            await taskController.setTaskIcon(iconPath[i], taskdata[i].icon_color);
+            await taskController.setbgColor(taskdata[i].bg0_color, taskdata[i].bg1_color);
 
             //设置文本颜色
-            if(taskdata[i].word_color){
-                taskController.setTaskWordColor(taskdata[i].word_color);
-            }
-            
-            // 设置文本外发光效果
-            if (taskdata[i].word_out_color) {
-                taskController.setTaskWordOutline(taskdata[i].word_out_color);
-            }
-            
+            // if (taskdata[i].word_color) {
+            //     taskController.setTaskWordColor(taskdata[i].word_color);
+            // }
+
+            // // 设置文本外发光效果
+            // if (taskdata[i].word_out_color) {
+            //     taskController.setTaskWordOutline(taskdata[i].word_out_color);
+            // }
+
             // taskController.setIsComplete(taskdata[i].is_complete);
             taskController.setClickCallback(this[taskdata[i].click_function_name].bind(this))
             taskController.node.parent = this.taskContainer;
         }
     }
 
+    private taskListRequestCallBack() {
+        const firstUnCompleteTask = TaskManager.getInstance().getFirstUnCompleteTask();
+        if (firstUnCompleteTask) {
+            TaskManager.getInstance().setCurTaskId(firstUnCompleteTask.id);
+            EventManager.getInstance().on(SkewersManager.TASK_GET_BRAIN_TRAININGS, this.requestBranisTraining_listCallBack.bind(this), this, true);
+            SkewersManager.getInstance().requestBranisTraining_list(firstUnCompleteTask.id);
+        } else {
+            // 没有未完成的任务，显示完成提示弹窗
+            this.showAllTasksCompleteAlert();
+        }
+    }
+
+    private requestBranisTraining_listCallBack() {
+        const firstUnCompleteTask = TaskManager.getInstance().getFirstUnCompleteTask();
+        if (firstUnCompleteTask) {
+            TaskManager.getInstance().requestStartTask(firstUnCompleteTask.id);
+        } else {
+            // 没有未完成的任务，显示完成提示弹窗
+            this.showAllTasksCompleteAlert();
+        }
+
+    }
+
+    /**
+     * 显示所有任务完成提示弹窗
+     */
+    private showAllTasksCompleteAlert() {
+        AlertManager.getInstance().showToastAlert("当前时间段任务已全部完成");
+    }
+
     showBrainTrainingPanel() {
         let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
         if (is_member) {
-            UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
-            UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
+            // EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, this.taskListRequestCallBack, this, true);
+            // TaskManager.getInstance().requestTaskList();
+            this.taskListRequestCallBack();
+
+            // UIManager.getInstance().registerPanel(TaskAndNotificationPanelCtrl.NAME, BundleName.RESOURCES, "prefab/TaskAndNotification/TaskAndNotificationPanel", TaskAndNotificationPanelCtrl);
+            // UIManager.getInstance().showPanel(TaskAndNotificationPanelCtrl.NAME);
         } else {
             const alertData: AlertData = new AlertData();
             alertData.title = "去解锁会员,畅玩更多功能";
@@ -442,6 +357,22 @@ export class IndexPageView extends AdaptComponent {
             }.bind(this);
             AlertManager.getInstance().showAlert(alertData);
         }
+    }
+
+    showAIChatPanel(){
+        let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
+        if (is_member) {
+            UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
+            UIManager.getInstance().showPanel(ChatPanel.NAME);
+            return;
+        }
+        const alertData: AlertData = new AlertData();
+        alertData.title = "去解锁会员,畅玩更多功能";
+        alertData.cancelButtonVisible = true;
+        alertData.confirmCb = function () {
+            this.cofirmGoToVip();
+        }.bind(this);
+        AlertManager.getInstance().showAlert(alertData);
     }
 
     private _clickBoo = false;
@@ -485,15 +416,12 @@ export class IndexPageView extends AdaptComponent {
      * 清除缓存并重新加载配置
      */
     async refreshIndexPageConfig(): Promise<void> {
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        if (userData) {
-            userData.clearIndexPageConfigCache();
-            DebugLog.instance.log("已清除首页配置缓存，将重新加载");
-        }
-        
+        // 使用GlobalConfigManager清除缓存
+        await GlobalConfigManager.getInstance().refreshIndexPageConfig();
+
         // 重置配置应用标志
         this._configApplied = false;
-        
+
         // 重新应用配置
         await this.applyIndexPageConfig();
     }

@@ -36,9 +36,11 @@ export interface ThemeTaskConfig {
  * 主题配置数据接口
  */
 export interface ThemeConfigData {
-    title: string;
-    ui: ThemeUIConfig;
-    tasks: ThemeTaskConfig[];
+    theme: {
+        title: string;
+        ui: ThemeUIConfig;
+        tasks: ThemeTaskConfig[];
+    };
 }
 
 export class ThemeConfig {
@@ -64,27 +66,22 @@ export class ThemeConfig {
                 this._themeData = data;
                 
                 // 为任务配置添加默认的click_function_name
-                if (this._themeData.tasks && Array.isArray(this._themeData.tasks)) {
-                    this._themeData.tasks.forEach((task: ThemeTaskConfig, index: number) => {
-                        if (!task.click_function_name) {
+                if (this._themeData.theme.tasks && Array.isArray(this._themeData.theme.tasks)) {
+                    this._themeData.theme.tasks.forEach((task: ThemeTaskConfig, index: number) => {
                             // 根据任务索引设置默认的点击函数名
                             if (index === 0) {
-                                task.click_function_name = "showBrainTrainingPanel";
                                 task.txt = "专为老年人设计的脑力训练";
                             } else if (index === 1) {
-                                task.click_function_name = "navigatetoFingerGame";
                                 task.txt = "训练手部运动协同锻炼";
                             } else {
-                                // 如果超过2个任务，默认使用第一个
-                                task.click_function_name = "showBrainTrainingPanel";
-                                task.txt = "专为老年人设计的脑力训练";
+                                task.txt = "数字人智能陪聊";
                             }
-                        }
+
                     });
                 }
                 
                 this._isInitialized = true;
-                DebugLog.instance.log("主题配置初始化成功:", this._themeData.title);
+                DebugLog.instance.log("主题配置初始化成功:", this._themeData.theme.title);
             } else {
                 DebugLog.instance.warn("主题配置数据格式错误或为空");
             }
@@ -106,7 +103,7 @@ export class ThemeConfig {
      * @returns UI配置
      */
     getUIConfig(): ThemeUIConfig | null {
-        return this._themeData?.ui || null;
+        return this._themeData?.theme.ui || null;
     }
 
     /**
@@ -114,7 +111,7 @@ export class ThemeConfig {
      * @returns 任务配置数组
      */
     getTasksConfig(): ThemeTaskConfig[] {
-        return this._themeData?.tasks || [];
+        return this._themeData?.theme.tasks || [];
     }
 
     /**
@@ -122,7 +119,7 @@ export class ThemeConfig {
      * @returns 主题标题
      */
     getThemeTitle(): string {
-        return this._themeData?.title || "normal";
+        return this._themeData?.theme.title || "normal";
     }
 
     /**

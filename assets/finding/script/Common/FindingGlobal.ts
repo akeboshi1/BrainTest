@@ -16,12 +16,17 @@ export default class FindingGlobal {
         FindingGlobal.curSkewersGameIndex = 0;
         FindingGlobal.gameCenterGameLevel = 0;
         FindingGlobal.skewersGameList = [];
+        FindingGlobal.isCallbackCompleted = false;
+        // 重置时移除事件监听，避免内存泄漏
+        FindingGlobal.removeEventListeners();
     }
 
     /**
      * 初始化事件监听器，监听训练大厅进度更新事件
      */
     public static initEventListeners() {
+
+
         // 监听训练大厅进度更新事件
         EventManager.getInstance().on("GAME_CENTER_LEVEL_UPDATE", (data) => {
             // 更新本地进度变量
@@ -30,6 +35,15 @@ export default class FindingGlobal {
             FindingGlobal.isCallbackCompleted = true;
             console.log("训练大厅进度已更新:", data.level);
         }, FindingGlobal);
+    }
+
+    /**
+     * 移除事件监听器
+     */
+    public static removeEventListeners() {
+        // 移除训练大厅进度更新事件监听
+        EventManager.getInstance().off("GAME_CENTER_LEVEL_UPDATE", FindingGlobal);
+        console.log("已移除训练大厅进度更新事件监听");
     }
 
     public static config: any =

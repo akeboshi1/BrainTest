@@ -66,14 +66,14 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
         this.resetTime();
     }
 
-    onClickShowAnswer(){
+    onClickShowAnswer(context){
         Global.isAgain = false;
-        if(this.quitBtn)this.quitBtn.active = false;
+        if(context.quitBtn)context.quitBtn.active = false;
     }
 
     dzanswerHandler(context){
         // if(this.quitBtn)this.quitBtn.active = true;
-        if (this.sceneModel) this.sceneModel.dzanswerHandler(context);
+        if (context.sceneModel) context.sceneModel.dzanswerHandler(context);
     }
 
 
@@ -272,56 +272,56 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
         this.clearGameView();
     }
 
-    showNextSuccessHandler() {
-        if (this.sceneModel) {
-            this.sceneModel.showNextSuccessHandler(this);
+    showNextSuccessHandler(context) {
+        if (context.sceneModel) {
+            context.sceneModel.showNextSuccessHandler(context);
         }
     }
 
-    showNextFailHandler() {
-        if (this.sceneModel) {
-            this.sceneModel.showNextFailHandler(this);
+    showNextFailHandler(context) {
+        if (context.sceneModel) {
+            context.sceneModel.showNextFailHandler(context);
         }
     }
 
-    totalCompleteHandler() {
-        if (this.sceneModel) {
-            this.sceneModel.totalCompleteHandler(this);
+    totalCompleteHandler(context) {
+        if (context.sceneModel) {
+            context.sceneModel.totalCompleteHandler(context);
         }
     }
 
     /**
      * 开始订正任务
      */
-    reviseHandler(){
+    reviseHandler(context){
         if(this.sceneModel){
-            this.sceneModel.reviseHandler(this);
+            this.sceneModel.reviseHandler(context);
         }
     }
 
     /**
      * 重玩订正任务
      */
-    retryHandler(){
+    retryHandler(context){
         if(this.sceneModel){
-            this.sceneModel.retryHandler(this);
+            this.sceneModel.retryHandler(context);
         }
     }
 
     /**
      * 查看订正答案
      */
-    answerHandler(){
+    answerHandler(context){
         if(this.sceneModel){
-            this.sceneModel.answerHandler(this);
+            this.sceneModel.answerHandler(context);
         }
     }
 
     /**
      * 调用串烧游戏外部逻辑
      */
-    remoteHandler() {
-        this.remoteExitCallBack(this);
+    remoteHandler(context) {
+        this.remoteExitCallBack(context);
     }
 
     /**
@@ -339,13 +339,13 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
     }
 
     // ========== 播放音频 ==========
-    public playAudio(url: string, isShot: boolean = false, isLoop: boolean = false):AudioClip {
+    public playAudio(url: string, isShot: boolean = false, isLoop: boolean = false,volume: number = 1.0):AudioClip {
         let audioRes = this.audioMap.get(url);
         if (audioRes != null) {
             if (isShot) {
-                AudioManager.getInstance().playShortSound(audioRes);
+                AudioManager.getInstance().playShortSound(audioRes,volume);
             } else {
-                AudioManager.getInstance().playLongSound(audioRes, isLoop);
+                AudioManager.getInstance().playLongSound(audioRes, isLoop,volume);
             }
             return audioRes;
         }else{

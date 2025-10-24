@@ -443,17 +443,17 @@ export class VipPanel extends BasePanel {
                     if (TaskManager.getInstance().getCurTaskId == -1) {
                         if (!userData.has_initial_tier) {
                             EventManager.getInstance().on(TaskManager.RequestInitTaskCallback, () => {
-                                SceneManager.getInstance().backToSkewersGameCenter();
+                                SceneManager.getInstance().backToHall();
                             }, this, true);
                             TaskManager.getInstance().requestInitLevalTask();
                         } else {
                             EventManager.getInstance().on(TaskManager.TaskListRequestCallBack, () => {
-                                SceneManager.getInstance().backToTaskProgress();
+                                SceneManager.getInstance().backToHall();
                             }, this, true);
                             TaskManager.getInstance().requestTaskList();
                         }
                     } else {
-                        SceneManager.getInstance().backToTaskProgress();
+                        SceneManager.getInstance().backToHall();
                     }
                 }, this);
             });
@@ -690,19 +690,19 @@ export class VipPanel extends BasePanel {
     addNewAddressHandler() {
         if (this.newAddressNode.active) {
             if (this.nameInput.string == "" || this.nameInput.string == "请输入收货人姓名") {
-                AlertManager.getInstance().showSocketAlert('请输入收货人姓名');
+                AlertManager.getInstance().showToastAlert('请输入收货人姓名');
                 return;
             }
             if (this.PhoneInput.string == "" || this.PhoneInput.string == "请输入收货人手机号码") {
-                AlertManager.getInstance().showSocketAlert('请输入收货人电话');
+                AlertManager.getInstance().showToastAlert('请输入收货人电话');
                 return;
             }
             if (this.addressLabel.string == "" || this.addressLabel.string == "请选择") {
-                AlertManager.getInstance().showSocketAlert('请输入收货地址');
+                AlertManager.getInstance().showToastAlert('请输入收货地址');
                 return;
             }
             if (this.addressInput.string == "" || this.addressInput.string == "请输入道路，门牌号，小区，楼栋号，单元室等") {
-                AlertManager.getInstance().showSocketAlert('请输入详细收货地址');
+                AlertManager.getInstance().showToastAlert('请输入详细收货地址');
                 return;
             }
 

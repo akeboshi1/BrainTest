@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "cdec170d-42f1-416f-84ef-2979d223d060",
+  "uuid": "015c1fa0-b7c3-45fa-ad0d-8658ee9ab09c",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "BrainTrainAlert"
+    "syncNodeName": "ChatPanel2"
   }
 }

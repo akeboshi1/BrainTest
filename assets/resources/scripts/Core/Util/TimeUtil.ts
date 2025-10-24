@@ -1,4 +1,5 @@
 import {DebugLog} from "../../Core/Util/DebugLog";
+import { Button, Label } from 'cc';
 
 export class TimeUtil {
     public static getNowStr(): string {
@@ -148,4 +149,74 @@ export class TimeUtil {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // 通用按钮倒计时池
+    private static _buttonCountdownMap: WeakMap<Button, { timer: any; remaining: number; baseText: string; label: Label; wasInteractable: boolean }> = new WeakMap();
+
+    /**
+     * 为任意按钮开启倒计时（公用方法）
+     * - 会临时禁用按钮交互，结束后恢复
+     * - 实时更新按钮上的 Label 文案（优先使用传入的 targetLabel，否则查找子节点 "Label"）
+     * @param button 目标按钮
+     * @param duration 倒计时秒数
+     * @param baseText 基础文案（默认"确定"）
+     * @param targetLabel 可选，若指定则直接使用这个 Label
+     * @param onComplete 结束回调
+     */
+    public static startButtonCountdown(button: Button, duration: number, baseText: string = "确定", targetLabel?: Label, onComplete?: () => void): void {
+        if (!button || !button.node) return;
+
+        // 如果已有倒计时，先停止
+        TimeUtil.stopButtonCountdown(button, baseText);
+
+        let label: Label = targetLabel as Label;
+        if (!label) {
+            const labelNode = button.node.getChildByName("Label");
+            label = labelNode ? labelNode.getComponent(Label) : null;
+        }
+
+        const state = {
+            timer: null as any,
+            remaining: Math.max(0, Math.floor(duration)),
+            baseText,
+            label,
+            wasInteractable: button.interactable
+        };
+        TimeUtil._buttonCountdownMap.set(button, state);
+
+        const tick = () => {
+            if (state.label) {
+                state.label.string = state.remaining > 0 ? `${baseText} (${state.remaining})` : baseText;
+            }
+            if (state.remaining <= 0) {
+                TimeUtil.stopButtonCountdown(button, baseText);
+                if (onComplete) onComplete();
+                return;
+            }
+            state.remaining--;
+        };
+
+        // 立即刷新一次
+        tick();
+        state.timer = setInterval(tick, 1000);
+    }
+
+    /**
+     * 停止按钮倒计时（公用方法）
+     * @param button 目标按钮
+     * @param resetText 可选，停止后文案（默认基础文案）
+     */
+    public static stopButtonCountdown(button: Button, resetText?: string): void {
+        const state = TimeUtil._buttonCountdownMap.get(button);
+        if (!state) return;
+
+        if (state.timer) {
+            clearInterval(state.timer);
+        }
+        TimeUtil._buttonCountdownMap.delete(button);
+
+        // 恢复文案
+        if (state.label) {
+            state.label.string = resetText ?? state.baseText;
+        }
+    }
 }

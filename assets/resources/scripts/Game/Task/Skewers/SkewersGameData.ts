@@ -42,8 +42,9 @@ export class SkewersGameData {
     // 串烧训练训练队列数据
     public trains: SkewersGameTrainData[];
 
+    // 是否是订正
     public is_correction : boolean = false;
-
+    
     public index:number = -1;
 
     // 一类串烧训练状态

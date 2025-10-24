@@ -487,10 +487,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     playNextCustoms() {
         // 如果游戏在结算阶段，只关闭弹窗，不执行继续游戏操作
-        if (this.customsSendDataState) {
-            DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
-            return;
-        }
+        // if (this.customsSendDataState) {
+        //     DebugLog.instance.log("游戏在结算阶段，只关闭弹窗");
+        //     return;
+        // }
 
         this.isAbleClick = true;
         this.isCardFlipping = false;
@@ -769,7 +769,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             const updateDisplay = (time) => {
                 self.countDownLabel.string = `${Math.floor(time)}`;
                 tween(self.countDownLabel.node)
-                    .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
+                    // .to(0.25, { scale: new Vec3(0.6, 0.6, 1) })
                     .to(0.25, { scale: new Vec3(1, 1, 1) })
                     .start();
             };
@@ -786,11 +786,11 @@ export class Main extends BaseScene<IBaseGameChild> {
                     clearInterval(this.intervalId);
                     // 时间到0时显示"开始"并播放放大动画
                     this.countDownLabel.string = "开始";
-                    this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
+                    // this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
                     // 播放放大动画
                     tween(this.countDownLabel.node)
-                        .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                        // .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                         .to(0.2, { scale: new Vec3(1, 1, 1) })
                         .call(() => {
                             // 动画完成后停止定时器
@@ -814,11 +814,11 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 确保显示"开始"并播放放大动画
                 this.countDownLabel.string = "开始";
                 this.countDownLabel.node.active = true;
-                this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
+                // this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
                 // 播放放大动画
                 tween(this.countDownLabel.node)
-                    .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                    // .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                     .to(0.2, { scale: new Vec3(1, 1, 1) })
                     .call(() => {
                         // 动画完成后延迟一段时间再隐藏标签
@@ -833,11 +833,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 如果整数部分为0，直接显示"开始"
             this.countDownLabel.node.active = true;
             this.countDownLabel.string = "开始";
-            this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
+            // this.countDownLabel.node.setScale(1.5, 1.5, 1.5);
 
             // 播放放大动画
             tween(this.countDownLabel.node)
-                .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
+                // .to(0.3, { scale: new Vec3(1.5, 1.5, 1) })
                 .to(0.2, { scale: new Vec3(1, 1, 1) })
                 .call(() => {
                     setTimeout(() => {
@@ -929,23 +929,23 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    dzgoonHandler(resuleBoo: boolean = true) {
-        this.clearGameView();
-        if (this.sceneModel) {
-            if (this.sceneModel.gameType == GameType.SKEWERS) {
+    dzgoonHandler(context,resuleBoo: boolean = true) {
+        context.clearGameView();
+        if (context.sceneModel) {
+            if (context.sceneModel.gameType == GameType.SKEWERS) {
                 // 直接发送训练完成请求，不处理弹窗逻辑
                 // 直接向服务器发送请求，但不处理回调
-                let self = this;
+                let self = context;
                 let trainData = SkewersManager.getInstance().getUnCompleteGameData();
                 let _boo = trainData.type != SkewersGameType.Memory;
                 if (!_boo) {
                     EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, (data) => {
                         (self.sceneModel as any).goonHandler(self, true);
-                    }, this, true);
-                    this.clearGameView();
-                    SkewersManager.getInstance().requestGameComplete(this.complete, this.duration);
+                    }, self, true);
+                    self.clearGameView();
+                    SkewersManager.getInstance().requestGameComplete(self.complete, self.duration);
                 } else {
-                    (this.sceneModel as any).goonHandler(self, true);
+                    (context.sceneModel as any).goonHandler(self, true);
                 }
             }
         }
@@ -1032,11 +1032,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         });
     }
 
-    public onClickShowAnswer() {
-        this.isAbleClick = false;
-        this.goonBtn.active = true;
-        super.onClickShowAnswer();
-        this.showAllCard();
+    public onClickShowAnswer(context) {
+        context.isAbleClick = false;
+        context.goonBtn.active = true;
+        super.onClickShowAnswer(context);
+        context.showAllCard();
 
     }
     public onclickContinue() {

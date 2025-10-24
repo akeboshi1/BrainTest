@@ -1239,8 +1239,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (spriteNode) {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
-                    // 更改为明亮的高亮颜色，使用淡蓝色突出显示已选择的卡牌
-                    sprite.color = new Color(100, 200, 255, 255); // 淡蓝色高亮效果
+                    // 更改为明亮的高亮颜色，使用优雅的紫色突出显示已选择的卡牌
+                    sprite.color = new Color(255, 215, 0,255); // 优雅紫色高亮效果
                     
                     // 为卡片添加轻微缩放效果，显示它已被选中
                     this.cards[index].setScale(new Vec3(0.95, 0.95, 1));
@@ -1254,7 +1254,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                         .to(0.1, { scale: new Vec3(0.95, 0.95, 1) })
                         .start();
                     
-                    DebugLog.instance.log(`设置卡片${index}高亮颜色: 100,200,255,255`);
+                    DebugLog.instance.log(`设置卡片${index}高亮颜色: 255, 215, 0,255`);
                 }
             } else {
                 DebugLog.instance.log(`卡片${index}没有找到sprite子节点`);

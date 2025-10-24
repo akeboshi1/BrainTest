@@ -4,6 +4,7 @@ import { DebugLog } from "../../Util/DebugLog";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { SceneManager } from "../Scene/SceneManager";
 import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
+import { TimeUtil } from "../../Util/TimeUtil";
 const { ccclass, property } = _decorator;
 
 @ccclass('AlertManager')
@@ -25,6 +26,9 @@ export class AlertManager extends BaseManager {
     private alertQueue: AlertData[] = []; // 用于存储等待显示的alert数据队列
     private currentAlert: Node = null; // 当前正在显示的alert节点
     private userAgreeAlert: Node = null; // 用户同意弹窗节点
+    private countdownTimer: any = null; // 倒计时定时器
+    private currentCountdown: number = 0; // 当前倒计时剩余时间
+    private _countdownButtonRef: Button = null; // 当前倒计时关联的按钮
 
     public async init() {
         SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
@@ -163,6 +167,11 @@ export class AlertManager extends BaseManager {
                 confirmButton.node.setPosition(0, confirmButton.node.position.y);
             }
         }
+
+        // 处理倒计时功能
+        if (alertData.enableCountdown && alertData.countdown > 0) {
+            this.startCountdown(alertData.countdown, confirmButton, alertData.countdownCb);
+        }
     }
     public showUserAgreeAlert(alertData: AlertData) {
         let self = this;
@@ -259,6 +268,8 @@ export class AlertManager extends BaseManager {
 
     public closeCurrentAlert() {
         if (this.currentAlert) {
+            // 清除倒计时定时器
+            this.clearCountdownTimer();
             this.currentAlert.destroy();
             this.currentAlert = null;
             // 检查队列中是否还有等待显示的alert，如果有则弹出下一个显示
@@ -366,7 +377,7 @@ export class AlertManager extends BaseManager {
         this.closeCurrentAlert();
     }
 
-    public showSocketAlert(message: string) {
+    public showToastAlert(message: string) {
         if (!this._socketAlertPrefab) {
             DebugLog.instance.error("Socket Alert prefab not loaded!");
             return;
@@ -393,7 +404,7 @@ export class AlertManager extends BaseManager {
 
         // 创建渐隐动画
         tween(alertNode)
-            .delay(1.8) // 延迟2秒
+            .delay(3) // 延迟2秒
             .to(0.3, { scale: new Vec3(0.8, 0.8, 0.8) }) // 先缩小
             .to(0.1, { scale: new Vec3(0, 0, 0) }) // 再完全消失
             .call(() => {
@@ -404,6 +415,125 @@ export class AlertManager extends BaseManager {
                 alertNode.destroy();
             })
             .start();
+    }
+
+    /**
+     * 显示3秒倒计时弹窗
+     * @param message 提示消息
+     * @param onComplete 倒计时结束回调
+     */
+    public showCountdownAlert(message: string, onComplete?: () => void) {
+        if (!this._socketAlertPrefab) {
+            DebugLog.instance.error("Socket Alert prefab not loaded!");
+            return;
+        }
+
+        // 实例化预制体
+        let alertNode = instantiate(this._socketAlertPrefab);
+
+        // 如果找不到弹窗层，则输出错误信息
+        let rootNode: Node = LayerUtil.createTopLayer('AlertLayer');
+        if (!rootNode) {
+            DebugLog.instance.error("Can not create top layer for alert!");
+            return;
+        }
+
+        rootNode.addChild(alertNode);
+        this.currentAlert = alertNode;
+
+        // 设置提示内容
+        const messageLabel = alertNode.getComponentInChildren(Label);
+        if (messageLabel) {
+            messageLabel.string = message;
+        }
+
+        // 添加倒计时显示
+        let countdownLabel: Label = null;
+        const countdownNode = new Node("CountdownLabel");
+        countdownLabel = countdownNode.addComponent(Label);
+        countdownLabel.string = "3";
+        countdownLabel.fontSize = 48;
+        countdownLabel.color = new Color(255, 255, 255, 255);
+        alertNode.addChild(countdownNode);
+        
+        // 设置倒计时标签位置（在消息下方）
+        countdownNode.setPosition(0, -130);
+
+        // 开始倒计时
+        let countdown = 3;
+        const countdownTimer = setInterval(() => {
+            countdown--;
+            if (countdownLabel) {
+                countdownLabel.string = countdown.toString();
+            }
+            
+            if (countdown <= 0) {
+                clearInterval(countdownTimer);
+                // 倒计时结束，执行回调
+                if (onComplete) {
+                    onComplete();
+                }
+                // 销毁弹窗
+                if (this.currentAlert === alertNode) {
+                    this.currentAlert = null;
+                }
+                alertNode.destroy();
+            }
+        }, 1000);
+
+        // 添加渐隐动画（在倒计时结束后）
+        tween(alertNode)
+            .delay(3) // 等待3秒倒计时结束
+            .to(0.3, { scale: new Vec3(0.8, 0.8, 0.8) }) // 先缩小
+            .to(0.1, { scale: new Vec3(0, 0, 0) }) // 再完全消失
+            .call(() => {
+                // 动画结束后销毁节点
+                if (this.currentAlert === alertNode) {
+                    this.currentAlert = null;
+                }
+                alertNode.destroy();
+            })
+            .start();
+    }
+
+    /**
+     * 开始倒计时
+     * @param duration 倒计时时长（秒）
+     * @param confirmButton 确认按钮
+     * @param countdownCb 倒计时结束回调
+     */
+    private startCountdown(duration: number, confirmButton: Button, countdownCb?: () => void) {
+        this.clearCountdownTimer();
+        this._countdownButtonRef = confirmButton;
+        TimeUtil.startButtonCountdown(confirmButton, duration, "确定", undefined, () => {
+            // 倒计时结束，调用回调并关闭弹窗
+            if (countdownCb) {
+                countdownCb();
+            }
+            this.closeCurrentAlert();
+        });
+    }
+
+    /**
+     * 清除倒计时定时器
+     */
+    private clearCountdownTimer() {
+        if (this._countdownButtonRef) {
+            TimeUtil.stopButtonCountdown(this._countdownButtonRef, "确定");
+            this._countdownButtonRef = null;
+        }
+        if (this.countdownTimer) {
+            clearInterval(this.countdownTimer);
+            this.countdownTimer = null;
+        }
+    }
+
+    /**
+     * 更新倒计时显示
+     * @param confirmButton 确认按钮
+     */
+    private updateCountdownDisplay(confirmButton: Button) {
+        // 已改用 TimeUtil 统一处理按钮文案更新
     }
 
 }
@@ -424,4 +554,7 @@ export class AlertData {
     public confirmButtonText: string = "确认";
     public x: number = 0; // 弹窗x坐标，默认为0表示使用默认位置
     public y: number = 0; // 弹窗y坐标，默认为0表示使用默认位置
+    public countdown?: number = 0; // 倒计时秒数，0表示不启用倒计时
+    public enableCountdown?: boolean = false; // 是否启用倒计时功能
+    public countdownCb?: () => void = null; // 倒计时结束回调
 }
