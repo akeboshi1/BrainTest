@@ -803,17 +803,32 @@ export class Main extends BaseScene<IBaseGameChild> {
     refreshFunc(){
         DebugLog.instance.log('刷新训练状态...');
         
-        // 重置训练状态，但保留当前题目
+        // 重置游戏状态
         this.resetCardStatus();
         this._isGameCompleted = false; // 重置游戏完成状态
-
-        // 确保已使用的卡片集合被清空
-        this.usedCardIndices.clear();
         
+        // 清空所有状态
+        this.usedCardIndices.clear();
+        this.selectedCards = [];
+        this.selectedValues = [];
+        this.operators = [];
+        this.operatorTypes = [];
+        this.calculationSteps = [];
+        this.currentStepIndex = -1;
+        
+        // 清空表达式显示
         this.setLabel("");
+        
+        // 加载新题目
+        this.loadNewQuestion();
         
         // 刷新卡牌显示，确保翻转
         this.forceRefreshCardDisplay();
+        
+        // 更新游戏UI
+        this.updateGameUI();
+        
+        DebugLog.instance.log('游戏状态已重置，新题目已加载');
     }
 
     quitGame(){
@@ -1564,17 +1579,21 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 记录计算步骤
      */
     recordCalculationStep(stepData: any) {
-        // 如果当前索引不是最后一个，删除后面的步骤
+        // 如果当前索引不是最后一个，替换当前索引的步骤数据
         if (this.currentStepIndex < this.calculationSteps.length - 1) {
-            this.calculationSteps = this.calculationSteps.slice(0, this.currentStepIndex + 1);
+            // 替换当前索引的步骤数据
+            this.calculationSteps[this.currentStepIndex + 1] = stepData;
+            this.currentStepIndex++;
+            DebugLog.instance.log(`替换步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+        } else {
+            // 添加新步骤
+            this.calculationSteps.push(stepData);
+            this.currentStepIndex = this.calculationSteps.length - 1;
+            DebugLog.instance.log(`添加新步骤 ${this.currentStepIndex + 1}:`, stepData.type);
         }
         
-        // 添加新步骤
-        this.calculationSteps.push(stepData);
-        this.currentStepIndex = this.calculationSteps.length - 1;
-        
-        DebugLog.instance.log(`记录计算步骤 ${this.currentStepIndex + 1}:`, stepData.type);
         DebugLog.instance.log('总步骤数:', this.calculationSteps.length);
+        DebugLog.instance.log('当前步骤索引:', this.currentStepIndex);
     }
     
     /**
@@ -1583,12 +1602,25 @@ export class Main extends BaseScene<IBaseGameChild> {
     checkResultEquals24(result: number) {
         DebugLog.instance.log(`检查计算结果: ${result} 是否等于24`);
         
+        // 检查是否所有4张卡牌都被使用过
+        const usedCardsCount = this.usedCardIndices.size;
+        const nullValuesCount = this.cardValues.filter(value => value === null).length;
+        
+        DebugLog.instance.log(`已使用卡牌数量: ${usedCardsCount}`);
+        DebugLog.instance.log(`null值卡牌数量: ${nullValuesCount}`);
+        
+        // 只有当所有4张卡牌都被使用过（即3张卡牌被隐藏，1张卡牌显示结果）时才能检查24
+        if (nullValuesCount < 3) {
+            DebugLog.instance.log('还有卡牌未使用，不能检查24结果');
+            return;
+        }
+        
         // 使用浮点数比较，允许小的误差
         if (Math.abs(result - 24) < 0.000001) {
-            DebugLog.instance.log('计算结果等于24，显示成功！');
+            DebugLog.instance.log('所有卡牌已使用且计算结果等于24，显示成功！');
             this.onSuccess();
         } else {
-            DebugLog.instance.log(`计算结果不等于24，当前结果: ${result}`);
+            DebugLog.instance.log(`所有卡牌已使用但计算结果不等于24，当前结果: ${result}`);
         }
     }
     
@@ -1753,22 +1785,6 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.currentResult = this.selectedValues.length > 0 ? this.selectedValues[0] : 0;
         }
     }
-
-    preStep(){
-        if (this.currentStepIndex < 0) {
-            DebugLog.instance.log('没有可回退的步骤');
-            return;
-        }
-        
-        
-        const stepData = this.calculationSteps[this.currentStepIndex];
-        DebugLog.instance.log(`回退到步骤 ${this.currentStepIndex + 1}:`, stepData.type);
-
-        // 恢复状态
-        this.restoreStepState(stepData);
-        // 回退到上一步
-        this.currentStepIndex--;
-    }
     
     /**
      * 恢复步骤状态
@@ -1888,8 +1904,76 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    nextStep(){
+    preStep(){
+        if (this.currentStepIndex < 0) {
+            DebugLog.instance.log('没有可回退的步骤');
+            return;
+        }
+        
+        
+        const stepData = this.calculationSteps[this.currentStepIndex];
+        DebugLog.instance.log(`回退到步骤 ${this.currentStepIndex + 1}:`, stepData.type);
 
+        // 恢复状态
+        this.restoreStepState(stepData);
+        // 回退到上一步
+        this.currentStepIndex--;
+    }
+
+    /**
+     * 更新游戏UI
+     */
+    updateGameUI() {
+        // 重置所有卡牌状态
+        for (let i = 0; i < this.cards.length; i++) {
+            const card = this.cards[i];
+            card.active = true; // 显示所有卡牌
+            
+            // 重置卡牌颜色
+            const spriteNode = card.getChildByName("sprite");
+            if (spriteNode) {
+                const sprite = spriteNode.getComponent(Sprite);
+                if (sprite) {
+                    sprite.color = new Color(255, 255, 255, 255); // 白色
+                }
+            }
+            
+            // 重置卡牌缩放
+            card.setScale(new Vec3(1, 1, 1));
+            
+            // 更新卡牌标签
+            const labelNode = card.getChildByName("label");
+            if (labelNode) {
+                const label = labelNode.getComponent(Label);
+                if (label) {
+                    label.string = this.cardValues[i].toString();
+                }
+            }
+        }
+        
+        // 重置表达式标签颜色
+        this.formulaLabel.color = new Color(0, 0, 0, 255); // 黑色
+        
+        DebugLog.instance.log('游戏UI已更新');
+    }
+
+    nextStep(){
+        // // 检查是否有下一步骤
+        // if (this.currentStepIndex >= this.calculationSteps.length - 1) {
+        //     DebugLog.instance.log('没有下一步骤可执行');
+        //     return;
+        // }
+        
+        // // 移动到下一步骤
+        // this.currentStepIndex++;
+        // const stepData = this.calculationSteps[this.currentStepIndex];
+        
+        // DebugLog.instance.log(`执行下一步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+        // DebugLog.instance.log('当前步骤索引:', this.currentStepIndex);
+        // DebugLog.instance.log('总步骤数:', this.calculationSteps.length);
+        
+        // // 恢复下一步骤的状态
+        // this.restoreStepState(stepData);
     }
 
     protected onDestroy(): void {

@@ -4515,7 +4515,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "brackets",
+    "_name": "preStep",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -5251,7 +5251,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "equal-001",
+    "_name": "nextStep",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -5558,7 +5558,7 @@
     },
     "component": "",
     "_componentId": "1071fQZzJ1FdI2YC2gMG502",
-    "handler": "showAnswer",
+    "handler": "nextStep",
     "customEventData": ""
   },
   {
