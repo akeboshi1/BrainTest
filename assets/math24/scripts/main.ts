@@ -72,11 +72,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     private currentResult: number = 0;     // 当前表达式计算结果
     
     // 简化括号管理
-    private brackets: {start: number, end: number}[] = []; // 存储括号的开始和结束位置
-    private bracketMode: number = 0;  // 括号模式：0表示无括号，1-n表示不同的括号组合
+    // private brackets: {start: number, end: number}[] = []; // 存储括号的开始和结束位置
     private usedCardIndices: Set<number> = new Set(); // 已使用的卡牌索引
-    private hasBrackets: boolean = false; // 是否已添加括号
-    
+
     // 游戏结算状态
     private _isGameCompleted: boolean = false;
     
@@ -98,11 +96,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         // 注册结算面板
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
-        
-        // 测试括号计算（调试用）
-        // setTimeout(() => {
-        //     this.testBracketCalculation();
-        // }, 2000);
+
     }
 
     start() {
@@ -223,13 +217,13 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 恢复卡片原始颜色和缩放
         this.restoreCard(index);
         
-        // 如果取消选中后，需要调整括号
-        if (this.brackets.length > 0) {
-            // 重置括号状态，简单处理
-            this.brackets = [];
-            this.bracketMode = 0;
-            DebugLog.instance.log('重置括号状态');
-        }
+        // // 如果取消选中后，需要调整括号
+        // if (this.brackets.length > 0) {
+        //     // 重置括号状态，简单处理
+        //     this.brackets = [];
+        //     this.bracketMode = 0;
+        //     DebugLog.instance.log('重置括号状态');
+        // }
         
         // 调试信息
         DebugLog.instance.log('当前选中卡片:', this.selectedCards);
@@ -256,14 +250,6 @@ export class Main extends BaseScene<IBaseGameChild> {
                 spriteNode.active = true;
             }
 
-            // if(labelNode) {
-            //     const label = labelNode.getComponent(Label);
-            //     if (label) {
-            //         label.string = "";
-            //         DebugLog.instance.error('123重置卡片${i}标签为空');
-            //     }
-            // }
-            
             // 隐藏并清理结果显示节点
             const resultNode = this.cards[index].getChildByName("resultDisplay");
             if (resultNode) {
@@ -378,165 +364,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 如果已经选择了4张卡片，且有3个运算符，自动计算结果
         this.checkAutoSubmit();
     }
-    
-    /**
-     * 括号按钮处理
-     */
-    bracketsFunc() {
-        // 根据当前选择的数字数量决定括号逻辑
-        const numValues = this.selectedValues.length;
-        const numOperators = this.operators.length;
-        
-        // 确保至少有两个数字和一个运算符才能添加括号
-        if (numValues < 2 || numOperators < 1) {
-            DebugLog.instance.log('至少需要2个数字和1个运算符才能添加括号');
-            this.setLabel('需要2个数字和1个运算符');
-            setTimeout(() => {
-                this.updateExpression();
-            }, 1000);
-            return;
-        }
-        
-        // 清空现有括号
-        this.brackets = [];
-        
-        // 根据不同数量的数字设置括号模式总数
-        let maxModes = 2; // 两个数字时有2种模式：有括号/无括号
-        if (numValues === 3) maxModes = this.num3Values.length; 
-        if (numValues === 4) maxModes = this.num4Values.length;
-        
-        // 切换到下一个括号模式
-        this.bracketMode = (this.bracketMode + 1) % maxModes;
-        
-        // 更新hasBrackets状态
-        this.hasBrackets = this.bracketMode !== 0;
-        
-        // 根据当前模式和数字数量设置括号，确保括号只出现在数字前后
-        if (numValues === 2) {
-            // 两个数字的情况：要么无括号，要么两个数字都在括号内
-            if (this.bracketMode === 1) {
-                this.brackets.push({start: 0, end: 1}); // (a op b)
-            }
-        } else if (numValues === 3) {
-            // 三个数字的括号情况
-            switch (this.bracketMode) {
-                case 0: // 无括号
-                    break;
-                case 1: // (a op b) op c
-                    this.brackets.push({start: 0, end: 1});
-                    break;
-                case 2: // a op (b op c)
-                    this.brackets.push({start: 1, end: 2});
-                    break;
-                case 3: // ((a op b) op c)
-                    this.brackets.push({start: 0, end: 1});
-                    this.brackets.push({start: 0, end: 2});
-                    break;
-                case 4: // (a op (b op c))
-                    this.brackets.push({start: 1, end: 2});
-                    this.brackets.push({start: 0, end: 2});
-                    break;
-            }
-        } else if (numValues === 4) {
-            // 四个数字的括号情况
-            switch (this.bracketMode) {
-                case 0: // 无括号
-                    break;
-                case 1: // (a op b) op c op d
-                    this.brackets.push({start: 0, end: 1});
-                    break;
-                case 2: // a op (b op c) op d
-                    this.brackets.push({start: 1, end: 2});
-                    break;
-                case 3: // a op b op (c op d)
-                    this.brackets.push({start: 2, end: 3});
-                    break;
-                case 4: // ((a op b) op c) op d
-                    this.brackets.push({start: 0, end: 1});  // 内层括号 (a op b)
-                    this.brackets.push({start: 0, end: 2});  // 外层括号 ((a op b) op c)
-                    break;
-                case 5: // (a op (b op c)) op d
-                    this.brackets.push({start: 1, end: 2});
-                    this.brackets.push({start: 0, end: 2});
-                    break;
-                case 6: // (a op ((b op c) op d))
-                    this.brackets.push({start: 1, end: 2});
-                    this.brackets.push({start: 1, end: 3});
-                    this.brackets.push({start: 0, end: 3});
-                    break;
-                case 7: // (a op (b op (c op d)))
-                    this.brackets.push({start: 2, end: 3});
-                    this.brackets.push({start: 1, end: 3});
-                    this.brackets.push({start: 0, end: 3});
-                    break;
-                case 8: // (a op b) op (c op d)
-                    this.brackets.push({start: 0, end: 1});
-                    this.brackets.push({start: 2, end: 3});
-                    break;
-            }
-        }
-        
-        // 显示当前括号模式提示
-        this.showBracketModeHint();
-        
-        // 更新表达式
-        this.updateExpression();
-        
-        // 检查是否可以自动提交
-        this.checkAutoSubmit();
-    }
 
-    private num3Values = [
-        "无括号",
-        "括号模式: (a op b) op c",
-        "括号模式: a op (b op c)",
-        "括号模式: ((a op b) op c)",
-        "括号模式: (a op (b op c))"
-    ];
-
-    private num4Values = [
-        "无括号",
-        "括号模式: (a op b) op c op d",
-        "括号模式: a op (b op c) op d",
-        "括号模式: a op b op (c op d)",
-        "括号模式: ((a op b) op c) op d",
-        "括号模式: (a op (b op c)) op d",
-        "括号模式: (a op ((b op c) op d))",
-        "括号模式: (a op (b op (c op d)))",
-        "括号模式: (a op b) op (c op d)",
-    ];
-    
-    /**
-     * 显示当前括号模式提示
-     */
-    showBracketModeHint() {
-        const numValues = this.selectedValues.length;
-        let hintText = "";
-        
-        if (this.bracketMode === 0) {
-            hintText = "无括号";
-        } else {
-            if (numValues === 2) {
-                hintText = "括号模式: (a op b)";
-            } else if (numValues === 3) {
-                this.num3Values
-                hintText = this.num3Values[this.bracketMode];
-            } else if (numValues === 4) {
-                hintText = this.num4Values[this.bracketMode];
-            }
-        }
-        
-        // 在UI上显示提示，可以使用临时弹出提示或在某个文本区域显示
-        DebugLog.instance.log(hintText);
-        
-        // 在屏幕上显示短暂提示
-        this.setLabel(hintText);
-        
-        // 2秒后恢复原始表达式显示
-        setTimeout(() => {
-            this.updateExpression();
-        }, 1000);
-    }
 
     /**
      * 重置卡牌状态
@@ -593,8 +421,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.currentExpression = '';
         this.currentResult = 0;
         this.usedCardIndices.clear(); // 确保清空已使用的卡片集合
-        this.brackets = [];
-        this.bracketMode = 0;
+        // this.brackets = [];
+        // this.bracketMode = 0;
         
         // 清空计算步骤记录
         this.calculationSteps = [];
@@ -886,7 +714,6 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.loadNewQuestion();
             },
             againHandler: () => {
-
                 this.onAgain();
                 DebugLog.instance.log('重新开始当前难度:', this.hardIndex + 1);
             }
@@ -948,6 +775,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 如果没有找到题目，使用默认值
             this.cardValues = [1, 3, 5, 7];
         }
+        
+        // 记录初始状态（4张牌的状态）
+        this.recordInitialState();
         
         // 初始化卡片显示
         this.forceRefreshCardDisplay();
@@ -1048,43 +878,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.nextQuestionSameDifficulty();
     }
 
-    /**
-     * 测试括号计算（用于调试）
-     */
-    testBracketCalculation() {
-        DebugLog.instance.log('=== 测试括号计算 ===');
-
-        this.selectedValues = [1, 2, 3, 4];
-        this.operatorTypes = [SymbolsType.ADD, SymbolsType.ADD, SymbolsType.MULTIPLY];
-        this.brackets = [
-            {start: 0, end: 1},  // 内层括号 (1+2)
-            {start: 0, end: 2}   // 外层括号 ((1+2)+3)
-        ];
-
-        const result1 = this.calculateExpressionWithBrackets();
-
-        this.selectedValues = [9, 8, 1, 6];
-        this.operatorTypes = [SymbolsType.SUBTRACT, SymbolsType.SUBTRACT, SymbolsType.MULTIPLY];
-        this.brackets = [
-            {start: 0, end: 1},  // 内层括号 (9-8)
-            {start: 0, end: 2}   // 外层括号 ((9-8)-1)
-        ];
-        
-
-        const result2 = this.calculateExpressionWithBrackets();
-
-        this.selectedValues = [1, 2, 3];
-        this.operatorTypes = [SymbolsType.ADD, SymbolsType.MULTIPLY];
-        this.brackets = [
-            {start: 0, end: 1}   // 括号 (1+2)
-        ];
-
-        const result3 = this.calculateExpressionWithBrackets();
-
-        
-        // 重置状态
-        this.resetCardStatus();
-    }
 
     private _time = null;
     /**
@@ -1136,95 +929,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log('开始计算带括号的表达式:');
         DebugLog.instance.log('- 原始值:', values);
         DebugLog.instance.log('- 原始运算符:', ops);
-        DebugLog.instance.log('- 括号:', this.brackets);
-        
-        // 如果没有括号，直接计算
-        if (this.brackets.length === 0) {
-            return this.calculateWithPriority(values, ops);
-        }
-        
-        // 使用递归方法处理括号
-        return this.calculateWithBracketsRecursive(values, ops, this.brackets);
+
+        return this.calculateWithPriority(values, ops);
+
     }
     
-    /**
-     * 递归处理括号计算
-     */
-    private calculateWithBracketsRecursive(values: number[], ops: number[], brackets: {start: number, end: number}[]): number {
-        if (brackets.length === 0) {
-            return this.calculateWithPriority(values, ops);
-        }
-        
-        // 找到最内层的括号（范围最小的）
-        let minBracketIndex = 0;
-        let minSize = brackets[0].end - brackets[0].start;
-        
-        for (let i = 1; i < brackets.length; i++) {
-            const size = brackets[i].end - brackets[i].start;
-            if (size < minSize) {
-                minSize = size;
-                minBracketIndex = i;
-            }
-        }
-        
-        const bracket = brackets[minBracketIndex];
-        DebugLog.instance.log(`处理最内层括号: start=${bracket.start}, end=${bracket.end}`);
-        
-        // 计算括号内的值
-        const bracketValues = values.slice(bracket.start, bracket.end + 1);
-        const bracketOps = ops.slice(bracket.start, bracket.end);
-        
-        DebugLog.instance.log(`- 括号内值: ${bracketValues}`);
-        DebugLog.instance.log(`- 括号内运算符: ${bracketOps}`);
-        
-        const bracketResult = this.calculateWithPriority(bracketValues, bracketOps);
-        DebugLog.instance.log(`- 括号内计算结果: ${bracketResult}`);
-        
-        // 创建新的数组，用结果替换括号内的内容
-        const newValues = [...values];
-        const newOps = [...ops];
-        
-        // 替换括号内的内容
-        newValues.splice(bracket.start, bracket.end - bracket.start + 1, bracketResult);
-        newOps.splice(bracket.start, bracket.end - bracket.start);
-        
-        DebugLog.instance.log(`- 替换后的值: ${newValues}`);
-        DebugLog.instance.log(`- 替换后的运算符: ${newOps}`);
-        
-        // 更新剩余括号的位置
-        const lengthChange = bracket.end - bracket.start;
-        const newBrackets = brackets
-            .filter((_, index) => index !== minBracketIndex) // 移除已处理的括号
-            .map(b => {
-                if (b.start > bracket.end) {
-                    // 括号在当前括号之后，需要调整位置
-                    return {
-                        start: b.start - lengthChange,
-                        end: b.end - lengthChange
-                    };
-                } else if (b.start < bracket.start && b.end > bracket.end) {
-                    // 括号包含当前括号，需要调整结束位置
-                    return {
-                        start: b.start,
-                        end: b.end - lengthChange
-                    };
-                } else if (b.start === bracket.start && b.end > bracket.end) {
-                    // 括号从当前括号开始但延伸到更远，需要调整结束位置
-                    return {
-                        start: b.start,
-                        end: b.end - lengthChange
-                    };
-                } else {
-                    // 括号在当前括号之前，位置不变
-                    return b;
-                }
-            });
-        
-        DebugLog.instance.log(`- 更新后的括号: ${JSON.stringify(newBrackets)}`);
-        
-        // 递归处理剩余的括号
-        return this.calculateWithBracketsRecursive(newValues, newOps, newBrackets);
-    }
     
     /**
      * 按照运算符优先级计算结果
@@ -1371,10 +1080,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 处理括号的情况
         let expression = expressionParts.join(' ');
-        if (this.brackets.length > 0) {
-            // 先转换成带括号的表达式
-            expression = this.buildExpressionWithBrackets(expressionParts);
-        }
+        // if (this.brackets.length > 0) {
+        //     // 先转换成带括号的表达式
+        //     expression = this.buildExpressionWithBrackets(expressionParts);
+        // }
 
         DebugLog.instance.log("最终表达式:", expression);
         
@@ -1484,7 +1193,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 第二张卡牌保持选中状态
             this.disableCard(currentCardIndex);
             
-            // 记录计算步骤
+            // 记录计算步骤（记录计算后的状态）
             this.recordCalculationStep({
                 type: 'first_calculation',
                 firstCardIndex: firstCardIndex,
@@ -1495,8 +1204,9 @@ export class Main extends BaseScene<IBaseGameChild> {
                 result: result,
                 selectedCards: [...this.selectedCards],
                 selectedValues: [...this.selectedValues],
-                cardValues: [...preCardValues],
-                usedCardIndices: new Set(this.usedCardIndices)
+                cardValues: [...this.cardValues],
+                usedCardIndices: new Set(this.usedCardIndices),
+                beforeCardValues: [...preCardValues] // 计算前的状态
             });
             
             // 检查计算结果是否等于24
@@ -1551,7 +1261,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 新卡牌保持选中状态
             this.disableCard(currentCardIndex);
             
-            // 记录计算步骤
+            // 记录计算步骤（记录计算后的状态）
             this.recordCalculationStep({
                 type: 'continuous_calculation',
                 resultCardIndex: resultCardIndex,
@@ -1562,8 +1272,9 @@ export class Main extends BaseScene<IBaseGameChild> {
                 newResult: newResult,
                 selectedCards: [...this.selectedCards],
                 selectedValues: [...this.selectedValues],
-                cardValues: [...preCardValues],
-                usedCardIndices: new Set(this.usedCardIndices)
+                cardValues: [...this.cardValues],
+                usedCardIndices: new Set(this.usedCardIndices),
+                beforeCardValues: [...preCardValues] // 计算前的状态
             });
             
             // 检查计算结果是否等于24
@@ -1573,6 +1284,30 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.log('- 选中卡片:', this.selectedCards);
             DebugLog.instance.log('- 选中值:', this.selectedValues);
         }
+    }
+    
+    /**
+     * 记录初始状态（4张牌的初始值）
+     */
+    recordInitialState() {
+        // 清空之前的所有步骤
+        this.calculationSteps = [];
+        this.currentStepIndex = -1;
+        
+        // 记录初始状态
+        const initialStep = {
+            type: 'initial_state',
+            cardValues: [...this.cardValues],
+            selectedCards: [],
+            selectedValues: [],
+            cardIndices: [0, 1, 2, 3] // 初始的4张牌索引
+        };
+        
+        this.calculationSteps.push(initialStep);
+        this.currentStepIndex = 0;
+        
+        DebugLog.instance.log('记录初始状态:', initialStep);
+        DebugLog.instance.log('初始卡牌值:', this.cardValues);
     }
     
     /**
@@ -1703,71 +1438,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (i > 0) baseExpression += ' ';
             baseExpression += expressionParts[i];
         }
+
+        return baseExpression;
         
-        // 如果没有括号，直接返回
-        if (this.brackets.length === 0) {
-            return baseExpression;
-        }
-        
-        // 为了便于处理，先将表达式拆分为字符数组
-        let chars = [];
-        for (let i = 0; i < expressionParts.length; i++) {
-            if (i > 0) chars.push(' ');
-            
-            // 将每个部分（数字或运算符）加入字符数组
-            const part = expressionParts[i];
-            for (let j = 0; j < part.length; j++) {
-                chars.push(part[j]);
-            }
-            
-            if (i < expressionParts.length - 1) chars.push(' ');
-        }
-        
-        // 根据数字的位置计算括号的实际插入位置
-        const positions = [];
-        let numCount = 0;
-        for (let i = 0; i < chars.length; i++) {
-            // 检查是否是数字的起始位置
-            const isDigitStart = i === 0 || (chars[i-1] === ' ' && /\d/.test(chars[i]));
-            if (isDigitStart) {
-                positions.push(i);
-                numCount++;
-            }
-        }
-        
-        // 处理括号 - 从后向前添加，避免位置错误
-        const insertPositions = [];
-        for (const bracket of this.brackets) {
-            // 确保位置有效
-            if (bracket.start >= 0 && bracket.start < numCount && 
-                bracket.end >= 0 && bracket.end < numCount && 
-                bracket.start <= bracket.end) {
-                
-                // 计算实际插入位置
-                const openPos = positions[bracket.start];
-                
-                // 找到结束数字的最后一位
-                let endDigitPos = positions[bracket.end];
-                while (endDigitPos < chars.length && /\d/.test(chars[endDigitPos])) {
-                    endDigitPos++;
-                }
-                
-                // 存储要插入的位置和括号
-                insertPositions.push({pos: openPos, char: '('});
-                insertPositions.push({pos: endDigitPos, char: ')'});
-            }
-        }
-        
-        // 按位置降序排序，以便从后向前插入
-        insertPositions.sort((a, b) => b.pos - a.pos);
-        
-        // 插入括号
-        for (const {pos, char} of insertPositions) {
-            chars.splice(pos, 0, char);
-        }
-        
-        // 将字符数组连接为字符串
-        return chars.join('');
     }
     
     /**
@@ -1790,41 +1463,70 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 恢复步骤状态
      */
     restoreStepState(stepData: any) {
-        if (stepData.type === 'first_calculation') {
+        if (stepData.type === 'initial_state') {
+            // 恢复初始状态（4张牌的原始值）
+            this.selectedCards = [];
+            this.selectedValues = [];
+            this.operators = [];
+            this.operatorTypes = [];
+            this.cardValues = [...stepData.cardValues];
+            this.usedCardIndices.clear();
+            
+            // 显示所有卡牌
+            this.cards.forEach((card, index) => {
+                card.active = true;
+            });
+            
+            // 恢复卡牌显示
+            this.restoreCardDisplay(false);
+            // 更新表达式显示
+            this.updateExpression();
+            
+        } else if (stepData.type === 'first_calculation') {
             // 恢复第一次计算前的状态，但只保留第一张卡牌为选中状态
-            this.selectedCards = [stepData.firstCardIndex];
-            this.selectedValues = [stepData.firstValue];
+            this.selectedCards = [stepData.secondCardIndex];
+            this.selectedValues = [stepData.result];
             this.operators = [];
             this.operatorTypes = [];
+            // 使用计算前的状态
             this.cardValues = [...stepData.cardValues];
-            this.usedCardIndices = new Set(stepData.usedCardIndices);
+            this.usedCardIndices = new Set();
             
             // 显示所有卡牌
             this.cards.forEach((card, index) => {
                 card.active = true;
             });
             
-        } else if (stepData.type === 'continuous_calculation') {
-            // 恢复连续计算前的状态，但只保留结果卡牌为选中状态
-            this.selectedCards = [stepData.resultCardIndex];
-            this.selectedValues = [stepData.resultValue];
-            this.operators = [];
-            this.operatorTypes = [];
-            this.cardValues = [...stepData.cardValues];
-            this.usedCardIndices = new Set(stepData.usedCardIndices);
+            // 检查并隐藏所有null值的卡牌
+            this.hideNullValueCards();
+            // 恢复卡牌显示
+            this.restoreCardDisplay(true);
+            // 更新表达式显示
+            this.updateExpression();
             
-            // 显示所有卡牌
-            this.cards.forEach((card, index) => {
-                card.active = true;
-            });
+        } 
+        // else if (stepData.type === 'continuous_calculation') {
+        //     // 恢复连续计算前的状态，但只保留结果卡牌为选中状态
+        //     this.selectedCards = [stepData.resultCardIndex];
+        //     this.selectedValues = [stepData.resultValue];
+        //     this.operators = [];
+        //     this.operatorTypes = [];
+        //     // 使用计算前的状态
+        //     this.cardValues = [...stepData.cardValues];
+        //     this.usedCardIndices = new Set();
             
-        }
-        // 检查并隐藏所有null值的卡牌
-        this.hideNullValueCards();
-        // 恢复卡牌显示
-        this.restoreCardDisplay(true);
-        // 更新表达式显示
-        this.updateExpression();
+        //     // 显示所有卡牌
+        //     this.cards.forEach((card, index) => {
+        //         card.active = true;
+        //     });
+            
+        //     // 检查并隐藏所有null值的卡牌
+        //     this.hideNullValueCards();
+        //     // 恢复卡牌显示
+        //     this.restoreCardDisplay(true);
+        //     // 更新表达式显示
+        //     this.updateExpression();
+        // }
         
         DebugLog.instance.log('状态恢复完成');
         DebugLog.instance.log('- 选中卡片:', this.selectedCards);
@@ -1905,19 +1607,20 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     preStep(){
-        if (this.currentStepIndex < 0) {
-            DebugLog.instance.log('没有可回退的步骤');
+        if (this.currentStepIndex <= 0) {
+            DebugLog.instance.log('没有可回退的步骤（已到达初始状态）');
             return;
         }
         
         
+        // 先回退到上一步
+        this.currentStepIndex--;
+        
         const stepData = this.calculationSteps[this.currentStepIndex];
         DebugLog.instance.log(`回退到步骤 ${this.currentStepIndex + 1}:`, stepData.type);
-
+        stepData.operatType =  "pre";
         // 恢复状态
         this.restoreStepState(stepData);
-        // 回退到上一步
-        this.currentStepIndex--;
     }
 
     /**
@@ -1958,22 +1661,23 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     nextStep(){
-        // // 检查是否有下一步骤
-        // if (this.currentStepIndex >= this.calculationSteps.length - 1) {
-        //     DebugLog.instance.log('没有下一步骤可执行');
-        //     return;
-        // }
+        // 检查是否有下一步骤
+        if (this.currentStepIndex >= this.calculationSteps.length - 1) {
+            DebugLog.instance.log('没有下一步骤可执行');
+            return;
+        }
         
-        // // 移动到下一步骤
-        // this.currentStepIndex++;
-        // const stepData = this.calculationSteps[this.currentStepIndex];
+        // 移动到下一步骤
+        this.currentStepIndex++;
+        const stepData = this.calculationSteps[this.currentStepIndex];
+        stepData.operatType =  "next";
         
-        // DebugLog.instance.log(`执行下一步骤 ${this.currentStepIndex + 1}:`, stepData.type);
-        // DebugLog.instance.log('当前步骤索引:', this.currentStepIndex);
-        // DebugLog.instance.log('总步骤数:', this.calculationSteps.length);
+        DebugLog.instance.log(`执行下一步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+        DebugLog.instance.log('当前步骤索引:', this.currentStepIndex);
+        DebugLog.instance.log('总步骤数:', this.calculationSteps.length);
         
-        // // 恢复下一步骤的状态
-        // this.restoreStepState(stepData);
+        // 恢复下一步骤的状态
+        this.restoreStepState(stepData);
     }
 
     protected onDestroy(): void {
