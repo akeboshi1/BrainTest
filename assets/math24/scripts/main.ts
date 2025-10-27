@@ -158,6 +158,20 @@ export class Main extends BaseScene<IBaseGameChild> {
                 return;
             }
             
+            // 检查是否已经选择了一个卡牌但没有运算符，此时不能选择第二张卡牌
+            if (this.selectedCards.length > 0 && this.operators.length === 0) {
+                DebugLog.instance.log('请先选择运算符，不能直接选择第二张卡牌');
+                
+                const alertData = new AlertData();
+                alertData.title = "提示";
+                alertData.message = "请先选择运算符号";
+                alertData.cancelButtonVisible = false;
+                alertData.confirmButtonText = "知道了";
+                AlertManager.getInstance().showAlert(alertData);
+                
+                return;
+            }
+            
             // 获取卡牌的值（直接使用cardValues数组中的值，因为计算结果已经更新到该数组）
             let cardValue = this.cardValues[index];
             
