@@ -28,8 +28,20 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property([Node])
     cards: Node[] = [];
 
-    @property(Button)
-    nextQuestionBtn: Button = null;
+    @property(Node)
+    addNode:Node = null;
+
+    @property(Node)
+    minusNode:Node = null;
+
+    @property(Node)
+    multiplyNode:Node = null;
+
+    @property(Node)
+    divideNode:Node = null;
+
+    // @property(Button)
+    // nextQuestionBtn: Button = null;
 
     private hards: number[] = [1, 2, 3];
 
@@ -38,10 +50,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     protected bundleName: string = BundleName.MATH24;
 
-    private _blackCardRes:string="texture/spade/";
-    private _clubCardRes:string="texture/club/";
-    private _diamondCardRes:string="texture/diamond/";
-    private _heartCardRes:string="texture/heart/";
+    private _blackCardRes:string="texture/spade/spade";
+    private _clubCardRes:string="texture/club/club";
+    private _diamondCardRes:string="texture/diamond/diamond";
+    private _heartCardRes:string="texture/heart/heart";
 
     @property(SpriteFrame)
     frontFrame:SpriteFrame = null;
@@ -290,15 +302,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '+';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.ADD;
+        } else {
+            // 添加运算符
+            this.operators.push('+');
+            this.operatorTypes.push(SymbolsType.ADD);
         }
-        
-        // 添加运算符
-        this.operators.push('+');
-        this.operatorTypes.push(SymbolsType.ADD);
         
         // 更新表达式
         this.updateExpression();
@@ -314,15 +327,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '-';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.SUBTRACT;
+        } else {
+            // 添加运算符
+            this.operators.push('-');
+            this.operatorTypes.push(SymbolsType.SUBTRACT);
         }
-        
-        // 添加运算符
-        this.operators.push('-');
-        this.operatorTypes.push(SymbolsType.SUBTRACT);
         
         // 更新表达式
         this.updateExpression();
@@ -338,15 +352,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '×';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.MULTIPLY;
+        } else {
+            // 添加运算符
+            this.operators.push('×');
+            this.operatorTypes.push(SymbolsType.MULTIPLY);
         }
-        
-        // 添加运算符
-        this.operators.push('×');
-        this.operatorTypes.push(SymbolsType.MULTIPLY);
         
         // 更新表达式
         this.updateExpression();
@@ -362,15 +377,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '÷';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.DIVIDE;
+        } else {
+            // 添加运算符
+            this.operators.push('÷');
+            this.operatorTypes.push(SymbolsType.DIVIDE);
         }
-        
-        // 添加运算符
-        this.operators.push('÷');
-        this.operatorTypes.push(SymbolsType.DIVIDE);
         
         // 更新表达式
         this.updateExpression();
@@ -383,10 +399,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     /**
      * 重置卡牌状态
      */
-    resetCardStatus() {
+    resetCardStatus(isReset:boolean = false) {
         DebugLog.instance.log('重置所有卡牌状态');
         if(!this.cards){
             return;
+        }
+
+        if(isReset){
+            this.cardValues = [...this._preQuestions];
         }
         
         // 重置所有卡牌的状态
@@ -396,6 +416,20 @@ export class Main extends BaseScene<IBaseGameChild> {
             
             const spriteNode = this.cards[i].getChildByName("sprite");
             const labelNode = this.cards[i].getChildByName("label");
+            const icon0Node = this.cards[i].getChildByName("icon0");
+            const icon1Node = this.cards[i].getChildByName("icon1");
+            if (icon0Node) {
+                const icon0 = icon0Node.getComponent(Sprite);
+                if (icon0) {
+                    icon0.spriteFrame = null;
+                }
+            }
+            if (icon1Node) {
+                const icon1 = icon1Node.getComponent(Sprite);
+                if (icon1) {
+                    icon1.spriteFrame = null;
+                }
+            }
             if (spriteNode) {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
@@ -408,11 +442,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
 
             if(labelNode) {
-                const label = labelNode.getComponent(Label);
-                if (label) {
-                    label.string = "";
-                    DebugLog.instance.error('重置卡片${i}标签为空');
-                }
+                labelNode.active = false;
             }
 
             
@@ -455,7 +485,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.mainView.active = true;
 
         this.setLabel("");
-        // this.label.string = "";
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.showStartAlert({ parentNode: this.mainView, start: this.startGameByAlert, context: this });
         } else {
@@ -469,7 +498,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         this.cards.forEach((card:Node, index:number)=>{
             let sprite = card.getChildByName("sprite").getComponent(Sprite);
-            const label = card.getChildByName("label").getComponent(Label);
+            let icon0 = card.getChildByName("icon0").getComponent(Sprite);
+            let icon1 = card.getChildByName("icon1").getComponent(Sprite);
+            const labelNode = card.getChildByName("label");
+            const label = labelNode.getComponent(Label);
+            label.string = "";
+            labelNode.active = true;
             // 动画半程时长
             const halfDuration = this.flipDuration / 2;
             // 初始确保 scale 为 (1, 1, 1)
@@ -490,7 +524,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                             self._diamondCardRes, // 方块
                             self._heartCardRes   // 红心
                         ];
-                        const randomFlower = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+                        const flowerIndex = Math.floor(Math.random() * flowerTypes.length);
+                        const randomFlower = flowerTypes[flowerIndex];
                         
                         // 获取当前卡片的数字值，确保在有效范围内
                         if (index < self.cardValues.length) {
@@ -501,28 +536,41 @@ export class Main extends BaseScene<IBaseGameChild> {
                             
                             // 清除可能的缓存
                             sprite.spriteFrame = null;
+                            icon0.spriteFrame = null;
+                            icon1.spriteFrame = null;
+
+                            sprite.spriteFrame = self.frontFrame!;
 
                             label.string = cardValue+"";
                             
+                            // 根据花色设置文本颜色
+                            // 黑桃(0)和梅花(1) -> #262525, 方块(2)和红心(3) -> #FA657A
+                            if (flowerIndex === 0 || flowerIndex === 1) {
+                                // 黑桃或梅花，设置为深灰色 #262525 (RGB: 38, 37, 37)
+                                label.color = new Color(38, 37, 37, 255);
+                            } else {
+                                // 方块或红心，设置为粉红色 #FA657A (RGB: 250, 101, 122)
+                                label.color = new Color(250, 101, 122, 255);
+                            }
+                            
                             // 构建完整的图片路径
-                            const imagePath = randomFlower + cardDisplayValue;
+                            const imagePath = randomFlower;// + cardDisplayValue;
                             
                             const bundle = assetManager.getBundle(self.bundleName);
-                            if (sprite.spriteFrame && sprite.spriteFrame.texture) {
-                                sprite.spriteFrame.texture.destroy();
-                            }
+                            // if (sprite.spriteFrame && sprite.spriteFrame.texture) {
+                            //     sprite.spriteFrame.texture.destroy();
+                            // }
                             
                             bundle.load(imagePath+"/spriteFrame",SpriteFrame,(err,sp)=>{
                                 if(err){
                                     DebugLog.instance.error('加载卡片图片失败:', imagePath, err);
-                                    sprite.spriteFrame = self.frontFrame!;
                                     return;
                                 }
-                                sprite.spriteFrame = sp;
+                                icon0.spriteFrame = sp;
+                                icon1.spriteFrame = sp;
                             });
                         } else {
                             DebugLog.instance.error('卡片索引超出范围:', index, '当前卡片值数组:', self.cardValues);
-                            sprite.spriteFrame = self.frontFrame!;
                         }
                     }
                 })
@@ -586,8 +634,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (spriteNode) {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
-                    sprite.color = new Color(255, 255, 0, 255); // 黄色高亮
-                    DebugLog.instance.log(`设置卡片${index}高亮为黄色`);
+                    sprite.color = new Color(179, 241, 46, 255); // 黄色高亮
                 }
             }
         }
@@ -646,7 +693,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log('刷新训练状态...');
         
         // 重置游戏状态
-        this.resetCardStatus();
+        this.resetCardStatus(true);
+
+
+    
         this._isGameCompleted = false; // 重置游戏完成状态
         
         // 清空所有状态
@@ -657,12 +707,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.operatorTypes = [];
         this.calculationSteps = [];
         this.currentStepIndex = -1;
-        
+
+        // 记录初始状态（4张牌的状态）
+        this.recordInitialState();
+
         // 清空表达式显示
         this.setLabel("");
         
-        // 加载新题目
-        this.loadNewQuestion();
+
+        
         
         // 刷新卡牌显示，确保翻转
         this.forceRefreshCardDisplay();
@@ -760,6 +813,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
+    private _preQuestions:number[] = [];
+
     /**
      * 加载新题目
      */
@@ -785,6 +840,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 如果获取到题目，使用它的值
         if (this.currentQuestion) {
             this.cardValues = [...this.currentQuestion.numbers];
+            this._preQuestions= [...this.currentQuestion.numbers];
         } else {
             // 如果没有找到题目，使用默认值
             this.cardValues = [1, 3, 5, 7];
@@ -870,18 +926,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         const answer = this.currentQuestion.solutions[0];
         const cardNumbers = this.currentQuestion.numbers.join(', ');
         
-        // 创建Alert数据
-        const alertData = new AlertData();
-        alertData.title = "题目答案";
-        alertData.message = `题目数字：${cardNumbers}\n\n解法：${answer}`;
-        alertData.cancelButtonVisible = false;
-        alertData.confirmButtonText = "知道了";
-        alertData.confirmCb = () => {
-            DebugLog.instance.log('用户查看了答案');
-        };
-        
-        // 显示Alert
-        AlertManager.getInstance().showAlert(alertData);
+        // 使用 SettlementPanel 显示答案
+        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+            mode: "answer",
+            answerCardNumbers: `题目数字：${cardNumbers}`,
+            answerSolution: `解法：${answer}`,
+            nextHandler: () => {
+                DebugLog.instance.log('用户查看了答案');
+            }
+        });
     }
 
     /**
@@ -916,7 +969,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 执行翻转
         this._time = setTimeout(() => {
             this.flipCard();
-        }, 300);
+        }, 500);
     }
 
     /**
@@ -1044,7 +1097,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
                     // 更改为明亮的高亮颜色，使用优雅的紫色突出显示已选择的卡牌
-                    sprite.color = new Color(255, 215, 0,255); // 优雅紫色高亮效果
+                    sprite.color = new Color(179, 241, 46, 255); // #B3F12E 高亮效果
                     
                     // 为卡片添加轻微缩放效果，显示它已被选中
                     this.cards[index].setScale(new Vec3(0.95, 0.95, 1));
@@ -1116,7 +1169,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 if (Math.abs(this.currentResult - 24) < 0.00001) {
                     this.formulaLabel.color = new Color(0, 255, 0, 255); // 绿色，表示成功
                 } else if (Math.abs(this.currentResult - 24) < 5) {
-                    this.formulaLabel.color = new Color(255, 255, 0, 255); // 黄色，表示接近
+                    this.formulaLabel.color = new Color(179, 241, 46, 255); // 黄色，表示接近
                 } else {
                     this.formulaLabel.color = new Color(0, 0, 0, 255); // 黑色，正常状态
                 }
@@ -1594,7 +1647,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                             sprite.color = new Color(255, 255, 255, 255);
                         } else {
                             // 第一个被选中的卡牌保持选中状态（高亮显示）
-                            sprite.color = new Color(255, 255, 0, 255); // 黄色表示选中
+                            sprite.color = new Color(179, 241, 46, 255); // 黄色表示选中
                         }
                     } else {
                         // 正常恢复所有卡牌颜色
@@ -1663,7 +1716,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (labelNode) {
                 const label = labelNode.getComponent(Label);
                 if (label) {
-                    label.string = this.cardValues[i].toString();
+                    label.string = this.cardValues[i]?.toString() || "";
                 }
             }
         }

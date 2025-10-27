@@ -3,7 +3,7 @@ import { DebugLog } from "../Core/Util/DebugLog";
 
 export interface UIConfig {
     title: string;
-    icon0: string;i
+    icon0: string;
     icon1: string;
 }
 
