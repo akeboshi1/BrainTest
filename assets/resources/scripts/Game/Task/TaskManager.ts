@@ -303,7 +303,7 @@ export class TaskManager extends BaseManager {
     public getTodayUnCompleteTask(): Map<number, TaskData> {
         let tmpDic: Map<number, TaskData> = new Map();
         this._taskDic.forEach((task: TaskData) => {
-            if (task.status <= 1 && task.type == TaskType.Brains) {
+            if (task.status < 1 && task.type == TaskType.Brains) {
                 tmpDic.set(task.id, task);
             }
         })
