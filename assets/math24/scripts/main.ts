@@ -11,6 +11,8 @@ import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
 import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import { Global } from '../../resources/scripts/Core/Manager/Config/Global';
+import { EventManager } from '../../resources/scripts/Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -62,7 +64,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private flipDuration = 0.25;
     private isFront = false;
-    private time:number = 600;
+    private time:number = 60;
 
     private cardValues: number[] = [1,1,3,8];
     private _curCardData:Math24CardData;
@@ -801,7 +803,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         } else {
             this._requestGameCenterComplete();
         }
-
+        this.onFail();
     }
 
     private _requestSkewersGameComplete() {
@@ -1381,18 +1383,18 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 记录计算步骤
      */
     recordCalculationStep(stepData: any) {
-        // 如果当前索引不是最后一个，替换当前索引的步骤数据
+        // 如果当前索引不是最后一个，需要清空后续步骤重新记录
         if (this.currentStepIndex < this.calculationSteps.length - 1) {
-            // 替换当前索引的步骤数据
-            this.calculationSteps[this.currentStepIndex + 1] = stepData;
-            this.currentStepIndex++;
-            DebugLog.instance.log(`替换步骤 ${this.currentStepIndex + 1}:`, stepData.type);
-        } else {
-            // 添加新步骤
-            this.calculationSteps.push(stepData);
-            this.currentStepIndex = this.calculationSteps.length - 1;
-            DebugLog.instance.log(`添加新步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+            // 删除从 currentStepIndex + 1 到数组末尾的所有旧步骤
+            const removeCount = this.calculationSteps.length - (this.currentStepIndex + 1);
+            this.calculationSteps.splice(this.currentStepIndex + 1, removeCount);
+            DebugLog.instance.log(`清空了 ${removeCount} 个旧步骤，准备重新记录`);
         }
+        
+        // 添加新步骤
+        this.calculationSteps.push(stepData);
+        this.currentStepIndex = this.calculationSteps.length - 1;
+        DebugLog.instance.log(`添加新步骤 ${this.currentStepIndex + 1}:`, stepData.type);
         
         DebugLog.instance.log('总步骤数:', this.calculationSteps.length);
         DebugLog.instance.log('当前步骤索引:', this.currentStepIndex);
