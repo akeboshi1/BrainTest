@@ -6620,7 +6620,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -70,
+      "x": -28,
       "y": 708,
       "z": 0
     },
@@ -6659,7 +6659,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 765,
+      "width": 840.08056640625,
       "height": 56.7
     },
     "_anchorPoint": {
@@ -6689,7 +6689,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "记住并找到相同的牌面，两两翻转配对",
+    "_string": "用4个数字通过加减乘除，计算出结果为24",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 45,
