@@ -352,7 +352,7 @@
       "__id__": 5
     },
     "spriteAtlas": {
-      "__uuid__": "3ecc6c30-477d-4bde-ab2d-f6f77fbaf434",
+      "__uuid__": "d692c2c7-837c-4403-a9f7-20657bb1efee",
       "__expectedType__": "cc.SpriteAtlas"
     },
     "hideOnComplete": true,

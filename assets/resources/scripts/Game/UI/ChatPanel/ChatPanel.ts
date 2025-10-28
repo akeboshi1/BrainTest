@@ -113,7 +113,7 @@ export class ChatPanel extends BasePanel {
             }
             const frameComponent = instantiate(prefab);
             this.frameComponentNode.addChild(frameComponent);
-            frameComponent.getComponent(FrameComponent).playAnimation("frame", 22, true, true);
+            frameComponent.getComponent(FrameComponent).playAnimation("idle", 22, true, true);
             this.hideLoadingAnimation();
         });
     }
