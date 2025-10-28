@@ -104,18 +104,18 @@ export class GlobalConfigManager extends BaseManager {
             await this.indexPageConfig.loadConfig();
             let type = this.getCurrentConfigType(); // 动态获取配置类型
 
-            if (type === "normal") {
-                config = this.indexPageConfig.normalConfig;
-            } else {
-                config = ThemeConfig.getInstance().getConfig();
-            }
+            // if (type === "normal") {
+            //     config = this.indexPageConfig.normalConfig;
+            // } else {
+            config = ThemeConfig.getInstance().getConfig();
+            // }
 
             // 将配置存储到用户信息缓存中
             if (userData && config) {
                 // 确保缓存包含任务配置
                 const cacheData = {
                     ...config,
-                    tasks: config.theme && config.theme.tasks || (type === "normal" ? this.taskConfig.normalTaskData : ThemeConfig.getInstance().getTasksConfig())
+                    tasks: config.theme && config.theme.tasks || ThemeConfig.getInstance().getTasksConfig()
                 };
                 userData.setIndexPageConfigCache(cacheData);
                 DebugLog.instance.log("首页配置已缓存到用户信息中");
@@ -189,11 +189,11 @@ export class GlobalConfigManager extends BaseManager {
             await this.taskConfig.loadConfig();
             let type = this.getCurrentConfigType(); // 使用相同的动态类型判断
 
-            if (type == "normal") {
-                taskdata = this.taskConfig.normalTaskData;
-            } else {
+            // if (type == "normal") {
+            //     taskdata = this.taskConfig.normalTaskData;
+            // } else {
                 taskdata = ThemeConfig.getInstance().getTasksConfig();
-            }
+            // }
         }
 
         return taskdata;

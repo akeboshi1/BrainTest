@@ -23,13 +23,25 @@ export class Main extends BaseScene<IBaseGameChild> {
     timerComponent: TimerCommonComponent = null;
     // ============== mainView
     @property(Label)
-    label:Label = null;
+    formulaLabel:Label = null;
 
     @property([Node])
     cards: Node[] = [];
 
-    @property(Button)
-    nextQuestionBtn: Button = null;
+    @property(Node)
+    addNode:Node = null;
+
+    @property(Node)
+    minusNode:Node = null;
+
+    @property(Node)
+    multiplyNode:Node = null;
+
+    @property(Node)
+    divideNode:Node = null;
+
+    // @property(Button)
+    // nextQuestionBtn: Button = null;
 
     private hards: number[] = [1, 2, 3];
 
@@ -38,10 +50,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     protected bundleName: string = BundleName.MATH24;
 
-    private _blackCardRes:string="texture/spade/";
-    private _clubCardRes:string="texture/club/";
-    private _diamondCardRes:string="texture/diamond/";
-    private _heartCardRes:string="texture/heart/";
+    private _blackCardRes:string="texture/spade/spade";
+    private _clubCardRes:string="texture/club/club";
+    private _diamondCardRes:string="texture/diamond/diamond";
+    private _heartCardRes:string="texture/heart/heart";
 
     @property(SpriteFrame)
     frontFrame:SpriteFrame = null;
@@ -72,13 +84,15 @@ export class Main extends BaseScene<IBaseGameChild> {
     private currentResult: number = 0;     // 当前表达式计算结果
     
     // 简化括号管理
-    private brackets: {start: number, end: number}[] = []; // 存储括号的开始和结束位置
-    private bracketMode: number = 0;  // 括号模式：0表示无括号，1-n表示不同的括号组合
+    // private brackets: {start: number, end: number}[] = []; // 存储括号的开始和结束位置
     private usedCardIndices: Set<number> = new Set(); // 已使用的卡牌索引
-    private hasBrackets: boolean = false; // 是否已添加括号
-    
+
     // 游戏结算状态
     private _isGameCompleted: boolean = false;
+    
+    // 计算过程记录
+    private calculationSteps: any[] = []; // 记录每一步的计算过程
+    private currentStepIndex: number = -1; // 当前步骤索引
 
     protected audioUrls = ['music/24_bgm', "music/win","music/fail"];
 
@@ -94,11 +108,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         // 注册结算面板
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
-        
-        // 测试括号计算（调试用）
-        setTimeout(() => {
-            this.testBracketCalculation();
-        }, 2000);
+
     }
 
     start() {
@@ -140,6 +150,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.playAudio("click");
         let index = Number(customEventData);
         
+        // 检查卡牌是否被隐藏
+        if (!this.cards[index].active) {
+            DebugLog.instance.log(`卡牌${index}已被隐藏，无法选择`);
+            return;
+        }
+        
         // 判断卡片是否已经被选中
         const isCardSelected = this.selectedCards.includes(index);
         DebugLog.instance.log(`点击卡片，索引: ${index}, 已选中状态: ${isCardSelected}`);
@@ -154,8 +170,28 @@ export class Main extends BaseScene<IBaseGameChild> {
                 return;
             }
             
-            // 获取卡牌的值
+            // 检查是否已经选择了一个卡牌但没有运算符，此时不能选择第二张卡牌
+            if (this.selectedCards.length > 0 && this.operators.length === 0) {
+                DebugLog.instance.log('请先选择运算符，不能直接选择第二张卡牌');
+                
+                const alertData = new AlertData();
+                alertData.title = "提示";
+                alertData.message = "请先选择运算符号";
+                alertData.cancelButtonVisible = false;
+                alertData.confirmButtonText = "知道了";
+                AlertManager.getInstance().showAlert(alertData);
+                
+                return;
+            }
+            
+            // 获取卡牌的值（直接使用cardValues数组中的值，因为计算结果已经更新到该数组）
             let cardValue = this.cardValues[index];
+            
+            // 检查卡牌值是否有效（不为null）
+            if (cardValue === null) {
+                DebugLog.instance.log(`卡牌${index}的值已被移除，无法选择`);
+                return;
+            }
             
             // 添加卡片到表达式
             this.addCardToExpression(index, cardValue);
@@ -207,13 +243,13 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 恢复卡片原始颜色和缩放
         this.restoreCard(index);
         
-        // 如果取消选中后，需要调整括号
-        if (this.brackets.length > 0) {
-            // 重置括号状态，简单处理
-            this.brackets = [];
-            this.bracketMode = 0;
-            DebugLog.instance.log('重置括号状态');
-        }
+        // // 如果取消选中后，需要调整括号
+        // if (this.brackets.length > 0) {
+        //     // 重置括号状态，简单处理
+        //     this.brackets = [];
+        //     this.bracketMode = 0;
+        //     DebugLog.instance.log('重置括号状态');
+        // }
         
         // 调试信息
         DebugLog.instance.log('当前选中卡片:', this.selectedCards);
@@ -227,7 +263,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (index >= 0 && index < this.cards.length) {
             // 获取卡片的sprite子节点
             const spriteNode = this.cards[index].getChildByName("sprite");
-            
+            // const labelNode = this.cards[index].getChildByName("label");
+
             if (spriteNode) {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
@@ -235,6 +272,15 @@ export class Main extends BaseScene<IBaseGameChild> {
                     sprite.color = new Color(255, 255, 255, 255);
                     DebugLog.instance.log(`恢复卡片${index}为白色`);
                 }
+                // 显示sprite节点
+                spriteNode.active = true;
+            }
+
+            // 隐藏并清理结果显示节点
+            const resultNode = this.cards[index].getChildByName("resultDisplay");
+            if (resultNode) {
+                resultNode.active = false;
+                resultNode.destroy();
             }
             
             // 恢复原始缩放
@@ -256,15 +302,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '+';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.ADD;
+        } else {
+            // 添加运算符
+            this.operators.push('+');
+            this.operatorTypes.push(SymbolsType.ADD);
         }
-        
-        // 添加运算符
-        this.operators.push('+');
-        this.operatorTypes.push(SymbolsType.ADD);
         
         // 更新表达式
         this.updateExpression();
@@ -280,15 +327,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '-';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.SUBTRACT;
+        } else {
+            // 添加运算符
+            this.operators.push('-');
+            this.operatorTypes.push(SymbolsType.SUBTRACT);
         }
-        
-        // 添加运算符
-        this.operators.push('-');
-        this.operatorTypes.push(SymbolsType.SUBTRACT);
         
         // 更新表达式
         this.updateExpression();
@@ -304,15 +352,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '×';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.MULTIPLY;
+        } else {
+            // 添加运算符
+            this.operators.push('×');
+            this.operatorTypes.push(SymbolsType.MULTIPLY);
         }
-        
-        // 添加运算符
-        this.operators.push('×');
-        this.operatorTypes.push(SymbolsType.MULTIPLY);
         
         // 更新表达式
         this.updateExpression();
@@ -328,15 +377,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
-        // 运算符不能比卡片数量多
+        // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
-            DebugLog.instance.log('运算符数量已达上限');
-            return;
+            // 替换最后一个运算符
+            this.operators[this.operators.length - 1] = '÷';
+            this.operatorTypes[this.operatorTypes.length - 1] = SymbolsType.DIVIDE;
+        } else {
+            // 添加运算符
+            this.operators.push('÷');
+            this.operatorTypes.push(SymbolsType.DIVIDE);
         }
-        
-        // 添加运算符
-        this.operators.push('÷');
-        this.operatorTypes.push(SymbolsType.DIVIDE);
         
         // 更新表达式
         this.updateExpression();
@@ -344,178 +394,42 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 如果已经选择了4张卡片，且有3个运算符，自动计算结果
         this.checkAutoSubmit();
     }
-    
-    /**
-     * 括号按钮处理
-     */
-    bracketsFunc() {
-        // 根据当前选择的数字数量决定括号逻辑
-        const numValues = this.selectedValues.length;
-        const numOperators = this.operators.length;
-        
-        // 确保至少有两个数字和一个运算符才能添加括号
-        if (numValues < 2 || numOperators < 1) {
-            DebugLog.instance.log('至少需要2个数字和1个运算符才能添加括号');
-            this.setLabel('需要2个数字和1个运算符');
-            setTimeout(() => {
-                this.updateExpression();
-            }, 1000);
-            return;
-        }
-        
-        // 清空现有括号
-        this.brackets = [];
-        
-        // 根据不同数量的数字设置括号模式总数
-        let maxModes = 2; // 两个数字时有2种模式：有括号/无括号
-        if (numValues === 3) maxModes = this.num3Values.length; 
-        if (numValues === 4) maxModes = this.num4Values.length;
-        
-        // 切换到下一个括号模式
-        this.bracketMode = (this.bracketMode + 1) % maxModes;
-        
-        // 更新hasBrackets状态
-        this.hasBrackets = this.bracketMode !== 0;
-        
-        // 根据当前模式和数字数量设置括号，确保括号只出现在数字前后
-        if (numValues === 2) {
-            // 两个数字的情况：要么无括号，要么两个数字都在括号内
-            if (this.bracketMode === 1) {
-                this.brackets.push({start: 0, end: 1}); // (a op b)
-            }
-        } else if (numValues === 3) {
-            // 三个数字的括号情况
-            switch (this.bracketMode) {
-                case 0: // 无括号
-                    break;
-                case 1: // (a op b) op c
-                    this.brackets.push({start: 0, end: 1});
-                    break;
-                case 2: // a op (b op c)
-                    this.brackets.push({start: 1, end: 2});
-                    break;
-                case 3: // ((a op b) op c)
-                    this.brackets.push({start: 0, end: 1});
-                    this.brackets.push({start: 0, end: 2});
-                    break;
-                case 4: // (a op (b op c))
-                    this.brackets.push({start: 1, end: 2});
-                    this.brackets.push({start: 0, end: 2});
-                    break;
-            }
-        } else if (numValues === 4) {
-            // 四个数字的括号情况
-            switch (this.bracketMode) {
-                case 0: // 无括号
-                    break;
-                case 1: // (a op b) op c op d
-                    this.brackets.push({start: 0, end: 1});
-                    break;
-                case 2: // a op (b op c) op d
-                    this.brackets.push({start: 1, end: 2});
-                    break;
-                case 3: // a op b op (c op d)
-                    this.brackets.push({start: 2, end: 3});
-                    break;
-                case 4: // ((a op b) op c) op d
-                    this.brackets.push({start: 0, end: 1});  // 内层括号 (a op b)
-                    this.brackets.push({start: 0, end: 2});  // 外层括号 ((a op b) op c)
-                    break;
-                case 5: // (a op (b op c)) op d
-                    this.brackets.push({start: 1, end: 2});
-                    this.brackets.push({start: 0, end: 2});
-                    break;
-                case 6: // (a op ((b op c) op d))
-                    this.brackets.push({start: 1, end: 2});
-                    this.brackets.push({start: 1, end: 3});
-                    this.brackets.push({start: 0, end: 3});
-                    break;
-                case 7: // (a op (b op (c op d)))
-                    this.brackets.push({start: 2, end: 3});
-                    this.brackets.push({start: 1, end: 3});
-                    this.brackets.push({start: 0, end: 3});
-                    break;
-                case 8: // (a op b) op (c op d)
-                    this.brackets.push({start: 0, end: 1});
-                    this.brackets.push({start: 2, end: 3});
-                    break;
-            }
-        }
-        
-        // 显示当前括号模式提示
-        this.showBracketModeHint();
-        
-        // 更新表达式
-        this.updateExpression();
-        
-        // 检查是否可以自动提交
-        this.checkAutoSubmit();
-    }
 
-    private num3Values = [
-        "无括号",
-        "括号模式: (a op b) op c",
-        "括号模式: a op (b op c)",
-        "括号模式: ((a op b) op c)",
-        "括号模式: (a op (b op c))"
-    ];
-
-    private num4Values = [
-        "无括号",
-        "括号模式: (a op b) op c op d",
-        "括号模式: a op (b op c) op d",
-        "括号模式: a op b op (c op d)",
-        "括号模式: ((a op b) op c) op d",
-        "括号模式: (a op (b op c)) op d",
-        "括号模式: (a op ((b op c) op d))",
-        "括号模式: (a op (b op (c op d)))",
-        "括号模式: (a op b) op (c op d)",
-    ];
-    
-    /**
-     * 显示当前括号模式提示
-     */
-    showBracketModeHint() {
-        const numValues = this.selectedValues.length;
-        let hintText = "";
-        
-        if (this.bracketMode === 0) {
-            hintText = "无括号";
-        } else {
-            if (numValues === 2) {
-                hintText = "括号模式: (a op b)";
-            } else if (numValues === 3) {
-                this.num3Values
-                hintText = this.num3Values[this.bracketMode];
-            } else if (numValues === 4) {
-                hintText = this.num4Values[this.bracketMode];
-            }
-        }
-        
-        // 在UI上显示提示，可以使用临时弹出提示或在某个文本区域显示
-        DebugLog.instance.log(hintText);
-        
-        // 在屏幕上显示短暂提示
-        this.setLabel(hintText);
-        
-        // 2秒后恢复原始表达式显示
-        setTimeout(() => {
-            this.updateExpression();
-        }, 1000);
-    }
 
     /**
      * 重置卡牌状态
      */
-    resetCardStatus() {
+    resetCardStatus(isReset:boolean = false) {
         DebugLog.instance.log('重置所有卡牌状态');
         if(!this.cards){
             return;
         }
+
+        if(isReset){
+            this.cardValues = [...this._preQuestions];
+        }
         
         // 重置所有卡牌的状态
         for (let i = 0; i < this.cards.length; i++) {
+            // 显示所有卡牌
+            this.cards[i].active = true;
+            
             const spriteNode = this.cards[i].getChildByName("sprite");
+            const labelNode = this.cards[i].getChildByName("label");
+            const icon0Node = this.cards[i].getChildByName("icon0");
+            const icon1Node = this.cards[i].getChildByName("icon1");
+            if (icon0Node) {
+                const icon0 = icon0Node.getComponent(Sprite);
+                if (icon0) {
+                    icon0.spriteFrame = null;
+                }
+            }
+            if (icon1Node) {
+                const icon1 = icon1Node.getComponent(Sprite);
+                if (icon1) {
+                    icon1.spriteFrame = null;
+                }
+            }
             if (spriteNode) {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
@@ -523,6 +437,20 @@ export class Main extends BaseScene<IBaseGameChild> {
                     sprite.color = new Color(255, 255, 255, 255);
                     DebugLog.instance.log(`重置卡片${i}颜色为白色`);
                 }
+                // 显示sprite节点
+                spriteNode.active = true;
+            }
+
+            if(labelNode) {
+                labelNode.active = false;
+            }
+
+            
+            // 隐藏并清理结果显示节点
+            const resultNode = this.cards[i].getChildByName("resultDisplay");
+            if (resultNode) {
+                resultNode.active = false;
+                resultNode.destroy();
             }
             
             // 恢复原始缩放
@@ -537,11 +465,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.currentExpression = '';
         this.currentResult = 0;
         this.usedCardIndices.clear(); // 确保清空已使用的卡片集合
-        this.brackets = [];
-        this.bracketMode = 0;
+        // this.brackets = [];
+        // this.bracketMode = 0;
+        
+        // 清空计算步骤记录
+        this.calculationSteps = [];
+        this.currentStepIndex = -1;
         
         // 恢复标签颜色
-        this.label.color = new Color(0, 0, 0, 255);
+        this.formulaLabel.color = new Color(0, 0, 0, 255);
         
         // 清空显示
         this.setLabel("");
@@ -553,7 +485,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.mainView.active = true;
 
         this.setLabel("");
-        // this.label.string = "";
         if (this.sceneModel.gameType == GameType.SKEWERS) {
             this.showStartAlert({ parentNode: this.mainView, start: this.startGameByAlert, context: this });
         } else {
@@ -567,6 +498,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         this.cards.forEach((card:Node, index:number)=>{
             let sprite = card.getChildByName("sprite").getComponent(Sprite);
+            let icon0 = card.getChildByName("icon0").getComponent(Sprite);
+            let icon1 = card.getChildByName("icon1").getComponent(Sprite);
+            const labelNode = card.getChildByName("label");
+            const label = labelNode.getComponent(Label);
+            label.string = "";
+            labelNode.active = true;
             // 动画半程时长
             const halfDuration = this.flipDuration / 2;
             // 初始确保 scale 为 (1, 1, 1)
@@ -587,36 +524,53 @@ export class Main extends BaseScene<IBaseGameChild> {
                             self._diamondCardRes, // 方块
                             self._heartCardRes   // 红心
                         ];
-                        const randomFlower = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+                        const flowerIndex = Math.floor(Math.random() * flowerTypes.length);
+                        const randomFlower = flowerTypes[flowerIndex];
                         
                         // 获取当前卡片的数字值，确保在有效范围内
                         if (index < self.cardValues.length) {
-                            const cardNumber = self.cardValues[index] - 1;
-                            DebugLog.instance.log(`加载卡片${index}图片，值=${self.cardValues[index]}, 图片索引=${cardNumber}`);
+                            const cardValue = self.cardValues[index];
+                            const cardNumber = cardValue - 1;
+                            DebugLog.instance.log(`加载卡片${index}图片，值=${cardValue}, 图片索引=${cardNumber}`);
                             let cardDisplayValue:string = cardNumber.toString(); // 数字转字符串
                             
                             // 清除可能的缓存
                             sprite.spriteFrame = null;
+                            icon0.spriteFrame = null;
+                            icon1.spriteFrame = null;
+
+                            sprite.spriteFrame = self.frontFrame!;
+
+                            label.string = cardValue+"";
+                            
+                            // 根据花色设置文本颜色
+                            // 黑桃(0)和梅花(1) -> #262525, 方块(2)和红心(3) -> #FA657A
+                            if (flowerIndex === 0 || flowerIndex === 1) {
+                                // 黑桃或梅花，设置为深灰色 #262525 (RGB: 38, 37, 37)
+                                label.color = new Color(38, 37, 37, 255);
+                            } else {
+                                // 方块或红心，设置为粉红色 #FA657A (RGB: 250, 101, 122)
+                                label.color = new Color(250, 101, 122, 255);
+                            }
                             
                             // 构建完整的图片路径
-                            const imagePath = randomFlower + cardDisplayValue;
+                            const imagePath = randomFlower;// + cardDisplayValue;
                             
                             const bundle = assetManager.getBundle(self.bundleName);
-                            if (sprite.spriteFrame && sprite.spriteFrame.texture) {
-                                sprite.spriteFrame.texture.destroy();
-                            }
+                            // if (sprite.spriteFrame && sprite.spriteFrame.texture) {
+                            //     sprite.spriteFrame.texture.destroy();
+                            // }
                             
                             bundle.load(imagePath+"/spriteFrame",SpriteFrame,(err,sp)=>{
                                 if(err){
                                     DebugLog.instance.error('加载卡片图片失败:', imagePath, err);
-                                    sprite.spriteFrame = self.frontFrame!;
                                     return;
                                 }
-                                sprite.spriteFrame = sp;
+                                icon0.spriteFrame = sp;
+                                icon1.spriteFrame = sp;
                             });
                         } else {
                             DebugLog.instance.error('卡片索引超出范围:', index, '当前卡片值数组:', self.cardValues);
-                            sprite.spriteFrame = self.frontFrame!;
                         }
                     }
                 })
@@ -664,7 +618,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     checkFunc(){
-        if (this.label.string == "24"){
+        if (this.formulaLabel.string == "24"){
             this.onSuccess();
         } else {
             this.onFail();
@@ -680,8 +634,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (spriteNode) {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
-                    sprite.color = new Color(255, 255, 0, 255); // 黄色高亮
-                    DebugLog.instance.log(`设置卡片${index}高亮为黄色`);
+                    sprite.color = new Color(179, 241, 46, 255); // 黄色高亮
                 }
             }
         }
@@ -739,17 +692,38 @@ export class Main extends BaseScene<IBaseGameChild> {
     refreshFunc(){
         DebugLog.instance.log('刷新训练状态...');
         
-        // 重置训练状态，但保留当前题目
-        this.resetCardStatus();
-        this._isGameCompleted = false; // 重置游戏完成状态
+        // 重置游戏状态
+        this.resetCardStatus(true);
 
-        // 确保已使用的卡片集合被清空
-        this.usedCardIndices.clear();
+
+    
+        this._isGameCompleted = false; // 重置游戏完成状态
         
+        // 清空所有状态
+        this.usedCardIndices.clear();
+        this.selectedCards = [];
+        this.selectedValues = [];
+        this.operators = [];
+        this.operatorTypes = [];
+        this.calculationSteps = [];
+        this.currentStepIndex = -1;
+
+        // 记录初始状态（4张牌的状态）
+        this.recordInitialState();
+
+        // 清空表达式显示
         this.setLabel("");
+        
+
+        
         
         // 刷新卡牌显示，确保翻转
         this.forceRefreshCardDisplay();
+        
+        // 更新游戏UI
+        this.updateGameUI();
+        
+        DebugLog.instance.log('游戏状态已重置，新题目已加载');
     }
 
     quitGame(){
@@ -774,6 +748,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.hardIndex = (this.hardIndex + 1) % 3; // 0->1->2->0 循环
 
                 this.loadNewQuestion();
+
+
 
                 DebugLog.instance.log('切换到难度:', this.hardIndex + 1);
             },
@@ -805,7 +781,6 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.loadNewQuestion();
             },
             againHandler: () => {
-
                 this.onAgain();
                 DebugLog.instance.log('重新开始当前难度:', this.hardIndex + 1);
             }
@@ -838,6 +813,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
+    private _preQuestions:number[] = [];
+
     /**
      * 加载新题目
      */
@@ -863,21 +840,25 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 如果获取到题目，使用它的值
         if (this.currentQuestion) {
             this.cardValues = [...this.currentQuestion.numbers];
+            this._preQuestions= [...this.currentQuestion.numbers];
         } else {
             // 如果没有找到题目，使用默认值
             this.cardValues = [1, 3, 5, 7];
         }
         
+        // 记录初始状态（4张牌的状态）
+        this.recordInitialState();
+        
         // 初始化卡片显示
         this.forceRefreshCardDisplay();
         
-        DebugLog.instance.log('题目加载完成，状态检查:');
-        DebugLog.instance.log('- 选中卡片:', this.selectedCards);
+        DebugLog.instance.error('题目加载完成，状态检查:');
+        DebugLog.instance.error('- 选中卡片:', this.selectedCards);
         DebugLog.instance.log('- 已使用卡片:', Array.from(this.usedCardIndices));
     }
 
     setLabel(str:string){
-        this.label.string = str;
+        this.formulaLabel.string = str;
     }
     
     /**
@@ -945,18 +926,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         const answer = this.currentQuestion.solutions[0];
         const cardNumbers = this.currentQuestion.numbers.join(', ');
         
-        // 创建Alert数据
-        const alertData = new AlertData();
-        alertData.title = "题目答案";
-        alertData.message = `题目数字：${cardNumbers}\n\n解法：${answer}`;
-        alertData.cancelButtonVisible = false;
-        alertData.confirmButtonText = "知道了";
-        alertData.confirmCb = () => {
-            DebugLog.instance.log('用户查看了答案');
-        };
-        
-        // 显示Alert
-        AlertManager.getInstance().showAlert(alertData);
+        // 使用 SettlementPanel 显示答案
+        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+            mode: "answer",
+            answerCardNumbers: `题目数字：${cardNumbers}`,
+            answerSolution: `解法：${answer}`,
+            nextHandler: () => {
+                DebugLog.instance.log('用户查看了答案');
+            }
+        });
     }
 
     /**
@@ -967,43 +945,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.nextQuestionSameDifficulty();
     }
 
-    /**
-     * 测试括号计算（用于调试）
-     */
-    testBracketCalculation() {
-        DebugLog.instance.log('=== 测试括号计算 ===');
-
-        this.selectedValues = [1, 2, 3, 4];
-        this.operatorTypes = [SymbolsType.ADD, SymbolsType.ADD, SymbolsType.MULTIPLY];
-        this.brackets = [
-            {start: 0, end: 1},  // 内层括号 (1+2)
-            {start: 0, end: 2}   // 外层括号 ((1+2)+3)
-        ];
-
-        const result1 = this.calculateExpressionWithBrackets();
-
-        this.selectedValues = [9, 8, 1, 6];
-        this.operatorTypes = [SymbolsType.SUBTRACT, SymbolsType.SUBTRACT, SymbolsType.MULTIPLY];
-        this.brackets = [
-            {start: 0, end: 1},  // 内层括号 (9-8)
-            {start: 0, end: 2}   // 外层括号 ((9-8)-1)
-        ];
-        
-
-        const result2 = this.calculateExpressionWithBrackets();
-
-        this.selectedValues = [1, 2, 3];
-        this.operatorTypes = [SymbolsType.ADD, SymbolsType.MULTIPLY];
-        this.brackets = [
-            {start: 0, end: 1}   // 括号 (1+2)
-        ];
-
-        const result3 = this.calculateExpressionWithBrackets();
-
-        
-        // 重置状态
-        this.resetCardStatus();
-    }
 
     private _time = null;
     /**
@@ -1028,7 +969,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 执行翻转
         this._time = setTimeout(() => {
             this.flipCard();
-        }, 300);
+        }, 500);
     }
 
     /**
@@ -1055,95 +996,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log('开始计算带括号的表达式:');
         DebugLog.instance.log('- 原始值:', values);
         DebugLog.instance.log('- 原始运算符:', ops);
-        DebugLog.instance.log('- 括号:', this.brackets);
-        
-        // 如果没有括号，直接计算
-        if (this.brackets.length === 0) {
-            return this.calculateWithPriority(values, ops);
-        }
-        
-        // 使用递归方法处理括号
-        return this.calculateWithBracketsRecursive(values, ops, this.brackets);
+
+        return this.calculateWithPriority(values, ops);
+
     }
     
-    /**
-     * 递归处理括号计算
-     */
-    private calculateWithBracketsRecursive(values: number[], ops: number[], brackets: {start: number, end: number}[]): number {
-        if (brackets.length === 0) {
-            return this.calculateWithPriority(values, ops);
-        }
-        
-        // 找到最内层的括号（范围最小的）
-        let minBracketIndex = 0;
-        let minSize = brackets[0].end - brackets[0].start;
-        
-        for (let i = 1; i < brackets.length; i++) {
-            const size = brackets[i].end - brackets[i].start;
-            if (size < minSize) {
-                minSize = size;
-                minBracketIndex = i;
-            }
-        }
-        
-        const bracket = brackets[minBracketIndex];
-        DebugLog.instance.log(`处理最内层括号: start=${bracket.start}, end=${bracket.end}`);
-        
-        // 计算括号内的值
-        const bracketValues = values.slice(bracket.start, bracket.end + 1);
-        const bracketOps = ops.slice(bracket.start, bracket.end);
-        
-        DebugLog.instance.log(`- 括号内值: ${bracketValues}`);
-        DebugLog.instance.log(`- 括号内运算符: ${bracketOps}`);
-        
-        const bracketResult = this.calculateWithPriority(bracketValues, bracketOps);
-        DebugLog.instance.log(`- 括号内计算结果: ${bracketResult}`);
-        
-        // 创建新的数组，用结果替换括号内的内容
-        const newValues = [...values];
-        const newOps = [...ops];
-        
-        // 替换括号内的内容
-        newValues.splice(bracket.start, bracket.end - bracket.start + 1, bracketResult);
-        newOps.splice(bracket.start, bracket.end - bracket.start);
-        
-        DebugLog.instance.log(`- 替换后的值: ${newValues}`);
-        DebugLog.instance.log(`- 替换后的运算符: ${newOps}`);
-        
-        // 更新剩余括号的位置
-        const lengthChange = bracket.end - bracket.start;
-        const newBrackets = brackets
-            .filter((_, index) => index !== minBracketIndex) // 移除已处理的括号
-            .map(b => {
-                if (b.start > bracket.end) {
-                    // 括号在当前括号之后，需要调整位置
-                    return {
-                        start: b.start - lengthChange,
-                        end: b.end - lengthChange
-                    };
-                } else if (b.start < bracket.start && b.end > bracket.end) {
-                    // 括号包含当前括号，需要调整结束位置
-                    return {
-                        start: b.start,
-                        end: b.end - lengthChange
-                    };
-                } else if (b.start === bracket.start && b.end > bracket.end) {
-                    // 括号从当前括号开始但延伸到更远，需要调整结束位置
-                    return {
-                        start: b.start,
-                        end: b.end - lengthChange
-                    };
-                } else {
-                    // 括号在当前括号之前，位置不变
-                    return b;
-                }
-            });
-        
-        DebugLog.instance.log(`- 更新后的括号: ${JSON.stringify(newBrackets)}`);
-        
-        // 递归处理剩余的括号
-        return this.calculateWithBracketsRecursive(newValues, newOps, newBrackets);
-    }
     
     /**
      * 按照运算符优先级计算结果
@@ -1240,7 +1097,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 const sprite = spriteNode.getComponent(Sprite);
                 if (sprite) {
                     // 更改为明亮的高亮颜色，使用优雅的紫色突出显示已选择的卡牌
-                    sprite.color = new Color(255, 215, 0,255); // 优雅紫色高亮效果
+                    sprite.color = new Color(179, 241, 46, 255); // #B3F12E 高亮效果
                     
                     // 为卡片添加轻微缩放效果，显示它已被选中
                     this.cards[index].setScale(new Vec3(0.95, 0.95, 1));
@@ -1290,10 +1147,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 处理括号的情况
         let expression = expressionParts.join(' ');
-        if (this.brackets.length > 0) {
-            // 先转换成带括号的表达式
-            expression = this.buildExpressionWithBrackets(expressionParts);
-        }
+        // if (this.brackets.length > 0) {
+        //     // 先转换成带括号的表达式
+        //     expression = this.buildExpressionWithBrackets(expressionParts);
+        // }
 
         DebugLog.instance.log("最终表达式:", expression);
         
@@ -1310,11 +1167,11 @@ export class Main extends BaseScene<IBaseGameChild> {
                 
                 // 如果结果接近24，改变文本颜色以给予视觉反馈
                 if (Math.abs(this.currentResult - 24) < 0.00001) {
-                    this.label.color = new Color(0, 255, 0, 255); // 绿色，表示成功
+                    this.formulaLabel.color = new Color(0, 255, 0, 255); // 绿色，表示成功
                 } else if (Math.abs(this.currentResult - 24) < 5) {
-                    this.label.color = new Color(255, 255, 0, 255); // 黄色，表示接近
+                    this.formulaLabel.color = new Color(179, 241, 46, 255); // 黄色，表示接近
                 } else {
-                    this.label.color = new Color(0, 0, 0, 255); // 黑色，正常状态
+                    this.formulaLabel.color = new Color(0, 0, 0, 255); // 黑色，正常状态
                 }
             } catch (e) {
                 DebugLog.instance.error('计算表达式出错:', e);
@@ -1346,9 +1203,296 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log(`添加卡片${index}到表达式，值: ${cardValue}`);
         this.disableCard(index);
         
+        // 检查是否需要自动计算结果并替换卡牌
+        this.checkAndReplaceCardWithResult(index);
+        
         // 调试信息
         DebugLog.instance.log('当前选中卡片:', this.selectedCards);
         DebugLog.instance.log('当前选中值:', this.selectedValues);
+    }
+
+    /**
+     * 检查并替换卡牌为计算结果
+     */
+    checkAndReplaceCardWithResult(currentCardIndex: number) {
+        let preCardValues = [...this.cardValues];
+        // 检查是否满足条件：已选择2张卡牌且有1个运算符
+        if (this.selectedCards.length === 2 && this.operators.length === 1) {
+            DebugLog.instance.log('满足自动计算条件：2张卡牌 + 1个运算符');
+            
+            // 计算前两张卡牌的结果
+            const firstValue = this.selectedValues[0];
+            const secondValue = this.selectedValues[1];
+            const operator = this.operatorTypes[0];
+            
+            const result = this.calculateResult(firstValue, secondValue, operator);
+            DebugLog.instance.log(`计算结果: ${firstValue} ${this.operators[0]} ${secondValue} = ${result}`);
+            
+            // 保存要隐藏的第一张卡牌索引
+            const firstCardIndex = this.selectedCards[0];
+            
+            // 隐藏第一张卡牌
+            this.hideCard(firstCardIndex);
+            
+            // 在第二张卡牌上显示计算结果
+            this.replaceCardWithResult(currentCardIndex, result);
+            
+            // 更新状态：只保留第二张卡牌，其值为计算结果
+            this.selectedCards = [currentCardIndex];
+            this.selectedValues = [result];
+            this.operators = [];
+            this.operatorTypes = [];
+            
+            // 更新卡牌值数组，将计算结果赋予第二张卡牌
+            this.cardValues[currentCardIndex] = result;
+            DebugLog.instance.log(`卡牌${currentCardIndex}的值已更新为: ${result}`);
+            
+            // 从cardValues中移除被隐藏的第一张卡牌的值
+            this.cardValues[firstCardIndex] = null;
+            DebugLog.instance.log(`卡牌${firstCardIndex}的值已移除`);
+            
+            // 隐藏对应的卡牌
+            this.cards[firstCardIndex].active = false;
+            
+            // 从已使用集合中移除第一张卡牌
+            this.usedCardIndices.delete(firstCardIndex);
+            
+            // 第二张卡牌保持选中状态
+            this.disableCard(currentCardIndex);
+            
+            // 记录计算步骤（记录计算后的状态）
+            this.recordCalculationStep({
+                type: 'first_calculation',
+                firstCardIndex: firstCardIndex,
+                secondCardIndex: currentCardIndex,
+                firstValue: firstValue,
+                secondValue: secondValue,
+                operator: this.operators[0],
+                result: result,
+                selectedCards: [...this.selectedCards],
+                selectedValues: [...this.selectedValues],
+                cardValues: [...this.cardValues],
+                usedCardIndices: new Set(this.usedCardIndices),
+                beforeCardValues: [...preCardValues] // 计算前的状态
+            });
+            
+            // 检查计算结果是否等于24
+            this.checkResultEquals24(result);
+            
+            DebugLog.instance.log('卡牌替换完成，当前状态:');
+            DebugLog.instance.log('- 选中卡片:', this.selectedCards);
+            DebugLog.instance.log('- 选中值:', this.selectedValues);
+        }
+        // 检查是否满足连续计算条件：已选择1张卡牌（结果卡牌）且有1个运算符，再选择1张新卡牌
+        else if (this.selectedCards.length === 2 && this.operators.length === 1 && 
+                 this.selectedCards[0] !== currentCardIndex) {
+            DebugLog.instance.log('满足连续计算条件：结果卡牌 + 运算符 + 新卡牌');
+            
+            // 计算结果卡牌和新卡牌的结果
+            const resultValue = this.selectedValues[0]; // 结果卡牌的值
+            const newValue = this.selectedValues[1];   // 新卡牌的值
+            const operator = this.operatorTypes[0];
+            
+            const newResult = this.calculateResult(resultValue, newValue, operator);
+            DebugLog.instance.log(`连续计算结果: ${resultValue} ${this.operators[0]} ${newValue} = ${newResult}`);
+            
+            // 保存要隐藏的结果卡牌索引
+            const resultCardIndex = this.selectedCards[0];
+            
+            // 隐藏前面的结果卡牌（第一张卡牌）
+            this.hideCard(resultCardIndex);
+            
+            // 在新卡牌上显示新的计算结果（新卡牌不消失）
+            this.replaceCardWithResult(currentCardIndex, newResult);
+            
+            // 更新状态：只保留新卡牌，其值为新的计算结果
+            this.selectedCards = [currentCardIndex];
+            this.selectedValues = [newResult];
+            this.operators = [];
+            this.operatorTypes = [];
+            
+            // 更新卡牌值数组，将新的计算结果赋予新卡牌
+            this.cardValues[currentCardIndex] = newResult;
+            DebugLog.instance.log(`卡牌${currentCardIndex}的值已更新为: ${newResult}`);
+            
+            // 从cardValues中移除被隐藏的结果卡牌的值
+            this.cardValues[resultCardIndex] = null;
+            DebugLog.instance.log(`卡牌${resultCardIndex}的值已移除`);
+            
+            // 隐藏对应的卡牌
+            this.cards[resultCardIndex].active = false;
+            
+            // 从已使用集合中移除结果卡牌
+            this.usedCardIndices.delete(resultCardIndex);
+            
+            // 新卡牌保持选中状态
+            this.disableCard(currentCardIndex);
+            
+            // 记录计算步骤（记录计算后的状态）
+            this.recordCalculationStep({
+                type: 'continuous_calculation',
+                resultCardIndex: resultCardIndex,
+                newCardIndex: currentCardIndex,
+                resultValue: resultValue,
+                newValue: newValue,
+                operator: this.operators[0],
+                newResult: newResult,
+                selectedCards: [...this.selectedCards],
+                selectedValues: [...this.selectedValues],
+                cardValues: [...this.cardValues],
+                usedCardIndices: new Set(this.usedCardIndices),
+                beforeCardValues: [...preCardValues] // 计算前的状态
+            });
+            
+            // 检查计算结果是否等于24
+            this.checkResultEquals24(newResult);
+            
+            DebugLog.instance.log('连续计算完成，当前状态:');
+            DebugLog.instance.log('- 选中卡片:', this.selectedCards);
+            DebugLog.instance.log('- 选中值:', this.selectedValues);
+        }
+    }
+    
+    /**
+     * 记录初始状态（4张牌的初始值）
+     */
+    recordInitialState() {
+        // 清空之前的所有步骤
+        this.calculationSteps = [];
+        this.currentStepIndex = -1;
+        
+        // 记录初始状态
+        const initialStep = {
+            type: 'initial_state',
+            cardValues: [...this.cardValues],
+            selectedCards: [],
+            selectedValues: [],
+            cardIndices: [0, 1, 2, 3] // 初始的4张牌索引
+        };
+        
+        this.calculationSteps.push(initialStep);
+        this.currentStepIndex = 0;
+        
+        DebugLog.instance.log('记录初始状态:', initialStep);
+        DebugLog.instance.log('初始卡牌值:', this.cardValues);
+    }
+    
+    /**
+     * 记录计算步骤
+     */
+    recordCalculationStep(stepData: any) {
+        // 如果当前索引不是最后一个，替换当前索引的步骤数据
+        if (this.currentStepIndex < this.calculationSteps.length - 1) {
+            // 替换当前索引的步骤数据
+            this.calculationSteps[this.currentStepIndex + 1] = stepData;
+            this.currentStepIndex++;
+            DebugLog.instance.log(`替换步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+        } else {
+            // 添加新步骤
+            this.calculationSteps.push(stepData);
+            this.currentStepIndex = this.calculationSteps.length - 1;
+            DebugLog.instance.log(`添加新步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+        }
+        
+        DebugLog.instance.log('总步骤数:', this.calculationSteps.length);
+        DebugLog.instance.log('当前步骤索引:', this.currentStepIndex);
+    }
+    
+    /**
+     * 检查计算结果是否等于24
+     */
+    checkResultEquals24(result: number) {
+        DebugLog.instance.log(`检查计算结果: ${result} 是否等于24`);
+        
+        // 检查是否所有4张卡牌都被使用过
+        const usedCardsCount = this.usedCardIndices.size;
+        const nullValuesCount = this.cardValues.filter(value => value === null).length;
+        
+        DebugLog.instance.log(`已使用卡牌数量: ${usedCardsCount}`);
+        DebugLog.instance.log(`null值卡牌数量: ${nullValuesCount}`);
+        
+        // 只有当所有4张卡牌都被使用过（即3张卡牌被隐藏，1张卡牌显示结果）时才能检查24
+        if (nullValuesCount < 3) {
+            DebugLog.instance.log('还有卡牌未使用，不能检查24结果');
+            return;
+        }
+        
+        // 使用浮点数比较，允许小的误差
+        if (Math.abs(result - 24) < 0.000001) {
+            DebugLog.instance.log('所有卡牌已使用且计算结果等于24，显示成功！');
+            this.onSuccess();
+        } else {
+            DebugLog.instance.log(`所有卡牌已使用但计算结果不等于24，当前结果: ${result}`);
+        }
+    }
+    
+    /**
+     * 隐藏卡牌
+     */
+    hideCard(cardIndex: number) {
+        if (cardIndex >= 0 && cardIndex < this.cards.length) {
+            this.cards[cardIndex].active = false;
+            DebugLog.instance.log(`隐藏卡牌${cardIndex}`);
+        }
+    }
+    
+    /**
+     * 替换卡牌资源为计算结果
+     */
+    replaceCardWithResult(cardIndex: number, result: number) {
+        if (cardIndex >= 0 && cardIndex < this.cards.length) {
+            const cardNode = this.cards[cardIndex];
+            const labelNode = cardNode.getChildByName("label");
+            
+            if (labelNode) {
+                const label = labelNode.getComponent(Label);
+                if (label) {
+                    // 直接在卡牌的label中显示计算结果
+                    label.string = result.toString();
+                }
+            } else {
+                DebugLog.instance.error(`卡牌${cardIndex}没有找到label节点`);
+            }
+        }
+    }
+    
+    /**
+     * 创建结果显示
+     */
+    createResultDisplay(cardIndex: number, result: number) {
+        const cardNode = this.cards[cardIndex];
+        
+        // 隐藏原有的sprite
+        const spriteNode = cardNode.getChildByName("sprite");
+        // if (spriteNode) {
+        //     spriteNode.active = false;
+        // }
+        
+        // 创建或更新结果显示节点
+        let resultNode = cardNode.getChildByName("resultDisplay");
+        if (!resultNode) {
+            resultNode = new Node("resultDisplay");
+            cardNode.addChild(resultNode);
+        }
+        
+        // 设置结果显示的位置和样式
+        resultNode.setPosition(0, 0, 0);
+        
+        // 创建Label组件显示结果
+        const label = resultNode.getComponent(Label) || resultNode.addComponent(Label);
+        label.string = result.toString();
+        label.fontSize = 48;
+        label.color = new Color(0, 0, 0, 255);
+        
+        // 设置Label的节点属性
+        resultNode.active = true;
+        
+        // 添加动画效果
+        resultNode.setScale(new Vec3(0.5, 0.5, 1));
+        tween(resultNode)
+            .to(0.2, { scale: new Vec3(1.1, 1.1, 1) })
+            .to(0.1, { scale: new Vec3(1, 1, 1) })
+            .start();
     }
 
     /**
@@ -1361,71 +1505,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (i > 0) baseExpression += ' ';
             baseExpression += expressionParts[i];
         }
+
+        return baseExpression;
         
-        // 如果没有括号，直接返回
-        if (this.brackets.length === 0) {
-            return baseExpression;
-        }
-        
-        // 为了便于处理，先将表达式拆分为字符数组
-        let chars = [];
-        for (let i = 0; i < expressionParts.length; i++) {
-            if (i > 0) chars.push(' ');
-            
-            // 将每个部分（数字或运算符）加入字符数组
-            const part = expressionParts[i];
-            for (let j = 0; j < part.length; j++) {
-                chars.push(part[j]);
-            }
-            
-            if (i < expressionParts.length - 1) chars.push(' ');
-        }
-        
-        // 根据数字的位置计算括号的实际插入位置
-        const positions = [];
-        let numCount = 0;
-        for (let i = 0; i < chars.length; i++) {
-            // 检查是否是数字的起始位置
-            const isDigitStart = i === 0 || (chars[i-1] === ' ' && /\d/.test(chars[i]));
-            if (isDigitStart) {
-                positions.push(i);
-                numCount++;
-            }
-        }
-        
-        // 处理括号 - 从后向前添加，避免位置错误
-        const insertPositions = [];
-        for (const bracket of this.brackets) {
-            // 确保位置有效
-            if (bracket.start >= 0 && bracket.start < numCount && 
-                bracket.end >= 0 && bracket.end < numCount && 
-                bracket.start <= bracket.end) {
-                
-                // 计算实际插入位置
-                const openPos = positions[bracket.start];
-                
-                // 找到结束数字的最后一位
-                let endDigitPos = positions[bracket.end];
-                while (endDigitPos < chars.length && /\d/.test(chars[endDigitPos])) {
-                    endDigitPos++;
-                }
-                
-                // 存储要插入的位置和括号
-                insertPositions.push({pos: openPos, char: '('});
-                insertPositions.push({pos: endDigitPos, char: ')'});
-            }
-        }
-        
-        // 按位置降序排序，以便从后向前插入
-        insertPositions.sort((a, b) => b.pos - a.pos);
-        
-        // 插入括号
-        for (const {pos, char} of insertPositions) {
-            chars.splice(pos, 0, char);
-        }
-        
-        // 将字符数组连接为字符串
-        return chars.join('');
     }
     
     /**
@@ -1442,6 +1524,227 @@ export class Main extends BaseScene<IBaseGameChild> {
         } else {
             this.currentResult = this.selectedValues.length > 0 ? this.selectedValues[0] : 0;
         }
+    }
+    
+    /**
+     * 恢复步骤状态
+     */
+    restoreStepState(stepData: any) {
+        if (stepData.type === 'initial_state') {
+            // 恢复初始状态（4张牌的原始值）
+            this.selectedCards = [];
+            this.selectedValues = [];
+            this.operators = [];
+            this.operatorTypes = [];
+            this.cardValues = [...stepData.cardValues];
+            this.usedCardIndices.clear();
+            
+            // 显示所有卡牌
+            this.cards.forEach((card, index) => {
+                card.active = true;
+            });
+            
+            // 恢复卡牌显示
+            this.restoreCardDisplay(false);
+            // 更新表达式显示
+            this.updateExpression();
+            
+        } else if (stepData.type === 'first_calculation') {
+            // 恢复第一次计算前的状态，但只保留第一张卡牌为选中状态
+            this.selectedCards = [stepData.secondCardIndex];
+            this.selectedValues = [stepData.result];
+            this.operators = [];
+            this.operatorTypes = [];
+            // 使用计算前的状态
+            this.cardValues = [...stepData.cardValues];
+            this.usedCardIndices = new Set();
+            
+            // 显示所有卡牌
+            this.cards.forEach((card, index) => {
+                card.active = true;
+            });
+            
+            // 检查并隐藏所有null值的卡牌
+            this.hideNullValueCards();
+            // 恢复卡牌显示
+            this.restoreCardDisplay(true);
+            // 更新表达式显示
+            this.updateExpression();
+            
+        } 
+        // else if (stepData.type === 'continuous_calculation') {
+        //     // 恢复连续计算前的状态，但只保留结果卡牌为选中状态
+        //     this.selectedCards = [stepData.resultCardIndex];
+        //     this.selectedValues = [stepData.resultValue];
+        //     this.operators = [];
+        //     this.operatorTypes = [];
+        //     // 使用计算前的状态
+        //     this.cardValues = [...stepData.cardValues];
+        //     this.usedCardIndices = new Set();
+            
+        //     // 显示所有卡牌
+        //     this.cards.forEach((card, index) => {
+        //         card.active = true;
+        //     });
+            
+        //     // 检查并隐藏所有null值的卡牌
+        //     this.hideNullValueCards();
+        //     // 恢复卡牌显示
+        //     this.restoreCardDisplay(true);
+        //     // 更新表达式显示
+        //     this.updateExpression();
+        // }
+        
+        DebugLog.instance.log('状态恢复完成');
+        DebugLog.instance.log('- 选中卡片:', this.selectedCards);
+        DebugLog.instance.log('- 选中值:', this.selectedValues);
+    }
+    
+    /**
+     * 获取运算符类型
+     */
+    getOperatorType(operator: string): number {
+        switch (operator) {
+            case '+': return SymbolsType.ADD;
+            case '-': return SymbolsType.SUBTRACT;
+            case '×': return SymbolsType.MULTIPLY;
+            case '÷': return SymbolsType.DIVIDE;
+            default: return SymbolsType.ADD;
+        }
+    }
+    
+    /**
+     * 恢复卡牌显示
+     */
+    restoreCardDisplay(changeStep:boolean = false) {
+        for (let i = 0; i < this.cards.length; i++) {
+            const card = this.cards[i];
+            const labelNode = card.getChildByName("label");
+            
+            // 检查cardValues是否为null，如果是则隐藏卡牌
+            if (this.cardValues[i] === null) {
+                card.active = false;
+                continue; // 跳过后续处理
+            }
+            
+            if (labelNode) {
+                const label = labelNode.getComponent(Label);
+                if (label) {
+                    // 恢复原始卡牌值显示
+                    label.string = this.cardValues[i].toString();
+                }
+            }
+            
+            // 恢复卡牌颜色和缩放
+            const spriteNode = card.getChildByName("sprite");
+            if (spriteNode) {
+                const sprite = spriteNode.getComponent(Sprite);
+                if (sprite) {
+                    if (changeStep) {
+                        // 如果是回退步骤，第一个被选中的卡牌不恢复颜色，其他恢复
+                        const isFirstSelected = this.selectedCards.length > 0 && i === this.selectedCards[0];
+                        if (!isFirstSelected) {
+                            sprite.color = new Color(255, 255, 255, 255);
+                        } else {
+                            // 第一个被选中的卡牌保持选中状态（高亮显示）
+                            sprite.color = new Color(179, 241, 46, 255); // 黄色表示选中
+                        }
+                    } else {
+                        // 正常恢复所有卡牌颜色
+                        sprite.color = new Color(255, 255, 255, 255);
+                    }
+                }
+                spriteNode.active = true;
+            }
+            
+            card.setScale(new Vec3(1, 1, 1));
+        }
+    }
+
+    /**
+     * 检查并隐藏所有null值的卡牌
+     */
+    hideNullValueCards() {
+        for (let i = 0; i < this.cards.length; i++) {
+            if (this.cardValues[i] === null) {
+                this.cards[i].active = false;
+                DebugLog.instance.log(`卡牌${i}的值为null，已隐藏`);
+            }
+        }
+    }
+
+    preStep(){
+        if (this.currentStepIndex <= 0) {
+            DebugLog.instance.log('没有可回退的步骤（已到达初始状态）');
+            return;
+        }
+        
+        
+        // 先回退到上一步
+        this.currentStepIndex--;
+        
+        const stepData = this.calculationSteps[this.currentStepIndex];
+        DebugLog.instance.log(`回退到步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+        stepData.operatType =  "pre";
+        // 恢复状态
+        this.restoreStepState(stepData);
+    }
+
+    /**
+     * 更新游戏UI
+     */
+    updateGameUI() {
+        // 重置所有卡牌状态
+        for (let i = 0; i < this.cards.length; i++) {
+            const card = this.cards[i];
+            card.active = true; // 显示所有卡牌
+            
+            // 重置卡牌颜色
+            const spriteNode = card.getChildByName("sprite");
+            if (spriteNode) {
+                const sprite = spriteNode.getComponent(Sprite);
+                if (sprite) {
+                    sprite.color = new Color(255, 255, 255, 255); // 白色
+                }
+            }
+            
+            // 重置卡牌缩放
+            card.setScale(new Vec3(1, 1, 1));
+            
+            // 更新卡牌标签
+            const labelNode = card.getChildByName("label");
+            if (labelNode) {
+                const label = labelNode.getComponent(Label);
+                if (label) {
+                    label.string = this.cardValues[i]?.toString() || "";
+                }
+            }
+        }
+        
+        // 重置表达式标签颜色
+        this.formulaLabel.color = new Color(0, 0, 0, 255); // 黑色
+        
+        DebugLog.instance.log('游戏UI已更新');
+    }
+
+    nextStep(){
+        // 检查是否有下一步骤
+        if (this.currentStepIndex >= this.calculationSteps.length - 1) {
+            DebugLog.instance.log('没有下一步骤可执行');
+            return;
+        }
+        
+        // 移动到下一步骤
+        this.currentStepIndex++;
+        const stepData = this.calculationSteps[this.currentStepIndex];
+        stepData.operatType =  "next";
+        
+        DebugLog.instance.log(`执行下一步骤 ${this.currentStepIndex + 1}:`, stepData.type);
+        DebugLog.instance.log('当前步骤索引:', this.currentStepIndex);
+        DebugLog.instance.log('总步骤数:', this.calculationSteps.length);
+        
+        // 恢复下一步骤的状态
+        this.restoreStepState(stepData);
     }
 
     protected onDestroy(): void {

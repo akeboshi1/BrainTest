@@ -359,11 +359,11 @@ export class TaskAndNotificationPanelCtrl extends BasePanel {
             await this.indexPageConfig.loadConfig();
             let type = this.getCurrentConfigType(); // 动态获取配置类型
             
-            if (type === "normal") {
-                config = this.indexPageConfig.normalConfig;
-            } else {
-                config = ThemeConfig.getInstance().getConfig();
-            }
+            // if (type === "normal") {
+            //     config = this.indexPageConfig.normalConfig;
+            // } else {
+            config = ThemeConfig.getInstance().getConfig();
+            // }
             
             // 将配置存储到用户信息缓存中
             if (userData && config) {
