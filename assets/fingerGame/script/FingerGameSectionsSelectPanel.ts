@@ -1,6 +1,6 @@
 import { _decorator, Component, instantiate, Node, Prefab, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from 'cc';
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
-import { SectionConfig } from '../config/fingerGameConfig';
+import { fingerGameConfig, SectionConfig } from '../config/fingerGameConfig';
 import { SectionSelectItem } from './SectionSelectItem';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
@@ -10,6 +10,7 @@ import { PersonalCenterManager } from '../../resources/scripts/Game/PersonalCent
 import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageConfig';
 import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
+import { IFingerSet } from './FingerGameProtocol';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameSectionsSelectPanel')
@@ -32,7 +33,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
     private titleText: Node = null;
 
     private _model: FingerGameModel = null;
-    private _sectionDatas: SectionConfig[] = [];
+    private _sectionDatasMap: Map<number, SectionConfig[]> = new Map();
 
     // 首页配置相关属性
     private indexPageConfig: IndexPageConfig = new IndexPageConfig();
@@ -42,21 +43,41 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
 
     }
 
-    restore(data: { sectionDatas: SectionConfig[], model: FingerGameModel }) {
+    restore(data: { fingerSets: IFingerSet[], model: FingerGameModel }) {
         this._model = data.model;
-        this._sectionDatas = data.sectionDatas;
-        for (let i = 0; i < data.sectionDatas.length; i++) {
-            const item = instantiate(this.itemPrefab);
-            item.setParent(this.itemContainer);
-            item.getComponent(SectionSelectItem).setData(data.sectionDatas[i], i, this.onClickStart.bind(this));
-        }
-        
-        // 应用首页配置
-        // this.applyIndexPageConfig();
+
+        let setIndex = 0;
+        data.fingerSets.forEach(sets => {
+            let sectionIndex = 0;
+            sets.activities.forEach(section => {
+                if (section.is_evaluable) {
+                    let sectionData = fingerGameConfig.fingerSets[setIndex].sections[sectionIndex];
+                    if (!this._sectionDatasMap.has(setIndex)) {
+                        this._sectionDatasMap.set(setIndex, []);
+                    }
+                    this._sectionDatasMap.get(setIndex).push(sectionData);
+                    
+                    //todo 修改成按照套平铺的结构
+                    this.createSectionItem(setIndex, sectionIndex, sectionData);
+                    
+                    sectionIndex++;
+                }
+            });
+            setIndex++;
+        });
     }
 
-    onClickStart(index: number) {
-        this._model.emit(FingerGameModelEvent.SELECT_EXPERIENCE_SECTION, this._sectionDatas[index]);
+    //todo 修改成按照套平铺的结构
+    createSectionItem(setIndex: number, sectionIndex: number, sectionData: SectionConfig) {
+        const item = instantiate(this.itemPrefab);
+        item.setParent(this.itemContainer);//todo 修改成按照套平铺的结构
+        item.getComponent(SectionSelectItem).setData(sectionData, setIndex, sectionIndex, this.onSelectSection.bind(this, setIndex, sectionIndex));
+    }
+
+    //选择某一界开始的入口
+    onSelectSection(setIndex: number, sectionIndex: number) {
+        const sectionData = this._sectionDatasMap.get(setIndex)[sectionIndex];
+        this._model.emit(FingerGameModelEvent.SELECT_EXPERIENCE_SECTION, sectionData);
         UIManager.getInstance().hidePanel(FingerGameSectionsSelectPanel.NAME);
     }
 
@@ -77,7 +98,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
      */
     getCurrentConfigType(): string {
         let currentFestival = ThemeConfig.getInstance().getThemeTitle();
-        if(currentFestival == "" || currentFestival == null){
+        if (currentFestival == "" || currentFestival == null) {
             currentFestival = "normal";
         }
         return currentFestival;
@@ -90,7 +111,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
      */
     async loadRemoteSprite(url: string): Promise<SpriteFrame> {
         return new Promise((resolve, reject) => {
-            this.wwwLoadSpriteFrame(url,(spriteFrame: SpriteFrame) => {
+            this.wwwLoadSpriteFrame(url, (spriteFrame: SpriteFrame) => {
                 if (spriteFrame) {
                     resolve(spriteFrame);
                 } else {
@@ -105,7 +126,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
      * @param path 远程图片路径
      * @param completeHD 完成回调函数
      */
-    public wwwLoadSpriteFrame(path: string,completeHD?: Function) {
+    public wwwLoadSpriteFrame(path: string, completeHD?: Function) {
         assetManager.loadRemote<ImageAsset>(path,
             {
                 xhrResponseType: "blob",
@@ -122,7 +143,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
                 const texture = new Texture2D();
                 texture.image = imageAsset;
                 spriteFrame.texture = texture;
-                
+
                 completeHD(spriteFrame);
             }
         );
@@ -137,11 +158,11 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
             DebugLog.instance.log("FingerGameSectionsSelectPanel配置已经应用过，跳过重复调用");
             return;
         }
-        
+
         DebugLog.instance.log("FingerGameSectionsSelectPanel开始应用首页配置");
         const userData = PersonalCenterManager.getInstance().userInfoData;
         let config = null;
-        
+
         // 优先从用户信息缓存中获取配置
         if (userData) {
             DebugLog.instance.log("FingerGameSectionsSelectPanel用户数据存在，检查缓存");
@@ -155,26 +176,26 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
         } else {
             DebugLog.instance.log("FingerGameSectionsSelectPanel用户数据不存在");
         }
-        
+
         // 如果缓存中没有配置，则重新加载
         if (!config) {
             DebugLog.instance.log("FingerGameSectionsSelectPanel缓存中没有配置，重新加载首页配置");
             await this.indexPageConfig.loadConfig();
             let type = this.getCurrentConfigType(); // 动态获取配置类型
-            
+
             // if (type === "normal") {
             //     config = this.indexPageConfig.normalConfig;
             // } else {
             config = ThemeConfig.getInstance().getConfig();
             // }
-            
+
             // 将配置存储到用户信息缓存中
             if (userData && config) {
                 userData.setIndexPageConfigCache(config);
                 DebugLog.instance.log("FingerGameSectionsSelectPanel首页配置已缓存到用户信息中");
             }
         }
-        
+
         if (config && config.ui) {
             DebugLog.instance.log("FingerGameSectionsSelectPanel配置存在，开始应用UI配置");
             // 应用UI配置
@@ -182,7 +203,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
                 DebugLog.instance.log("FingerGameSectionsSelectPanel开始加载背景图片:", config.ui.bg);
                 // 设置标题背景 - 统一使用远程加载
                 const titleSprite = await this.loadRemoteSprite(config.ui.bg);
-                
+
                 if (this.titleBg && titleSprite) {
                     this.titleBg.getComponent(Sprite).spriteFrame = titleSprite;
                     DebugLog.instance.log("FingerGameSectionsSelectPanel成功应用标题背景配置");
@@ -205,7 +226,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
                     // 调整位置 - 保持图片中心位置不变
                     const currentPos = this.titleIcon.position;
                     this.titleIcon.setPosition(
-                        currentPos.x + 40 ,
+                        currentPos.x + 40,
                         currentPos.y + 260,
                         currentPos.z
                     );
@@ -215,14 +236,14 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
             if (config.ui.title) {
                 // 设置图标1 - 统一使用远程加载
                 const icon1Sprite = await this.loadRemoteSprite(config.ui.title);
-                
+
                 if (this.titleText && icon1Sprite) {
                     this.titleText.getComponent(Sprite).spriteFrame = icon1Sprite;
                 }
                 DebugLog.instance.log("FingerGameSectionsSelectPanel应用图标1配置:", config.ui.title);
             }
         }
-        
+
         // 标记配置已应用
         this._configApplied = true;
         DebugLog.instance.log("FingerGameSectionsSelectPanel配置应用完成");
@@ -238,10 +259,10 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
             userData.clearIndexPageConfigCache();
             DebugLog.instance.log("FingerGameSectionsSelectPanel已清除首页配置缓存，将重新加载");
         }
-        
+
         // 重置配置应用标志
         this._configApplied = false;
-        
+
         // 重新应用配置
         await this.applyIndexPageConfig();
     }

@@ -1,3 +1,9 @@
+export interface IFingerSet {
+    id: number;            // 套装id
+    name: string;          // 套装名称
+    description: string;   // 套装描述
+    activities: IFingerActivity[]; // 套装包含的所有节
+}
 export interface IFingerActivity {
     id: number;            // 活动id
     seq: number;           // 序号

@@ -11,20 +11,22 @@ export class SectionSelectItem extends Component {
     @property(Sprite)
     private sectionIconSprite: Sprite = null;
 
-    private _index: number = 0;
+    private _setIndex: number = 0;
+    private _sectionIndex: number = 0;
 
-    private _onClickStartHandler: (index: number) => void = null;
+    private _onClickStartHandler: (setIndex: number, sectionIndex: number) => void = null;
 
     start() {
 
     }
 
-    public setData(sectionConfig: SectionConfig, index: number = 0, onClickStart: (index: number) => void = null) {
+    public setData(sectionConfig: SectionConfig, setIndex: number = 0, sectionIndex: number = 0, onClickStart: (setIndex: number, sectionIndex: number) => void = null) {
         this._onClickStartHandler = onClickStart;
-        this._index = index;
+        this._setIndex = setIndex;
+        this._sectionIndex = sectionIndex;
         this.sectionNameLabel.string = sectionConfig.name;
         if(sectionConfig.icon){
-            let bundle = assetManager.getBundle(BundleName.FINGERGAME);
+            let bundle = assetManager.getBundle(BundleName.FINGERGAME); 
             bundle.load(sectionConfig.icon, SpriteFrame, (err, spriteFrame) => {    
                 if (err) {
                     console.error('加载图标失败', err);
@@ -37,7 +39,7 @@ export class SectionSelectItem extends Component {
 
     public onClickStart(){
         if(this._onClickStartHandler){
-            this._onClickStartHandler(this._index);
+            this._onClickStartHandler(this._setIndex, this._sectionIndex);
         }
     }
 }

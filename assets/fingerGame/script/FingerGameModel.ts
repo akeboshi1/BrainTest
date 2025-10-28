@@ -4,7 +4,7 @@ import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { SocketManager } from "../../resources/scripts/Core/Manager/Net/SocketManager";
 import { SocketData } from "../../resources/scripts/Core/Manager/Net/SocketData";
 import { EventManager } from "../../resources/scripts/Core/Manager/Event/EventManager";
-import { IFingerActivity, IFingerActivityResult, IFingerActivityScore } from "./FingerGameProtocol";
+import { IFingerActivity, IFingerActivityResult, IFingerActivityScore, IFingerSet } from "./FingerGameProtocol";
 import { PersonalCenterManager } from "../../resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 import { GameType } from "../../resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import { SceneManager } from "../../resources/scripts/Core/Manager/Scene/SceneManager";
@@ -17,7 +17,8 @@ export enum FingerGameType {
 }
 
 export enum FingerGameModelEvent {
-    GET_LIST_FINISHED = "FingerGameModelEvent.getlistFinished",
+    GET_SETS_FINISHED = "FingerGameModelEvent.getSetsFinished",
+    START_TASK_FINISHED = "FingerGameModelEvent.startTaskFinished",
     GET_ALL_TASK_ACTIVITIES_RESULT = "FingerGameModelEvent.getAllTaskActivitiesResult",
     SELECT_EXPERIENCE_SECTION = "FingerGameModelEvent.selectExperienceSection",
     SKEWERSGAME_NEXT = "FingerGameModelEvent.skewersGameNext"
@@ -25,16 +26,17 @@ export enum FingerGameModelEvent {
 export class FingerGameModel {
     private _videoClipCache: Map<string, VideoClip> = new Map();
     private _currentTaskId: number = 0;
+    private _fingerSets: IFingerSet[] = [];
     private _activities: IFingerActivity[] = [];
     private _currentSectionIndex: number = 0;
 
+    private static GET_SETS: string = "finger_exercise.get_sets"; 
     private static START_TASK: string = "finger_exercise.start_task";//返回每一节的id
     private static START_TASK_ACTIVITY: string = "finger_exercise.start_task_activity";
     private static COMPLETE_TASK_ACTIVITY: string = "finger_exercise.complete_task_activity";
-    private static GET_TASK_ACTIVITIES: string = "finger_exercise.get_task_activities";   
+    private static GET_TASK_ACTIVITIES: string = "finger_exercise.get_task_activities"; 
+  
     private _eventHandlers: Map<string, Function[]> = new Map();
-
-    public _ismember: boolean = false;   
 
     private _isExperienceMode: boolean = false;
     
@@ -81,7 +83,8 @@ export class FingerGameModel {
     }
 
     public init() {
-        EventManager.getInstance().on(FingerGameModel.START_TASK, this.onGetListFinished, this);
+        EventManager.getInstance().on(FingerGameModel.GET_SETS, this.onGetSetsFinished, this);
+        EventManager.getInstance().on(FingerGameModel.START_TASK, this.onGetTaskIDFinished, this);
         EventManager.getInstance().on(FingerGameModel.START_TASK_ACTIVITY, this.onStartTaskActivity, this);
         EventManager.getInstance().on(FingerGameModel.COMPLETE_TASK_ACTIVITY, this.onCompleteTaskActivity, this);
         EventManager.getInstance().on(FingerGameModel.GET_TASK_ACTIVITIES, this.onGetAllTaskActivitiesResult, this);
@@ -90,6 +93,7 @@ export class FingerGameModel {
     }
 
     public dispose() {
+        EventManager.getInstance().off(FingerGameModel.GET_SETS, this);
         EventManager.getInstance().off(FingerGameModel.START_TASK, this);
         EventManager.getInstance().off(FingerGameModel.START_TASK_ACTIVITY, this);
         EventManager.getInstance().off(FingerGameModel.COMPLETE_TASK_ACTIVITY, this);
@@ -132,6 +136,10 @@ export class FingerGameModel {
         return this._currentSectionIndex === this._activities.length - 1;
     }
 
+    public get fingerSets(): IFingerSet[] {
+        return this._fingerSets;
+    }
+
     public addSectionIndex(){
         this._currentSectionIndex++;
     }
@@ -171,17 +179,36 @@ export class FingerGameModel {
         return Promise.all(paths.map(path => this.loadVideoClip(path)));
     }
 
-    //socket request
-    //获取手指操节信息
-    public getTaskList() {
+    public getSets() {
         let socketData = new SocketData({
-            action: FingerGameModel.START_TASK
+            action: FingerGameModel.GET_SETS
         });
         SocketManager.getInstance().send(socketData);
     }
 
-    private onGetListFinished(data: any) {
-        DebugLog.instance.log('onGetListFinished =============');
+    private onGetSetsFinished(data: any) {
+        DebugLog.instance.log('onGetSetsFinished =============');
+        DebugLog.instance.log(data);
+
+        let rdata = data.data;
+        this._fingerSets = rdata.activity_sets;
+        this.emit(FingerGameModelEvent.GET_SETS_FINISHED, this._fingerSets);
+    }
+
+    //socket request
+    //获取手指操节信息
+    public getTaskID(set_id: number) {
+        let socketData = new SocketData({
+            action: FingerGameModel.START_TASK,
+            data:{
+                finger_set_id:set_id
+            }
+        });
+        SocketManager.getInstance().send(socketData);
+    }
+
+    private onGetTaskIDFinished(data: any) {
+        DebugLog.instance.log('onGetTaskIDFinished =============');
         DebugLog.instance.log(data);
         let rdata = data.data;
 
@@ -190,9 +217,9 @@ export class FingerGameModel {
             this._activities = rdata.activities;
 
             //获取到了手指操节信息
-            this.emit(FingerGameModelEvent.GET_LIST_FINISHED, this._activities);
+            this.emit(FingerGameModelEvent.START_TASK_FINISHED, this._activities);
         } else {
-            DebugLog.instance.error('onGetListFinished: 数据结构不正确', data);
+            DebugLog.instance.error('onGetTaskIDFinished: 数据结构不正确', data);
         }
     }
 
