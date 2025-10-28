@@ -468,8 +468,11 @@ export class SkewersManager {
             // 该串烧任务所用时间
             if(data.data["task_duration"]){
                 this._skewersGames_duration = data.data["task_duration"];
-            }  
+            }
 
+            if(data.data["task_brain_training_tiers"]){
+                this._skewersGames_tiers = data.data["task_brain_training_tiers"]; //"LANGUAGE":2,"EXECUTION":2,"MEMORY":1,"JUDGMENT":2,"CALCULATION":1."COMPREHENSION":1
+            }
             
             if(this._skewersGames_complete && TaskManager.getInstance().curTask&& TaskManager.getInstance().curTask.type != TaskType.Review){
                UIManager.getInstance().showPanel(GameScoreAlert.NAME,this._skewersGames_scores);
@@ -487,6 +490,15 @@ export class SkewersManager {
 
     public get curTaskComplete():boolean{
         return this._skewersGames_complete;
+    }
+
+    private _skewersGames_tiers:any = {};
+    public get curTaskTiers():any{
+        return this._skewersGames_tiers;
+    }
+
+    public getCurTaskTierByKey(key:string):number{
+        return this._skewersGames_tiers[key]||0;
     }
 
     private _skewersGames_scores 

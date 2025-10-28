@@ -175,9 +175,11 @@ export class GameScoreAlert extends BasePanel {
                 continue;
             }
 
+            let tier = SkewersManager.getInstance().getCurTaskTierByKey(this._scoreDatas[i]["cog_ability"]);
+
             // 延迟每个节点的动画，创造依次出现的效果
             this.scheduleOnce(() => {
-                this.playSingleStampAnimation(scoreNode);
+                this.playSingleStampAnimation(scoreNode,tier);
             }, i * 0.2);
         }
     }
@@ -186,7 +188,7 @@ export class GameScoreAlert extends BasePanel {
      * 播放单个节点的敲图章动画
      * @param scoreNode 要播放动画的节点
      */
-    private playSingleStampAnimation(scoreNode: Node) {
+    private playSingleStampAnimation(scoreNode: Node,tier:number) {
         if (!scoreNode) return;
 
         // 显示节点
@@ -223,8 +225,7 @@ export class GameScoreAlert extends BasePanel {
                         // 获取分数并计算目标宽度
                         const scoreLabel = scoreNode.getChildByName("score").getComponent(Label);
                         if (scoreLabel) {
-                            const score = parseInt(scoreLabel.string);
-                            const width = score / 100 * 250;
+                            const width = tier * 50;
                             
                             // 初始宽度设为0
                             starBarMaskTransform.width = 0;
