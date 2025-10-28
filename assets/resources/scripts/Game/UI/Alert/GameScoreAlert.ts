@@ -225,7 +225,7 @@ export class GameScoreAlert extends BasePanel {
                         // 获取分数并计算目标宽度
                         const scoreLabel = scoreNode.getChildByName("score").getComponent(Label);
                         if (scoreLabel) {
-                            const width = tier * 50;
+                            const width = tier * 50 / 2;
                             
                             // 初始宽度设为0
                             starBarMaskTransform.width = 0;
