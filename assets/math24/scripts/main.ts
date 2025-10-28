@@ -95,6 +95,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     // 计算过程记录
     private calculationSteps: any[] = []; // 记录每一步的计算过程
     private currentStepIndex: number = -1; // 当前步骤索引
+    
+    // 运算符按钮描边管理
+    private currentSelectedOperator: Node = null; // 当前选中的运算符按钮
 
     protected audioUrls = ['music/24_bgm', "music/win","music/fail"];
 
@@ -296,6 +299,57 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
+    /**
+     * 设置运算符按钮描边
+     * @param operatorNode 要设置描边的运算符按钮节点
+     */
+    private setOperatorOutline(operatorNode: Node) {
+        // 清除之前选中的按钮描边
+        this.clearOperatorOutline();
+        
+        // 设置新按钮的描边
+        if (operatorNode) {
+            const outlineNode = operatorNode.getChildByName("outline");
+            if (outlineNode) {
+                outlineNode.active = true;
+                this.currentSelectedOperator = operatorNode;
+                DebugLog.instance.log('设置运算符按钮描边:', operatorNode.name);
+            } else {
+                DebugLog.instance.warn('未找到outline子节点:', operatorNode.name);
+            }
+        }
+    }
+    
+    /**
+     * 清除所有运算符按钮描边
+     */
+    private clearOperatorOutline() {
+        if (this.currentSelectedOperator) {
+            const outlineNode = this.currentSelectedOperator.getChildByName("outline");
+            if (outlineNode) {
+                outlineNode.active = false;
+                DebugLog.instance.log('清除运算符按钮描边:', this.currentSelectedOperator.name);
+            }
+            this.currentSelectedOperator = null;
+        }
+    }
+    
+    /**
+     * 清理所有运算符按钮的描边节点
+     */
+    private clearAllOperatorOutlines() {
+        const operatorNodes = [this.addNode, this.minusNode, this.multiplyNode, this.divideNode];
+        operatorNodes.forEach(node => {
+            if (node) {
+                const outlineNode = node.getChildByName("outline");
+                if (outlineNode) {
+                    outlineNode.active = false;
+                }
+            }
+        });
+        DebugLog.instance.log('清理所有运算符按钮描边节点');
+    }
+
     // 修改四则运算符方法
     addFunc() {
         // 必须先选卡片再选运算符
@@ -303,6 +357,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.log('请先选择卡片');
             return;
         }
+        
+        // 检查场上是否只剩下一张牌（即其他牌都被隐藏了）
+        const activeCardsCount = this.cards.filter(card => card.active).length;
+        if (activeCardsCount === 1) {
+            DebugLog.instance.log('场上只剩下一张牌，无法进行运算');
+            return;
+        }
+        
+        // 设置描边效果
+        this.setOperatorOutline(this.addNode);
         
         // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
@@ -329,6 +393,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
+        // 检查场上是否只剩下一张牌（即其他牌都被隐藏了）
+        const activeCardsCount = this.cards.filter(card => card.active).length;
+        if (activeCardsCount === 1) {
+            DebugLog.instance.log('场上只剩下一张牌，无法进行运算');
+            return;
+        }
+        
+        // 设置描边效果
+        this.setOperatorOutline(this.minusNode);
+        
         // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
             // 替换最后一个运算符
@@ -354,6 +428,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
         
+        // 检查场上是否只剩下一张牌（即其他牌都被隐藏了）
+        const activeCardsCount = this.cards.filter(card => card.active).length;
+        if (activeCardsCount === 1) {
+            DebugLog.instance.log('场上只剩下一张牌，无法进行运算');
+            return;
+        }
+        
+        // 设置描边效果
+        this.setOperatorOutline(this.multiplyNode);
+        
         // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
             // 替换最后一个运算符
@@ -378,6 +462,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.log('请先选择卡片');
             return;
         }
+        
+        // 检查场上是否只剩下一张牌（即其他牌都被隐藏了）
+        const activeCardsCount = this.cards.filter(card => card.active).length;
+        if (activeCardsCount === 1) {
+            DebugLog.instance.log('场上只剩下一张牌，无法进行运算');
+            return;
+        }
+        
+        // 设置描边效果
+        this.setOperatorOutline(this.divideNode);
         
         // 如果已经有运算符，替换最后一个；否则添加新的
         if (this.operators.length >= this.selectedValues.length) {
@@ -473,6 +567,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 清空计算步骤记录
         this.calculationSteps = [];
         this.currentStepIndex = -1;
+        
+        // 清除运算符按钮描边
+        this.clearOperatorOutline();
+        
+        // 清理所有运算符按钮的描边节点
+        this.clearAllOperatorOutlines();
         
         // 恢复标签颜色
         this.formulaLabel.color = new Color(0, 0, 0, 255);
@@ -709,6 +809,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.operatorTypes = [];
         this.calculationSteps = [];
         this.currentStepIndex = -1;
+        
+        // 清除运算符按钮描边
+        this.clearAllOperatorOutlines();
 
         // 记录初始状态（4张牌的状态）
         this.recordInitialState();
@@ -1245,6 +1348,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.operators = [];
             this.operatorTypes = [];
             
+            // 清除运算符按钮描边
+            this.clearOperatorOutline();
+            
             // 更新卡牌值数组，将计算结果赋予第二张卡牌
             this.cardValues[currentCardIndex] = result;
             DebugLog.instance.log(`卡牌${currentCardIndex}的值已更新为: ${result}`);
@@ -1312,6 +1418,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.selectedValues = [newResult];
             this.operators = [];
             this.operatorTypes = [];
+            
+            // 清除运算符按钮描边
+            this.clearOperatorOutline();
             
             // 更新卡牌值数组，将新的计算结果赋予新卡牌
             this.cardValues[currentCardIndex] = newResult;
