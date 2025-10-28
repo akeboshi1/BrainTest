@@ -11,6 +11,42 @@ export interface PackageDepDetail {
 
 export type PackageDeps = Record<string, PackageDepDetail[]>;
 
+export interface TsFileInfo {
+    tsPath: string;         // .ts 文件路径
+    metaPath: string;       // .ts.meta 文件路径
+    uuid: string;           // 从 meta 文件中读取的 UUID
+    compressedUuid: string;  // 压缩后的uuid
+    relativePath: string;   // 相对于项目根目录的路径
+}
+
+export interface TsFileList {
+    files: TsFileInfo[];
+    totalCount: number;
+}
+
+export interface ResourceFileInfo {
+    filePath: string;        // 文件路径
+    relativePath: string;    // 相对于项目根目录的路径
+    fileName: string;        // 文件名
+    fileType: 'ts' | 'prefab' | 'scene';  // 文件类型
+    content?: string;        // 文件内容（用于分析）
+}
+
+export interface CompareList {
+    files: ResourceFileInfo[];
+    totalCount: number;
+}
+
+export interface UnusedTsFile {
+    tsFile: TsFileInfo;
+    reason: string;          // 未被使用的原因
+}
+
+export interface UnusedTsFileList {
+    unusedFiles: UnusedTsFile[];
+    totalCount: number;
+}
+
 export async function analyzePackageDependencies(
     assetsDir: string
 ): Promise<PackageDeps> {
@@ -214,4 +250,355 @@ function getImportsForFile(filePath: string, targetPkg: string, deps: PackageDep
     return fileEntry 
         ? `导入路径: ${fileEntry.imports.join(', ')}`
         : '';
+}
+
+/**
+ * 获取项目根目录下 /assets 文件夹中所有的 .ts 文件和对应的 .meta 文件信息
+ * @param projectRoot 项目根目录路径
+ * @returns 包含所有 .ts 文件信息的列表
+ */
+export async function getAllTsFilesWithMeta(projectRoot: string): Promise<TsFileList> {
+    const tsFiles: TsFileInfo[] = [];
+    
+    try {
+        // 只扫描 assets 目录
+        const assetsDir = path.join(projectRoot, 'assets');
+        
+        // 检查 assets 目录是否存在
+        if (!await fs.pathExists(assetsDir)) {
+            console.warn(`Assets 目录不存在: ${assetsDir}`);
+            return {
+                files: [],
+                totalCount: 0
+            };
+        }
+        
+        // 递归查找 assets 目录下的所有 .ts 文件
+        const tsFilePaths = await findTsFilesRecursively(assetsDir);
+        
+        for (const tsPath of tsFilePaths) {
+            const metaPath = tsPath + '.meta';
+            
+            // 检查对应的 .meta 文件是否存在
+            if (await fs.pathExists(metaPath)) {
+                try {
+                    // 读取 .meta 文件内容
+                    const metaContent = await fs.readJson(metaPath);
+                    const uuid = metaContent.uuid || '';
+                    const compressedUuid = Editor.Utils.UUID.compressUUID(uuid, false);
+                    // 计算相对于项目根目录的路径
+                    const relativePath = path.relative(projectRoot, tsPath);
+                    
+                    tsFiles.push({
+                        tsPath,
+                        metaPath,
+                        uuid,
+                        compressedUuid,
+                        relativePath
+                    });
+                } catch (error) {
+                    console.warn(`读取 meta 文件失败: ${metaPath}`, error);
+                    // 即使 meta 文件读取失败，也记录这个 ts 文件
+                    const relativePath = path.relative(projectRoot, tsPath);
+                    tsFiles.push({
+                        tsPath,
+                        metaPath,
+                        uuid: '',
+                        compressedUuid: '',
+                        relativePath
+                    });
+                }
+            } else {
+                // 没有对应的 .meta 文件
+                const relativePath = path.relative(projectRoot, tsPath);
+                tsFiles.push({
+                    tsPath,
+                    metaPath,
+                    uuid: '',
+                    compressedUuid: '',
+                    relativePath
+                });
+            }
+        }
+        
+        console.log(`在 assets 目录中找到 ${tsFiles.length} 个 .ts 文件`);
+        
+    } catch (error) {
+        console.error('获取 .ts 文件列表失败:', error);
+    }
+    
+    return {
+        files: tsFiles,
+        totalCount: tsFiles.length
+    };
+}
+
+/**
+ * 递归查找目录下的所有 .ts 文件
+ * @param dir 目录路径
+ * @returns .ts 文件路径数组
+ */
+async function findTsFilesRecursively(dir: string): Promise<string[]> {
+    const tsFiles: string[] = [];
+    
+    try {
+        const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+        
+        for (const entry of entries) {
+            const fullPath = path.join(dir, entry.name);
+            
+            if (entry.isDirectory()) {
+                // 在 assets 目录中，跳过一些不需要搜索的目录
+                if (['library', 'temp'].includes(entry.name)) {
+                    continue;
+                }
+                
+                // 递归搜索子目录
+                const subTsFiles = await findTsFilesRecursively(fullPath);
+                tsFiles.push(...subTsFiles);
+            } else if (entry.isFile() && entry.name.endsWith('.ts')) {
+                tsFiles.push(fullPath);
+            }
+        }
+    } catch (error) {
+        console.warn(`读取目录失败: ${dir}`, error);
+    }
+    
+    return tsFiles;
+}
+
+/**
+ * 方法a：获取assets目录下指定类型的资源文件（.ts .prefab .scene），排除.meta文件
+ * @param projectRoot 项目根目录路径
+ * @returns 包含所有指定类型文件信息的列表
+ */
+export async function getCompareList(projectRoot: string): Promise<CompareList> {
+    const resourceFiles: ResourceFileInfo[] = [];
+    
+    try {
+        const assetsDir = path.join(projectRoot, 'assets');
+        
+        // 检查 assets 目录是否存在
+        if (!await fs.pathExists(assetsDir)) {
+            console.warn(`Assets 目录不存在: ${assetsDir}`);
+            return {
+                files: [],
+                totalCount: 0
+            };
+        }
+        
+        // 递归查找指定类型的文件
+        const filePaths = await findResourceFilesRecursively(assetsDir);
+        
+        for (const filePath of filePaths) {
+            const relativePath = path.relative(projectRoot, filePath);
+            const fileName = path.basename(filePath);
+            const ext = path.extname(filePath).toLowerCase();
+            
+            let fileType: 'ts' | 'prefab' | 'scene';
+            if (ext === '.ts') {
+                fileType = 'ts';
+            } else if (ext === '.prefab') {
+                fileType = 'prefab';
+            } else if (ext === '.scene') {
+                fileType = 'scene';
+            } else {
+                continue; // 跳过其他类型的文件
+            }
+            
+            // 读取文件内容（用于后续分析）
+            let content = '';
+            try {
+                content = await fs.readFile(filePath, 'utf-8');
+            } catch (error) {
+                console.warn(`读取文件内容失败: ${filePath}`, error);
+            }
+            
+            resourceFiles.push({
+                filePath,
+                relativePath,
+                fileName,
+                fileType,
+                content
+            });
+        }
+        
+        console.log(`找到 ${resourceFiles.length} 个资源文件（.ts/.prefab/.scene）`);
+        
+    } catch (error) {
+        console.error('获取资源文件列表失败:', error);
+    }
+    
+    return {
+        files: resourceFiles,
+        totalCount: resourceFiles.length
+    };
+}
+
+/**
+ * 递归查找目录下的指定类型文件
+ * @param dir 目录路径
+ * @returns 文件路径数组
+ */
+async function findResourceFilesRecursively(dir: string): Promise<string[]> {
+    const files: string[] = [];
+    
+    try {
+        const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+        
+        for (const entry of entries) {
+            const fullPath = path.join(dir, entry.name);
+            
+            if (entry.isDirectory()) {
+                // 跳过一些不需要搜索的目录
+                if (['library', 'temp'].includes(entry.name)) {
+                    continue;
+                }
+                
+                // 递归搜索子目录
+                const subFiles = await findResourceFilesRecursively(fullPath);
+                files.push(...subFiles);
+            } else if (entry.isFile()) {
+                const ext = path.extname(entry.name).toLowerCase();
+                // 只包含指定类型的文件，排除.meta文件
+                if (['.ts', '.prefab', '.scene'].includes(ext) && !entry.name.endsWith('.meta')) {
+                    files.push(fullPath);
+                }
+            }
+        }
+    } catch (error) {
+        console.warn(`读取目录失败: ${dir}`, error);
+    }
+    
+    return files;
+}
+
+/**
+ * 方法b：检查不被使用的ts文件
+ * 使用getAllTsFilesWithMeta读取ts和uuid列表作为orglist
+ * 与compareList中的资源进行引用关系判断
+ * @param projectRoot 项目根目录路径
+ * @returns 不被使用的ts文件列表
+ */
+export async function checkUnusedTsFiles(projectRoot: string): Promise<UnusedTsFileList> {
+    const unusedFiles: UnusedTsFile[] = [];
+    
+    try {
+        console.log('开始检查不被使用的ts文件...');
+        
+        // 获取orglist（所有ts文件和uuid）
+        const orgList = await getAllTsFilesWithMeta(projectRoot);
+        console.log(`orgList: 找到 ${orgList.totalCount} 个ts文件`);
+        
+        // 获取compareList（所有资源文件）
+        const compareList = await getCompareList(projectRoot);
+        console.log(`compareList: 找到 ${compareList.totalCount} 个资源文件`);
+        
+        // 为每个ts文件检查是否被引用
+        for (const tsFile of orgList.files) {
+            let isUsed = false;
+            let usedBy: string[] = [];
+            
+            // 检查是否被compareList中的文件引用
+            for (const resourceFile of compareList.files) {
+                // 排除自己引用自己
+                if (resourceFile.filePath === tsFile.tsPath) {
+                    continue;
+                }
+                
+                let isReferenced = false;
+                
+                if (resourceFile.fileType === 'ts') {
+                    // 对于ts文件，检查import语句
+                    isReferenced = checkTsFileImport(resourceFile.content || '', tsFile);
+                    if (isReferenced) {
+                        usedBy.push(`ts: ${resourceFile.fileName}`);
+                    }
+                } else if (resourceFile.fileType === 'prefab' ) {
+                    // 对于prefab和scene文件，检查是否包含ts文件的uuid
+                    isReferenced = checkFileContainsUuid(resourceFile.content || '', tsFile.uuid);
+                    if (isReferenced) {
+                        usedBy.push(`${resourceFile.fileType}: ${resourceFile.fileName}`);
+                    }
+                    
+                }else if (resourceFile.fileType === 'scene') {
+                    // 对于scene文件，检查是否包含ts文件的uuid 压缩后的uuid
+                    isReferenced = checkFileContainsUuid(resourceFile.content || '', tsFile.compressedUuid);
+                    if (isReferenced) {
+                        usedBy.push(`${resourceFile.fileType}: ${resourceFile.fileName}`);
+                    }
+                }
+                
+                if (isReferenced) {
+                    isUsed = true;
+                }
+            }
+            
+            // 如果没有被引用，添加到unusedFiles
+            if (!isUsed) {
+                unusedFiles.push({
+                    tsFile,
+                    reason: `未被任何文件引用`
+                });
+            }
+        }
+        
+        console.log(`检查完成，发现 ${unusedFiles.length} 个不被使用的ts文件`);
+        
+    } catch (error) {
+        console.error('检查不被使用的ts文件失败:', error);
+    }
+    
+    return {
+        unusedFiles,
+        totalCount: unusedFiles.length
+    };
+}
+
+/**
+ * 检查ts文件中是否import了指定的ts文件
+ * @param content 文件内容
+ * @param targetTsFile 目标ts文件
+ * @returns 是否被引用
+ */
+function checkTsFileImport(content: string, targetTsFile: TsFileInfo): boolean {
+    if (!content || !targetTsFile.uuid) {
+        return false;
+    }
+    
+    // 获取目标文件的相对路径（不带扩展名）
+    const targetRelativePath = targetTsFile.relativePath.replace(/\.ts$/, '');
+    const targetFileName = path.basename(targetTsFile.tsPath, '.ts');
+    
+    // 检查import语句
+    const importRegex = /(?:import|export)(?:.*?from\s+)?['"](.*?)['"]/g;
+    let match;
+    
+    while ((match = importRegex.exec(content)) !== null) {
+        const importPath = match[1];
+        
+        // 检查是否引用了目标文件
+        if (importPath.includes(targetRelativePath) || 
+            importPath.includes(targetFileName) ||
+            importPath.endsWith(targetFileName)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * 检查文件中是否包含指定的uuid
+ * @param content 文件内容
+ * @param uuid 要查找的uuid
+ * @returns 是否包含uuid
+ */
+function checkFileContainsUuid(content: string, uuid: string): boolean {
+    if (!content || !uuid) {
+        return false;
+    }
+    
+    // 直接检查文件内容是否包含uuid
+    return content.includes(uuid);
 } 

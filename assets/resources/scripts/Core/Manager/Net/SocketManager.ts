@@ -1,4 +1,3 @@
-import { BaseManager } from "../BaseManager";
 import { DebugLog } from "../../Util/DebugLog";
 import { EventManager } from "../Event/EventManager";
 import { SocketData, SocketDataStatus } from "../../../Core/Manager/Net/SocketData";
@@ -7,13 +6,14 @@ import { LoginErrorCode, LoginManager } from "../LoginManager/LoginManager";
 import { ReconnectPanel } from "../../../Game/UI/Login/ReconnectPanel";
 import { BundleName } from "../Load/BundleName";
 import { AlertManager, AlertData } from "../Alert/AlertManager";
-import { Prefab, resources, Node, instantiate, Label, UITransform } from "cc";
+import { Prefab, resources, Node, instantiate, UITransform,} from "cc";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
 import { SocketUtil } from "./SocketUtil";
 import { LayerUtil } from "../../Util/LayerUtil";
 import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
+import { SceneManager } from "../Scene/SceneManager";
 
-export class SocketManager extends BaseManager {
+export class SocketManager {
     private static _instance: SocketManager;
 
     private _socket: WebSocket;
@@ -34,6 +34,7 @@ export class SocketManager extends BaseManager {
 
     // ScreenLocker 相关属性
     private _socketScreenLockerNode: Node = null;
+    private _messageTimeoutAlertShowState: boolean = false;
 
     public static getInstance(): SocketManager {
         if (!SocketManager._instance) {
@@ -43,7 +44,7 @@ export class SocketManager extends BaseManager {
         return SocketManager._instance;
     }
 
-    init() {
+    private init() {
         this._processingSocketData = null;
         this._pendingSocketDatas = [];
         this._processingTimeoutTimer = null;
@@ -66,7 +67,13 @@ export class SocketManager extends BaseManager {
                 this._socketScreenLockerPrefab = prefab;
             }
         });
+
+        SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
     }
+
+    private onSceneChanged(sceneName: string, lastSceneName: string) {
+        this._messageTimeoutAlertShowState = false;
+    }   
 
     cleanSocketDatas() {
         this._processingSocketData = null;
@@ -107,19 +114,31 @@ export class SocketManager extends BaseManager {
      */
     private handleProcessingTimeout(): void {
         if (this._processingSocketData) {
-            DebugLog.instance.error(`消息处理超时，清空处理中的消息: ${this._processingSocketData.action}, uid: ${this._processingSocketData.uid}`);
+            DebugLog.instance.error(`消息处理超时，将消息重新加入队列: ${this._processingSocketData.action}, uid: ${this._processingSocketData.uid}`);
 
+            // 刷新UID并重新加入队列头部
             this._processingSocketData.refreshUid();
+            this._pendingSocketDatas.unshift(this._processingSocketData);
+            
+            // 清空当前处理中的消息
+            this._processingSocketData = null;
+            
             // 关闭 ScreenLocker
             this.closeSocketScreenLocker();
 
-            const alertData: AlertData = new AlertData();
-            alertData.message = "网络状况差，请检查网络环境";
-            alertData.confirmButtonText = "重试";
-            alertData.confirmCb = () => {
-                this.sendMessageToSocket(this._processingSocketData);
-            };
-            AlertManager.getInstance().showAlert(alertData);
+            if(!this._messageTimeoutAlertShowState){
+                this._messageTimeoutAlertShowState = true;
+                const alertData: AlertData = new AlertData();
+                alertData.message = "网络状况差，请检查网络环境";
+                alertData.confirmButtonText = "重试";
+                alertData.confirmCb = () => {
+                    this._messageTimeoutAlertShowState = false;
+                    if(this._socket && this._socket.readyState === this._socket.OPEN){
+                        this.processNextPendingMessage();
+                    }
+                };
+                AlertManager.getInstance().showAlert(alertData);
+            } 
         }
     }
 
@@ -233,6 +252,7 @@ export class SocketManager extends BaseManager {
             const nextMessage = this._pendingSocketDatas.shift();
             this._processingSocketData = nextMessage;
             
+            DebugLog.instance.log(`开始处理消息: ${nextMessage.action}, uid: ${nextMessage.uid}`);
             this.sendMessageToSocket(nextMessage);
         } else {
             // 所有消息都处理完了，关闭 ScreenLocker
@@ -357,16 +377,23 @@ export class SocketManager extends BaseManager {
 
         DebugLog.instance.error("网络重连：", SocketUtil.getInstance().socketType);
 
+        // 如果当前有正在处理的消息，将其重新加入队列头部
+        if(this._processingSocketData){
+            this._processingSocketData.refreshUid();
+            this._pendingSocketDatas.unshift(this._processingSocketData);
+            this._processingSocketData = null;
+        }
+
         for (let attempt = 1; attempt <= this._reconnectMaxCount; attempt++) {
             EventManager.getInstance().emit(eventName);
             try {
                 await this.initSocket();
                 DebugLog.instance.error('Reconnected successfully.');
 
-                // 重连成功后，如果有正在处理的消息，重新发送
-                if (this._processingSocketData) {
-                    DebugLog.instance.log(`重连成功，重新发送处理中的消息: ${this._processingSocketData.action}, uid: ${this._processingSocketData.uid}`);
-                    this.sendMessageToSocket(this._processingSocketData); // sendMessageToSocket 会自动开始超时计时
+                // 重连成功后，检查是否有待处理的消息需要发送
+                if (this._pendingSocketDatas.length > 0 || this._processingSocketData) {
+                    DebugLog.instance.log(`重连成功，开始处理待发送消息，队列长度: ${this._pendingSocketDatas.length}`);
+                    this.processNextPendingMessage();
                 }
 
                 UIManager.getInstance().hidePanel(ReconnectPanel.NAME);
