@@ -801,6 +801,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     
         this._isGameCompleted = false; // 重置游戏完成状态
         
+        // 重置倒计时
+        if (this.timerComponent) {
+            this.timerComponent.resetTimer();
+        }
+        
         // 清空所有状态
         this.usedCardIndices.clear();
         this.selectedCards = [];
@@ -842,6 +847,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.mainView.active = true;
         this.playAudio("music/win");
         
+        // 停止倒计时
+        if (this.timerComponent) {
+            this.timerComponent.pauseTimer();
+        }
+        
         // 记录成功，可以在这里添加分数统计等逻辑
         DebugLog.instance.log('成功解决题目:', this.currentQuestion);
         
@@ -869,6 +879,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     onFail(){
         this._isGameCompleted = true; // 设置游戏完成状态
         this.playAudio("music/fail");
+        
+        // 停止倒计时
+        if (this.timerComponent) {
+            this.timerComponent.pauseTimer();
+        }
         
         // 可以在这里显示正确解法
         DebugLog.instance.log('题目解法:', this.currentQuestion?.solutions);
@@ -928,6 +943,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         // 完全重置状态
         this.resetCardStatus();
+        
+        // 重置倒计时
+        if (this.timerComponent) {
+            this.timerComponent.resetTimer();
+        }
         
         // 再次确保卡片使用状态被清空
         this.usedCardIndices.clear();
