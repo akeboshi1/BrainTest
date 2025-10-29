@@ -1,6 +1,6 @@
-import { _decorator, Component, instantiate, Node, Prefab, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from 'cc';
+import { _decorator, Component, instantiate, Node, NodeEventType, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from 'cc';
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
-import { fingerGameConfig, SectionConfig } from '../config/fingerGameConfig';
+import { fingerGameConfig, SectionConfig, SetIndexConfig } from '../config/fingerGameConfig';
 import { SectionSelectItem } from './SectionSelectItem';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
@@ -11,17 +11,18 @@ import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageCo
 import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 import { IFingerSet } from './FingerGameProtocol';
+import { IVListItemInfo, VList } from '../../resources/scripts/Core/Component/VList';
+import { FingerGameSectionSelectGroupItem } from './FingerGameSectionSelectGroupItem';
+import { ScreenAdapter } from '../../resources/scripts/Adapter/ScreenAdapter';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameSectionsSelectPanel')
 export class FingerGameSectionsSelectPanel extends BasePanel {
     public static NAME = 'FingerGameSectionsSelectPanel';
 
-    @property(Node)
-    private itemContainer: Node = null;
+    @property(VList)
+    private itemContainer: VList = null;
 
-    @property(Prefab)
-    private itemPrefab: Prefab = null;
 
     @property(Node)
     private titleBg: Node = null;
@@ -32,6 +33,8 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
     @property(Node)
     private titleText: Node = null;
 
+    private _isVListInited: boolean = false;
+
     private _model: FingerGameModel = null;
     private _sectionDatasMap: Map<number, SectionConfig[]> = new Map();
 
@@ -40,38 +43,62 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
     private _configApplied: boolean = false; // 防止重复应用配置
 
     start() {
-
+        super.start();
     }
 
     restore(data: { fingerSets: IFingerSet[], model: FingerGameModel }) {
         this._model = data.model;
 
         let setIndex = 0;
+        let fingerSetIndexList = [];
+        let _data;
         data.fingerSets.forEach(sets => {
             let sectionIndex = 0;
+            let setData = fingerGameConfig.fingerSets[setIndex];
+            _data = {index:setIndex,config:setData};
+            fingerSetIndexList.push({index:setIndex,config:setData});
             sets.activities.forEach(section => {
                 if (section.is_evaluable) {
-                    let sectionData = fingerGameConfig.fingerSets[setIndex].sections[sectionIndex];
+                    let sectionData = setData.sections[sectionIndex];
                     if (!this._sectionDatasMap.has(setIndex)) {
                         this._sectionDatasMap.set(setIndex, []);
                     }
                     this._sectionDatasMap.get(setIndex).push(sectionData);
-                    
-                    //todo 修改成按照套平铺的结构
-                    this.createSectionItem(setIndex, sectionIndex, sectionData);
-                    
+
+                    // //todo 修改成按照套平铺的结构
+                    // this.createSectionItem(setIndex, sectionIndex, sectionData);
+
                     sectionIndex++;
                 }
             });
             setIndex++;
         });
+
+        let self = this;
+        if(!this._isVListInited){
+            this.itemContainer.init({
+                onData: (info: IVListItemInfo<SetIndexConfig>) => {
+                    info.node.getComponent(FingerGameSectionSelectGroupItem).setData(info.data, self.onSelectSection.bind(self));
+                }
+            });
+            this.node.on(NodeEventType.SIZE_CHANGED, this.updateView, this);
+            this._isVListInited = true;
+        }
+
+        this.itemContainer.setData(fingerSetIndexList);
+
+        this.itemContainer.updateItemSizes();
+    }
+
+    private updateView(){
+
     }
 
     //todo 修改成按照套平铺的结构
     createSectionItem(setIndex: number, sectionIndex: number, sectionData: SectionConfig) {
-        const item = instantiate(this.itemPrefab);
-        item.setParent(this.itemContainer);//todo 修改成按照套平铺的结构
-        item.getComponent(SectionSelectItem).setData(sectionData, setIndex, sectionIndex, this.onSelectSection.bind(this, setIndex, sectionIndex));
+        // const item = instantiate(this.itemPrefab);
+        // item.setParent(this.itemContainer);//todo 修改成按照套平铺的结构
+        // item.getComponent(SectionSelectItem).setData(sectionData, setIndex, sectionIndex, this.onSelectSection.bind(this, setIndex, sectionIndex));
     }
 
     //选择某一界开始的入口

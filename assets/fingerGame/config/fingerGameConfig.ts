@@ -15,11 +15,21 @@ export interface SectionConfig {
     handMode?: number;         // 手的模式 1分开(分左右手框)2 合并 (用一个大框)
 }
 
+export interface SectionIndexConfig{
+    index:number;
+    config:SectionConfig;
+}
+
 export interface SetConfig {
     name: string;              // 这套手指操的名称
     sections: SectionConfig[]; // 该套手指操包含的所有节
     description?: string;      // 这套手指操的描述（可选）
     icon?: string;             // 这套手指操的图标（可选）
+}
+
+export interface SetIndexConfig{
+    index:number;
+    config:SetConfig;
 }
 
 export interface FingerGameConfig {

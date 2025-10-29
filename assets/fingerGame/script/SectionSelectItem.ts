@@ -1,5 +1,5 @@
 import { _decorator, assetManager, Component, Label, Node, Sprite, SpriteFrame } from 'cc';
-import { SectionConfig } from '../config/fingerGameConfig';
+import { SectionConfig, SetConfig } from '../config/fingerGameConfig';
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
@@ -20,7 +20,7 @@ export class SectionSelectItem extends Component {
 
     }
 
-    public setData(sectionConfig: SectionConfig, setIndex: number = 0, sectionIndex: number = 0, onClickStart: (setIndex: number, sectionIndex: number) => void = null) {
+    public setData(sectionConfig: SetConfig, setIndex: number = 0, sectionIndex: number = 0, onClickStart: (setIndex: number, sectionIndex: number) => void = null) {
         this._onClickStartHandler = onClickStart;
         this._setIndex = setIndex;
         this._sectionIndex = sectionIndex;
