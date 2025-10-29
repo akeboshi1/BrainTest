@@ -6,6 +6,9 @@ import { BasePanel } from '../../../Core/UI/BasePanel';
 import { PersonalCenterManager } from '../../PersonalCenterManager/PersonalCenterManager';
 import { stat } from 'fs';
 import { FrameComponent } from '../../../Core/Component/FrameComponent';
+import { ChatCharacter } from './Model/ChatProtocol';
+import { ChatCharactorChoosePanel } from './ChatCharactorChoosePanel';
+import { BundleName } from '../../../Core/Manager/Load/BundleName';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChatPanel')
@@ -59,6 +62,18 @@ export class ChatPanel extends BasePanel {
     @property(Node)
     private thinkingBubbleNode: Node = null;
 
+    @property(Node)
+    private reloadCharactorBtn: Node = null;
+
+    @property(Label)
+    private charactorBtnLabel: Label = null;
+    @property(Sprite)
+    private charactorBtnIcon: Sprite = null;
+    @property(Sprite)
+    private charactorBtnBg: Sprite = null;
+    @property(Color)
+    private charactorBtnColor: Color = new Color(255, 255, 255, 255);
+
     private _sublineBtnTurnOnStr: string = "开启字幕";
     private _sublineBtnTurnOffStr: string = "关闭字幕";
     private _sublineShowState: boolean = false;
@@ -77,6 +92,13 @@ export class ChatPanel extends BasePanel {
     private _loadingDotCount: number = 0;
     private _loadingAnimationRunning: boolean = false;
 
+    private _framePath: string = 'texture/chatpanel/v2/charactor/denglijun_changfa';
+    private _reloadPath: string = '';
+
+    // 队列化加载管理
+    private _isLoadingFrameComponent: boolean = false;
+    private _frameComponentQueue: string[] = [];
+
     onEnable(): void {
         this._chatModel = ChatModel.getInstance();
         this._chatModel.init();
@@ -85,11 +107,15 @@ export class ChatPanel extends BasePanel {
         this._chatModel.microphoneStateProvider.addListener(this.onMicrophoneStateChanged.bind(this));
         this._chatModel.subtitleListProvider.addListener(this.onSubtitleListChanged.bind(this));
         this._chatModel.aiSpeakingStateProvider.addListener(this.onAiSpeakerStatueChanged.bind(this));
-
+        this._chatModel.charactorListProvider.addListener(this.onCharactorListChanged.bind(this));
+        this._chatModel.charactorChoosenSkin.addListener(this.onCharactorChoosenSkinChanged.bind(this));
         this._chatModel.getRecordingPermission();
 
         this.sublineScrollView.node.active = this._sublineShowState;
-        this.loadFrameComponent();
+
+        this._chatModel.getCharactorList();
+
+        UIManager.getInstance().registerPanel(ChatCharactorChoosePanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatCharactorChoosePanel", ChatCharactorChoosePanel);
     }
 
     onDisable(): void {
@@ -98,24 +124,86 @@ export class ChatPanel extends BasePanel {
         this._chatModel.microphoneStateProvider.removeAllListeners();
         this._chatModel.subtitleListProvider.removeAllListeners();
         this._chatModel.aiSpeakingStateProvider.removeAllListeners();
+        this._chatModel.charactorListProvider.removeAllListeners();
+        this._chatModel.charactorChoosenSkin.removeAllListeners();
 
         this._chatModel.endChat();
         this._chatModel.reset();
+
+        // 清理加载队列
+        this._frameComponentQueue = [];
+        this._isLoadingFrameComponent = false;
     }
 
-    loadFrameComponent() {
+    /**
+     * 队列化加载帧组件
+     * 如果正在加载中，会将请求添加到队列中等待执行
+     * @param path 资源路径
+     */
+    loadFrameComponent(path: string) {
+        // 如果正在加载，添加到队列中
+        if (this._isLoadingFrameComponent) {
+            this._frameComponentQueue.push(path);
+            console.log(`loadFrameComponent: 正在加载中，已添加到队列。当前队列长度: ${this._frameComponentQueue.length}`);
+            return;
+        }
+
+        // 直接执行加载
+        this._executeLoadFrameComponent(path);
+    }
+
+    /**
+     * 内部方法：实际执行加载帧组件的逻辑
+     * @param path 资源路径
+     */
+    private _executeLoadFrameComponent(path: string) {
+        // 标记为正在加载
+        this._isLoadingFrameComponent = true;
+
+        // 清理旧的组件
+        this.frameComponentNode.removeAllChildren();
+
         this.showLoadingAnimation();
-        resources.load('texture/chatpanel/v2/charactor/denglijun', Prefab, (err, prefab) => {
+
+        resources.load(path, Prefab, (err, prefab) => {
             if (err) {
                 console.log("loadFrameComponent error: " + err);
                 this.hideLoadingAnimation();
+                this.reloadCharactorBtn.active = true;
+                this._reloadPath = path;
+                
+                // 标记加载完成，处理队列中的下一个任务
+                this._isLoadingFrameComponent = false;
+                this._processNextInQueue();
                 return;
             }
+
             const frameComponent = instantiate(prefab);
             this.frameComponentNode.addChild(frameComponent);
-            frameComponent.getComponent(FrameComponent).playAnimation("frame", 22, true, true);
+            const aispeakingState = this._chatModel.aiSpeakingStateProvider.data;
+            frameComponent.getComponent(FrameComponent).playAnimation(aispeakingState == AISpeakingState.SPEAKING ? "talking" : "idle", 22, true, true);
             this.hideLoadingAnimation();
+
+            // 标记加载完成，处理队列中的下一个任务
+            this._isLoadingFrameComponent = false;
+            this._processNextInQueue();
         });
+    }
+
+    /**
+     * 处理队列中的下一个加载任务
+     */
+    private _processNextInQueue() {
+        if (this._frameComponentQueue.length > 0) {
+            const nextPath = this._frameComponentQueue.shift();
+            console.log(`loadFrameComponent: 处理队列中的下一个任务: ${nextPath}`);
+            this._executeLoadFrameComponent(nextPath);
+        }
+    }
+
+    onClickReloadCharactorBtn() {
+        this.reloadCharactorBtn.active = false;
+        this.loadFrameComponent(this._reloadPath);
     }
 
     showLoadingAnimation() {
@@ -277,6 +365,10 @@ export class ChatPanel extends BasePanel {
         console.log("刷新测试界面：AI说话状态： " + state);
         this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
         this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+
+        if(this.frameComponentNode.children.length > 0) {
+            this.frameComponentNode.children[0].getComponent(FrameComponent).playAnimation(state == AISpeakingState.SPEAKING ? "talking" : "idle", 22, true, true);
+        }
     }
 
     onPremissionChanged(bool: Boolean) {
@@ -286,6 +378,16 @@ export class ChatPanel extends BasePanel {
         } else {
             UIManager.getInstance().hidePanel(ChatPanel.NAME);
         }
+    }
+
+    onCharactorListChanged(charactorMap: Map<number, ChatCharacter>) {
+        this._chatModel.getChoosenCharactor();
+    }
+
+    onCharactorChoosenSkinChanged(skin: string) {
+        console.log("刷新测试界面：已选择角色皮肤： " + skin);
+        this._framePath = 'texture/chatpanel/v2/charactor/' + skin;
+        this.loadFrameComponent(this._framePath);
     }
 
     onClickCloseBtn() {
@@ -572,6 +674,17 @@ export class ChatPanel extends BasePanel {
     private updateLoadingText(): void {
         const dots = '.'.repeat(this._loadingDotCount);
         this.loadingLabel.string = `形象加载中${dots}`;
+    }
+
+    public showCharactorChoosePanel():void {
+        UIManager.getInstance().showPanel(ChatCharactorChoosePanel.NAME, {closeCallback: this.setCharactorBtnState.bind(this)});
+        this.setCharactorBtnState(true);
+    }
+
+    public setCharactorBtnState(isShow: boolean):void {
+        this.charactorBtnBg.color = isShow ? this.charactorBtnColor : Color.WHITE;
+        this.charactorBtnIcon.color = isShow ? Color.WHITE : this.charactorBtnColor;
+        this.charactorBtnLabel.color = isShow ? Color.WHITE : this.charactorBtnColor;
     }
 }
 
