@@ -27,6 +27,9 @@ export class GameScoreAlert extends BasePanel {
     @property(Label)
     timeLabel: Label = null;
 
+    @property(Label)
+    totalScoreLabel1:Label = null;
+
     @property({ type: [Node] })
     scoreNodes: Node[] = [];
 
@@ -90,6 +93,9 @@ export class GameScoreAlert extends BasePanel {
         this.titleLabel.string = TaskManager.getInstance().curTask.name;
         this.descLabel.string = `总关卡数：${scoreLen}个维度，共${SkewersManager.getInstance().getTotalSkewersGamesCount()}关`;
         this.totalScoreLabel.string = SkewersManager.getInstance().curTaskTotalScore + "";
+
+
+
         const duration = SkewersManager.getInstance().curTaskDuration;
         const minutes = Math.floor(duration / 60);
         const seconds = Math.floor(duration % 60);
@@ -105,8 +111,9 @@ export class GameScoreAlert extends BasePanel {
                 // let iconSprite = scoreNode.getChildByName("icon").getComponent(Sprite);
                 let nameLabel = scoreNode.getChildByName("name").getComponent(Label);
                 let scoreLabel = scoreNode.getChildByName("score").getComponent(Label);
-
-
+                let starBarMaskNode = scoreNode.getChildByName("starBar").getChildByName("maskNode");
+                const starBarMaskTransform = starBarMaskNode.getComponent(UITransform);
+                starBarMaskTransform.width = 0;
                 let name = this._scoreDatas[i]["cog_ability"];
                 switch (name) {
                     case SkewersGameType.Calculator:
@@ -142,8 +149,12 @@ export class GameScoreAlert extends BasePanel {
                     // 分数小于60分，设置为红色 #FF5733
                     scoreLabel.color = new Color(255, 87, 51, 255);
                 }
+                // 不再在start中执行maskNode的tween动画，将在playSingleStampAnimation中执行
             }
         }
+
+        let totalScore = len*100;
+        this.totalScoreLabel1.string = `满分:${totalScore}分`;
 
         // 延迟显示并播放敲图章动画
         this.scheduleOnce(() => {
@@ -164,9 +175,11 @@ export class GameScoreAlert extends BasePanel {
                 continue;
             }
 
+            let tier = SkewersManager.getInstance().getCurTaskTierByKey(this._scoreDatas[i]["cog_ability"]);
+
             // 延迟每个节点的动画，创造依次出现的效果
             this.scheduleOnce(() => {
-                this.playSingleStampAnimation(scoreNode);
+                this.playSingleStampAnimation(scoreNode,tier);
             }, i * 0.2);
         }
     }
@@ -175,7 +188,7 @@ export class GameScoreAlert extends BasePanel {
      * 播放单个节点的敲图章动画
      * @param scoreNode 要播放动画的节点
      */
-    private playSingleStampAnimation(scoreNode: Node) {
+    private playSingleStampAnimation(scoreNode: Node,tier:number) {
         if (!scoreNode) return;
 
         // 显示节点
@@ -203,6 +216,38 @@ export class GameScoreAlert extends BasePanel {
                 scale: new Vec3(1, 1, 1)
             }, { easing: 'backOut' })
             .call(() => {
+                // 在敲击动画完成后，执行maskNode的尺寸tween动画
+                // 获取starBar的maskNode并执行尺寸tween
+                const starBarMaskNode = scoreNode.getChildByName("starBar")?.getChildByName("maskNode");
+                if (starBarMaskNode) {
+                    const starBarMaskTransform = starBarMaskNode.getComponent(UITransform);
+                    if (starBarMaskTransform) {
+                        // 获取分数并计算目标宽度
+                        const scoreLabel = scoreNode.getChildByName("score").getComponent(Label);
+                        if (scoreLabel) {
+                            const width = tier * 50 / 2;
+                            
+                            // 初始宽度设为0
+                            starBarMaskTransform.width = 0;
+                            
+                            // 执行宽度tween动画
+                            const maskTween = tween(starBarMaskTransform)
+                                .to(0.8, { width: width })
+                                .call(() => {
+                                    // 动画完成后从数组中移除
+                                    const index = this._activeTweens.indexOf(maskTween);
+                                    if (index > -1) {
+                                        this._activeTweens.splice(index, 1);
+                                    }
+                                })
+                                .start();
+                            
+                            // 将maskTween添加到活跃列表中
+                            this._activeTweens.push(maskTween);
+                        }
+                    }
+                }
+                
                 // 动画完成后从数组中移除
                 const index = this._activeTweens.indexOf(tweenAnimation);
                 if (index > -1) {

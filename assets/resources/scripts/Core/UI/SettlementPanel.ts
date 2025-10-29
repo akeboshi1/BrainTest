@@ -14,6 +14,10 @@ export class SettlementPanel extends BasePanel{
 
     private residueTime:number = 0;
 
+    private answerCardNumbers: string = ""; // 题目数字
+    private answerSolution: string = ""; // 解法
+    private mode: "result" | "answer" = "result"; // 面板模式：result(结果) 或 answer(答案)
+
     @property(Node)
     bg0 :Node = null;
     @property(Node)
@@ -38,6 +42,9 @@ export class SettlementPanel extends BasePanel{
 
     @property(Node)
     private winTitle:Node = null;
+
+    @property(Node)
+    private answerTitle:Node = null;
 
     @property(Label)
     private titlelabel:Label = null;
@@ -108,6 +115,9 @@ export class SettlementPanel extends BasePanel{
             this.result = data.result;
             this.againHandler = data.againHandler;
             this.nextHandler = data.nextHandler;
+            this.answerCardNumbers = data.answerCardNumbers || ""; // 获取题目数字
+            this.answerSolution = data.answerSolution || ""; // 获取解法
+            this.mode = data.mode || "result"; // 获取面板模式
             // this.title = data.title || ""; // 获取自定义标题
         }
         
@@ -120,6 +130,40 @@ export class SettlementPanel extends BasePanel{
     }
 
     public initEnd() {
+        // 答案显示模式
+        if (this.mode === "answer") {
+            this.loseTitle.active = false;
+            this.winTitle.active = false;
+            this.quitTitle.active = false;
+            this.btn1Node.active = false;
+
+            // 显示答案标题
+            if (this.answerTitle) {
+                this.answerTitle.active = true;
+                this.answerTitle.setPosition(-200, 200, 0);
+                SettlementPanel.bezierTo(this.answerTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
+            }
+
+             if (this.titlelabel) {
+                this.titlelabel.node.active = true;
+                this.titlelabel.string = this.answerCardNumbers;
+            }
+
+            if (this.progressLabel) {
+                this.progressLabel.node.active = true;
+                this.progressLabel.string = this.answerSolution;
+            }
+            
+           
+            // 设置按钮文本
+            if (this.btn2Label) {
+                this.btn2Label.string = "知道了";
+            }
+            
+            AudioManager.getInstance().playRest();
+            return;
+        }
+        
         if (this.result === null) {
             // 退出确认模式
             // this.bg0.active = true;
@@ -129,6 +173,7 @@ export class SettlementPanel extends BasePanel{
             this.loseTitle.active = false;
             this.winTitle.active = false;
             this.quitTitle.active = true;
+            this.answerTitle.active = false;
             this.titlelabel.string = "是否退出当前训练？";
             this.titlelabel.node.setPosition(0, 0, 0);
             SettlementPanel.bezierTo(this.quitTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
@@ -150,6 +195,7 @@ export class SettlementPanel extends BasePanel{
             this.loseTitle.active = false;
             this.quitTitle.active = false;
             this.winTitle.active = true;
+            this.answerTitle.active = false;
             this.winTitle.setPosition(-200, 0, 0);
             SettlementPanel.bezierTo(this.winTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
             this.titlelabel.string = "恭喜通关";
@@ -179,6 +225,7 @@ export class SettlementPanel extends BasePanel{
             this.loseTitle.active = true;
             this.quitTitle.active = false;
             this.winTitle.active = false;
+            this.answerTitle.active = false;
             this.titlelabel.string = "请再接再厉";
             SettlementPanel.bezierTo(this.loseTitle, 0.5, v3(-200, 200, 0), v3(-100, 400, 0), v3(0, 200, 0), {}).start();
             SettlementPanel.bezierTo(this.titlelabel.node, 0.5, v3(-200, 0, 0), v3(-100, 200, 0), v3(0, 0, 0), {}).start();
