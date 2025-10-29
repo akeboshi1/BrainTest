@@ -1,11 +1,13 @@
 
-import { director, native, sys, WebView } from "cc";
-import { BaseManager } from "../../../../Core/Manager/BaseManager";
+import { director, native, sys } from "cc";
 import { EventManager } from "../../../../Core/Manager/Event/EventManager";
 import { DebugLog } from "../../../../Core/Util/DebugLog";
 import { NativeEventManager } from "../../../../Core/Manager/Event/NativeEventManager";
 import { NativeEvent } from "../../../../Core/Manager/Event/NativeEvent";
 import { DataProvider } from "../../../../Core/Data/DataProvider";
+import { ChatCharacter, ChatProtocol, ChatSkin } from "./ChatProtocol";
+import { SocketManager } from "../../../../Core/Manager/Net/SocketManager";
+import { SocketData } from "../../../../Core/Manager/Net/SocketData";
 
 // 字幕列表DataProvider（需要特殊方法，保留子类）
 export class SubtitleListDataProvider extends DataProvider<SubtitleItem[]> {
@@ -97,8 +99,23 @@ export class ChatModel {
     public readonly aiSpeakingStateProvider: DataProvider<AISpeakingState>;
     public readonly subtitleListProvider: SubtitleListDataProvider;
 
+    public readonly charactorListProvider: DataProvider<Map<number, ChatCharacter>>;
+    public readonly charactorChoosenSkin: DataProvider<string>;
+
     // 用户消息暂存
     private _pendingUserMessage: string | null = null;
+
+    private _defaultCharactorId: number = 1;
+    private _defaultCharactorSkin: number = 1;
+    private _selectedCharactorId: number = 0;
+    private _selectedCharactorSkin: number = 0;
+
+    public get selectedCharactorId(): number {
+        return this._selectedCharactorId;
+    }
+    public get selectedCharactorSkin(): number {
+        return this._selectedCharactorSkin;
+    }
 
     constructor() {
         // 初始化各个DataProvider
@@ -118,6 +135,9 @@ export class ChatModel {
         this.aiSpeakingStateProvider.data = AISpeakingState.IDLE;
 
         this.subtitleListProvider = new SubtitleListDataProvider();
+
+        this.charactorListProvider = new DataProvider<Map<number, ChatCharacter>>();
+        this.charactorChoosenSkin = new DataProvider<string>();
     }
 
     private initFlag = false;
@@ -125,6 +145,7 @@ export class ChatModel {
     init() {
         if (!this.initFlag) {
             this.initNativeEventListeners();
+            this.initWebSocketListeners();
             this.initFlag = true;
         }
     }
@@ -143,6 +164,12 @@ export class ChatModel {
             NativeEventManager.getInstance().on(NativeEvent.CHAT_ASSISTANT_DELTA, this.onChatAssistantDelta, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_ASSISTANT_FINAL, this.onChatAssistantFinal, this);
         }
+    }
+
+    private initWebSocketListeners() {
+        EventManager.getInstance().on(ChatProtocol.GET_CHARACTERS, this.onGetCharactorList, this);
+        EventManager.getInstance().on(ChatProtocol.GET_CHOOSEN_CHARACTER, this.onGetChoosenCharactor, this);
+        EventManager.getInstance().on(ChatProtocol.CHOOSEN_CHARACTER, this.onChooseCharactor, this);
     }
 
     /**
@@ -260,7 +287,7 @@ export class ChatModel {
 
     // 原生事件回调方法（具体实现细节待补充）
     private onChatRecordingPerm(data: any): void {
-        console.log("权限状态"+ typeof data.code + " " + data.code + " " + (data.code == 0 || data.code == "0"));
+        console.log("权限状态" + typeof data.code + " " + data.code + " " + (data.code == 0 || data.code == "0"));
         let bool = data.code == 0 || data.code == "0";
         if (bool) {
             console.log("获取权限成功");
@@ -292,7 +319,7 @@ export class ChatModel {
 
     private onChatUser(data: any): void {
         let text = data.text;
-        
+
         // 检查AI是否正在说话
         if (this.aiSpeakingStateProvider.data === AISpeakingState.SPEAKING) {
             // AI正在说话，暂存用户消息
@@ -306,7 +333,7 @@ export class ChatModel {
     }
 
     private onChatAssistantDelta(data: any): void {
-        if(this.aiSpeakingStateProvider.data != AISpeakingState.SPEAKING){
+        if (this.aiSpeakingStateProvider.data != AISpeakingState.SPEAKING) {
             this.aiSpeakingStateProvider.data = AISpeakingState.SPEAKING;
         }
         let text = data.text;
@@ -314,13 +341,82 @@ export class ChatModel {
     }
 
     private onChatAssistantFinal(data: any): void {
-        if(this.aiSpeakingStateProvider.data != AISpeakingState.FINISHED){
+        if (this.aiSpeakingStateProvider.data != AISpeakingState.FINISHED) {
             this.aiSpeakingStateProvider.data = AISpeakingState.FINISHED;
             if (this._pendingUserMessage) {
                 this.addSubtitle(this._pendingUserMessage, "user");
                 this._pendingUserMessage = null;
                 DebugLog.instance.log('ChatModel: 处理暂存的用户消息');
             }
+        }
+    }
+
+
+    //------------websocket request----------//
+    public getCharactorList(): void {
+        SocketManager.getInstance().send(new SocketData({
+            action: ChatProtocol.GET_CHARACTERS,
+            data: {}
+        }));
+    }
+
+    private onGetCharactorList(data: any): void {
+        let characters = data.data.result;
+        let charactorMap = new Map<number, ChatCharacter>();
+        characters.forEach(character => {
+            charactorMap.set(character.id, character);
+        });
+        this.charactorListProvider.data = charactorMap;
+    }
+
+    public getChoosenCharactor(): void {
+        SocketManager.getInstance().send(new SocketData({
+            action: ChatProtocol.GET_CHOOSEN_CHARACTER,
+            data: {}
+        }))
+    }
+
+    private onGetChoosenCharactor(data: any): void {
+        let result = data.data.result;
+        let chat_character_id = result? result.chat_character_id : this._defaultCharactorId;
+        let chat_character_skin_id = result? result.chat_character_skin_id : this._defaultCharactorSkin;
+
+        if(this.charactorListProvider.data.has(chat_character_id)){
+            let skinlist:ChatSkin[] = this.charactorListProvider.data.get(chat_character_id).skins;
+            skinlist.forEach(chatskin =>{
+                if(chatskin.id == chat_character_skin_id){
+                    this.charactorChoosenSkin.data = chatskin.code;
+                    this._selectedCharactorId = chat_character_id;
+                    this._selectedCharactorSkin = chat_character_skin_id;
+                }
+            });
+        }
+    }
+
+    public chooseCharactor(character_id:number,skin_id:number){
+        SocketManager.getInstance().send(new SocketData({
+            action: ChatProtocol.CHOOSEN_CHARACTER,
+            data: {
+                chat_character_id: character_id,
+                chat_character_skin_id: skin_id
+            }
+        }));
+    }
+
+    private onChooseCharactor(data: any): void {
+        let result = data.data;
+        let chat_character_id = result.chat_character_id;
+        let chat_character_skin_id = result.chat_character_skin_id;
+
+        if(this.charactorListProvider.data.has(chat_character_id)){
+            let skinlist:ChatSkin[] = this.charactorListProvider.data.get(chat_character_id).skins;
+            skinlist.forEach(chatskin =>{
+                if(chatskin.id == chat_character_skin_id){
+                    this.charactorChoosenSkin.data = chatskin.code;
+                    this._selectedCharactorId = chat_character_id;
+                    this._selectedCharactorSkin = chat_character_skin_id;
+                }
+            });
         }
     }
 }
