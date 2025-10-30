@@ -912,7 +912,7 @@ export class VList<T = any> extends Component {
 
     //#region runtime args
     //分层时的节点，仅开启分层渲染有用，value中的child包括key所指的根节点
-    private itemChildMap: Map<Node, { child: Node, path: string, skipParent: boolean, origPos?: Vec3 }[]> = new Map();
+    private itemChildMap: Map<Node, { child: Node, path: string, skipParent: boolean }[]> = new Map();
     private layerMap: Map<string, Node> = new Map()
     private refreshDelayFuncs: Function[] = [];
     private relativeListCom: VList[] = [];
@@ -1174,19 +1174,19 @@ export class VList<T = any> extends Component {
         if (this.isRenderByLayer && this.itemPrefab) {
             this.layerMap.clear();
             let root = this.itemPrefab.data as Node;
-            let scan = (n: Node, path: string = "") => {
+            let scan = (n: Node, path: string = "", position = v3()) => {
                 let curPath = `${path}${n.name}`;
                 let node = new Node(curPath);
                 let trans = node.addComponent(UITransform);
                 node.setParent(this.content);
                 trans.anchorPoint = v2(0, 1);
-                node.position = root.getComponent(UITransform).convertToNodeSpaceAR(n.getComponent(UITransform).convertToWorldSpaceAR(v3()));
+                node.position = position;
                 this.layerMap.set(curPath, node);
                 if (!n.getComponent(VList))
                     if (!this.ignoreComList.some(m => n.getComponent(m)))
                         for (let i = 0; i < n.children.length; i++) {
                             let c = n.children[i]
-                            scan(c, `${curPath}-`);
+                            scan(c, `${curPath}-`, v3(position.x + c.position.x, position.y + c.position.y, position.z));
                         }
             }
             scan(root);
@@ -1724,11 +1724,11 @@ export class VList<T = any> extends Component {
                     ? this.itemSizes[info.idx] 
                     : this.realItemSize;
                 res.getComponent(UITransform).setContentSize(itemSize);
-                let childrenData: { child: Node, path: string, skipParent: boolean, origPos?: Vec3 }[] = [];
+                let childrenData: { child: Node, path: string, skipParent: boolean }[] = [];
                 this.itemChildMap.set(res, childrenData);
                 let scan = (n: Node, path: string = "", isSkipParent: boolean) => {
                     let curPath = `${path}${n.name}`;
-                    childrenData.push({ child: n, path: curPath, skipParent: isSkipParent, origPos: n.position.clone() });
+                    childrenData.push({ child: n, path: curPath, skipParent: isSkipParent });
                     let childSkipParent = isSkipParent || this.ignoreComList.some(m => n.getComponent(m));
                     if (!n.getComponent(VList))
                         for (let i = 0; i < n.children.length; i++) {
@@ -1744,10 +1744,7 @@ export class VList<T = any> extends Component {
                     let p = d.path;
                     let wgt = n.getComponent(Widget);
                     if (wgt) {
-                        // 记录原始局部坐标，在对齐后恢复
-                        let orig = d.origPos ? d.origPos.clone() : n.position.clone();
-                        // wgt.updateAlignment();
-                        n.setPosition(orig);
+                        wgt.updateAlignment();
                         wgt.enabled = false;
                     }
                     n.setParent(this.layerMap.get(p.replace(/\//g, "-")))
