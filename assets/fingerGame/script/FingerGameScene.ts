@@ -12,9 +12,8 @@ import { FingerGameResultData, FingerGameResult } from './FingerGameResultData';
 import { FingerGameSetFinishPanel, IFingerGameSetFinishPanelData } from './FingerGameSetFinishPanel';
 import { FingerGameCompletePanel, IFingerGameCompletePanelData } from './FingerGameCompletePanel';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
-import { IFingerActivity, IFingerActivityResult, IFingerActivityScore } from './FingerGameProtocol';
+import { IFingerActivity, IFingerActivityResult, IFingerActivityScore, IFingerSet } from './FingerGameProtocol';
 import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
-import { FingerGameSectionsPanel } from './FingerGameSectionsPanel';
 import { GameType } from '../../resources/scripts/Core/Scene/SceneModel/BaseGameModel';
 import { FingerGameSectionsSelectPanel } from './FingerGameSectionsSelectPanel';
 import { FingerGameAnimationPanel } from './FingerGameAnimationPanel';
@@ -24,6 +23,7 @@ import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
 import { GlobalConfigManager } from '../../resources/scripts/Config/GlobalConfigManager';
 import { ImageLoaderUtil } from '../../resources/scripts/Core/Util/ImageLoaderUtil';
 import { Environment, PublishSettingConfig } from '../../app/PublishSettingConfig';
+import { FingerGameSetsSelectPanel } from './FingerGameSetsSelectPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameScene')
@@ -110,17 +110,16 @@ export class FingerGameScene extends Component {
         // 注册面板
         UIManager.getInstance().registerPanel(FingerGameCompletePanel.NAME, BundleName.FINGERGAME, "panel/FingerGameCompletePanel", FingerGameCompletePanel);
         UIManager.getInstance().registerPanel(FingerGameSetFinishPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSetFinishPanel", FingerGameSetFinishPanel);
-        UIManager.getInstance().registerPanel(FingerGameSectionsPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSectionsPanel", FingerGameSectionsPanel);
         UIManager.getInstance().registerPanel(FingerGameSectionsSelectPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSectionsSelectPanel", FingerGameSectionsSelectPanel);
         UIManager.getInstance().registerPanel(FingerGameAnimationPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameAnimationPanel", FingerGameAnimationPanel);
-
+        UIManager.getInstance().registerPanel(FingerGameSetsSelectPanel.NAME, BundleName.FINGERGAME, "panel/FingerGameSetsSelectPanel", FingerGameSetsSelectPanel);
         // 预加载所有面板预制体
         const panelNames = [
             FingerGameCompletePanel.NAME,
             FingerGameSetFinishPanel.NAME,
-            FingerGameSectionsPanel.NAME,
             FingerGameSectionsSelectPanel.NAME,
-            FingerGameAnimationPanel.NAME
+            FingerGameAnimationPanel.NAME,
+            FingerGameSetsSelectPanel.NAME
         ];
 
         try {
@@ -151,12 +150,12 @@ export class FingerGameScene extends Component {
             NativeEventManager.getInstance().on(NativeEvent.POSTVIDEODATAERROR, this.onPostVideoDataError, this);
         }
 
+        this._model.on(FingerGameModelEvent.GET_SETS_FINISHED, this.onGetSetsFinished, this);
         this._model.on(FingerGameModelEvent.SKEWERSGAME_NEXT, this.onSkewersGameNext, this);
-        this._model.on(FingerGameModelEvent.GET_LIST_FINISHED, this.onGetTaskListFinished, this);
         this._model.on(FingerGameModelEvent.GET_ALL_TASK_ACTIVITIES_RESULT, this.onGetAllTaskActivitiesResult, this);
         this._model.on(FingerGameModelEvent.SELECT_EXPERIENCE_SECTION, this.onSelectExperienceSection, this);
 
-        this._model.getTaskList();
+        this._model.getSets();
     }
 
     private get currentSectionIndex(): number {
@@ -170,9 +169,11 @@ export class FingerGameScene extends Component {
         this.noticeNode.active = true;
     }
 
-    private onSkewersGameNext(){
+    private onSkewersGameNext(setIndex: number){
         this.noticeNode.active = true;
         this.btnExit.active = true;
+        this._currentSetIndex = setIndex;
+        this._currentSectionIndex = 0;
     }
 
     onGetAllTaskActivitiesResult(data: IFingerActivityResult) {
@@ -185,32 +186,18 @@ export class FingerGameScene extends Component {
         this._completePanelData.data = panelData;
     }
 
-    onGetTaskListFinished(data: IFingerActivity[]) {
-        let currentSectionIndex = this._model.currentSectionIndex;
-        const setIndex = 0; // 默认第一套
-        this._currentSetIndex = setIndex;
-        this._currentSectionIndex = currentSectionIndex;
-
-        let sectionData: SectionConfig[] = [];
-        for (let i = 0; i < data.length; i++) {
-            if (this._model.isExperienceMode() && !data[i].is_evaluable) {
-                continue;
-            }
-            let sectionConfig = fingerGameConfig.fingerSets[setIndex].sections[data[i].id - 1];
-            sectionConfig.handMode = data[i].hand_mode;
-            sectionData.push(sectionConfig);
-        }
+    onGetSetsFinished(data: IFingerSet[]) {
         let self = this;
-
-        // 游戏大厅
         if (this._model.isExperienceMode()) {
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,true,true).then(() => {
+            // 游戏大厅进入
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { fingerSets: data, model: this._model },false, null, true, true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
                 self.btnExit.active = false;
             });
         } else {
-            UIManager.getInstance().showPanel(FingerGameSectionsPanel.NAME, {sectionDatas:sectionData,model: this._model},false,null,true,true).then(() => {
+            // 主页面进入
+            UIManager.getInstance().showPanel(FingerGameSetsSelectPanel.NAME, {fingerSets:data, model: this._model}, false, null, true, true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
                 self.btnExit.active = false;
@@ -412,20 +399,10 @@ export class FingerGameScene extends Component {
         this.segmentProgressBar.node.active = false;
         this.skipButton.active = false;
         if (this._model.isExperienceMode()) {
-            const setIndex = 0; // 默认第一套
-            this._currentSetIndex = setIndex;
             this._currentSectionIndex = this._model.currentSectionIndex;
 
-            let sectionData: SectionConfig[] = [];
-            for (let i = 0; i < this._model.activities.length; i++) {
-                if (!this._model.activities[i].is_evaluable) {
-                    continue;
-                }
-                sectionData.push(fingerGameConfig.fingerSets[setIndex].sections[this._model.activities[i].id - 1]);
-            }
             let self = this;
-
-            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { sectionDatas: sectionData, model: this._model },false,null,true,true).then(() => {
+            UIManager.getInstance().showPanel(FingerGameSectionsSelectPanel.NAME, { fingerSets: this._model.fingerSets, model: this._model },false,null,true,true).then(() => {
                 self.gameViewNode.active = true;
                 self.noticeNode.active = false;
             });
@@ -480,7 +457,7 @@ export class FingerGameScene extends Component {
         this._timers.forEach(timer => clearTimeout(timer));
         this._timers = [];
 
-        this._model.getTaskList();
+        this._model.getSets();
     }
 
     onDestroy() {
@@ -863,11 +840,6 @@ export class FingerGameScene extends Component {
         UIManager.getInstance().showPanel(FingerGameSetFinishPanel.NAME, this._finishPanelData);
     }
 
-    debugMemberState() {
-        this._model._ismember = !this._model.isMember();
-        this.debugLabel.string = this._model.isMember() ? "开" : "关";
-    }
-
     debugShowImageOverlay() {
         this.showImageOverlay(this._leftrightRectUid, this._blackMaskUid);
     }
@@ -875,7 +847,6 @@ export class FingerGameScene extends Component {
     debugShowImageOverlay2() {
         this.showImageOverlay(this._emptyRectUid);
     }
-
 
     /**
      * 应用首页配置到UI

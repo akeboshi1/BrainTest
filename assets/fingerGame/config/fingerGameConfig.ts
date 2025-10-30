@@ -15,11 +15,21 @@ export interface SectionConfig {
     handMode?: number;         // 手的模式 1分开(分左右手框)2 合并 (用一个大框)
 }
 
+export interface SectionIndexConfig{
+    index:number;
+    config:SectionConfig;
+}
+
 export interface SetConfig {
     name: string;              // 这套手指操的名称
     sections: SectionConfig[]; // 该套手指操包含的所有节
     description?: string;      // 这套手指操的描述（可选）
     icon?: string;             // 这套手指操的图标（可选）
+}
+
+export interface SetIndexConfig{
+    index:number;
+    config:SetConfig;
 }
 
 export interface FingerGameConfig {
@@ -113,15 +123,78 @@ export const fingerGameConfig: FingerGameConfig = {
             description: "进阶手指操",
             icon: "image/setsImage/set_1/spriteFrame",
             sections: [
-                
-            ]
-        },
-        {
-            name: "第三套手指操",
-            description: "高难度手指操",
-            icon: "image/setsImage/set_1/spriteFrame",
-            sections: [
-                
+                {
+                    name: "热身运动",
+                    icon: "image/setsImage/section_1/spriteFrame",
+                    previewVideo: {
+                        path: "video/set1/1_preview",
+                        duration: 46.5
+                    },
+                    demoVideo: {
+                        path: "video/set1/1_demo",
+                        duration: 12.9
+                    }
+                },
+                {
+                    name: "伸屈运动",
+                    icon: "image/setsImage/section_2/spriteFrame",
+                    previewVideo: {
+                        path: "video/set1/2_preview",
+                        duration: 58.1
+                    },
+                    demoVideo: {
+                        path: "video/set1/2_demo",
+                        duration: 22.2
+                    }
+                },
+                {
+                    name: "敲五指",
+                    icon: "image/setsImage/section_3/spriteFrame",
+                    previewVideo: {
+                        path: "video/set1/3_preview",
+                        duration: 55.6
+                    },
+                    demoVideo: {
+                        path: "video/set1/3_demo",
+                        duration: 22.3
+                    }
+                },  
+                {
+                    name: "协调性训练",
+                    icon: "image/setsImage/section_4/spriteFrame",
+                    previewVideo: {
+                        path: "video/set1/4_preview",
+                        duration: 56
+                    },
+                    demoVideo: {
+                        path: "video/set1/4_demo",
+                        duration: 29.0
+                    }
+                },
+                {
+                    name: "反应力训练",
+                    icon: "image/setsImage/section_5/spriteFrame",
+                    previewVideo: {
+                        path: "video/set1/5_preview",
+                        duration: 54.1
+                    },
+                    demoVideo: {
+                        path: "video/set1/5_demo",
+                        duration: 29.2
+                    }
+                },  
+                {
+                    name: "十指对敲",
+                    icon: "image/setsImage/section_6/spriteFrame",
+                    previewVideo: {
+                        path: "video/set1/6_preview",
+                        duration: 48.9
+                    },
+                    demoVideo: {
+                        path: "video/set1/6_demo",
+                        duration: 22
+                    }
+                }
             ]
         }
     ]
