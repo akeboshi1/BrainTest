@@ -220,7 +220,7 @@ export class FingerGameScene extends Component {
      */
     public async restoreSceneData(setIndex: number, sectionIndex: number) {
         this._model.startTaskActivity();
-
+        this.btnExit.active = true;
         this._currentSetIndex = setIndex;
         this._currentSectionIndex = sectionIndex;
 
