@@ -33,8 +33,14 @@ export class FingerGameSectionSelectGroupItem extends Component {
         this._index = index;
         
         this.sectionNameLabel.string = config.config.name;
-        const activities = config.config.sections.map((section, i) => ({ index: i, config: section } as SectionIndexConfig));
-        this._activitiesCount =activities.length;
+        const activities: SectionIndexConfig[] = [];
+        for (let i = 0; i < config.config.sections.length; i++) {
+            const section = config.config.sections[i] as any;
+            if (section && section.is_evaluable === true) {
+                activities.push({ index: i, config: config.config.sections[i] } as SectionIndexConfig);
+            }
+        }
+        this._activitiesCount = activities.length;
 
         if (!this._isVListInited) {
             // 保存 activesList 的初始 y 位置

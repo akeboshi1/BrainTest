@@ -345,7 +345,7 @@
     "node": {
       "__id__": 8
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 14
     },
@@ -545,7 +545,7 @@
     "node": {
       "__id__": 16
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 22
     },
@@ -745,7 +745,7 @@
     "node": {
       "__id__": 24
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 30
     },
@@ -1158,7 +1158,7 @@
     "node": {
       "__id__": 32
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": {
       "__id__": 47
     },
