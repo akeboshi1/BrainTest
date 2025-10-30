@@ -920,6 +920,11 @@ export class VList<T = any> extends Component {
 
     private executeLock: boolean = false;//防止在foreach的时候更改数组
 
+    /**每个数据索引对应的自定义位置偏移（单位：content本地坐标系，x 右正，y 上正） */
+    private itemOffsetMap: Map<number, Vec2> = new Map();
+    /**统一作用于所有 item 的全局偏移（单位：content本地坐标系，x 右正，y 上正） */
+    private globalOffset: Vec2 = v2();
+
     private _infos: IVListItemInfo[] = [];
     private _parentInfo: IVListItemInfo<any> = null;
     /**存储每个列表项的实际尺寸 */
@@ -1637,6 +1642,45 @@ export class VList<T = any> extends Component {
             }
         }
     }
+    /**
+     * 设置指定数据索引的额外位置偏移（不会修改布局，只在渲染定位时叠加）。
+     * 注意：索引为当前 infos 的索引；当数据增删或排序后，需重新设置。
+     * @param infoIdx 数据索引（非 realIdx）
+     * @param offset 偏移向量，x 向右为正，y 向上为正
+     */
+    public setItemOffset(infoIdx: number, offset: Vec2) {
+        if (infoIdx < 0 || infoIdx >= this.infos.length) return;
+        this.itemOffsetMap.set(infoIdx, v2(offset.x, offset.y));
+        // 立即刷新视图以生效
+        this.refreshView(true);
+    }
+    /**
+     * 获取指定数据索引的偏移量，未设置则返回 (0,0)
+     */
+    public getItemOffset(infoIdx: number): Vec2 {
+        let off = this.itemOffsetMap.get(infoIdx);
+        return off ? v2(off.x, off.y) : v2();
+    }
+    /**
+     * 清除偏移。传入索引仅清除该项；不传则清除全部。
+     */
+    public clearItemOffset(infoIdx?: number) {
+        if (infoIdx == null) this.itemOffsetMap.clear();
+        else this.itemOffsetMap.delete(infoIdx);
+        this.refreshView(true);
+    }
+    /**
+     * 一次性移动所有 item：为列表设置统一偏移量。
+     * 建议用于整体平移，不影响布局计算，仅在渲染定位时叠加。
+     */
+    public setAllItemsOffset(offset: Vec2) {
+        this.globalOffset = v2(offset.x, offset.y);
+        this.refreshView(true);
+    }
+    /**获取全局偏移 */
+    public getAllItemsOffset(): Vec2 { return v2(this.globalOffset.x, this.globalOffset.y); }
+    /**清除全局偏移（等价于 setAllItemsOffset(v2())） */
+    public clearAllItemsOffset() { this.globalOffset = v2(); this.refreshView(true); }
     private getNode(info: IVListItemInfo) {
         if (!this.content) {
             console.error("没有content节点");
@@ -2748,6 +2792,17 @@ export class VList<T = any> extends Component {
                 xMin += (info.col - curTotalCol) * (avgItemWidth + this._layoutInfo.spaceX);
         }
         
+        // 叠加用户自定义偏移（以数据索引为基准）
+        let userOffset = this.itemOffsetMap.get(infoIdx);
+        if (userOffset) {
+            xMin += userOffset.x;
+            yMin += userOffset.y;
+        }
+        // 叠加全局偏移（所有 item 生效）
+        if (this.globalOffset) {
+            xMin += this.globalOffset.x;
+            yMin += this.globalOffset.y;
+        }
         return new Rect(xMin, yMin, itemSize.width, itemSize.height);
     }
     /**刷新列表 */

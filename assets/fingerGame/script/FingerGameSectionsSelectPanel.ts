@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, NodeEventType, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from 'cc';
+import { _decorator, Component, v2, Node, NodeEventType, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from 'cc';
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
 import { fingerGameConfig, SectionConfig, SetIndexConfig } from '../config/fingerGameConfig';
 import { SectionSelectItem } from './SectionSelectItem';
@@ -88,6 +88,8 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
         this.itemContainer.setData(fingerSetIndexList);
 
         this.itemContainer.updateItemSizes();
+
+        this.itemContainer.setAllItemsOffset(v2(0, 330));
     }
 
     private updateView(){
