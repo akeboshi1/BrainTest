@@ -636,7 +636,7 @@ export class GameCenterManager {
             });
         } else {
             DebugLog.instance.log('没有GuidePanel数据，直接回到游戏大厅');
-            SceneManager.getInstance().backToGameCenter();
+            SceneManager.getInstance().backToHall();
         }
     }
 
