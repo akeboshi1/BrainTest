@@ -53,24 +53,28 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
         let fingerSetIndexList = [];
         let _data;
         data.fingerSets.forEach(sets => {
-            let sectionIndex = 0;
             let setData = fingerGameConfig.fingerSets[setIndex];
             _data = {index:setIndex,config:setData};
-            fingerSetIndexList.push({index:setIndex,config:setData});
             sets.activities.forEach(section => {
-                if (section.is_evaluable) {
-                    let sectionData = setData.sections[sectionIndex];
+                // 依据 activity id 映射到配置中的对应 SectionConfig
+                const secIdxById = Math.max(0, (section.id || 1) - 1);
+                const sectionData = setData.sections[secIdxById];
+                if (sectionData) {
+                    // 将 is_evaluable 写回到配置对象，便于后续使用
+                    (sectionData as any).is_evaluable = section.is_evaluable;
+                }
+
+                // 仍然仅收集可评测的章节到映射表中
+                if (section.is_evaluable && sectionData) {
                     if (!this._sectionDatasMap.has(setIndex)) {
                         this._sectionDatasMap.set(setIndex, []);
                     }
                     this._sectionDatasMap.get(setIndex).push(sectionData);
-
                     // //todo 修改成按照套平铺的结构
-                    // this.createSectionItem(setIndex, sectionIndex, sectionData);
-
-                    sectionIndex++;
+                    // this.createSectionItem(setIndex, secIdxById, sectionData);
                 }
             });
+            fingerSetIndexList.push({index:setIndex,config:setData});
             setIndex++;
         });
 
@@ -89,7 +93,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
 
         this.itemContainer.updateItemSizes();
 
-        this.itemContainer.setAllItemsOffset(v2(0, 330));
+        this.itemContainer.setAllItemsOffset(v2(0, 230));
     }
 
     private updateView(){

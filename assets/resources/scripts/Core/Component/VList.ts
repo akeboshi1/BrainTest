@@ -912,7 +912,7 @@ export class VList<T = any> extends Component {
 
     //#region runtime args
     //分层时的节点，仅开启分层渲染有用，value中的child包括key所指的根节点
-    private itemChildMap: Map<Node, { child: Node, path: string, skipParent: boolean }[]> = new Map();
+    private itemChildMap: Map<Node, { child: Node, path: string, skipParent: boolean, origPos?: Vec3 }[]> = new Map();
     private layerMap: Map<string, Node> = new Map()
     private refreshDelayFuncs: Function[] = [];
     private relativeListCom: VList[] = [];
@@ -1605,10 +1605,13 @@ export class VList<T = any> extends Component {
             let pos = V3(this.getPosInfo(item.realIdx).center);
             let itemSize = this.getItemSize(info.idx);
             if (!this.isRenderByLayer) {
-                // 禁用 Widget，避免运行时对齐改写我们计算的位置
-                let wid = item.node.getComponent(Widget);
-                if (wid) wid.enabled = false;
                 item.node.position = pos;
+                let wid = item.node.getComponent(Widget);
+                if (wid) {
+                    wid.updateAlignment();
+                    // 移动端运行时，Widget 会在布局阶段重设位置，禁用以避免覆盖我们计算的位置
+                    wid.enabled = false;
+                }
                 // 更新节点尺寸为实际记录的尺寸
                 item.node.getComponent(UITransform).setContentSize(itemSize);
             }
@@ -1687,26 +1690,24 @@ export class VList<T = any> extends Component {
             return;
         }
         let res: Node;
-            if (!this.isRenderByLayer) {
-			if (this.nodePools.length > 0) {
-				res = this.nodePools.pop();
-				res.setParent(this.content);
-			} else {
-				res = instantiate(this.itemPrefab);
-				res.setParent(this.content);
-				let initInfo = {
-					get: info.get,
-					getNode: info.getNode,
-					list: this,
-					parent: info.parent,
-					node: res
-				}
-				this.refreshDelayFuncs.push(() => (this.cb.onInstantiate && this.cb.onInstantiate(initInfo)));
-			}
-			// 无论复用还是新建，禁用根节点 Widget，防止对齐改写位置
-			let wid = res.getComponent(Widget);
-			if (wid) wid.enabled = false;
-		}
+        if (!this.isRenderByLayer) {
+            if (this.nodePools.length > 0) {
+                res = this.nodePools.pop();
+                res.setParent(this.content);
+            }
+            else {
+                res = instantiate(this.itemPrefab);
+                res.setParent(this.content);
+                let initInfo = {
+                    get: info.get,
+                    getNode: info.getNode,
+                    list: this,
+                    parent: info.parent,
+                    node: res
+                }
+                this.refreshDelayFuncs.push(() => (this.cb.onInstantiate && this.cb.onInstantiate(initInfo)));
+            }
+        }
             else {
             if (this.nodePools.length > 0) {
                 res = this.nodePools.pop();
@@ -1723,11 +1724,11 @@ export class VList<T = any> extends Component {
                     ? this.itemSizes[info.idx] 
                     : this.realItemSize;
                 res.getComponent(UITransform).setContentSize(itemSize);
-                let childrenData: { child: Node, path: string, skipParent: boolean }[] = [];
+                let childrenData: { child: Node, path: string, skipParent: boolean, origPos?: Vec3 }[] = [];
                 this.itemChildMap.set(res, childrenData);
                 let scan = (n: Node, path: string = "", isSkipParent: boolean) => {
                     let curPath = `${path}${n.name}`;
-                    childrenData.push({ child: n, path: curPath, skipParent: isSkipParent });
+                    childrenData.push({ child: n, path: curPath, skipParent: isSkipParent, origPos: n.position.clone() });
                     let childSkipParent = isSkipParent || this.ignoreComList.some(m => n.getComponent(m));
                     if (!n.getComponent(VList))
                         for (let i = 0; i < n.children.length; i++) {
@@ -1743,7 +1744,10 @@ export class VList<T = any> extends Component {
                     let p = d.path;
                     let wgt = n.getComponent(Widget);
                     if (wgt) {
-                        wgt.updateAlignment();
+                        // 记录原始局部坐标，在对齐后恢复
+                        let orig = d.origPos ? d.origPos.clone() : n.position.clone();
+                        // wgt.updateAlignment();
+                        n.setPosition(orig);
                         wgt.enabled = false;
                     }
                     n.setParent(this.layerMap.get(p.replace(/\//g, "-")))
