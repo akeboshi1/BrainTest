@@ -1241,6 +1241,9 @@
     "setName": {
       "__id__": 19
     },
+    "nameLabel": {
+      "__id__": 27
+    },
     "setIconSprite": {
       "__id__": 11
     },

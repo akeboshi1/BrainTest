@@ -8,6 +8,9 @@ export class SetSelectItem extends Component {
     @property(Label)
     private setName: Label = null;
 
+    @property(Label)
+    private nameLabel:Label = null;
+
     @property(Sprite)
     private setIconSprite: Sprite = null;
 
@@ -22,6 +25,7 @@ export class SetSelectItem extends Component {
         this._onClickStartHandler = onClickStart;
         this._setIndex = setIndex;
         this.setName.string = setConfig.name;
+        this.nameLabel.string = setConfig.description;
         if(setConfig.icon){
             let bundle = assetManager.getBundle(BundleName.FINGERGAME); 
             bundle.load(setConfig.icon, SpriteFrame, (err, spriteFrame) => {    
