@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Component, Label, Node, Sprite, SpriteFrame, UITransform, Vec3 } from 'cc';
+import { _decorator, v2, Component, Label, Node, Sprite, SpriteFrame, UITransform, Vec3 } from 'cc';
 import { IVListItemInfo, VList } from '../../resources/scripts/Core/Component/VList';
 import { FingerGameSectionSelectItem } from './FingerGameSectionSelectItem';
 import { SectionConfig, SectionIndexConfig, SetIndexConfig } from '../config/fingerGameConfig';
@@ -53,6 +53,8 @@ export class FingerGameSectionSelectGroupItem extends Component {
         this.activesList.setData(activities);
         
         this.updateView();
+
+        this.activesList.setAllItemsOffset(v2(0, 50));
     }
 
     private updateView(){
