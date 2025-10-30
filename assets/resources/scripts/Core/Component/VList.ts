@@ -1605,10 +1605,10 @@ export class VList<T = any> extends Component {
             let pos = V3(this.getPosInfo(item.realIdx).center);
             let itemSize = this.getItemSize(info.idx);
             if (!this.isRenderByLayer) {
-                item.node.position = pos;
+                // 禁用 Widget，避免运行时对齐改写我们计算的位置
                 let wid = item.node.getComponent(Widget);
-                if (wid)
-                    wid.updateAlignment();
+                if (wid) wid.enabled = false;
+                item.node.position = pos;
                 // 更新节点尺寸为实际记录的尺寸
                 item.node.getComponent(UITransform).setContentSize(itemSize);
             }
@@ -1687,25 +1687,27 @@ export class VList<T = any> extends Component {
             return;
         }
         let res: Node;
-        if (!this.isRenderByLayer) {
-            if (this.nodePools.length > 0) {
-                res = this.nodePools.pop();
-                res.setParent(this.content);
-            }
+            if (!this.isRenderByLayer) {
+			if (this.nodePools.length > 0) {
+				res = this.nodePools.pop();
+				res.setParent(this.content);
+			} else {
+				res = instantiate(this.itemPrefab);
+				res.setParent(this.content);
+				let initInfo = {
+					get: info.get,
+					getNode: info.getNode,
+					list: this,
+					parent: info.parent,
+					node: res
+				}
+				this.refreshDelayFuncs.push(() => (this.cb.onInstantiate && this.cb.onInstantiate(initInfo)));
+			}
+			// 无论复用还是新建，禁用根节点 Widget，防止对齐改写位置
+			let wid = res.getComponent(Widget);
+			if (wid) wid.enabled = false;
+		}
             else {
-                res = instantiate(this.itemPrefab);
-                res.setParent(this.content);
-                let initInfo = {
-                    get: info.get,
-                    getNode: info.getNode,
-                    list: this,
-                    parent: info.parent,
-                    node: res
-                }
-                this.refreshDelayFuncs.push(() => (this.cb.onInstantiate && this.cb.onInstantiate(initInfo)));
-            }
-        }
-        else {
             if (this.nodePools.length > 0) {
                 res = this.nodePools.pop();
                 let children = this.itemChildMap.get(res);
