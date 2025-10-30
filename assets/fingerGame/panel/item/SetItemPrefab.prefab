@@ -311,10 +311,7 @@
       "b": 255,
       "a": 255
     },
-    "_spriteFrame": {
-      "__uuid__": "fa215393-b5da-4b96-9714-02d162f5a872@f9941",
-      "__expectedType__": "cc.SpriteFrame"
-    },
+    "_spriteFrame": null,
     "_type": 0,
     "_fillType": 0,
     "_sizeMode": 0,
@@ -452,7 +449,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 144,
+      "width": 0,
       "height": 45.36
     },
     "_anchorPoint": {
@@ -488,7 +485,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "第一套手",
+    "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
@@ -551,7 +548,7 @@
       "__id__": 1
     },
     "_left": 0,
-    "_right": 101,
+    "_right": 245,
     "_top": 22.319999999999993,
     "_bottom": 0,
     "_horizontalCenter": 0,
