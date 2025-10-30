@@ -134,6 +134,7 @@ export class FingerGameScene extends Component {
 
     start() {
         this.gameViewNode.active = false;
+        this.btnExit.active = true;
         this.segmentProgressBar.node.active = false;
         this.skipButton.active = false;
         this._model = new FingerGameModel();
@@ -398,6 +399,7 @@ export class FingerGameScene extends Component {
     private onAnimationPanelHide() {
         this.segmentProgressBar.node.active = false;
         this.skipButton.active = false;
+        this.btnExit.active = false;
         if (this._model.isExperienceMode()) {
             this._currentSectionIndex = this._model.currentSectionIndex;
 
