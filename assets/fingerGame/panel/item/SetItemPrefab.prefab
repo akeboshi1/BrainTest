@@ -136,7 +136,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 430,
+      "width": 470,
       "height": 190
     },
     "_anchorPoint": {
@@ -234,7 +234,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -120,
+      "x": -140,
       "y": 0,
       "z": 0
     },
@@ -411,7 +411,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -30,
+      "x": -10,
       "y": 50.00000000000001,
       "z": 0
     },
@@ -452,7 +452,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 216,
+      "width": 144,
       "height": 45.36
     },
     "_anchorPoint": {
@@ -488,7 +488,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "第一套手指操",
+    "_string": "第一套手",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
@@ -551,7 +551,7 @@
       "__id__": 1
     },
     "_left": 0,
-    "_right": 29,
+    "_right": 101,
     "_top": 22.319999999999993,
     "_bottom": 0,
     "_horizontalCenter": 0,
@@ -618,8 +618,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 65,
-      "y": -27,
+      "x": 85,
+      "y": -44,
       "z": 0
     },
     "_lrot": {
@@ -709,7 +709,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 108,
+      "width": 72,
       "height": 45.36
     },
     "_anchorPoint": {
@@ -745,7 +745,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "去锻炼",
+    "_string": "开始",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
@@ -966,7 +966,7 @@
     "_left": 0,
     "_right": 60,
     "_top": 0,
-    "_bottom": 33,
+    "_bottom": 16,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
     "_isAbsLeft": true,
@@ -1012,7 +1012,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 430,
+      "width": 470,
       "height": 190
     },
     "_anchorPoint": {

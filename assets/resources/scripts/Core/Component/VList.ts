@@ -1499,23 +1499,6 @@ export class VList<T = any> extends Component {
                 this.infos.forEach(e => this.refreshNodeTrans(e));
                 this.alignContentPos();
                 this.refreshView();
-                // 更新滚动范围：当列表是滚动模式时，需要强制刷新滚动视图的边界
-                // if (this.listType != EListType.Layout && this.scrollRect) {
-                //     let scrollView = this.scrollRect.getComponent(FixedScrollView);
-                //     if (scroll View && scrollView.isValid) {
-                //         // 强制刷新滚动视图的边界
-                //         // 通过触发 content 节点的尺寸变化标志来让 ScrollView 重新计算边界
-                //         let contentTrans = this.content.getComponent(UITransform);
-                //         if (contentTrans) {
-                
-                //             // 标记节点已改变，触发 ScrollView 的更新机制
-                //             contentTrans.node.hasChangedFlags |= TransformBit.POSITION;
-                //             // 触发 ScrollView 重新计算边界（通过访问内部方法或触发更新）
-                //             // 由于 _calculateBoundary 是 protected，我们通过触发节点事件来间接触发更新
-                //             contentTrans.node.emit(NodeEventType.SIZE_CHANGED);
-                //         }
-                //     }
-                // }
             }
         }
         if (this.executeLock) {

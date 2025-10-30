@@ -64,14 +64,11 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
                     (sectionData as any).is_evaluable = section.is_evaluable;
                 }
 
-                // 仍然仅收集可评测的章节到映射表中
-                if (section.is_evaluable && sectionData) {
+                if (sectionData) {
                     if (!this._sectionDatasMap.has(setIndex)) {
                         this._sectionDatasMap.set(setIndex, []);
                     }
                     this._sectionDatasMap.get(setIndex).push(sectionData);
-                    // //todo 修改成按照套平铺的结构
-                    // this.createSectionItem(setIndex, secIdxById, sectionData);
                 }
             });
             fingerSetIndexList.push({index:setIndex,config:setData});

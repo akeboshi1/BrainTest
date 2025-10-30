@@ -154,9 +154,7 @@ export class GameScoreAlert extends BasePanel {
         }
 
         let totalScore = len * 100;
-        this.totalScoreLabel1.string = `(满分:${totalScore}分)`;
-
-        // 延迟显示并播放敲图章动画
+        this.totalScoreLabel1.string = `(满分:${totalScore}分)`;// 延迟显示并播放敲图章动画
         this.scheduleOnce(() => {
             this.playStampAnimation();
         }, 0.5);
