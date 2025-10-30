@@ -3143,6 +3143,15 @@
     "itemContainer": {
       "__id__": 90
     },
+    "titleBg": {
+      "__id__": 12
+    },
+    "titleIcon": {
+      "__id__": 20
+    },
+    "titleText": {
+      "__id__": 26
+    },
     "_id": ""
   },
   {

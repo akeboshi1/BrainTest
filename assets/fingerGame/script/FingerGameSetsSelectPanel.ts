@@ -1,4 +1,4 @@
-import { _decorator, NodeEventType, Node, Prefab } from 'cc';
+import { _decorator, NodeEventType, Node, Prefab, Sprite, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from 'cc';
 import { BasePanel } from '../../resources/scripts/Core/UI/BasePanel';
 import { IFingerSet } from './FingerGameProtocol';
 import { FingerGameModel, FingerGameModelEvent } from './FingerGameModel';
@@ -7,6 +7,11 @@ import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneMa
 import { SetSelectItem } from './SetSelectItem';
 import {fingerGameConfig, SetConfig, SetIndexConfig} from '../config/fingerGameConfig';
 import {IVListItemInfo, VList} from "db://assets/resources/scripts/Core/Component/VList";
+import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageConfig';
+import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
+import { PersonalCenterManager } from '../../resources/scripts/Game/PersonalCenterManager/PersonalCenterManager';
+import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
+import { GlobalConfigManager } from '../../resources/scripts/Config/GlobalConfigManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameSetsSelectPanel')
@@ -21,6 +26,19 @@ export class FingerGameSetsSelectPanel extends BasePanel {
     @property(VList)
     itemContainer: VList;
 
+    @property(Node)
+    private titleBg: Node = null;
+
+    @property(Node)
+    private titleIcon: Node = null;
+
+    @property(Node)
+    private titleText: Node = null;
+
+    // 首页配置相关属性
+    private indexPageConfig: IndexPageConfig = new IndexPageConfig();
+    private _configApplied: boolean = false; // 防止重复应用配置
+
     onEnable(): void {
         
     }
@@ -29,6 +47,11 @@ export class FingerGameSetsSelectPanel extends BasePanel {
         if(this._model){
             this._model.off(FingerGameModelEvent.START_TASK_FINISHED, this.onGetTaskIDFinished, this);
         }
+    }
+
+    start() {
+        super.start();
+        this.applyIndexPageConfig();
     }
 
     restore(data: { fingerSets: IFingerSet[], model: FingerGameModel }) {
@@ -91,6 +114,94 @@ export class FingerGameSetsSelectPanel extends BasePanel {
     onClickBack() {
         UIManager.getInstance().hidePanel(FingerGameSetsSelectPanel.NAME);
         SceneManager.getInstance().backToHall();
+    }
+
+    /**
+     * 获取当前应该使用的配置类型
+     * @returns 配置类型：'normal' 或节日名称
+     */
+    getCurrentConfigType(): string {
+        let currentFestival = ThemeConfig.getInstance().getThemeTitle();
+        if (currentFestival == "" || currentFestival == null) {
+            currentFestival = "normal";
+        }
+        return currentFestival;
+    }
+
+    /**
+     * 从远程URL加载图片并转换为SpriteFrame
+     * @param url 远程图片URL
+     * @returns Promise<SpriteFrame>
+     */
+    async loadRemoteSprite(url: string): Promise<SpriteFrame> {
+        return new Promise((resolve, reject) => {
+            this.wwwLoadSpriteFrame(url, (spriteFrame: SpriteFrame) => {
+                if (spriteFrame) {
+                    resolve(spriteFrame);
+                } else {
+                    reject(new Error(`远程图片加载失败: ${url}`));
+                }
+            });
+        });
+    }
+
+    /**
+     * 使用assetManager加载远程图片
+     * @param path 远程图片路径
+     * @param completeHD 完成回调函数
+     */
+    public wwwLoadSpriteFrame(path: string, completeHD?: Function) {
+        assetManager.loadRemote<ImageAsset>(path,
+            {
+                xhrResponseType: "blob",
+                xhrHeader: { 'Content-Type': 'application/octet-stream' }
+            },
+            (err, imageAsset: ImageAsset) => {
+                if (err) {
+                    DebugLog.instance.error("load error  ");
+                    DebugLog.instance.log(err);
+                    completeHD(null);
+                    return;
+                }
+                const spriteFrame = new SpriteFrame();
+                const texture = new Texture2D();
+                texture.image = imageAsset;
+                spriteFrame.texture = texture;
+
+                completeHD(spriteFrame);
+            }
+        );
+    }
+
+    /**
+     * 应用首页配置到UI
+     */
+    async applyIndexPageConfig() {
+        if (this._configApplied) {
+            DebugLog.instance.log("FingerGameSetsSelectPanel配置已经应用过，跳过重复调用");
+            return;
+        }
+        DebugLog.instance.log("FingerGameSetsSelectPanel开始应用首页配置");
+        await GlobalConfigManager.getInstance().applyIndexPageConfig(
+            this.titleBg,
+            this.titleIcon,
+            this.titleText
+        );
+        this._configApplied = true;
+        DebugLog.instance.log("FingerGameSetsSelectPanel首页配置应用完成");
+    }
+
+    /**
+     * 强制刷新首页配置：清除缓存并重新加载
+     */
+    async refreshIndexPageConfig(): Promise<void> {
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        if (userData) {
+            userData.clearIndexPageConfigCache();
+            DebugLog.instance.log("FingerGameSetsSelectPanel已清除首页配置缓存，将重新加载");
+        }
+        this._configApplied = false;
+        await this.applyIndexPageConfig();
     }
 }
 
