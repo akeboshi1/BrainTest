@@ -37,6 +37,20 @@ export interface ChatCharacterListResponse {
 }
 
 /**
+ * 歌单单曲信息
+ */
+export interface ChatSong {
+    /** 歌曲ID */
+    id: number;
+    /** 歌曲名称 */
+    name: string;
+    /** 时长（秒） */
+    duration: number;
+    /** 是否正在播放 */
+    isPlaying?: boolean;
+}
+
+/**
  * 聊天角色相关协议
  */
 export namespace ChatProtocol {

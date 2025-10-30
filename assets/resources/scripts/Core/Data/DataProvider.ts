@@ -39,6 +39,10 @@ export class DataProvider<T> {
         this._triggerCallbacks();
     }
 
+    public triggerCallback(): void {
+        this._triggerCallbacks();
+    }
+
     /**
      * 检查数据是否已被设置过
      * @returns 如果数据已被设置过返回true，否则返回false

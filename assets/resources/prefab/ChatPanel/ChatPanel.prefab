@@ -734,6 +734,8 @@
       "__uuid__": "d05ef73f-dae9-4042-a81b-1bd22d82653e",
       "__expectedType__": "cc.SpriteAtlas"
     },
+    "hideOnComplete": true,
+    "autoResize": true,
     "_id": ""
   },
   {
