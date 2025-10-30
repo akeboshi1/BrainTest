@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, instantiate, Label, Node, ScrollView, Sprite, SpriteFrame, UITransform, tween, Vec3, view, Prefab, resources, UIOpacity } from 'cc';
+import { _decorator, Color, Component, instantiate, Label, Node, ScrollView, Sprite, SpriteFrame, UITransform, tween, Vec3, view, Prefab, resources, UIOpacity, Quat } from 'cc';
 import { AISpeakingState, ChatConnectionState, ChatModel, MicrophoneState, SubtitleItem } from './Model/ChatModel';
 import { LocalStorageKeyEnum, LocalStorageUtil } from '../../../Core/Util/LocalStorageUtil';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
@@ -9,6 +9,7 @@ import { FrameComponent } from '../../../Core/Component/FrameComponent';
 import { ChatCharacter } from './Model/ChatProtocol';
 import { ChatCharactorChoosePanel } from './ChatCharactorChoosePanel';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
+import { ChatMusicPanel } from './ChatMusicPanel';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChatPanel')
@@ -74,6 +75,21 @@ export class ChatPanel extends BasePanel {
     @property(Color)
     private charactorBtnColor: Color = new Color(255, 255, 255, 255);
 
+    @property(SpriteFrame)
+    private musicBtnPerple: SpriteFrame = null;
+    @property(SpriteFrame)
+    private musicBtnWhite: SpriteFrame = null;
+    @property(Sprite)
+    private musicBtn: Sprite = null;
+
+    @property(Node)
+    private state3Node: Node = null;
+
+    @property(Node)
+    private sublineBtnNode: Node = null;
+    @property(Node)
+    private changeCharactorBtnNode: Node = null;
+
     private _sublineBtnTurnOnStr: string = "开启字幕";
     private _sublineBtnTurnOffStr: string = "关闭字幕";
     private _sublineShowState: boolean = false;
@@ -84,7 +100,8 @@ export class ChatPanel extends BasePanel {
 
     // 角色节点动画状态
     private _charactorAnimating: boolean = false;
-    private _charactorCurrentState: number = 1; // 1: 状态1, 2: 状态2
+    private _charactorCurrentState: number = 1; // 1: 状态1, 2: 状态2, 3: 状态3
+    private _lastCharactorState: number = 0;
 
     private _thinkingBubbleState: boolean = false;
     private _thinkingBubbleAnimating: boolean = false;
@@ -95,9 +112,13 @@ export class ChatPanel extends BasePanel {
     private _framePath: string = 'texture/chatpanel/v2/charactor/denglijun_changfa';
     private _reloadPath: string = '';
 
+    private _musicPanelShowState: boolean = false;
+
     // 队列化加载管理
     private _isLoadingFrameComponent: boolean = false;
     private _frameComponentQueue: string[] = [];
+
+    private _musicBtnTween: any = null;
 
     onEnable(): void {
         this._chatModel = ChatModel.getInstance();
@@ -109,6 +130,7 @@ export class ChatPanel extends BasePanel {
         this._chatModel.aiSpeakingStateProvider.addListener(this.onAiSpeakerStatueChanged.bind(this));
         this._chatModel.charactorListProvider.addListener(this.onCharactorListChanged.bind(this));
         this._chatModel.charactorChoosenSkin.addListener(this.onCharactorChoosenSkinChanged.bind(this));
+        this._chatModel.currentPlayingSongState.addListener(this.onCurrentPlayingSongStateChanged.bind(this));
         this._chatModel.getRecordingPermission();
 
         this.sublineScrollView.node.active = this._sublineShowState;
@@ -116,6 +138,7 @@ export class ChatPanel extends BasePanel {
         this._chatModel.getCharactorList();
 
         UIManager.getInstance().registerPanel(ChatCharactorChoosePanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatCharactorChoosePanel", ChatCharactorChoosePanel);
+        UIManager.getInstance().registerPanel(ChatMusicPanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatMusicPanel", ChatMusicPanel);
     }
 
     onDisable(): void {
@@ -126,7 +149,7 @@ export class ChatPanel extends BasePanel {
         this._chatModel.aiSpeakingStateProvider.removeAllListeners();
         this._chatModel.charactorListProvider.removeAllListeners();
         this._chatModel.charactorChoosenSkin.removeAllListeners();
-
+        this._chatModel.currentPlayingSongState.removeAllListeners();
         this._chatModel.endChat();
         this._chatModel.reset();
 
@@ -391,6 +414,10 @@ export class ChatPanel extends BasePanel {
     }
 
     onClickCloseBtn() {
+        if(this._musicPanelShowState){
+            UIManager.getInstance().hidePanel(ChatMusicPanel.NAME);
+        }
+
         UIManager.getInstance().hidePanel(ChatPanel.NAME);
     }
 
@@ -513,6 +540,48 @@ export class ChatPanel extends BasePanel {
         } else {
             console.log(`字幕容器高度(${containerHeight}) <= 滚动视图高度(${scrollViewHeight})，无需滚动`);
         }
+    }
+     /**
+     * 角色节点动画：从状态1移动到状态2
+     * 状态1: x=0, y=200, scale=1
+     * 状态2: x=-330, y=(屏幕高度/2-100), scale=0.4
+     */
+     public animateCharactorToState3(): void {
+        if (!this.charactorNode) {
+            return;
+        }
+
+        // 如果已经在状态2，不需要动画
+        if (this._charactorCurrentState === 3) {
+            return;
+        }
+
+        // 停止当前动画
+        this.stopCharactorAnimation();
+
+        this._charactorAnimating = true;
+
+        const targetY = this.state3Node.position.y;
+
+        // 目标位置和缩放
+        const targetPosition = new Vec3(0, targetY, 0);
+        const targetScale = new Vec3(0.9, 0.9, 1);
+
+        // 执行动画
+        this._charactorCurrentState = 3;
+        tween(this.charactorNode)
+            .to(0.5, {
+                position: targetPosition,
+                scale: targetScale
+            }, {
+                easing: 'cubicOut'
+            })
+            .call(() => {
+                this._charactorAnimating = false;
+
+                console.log('角色动画完成：移动到状态3');
+            })
+            .start();
     }
 
     /**
@@ -685,6 +754,78 @@ export class ChatPanel extends BasePanel {
         this.charactorBtnBg.color = isShow ? this.charactorBtnColor : Color.WHITE;
         this.charactorBtnIcon.color = isShow ? Color.WHITE : this.charactorBtnColor;
         this.charactorBtnLabel.color = isShow ? Color.WHITE : this.charactorBtnColor;
+    }
+
+    public showMusicPanel():void {
+        if(this._musicPanelShowState){
+            return;
+        }
+        this._chatModel.getMusicList();
+        this._musicPanelShowState = true;
+        this.musicBtn.spriteFrame = this.musicBtnWhite;
+        this.onMusicPanelShow();
+        UIManager.getInstance().showPanel(ChatMusicPanel.NAME, {chatModel: this._chatModel, closeCallback: this.onMusicPanelClose.bind(this)});
+    }
+
+    private onMusicPanelShow():void {
+        this.hideSubline();
+        this._lastCharactorState = this._charactorCurrentState;
+        this.animateCharactorToState3();
+        this.sublineBtnNode.active = false;
+        this.changeCharactorBtnNode.active = false;
+    }
+
+    private onMusicPanelClose():void {
+        this._musicPanelShowState = false;
+        this.musicBtn.spriteFrame = this.musicBtnPerple;
+        this.musicBtn.node.setRotation(Quat.IDENTITY);
+        // 停止按钮旋转动画
+        if(this._musicBtnTween){
+            this._musicBtnTween.stop();
+            this._musicBtnTween = null;
+        }
+        this.musicBtn.node.angle = 0;
+
+        switch(this._lastCharactorState){
+            case 1:
+                this.animateCharactorToState1();
+                break;
+            case 2:
+                this.animateCharactorToState2();
+                break;
+            case 3:
+                this.animateCharactorToState3();
+                break;
+            default:
+                break;
+        }   
+        this._lastCharactorState = 0;
+        if(this._sublineShowState){
+            this.showSubline();
+        }else{
+            this.hideSubline();
+        }
+        this.sublineBtnNode.active = true;
+        this.changeCharactorBtnNode.active = true;
+    }
+
+    private onCurrentPlayingSongStateChanged(state: "playing" | "paused" | "ended"):void {
+        if(state === "playing"){
+            if(!this._musicBtnTween){
+                // 无限慢速旋转一圈需8秒左右（你可以调节时间）
+                this._musicBtnTween = tween(this.musicBtn.node)
+                    .by(8, { angle: 360 })
+                    .repeatForever()
+                    .start();
+            }
+        }else{
+            if(this._musicBtnTween){
+                this._musicBtnTween.stop();
+                this._musicBtnTween = null;
+            }
+            // 恢复到初始角度、防止残留角度
+            this.musicBtn.node.angle = 0;
+        }
     }
 }
 

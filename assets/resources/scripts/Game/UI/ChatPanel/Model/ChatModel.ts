@@ -5,7 +5,7 @@ import { DebugLog } from "../../../../Core/Util/DebugLog";
 import { NativeEventManager } from "../../../../Core/Manager/Event/NativeEventManager";
 import { NativeEvent } from "../../../../Core/Manager/Event/NativeEvent";
 import { DataProvider } from "../../../../Core/Data/DataProvider";
-import { ChatCharacter, ChatProtocol, ChatSkin } from "./ChatProtocol";
+import { ChatCharacter, ChatProtocol, ChatSkin, ChatSong } from "./ChatProtocol";
 import { SocketManager } from "../../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
 
@@ -57,7 +57,7 @@ export enum ChatConnectionState {
 export enum MicrophoneState {
     CLOSED = 'closed',
     OPEN = 'open',
-    PENDING = 'pending'
+    PENDING = 'pending',
 }
 
 // 休眠状态枚举
@@ -101,6 +101,10 @@ export class ChatModel {
 
     public readonly charactorListProvider: DataProvider<Map<number, ChatCharacter>>;
     public readonly charactorChoosenSkin: DataProvider<string>;
+    public readonly characterSongsProvider: DataProvider<ChatSong[]>;
+
+    public readonly currentPlayingSong: DataProvider<ChatSong>;
+    public readonly currentPlayingSongState: DataProvider<"playing" | "paused" | "ended">;
 
     // 用户消息暂存
     private _pendingUserMessage: string | null = null;
@@ -109,6 +113,8 @@ export class ChatModel {
     private _defaultCharactorSkin: number = 1;
     private _selectedCharactorId: number = 0;
     private _selectedCharactorSkin: number = 0;
+
+    private _lastMicrophoneState: MicrophoneState = MicrophoneState.CLOSED;
 
     public get selectedCharactorId(): number {
         return this._selectedCharactorId;
@@ -138,6 +144,12 @@ export class ChatModel {
 
         this.charactorListProvider = new DataProvider<Map<number, ChatCharacter>>();
         this.charactorChoosenSkin = new DataProvider<string>();
+        
+        this.characterSongsProvider = new DataProvider<ChatSong[]>();
+
+        this.currentPlayingSong = new DataProvider<ChatSong>();
+        this.currentPlayingSongState = new DataProvider<"playing" | "paused" | "ended">();
+        this.currentPlayingSongState.data = "ended";
     }
 
     private initFlag = false;
@@ -163,6 +175,11 @@ export class ChatModel {
             NativeEventManager.getInstance().on(NativeEvent.CHAT_USER, this.onChatUser, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_ASSISTANT_DELTA, this.onChatAssistantDelta, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_ASSISTANT_FINAL, this.onChatAssistantFinal, this);
+
+            NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_PAUSED, this.onChatSongPaused, this);
+            NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_RESUMED, this.onChatSongResumed, this);
+            NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_ENDED, this.onChatSongEnded, this);
+            NativeEventManager.getInstance().on(NativeEvent.CHAT_MODE_SWITCHED, this.onChatModeSwitched, this);
         }
     }
 
@@ -170,6 +187,7 @@ export class ChatModel {
         EventManager.getInstance().on(ChatProtocol.GET_CHARACTERS, this.onGetCharactorList, this);
         EventManager.getInstance().on(ChatProtocol.GET_CHOOSEN_CHARACTER, this.onGetChoosenCharactor, this);
         EventManager.getInstance().on(ChatProtocol.CHOOSEN_CHARACTER, this.onChooseCharactor, this);
+        EventManager.getInstance().on(ChatProtocol.GET_CHARACTER_SONGS, this.onGetCharacterSongs, this);
     }
 
     /**
@@ -240,6 +258,40 @@ export class ChatModel {
         }
     }
 
+    public playMusic(song: ChatSong): void {
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('ChatModel: 播放歌曲', song);
+            native.bridge.sendToNative(NativeEvent.CHAT_MODE_SWITCH, JSON.stringify({
+                "mode": "song",
+                "songName": song.name,
+                "songId": song.id
+            }));
+        }
+    }
+
+    public backToChat(): void {
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('ChatModel: 返回聊天');
+            native.bridge.sendToNative(NativeEvent.CHAT_MODE_SWITCH, JSON.stringify({
+                "mode": "chat"
+            }));
+        }
+    }
+
+    public pauseMusic(): void {
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('ChatModel: 暂停歌曲');
+            native.bridge.sendToNative(NativeEvent.CHAT_SONG_PAUSE, JSON.stringify({}));
+        }
+    }
+
+    public resumeMusic(): void {
+        if (sys.platform === 'ANDROID') {
+            DebugLog.instance.log('ChatModel: 恢复歌曲');
+            native.bridge.sendToNative(NativeEvent.CHAT_SONG_RESUME, JSON.stringify({}));
+        }
+    }
+
     /**
      * 添加字幕到缓存
      */
@@ -281,6 +333,12 @@ export class ChatModel {
         this.microphoneStateProvider.data = MicrophoneState.CLOSED;
         this.sleepStateProvider.data = SleepState.AWAKE;
         this.aiSpeakingStateProvider.data = AISpeakingState.IDLE;
+        this.charactorChoosenSkin.data = null;
+        this.charactorListProvider.data = null;
+        this.currentPlayingSongState.data = null;
+        this.currentPlayingSong.data = null;
+        this.characterSongsProvider.data = null;
+
         this._pendingUserMessage = null; // 清空暂存消息
         this.clearSubtitles();
     }
@@ -351,6 +409,47 @@ export class ChatModel {
         }
     }
 
+    private onChatSongPaused(data: any): void {
+        DebugLog.instance.log('ChatModel: 歌曲暂停');
+        this.currentPlayingSongState.data = "paused";
+    }
+
+    private onChatSongResumed(data: any): void {
+        DebugLog.instance.log('ChatModel: 歌曲恢复');
+        this.currentPlayingSongState.data = "playing";
+    }
+
+    private onChatSongEnded(data: any): void {
+        DebugLog.instance.log('ChatModel: 歌曲结束');
+        this.currentPlayingSongState.data = "ended";
+    }
+
+    private onChatModeSwitched(data: any): void {
+        let mode = data.mode;
+        DebugLog.instance.log('ChatModel: 模式切换 mode: ' + mode);
+        if(mode == "song"){
+            this.aiSpeakingStateProvider.data = AISpeakingState.SPEAKING;
+            this.currentPlayingSongState.data = "playing";
+            let song: ChatSong = null;
+            this.characterSongsProvider.data.forEach((csong: ChatSong) => {
+                if(csong.id == data.songId){
+                    csong.isPlaying = true;
+                    song = { ...csong};
+                    return;
+                }
+                csong.isPlaying = false;
+            });
+            this.characterSongsProvider.triggerCallback();
+            this.currentPlayingSong.data = song;
+            this._lastMicrophoneState = this.microphoneStateProvider.data;
+            this.microphoneStateProvider.data = MicrophoneState.PENDING;
+        }else if(mode == "chat"){
+            this.aiSpeakingStateProvider.data = AISpeakingState.IDLE;
+            this.currentPlayingSongState.data = "ended";
+            this.currentPlayingSong.data = null;
+            this.microphoneStateProvider.data = this._lastMicrophoneState;
+        }
+    }
 
     //------------websocket request----------//
     public getCharactorList(): void {
@@ -418,6 +517,25 @@ export class ChatModel {
                 }
             });
         }
+    }
+
+    public getMusicList(): void {
+        SocketManager.getInstance().send(new SocketData({
+            action: ChatProtocol.GET_CHARACTER_SONGS,
+            data: {
+                chat_character_id: this._selectedCharactorId,
+                chat_character_skin_id: this._selectedCharactorSkin
+            }
+        }));
+    }
+
+    private onGetCharacterSongs(data: any): void {
+        let result = data.data.result;
+        let songs: ChatSong[] = result;
+        songs.forEach((song: ChatSong) => {
+            song.isPlaying = false;
+        });
+        this.characterSongsProvider.data = songs;
     }
 }
 
