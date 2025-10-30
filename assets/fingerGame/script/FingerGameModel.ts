@@ -8,6 +8,7 @@ import { IFingerActivity, IFingerActivityResult, IFingerActivityScore, IFingerSe
 import { PersonalCenterManager } from "../../resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 import { GameType } from "../../resources/scripts/Core/Scene/SceneModel/BaseGameModel";
 import { SceneManager } from "../../resources/scripts/Core/Manager/Scene/SceneManager";
+import { fingerGameConfig } from "../config/fingerGameConfig";
 
 export enum FingerGameType {
     //体验模式
@@ -192,6 +193,12 @@ export class FingerGameModel {
 
         let rdata = data.data;
         this._fingerSets = rdata.activity_sets;
+        this._fingerSets.forEach((set: IFingerSet,setIndex: number) => {
+            set.activities.forEach((section: IFingerActivity, sectionIndex: number) => {
+                fingerGameConfig.fingerSets[setIndex].sections[sectionIndex].handMode = section.hand_mode;
+            });
+        });
+
         this.emit(FingerGameModelEvent.GET_SETS_FINISHED, this._fingerSets);
     }
 
