@@ -10,9 +10,9 @@ import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageCo
 import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
 import { DebugLog } from '../../resources/scripts/Core/Util/DebugLog';
 import { IFingerSet } from './FingerGameProtocol';
-import {IVListItemInfo, VList} from '../../resources/scripts/Core/Component/VList';
+import { VList } from '../../resources/scripts/Core/Component/VList';
 import { FingerGameSectionSelectGroupItem } from './FingerGameSectionSelectGroupItem';
-import {DynamicList} from "db://assets/resources/scripts/Core/Component/DynamicList";
+import { DynamicList } from "db://assets/resources/scripts/Core/Component/DynamicList";
 const { ccclass, property } = _decorator;
 
 @ccclass('FingerGameSectionsSelectPanel')
@@ -51,14 +51,72 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
         let setIndex = 0;
         // let fingerSetIndexList = [];
         let _data;
-        const activityHei:number = 190;
-        const itemSpace:number = 30;
+        const bashHei: number = 84;
+        const activityHei: number = 190;
+        const itemSpace: number = 30;
 
         let dataList = [];
+        // if (data.fingerSets.length === 1) {
+        //     // 仅有一套时，模拟两套：一套展示3节，一套展示2节
+        //     const baseSet = fingerGameConfig.fingerSets[0];
+
+        //     const buildSetIndexConfig = (indexNum: number, showCount: number): SetIndexConfig => {
+        //         const clonedSections = baseSet.sections.map((sec, i) => {
+        //             const cloned = { ...sec } as any;
+        //             cloned.is_evaluable = i < showCount;
+        //             return cloned;
+        //         });
+        //         const config = { ...baseSet, sections: clonedSections };
+        //         return { index: indexNum, config } as SetIndexConfig;
+        //     };
+
+        //     const set0 = buildSetIndexConfig(0, Math.min(3, fingerGameConfig.fingerSets[0].sections.length));
+
+        //     // 第二套：强制显示7个节，不足时用最后一个节补齐
+        //     const requiredCount = 7;
+        //     const actualSectionCount = baseSet.sections.length;
+        //     const clonedSectionsForSet1 = [];
+
+        //     // 先复制实际存在的节
+        //     for (let i = 0; i < Math.min(requiredCount, actualSectionCount); i++) {
+        //         const cloned = { ...baseSet.sections[i] } as any;
+        //         cloned.is_evaluable = true;
+        //         clonedSectionsForSet1.push(cloned);
+        //     }
+
+        //     // 如果不足7个，用最后一个节补齐
+        //     if (actualSectionCount < requiredCount && actualSectionCount > 0) {
+        //         for (let i = actualSectionCount; i < requiredCount; i++) {
+        //             const lastSection = baseSet.sections[actualSectionCount - 1];
+        //             const cloned = { ...lastSection } as any;
+        //             cloned.is_evaluable = true;
+        //             clonedSectionsForSet1.push(cloned);
+        //         }
+        //     }
+
+        //     const set1 = { 
+        //         index: 1, 
+        //         config: { ...baseSet, sections: clonedSectionsForSet1 } 
+        //     } as SetIndexConfig;
+
+        //     const set2 = buildSetIndexConfig(2, Math.min(2, fingerGameConfig.fingerSets[0].sections.length));
+
+        //     this._sectionDatasMap.set(0, set0.config.sections.filter((s: any) => s.is_evaluable));
+        //     this._sectionDatasMap.set(1, set1.config.sections.filter((s: any) => s.is_evaluable));
+        //     this._sectionDatasMap.set(2, set2.config.sections.filter((s: any) => s.is_evaluable));
+
+        //     const height0 = Math.ceil(this._sectionDatasMap.get(0).length / 2) * (activityHei + itemSpace)+84;
+        //     const height1 = Math.ceil(this._sectionDatasMap.get(1).length / 2) * (activityHei + itemSpace)+84;
+        //     const height2 = Math.ceil(this._sectionDatasMap.get(2).length / 2) * (activityHei + itemSpace)+84;
+
+        //     dataList.push({ data: set0, height: height0 });
+        //     dataList.push({ data: set1, height: height1 });
+        //     dataList.push({ data: set2, height: height2 });
+        // } else {
+        // 多套按原逻辑处理
         data.fingerSets.forEach(sets => {
             let setData = fingerGameConfig.fingerSets[setIndex];
-            _data = {index:setIndex,config:setData};
-            let totalHei:number=0;
+            _data = { index: setIndex, config: setData };
             sets.activities.forEach(section => {
                 // 依据 activity id 映射到配置中的对应 SectionConfig
                 const secIdxById = Math.max(0, (section.id || 1) - 1);
@@ -66,9 +124,6 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
                 if (sectionData) {
                     // 将 is_evaluable 写回到配置对象，便于后续使用
                     (sectionData as any).is_evaluable = section.is_evaluable;
-                    if(section.is_evaluable){
-                        totalHei += activityHei+itemSpace;
-                    }
                 }
 
                 if (sectionData) {
@@ -78,16 +133,20 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
                     this._sectionDatasMap.get(setIndex).push(sectionData);
                 }
             });
-            // fingerSetIndexList.push({index:setIndex,config:setData});
-            dataList.push({data:{index:setIndex,config:setData},height:totalHei});
+            // 使用和模拟数据一样的算法：按行数计算（每行2个）
+            const evaluableCount = this._sectionDatasMap.get(setIndex).filter((s: any) => s.is_evaluable).length;
+            const totalHei = Math.ceil(evaluableCount / 2) * (activityHei + itemSpace) + bashHei;
+            dataList.push({ data: { index: setIndex, config: setData }, height: totalHei });
             setIndex++;
         });
+        // }
         let self = this;
         this.itemContainer.setData({
             dataList,
-            itemRenderer:(node,data: any)=>{
+            itemRenderer: (node, data: any) => {
                 let item = node.getComponent(FingerGameSectionSelectGroupItem);
-                item.setData(data.config,data.index, self.onSelectSection.bind(self));
+                // data: { data: SetIndexConfig, height: number }
+                item.setData(data.config, data.index, self.onSelectSection.bind(self));
             },
             onInstantiate: (node) => node.getComponentInChildren(VList<SetIndexConfig>).init({
                 onData(info) {
