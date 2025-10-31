@@ -31,6 +31,8 @@ export class ChatPanel extends BasePanel {
     private microTurnOffSP: SpriteFrame = null;
     @property(SpriteFrame)
     private microTurnONSP: SpriteFrame = null;
+    @property(SpriteFrame)
+    private microTurnUnavailableSP: SpriteFrame = null;
 
     @property(Sprite)
     private microIcon: Sprite = null;
@@ -462,15 +464,42 @@ export class ChatPanel extends BasePanel {
         console.log("chatPanel：麦克风状态:" + state);
         if (state == MicrophoneState.OPEN) {
             this.talkingLabel.string = this._microOpenStr;
-            this.microIcon.spriteFrame = this.microTurnOffSP;
         } else if (state == MicrophoneState.CLOSED) {
             this.talkingLabel.string = this._microCloseStr;
-            this.microIcon.spriteFrame = this.microTurnONSP;
         } else if (state == MicrophoneState.PENDING) {
             this.talkingLabel.string = "";
         }
-        this.microBtnMask.active = state == MicrophoneState.PENDING;
+        this.microIcon.spriteFrame = this.getMicroIconSpriteFrame();
+        this.microBtnMask.active = !this.getMicroAvailable();
         this.talkingAnimNode.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.FINISHED && state == MicrophoneState.OPEN;
+    }
+
+    private getMicroIconSpriteFrame(): SpriteFrame {
+        let microphoneState = this._chatModel.microphoneStateProvider.data;
+        let curmusic = this._chatModel.currentPlayingSong.data;
+        if(curmusic != null){
+            return this.microTurnUnavailableSP;
+        } else {
+            if(microphoneState == MicrophoneState.PENDING){
+                return this.microTurnUnavailableSP;
+            } else if(microphoneState == MicrophoneState.CLOSED){
+                return this.microTurnONSP;
+            } else if(microphoneState == MicrophoneState.OPEN){
+                return this.microTurnOffSP;
+            } else {
+                return this.microTurnUnavailableSP;
+            }
+        }
+    }
+
+    private getMicroAvailable(): boolean {
+        let microphoneState = this._chatModel.microphoneStateProvider.data;
+        let curmusic = this._chatModel.currentPlayingSong.data;
+        if(curmusic != null){
+            return false;
+        } else {
+            return microphoneState != MicrophoneState.PENDING;
+        }
     }
 
     onClickShowSublineBtn() {
