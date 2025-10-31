@@ -437,14 +437,16 @@ export class ChatModel {
             this.currentPlayingSongState.data = "playing";
             let song: ChatSong = null;
             DebugLog.instance.log('ChatModel: 歌曲id: ' + data.songId);
-            this.characterSongsProvider.data.forEach((csong: ChatSong) => {
-                if(csong.id == data.songId){
+            DebugLog.instance.log('ChatModel: 歌曲名称: ' + data.songName);
+            this.characterSongsProvider.data.forEach((csong: ChatSong,index:number) => {
+                if(csong.id.toString() == data.songId.toString()){
                     csong.isPlaying = true;
                     song = { ...csong};
-                    return;
+                }else{
+                    csong.isPlaying = false;
                 }
-                csong.isPlaying = false;
             });
+            this.characterSongsProvider.triggerCallback();
             this.currentPlayingSong.data = song;
             this.microphoneStateProvider.triggerCallback();
         }else if(mode == "chat"){
