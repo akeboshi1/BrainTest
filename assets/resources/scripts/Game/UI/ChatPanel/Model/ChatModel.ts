@@ -151,13 +151,31 @@ export class ChatModel {
         this.currentPlayingSongState = new DataProvider<"playing" | "paused" | "ended">();
         this.currentPlayingSongState.data = "ended";
     }
+    
+    /**
+     * 重置所有状态
+     */
+    public reset(): void {
+        this.premissionProvider.reset();
+        this.connectionStateProvider.reset();
+        this.microphoneStateProvider.reset();
+        this.sleepStateProvider.reset();
+        this.aiSpeakingStateProvider.reset();
+        this.charactorListProvider.reset();
+        this.charactorChoosenSkin.reset();
+        this.characterSongsProvider.reset();
+        this.currentPlayingSong.reset();
+        this.currentPlayingSongState.reset();
+        this.clearSubtitles();
+        this.subtitleListProvider.reset();
+        this._pendingUserMessage = null;
+    }
 
     private initFlag = false;
 
     init() {
         if (!this.initFlag) {
             this.initNativeEventListeners();
-            this.initWebSocketListeners();
             this.initFlag = true;
         }
     }
@@ -183,11 +201,18 @@ export class ChatModel {
         }
     }
 
-    private initWebSocketListeners() {
+    public initWebSocketListeners() {
         EventManager.getInstance().on(ChatProtocol.GET_CHARACTERS, this.onGetCharactorList, this);
         EventManager.getInstance().on(ChatProtocol.GET_CHOOSEN_CHARACTER, this.onGetChoosenCharactor, this);
         EventManager.getInstance().on(ChatProtocol.CHOOSEN_CHARACTER, this.onChooseCharactor, this);
         EventManager.getInstance().on(ChatProtocol.GET_CHARACTER_SONGS, this.onGetCharacterSongs, this);
+    }
+
+    public removeWebSocketListeners() {
+        EventManager.getInstance().off(ChatProtocol.GET_CHARACTERS, this.onGetCharactorList);
+        EventManager.getInstance().off(ChatProtocol.GET_CHOOSEN_CHARACTER, this.onGetChoosenCharactor);
+        EventManager.getInstance().off(ChatProtocol.CHOOSEN_CHARACTER, this.onChooseCharactor);
+        EventManager.getInstance().off(ChatProtocol.GET_CHARACTER_SONGS, this.onGetCharacterSongs);
     }
 
     /**
@@ -323,24 +348,6 @@ export class ChatModel {
             this._pendingUserMessage = null;
             DebugLog.instance.log('ChatModel: 手动处理暂存的用户消息');
         }
-    }
-
-    /**
-     * 重置所有状态
-     */
-    public reset(): void {
-        this.connectionStateProvider.data = ChatConnectionState.DISCONNECTED;
-        this.microphoneStateProvider.data = MicrophoneState.CLOSED;
-        this.sleepStateProvider.data = SleepState.AWAKE;
-        this.aiSpeakingStateProvider.data = AISpeakingState.IDLE;
-        this.charactorChoosenSkin.data = null;
-        this.charactorListProvider.data = null;
-        this.currentPlayingSongState.data = null;
-        this.currentPlayingSong.data = null;
-        this.characterSongsProvider.data = null;
-
-        this._pendingUserMessage = null; // 清空暂存消息
-        this.clearSubtitles();
     }
 
     // 原生事件回调方法（具体实现细节待补充）

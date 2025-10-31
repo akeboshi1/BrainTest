@@ -129,6 +129,7 @@ export class ChatPanel extends BasePanel {
     onEnable(): void {
         this._chatModel = ChatModel.getInstance();
         this._chatModel.init();
+        this._chatModel.initWebSocketListeners();
         this._chatModel.premissionProvider.addListener(this.onPremissionChanged.bind(this));
         this._chatModel.connectionStateProvider.addListener(this.onConnectionStateChanged.bind(this));
         this._chatModel.microphoneStateProvider.addListener(this.onMicrophoneStateChanged.bind(this));
@@ -151,6 +152,7 @@ export class ChatPanel extends BasePanel {
     }
 
     onDisable(): void {
+        this._chatModel.removeWebSocketListeners();
         this._chatModel.premissionProvider.removeAllListeners();
         this._chatModel.connectionStateProvider.removeAllListeners();
         this._chatModel.microphoneStateProvider.removeAllListeners();
