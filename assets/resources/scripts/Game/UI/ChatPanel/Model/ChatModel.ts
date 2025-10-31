@@ -114,8 +114,6 @@ export class ChatModel {
     private _selectedCharactorId: number = 0;
     private _selectedCharactorSkin: number = 0;
 
-    private _lastMicrophoneState: MicrophoneState = MicrophoneState.CLOSED;
-
     public get selectedCharactorId(): number {
         return this._selectedCharactorId;
     }
@@ -435,8 +433,10 @@ export class ChatModel {
         let mode = data.mode;
         DebugLog.instance.log('ChatModel: 模式切换 mode: ' + mode);
         if(mode == "song"){
+            this.onChatAssistantFinal(null);
             this.currentPlayingSongState.data = "playing";
             let song: ChatSong = null;
+            DebugLog.instance.log('ChatModel: 歌曲id: ' + data.songId);
             this.characterSongsProvider.data.forEach((csong: ChatSong) => {
                 if(csong.id == data.songId){
                     csong.isPlaying = true;
@@ -445,14 +445,13 @@ export class ChatModel {
                 }
                 csong.isPlaying = false;
             });
-            this.characterSongsProvider.triggerCallback();
             this.currentPlayingSong.data = song;
-            this._lastMicrophoneState = this.microphoneStateProvider.data;
-            this.microphoneStateProvider.data = MicrophoneState.PENDING;
+            this.microphoneStateProvider.triggerCallback();
         }else if(mode == "chat"){
             this.currentPlayingSongState.data = null;
             this.currentPlayingSong.data = null;
-            this.microphoneStateProvider.data = this._lastMicrophoneState;
+            this.microphoneStateProvider.triggerCallback();
+            this.aiSpeakingStateProvider.data = AISpeakingState.IDLE;
         }
     }
 

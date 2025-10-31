@@ -88,6 +88,10 @@ export class ChatMusicPanel extends BasePanel {
     }
 
     private onClickMusicItem(song: ChatSong): void {
+        if(this._chatModel.currentPlayingSong.data != null && this._chatModel.currentPlayingSong.data.id === song.id){
+            this.switchPanelState("play");
+            return;
+        }
         this._chatModel.playMusic(song);
         this.switchPanelState("empty");
     }
