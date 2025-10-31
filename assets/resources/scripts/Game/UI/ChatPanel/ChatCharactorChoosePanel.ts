@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, instantiate, Label, Node, Prefab, Sprite, SpriteFrame, tween, Vec3 } from 'cc';
+import { _decorator, Button, Color, Component, instantiate, Label, Node, NodeEventType, Prefab, Sprite, SpriteFrame, tween, Vec3 } from 'cc';
 import { BasePanel, PanelState } from '../../../Core/UI/BasePanel';
 import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { ChatModel } from './Model/ChatModel';
@@ -17,6 +17,9 @@ export class ChatCharactorChoosePanel extends BasePanel {
     private skinChooseContent: Node = null;
 
     @property(Prefab)
+    private charactorIconPrefab: Prefab = null;
+
+    @property(Prefab)
     private chooseItemPrefab: Prefab = null;
 
     @property(Sprite)
@@ -28,6 +31,9 @@ export class ChatCharactorChoosePanel extends BasePanel {
     private skinChangedIcon: SpriteFrame = null;
     @property(SpriteFrame)
     private skinNotChangedIcon: SpriteFrame = null;
+
+    @property(Button)
+    private closeBtn: Button = null;
     
     private _chatModel: ChatModel = null;
     private _selectedCharactorId: number = 0;
@@ -35,7 +41,6 @@ export class ChatCharactorChoosePanel extends BasePanel {
 
     private _oldCharactorId: number = 0;
     private _oldCharactorSkin: number = 0;
-    private _localSkipTween: boolean = false;
 
     private _closeCallback: (bool: boolean) => void = null;
 
@@ -46,6 +51,10 @@ export class ChatCharactorChoosePanel extends BasePanel {
         this._oldCharactorId = this._selectedCharactorId;
         this._oldCharactorSkin = this._selectedCharactorSkin;
         this.initChooseItems();
+
+        this.closeBtn.node.on(Node.EventType.TOUCH_START, this.setButtonPressed.bind(this, true), this);
+        this.closeBtn.node.on(Node.EventType.TOUCH_END, this.setButtonPressed.bind(this, false), this);
+        this.closeBtn.node.on(Node.EventType.TOUCH_CANCEL, this.setButtonPressed.bind(this, false), this);
     }
 
     restore(data: {closeCallback: (bool: boolean) => void}): void {
@@ -57,16 +66,17 @@ export class ChatCharactorChoosePanel extends BasePanel {
         
         let self = this;
         charactorMap.forEach((character: ChatCharacter) => {
-                let charactorChooseItem = instantiate(self.chooseItemPrefab);
+                let charactorChooseItem = instantiate(self.charactorIconPrefab);
                 charactorChooseItem.setParent(self.charactorChooseContent);
                 charactorChooseItem.setPosition(0, 0, 0);
-                charactorChooseItem.getComponent(ChatChooseItem).setData(character.id, character.name, character.id === self._selectedCharactorId, self.onCharactorChooseItemClick.bind(self));
+                let iconUrl = "texture/chatpanel/v2/charactorIcon/icon_" + character.id + "/spriteFrame";
+                charactorChooseItem.getComponent(ChatChooseItem).setData(character.id, "", character.id === self._selectedCharactorId, iconUrl, self.onCharactorChooseItemClick.bind(self));
                 if(character.id === self._selectedCharactorId) {
                     character.skins.forEach((skin: ChatSkin) => {
                         let skinChooseItem = instantiate(self.chooseItemPrefab);
                         skinChooseItem.setParent(self.skinChooseContent);
                         skinChooseItem.setPosition(0, 0, 0);
-                        skinChooseItem.getComponent(ChatChooseItem).setData(skin.id, skin.name, skin.id === self._selectedCharactorSkin, self.onSkinChooseItemClick.bind(self));
+                        skinChooseItem.getComponent(ChatChooseItem).setData(skin.id, skin.name, skin.id === self._selectedCharactorSkin, "", self.onSkinChooseItemClick.bind(self));
                     });
                 }
         });
@@ -94,7 +104,7 @@ export class ChatCharactorChoosePanel extends BasePanel {
             let skinChooseItem = instantiate(self.chooseItemPrefab);
             skinChooseItem.setParent(self.skinChooseContent);
             skinChooseItem.setPosition(0, 0, 0);
-            skinChooseItem.getComponent(ChatChooseItem).setData(skin.id, skin.name, skin.id === self._selectedCharactorSkin, self.onSkinChooseItemClick.bind(self));
+            skinChooseItem.getComponent(ChatChooseItem).setData(skin.id, skin.name, skin.id === self._selectedCharactorSkin, "", self.onSkinChooseItemClick.bind(self));
         });
     }
 
@@ -109,12 +119,11 @@ export class ChatCharactorChoosePanel extends BasePanel {
 
     public onClickBtnChoose(character_id: number, skin_id: number):void {
         let changed = character_id != this._oldCharactorId || skin_id != this._oldCharactorSkin;
-        this.setButtonChanged(changed);
         this._chatModel.chooseCharactor(character_id, skin_id);
     }
 
-    private setButtonChanged(isChanged: boolean) {
-        if(isChanged) {
+    private setButtonPressed(isPressed: boolean) {
+        if(isPressed) {
             this.closeBtnIcon.spriteFrame = this.skinChangedIcon;
             this.closeBtnLabel.color = Color.WHITE;
         } else {

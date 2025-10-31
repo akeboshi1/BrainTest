@@ -178,7 +178,7 @@ export class ChatModel {
 
             NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_PAUSED, this.onChatSongPaused, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_RESUMED, this.onChatSongResumed, this);
-            NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_ENDED, this.onChatSongEnded, this);
+            NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_END, this.onChatSongEnd, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_MODE_SWITCHED, this.onChatModeSwitched, this);
         }
     }
@@ -419,7 +419,7 @@ export class ChatModel {
         this.currentPlayingSongState.data = "playing";
     }
 
-    private onChatSongEnded(data: any): void {
+    private onChatSongEnd(data: any): void {
         DebugLog.instance.log('ChatModel: 歌曲结束');
         this.currentPlayingSongState.data = "ended";
     }
@@ -428,7 +428,6 @@ export class ChatModel {
         let mode = data.mode;
         DebugLog.instance.log('ChatModel: 模式切换 mode: ' + mode);
         if(mode == "song"){
-            this.aiSpeakingStateProvider.data = AISpeakingState.SPEAKING;
             this.currentPlayingSongState.data = "playing";
             let song: ChatSong = null;
             this.characterSongsProvider.data.forEach((csong: ChatSong) => {
@@ -444,8 +443,7 @@ export class ChatModel {
             this._lastMicrophoneState = this.microphoneStateProvider.data;
             this.microphoneStateProvider.data = MicrophoneState.PENDING;
         }else if(mode == "chat"){
-            this.aiSpeakingStateProvider.data = AISpeakingState.IDLE;
-            this.currentPlayingSongState.data = "ended";
+            this.currentPlayingSongState.data = null;
             this.currentPlayingSong.data = null;
             this.microphoneStateProvider.data = this._lastMicrophoneState;
         }

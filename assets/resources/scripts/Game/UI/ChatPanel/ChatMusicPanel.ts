@@ -76,6 +76,10 @@ export class ChatMusicPanel extends BasePanel {
         this.playBtnIcon.active = state === "paused";
         this.pauseBtnIcon.active = state === "playing";
         this.playCtrlMask.active = false;
+
+        if(state === "ended"){
+            this.playNextMusic();
+        }
     }
 
     private onCurrentPlayingSongChanged(song: ChatSong): void {
