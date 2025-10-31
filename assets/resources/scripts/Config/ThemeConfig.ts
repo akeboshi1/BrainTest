@@ -64,22 +64,6 @@ export class ThemeConfig {
         try {
             if (data) {
                 this._themeData = data;
-                
-                // 为任务配置添加默认的click_function_name
-                if (this._themeData.theme.tasks && Array.isArray(this._themeData.theme.tasks)) {
-                    this._themeData.theme.tasks.forEach((task: ThemeTaskConfig, index: number) => {
-                            // 根据任务索引设置默认的点击函数名
-                            if (index === 0) {
-                                task.txt = "专为老年人设计的脑力训练";
-                            } else if (index === 1) {
-                                task.txt = "训练手部运动协同锻炼";
-                            } else {
-                                task.txt = "数字人智能陪聊";
-                            }
-
-                    });
-                }
-                
                 this._isInitialized = true;
                 DebugLog.instance.log("主题配置初始化成功:", this._themeData.theme.title);
             } else {
