@@ -10,6 +10,7 @@ import { ChatCharacter } from './Model/ChatProtocol';
 import { ChatCharactorChoosePanel } from './ChatCharactorChoosePanel';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { ChatMusicPanel } from './ChatMusicPanel';
+import { ChatSublineItem } from './ChatSublineItem';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChatPanel')
@@ -120,6 +121,11 @@ export class ChatPanel extends BasePanel {
 
     private _musicBtnTween: any = null;
 
+    // 测试相关变量
+    private _testSubtitleList: SubtitleItem[] = [];
+    private _testCounter: number = 0;
+    private _testIsRunning: boolean = false;
+
     onEnable(): void {
         this._chatModel = ChatModel.getInstance();
         this._chatModel.init();
@@ -139,6 +145,9 @@ export class ChatPanel extends BasePanel {
 
         UIManager.getInstance().registerPanel(ChatCharactorChoosePanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatCharactorChoosePanel", ChatCharactorChoosePanel);
         UIManager.getInstance().registerPanel(ChatMusicPanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatMusicPanel", ChatMusicPanel);
+
+        // 测试字幕代码，每秒生成一段字幕，模拟用户和AI交替对话
+        //this.startTestSubtitleGeneration();
     }
 
     onDisable(): void {
@@ -156,6 +165,9 @@ export class ChatPanel extends BasePanel {
         // 清理加载队列
         this._frameComponentQueue = [];
         this._isLoadingFrameComponent = false;
+
+        // 停止测试
+        this.stopTestSubtitleGeneration();
     }
 
     /**
@@ -204,13 +216,19 @@ export class ChatPanel extends BasePanel {
             const frameComponent = instantiate(prefab);
             this.frameComponentNode.addChild(frameComponent);
             const aispeakingState = this._chatModel.aiSpeakingStateProvider.data;
-            frameComponent.getComponent(FrameComponent).playAnimation(aispeakingState == AISpeakingState.SPEAKING ? "talking" : "idle", 22, true, true);
+            frameComponent.getComponent(FrameComponent).playAnimation(this.getCurrentFrameAnimationName(), 22, true, true);
             this.hideLoadingAnimation();
 
             // 标记加载完成，处理队列中的下一个任务
             this._isLoadingFrameComponent = false;
             this._processNextInQueue();
         });
+    }
+
+    private getCurrentFrameAnimationName(): string {
+        const aispeakingState = this._chatModel.aiSpeakingStateProvider.data;
+        const isPlayingSong = this._chatModel.currentPlayingSongState.data == "playing";
+        return aispeakingState == AISpeakingState.SPEAKING || isPlayingSong ? "talking" : "idle";
     }
 
     /**
@@ -260,28 +278,24 @@ export class ChatPanel extends BasePanel {
             // 新段落：创建新的字幕节点
             const newNode = instantiate(this.sublinePrefab);
             newNode.active = true;
-            const label = newNode.getChildByName("sublineLabel").getComponent(Label);
-            label.string = lastSubtitle.text;
-            label.color = lastSubtitle.speaker == "assistant" ? this.aiSublineColor : this.userSublineColor;
             this.sublineContainer.addChild(newNode);
             newNode.setPosition(0, 0);
 
-            let iconUrl = '';
+            newNode.getComponent(ChatSublineItem).setData({
+                text: lastSubtitle.text,
+                speaker: lastSubtitle.speaker,
+                aiColor: this.aiSublineColor,
+                userColor: this.userSublineColor
+            });
+
             if (lastSubtitle.speaker == "assistant") {
-                iconUrl = 'texture/chatpanel/icon/icon_1/spriteFrame';
                 if (this._thinkingBubbleState) {
                     this.hideThinkingBubble();
                 }
             } else {
-                let userData = PersonalCenterManager.getInstance().userInfoData;
-                iconUrl = userData.gender == 1 ? 'textureV2/indexPage/male/spriteFrame' : 'textureV2/indexPage/female/spriteFrame';
                 this.showThinkingBubble();
             }
 
-            const sprite = newNode.getChildByName("icon").getComponent(Sprite);
-            this.loadSprite(iconUrl).then(spriteFrame => {
-                sprite.spriteFrame = spriteFrame;
-            });
         } else {
             // 同一段落：在最后一个字幕节点中追加文本
             const lastChild = this.sublineContainer.children[this.sublineContainer.children.length - 1];
@@ -301,23 +315,6 @@ export class ChatPanel extends BasePanel {
         this.scheduleOnce(() => {
             this.scrollToBottomIfNeeded();
         }, 0.1);
-    }
-
-    async loadSprite(path: string): Promise<SpriteFrame> {
-        return new Promise((resolve, reject) => {
-            resources.load(path, SpriteFrame, (err, spriteFrame) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-
-                if (!spriteFrame) {
-                    reject(new Error('Loaded sprite frame is null'));
-                    return;
-                }
-                resolve(spriteFrame);
-            });
-        })
     }
 
     showThinkingBubble() {
@@ -390,7 +387,7 @@ export class ChatPanel extends BasePanel {
         this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
 
         if(this.frameComponentNode.children.length > 0) {
-            this.frameComponentNode.children[0].getComponent(FrameComponent).playAnimation(state == AISpeakingState.SPEAKING ? "talking" : "idle", 22, true, true);
+            this.frameComponentNode.children[0].getComponent(FrameComponent).playAnimation(this.getCurrentFrameAnimationName(), 22, true, true);
         }
     }
 
@@ -826,6 +823,87 @@ export class ChatPanel extends BasePanel {
             // 恢复到初始角度、防止残留角度
             this.musicBtn.node.angle = 0;
         }
+        
+        if(this.frameComponentNode.children.length > 0){
+            this.frameComponentNode.children[0].getComponent(FrameComponent).playAnimation(this.getCurrentFrameAnimationName(), 22, true, true);
+        }
+    }
+
+    /**
+     * 测试方法：每秒生成一段字幕
+     * 模拟用户和AI交替对话
+     */
+    public startTestSubtitleGeneration(): void {
+        if (this._testIsRunning) {
+            console.log("字幕测试已在运行中");
+            return;
+        }
+
+        this._testIsRunning = true;
+        this._testSubtitleList = [];
+        this._testCounter = 0;
+
+        console.log("开始字幕测试，每秒生成一段字幕");
+
+        // 立即生成第一条字幕
+        this._generateTestSubtitle();
+
+        // 每秒生成一条字幕
+        this.schedule(this._generateTestSubtitle, 1.0);
+    }
+
+    /**
+     * 停止字幕测试
+     */
+    public stopTestSubtitleGeneration(): void {
+        if (!this._testIsRunning) {
+            return;
+        }
+
+        this._testIsRunning = false;
+        this.unschedule(this._generateTestSubtitle);
+        this._testSubtitleList = [];
+        this._testCounter = 0;
+
+        console.log("已停止字幕测试");
+    }
+
+    /**
+     * 内部方法：生成测试字幕
+     */
+    private _generateTestSubtitle(): void {
+        this._testCounter++;
+
+        // 交替生成用户和AI的字幕
+        const speaker: 'user' | 'assistant' = this._testCounter % 2 === 1 ? 'user' : 'assistant';
+        const speakerName = speaker === 'user' ? '用户' : 'AI助手';
+
+        // 模拟不同的字幕文本
+        const testTexts = [
+            '这是第' + this._testCounter + '条测试字幕',
+            '你好，这是' + speakerName + '在说话',
+            '测试字幕内容：' + this._testCounter,
+            '这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。',
+            '测试中：' + Date.now(),
+        ];
+
+        const text = testTexts[this._testCounter % testTexts.length];
+
+        // 创建字幕项
+        const subtitle: SubtitleItem = {
+            id: `test_${Date.now()}_${this._testCounter}`,
+            text: text,
+            timestamp: Date.now(),
+            speaker: speaker
+        };
+
+        // 添加到列表
+        this._testSubtitleList.push(subtitle);
+
+        // 调用 onSubtitleListChanged 方法
+        this.onSubtitleListChanged(this._testSubtitleList);
+
+        console.log(`生成测试字幕 #${this._testCounter}: [${speakerName}] ${text}`);
     }
 }
 
