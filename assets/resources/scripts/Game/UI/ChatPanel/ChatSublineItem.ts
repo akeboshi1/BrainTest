@@ -26,15 +26,14 @@ export class ChatSublineItem extends Component {
     private _spFrameMap: Map<string, SpriteFrame> = new Map();
     private _currentIconUrl: string = '';
 
-    private _dirtyFlag: boolean = false;
 
     protected onEnable(): void {
         this._chatModel = ChatModel.getInstance();
         this._charactorChoosenSkinProviderID = this._chatModel.charactorChoosenSkin.addListener(this.onCharactorChoosenSkinChanged.bind(this));
-        this._refresh();
     }
 
     protected onDisable(): void {
+        this._chatModel = ChatModel.getInstance();
         this._chatModel.charactorChoosenSkin.removeListenerById(this._charactorChoosenSkinProviderID);
         this._spFrameMap.clear();
         this._currentIconUrl = '';
@@ -53,18 +52,16 @@ export class ChatSublineItem extends Component {
     }
 
     public setData(subtitleItem: SubtitleItem): void {
+        this._chatModel = ChatModel.getInstance();
         this._subtitleItem = subtitleItem;
-        this._dirtyFlag = true;
-        if (this._chatModel != null) {
-            this._refresh();
-        }
+        this._refresh();
+    }
+
+    public addSubtitleText(text:string){
+        this.label.string += text;
     }
 
     private _refresh() {
-        if (!this._dirtyFlag) {
-            return;
-        }
-        this._dirtyFlag = false;
         let subtitleItem = this._subtitleItem;
         this.label.string = subtitleItem.text;
         this.label.color = subtitleItem.speaker == "assistant" ? subtitleItem.aiColor : subtitleItem.userColor;

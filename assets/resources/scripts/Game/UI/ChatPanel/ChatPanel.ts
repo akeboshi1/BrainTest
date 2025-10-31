@@ -304,8 +304,7 @@ export class ChatPanel extends BasePanel {
             // 同一段落：在最后一个字幕节点中追加文本
             const lastChild = this.sublineContainer.children[this.sublineContainer.children.length - 1];
             if (lastChild) {
-                const label = lastChild.getChildByName("sublineLabel").getComponent(Label);
-                label.string += lastSubtitle.text;
+                lastChild.getComponent(ChatSublineItem).addSubtitleText(lastSubtitle.text);
             }
         }
 
