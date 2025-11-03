@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试滑动倒计时</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #2c3e50;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            justify-content: center;
+        }
+
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .number-display {
+            position: relative;
+            width: 200px;
+            height: 150px;
+            margin: 0 auto 30px;
+            overflow: hidden;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .countdown-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 6rem;
+            font-weight: bold;
+            color: #3498db;
+            opacity: 1;
+        }
+
+        /* 滑出动画 */
+        .slide-out {
+            animation: slideOut 0.6s ease forwards;
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+            to {
+                transform: translate(150%, -50%);
+                opacity: 0;
+            }
+        }
+
+        /* 滑入动画 */
+        .slide-in {
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translate(-150%, -50%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            background: #3498db;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .info {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>滑动测试</h1>
+        
+        <div class="number-display" id="display">
+            <div class="countdown-number" id="number">5</div>
+        </div>
+
+        <div>
+            <button onclick="startTest()">开始测试</button>
+            <button onclick="reset()">重置</button>
+            <button onclick="manualSlide()">手动滑动</button>
+        </div>
+
+        <div class="info">
+            当前数字: <span id="current">5</span><br>
+            状态: <span id="status">准备</span>
+        </div>
+    </div>
+
+    <script>
+        let currentNum = 5;
+        let isRunning = false;
+
+        function updateInfo() {
+            document.getElementById('current').textContent = currentNum;
+            document.getElementById('status').textContent = isRunning ? '运行中' : '准备';
+        }
+
+        function manualSlide() {
+            if (currentNum <= 0) return;
+            
+            console.log(`滑动: ${currentNum} → ${currentNum - 1}`);
+            
+            const display = document.getElementById('display');
+            const oldNumber = document.getElementById('number');
+            
+            // 创建新数字
+            const newNumber = document.createElement('div');
+            newNumber.className = 'countdown-number';
+            newNumber.textContent = currentNum - 1;
+            newNumber.id = 'number-new';
+            
+            // 添加新数字到容器
+            display.appendChild(newNumber);
+            
+            // 开始动画
+            oldNumber.classList.add('slide-out');
+            setTimeout(() => {
+                newNumber.classList.add('slide-in');
+            }, 50);
+            
+            // 清理和更新
+            setTimeout(() => {
+                oldNumber.remove();
+                newNumber.id = 'number';
+                currentNum--;
+                updateInfo();
+            }, 600);
+        }
+
+        function startTest() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            updateInfo();
+            
+            const interval = setInterval(() => {
+                if (currentNum > 0) {
+                    manualSlide();
+                } else {
+                    clearInterval(interval);
+                    isRunning = false;
+                    updateInfo();
+                    alert('测试完成！');
+                }
+            }, 1500);
+        }
+
+        function reset() {
+            currentNum = 5;
+            isRunning = false;
+            
+            const display = document.getElementById('display');
+            display.innerHTML = '<div class="countdown-number" id="number">5</div>';
+            
+            updateInfo();
+        }
+
+        // 初始化
+        updateInfo();
+    </script>
+</body>
+</html> 

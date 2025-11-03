@@ -12,10 +12,11 @@
       "image": "project://settings/appIcon.png"
     },
     "logo": {
-      "type": "custom",
+      "type": "none",
       "image": "project://settings/appIcon.png"
     },
-    "displayRatio": 0.7
+    "displayRatio": 0.7,
+    "totalTime": 500
   },
   "bundleConfig": {
     "custom": {

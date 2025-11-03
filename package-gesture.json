@@ -1,0 +1,52 @@
+{
+  "name": "gesture-recognition-mediapipe",
+  "version": "1.0.0",
+  "description": "基于MediaPipe的实时手势识别系统",
+  "main": "gesture-recognition-demo.html",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1",
+    "dev": "live-server --port=8000",
+    "build": "echo '项目已准备就绪，无需构建步骤'",
+    "test": "echo '暂无测试用例'"
+  },
+  "keywords": [
+    "手势识别",
+    "gesture-recognition",
+    "mediapipe",
+    "javascript",
+    "computer-vision",
+    "手部检测",
+    "实时识别",
+    "web-app"
+  ],
+  "author": "AI Assistant",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "本地项目"
+  },
+  "bugs": {
+    "url": "请查看README文档中的常见问题部分"
+  },
+  "homepage": "./gesture-recognition-demo.html",
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
+  "files": [
+    "gesture-recognition.html",
+    "gesture-recognition-demo.html",
+    "gesture-recognition-advanced.js",
+    "README-手势识别.md"
+  ]
+} 

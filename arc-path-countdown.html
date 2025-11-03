@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圆弧路径滑动倒计时</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .countdown-container {
+            position: relative;
+            width: 600px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 圆弧路径轨道 */
+        .arc-path-track {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .arc-path-track path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 3;
+            stroke-dasharray: 10, 5;
+            animation: pathGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes pathGlow {
+            0% {
+                stroke: rgba(255, 255, 255, 0.3);
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+            }
+            100% {
+                stroke: rgba(52, 152, 219, 0.6);
+                filter: drop-shadow(0 0 15px rgba(52, 152, 219, 0.4));
+            }
+        }
+
+        /* 数字显示区域 */
+        .number-display {
+            position: relative;
+            width: 400px;
+            height: 150px;
+            overflow: visible;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* 数字容器 */
+        .number-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 数字样式 */
+        .countdown-number {
+            position: absolute;
+            font-size: 8rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.8),
+                0 0 60px rgba(52, 152, 219, 0.6),
+                0 5px 15px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            line-height: 1;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        /* 当数字使用路径定位时的设置 */
+        .countdown-number.on-path {
+            /* 使用offset-path定位 */
+            offset-anchor: 50% 50%;
+            offset-rotate: 0deg;
+            /* 移除默认定位 */
+            top: auto;
+            left: auto;
+            transform: translate(-50%, -50%); /* 保持居中对齐 */
+        }
+
+        /* 手动定位的数字样式 */
+        .countdown-number.manual-position {
+            /* 使用JavaScript计算的绝对定位 */
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 当数字不在路径上时，使用默认居中定位 */
+        .countdown-number:not(.on-path):not(.manual-position) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .countdown-number:hover {
+            filter: drop-shadow(0 0 20px rgba(52, 152, 219, 0.8));
+        }
+
+        .countdown-number:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        /* 圆弧路径滑动动画 */
+        .arc-path-slide-out {
+            animation: arcPathSlideOut 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes arcPathSlideOut {
+            0% {
+                offset-distance: 50%; /* 从最高点开始 */
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            20% {
+                transform: scale(1.3);
+            }
+            100% {
+                offset-distance: 100%; /* 滑动到终点 */
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+
+        .arc-path-slide-in {
+            animation: arcPathSlideIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes arcPathSlideIn {
+            0% {
+                offset-distance: 0%; /* 从起点开始 */
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            20% {
+                transform: scale(1.1);
+            }
+            100% {
+                offset-distance: 50%; /* 滑动到最高点 */
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* 状态文字 */
+        .status-text {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-text.highlight {
+            color: #3498db;
+            transform: scale(1.1);
+        }
+
+        /* 进度条 */
+        .progress-container {
+            width: 80%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 3px;
+            transition: width 1s ease-in-out;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.6);
+        }
+
+        /* 控制按钮 */
+        .controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 20px rgba(52, 152, 219, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 25px rgba(52, 152, 219, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .control-btn.reset {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            box-shadow: 
+                0 8px 20px rgba(231, 76, 60, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .control-btn.reset:hover {
+            box-shadow: 
+                0 12px 25px rgba(231, 76, 60, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* 音效指示器 */
+        .sound-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+        }
+
+        .sound-indicator:hover {
+            transform: scale(1.1);
+        }
+
+        .sound-indicator.muted {
+            background: #7f8c8d;
+            box-shadow: 0 4px 15px rgba(127, 140, 141, 0.3);
+        }
+
+        /* 暂停按钮 */
+        .pause-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .pause-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pause-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        /* 操作提示 */
+        .hint-text {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .hint-text.hidden {
+            opacity: 0;
+        }
+
+        /* 点击波纹效果 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: rippleEffect 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 完成动画覆盖层 */
+        .completion-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s ease;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+        }
+
+        .completion-overlay.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .completion-text {
+            font-size: 6rem;
+            color: white;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
+            animation: bounceIn 1s ease-out;
+        }
+
+        .completion-subtitle {
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(-100px);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05) translateY(0);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #3498db;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .particle.animate {
+            animation: particleFloat 2s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) scale(0) rotate(360deg);
+            }
+        }
+
+        /* 数字发光效果 */
+        .countdown-number.glow {
+            animation: numberGlow 0.8s ease-in-out;
+        }
+
+        @keyframes numberGlow {
+            0%, 100% {
+                text-shadow: 
+                    0 0 30px rgba(255, 255, 255, 0.8),
+                    0 0 60px rgba(52, 152, 219, 0.6),
+                    0 5px 15px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                text-shadow: 
+                    0 0 50px rgba(255, 255, 255, 1),
+                    0 0 100px rgba(52, 152, 219, 0.9),
+                    0 5px 25px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        /* 加速动画 */
+        @keyframes speedBoostAnim {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.5);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-40px) scale(0.5);
+            }
+        }
+
+        /* 淡入淡出动画 */
+        @keyframes fadeInOut {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(-50%) scale(0.8);
+            }
+            15%, 85% {
+                opacity: 1;
+                transform: translateY(-50%) scale(1);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .countdown-container {
+                width: 90%;
+                height: 250px;
+            }
+            
+            .countdown-number {
+                font-size: 6rem;
+            }
+            
+            .status-text {
+                font-size: 1.2rem;
+            }
+            
+            .completion-text {
+                font-size: 4rem;
+            }
+            
+            .completion-subtitle {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-container">
+        <!-- 音效指示器 -->
+        <div class="sound-indicator" id="soundIndicator" title="点击切换音效">🔊</div>
+        
+        <!-- 暂停按钮 -->
+        <button class="pause-btn" id="pauseBtn">暂停</button>
+        
+        <!-- 圆弧路径轨道 -->
+        <svg class="arc-path-track" width="500" height="200" viewBox="0 0 500 200">
+            <path id="arcPath" d="M 50,100 Q 250,20 450,100" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none"/>
+        </svg>
+        
+        <!-- 状态文字 -->
+        <div class="status-text" id="statusText">准备开始</div>
+        
+        <!-- 数字显示区域 -->
+        <div class="number-display" id="numberDisplay">
+            <div class="number-container" id="numberContainer">
+                <!-- 数字将通过JavaScript动态创建 -->
+            </div>
+        </div>
+        
+        <!-- 进度条 -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 100%;"></div>
+        </div>
+        
+        <!-- 控制按钮 -->
+        <div class="controls">
+            <button class="control-btn" id="startBtn">开始倒计时</button>
+            <button class="control-btn reset" id="resetBtn">重置</button>
+        </div>
+        
+        <!-- 操作提示 -->
+        <div class="hint-text" id="hintText">
+            空格键开始 | R键重置 | P键暂停 | 点击数字加速 | 双击暂停
+        </div>
+    </div>
+
+    <!-- 完成覆盖层 -->
+    <div class="completion-overlay" id="completionOverlay">
+        <div class="completion-text">🎉</div>
+        <div class="completion-subtitle">倒计时完成！</div>
+    </div>
+
+    <script>
+        class ArcPathCountdown {
+            constructor() {
+                console.log('初始化圆弧路径滑动倒计时');
+                
+                this.numberDisplay = document.getElementById('numberDisplay');
+                this.numberContainer = document.getElementById('numberContainer');
+                this.statusText = document.getElementById('statusText');
+                this.progressBar = document.getElementById('progressBar');
+                this.startBtn = document.getElementById('startBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.pauseBtn = document.getElementById('pauseBtn');
+                this.soundIndicator = document.getElementById('soundIndicator');
+                this.hintText = document.getElementById('hintText');
+                this.completionOverlay = document.getElementById('completionOverlay');
+                this.arcPath = document.getElementById('arcPath');
+                
+                this.currentNumber = 5;
+                this.totalCount = 5;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.isMuted = false;
+                this.timer = null;
+                this.speed = 1;
+                
+                this.statusTexts = {
+                    5: '准备开始',
+                    4: '倒计时中',
+                    3: '准备就绪',
+                    2: '即将开始',
+                    1: '最后一秒',
+                    0: '开始！'
+                };
+                
+                this.setupEventListeners();
+                this.initializeDisplay();
+                this.hideHintAfterDelay();
+                
+                console.log('圆弧路径滑动倒计时初始化完成');
+            }
+
+            initializeDisplay() {
+                console.log('开始初始化显示');
+                this.numberContainer.innerHTML = '';
+                const initialNumber = this.createNewNumber(this.currentNumber);
+                
+                // 将初始数字定位到圆弧路径的最高点（50%）
+                this.setupNumberOnPath(initialNumber, '50%');
+                
+                this.numberContainer.appendChild(initialNumber);
+                this.countdownNumber = initialNumber;
+                
+                this.updateDisplay();
+                console.log(`初始显示设置完成，显示数字: ${this.currentNumber} 在最高点位置`);
+            }
+
+            // 新增方法：设置数字在路径上的位置
+            setupNumberOnPath(numberElement, distance) {
+                // 移除路径类，使用手动坐标定位
+                numberElement.classList.remove('on-path');
+                numberElement.classList.add('manual-position');
+                
+                // 清除offset-path样式
+                numberElement.style.offsetPath = '';
+                numberElement.style.offsetDistance = '';
+                
+                // 计算路径上的实际坐标
+                const pathElement = this.arcPath;
+                const pathLength = pathElement.getTotalLength();
+                const distanceValue = parseFloat(distance) / 100; // 将百分比转换为0-1
+                const point = pathElement.getPointAtLength(pathLength * distanceValue);
+                
+                // 获取SVG容器的位置和大小
+                const svgRect = pathElement.closest('svg').getBoundingClientRect();
+                const containerRect = this.numberContainer.getBoundingClientRect();
+                
+                // 计算相对于数字容器的坐标
+                const relativeX = point.x - (svgRect.width / 2) + (containerRect.width / 2);
+                const relativeY = point.y - (svgRect.height / 2) + (containerRect.height / 2);
+                
+                // 设置数字位置
+                numberElement.style.left = relativeX + 'px';
+                numberElement.style.top = relativeY + 'px';
+                numberElement.style.transform = 'translate(-50%, -50%)';
+                numberElement.style.position = 'absolute';
+                
+                console.log(`数字 ${numberElement.textContent} 设置在路径位置: ${distance} -> 坐标(${relativeX.toFixed(1)}, ${relativeY.toFixed(1)})`);
+            }
+
+            setupEventListeners() {
+                console.log('设置事件监听器');
+                
+                this.startBtn.addEventListener('click', (e) => {
+                    this.createRipple(e);
+                    this.handleStartClick();
+                });
+                this.resetBtn.addEventListener('click', (e) => {
+                    this.createRipple(e);
+                    this.handleResetClick();
+                });
+                this.pauseBtn.addEventListener('click', () => this.handlePauseClick());
+                
+                this.soundIndicator.addEventListener('click', () => {
+                    this.toggleSound();
+                });
+                
+                // 增强键盘快捷键
+                document.addEventListener('keydown', (event) => {
+                    switch(event.code) {
+                        case 'Space':
+                            event.preventDefault();
+                            this.handleStartClick();
+                            break;
+                        case 'KeyR':
+                            event.preventDefault();
+                            this.handleResetClick();
+                            break;
+                        case 'KeyP':
+                            event.preventDefault();
+                            this.handlePauseClick();
+                            break;
+                        case 'KeyM':
+                            event.preventDefault();
+                            this.toggleSound();
+                            break;
+                        case 'ArrowUp':
+                            event.preventDefault();
+                            this.changeSpeed(0.5);
+                            break;
+                        case 'ArrowDown':
+                            event.preventDefault();
+                            this.changeSpeed(-0.5);
+                            break;
+                    }
+                });
+                
+                window.addEventListener('blur', () => {
+                    if (this.isRunning && !this.isPaused) {
+                        this.handlePauseClick();
+                    }
+                });
+                
+                this.hideHintAfterDelay();
+            }
+
+            createNewNumber(number) {
+                console.log(`创建新数字: ${number}`);
+                const newNumberElement = document.createElement('div');
+                newNumberElement.className = 'countdown-number';
+                newNumberElement.textContent = number;
+                newNumberElement.title = '点击加速';
+                
+                newNumberElement.addEventListener('click', (e) => {
+                    this.createNumberRipple(e);
+                    this.handleNumberClick();
+                });
+                
+                newNumberElement.addEventListener('dblclick', () => {
+                    this.handlePauseClick();
+                });
+                
+                return newNumberElement;
+            }
+
+            async slideAlongArcPath() {
+                if (this.currentNumber <= 0) return;
+                
+                console.log(`开始圆弧路径滑动，当前: ${this.currentNumber} → ${this.currentNumber - 1}`);
+                console.log(`当前数字从最高点滑出到终点，新数字从起点滑入到最高点`);
+                
+                const slideDuration = 600; // 减少动画时长，让速度更快
+                
+                let currentNumberElement = this.countdownNumber;
+                
+                if (!currentNumberElement) {
+                    console.warn('countdownNumber引用丢失，尝试从DOM查找...');
+                    currentNumberElement = this.numberContainer.querySelector('.countdown-number');
+                    if (currentNumberElement) {
+                        this.countdownNumber = currentNumberElement;
+                    }
+                }
+                
+                if (!currentNumberElement) {
+                    console.warn('无法找到当前数字元素，创建默认元素');
+                    currentNumberElement = this.createNewNumber(this.currentNumber);
+                    this.setupNumberOnPath(currentNumberElement, '50%'); // 最高点位置
+                    this.numberContainer.innerHTML = '';
+                    this.numberContainer.appendChild(currentNumberElement);
+                    this.countdownNumber = currentNumberElement;
+                }
+                
+                this.currentNumber--;
+                this.playSound('tick');
+                
+                const newNumberElement = this.createNewNumber(this.currentNumber);
+                newNumberElement.id = 'number-new';
+                
+                this.numberContainer.appendChild(newNumberElement);
+                
+                console.log(`圆弧路径滑动开始: 旧数字${this.currentNumber + 1}从最高点滑出到终点，新数字${this.currentNumber}从起点滑入到最高点`);
+                
+                // 使用JavaScript动画代替CSS动画
+                await this.animateNumbersAlongPath(currentNumberElement, newNumberElement, slideDuration);
+                
+                // 减少特效延迟时间
+                setTimeout(() => {
+                    this.updateDisplay();
+                    this.statusText.classList.add('highlight');
+                    newNumberElement.classList.add('glow');
+                    this.createParticles();
+                    console.log('添加特效');
+                }, (slideDuration * 0.2) / this.speed); // 减少延迟时间
+                
+                if (currentNumberElement && currentNumberElement.parentNode) {
+                    currentNumberElement.remove();
+                    console.log('移除旧数字元素');
+                }
+                
+                newNumberElement.id = 'number';
+                this.countdownNumber = newNumberElement;
+                
+                // 清除动画类，保持新数字在最高点位置
+                newNumberElement.classList.remove('glow');
+                this.setupNumberOnPath(newNumberElement, '50%'); // 确保在最高点
+                this.statusText.classList.remove('highlight');
+                
+                console.log(`圆弧路径滑动完成，当前显示: ${this.currentNumber} 在最高点位置`);
+            }
+
+            // 新增方法：使用JavaScript动画让数字沿路径滑动
+            async animateNumbersAlongPath(oldElement, newElement, duration) {
+                return new Promise(resolve => {
+                    const startTime = performance.now();
+                    const adjustedDuration = duration / this.speed;
+                    let lastFrameTime = startTime;
+                    
+                    const animate = (currentTime) => {
+                        // 控制帧率，确保流畅度
+                        const deltaTime = currentTime - lastFrameTime;
+                        if (deltaTime < 16.67) { // 约60FPS
+                            requestAnimationFrame(animate);
+                            return;
+                        }
+                        lastFrameTime = currentTime;
+                        
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / adjustedDuration, 1);
+                        
+                        // 使用更圆滑的缓动函数
+                        const eased = this.easeInOutCubic(progress);
+                        
+                        // 旧数字：从50%滑动到100%
+                        const oldProgress = 50 + (50 * eased); // 50% -> 100%
+                        this.setupNumberOnPath(oldElement, oldProgress + '%');
+                        
+                        // 更平滑的透明度变化
+                        const oldOpacity = Math.max(0, 1 - (eased * 1.2));
+                        oldElement.style.opacity = oldOpacity;
+                        
+                        // 添加更流畅的缩放和旋转效果
+                        const oldScale = 1.2 - eased * 0.3;
+                        const oldRotate = eased * 5; // 轻微旋转
+                        oldElement.style.transform = `translate(-50%, -50%) scale(${oldScale}) rotate(${oldRotate}deg)`;
+                        
+                        // 新数字：从0%滑动到50%
+                        const newProgress = 50 * eased; // 0% -> 50%
+                        this.setupNumberOnPath(newElement, newProgress + '%');
+                        
+                        // 更平滑的透明度变化
+                        const newOpacity = Math.min(1, eased * 1.3);
+                        newElement.style.opacity = newOpacity;
+                        
+                        // 添加更流畅的缩放和反向旋转效果
+                        const newScale = 0.8 + eased * 0.4;
+                        const newRotate = (1 - eased) * -5; // 反向旋转
+                        newElement.style.transform = `translate(-50%, -50%) scale(${newScale}) rotate(${newRotate}deg)`;
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            // 确保最终状态
+                            oldElement.style.opacity = '0';
+                            newElement.style.opacity = '1';
+                            newElement.style.transform = 'translate(-50%, -50%) scale(1.2) rotate(0deg)';
+                            resolve();
+                        }
+                    };
+                    
+                    requestAnimationFrame(animate);
+                });
+            }
+
+            // 更圆滑的三次贝塞尔缓动函数
+            easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+
+            // 保留原来的四次方缓动作为备用
+            easeInOutQuart(t) {
+                return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t;
+            }
+
+            createRipple(e) {
+                const button = e.currentTarget;
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                button.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+
+            createNumberRipple(e) {
+                const number = e.currentTarget;
+                const rect = number.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.width = ripple.style.height = '100px';
+                ripple.style.left = (x - 50) + 'px';
+                ripple.style.top = (y - 50) + 'px';
+                ripple.style.background = 'rgba(52, 152, 219, 0.6)';
+                
+                number.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+
+            playSound(type = 'click') {
+                if (this.isMuted) return;
+                
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                switch(type) {
+                    case 'click':
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                        break;
+                    case 'tick':
+                        // 改进滴答声，让频率随数字变化
+                        const frequency = 800 + (this.currentNumber * 100); // 数字越小频率越高
+                        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                        gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                        break;
+                    case 'complete':
+                        // 更丰富的完成音效
+                        oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
+                        oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1); // E5
+                        oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2); // G5
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                        break;
+                }
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.8);
+            }
+
+            vibrate() {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([50, 30, 50]);
+                }
+            }
+
+            toggleSound() {
+                this.isMuted = !this.isMuted;
+                this.soundIndicator.textContent = this.isMuted ? '🔇' : '🔊';
+                this.soundIndicator.classList.toggle('muted', this.isMuted);
+                
+                if (!this.isMuted) {
+                    this.playSound('click');
+                }
+            }
+
+            changeSpeed(delta) {
+                if (!this.isRunning) return;
+                
+                const oldSpeed = this.speed;
+                this.speed = Math.max(0.5, Math.min(3, this.speed + delta));
+                
+                if (oldSpeed !== this.speed) {
+                    this.showSpeedIndicator();
+                    this.playSound('tick');
+                }
+            }
+
+            showSpeedIndicator() {
+                const indicator = document.createElement('div');
+                indicator.textContent = `${this.speed}x`;
+                indicator.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    right: 20px;
+                    transform: translateY(-50%);
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 15px;
+                    font-size: 14px;
+                    z-index: 200;
+                    animation: fadeInOut 2s ease;
+                `;
+                
+                document.body.appendChild(indicator);
+                
+                setTimeout(() => {
+                    indicator.remove();
+                }, 2000);
+            }
+
+            hideHintAfterDelay() {
+                setTimeout(() => {
+                    this.hintText.classList.add('hidden');
+                }, 5000);
+            }
+
+            handleStartClick() {
+                if (this.isRunning) return;
+                this.playSound('click');
+                this.vibrate();
+                this.startCountdown();
+            }
+
+            handleResetClick() {
+                this.playSound('click');
+                this.vibrate();
+                this.resetCountdown();
+            }
+
+            handlePauseClick() {
+                if (!this.isRunning) return;
+                
+                this.isPaused = !this.isPaused;
+                this.pauseBtn.textContent = this.isPaused ? '继续' : '暂停';
+                this.playSound('click');
+                
+                if (this.isPaused) {
+                    this.statusText.textContent = '已暂停';
+                    this.statusText.classList.add('highlight');
+                } else {
+                    this.statusText.textContent = this.statusTexts[this.currentNumber];
+                    this.statusText.classList.remove('highlight');
+                }
+            }
+
+            handleNumberClick() {
+                if (this.isRunning && !this.isPaused) {
+                    const oldSpeed = this.speed;
+                    this.speed = Math.min(3, this.speed + 0.2);
+                    
+                    if (oldSpeed !== this.speed) {
+                        this.showSpeedIndicator();
+                        this.playSound('tick');
+                        this.countdownNumber.classList.add('glow');
+                        
+                        const speedBoost = document.createElement('div');
+                        speedBoost.textContent = '+';
+                        speedBoost.style.cssText = `
+                            position: absolute;
+                            top: 20%;
+                            right: 30%;
+                            color: #ffd700;
+                            font-size: 2rem;
+                            font-weight: bold;
+                            pointer-events: none;
+                            animation: speedBoostAnim 0.6s ease-out forwards;
+                        `;
+                        
+                        this.numberContainer.appendChild(speedBoost);
+                        
+                        setTimeout(() => {
+                            if (this.countdownNumber) {
+                                this.countdownNumber.classList.remove('glow');
+                            }
+                            speedBoost.remove();
+                        }, 600);
+                    }
+                }
+            }
+
+            updateDisplay() {
+                this.statusText.textContent = this.statusTexts[this.currentNumber] || '';
+                
+                const progress = ((this.totalCount - this.currentNumber) / this.totalCount) * 100;
+                this.progressBar.style.width = progress + '%';
+            }
+
+            async startCountdown() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                this.speed = 1;
+                this.updateButtonStates();
+                
+                this.pauseBtn.classList.add('show');
+                
+                if (this.currentNumber !== this.totalCount) {
+                    this.currentNumber = this.totalCount;
+                    this.numberContainer.innerHTML = '';
+                    const initialNumber = this.createNewNumber(this.currentNumber);
+                    
+                    // 将数字定位到圆弧路径的最高点（50%）
+                    this.setupNumberOnPath(initialNumber, '50%'); // 最高点位置
+                    
+                    this.numberContainer.appendChild(initialNumber);
+                    this.countdownNumber = initialNumber;
+                    this.updateDisplay();
+                    await this.delay(400); // 减少初始延迟
+                }
+                
+                this.runCountdown();
+            }
+
+            async runCountdown() {
+                while (this.currentNumber > 0 && this.isRunning) {
+                    // 减少倒计时间隔，让节奏更紧凑
+                    await this.delayWithPause(1000 / this.speed); // 从1200毫秒减少到1000毫秒
+                    
+                    if (this.isRunning && !this.isPaused) {
+                        await this.slideAlongArcPath();
+                        
+                        if (this.currentNumber === 0) {
+                            await this.delay(600); // 减少最后的延迟
+                            this.completeCountdown();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            async delayWithPause(ms) {
+                return new Promise(resolve => {
+                    const startTime = performance.now();
+                    const checkInterval = 10; // 检查间隔10ms，提高精度
+                    
+                    const checkStatus = () => {
+                        if (!this.isRunning) {
+                            resolve();
+                            return;
+                        }
+                        
+                        if (this.isPaused) {
+                            setTimeout(checkStatus, checkInterval);
+                            return;
+                        }
+                        
+                        const elapsed = performance.now() - startTime;
+                        
+                        if (elapsed >= ms) {
+                            resolve();
+                        } else {
+                            // 使用更精确的超时计算
+                            const remainingTime = ms - elapsed;
+                            this.timer = setTimeout(checkStatus, Math.min(remainingTime, checkInterval));
+                        }
+                    };
+                    
+                    checkStatus();
+                });
+            }
+
+            async delay(ms) {
+                return new Promise(resolve => {
+                    this.timer = setTimeout(resolve, ms);
+                });
+            }
+
+            createParticles() {
+                const particleCount = 12;
+                const container = this.numberDisplay;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    const centerX = container.offsetWidth / 2;
+                    const centerY = container.offsetHeight / 2;
+                    
+                    const angle = (i / particleCount) * Math.PI * 2;
+                    const radius = Math.random() * 40 + 30;
+                    
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    particle.style.background = `hsl(${Math.random() * 60 + 200}, 80%, 60%)`;
+                    particle.style.animationDelay = Math.random() * 0.3 + 's';
+                    
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.classList.add('animate');
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.remove();
+                        }
+                    }, 2500);
+                }
+            }
+
+            completeCountdown() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.updateButtonStates();
+                
+                this.pauseBtn.classList.remove('show');
+                
+                this.playSound('complete');
+                this.vibrate();
+                
+                this.completionOverlay.classList.add('show');
+                
+                this.createCelebrationParticles();
+                
+                setTimeout(() => {
+                    this.completionOverlay.classList.remove('show');
+                }, 3000);
+            }
+
+            createCelebrationParticles() {
+                const particleCount = 25;
+                const container = document.body;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.background = `hsl(${Math.random() * 360}, 80%, 60%)`;
+                    particle.style.width = Math.random() * 12 + 8 + 'px';
+                    particle.style.height = particle.style.width;
+                    
+                    particle.style.left = Math.random() * window.innerWidth + 'px';
+                    particle.style.top = Math.random() * window.innerHeight + 'px';
+                    particle.style.animationDelay = Math.random() * 0.5 + 's';
+                    particle.style.animationDuration = Math.random() * 2 + 2 + 's';
+                    
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.classList.add('animate');
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.remove();
+                        }
+                    }, 4000);
+                }
+            }
+
+            resetCountdown() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentNumber = this.totalCount;
+                this.speed = 1;
+                
+                if (this.timer) {
+                    clearTimeout(this.timer);
+                    this.timer = null;
+                }
+                
+                this.pauseBtn.classList.remove('show');
+                this.pauseBtn.textContent = '暂停';
+                
+                this.numberContainer.innerHTML = '';
+                const resetNumber = this.createNewNumber(this.currentNumber);
+                
+                // 将重置的数字定位到圆弧路径的最高点（50%）
+                this.setupNumberOnPath(resetNumber, '50%'); // 最高点位置
+                
+                this.numberContainer.appendChild(resetNumber);
+                this.countdownNumber = resetNumber;
+                
+                this.updateDisplay();
+                this.updateButtonStates();
+                
+                this.completionOverlay.classList.remove('show');
+                this.statusText.classList.remove('highlight');
+                
+                console.log('重置完成，数字在最高点位置');
+            }
+
+            updateButtonStates() {
+                if (this.isRunning) {
+                    this.startBtn.disabled = true;
+                    this.startBtn.textContent = '倒计时中...';
+                } else {
+                    this.startBtn.disabled = false;
+                    this.startBtn.textContent = '开始倒计时';
+                }
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('页面加载完成，初始化圆弧路径滑动倒计时');
+            window.countdown = new ArcPathCountdown();
+        });
+
+        // 调试函数
+        window.testArcPathSlide = function() {
+            if (window.countdown) {
+                console.log('测试圆弧路径滑动');
+                window.countdown.slideAlongArcPath();
+            }
+        };
+
+        window.quickArcPathTest = function() {
+            if (window.countdown) {
+                console.log('快速圆弧路径滑动测试');
+                let count = 0;
+                const testInterval = setInterval(() => {
+                    if (count < 5 && window.countdown.currentNumber > 0) {
+                        window.countdown.slideAlongArcPath();
+                        count++;
+                    } else {
+                        clearInterval(testInterval);
+                        console.log('快速圆弧路径滑动测试完成');
+                    }
+                }, 1200);
+            }
+        };
+
+        console.log('圆弧路径滑动倒计时加载完成！');
+        console.log('效果说明: 当前数字从最高点滑出到终点，新数字从起点滑入到最高点');
+        console.log('优化特性: 更圆滑的动画(60FPS)、更快的速度、更准确的时间控制');
+        console.log('音效特性: 随数字变化的滴答声频率、丰富的完成音效');
+        console.log('测试函数: testArcPathSlide() - 单次圆弧路径滑动测试');
+        console.log('测试函数: quickArcPathTest() - 快速连续圆弧路径滑动测试');
+    </script>
+</body>
+</html> 

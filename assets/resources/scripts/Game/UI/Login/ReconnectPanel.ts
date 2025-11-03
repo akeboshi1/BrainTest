@@ -37,7 +37,7 @@ export class ReconnectPanel extends BasePanel {
         this.count++;
     }
 
-    async showPanel(): Promise<void> {
+    async showPanel(skipTween: boolean = false): Promise<void> {
 
     }
 

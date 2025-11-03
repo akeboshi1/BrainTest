@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级手势识别演示 - MediaPipe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .video-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        #videoElement {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #canvasElement {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #da190b);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(45deg, #2196F3, #0b7dda);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status-card.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-card.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-card.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .gesture-display {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gesture-display h3 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .current-gesture {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .gesture-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .gesture-confidence {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .finger-states {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .finger-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .finger-item {
+            text-align: center;
+            padding: 15px 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .finger-item.extended {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .finger-item.bent {
+            background: #f8f9fa;
+            color: #666;
+        }
+
+        .finger-name {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .finger-status {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .supported-gestures {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gesture-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .gesture-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .gesture-item-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .gesture-item-desc {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .movement-info {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .movement-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .movement-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .info-panel {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+            
+            .finger-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>🤚 高级手势识别系统</h1>
+            <p>基于MediaPipe的实时手势识别与分析</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="video-section">
+                <div id="status" class="status-card loading">
+                    正在初始化MediaPipe...
+                </div>
+                
+                <div class="video-container">
+                    <video id="videoElement" width="640" height="480" autoplay muted></video>
+                    <canvas id="canvasElement" width="640" height="480"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button id="startBtn" class="btn btn-primary">开始识别</button>
+                    <button id="stopBtn" class="btn btn-danger" disabled>停止识别</button>
+                    <button id="toggleLandmarks" class="btn btn-info">显示/隐藏关键点</button>
+                    <button id="resetHistory" class="btn btn-info">重置历史</button>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <div class="gesture-display">
+                    <h3>当前手势</h3>
+                    <div class="current-gesture">
+                        <div class="gesture-name" id="gestureName">等待检测...</div>
+                        <div class="gesture-confidence" id="gestureConfidence">置信度: 0%</div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">手部数量</div>
+                            <div class="stat-value" id="handCount">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">FPS</div>
+                            <div class="stat-value" id="fpsDisplay">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">稳定性</div>
+                            <div class="stat-value" id="stabilityDisplay">0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">历史长度</div>
+                            <div class="stat-value" id="historyLength">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="finger-states">
+                    <h3>手指状态</h3>
+                    <div class="finger-grid" id="fingerGrid">
+                        <!-- 手指状态将在这里动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="movement-info">
+                    <h3>手部运动</h3>
+                    <div class="movement-display">
+                        <div class="movement-item">
+                            <div class="stat-label">运动方向</div>
+                            <div class="stat-value" id="movementDirection">静止</div>
+                        </div>
+                        <div class="movement-item">
+                            <div class="stat-label">运动速度</div>
+                            <div class="stat-value" id="movementSpeed">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="supported-gestures">
+                    <h3>支持的手势</h3>
+                    <div class="gesture-list" id="gestureList">
+                        <!-- 支持的手势列表将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MediaPipe 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    
+    <!-- 高级手势识别模块 -->
+    <script src="gesture-recognition-advanced.js"></script>
+
+    <script>
+        class GestureRecognitionApp {
+            constructor() {
+                this.videoElement = document.getElementById('videoElement');
+                this.canvasElement = document.getElementById('canvasElement');
+                this.canvasCtx = this.canvasElement.getContext('2d');
+                this.camera = null;
+                this.hands = null;
+                this.isRunning = false;
+                this.showLandmarks = true;
+                this.frameCount = 0;
+                this.lastTime = Date.now();
+                this.fps = 0;
+                this.previousLandmarks = null;
+                
+                // 初始化高级手势识别器
+                this.gestureRecognizer = new AdvancedGestureRecognition();
+                
+                this.initializeElements();
+                this.initializeMediaPipe();
+                this.setupSupportedGestures();
+                this.setupFingerGrid();
+            }
+
+            initializeElements() {
+                this.startBtn = document.getElementById('startBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.toggleLandmarksBtn = document.getElementById('toggleLandmarks');
+                this.resetHistoryBtn = document.getElementById('resetHistory');
+                this.statusDiv = document.getElementById('status');
+                
+                // 手势显示元素
+                this.gestureNameEl = document.getElementById('gestureName');
+                this.gestureConfidenceEl = document.getElementById('gestureConfidence');
+                this.handCountEl = document.getElementById('handCount');
+                this.fpsDisplayEl = document.getElementById('fpsDisplay');
+                this.stabilityDisplayEl = document.getElementById('stabilityDisplay');
+                this.historyLengthEl = document.getElementById('historyLength');
+                
+                // 运动信息元素
+                this.movementDirectionEl = document.getElementById('movementDirection');
+                this.movementSpeedEl = document.getElementById('movementSpeed');
+                
+                // 事件监听器
+                this.startBtn.addEventListener('click', () => this.startRecognition());
+                this.stopBtn.addEventListener('click', () => this.stopRecognition());
+                this.toggleLandmarksBtn.addEventListener('click', () => this.toggleLandmarks());
+                this.resetHistoryBtn.addEventListener('click', () => this.resetHistory());
+            }
+
+            async initializeMediaPipe() {
+                try {
+                    this.hands = new Hands({
+                        locateFile: (file) => {
+                            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                        }
+                    });
+
+                    this.hands.setOptions({
+                        maxNumHands: 2,
+                        modelComplexity: 1,
+                        minDetectionConfidence: 0.7,
+                        minTrackingConfidence: 0.5
+                    });
+
+                    this.hands.onResults((results) => this.onResults(results));
+
+                    this.updateStatus('ready', '✅ MediaPipe初始化完成，点击开始识别');
+                } catch (error) {
+                    console.error('MediaPipe初始化失败:', error);
+                    this.updateStatus('error', '❌ MediaPipe初始化失败');
+                }
+            }
+
+            setupSupportedGestures() {
+                const gestureList = document.getElementById('gestureList');
+                const supportedGestures = this.gestureRecognizer.getSupportedGestures();
+                
+                gestureList.innerHTML = supportedGestures.map(gesture => `
+                    <div class="gesture-item">
+                        <div class="gesture-item-name">${gesture.name}</div>
+                        <div class="gesture-item-desc">${gesture.description}</div>
+                    </div>
+                `).join('');
+            }
+
+            setupFingerGrid() {
+                const fingerGrid = document.getElementById('fingerGrid');
+                const fingerNames = ['拇指', '食指', '中指', '无名指', '小指'];
+                
+                fingerGrid.innerHTML = fingerNames.map(name => `
+                    <div class="finger-item bent" data-finger="${name}">
+                        <div class="finger-name">${name}</div>
+                        <div class="finger-status">弯曲</div>
+                    </div>
+                `).join('');
+            }
+
+            async startRecognition() {
+                try {
+                    this.updateStatus('loading', '正在启动摄像头...');
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { 
+                            width: 640, 
+                            height: 480,
+                            facingMode: 'user'
+                        }
+                    });
+                    
+                    this.videoElement.srcObject = stream;
+                    
+                    this.camera = new Camera(this.videoElement, {
+                        onFrame: async () => {
+                            if (this.isRunning) {
+                                await this.hands.send({ image: this.videoElement });
+                                this.updateFPS();
+                            }
+                        },
+                        width: 640,
+                        height: 480
+                    });
+                    
+                    await this.camera.start();
+                    
+                    this.isRunning = true;
+                    this.startBtn.disabled = true;
+                    this.stopBtn.disabled = false;
+                    
+                    this.updateStatus('ready', '🎥 正在进行手势识别...');
+                } catch (error) {
+                    console.error('启动摄像头失败:', error);
+                    this.updateStatus('error', '❌ 无法访问摄像头，请检查权限设置');
+                }
+            }
+
+            stopRecognition() {
+                this.isRunning = false;
+                
+                if (this.camera) {
+                    this.camera.stop();
+                }
+                
+                if (this.videoElement.srcObject) {
+                    const tracks = this.videoElement.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                    this.videoElement.srcObject = null;
+                }
+                
+                this.startBtn.disabled = false;
+                this.stopBtn.disabled = true;
+                
+                this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+                this.updateStatus('ready', '⏹️ 识别已停止');
+                this.resetDisplays();
+            }
+
+            onResults(results) {
+                if (!this.isRunning) return;
+
+                // 清除画布
+                this.canvasCtx.save();
+                this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+
+                let detectedGesture = { name: '无手势', confidence: 0, details: {} };
+                let handCount = results.multiHandLandmarks ? results.multiHandLandmarks.length : 0;
+                let movementInfo = null;
+
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                        const landmarks = results.multiHandLandmarks[i];
+                        const handedness = results.multiHandedness[i];
+                        
+                        // 绘制手部关键点和连接线
+                        if (this.showLandmarks) {
+                            this.drawLandmarks(landmarks, handedness);
+                        }
+                        
+                        // 使用高级手势识别器
+                        const gesture = this.gestureRecognizer.recognizeGesture(landmarks);
+                        if (gesture.confidence > detectedGesture.confidence) {
+                            detectedGesture = gesture;
+                        }
+                        
+                        // 分析手部运动
+                        if (this.previousLandmarks && this.previousLandmarks[i]) {
+                            movementInfo = this.gestureRecognizer.analyzeHandMovement(
+                                landmarks, 
+                                this.previousLandmarks[i]
+                            );
+                        }
+                        
+                        // 更新手指状态显示
+                        this.updateFingerStates(gesture.details.fingerStates || []);
+                    }
+                    
+                    // 保存当前关键点用于下一帧的运动分析
+                    this.previousLandmarks = results.multiHandLandmarks;
+                }
+
+                this.canvasCtx.restore();
+                this.updateGestureDisplay(detectedGesture, handCount, movementInfo);
+            }
+
+            drawLandmarks(landmarks, handedness) {
+                // 手部连接线定义
+                const connections = [
+                    [0, 1], [1, 2], [2, 3], [3, 4], // 拇指
+                    [0, 5], [5, 6], [6, 7], [7, 8], // 食指
+                    [5, 9], [9, 10], [10, 11], [11, 12], // 中指
+                    [9, 13], [13, 14], [14, 15], [15, 16], // 无名指
+                    [13, 17], [17, 18], [18, 19], [19, 20], // 小指
+                    [0, 17] // 手腕到小指根部
+                ];
+
+                // 根据左右手设置不同颜色
+                const isLeftHand = handedness.label === 'Left';
+                const lineColor = isLeftHand ? '#FF6B6B' : '#4ECDC4';
+                const pointColor = isLeftHand ? '#FF6B6B' : '#4ECDC4';
+
+                // 绘制连接线
+                this.canvasCtx.strokeStyle = lineColor;
+                this.canvasCtx.lineWidth = 3;
+                this.canvasCtx.beginPath();
+                
+                connections.forEach(([start, end]) => {
+                    const startPoint = landmarks[start];
+                    const endPoint = landmarks[end];
+                    
+                    this.canvasCtx.moveTo(
+                        startPoint.x * this.canvasElement.width,
+                        startPoint.y * this.canvasElement.height
+                    );
+                    this.canvasCtx.lineTo(
+                        endPoint.x * this.canvasElement.width,
+                        endPoint.y * this.canvasElement.height
+                    );
+                });
+                
+                this.canvasCtx.stroke();
+
+                // 绘制关键点
+                landmarks.forEach((landmark, index) => {
+                    const x = landmark.x * this.canvasElement.width;
+                    const y = landmark.y * this.canvasElement.height;
+                    
+                    // 绘制关键点
+                    this.canvasCtx.beginPath();
+                    this.canvasCtx.arc(x, y, 5, 0, 2 * Math.PI);
+                    this.canvasCtx.fillStyle = pointColor;
+                    this.canvasCtx.fill();
+                    
+                    // 绘制关键点边框
+                    this.canvasCtx.beginPath();
+                    this.canvasCtx.arc(x, y, 5, 0, 2 * Math.PI);
+                    this.canvasCtx.strokeStyle = 'white';
+                    this.canvasCtx.lineWidth = 2;
+                    this.canvasCtx.stroke();
+                    
+                    // 绘制关键点编号（仅显示重要点）
+                    const importantPoints = [0, 4, 8, 12, 16, 20]; // 手腕和指尖
+                    if (importantPoints.includes(index)) {
+                        this.canvasCtx.fillStyle = 'white';
+                        this.canvasCtx.font = 'bold 12px Arial';
+                        this.canvasCtx.textAlign = 'center';
+                        this.canvasCtx.fillText(index.toString(), x, y + 4);
+                    }
+                });
+            }
+
+            updateGestureDisplay(gesture, handCount, movementInfo) {
+                // 更新手势信息
+                this.gestureNameEl.textContent = gesture.name;
+                this.gestureConfidenceEl.textContent = `置信度: ${Math.round(gesture.confidence * 100)}%`;
+                this.handCountEl.textContent = handCount.toString();
+                this.fpsDisplayEl.textContent = this.fps.toString();
+                
+                // 更新稳定性和历史长度
+                if (gesture.details.stability !== undefined) {
+                    this.stabilityDisplayEl.textContent = `${Math.round(gesture.details.stability * 100)}%`;
+                }
+                if (gesture.details.historyLength !== undefined) {
+                    this.historyLengthEl.textContent = gesture.details.historyLength.toString();
+                }
+                
+                // 更新运动信息
+                if (movementInfo) {
+                    this.movementDirectionEl.textContent = this.getDirectionText(movementInfo.direction);
+                    this.movementSpeedEl.textContent = movementInfo.speed.toFixed(4);
+                } else {
+                    this.movementDirectionEl.textContent = '静止';
+                    this.movementSpeedEl.textContent = '0';
+                }
+            }
+
+            updateFingerStates(fingerStates) {
+                const fingerItems = document.querySelectorAll('.finger-item');
+                const fingerNames = ['拇指', '食指', '中指', '无名指', '小指'];
+                
+                fingerItems.forEach((item, index) => {
+                    if (index < fingerStates.length) {
+                        const isExtended = fingerStates[index];
+                        const statusEl = item.querySelector('.finger-status');
+                        
+                        if (isExtended) {
+                            item.className = 'finger-item extended';
+                            statusEl.textContent = '伸直';
+                        } else {
+                            item.className = 'finger-item bent';
+                            statusEl.textContent = '弯曲';
+                        }
+                    }
+                });
+            }
+
+            getDirectionText(direction) {
+                const directionMap = {
+                    'up': '向上',
+                    'down': '向下',
+                    'left': '向左',
+                    'right': '向右',
+                    'static': '静止'
+                };
+                return directionMap[direction] || '未知';
+            }
+
+            updateFPS() {
+                this.frameCount++;
+                const currentTime = Date.now();
+                if (currentTime - this.lastTime >= 1000) {
+                    this.fps = this.frameCount;
+                    this.frameCount = 0;
+                    this.lastTime = currentTime;
+                }
+            }
+
+            toggleLandmarks() {
+                this.showLandmarks = !this.showLandmarks;
+                this.toggleLandmarksBtn.textContent = this.showLandmarks ? '隐藏关键点' : '显示关键点';
+                
+                if (!this.showLandmarks) {
+                    this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+                }
+            }
+
+            resetHistory() {
+                this.gestureRecognizer.resetHistory();
+                this.previousLandmarks = null;
+                this.updateStatus('ready', '📝 历史记录已重置');
+            }
+
+            updateStatus(type, message) {
+                this.statusDiv.className = `status-card ${type}`;
+                this.statusDiv.textContent = message;
+            }
+
+            resetDisplays() {
+                this.gestureNameEl.textContent = '等待检测...';
+                this.gestureConfidenceEl.textContent = '置信度: 0%';
+                this.handCountEl.textContent = '0';
+                this.fpsDisplayEl.textContent = '0';
+                this.stabilityDisplayEl.textContent = '0%';
+                this.historyLengthEl.textContent = '0';
+                this.movementDirectionEl.textContent = '静止';
+                this.movementSpeedEl.textContent = '0';
+                
+                // 重置手指状态
+                const fingerItems = document.querySelectorAll('.finger-item');
+                fingerItems.forEach(item => {
+                    item.className = 'finger-item bent';
+                    item.querySelector('.finger-status').textContent = '弯曲';
+                });
+            }
+        }
+
+        // 页面加载完成后初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new GestureRecognitionApp();
+        });
+
+        // 错误处理
+        window.addEventListener('error', (event) => {
+            console.error('页面错误:', event.error);
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('未处理的Promise拒绝:', event.reason);
+        });
+    </script>
+</body>
+</html> 

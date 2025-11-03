@@ -109,7 +109,7 @@ export class UserInfoData {
      * @param maxAge 最大缓存时间（毫秒），默认24小时
      * @returns 配置数据或null
      */
-    public getIndexPageConfigCache(maxAge: number = 24 * 60 * 60 * 1000): any {
+    public getIndexPageConfigCache(maxAge: number = 1): any {
         if (!this.indexPageConfigCache || !this.indexPageConfigCacheTime) {
             return null;
         }

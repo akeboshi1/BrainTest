@@ -1,9 +1,7 @@
 import { _decorator, Component, Node, Color, Sprite, instantiate, Prefab, resources, Label } from 'cc';
 import { ColorUtil } from '../Core/Util/ColorUtil';
-import { DebugLog } from '../Core/Util/DebugLog'; 
-import { ReportManager } from '../ManagerV2/ReportManager';
+import { DebugLog } from '../Core/Util/DebugLog';
 import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
-import {ScreenAdapter} from "db://assets/resources/scripts/Adapter/ScreenAdapter";
 
 const { ccclass, property } = _decorator;
 

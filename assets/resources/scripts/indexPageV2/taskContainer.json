@@ -18,16 +18,17 @@
                 "bg0_color":"124DE5",
                 "bg1_color":"E0E0E0",
                 "click_function_name": "navigatetoFingerGame"
+            },
+            {
+                "title": "数字人陪聊",
+                "txt": "数字人智能陪聊，缓解孤独感，提升情绪健康。",
+                "icon_color": "",
+                "btn": "textureV2/indexPage/index_normal_btn/spriteFrame",
+                "bg0_color":"124DE5",
+                "bg1_color":"E0E0E0",
+                "click_function_name": "showAIChatPanel"
             }
-//            {
-//                "title": "数字人陪聊",
-//                "txt": "数字人智能陪聊，缓解孤独感，提升情绪健康。",
-//                "icon_color": "",
-//                "btn": "textureV2/indexPage/index_normal_btn/spriteFrame",
-//                "bg0_color":"124DE5",
-//                "bg1_color":"E0E0E0",
-//                "click_function_name": "showAIChatPanel"
-//            }
+
         ]
     }
 }

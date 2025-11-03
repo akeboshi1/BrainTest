@@ -1,0 +1,24 @@
+{
+  "name": "hot-update",
+  "title": "i18n:hot-update.title",
+  "package_version": 2,
+  "version": "2.0.1",
+  "author": "yanjifa",
+  "editor": ">=3.0.0",
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -w",
+    "cocos-install": "./cocos-install.sh",
+    "cocos-pack": "./cocos-pack.sh"
+  },
+  "description": "i18n:hot-update.description",
+  "main": "./dist/browser.js",
+  "contributions": {
+    "builder": "./dist/builder.js"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/node": "^14.5.2"
+  },
+  "_storeId": "f3f6dcac835840e4d9a5e867dbbc989f"
+}

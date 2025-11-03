@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24点游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .title {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .numbers-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .number-card {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .number-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .number-card.selected {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            transform: scale(1.1);
+        }
+
+        .operators {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .operator-btn {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .operator-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .expression {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 60px;
+            font-size: 1.5em;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .expression-item {
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 2px;
+            font-weight: bold;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            text-align: center;
+        }
+
+        .current-result {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .calculation-steps {
+            font-size: 1.2em;
+            opacity: 0.9;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .step-item {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin: 2px;
+        }
+
+        .answer-display {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .answer-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .answer-item {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #495057;
+            border-left: 4px solid #007bff;
+        }
+
+        .answer-item:first-child {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .no-answer {
+            text-align: center;
+            color: #dc3545;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .score {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .score h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .timer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 20px 0;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .number-card {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5em;
+            }
+            
+            .operator-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">24点游戏</h1>
+        <p class="subtitle">使用4个数字和运算符，通过计算得到24</p>
+        
+        <div class="timer" id="timer">
+            时间: <span id="timeDisplay">00:00</span>
+        </div>
+        
+        <div class="score">
+            <h3>游戏统计</h3>
+            <div class="score-item">
+                <span>已解决:</span>
+                <span id="solvedCount">0</span>
+            </div>
+            <div class="score-item">
+                <span>总尝试:</span>
+                <span id="attemptCount">0</span>
+            </div>
+            <div class="score-item">
+                <span>成功率:</span>
+                <span id="successRate">0%</span>
+            </div>
+        </div>
+        
+        <div class="numbers-container" id="numbersContainer">
+            <!-- 数字卡片将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="operators">
+            <button class="operator-btn" onclick="addOperator('+')">+</button>
+            <button class="operator-btn" onclick="addOperator('-')">-</button>
+            <button class="operator-btn" onclick="addOperator('×')">×</button>
+            <button class="operator-btn" onclick="addOperator('÷')">÷</button>
+        </div>
+        
+        <div class="expression" id="expression">
+            <span style="color: #999;">点击数字和运算符开始计算...</span>
+        </div>
+        
+        <div class="result-display" id="resultDisplay">
+            <div class="current-result" id="currentResult">0</div>
+            <div class="calculation-steps" id="calculationSteps"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-success" onclick="submitAnswer()">提交答案</button>
+            <button class="btn btn-primary" onclick="showAnswer()">显示答案</button>
+            <button class="btn btn-danger" onclick="clearExpression()">清空</button>
+            <button class="btn btn-warning" onclick="newGame()">新游戏</button>
+        </div>
+        
+        <div class="result" id="result" style="display: none;"></div>
+        
+        <div class="answer-display" id="answerDisplay">
+            <div class="answer-title">所有可能的解法：</div>
+            <div id="answerList"></div>
+        </div>
+    </div>
+
+    <script>
+        class Game24 {
+            constructor() {
+                this.numbers = [];
+                this.expression = [];
+                this.currentResult = 0;
+                this.calculationSteps = [];
+                this.usedNumbers = [];
+                this.solvedCount = 0;
+                this.attemptCount = 0;
+                this.startTime = Date.now();
+                this.timerInterval = null;
+                this.lastOperator = null;
+                this.waitingForNumber = true;
+                this.calculationStack = []; // 计算栈
+                this.currentCalculation = null; // 当前计算单元
+                this.availableCards = []; // 可用卡牌数组
+                this.selectedCards = []; // 已选择的卡牌
+                this.currentOperator = null; // 当前运算符
+                
+                this.init();
+            }
+            
+            init() {
+                this.generateNumbers();
+                this.renderNumbers();
+                this.startTimer();
+            }
+            
+            generateNumbers() {
+                // 生成4个1-13的数字（代表扑克牌）
+                this.numbers = [];
+                for (let i = 0; i < 4; i++) {
+                    this.numbers.push(Math.floor(Math.random() * 13) + 1);
+                }
+                this.selectedNumbers = [];
+                this.usedNumbers = [];
+                this.expression = [];
+                this.availableCards = [...this.numbers]; // 初始化可用卡牌
+                this.selectedCards = [];
+                this.updateExpression();
+            }
+            
+            renderNumbers() {
+                const container = document.getElementById('numbersContainer');
+                container.innerHTML = '';
+                
+                this.availableCards.forEach((num, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'number-card';
+                    card.textContent = num;
+                    card.onclick = () => this.selectCard(index);
+                    container.appendChild(card);
+                });
+            }
+            
+            selectCard(index) {
+                const num = this.availableCards[index];
+                const card = document.querySelectorAll('.number-card')[index];
+                
+                // 如果已经选择了2个卡牌，不能再选择
+                if (this.selectedCards.length >= 2) {
+                    this.showResult('已经选择了2个卡牌，请先计算！', 'error');
+                    return;
+                }
+                
+                // 添加卡牌到已选择列表
+                this.selectedCards.push({
+                    index: index,
+                    value: num
+                });
+                
+                // 视觉反馈
+                card.classList.add('selected');
+                
+                // 如果选择了第一个数字，提示选择运算符
+                if (this.selectedCards.length === 1) {
+                    this.showResult('请选择运算符', 'info');
+                }
+                // 如果选择了第二个数字，自动执行计算
+                else if (this.selectedCards.length === 2) {
+                    this.executeCardCalculation();
+                }
+            }
+            
+            performCalculation() {
+                if (this.selectedCards.length !== 2) {
+                    return;
+                }
+                
+                // 等待用户选择运算符
+                this.showResult('请选择运算符进行计算', 'info');
+            }
+            
+            handleNumberSelection(num) {
+                if (this.currentCalculation === null) {
+                    // 开始新的计算
+                    this.currentCalculation = {
+                        left: num,
+                        operator: null,
+                        right: null,
+                        result: num
+                    };
+                    this.expression = [num];
+                } else if (this.currentCalculation.operator === null) {
+                    // 当前计算还没有运算符，替换左操作数
+                    this.currentCalculation.left = num;
+                    this.currentCalculation.result = num;
+                    this.expression = [num];
+                } else if (this.currentCalculation.right === null) {
+                    // 当前计算有运算符但没有右操作数
+                    this.currentCalculation.right = num;
+                    this.expression = [this.currentCalculation.left, this.currentCalculation.operator, num];
+                    // 执行计算
+                    this.executeCurrentCalculation();
+                    // 计算完成后，结果替换到第二个数字位置，继续计算
+                    this.expression = [this.currentCalculation.result];
+                    this.currentCalculation.left = this.currentCalculation.result;
+                    this.currentCalculation.right = null;
+                    this.currentCalculation.operator = null;
+                } else {
+                    // 当前计算已完成，开始新的计算
+                    this.finalizeCurrentCalculation();
+                    this.currentCalculation = {
+                        left: num,
+                        operator: null,
+                        right: null,
+                        result: num
+                    };
+                    this.expression = [num];
+                }
+                
+                this.updateDisplay();
+            }
+            
+            addOperator(op) {
+                // 只处理基本运算符
+                if (!['+', '-', '×', '÷'].includes(op)) {
+                    return;
+                }
+                
+                // 如果选择了1个数字，设置运算符
+                if (this.selectedCards.length === 1) {
+                    this.currentOperator = op;
+                    this.showResult('请选择第二个数字', 'info');
+                } else if (this.selectedCards.length === 0) {
+                    this.showResult('请先选择第一个数字', 'error');
+                } else {
+                    this.showResult('已经选择了2个数字，请重新开始', 'error');
+                }
+            }
+            
+            executeCardCalculation() {
+                if (this.selectedCards.length !== 2 || !this.currentOperator) {
+                    return;
+                }
+                
+                const left = this.selectedCards[0].value;
+                const right = this.selectedCards[1].value;
+                const op = this.currentOperator;
+                
+                // 计算结果
+                let result;
+                try {
+                    switch (op) {
+                        case '+':
+                            result = left + right;
+                            break;
+                        case '-':
+                            result = left - right;
+                            break;
+                        case '×':
+                            result = left * right;
+                            break;
+                        case '÷':
+                            if (right === 0) {
+                                result = 'Error';
+                            } else {
+                                result = left / right;
+                            }
+                            break;
+                        default:
+                            result = left;
+                    }
+                } catch (error) {
+                    result = 'Error';
+                }
+                
+                // 记录计算步骤
+                const step = `${left} ${op} ${right} = ${result}`;
+                this.calculationStack.push({
+                    step: step,
+                    left: left,
+                    operator: op,
+                    right: right,
+                    result: result
+                });
+                
+                // 更新可用卡牌：移除选中的两个卡牌，添加结果卡牌
+                this.availableCards = this.availableCards.filter((card, index) => 
+                    !this.selectedCards.some(selected => selected.index === index)
+                );
+                this.availableCards.push(result);
+                
+                // 清空选中状态和运算符
+                this.selectedCards = [];
+                this.currentOperator = null;
+                
+                // 更新显示
+                this.renderNumbers();
+                this.updateResultDisplay();
+                this.hideResult();
+                
+                // 自动选中新生成的结果卡牌
+                this.autoSelectResultCard();
+                
+                // 检查是否完成
+                if (this.availableCards.length === 1) {
+                    this.checkFinalResult();
+                }
+            }
+            
+            checkFinalResult() {
+                const finalResult = this.availableCards[0];
+                if (finalResult === 24) {
+                    this.solvedCount++;
+                    this.updateScore();
+                    this.showResult('恭喜！答案正确！', 'success');
+                    setTimeout(() => this.newGame(), 2000);
+                } else {
+                    this.updateScore();
+                    this.showResult(`最终结果: ${finalResult}，继续努力！`, 'info');
+                }
+            }
+            
+            autoSelectResultCard() {
+                // 如果还有多个卡牌，自动选中最后一个（新生成的结果卡牌）
+                if (this.availableCards.length > 1) {
+                    const lastCardIndex = this.availableCards.length - 1;
+                    this.selectedCards = [{
+                        index: lastCardIndex,
+                        value: this.availableCards[lastCardIndex]
+                    }];
+                    
+                    // 视觉反馈
+                    const cards = document.querySelectorAll('.number-card');
+                    if (cards[lastCardIndex]) {
+                        cards[lastCardIndex].classList.add('selected');
+                    }
+                    
+                    // 提示选择运算符
+                    this.showResult('请选择运算符', 'info');
+                }
+            }
+            
+            executeCurrentCalculation() {
+                if (this.currentCalculation.left !== null && 
+                    this.currentCalculation.operator !== null && 
+                    this.currentCalculation.right !== null) {
+                    
+                    try {
+                        const left = this.currentCalculation.left;
+                        const right = this.currentCalculation.right;
+                        const operator = this.currentCalculation.operator;
+                        
+                        let result;
+                        switch (operator) {
+                            case '+':
+                                result = left + right;
+                                break;
+                            case '-':
+                                result = left - right;
+                                break;
+                            case '×':
+                                result = left * right;
+                                break;
+                            case '÷':
+                                if (right === 0) {
+                                    result = 'Error';
+                                } else {
+                                    result = left / right;
+                                }
+                                break;
+                            default:
+                                result = left;
+                        }
+                        
+                        this.currentCalculation.result = result;
+                        this.currentResult = result;
+                        
+                        // 更新计算步骤 - 显示完整的计算过程
+                        const step = `${left} ${operator} ${right} = ${result}`;
+                        this.calculationSteps = [step];
+                        
+                        // 将步骤添加到计算栈中
+                        this.calculationStack.push({
+                            step: step,
+                            left: left,
+                            operator: operator,
+                            right: right,
+                            result: result
+                        });
+                        
+                    } catch (error) {
+                        this.currentCalculation.result = 'Error';
+                        this.currentResult = 'Error';
+                        this.calculationSteps = ['计算错误'];
+                    }
+                }
+            }
+            
+            finalizeCurrentCalculation() {
+                // 计算步骤已经在executeCurrentCalculation中添加了，这里不需要重复添加
+                // 这个方法保留用于其他可能的清理工作
+            }
+            
+            updateDisplay() {
+                this.updateExpression();
+                this.updateResultDisplay();
+            }
+            
+            updateExpression() {
+                const expressionDiv = document.getElementById('expression');
+                if (this.expression.length === 0) {
+                    expressionDiv.innerHTML = '<span style="color: #999;">点击数字和运算符开始计算...</span>';
+                    return;
+                }
+                
+                expressionDiv.innerHTML = this.expression.map(item => 
+                    `<span class="expression-item">${item}</span>`
+                ).join('');
+            }
+            
+            
+            updateResultDisplay() {
+                document.getElementById('currentResult').textContent = this.currentResult;
+                
+                const stepsDiv = document.getElementById('calculationSteps');
+                // 显示所有计算步骤
+                const allSteps = this.calculationStack.map(item => item.step);
+                if (allSteps.length > 0) {
+                    stepsDiv.innerHTML = allSteps.map(step => 
+                        `<span class="step-item">${step}</span>`
+                    ).join('');
+                } else if (this.calculationSteps.length > 0) {
+                    stepsDiv.innerHTML = this.calculationSteps.map(step => 
+                        `<span class="step-item">${step}</span>`
+                    ).join('');
+                } else {
+                    stepsDiv.innerHTML = '';
+                }
+            }
+            
+            submitAnswer() {
+                // 检查是否还有卡牌可以计算
+                if (this.availableCards.length > 1) {
+                    this.showResult('还有卡牌可以计算，请继续！', 'error');
+                    return;
+                }
+                
+                // 检查最终结果
+                if (this.availableCards.length === 1) {
+                    this.attemptCount++;
+                    this.checkFinalResult();
+                } else {
+                    this.showResult('请先进行计算！', 'error');
+                }
+            }
+            
+            clearExpression() {
+                this.expression = [];
+                this.usedNumbers = [];
+                this.currentResult = 0;
+                this.calculationSteps = [];
+                this.calculationStack = [];
+                this.currentCalculation = null;
+                this.lastOperator = null;
+                this.waitingForNumber = true;
+                this.availableCards = [...this.numbers];
+                this.selectedCards = [];
+                this.currentOperator = null;
+                
+                document.querySelectorAll('.number-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                this.renderNumbers();
+                this.updateDisplay();
+                this.hideResult();
+                this.hideAnswer();
+            }
+            
+            newGame() {
+                this.generateNumbers();
+                this.renderNumbers();
+                this.clearExpression();
+                this.startTime = Date.now();
+                this.hideResult();
+                this.hideAnswer();
+            }
+            
+            hideAnswer() {
+                document.getElementById('answerDisplay').style.display = 'none';
+            }
+            
+            showResult(message, type) {
+                const resultDiv = document.getElementById('result');
+                resultDiv.textContent = message;
+                resultDiv.className = `result ${type}`;
+                resultDiv.style.display = 'block';
+            }
+            
+            hideResult() {
+                document.getElementById('result').style.display = 'none';
+            }
+            
+            updateScore() {
+                document.getElementById('solvedCount').textContent = this.solvedCount;
+                document.getElementById('attemptCount').textContent = this.attemptCount;
+                const successRate = this.attemptCount > 0 ? Math.round((this.solvedCount / this.attemptCount) * 100) : 0;
+                document.getElementById('successRate').textContent = successRate + '%';
+            }
+            
+            // 24点求解算法
+            solve24() {
+                const solutions = [];
+                const nums = [...this.numbers];
+                const operators = ['+', '-', '*', '/'];
+                
+                // 生成所有数字的排列
+                const permutations = this.getPermutations(nums);
+                
+                // 生成所有运算符组合
+                const operatorCombinations = this.getOperatorCombinations(3);
+                
+                // 生成所有括号位置
+                const bracketPatterns = [
+                    '((a op1 b) op2 c) op3 d',
+                    '(a op1 (b op2 c)) op3 d',
+                    'a op1 ((b op2 c) op3 d)',
+                    'a op1 (b op2 (c op3 d))',
+                    '(a op1 b) op2 (c op3 d)'
+                ];
+                
+                for (let perm of permutations) {
+                    for (let ops of operatorCombinations) {
+                        for (let pattern of bracketPatterns) {
+                            try {
+                                const expr = this.buildExpression(pattern, perm, ops);
+                                const result = eval(expr);
+                                
+                                if (Math.abs(result - 24) < 0.0001) {
+                                    const displayExpr = expr.replace(/\*/g, '×').replace(/\//g, '÷');
+                                    if (!solutions.includes(displayExpr)) {
+                                        solutions.push(displayExpr);
+                                    }
+                                }
+                            } catch (e) {
+                                // 忽略除零等错误
+                            }
+                        }
+                    }
+                }
+                
+                return solutions;
+            }
+            
+            getPermutations(arr) {
+                if (arr.length <= 1) return [arr];
+                const result = [];
+                for (let i = 0; i < arr.length; i++) {
+                    const current = arr[i];
+                    const remaining = arr.slice(0, i).concat(arr.slice(i + 1));
+                    const perms = this.getPermutations(remaining);
+                    for (let perm of perms) {
+                        result.push([current, ...perm]);
+                    }
+                }
+                return result;
+            }
+            
+            getOperatorCombinations(length) {
+                const operators = ['+', '-', '*', '/'];
+                const result = [];
+                
+                function generate(current) {
+                    if (current.length === length) {
+                        result.push([...current]);
+                        return;
+                    }
+                    for (let op of operators) {
+                        current.push(op);
+                        generate(current);
+                        current.pop();
+                    }
+                }
+                
+                generate([]);
+                return result;
+            }
+            
+            buildExpression(pattern, numbers, operators) {
+                let expr = pattern;
+                expr = expr.replace(/a/g, numbers[0]);
+                expr = expr.replace(/b/g, numbers[1]);
+                expr = expr.replace(/c/g, numbers[2]);
+                expr = expr.replace(/d/g, numbers[3]);
+                expr = expr.replace(/op1/g, operators[0]);
+                expr = expr.replace(/op2/g, operators[1]);
+                expr = expr.replace(/op3/g, operators[2]);
+                return expr;
+            }
+            
+            showAnswer() {
+                const answerDisplay = document.getElementById('answerDisplay');
+                const answerList = document.getElementById('answerList');
+                
+                if (answerDisplay.style.display === 'none' || answerDisplay.style.display === '') {
+                    // 显示答案
+                    const solutions = this.solve24();
+                    
+                    if (solutions.length === 0) {
+                        answerList.innerHTML = '<div class="no-answer">这组数字无法算出24点！</div>';
+                    } else {
+                        answerList.innerHTML = solutions.map((solution, index) => 
+                            `<div class="answer-item">${index + 1}. ${solution}</div>`
+                        ).join('');
+                    }
+                    
+                    answerDisplay.style.display = 'block';
+                } else {
+                    // 隐藏答案
+                    answerDisplay.style.display = 'none';
+                }
+            }
+            
+            startTimer() {
+                this.timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('timeDisplay').textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+        }
+        
+        // 全局函数
+        let game;
+        
+        function addOperator(op) {
+            game.addOperator(op);
+        }
+        
+        function submitAnswer() {
+            game.submitAnswer();
+        }
+        
+        function showAnswer() {
+            game.showAnswer();
+        }
+        
+        function clearExpression() {
+            game.clearExpression();
+        }
+        
+        function newGame() {
+            game.newGame();
+        }
+        
+        // 初始化游戏
+        window.onload = function() {
+            game = new Game24();
+        };
+    </script>
+</body>
+</html>
