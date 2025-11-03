@@ -13,20 +13,8 @@ export class FingerGameSectionSelectGroupItem extends Component {
     private activesList: VList = null;
 
     private _index: number = 0;
-    private _activitiesCount: number = 0;
 
     private _isVListInited: boolean = false;
-    private _initialListY: number = 0;
-
-    private baseHeight: number = 0;
-    /** 每个item的高度 */
-    private readonly ITEM_HEIGHT: number = 190;
-    /** item之间的间隔 */
-    private readonly ITEM_SPACING: number = 0;
-    /** 每行高度（item高度 + 间隔） */
-    private readonly ROW_HEIGHT: number = this.ITEM_HEIGHT + this.ITEM_SPACING;
-    /** 列数 */
-    private readonly COLUMN_COUNT: number = 2;
 
 
     public setData(config, index: number = 0, selectSectionHandler: (setIndex: number, sectionIndex: number) => void) {
@@ -40,14 +28,9 @@ export class FingerGameSectionSelectGroupItem extends Component {
                 activities.push({ index: i, config: config.sections[i] } as SectionIndexConfig);
             }
         }
-        this._activitiesCount = activities.length;
 
         if (!this._isVListInited) {
-            // 保存 activesList 的初始 y 位置
-            if (this.activesList && this.activesList.node) {
-                this._initialListY = this.activesList.node.position.y;
-            }
-            
+
             this.activesList.init({
                 onData: (info: IVListItemInfo<SectionIndexConfig>) => {
                     const section = config.sections[info.data.index];
