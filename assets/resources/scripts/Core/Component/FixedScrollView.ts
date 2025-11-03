@@ -152,12 +152,6 @@ export class FixedScrollView extends ScrollView {
         super._onTouchMoved(event, captureListeners);
 
     }
-    protected _onTouchEnded(event: EventTouch, captureListeners?: Node[]): void {
-        this.isInTouch = false;
-        if (!this.allowTouch)
-            return;
-        super._onTouchEnded(event, captureListeners);
-    }
     protected _onTouchCancelled(event: EventTouch, captureListeners?: Node[]): void {
         this.isInTouch = false;
         if (!this.allowTouch)
@@ -166,6 +160,36 @@ export class FixedScrollView extends ScrollView {
         if (event && !event.simulate) {
             this._dispatchEvent(ScrollView.EventType.TOUCH_UP);
         }
+    }
+    protected _onTouchEnded(event: EventTouch, captureListeners?: Node[]): void {
+        this.isInTouch = false;
+        if (!this.allowTouch)
+            return;
+        super._onTouchEnded(event, captureListeners);
+    }
+
+    protected _hasNestedViewGroup(event: any, captureListeners?: Node[]): boolean {
+        // if (!event || event.eventPhase !== Event.CAPTURING_PHASE) {
+        //     return false;
+        // }
+
+        // if (captureListeners) {
+        //     // captureListeners are arranged from child to parent
+        //     for (let i = 0; i < captureListeners.length; i++) {
+        //         const listener = captureListeners[i];
+        //         if (this.node === listener) {
+        //             if (event.target && (event.target as Node).getComponent(ViewGroup)) {
+        //                 return true;
+        //             }
+        //             return false;
+        //         }
+
+        //         if (listener.getComponent(ViewGroup)) {
+        //             return true;
+        //         }
+        //     }
+        // }
+        return false;
     }
 }
 

@@ -18,26 +18,26 @@ export class FingerGameSectionSelectGroupItem extends Component {
     private _isVListInited: boolean = false;
     private _initialListY: number = 0;
 
-    private baseHeight: number = 84;
+    private baseHeight: number = 0;
     /** 每个item的高度 */
     private readonly ITEM_HEIGHT: number = 190;
     /** item之间的间隔 */
-    private readonly ITEM_SPACING: number = 30;
+    private readonly ITEM_SPACING: number = 0;
     /** 每行高度（item高度 + 间隔） */
     private readonly ROW_HEIGHT: number = this.ITEM_HEIGHT + this.ITEM_SPACING;
     /** 列数 */
     private readonly COLUMN_COUNT: number = 2;
 
 
-    public setData(config: SetIndexConfig, selectSectionHandler: (setIndex: number, sectionIndex: number) => void, index: number = 0) {
+    public setData(config, index: number = 0, selectSectionHandler: (setIndex: number, sectionIndex: number) => void) {
         this._index = index;
         
-        this.sectionNameLabel.string = config.config.name;
+        this.sectionNameLabel.string = config.name;
         const activities: SectionIndexConfig[] = [];
-        for (let i = 0; i < config.config.sections.length; i++) {
-            const section = config.config.sections[i] as any;
+        for (let i = 0; i < config.sections.length; i++) {
+            const section = config.sections[i] as any;
             if (section && section.is_evaluable === true) {
-                activities.push({ index: i, config: config.config.sections[i] } as SectionIndexConfig);
+                activities.push({ index: i, config: config.sections[i] } as SectionIndexConfig);
             }
         }
         this._activitiesCount = activities.length;
@@ -50,44 +50,13 @@ export class FingerGameSectionSelectGroupItem extends Component {
             
             this.activesList.init({
                 onData: (info: IVListItemInfo<SectionIndexConfig>) => {
-                    const section = config.config.sections[info.data.index];
+                    const section = config.sections[info.data.index];
                     info.node.getComponent(FingerGameSectionSelectItem).setData(section, this._index, info.data.index, selectSectionHandler.bind(this, this._index, info.data.index));
                 }
             });
             this._isVListInited = true;
         }
         this.activesList.setData(activities);
-        
-        this.updateView();
-
-        this.activesList.setAllItemsOffset(v2(0, 50));
-    }
-
-    private updateView(){
-        // 计算行数（两列布局）
-        const rowCount = Math.ceil(this._activitiesCount / this.COLUMN_COUNT);
-        
-        // 计算总高度：行数 * 每行高度（220）
-        const totalHeight = rowCount * this.ROW_HEIGHT + this.baseHeight;
-        
-        // 更新节点高度
-        const transform = this.node.getComponent(UITransform);
-        if (transform) {
-            transform.height = totalHeight;
-        }
-        
-        // 更新 activesList 的高度和位置
-        if (this.activesList && this.activesList.node) {
-            const listTransform = this.activesList.node.getComponent(UITransform);
-            if (listTransform) {
-                listTransform.height = totalHeight;
-            }
-            
-            // 将 activesList 的 y 位置向下移动一半高度（基于初始位置）
-            const currentPos = this.activesList.node.position;
-            const newY = this._initialListY - totalHeight / 2;
-            this.activesList.node.setPosition(currentPos.x, newY, currentPos.z);
-        }
     }
 
 }

@@ -3,8 +3,6 @@ import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { FixedScrollView } from './FixedScrollView';
 import { VListLayerCom } from './VListLayerCom';
 import { WidgetUtils } from './WidgetUtils';
-import { ScreenSizeUtil } from '../../Adapter/ScreenSizeUtil';
-import { ScreenAdapter } from '../../Adapter/ScreenAdapter';
 const { ccclass, property, executeInEditMode } = _decorator;
 // -*- coding: utf-8 -*-
 export enum VListEvent {
@@ -109,7 +107,7 @@ export interface IVListItemInfo<T = any> {
     /**通过key速查带有comPrefix的子节点，仅在node不为空时可用 */
     getNode: NodeCapture;
     /**安全对此列表项进行操作,如果指定 realIdx，则只对 realIdx指定的渲染项调用，否则对所有的渲染项调用
-    */
+     */
     call(cb: VCallback<T>, realIdx?: number): void;
     /**当勾选isLoop后，一条数据项可能对应的多个节点的渲染信息按照刷新顺序排序，越新的渲染项越靠后 */
     renderItems: IRenderItemInfo<T>[]
@@ -259,13 +257,6 @@ export class VList<T = any> extends Component {
     @property({ displayName: "列表项尺寸", tooltip: "要修改尺寸请在预制体内进行更改", type: Size, group: { name: "列表项设置", style: "tab", id: '0' } })
     /**【只读】列表项预制体原尺寸（要获取运行时实际的列表项尺寸请参考realItemSize） */
     get itemSize(): Size { return this.itemPrefab == null ? new Size(0, 0) : (this.itemPrefab.data as Node).getComponent(UITransform).contentSize; };
-    /**根据索引获取列表项的实际尺寸，如果该索引没有记录则返回默认的realItemSize */
-    private getItemSize(idx: number): Size {
-        if (idx >= 0 && idx < this.itemSizes.length && this.itemSizes[idx]) {
-            return this.itemSizes[idx];
-        }
-        return this.realItemSize;
-    }
 
     @property
     private _comPrefix: string = "_";
@@ -857,7 +848,6 @@ export class VList<T = any> extends Component {
     get realPaddinBottom() { return this.listType == EListType.Page ? 0 : this.padding_bottom; }
     get childAlign_hor() { return !this.isAlignChild_hor || this.listType == EListType.ScrollList && !!(this.scrollDir & 1) || this.layoutDir != EDir.Horizontal ? EAlignType_Hor.Left : this.alignType_hor; }
     get childAlign_ver() { return !this.isAlignChild_ver || this.listType == EListType.ScrollList && !!(this.scrollDir & 2) || this.layoutDir != EDir.Vertical ? EAlignType_Ver.Top : this.alignType_ver; }
-
     private onChangeParams() {
         this.refreshStruct();
         if (isInEditorMode) {
@@ -920,15 +910,8 @@ export class VList<T = any> extends Component {
 
     private executeLock: boolean = false;//防止在foreach的时候更改数组
 
-    /**每个数据索引对应的自定义位置偏移（单位：content本地坐标系，x 右正，y 上正） */
-    private itemOffsetMap: Map<number, Vec2> = new Map();
-    /**统一作用于所有 item 的全局偏移（单位：content本地坐标系，x 右正，y 上正） */
-    private globalOffset: Vec2 = v2();
-
     private _infos: IVListItemInfo[] = [];
     private _parentInfo: IVListItemInfo<any> = null;
-    /**存储每个列表项的实际尺寸 */
-    private itemSizes: Size[] = [];
     /**当该列表为嵌套的内部列表时，此字段则为该列表在父列表中所处的列表项信息 */
     get parentInfo() { return this._parentInfo; }
     /**获取当前列表项信息数组，对列表操作的关键数据对象 */
@@ -1164,7 +1147,6 @@ export class VList<T = any> extends Component {
         this._infos = [];
         this._parentInfo = null;
         this.refreshDelayFuncs = [];
-        this.itemSizes = [];
     }
     private isInited: boolean = false;
     /**初始化方法 */
@@ -1271,22 +1253,6 @@ export class VList<T = any> extends Component {
         let exeFunc = () => {
             this.recycleAll();
             this.refreshDelayFuncs = [];
-            // 初始化 itemSizes 数组，先使用默认尺寸
-            this.itemSizes = new Array(datas.length);
-            // 为每个数据创建临时节点以获取实际尺寸（如果需要）
-            // 这里先创建节点获取尺寸，然后记录到 itemSizes 中
-            for (let i = 0; i < datas.length; i++) {
-                let tempInfo = this.getInfoByData(datas[i], i);
-                let tempNode = instantiate(this.itemPrefab);
-                // 如果使用分层渲染，需要设置尺寸
-                if (this.isRenderByLayer) {
-                    tempNode.getComponent(UITransform).setContentSize(this.realItemSize);
-                }
-                // 获取节点的实际尺寸
-                let nodeSize = tempNode.getComponent(UITransform).contentSize.clone();
-                this.itemSizes[i] = nodeSize;
-                tempNode.destroy();
-            }
             this._infos = datas.map((e, i) => this.getInfoByData(e, i));
             this.updateLayout(datas.length);
             this.alignContentPos(!ignoreReset);
@@ -1306,18 +1272,9 @@ export class VList<T = any> extends Component {
     addData(data: T, insertIdx: number | "none" = "none"): boolean {
         let exeFunc = () => {
             let cnt = this.infos.length;
-            // 创建临时节点获取尺寸
-            let tempNode = instantiate(this.itemPrefab);
-            if (this.isRenderByLayer) {
-                tempNode.getComponent(UITransform).setContentSize(this.realItemSize);
-            }
-            let nodeSize = tempNode.getComponent(UITransform).contentSize.clone();
-            tempNode.destroy();
-            
             if (insertIdx == "none" || insertIdx >= cnt) {
                 let newInfo = this.getInfoByData(data, cnt);
                 this.infos.push(newInfo);
-                this.itemSizes.push(nodeSize);
             }
             else {
                 if (insertIdx < 0)
@@ -1326,8 +1283,6 @@ export class VList<T = any> extends Component {
                 let after = [...this.infos].slice(insertIdx);
                 let before = [...this.infos].slice(0, insertIdx);
                 this._infos = before.concat(newInfo).concat(after);
-                // 在itemSizes中插入对应的尺寸
-                this.itemSizes.splice(insertIdx, 0, nodeSize);
             }
             this.infos.forEach((e, i) => {
                 e.idx = i;
@@ -1362,10 +1317,6 @@ export class VList<T = any> extends Component {
             let info = this.infos[infoIdx];
             this.recycleAllNode(info);
             this.infos.splice(infoIdx, 1);
-            // 同时删除对应的尺寸记录
-            if (infoIdx >= 0 && infoIdx < this.itemSizes.length) {
-                this.itemSizes.splice(infoIdx, 1);
-            }
             this.infos.forEach((e, i) => {
                 e.idx = i;
             })
@@ -1398,13 +1349,6 @@ export class VList<T = any> extends Component {
             })
             delInfos.forEach(e => this.recycleAllNode(e));
             this._infos = remainInfos;
-            // 删除对应的尺寸记录（需要按索引从大到小删除，避免索引错位）
-            let sortedIndices = [...infoIndices].sort((a, b) => b - a);
-            sortedIndices.forEach(idx => {
-                if (idx >= 0 && idx < this.itemSizes.length) {
-                    this.itemSizes.splice(idx, 1);
-                }
-            });
             this.infos.forEach((e, i) => {
                 e.idx = i;
             })
@@ -1449,63 +1393,6 @@ export class VList<T = any> extends Component {
                 info.node = renderItem.node;
                 this.cb.onData && this.cb.onData(info, renderItem);
             }
-        }
-    }
-    /**强制更新列表项尺寸并重新布局
-     * 遍历所有已渲染的节点，获取它们的实际尺寸，更新itemSizes数组，然后重新计算布局并刷新视图
-     * 这个方法应该在列表数据设置完成并且节点已经渲染后调用，用于确保列表使用节点的实际尺寸进行布局
-     */
-    updateItemSizes() {
-        if (!this.isInited || this.infos.length == 0) {
-            warn("列表未初始化或没有数据，无法更新尺寸");
-            return;
-        }
-        let exeFunc = () => {
-            let hasUpdate = false;
-            // 遍历所有infos，更新已渲染节点的尺寸
-            for (let i = 0; i < this.infos.length; i++) {
-                let info = this.infos[i];
-                // 如果节点已渲染，获取实际尺寸
-                if (info.node && info.node.isValid && info.isVisible) {
-                    let actualSize = info.node.getComponent(UITransform).contentSize.clone();
-                    // 如果尺寸发生变化，更新itemSizes
-                    if (!this.itemSizes[i] || 
-                        this.itemSizes[i].width != actualSize.width || 
-                        this.itemSizes[i].height != actualSize.height) {
-                        if (!this.itemSizes[i]) {
-                            this.itemSizes[i] = new Size();
-                        }
-                        this.itemSizes[i].width = actualSize.width;
-                        this.itemSizes[i].height = actualSize.height;
-                        hasUpdate = true;
-                    }
-                } else {
-                    // 如果节点未渲染，但itemSizes中有记录，保持原尺寸
-                    // 如果没有记录，使用默认尺寸
-                    if (!this.itemSizes[i]) {
-                        this.itemSizes[i] = this.realItemSize.clone();
-                        hasUpdate = true;
-                    }
-                }
-            }
-            // 确保itemSizes数组长度与infos一致
-            while (this.itemSizes.length < this.infos.length) {
-                this.itemSizes.push(this.realItemSize.clone());
-                hasUpdate = true;
-            }
-            // 如果有更新，重新计算布局
-            if (hasUpdate) {
-                this.updateLayout(this.infos.length);
-                this.infos.forEach(e => this.refreshNodeTrans(e));
-                this.alignContentPos();
-                this.refreshView();
-            }
-        }
-        if (this.executeLock) {
-            this.waitExecute(exeFunc);
-        }
-        else {
-            exeFunc();
         }
     }
     /**为列表中所有列表项速查名为key的子节点并注册事件{nodeEvent,func,target}，当key为""时为列表项渲染节点本身注册事件。该方法将保证事件触发时得到的实参数据与触发的列表项正确对应，注意VList不支持同一个节点同一个event注册多个回调 */
@@ -1586,17 +1473,11 @@ export class VList<T = any> extends Component {
         for (let i = 0; i < info.renderItems.length; i++) {
             let item = info.renderItems[i];
             let pos = V3(this.getPosInfo(item.realIdx).center);
-            let itemSize = this.getItemSize(info.idx);
             if (!this.isRenderByLayer) {
                 item.node.position = pos;
                 let wid = item.node.getComponent(Widget);
-                if (wid) {
+                if (wid)
                     wid.updateAlignment();
-                    // 移动端运行时，Widget 会在布局阶段重设位置，禁用以避免覆盖我们计算的位置
-                    wid.enabled = false;
-                }
-                // 更新节点尺寸为实际记录的尺寸
-                item.node.getComponent(UITransform).setContentSize(itemSize);
             }
             else {
                 let getParentPath = (path: string) => {
@@ -1604,7 +1485,7 @@ export class VList<T = any> extends Component {
                     if (lastSlashIndex === -1) return path; // 如果没有 '/'，返回原字符串
                     return path.substring(0, lastSlashIndex);
                 }
-                item.node.getComponent(UITransform).setContentSize(itemSize);
+                item.node.getComponent(UITransform).setContentSize(this.realItemSize);
                 let children = this.itemChildMap.get(item.node);
                 children.forEach(e => {
                     if (e.skipParent)
@@ -1621,52 +1502,8 @@ export class VList<T = any> extends Component {
                     e.child.position = pos;
                 });
             }
-            // 在节点创建后更新记录的尺寸（如果节点尺寸发生变化）
-            if (item.node.isValid) {
-                let currentSize = item.node.getComponent(UITransform).contentSize.clone();
-                this.itemSizes[info.idx] = currentSize;
-            }
         }
     }
-    /**
-     * 设置指定数据索引的额外位置偏移（不会修改布局，只在渲染定位时叠加）。
-     * 注意：索引为当前 infos 的索引；当数据增删或排序后，需重新设置。
-     * @param infoIdx 数据索引（非 realIdx）
-     * @param offset 偏移向量，x 向右为正，y 向上为正
-     */
-    public setItemOffset(infoIdx: number, offset: Vec2) {
-        if (infoIdx < 0 || infoIdx >= this.infos.length) return;
-        this.itemOffsetMap.set(infoIdx, v2(offset.x, offset.y));
-        // 立即刷新视图以生效
-        this.refreshView(true);
-    }
-    /**
-     * 获取指定数据索引的偏移量，未设置则返回 (0,0)
-     */
-    public getItemOffset(infoIdx: number): Vec2 {
-        let off = this.itemOffsetMap.get(infoIdx);
-        return off ? v2(off.x, off.y) : v2();
-    }
-    /**
-     * 清除偏移。传入索引仅清除该项；不传则清除全部。
-     */
-    public clearItemOffset(infoIdx?: number) {
-        if (infoIdx == null) this.itemOffsetMap.clear();
-        else this.itemOffsetMap.delete(infoIdx);
-        this.refreshView(true);
-    }
-    /**
-     * 一次性移动所有 item：为列表设置统一偏移量。
-     * 建议用于整体平移，不影响布局计算，仅在渲染定位时叠加。
-     */
-    public setAllItemsOffset(offset: Vec2) {
-        this.globalOffset = v2(offset.x, offset.y);
-        this.refreshView(true);
-    }
-    /**获取全局偏移 */
-    public getAllItemsOffset(): Vec2 { return v2(this.globalOffset.x, this.globalOffset.y); }
-    /**清除全局偏移（等价于 setAllItemsOffset(v2())） */
-    public clearAllItemsOffset() { this.globalOffset = v2(); this.refreshView(true); }
     private getNode(info: IVListItemInfo) {
         if (!this.content) {
             console.error("没有content节点");
@@ -1691,7 +1528,7 @@ export class VList<T = any> extends Component {
                 this.refreshDelayFuncs.push(() => (this.cb.onInstantiate && this.cb.onInstantiate(initInfo)));
             }
         }
-            else {
+        else {
             if (this.nodePools.length > 0) {
                 res = this.nodePools.pop();
                 let children = this.itemChildMap.get(res);
@@ -1703,10 +1540,7 @@ export class VList<T = any> extends Component {
             }
             else {
                 res = instantiate(this.itemPrefab);
-                let itemSize = info.idx >= 0 && info.idx < this.itemSizes.length && this.itemSizes[info.idx] 
-                    ? this.itemSizes[info.idx] 
-                    : this.realItemSize;
-                res.getComponent(UITransform).setContentSize(itemSize);
+                res.getComponent(UITransform).setContentSize(this.realItemSize);
                 let childrenData: { child: Node, path: string, skipParent: boolean }[] = [];
                 this.itemChildMap.set(res, childrenData);
                 let scan = (n: Node, path: string = "", isSkipParent: boolean) => {
@@ -1811,59 +1645,30 @@ export class VList<T = any> extends Component {
     /**返回当前列表中心聚焦的位置在整个布局中的偏移向量（以realItemSize.xy+layout.spaceXY为单位） */
     getVec() {
         let layout = this.layoutInfo;
-        // 基于实际item位置计算，找到最接近当前contentOffset的item
-        let viewCenter = v2(this.contentOffset.x + this.viewSize.width / 2, this.contentOffset.y - this.viewSize.height / 2);
-        // 转换为content坐标系的本地坐标
-        let localPos = v2(viewCenter.x - this.realPaddingLeft, viewCenter.y + this.realPaddingTop);
-        
-        // 基于实际尺寸计算坐标
-        let bestCrd = v2(0, 0);
-        let minDist = Infinity;
-        
-        // 遍历所有item，找到距离最近的
-        for (let i = 0; i < Math.min(layout.num, 1000); i++) { // 限制最多检查1000个，避免性能问题
-            let posInfo = this.getPosInfo(i);
-            let itemCenter = posInfo.center;
-            let dist = Math.sqrt(Math.pow(itemCenter.x - localPos.x, 2) + Math.pow(itemCenter.y - localPos.y, 2));
-            if (dist < minDist) {
-                minDist = dist;
-                let crd = this.idx2crd(i);
-                bestCrd = crd;
-            }
-        }
-        
-        // 根据最佳坐标计算精确的偏移量
-        if (this.layoutDir == EDir.Horizontal) {
-            // 水平布局：y是行，x是列
-            let row = bestCrd.y;
-            let col = bestCrd.x;
-            // 计算该行该列的item中心位置
-            let targetPos = this.getPosInfo(this.crd2idx(bestCrd)).center;
-            // 计算偏移（单位：item数量）
-            let itemSize = this.getItemSize(this.crd2idx(bestCrd));
-            let offsetX = (localPos.x - targetPos.x) / (itemSize.width + layout.spaceX);
-            let offsetY = (localPos.y - targetPos.y) / (itemSize.height + layout.spaceY);
-            return v2(col + offsetX, row + offsetY);
-        } else {
-            // 垂直布局：x是行，y是列
-            let row = bestCrd.x;
-            let col = bestCrd.y;
-            let targetPos = this.getPosInfo(this.crd2idx(bestCrd)).center;
-            let itemSize = this.getItemSize(this.crd2idx(bestCrd));
-            let offsetX = (localPos.x - targetPos.x) / (itemSize.width + layout.spaceX);
-            let offsetY = (localPos.y - targetPos.y) / (itemSize.height + layout.spaceY);
-            return v2(row + offsetX, col + offsetY);
-        }
+        let unitSize = v2(this.realItemSize.x + layout.spaceX, this.realItemSize.y + layout.spaceY);
+        let curCrd = v2((-this.contentOffset.x - this.realPaddingLeft) / unitSize.x, (this.contentOffset.y - this.realPaddingTop) / unitSize.y);
+        return curCrd;
     }
     /**返回当前列表中心所落在列表项在整个布局中的二维坐标 */
     getLocation(): Vec2 {
         let curCrd = this.getVec();
-        // 直接四舍五入到最近的整数坐标
-        let centerCrd = Vec2.round(v2(), curCrd);
-        
+        let layout = this.layoutInfo;
+        let unitSize = v2(this.realItemSize.x + layout.spaceX, this.realItemSize.y + layout.spaceY);
+        let spaceRatio = v2(layout.spaceX / unitSize.x, layout.spaceY / unitSize.y);
+        let centerCrd = Vec2.floor(v2(), curCrd);
+        let anchor = v2((1 - spaceRatio.x) / 2, (1 - spaceRatio.y) / 2);
+        let crdOffset = v2(curCrd.x - centerCrd.x - anchor.x, curCrd.y - centerCrd.y - anchor.y);
+        if (crdOffset.x > 0 && crdOffset.x > 0.5)
+            centerCrd.x++;
+        else if (crdOffset.x < 0 && crdOffset.x < -0.5)
+            centerCrd.x--;
+        if (crdOffset.y > 0 && crdOffset.y > 0.5)
+            centerCrd.y++;
+        else if (crdOffset.y < 0 && crdOffset.y < -0.5)
+            centerCrd.y--;
         if (!this.isLoop) {
-            centerCrd.x = clamp(centerCrd.x, 0, this.layoutInfo.col - 1);
-            centerCrd.y = clamp(centerCrd.y, 0, this.layoutInfo.row - 1);
+            centerCrd.x = clamp(centerCrd.x, 0, layout.col - 1);
+            centerCrd.y = clamp(centerCrd.y, 0, layout.row - 1);
         }
         return centerCrd;
     }
@@ -2188,20 +1993,7 @@ export class VList<T = any> extends Component {
     private alignContentPos(reset: boolean = false) {
         let viewSize = this.trans.contentSize;
         let contentSize = this.layoutInfo.size;
-        // 对于页面模式，使用当前页面的实际尺寸；对于其他模式，使用默认尺寸（其他模式不需要单个item尺寸）
-        let itemSize: Size;
-        if (this.listType == EListType.Page) {
-            // Page 模式：使用当前页面的实际尺寸
-            if (this.pageIdx >= 0 && this.pageIdx < this.itemSizes.length && this.itemSizes[this.pageIdx]) {
-                itemSize = this.itemSizes[this.pageIdx];
-            } else {
-                // 如果当前页面索引无效，使用默认尺寸
-                itemSize = this.realItemSize;
-            }
-        } else {
-            // 非 Page 模式：不需要单个 item 尺寸（使用 contentSize）
-            itemSize = this.realItemSize;
-        }
+        let itemSize = this.realItemSize;
         let contentPos = this.contentOffset;
         switch (this.listType) {
             case EListType.Page:
@@ -2273,24 +2065,7 @@ export class VList<T = any> extends Component {
         return this.scrollRect.getComponent(FixedScrollView).isOutOfBoundary;
     }
     private updateLayout(len: number) {
-        // 计算平均尺寸用于布局计算
-        let avgItemSize = this.realItemSize;
-        if (this.itemSizes.length > 0) {
-            let totalWidth = 0;
-            let totalHeight = 0;
-            let count = 0;
-            for (let i = 0; i < Math.min(len, this.itemSizes.length); i++) {
-                if (this.itemSizes[i]) {
-                    totalWidth += this.itemSizes[i].width;
-                    totalHeight += this.itemSizes[i].height;
-                    count++;
-                }
-            }
-            if (count > 0) {
-                avgItemSize = new Size(totalWidth / count, totalHeight / count);
-            }
-        }
-        let itemSize = avgItemSize;
+        let itemSize = this.realItemSize;
         let col = this.col;
         let row = this.row;
         let space_x = this.space_x;
@@ -2411,76 +2186,8 @@ export class VList<T = any> extends Component {
         }
         getCol();
         getRow();
-        // 计算实际的总尺寸（基于实际item尺寸）
-        let actualBoundWidth = 0;
-        let actualBoundHeight = 0;
-        if (this.itemSizes.length > 0 && len > 0) {
-            // 水平布局：累加每列的实际宽度，垂直方向累加每行的最大高度
-            if (this.layoutDir == EDir.Horizontal) {
-                // 计算所有列的实际宽度（使用每列的最大宽度）
-                for (let c = 0; c < col; c++) {
-                    let maxColWidth = 0;
-                    for (let r = 0; r < row; r++) {
-                        let idx = r * col + c;
-                        if (idx < len) {
-                            let idxForSize = this.isLoop ? this.positiveMod(idx, len) : idx;
-                            let colItemSize = this.getItemSize(idxForSize);
-                            maxColWidth = Math.max(maxColWidth, colItemSize.width);
-                        }
-                    }
-                    actualBoundWidth += maxColWidth;
-                    if (c < col - 1) actualBoundWidth += space_x;
-                }
-                // 计算所有行的实际高度（使用每行的最大高度）
-                for (let r = 0; r < row; r++) {
-                    let maxRowHeight = 0;
-                    for (let c = 0; c < col; c++) {
-                        let idx = r * col + c;
-                        if (idx < len) {
-                            let idxForSize = this.isLoop ? this.positiveMod(idx, len) : idx;
-                            let rowItemSize = this.getItemSize(idxForSize);
-                            maxRowHeight = Math.max(maxRowHeight, rowItemSize.height);
-                        }
-                    }
-                    actualBoundHeight += maxRowHeight;
-                    if (r < row - 1) actualBoundHeight += space_y;
-                }
-            } else {
-                // 垂直布局：累加每行的实际高度，水平方向累加每列的最大宽度
-                for (let r = 0; r < row; r++) {
-                    let maxRowHeight = 0;
-                    for (let c = 0; c < col; c++) {
-                        let idx = r * col + c;
-                        if (idx < len) {
-                            let idxForSize = this.isLoop ? this.positiveMod(idx, len) : idx;
-                            let rowItemSize = this.getItemSize(idxForSize);
-                            maxRowHeight = Math.max(maxRowHeight, rowItemSize.height);
-                        }
-                    }
-                    actualBoundHeight += maxRowHeight;
-                    if (r < row - 1) actualBoundHeight += space_y;
-                }
-                // 计算所有列的实际宽度（使用每列的最大宽度）
-                for (let c = 0; c < col; c++) {
-                    let maxColWidth = 0;
-                    for (let r = 0; r < row; r++) {
-                        let idx = r * col + c;
-                        if (idx < len) {
-                            let idxForSize = this.isLoop ? this.positiveMod(idx, len) : idx;
-                            let colItemSize = this.getItemSize(idxForSize);
-                            maxColWidth = Math.max(maxColWidth, colItemSize.width);
-                        }
-                    }
-                    actualBoundWidth += maxColWidth;
-                    if (c < col - 1) actualBoundWidth += space_x;
-                }
-            }
-        } else {
-            // 如果没有实际尺寸记录，使用平均尺寸计算
-            actualBoundWidth = col * (itemSize.width + space_x) - space_x;
-            actualBoundHeight = row * (itemSize.height + space_y) - space_y;
-        }
-        let boundSize = new Size(actualBoundWidth, actualBoundHeight);
+        let boundSize = new Size(col * (itemSize.width + space_x) - space_x,
+            row * (itemSize.height + space_y) - space_y);
         let size = new Size(boundSize.x + this.realPaddingLeft + this.realPaddingRight,
             boundSize.y + this.realPaddingTop + this.realPaddinBottom);
         this.content.getComponent(UITransform).setContentSize(size);
@@ -2488,34 +2195,22 @@ export class VList<T = any> extends Component {
             row, col, spaceX: space_x, spaceY: space_y, size, boundSize, num: len
         }
     }
+    private onStartBatch() {
+
+    }
+    private onEndBatch() {
+
+    }
     /**测试content下的本地坐标lp所落在的渲染项的realIdx索引（不论渲染项的显隐状态都可用） */
     testItemIdxByLp(lp: Vec2) {
         let viewSize = this.trans.contentSize;
         lp.x = lp.x - viewSize.x / 2 - (!!(this.loopDir & EOverflowDir.Horizontal) ? this.realPaddingLeft : 0);
         lp.y = lp.y + viewSize.y / 2 + (!!(this.loopDir & EOverflowDir.Vertical) ? this.realPaddingTop : 0);
-        
-        // 基于实际item位置计算，找到包含该坐标的item
-        let bestIdx = 0;
-        let minDist = Infinity;
-        
-        // 遍历所有item，找到距离最近的（或者包含该点的）
-        for (let i = 0; i < this.layoutInfo.num; i++) {
-            let posInfo = this.getPosInfo(i);
-            // 检查点是否在item的Rect内
-            if (lp.x >= posInfo.xMin && lp.x <= posInfo.xMax && 
-                lp.y <= posInfo.yMin && lp.y >= posInfo.yMax) {
-                return this.isLoop ? i : clamp(i, 0, this.layoutInfo.num - 1);
-            }
-            // 计算到item中心的距离
-            let center = posInfo.center;
-            let dist = Math.sqrt(Math.pow(center.x - lp.x, 2) + Math.pow(center.y - lp.y, 2));
-            if (dist < minDist) {
-                minDist = dist;
-                bestIdx = i;
-            }
-        }
-        
-        return this.isLoop ? bestIdx : clamp(bestIdx, 0, this.layoutInfo.num - 1);
+        let unitSize = v2(this.realItemSize.x + this.realSpaceX, this.realItemSize.y + this.realSpaceY);
+        let vec = Vec2.divide(unitSize, lp, unitSize);
+        vec.y = -vec.y;
+        let crd = Vec2.floor(vec, vec);
+        return this.isLoop ? this.crd2idx(crd) : clamp(this.crd2idx(crd), 0, this.layoutInfo.num - 1);
     }
     /**测试索引为realIdx的渲染项位置是否在视口范围内（不论渲染项的显隐状态都可用） */
     testVisibleByIdx(realIdx: number) {
@@ -2541,9 +2236,7 @@ export class VList<T = any> extends Component {
     /**返回索引为idx的列表项在布局中的Rect信息（此方法与列表项可见性无关） */
     getPosInfo(realIdx: number): Rect {
         let info = this.layoutInfo;
-        // 根据realIdx获取对应的infoIdx，然后使用该索引获取实际尺寸
-        let infoIdx = this.isLoop ? this.positiveMod(realIdx, info.num) : realIdx;
-        let itemSize = this.getItemSize(infoIdx);
+        let itemSize = this.realItemSize;
         let c = 0;
         let r = 0;
         let curTotalCol = Math.min(info.num - r * info.col, info.col);
@@ -2563,232 +2256,16 @@ export class VList<T = any> extends Component {
         else
             curTotalRow = Math.min(info.num - this.positiveMod(c, info.col) * info.row, info.row);
 
-        // 计算位置时需要考虑之前所有item的累积尺寸
-        let xMin = this.realPaddingLeft;
-        let yMin = -this.realPaddingTop;
-        
-        // 如果是水平布局，需要累加前面所有列的宽度
-        if (horLayout) {
-            // 计算到当前列的累积宽度
-            for (let colIdx = 0; colIdx < c; colIdx++) {
-                let idxForCol = r * info.col + colIdx;
-                if (idxForCol < info.num) {
-                    let idxForSize = this.isLoop ? this.positiveMod(idxForCol, info.num) : idxForCol;
-                    let colItemSize = this.getItemSize(idxForSize);
-                    xMin += colItemSize.width + this._layoutInfo.spaceX;
-                }
-            }
-            // 计算当前行的累积高度（用于对齐计算）
-            let rowHeight = 0;
-            for (let colIdx = 0; colIdx < curTotalCol; colIdx++) {
-                let idxForCol = r * info.col + colIdx;
-                if (idxForCol < info.num) {
-                    let idxForSize = this.isLoop ? this.positiveMod(idxForCol, info.num) : idxForCol;
-                    let colItemSize = this.getItemSize(idxForSize);
-                    rowHeight = Math.max(rowHeight, colItemSize.height);
-                }
-            }
-            // 计算平均宽度用于对齐
-            let avgItemWidth = this.realItemSize.width;
-            if (this.itemSizes.length > 0 && curTotalCol > 0) {
-                let totalWidth = 0;
-                for (let colIdx = 0; colIdx < curTotalCol; colIdx++) {
-                    let idxForCol = r * info.col + colIdx;
-                    if (idxForCol < info.num) {
-                        let idxForSize = this.isLoop ? this.positiveMod(idxForCol, info.num) : idxForCol;
-                        totalWidth += this.getItemSize(idxForSize).width;
-                    }
-                }
-                avgItemWidth = totalWidth / curTotalCol;
-            }
-            if (this.childAlign_hor == EAlignType_Hor.Center)
-                xMin += (info.col - curTotalCol) * (avgItemWidth + this._layoutInfo.spaceX) / 2;
-            else if (this.childAlign_hor == EAlignType_Hor.Right)
-                xMin += (info.col - curTotalCol) * (avgItemWidth + this._layoutInfo.spaceX);
-            
-            // 计算垂直位置（累加上面所有行的高度）
-            // 先计算当前行的最大高度（用于行对齐）
-            let currentRowMaxHeight = 0;
-            for (let colIdx = 0; colIdx < info.col; colIdx++) {
-                let idxForRow = r * info.col + colIdx;
-                if (idxForRow < info.num) {
-                    let idxForSize = this.isLoop ? this.positiveMod(idxForRow, info.num) : idxForRow;
-                    let rowItemSize = this.getItemSize(idxForSize);
-                    currentRowMaxHeight = Math.max(currentRowMaxHeight, rowItemSize.height);
-                }
-            }
-            // 累加前面所有行的高度，到达当前行的顶部
-            for (let rowIdx = 0; rowIdx < r; rowIdx++) {
-                let maxRowHeight = 0;
-                for (let colIdx = 0; colIdx < info.col; colIdx++) {
-                    let idxForRow = rowIdx * info.col + colIdx;
-                    if (idxForRow < info.num) {
-                        let idxForSize = this.isLoop ? this.positiveMod(idxForRow, info.num) : idxForRow;
-                        let rowItemSize = this.getItemSize(idxForSize);
-                        maxRowHeight = Math.max(maxRowHeight, rowItemSize.height);
-                    }
-                }
-                // 减去上一行的最大高度和间距，到达当前行的顶部
-                yMin -= maxRowHeight + this._layoutInfo.spaceY;
-            }
-            // yMin现在表示当前行顶部的y坐标（y向上为正，所以顶部y值较大）
-            // Rect的yMin是矩形底部边缘，center.y = yMin + height/2
-            // 根据垂直对齐方式，计算当前item在行中的位置
-            // 在行内，item应该基于行最大高度对齐（Top/Center/Bottom）
-            let rowTopY = yMin; // 当前行顶部的y坐标
-            let rowBottomY = rowTopY - currentRowMaxHeight; // 当前行底部的y坐标
-            if (this.childAlign_ver == EAlignType_Ver.Top) {
-                // 顶部对齐：item顶部对齐到行顶部
-                // item顶部y = rowTopY, item底部y = rowTopY - itemSize.height
-                yMin = rowTopY - itemSize.height;
-            } else if (this.childAlign_ver == EAlignType_Ver.Center) {
-                // 居中对齐：item在行中垂直居中
-                // 行的中心y = rowTopY - currentRowMaxHeight/2
-                // item中心y = 行的中心y，所以 item底部y = 行的中心y - itemSize.height/2
-                yMin = rowTopY - currentRowMaxHeight / 2 - itemSize.height / 2;
-            } else if (this.childAlign_ver == EAlignType_Ver.Bottom) {
-                // 底部对齐：item底部对齐到行底部
-                // item底部y = rowBottomY，Rect的yMin是底部边缘
-                yMin = rowBottomY;
-            } else {
-                // 默认顶部对齐
-                yMin = rowTopY - itemSize.height;
-            }
-            // 计算平均高度用于整行对齐（用于最后一行对齐）
-            let avgRowHeight = this.realItemSize.height;
-            if (this.itemSizes.length > 0 && r < info.row) {
-                let totalHeight = 0;
-                let rowCount = 0;
-                for (let colIdx = 0; colIdx < info.col; colIdx++) {
-                    let idxForRow = r * info.col + colIdx;
-                    if (idxForRow < info.num) {
-                        let idxForSize = this.isLoop ? this.positiveMod(idxForRow, info.num) : idxForRow;
-                        totalHeight += this.getItemSize(idxForSize).height;
-                        rowCount++;
-                    }
-                }
-                if (rowCount > 0) {
-                    avgRowHeight = totalHeight / rowCount;
-                }
-            }
-            // 如果当前行是最后一行且需要对齐，需要调整
-            if (r >= info.row - 1 && curTotalRow < info.row) {
-                if (this.childAlign_ver == EAlignType_Ver.Center)
-                    yMin -= (info.row - curTotalRow) * (avgRowHeight + this._layoutInfo.spaceY) / 2;
-                else if (this.childAlign_ver == EAlignType_Ver.Bottom)
-                    yMin -= (info.row - curTotalRow) * (avgRowHeight + this._layoutInfo.spaceY);
-            }
-        } else {
-            // 垂直布局的情况（类似处理）
-            // 先计算当前行的最大高度（用于行对齐）
-            let currentRowMaxHeight = 0;
-            for (let colIdx = 0; colIdx < info.col; colIdx++) {
-                let idxForRow = r * info.col + colIdx;
-                if (idxForRow < info.num) {
-                    let idxForSize = this.isLoop ? this.positiveMod(idxForRow, info.num) : idxForRow;
-                    let rowItemSize = this.getItemSize(idxForSize);
-                    currentRowMaxHeight = Math.max(currentRowMaxHeight, rowItemSize.height);
-                }
-            }
-            // 累加前面所有行的高度，到达当前行的顶部
-            for (let rowIdx = 0; rowIdx < r; rowIdx++) {
-                let maxRowHeight = 0;
-                for (let colIdx = 0; colIdx < info.col; colIdx++) {
-                    let idxForRow = rowIdx * info.col + colIdx;
-                    if (idxForRow < info.num) {
-                        let idxForSize = this.isLoop ? this.positiveMod(idxForRow, info.num) : idxForRow;
-                        let rowItemSize = this.getItemSize(idxForSize);
-                        maxRowHeight = Math.max(maxRowHeight, rowItemSize.height);
-                    }
-                }
-                yMin -= maxRowHeight + this._layoutInfo.spaceY;
-            }
-            // yMin现在表示当前行顶部的y坐标（y向上为正，所以顶部y值较大）
-            // Rect的yMin是矩形底部边缘，center.y = yMin + height/2
-            // 根据垂直对齐方式，计算当前item在行中的位置
-            let rowTopY = yMin; // 当前行顶部的y坐标
-            let rowBottomY = rowTopY - currentRowMaxHeight; // 当前行底部的y坐标
-            if (this.childAlign_ver == EAlignType_Ver.Top) {
-                // 顶部对齐：item顶部对齐到行顶部
-                // item顶部y = rowTopY, item底部y = rowTopY - itemSize.height
-                yMin = rowTopY - itemSize.height;
-            } else if (this.childAlign_ver == EAlignType_Ver.Center) {
-                // 居中对齐：item在行中垂直居中
-                // 行的中心y = rowTopY - currentRowMaxHeight/2
-                // item中心y = 行的中心y，所以 item底部y = 行的中心y - itemSize.height/2
-                yMin = rowTopY - currentRowMaxHeight / 2 - itemSize.height / 2;
-            } else if (this.childAlign_ver == EAlignType_Ver.Bottom) {
-                // 底部对齐：item底部对齐到行底部
-                // item底部y = rowBottomY，Rect的yMin是底部边缘
-                yMin = rowBottomY;
-            } else {
-                // 默认顶部对齐
-                yMin = rowTopY - itemSize.height;
-            }
-            // 计算平均高度用于整行对齐（用于最后一行对齐）
-            let avgRowHeight2 = this.realItemSize.height;
-            if (this.itemSizes.length > 0 && r < info.row) {
-                let totalHeight = 0;
-                let rowCount = 0;
-                for (let colIdx = 0; colIdx < info.col; colIdx++) {
-                    let idxForRow = r * info.col + colIdx;
-                    if (idxForRow < info.num) {
-                        let idxForSize = this.isLoop ? this.positiveMod(idxForRow, info.num) : idxForRow;
-                        totalHeight += this.getItemSize(idxForSize).height;
-                        rowCount++;
-                    }
-                }
-                if (rowCount > 0) {
-                    avgRowHeight2 = totalHeight / rowCount;
-                }
-            }
-            // 如果当前行是最后一行且需要对齐，需要调整
-            if (r >= info.row - 1 && curTotalRow < info.row) {
-                if (this.childAlign_ver == EAlignType_Ver.Center)
-                    yMin -= (info.row - curTotalRow) * (avgRowHeight2 + this._layoutInfo.spaceY) / 2;
-                else if (this.childAlign_ver == EAlignType_Ver.Bottom)
-                    yMin -= (info.row - curTotalRow) * (avgRowHeight2 + this._layoutInfo.spaceY);
-            }
-            
-            // 计算水平位置
-            for (let colIdx = 0; colIdx < c; colIdx++) {
-                let idxForCol = r * info.col + colIdx;
-                if (idxForCol < info.num) {
-                    let idxForSize = this.isLoop ? this.positiveMod(idxForCol, info.num) : idxForCol;
-                    let colItemSize = this.getItemSize(idxForSize);
-                    xMin += colItemSize.width + this._layoutInfo.spaceX;
-                }
-            }
-            // 计算平均宽度用于对齐
-            let avgItemWidth = this.realItemSize.width;
-            if (this.itemSizes.length > 0 && curTotalCol > 0) {
-                let totalWidth = 0;
-                for (let colIdx = 0; colIdx < curTotalCol; colIdx++) {
-                    let idxForCol = r * info.col + colIdx;
-                    if (idxForCol < info.num) {
-                        let idxForSize = this.isLoop ? this.positiveMod(idxForCol, info.num) : idxForCol;
-                        totalWidth += this.getItemSize(idxForSize).width;
-                    }
-                }
-                avgItemWidth = totalWidth / curTotalCol;
-            }
-            if (this.childAlign_hor == EAlignType_Hor.Center)
-                xMin += (info.col - curTotalCol) * (avgItemWidth + this._layoutInfo.spaceX) / 2;
-            else if (this.childAlign_hor == EAlignType_Hor.Right)
-                xMin += (info.col - curTotalCol) * (avgItemWidth + this._layoutInfo.spaceX);
-        }
-        
-        // 叠加用户自定义偏移（以数据索引为基准）
-        let userOffset = this.itemOffsetMap.get(infoIdx);
-        if (userOffset) {
-            xMin += userOffset.x;
-            yMin += userOffset.y;
-        }
-        // 叠加全局偏移（所有 item 生效）
-        if (this.globalOffset) {
-            xMin += this.globalOffset.x;
-            yMin += this.globalOffset.y;
-        }
+        let xMin = c * (itemSize.width + this._layoutInfo.spaceX) + this.realPaddingLeft;
+        if (this.childAlign_hor == EAlignType_Hor.Center)
+            xMin += (info.col - curTotalCol) * (itemSize.width + this._layoutInfo.spaceX) / 2;
+        else if (this.childAlign_hor == EAlignType_Hor.Right)
+            xMin += (info.col - curTotalCol) * (itemSize.width + this._layoutInfo.spaceX);
+        let yMin = -(r + 1) * (itemSize.height + this._layoutInfo.spaceY) + info.spaceY - this.realPaddingTop;
+        if (this.childAlign_ver == EAlignType_Ver.Center)
+            yMin -= (info.row - curTotalRow) * (itemSize.height + this._layoutInfo.spaceY) / 2;
+        else if (this.childAlign_ver == EAlignType_Ver.Bottom)
+            yMin -= (info.row - curTotalRow) * (itemSize.height + this._layoutInfo.spaceY);
         return new Rect(xMin, yMin, itemSize.width, itemSize.height);
     }
     /**刷新列表 */
@@ -2971,17 +2448,10 @@ export class VList<T = any> extends Component {
             })
         }
     }
-    // protected onEnable(): void {
-    //     this.refreshView();
-    // }
-    // protected onDisable(): void {
-    //     if (!this.node.active)
-    //         this.clearPool();
-    // }
-    protected onDestroy(): void {
+    public onDestroy(): void {
         this.clearAll();
     }
-    protected onLoad(): void {
+    public onLoad(): void {
         if (!this.trans) {
             error("VList没有UITransform组件！请手动添加并检查该节点是否挂载在Canvas下！");
             return;
