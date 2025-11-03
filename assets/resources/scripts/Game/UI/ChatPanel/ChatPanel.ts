@@ -11,6 +11,8 @@ import { ChatCharactorChoosePanel } from './ChatCharactorChoosePanel';
 import { BundleName } from '../../../Core/Manager/Load/BundleName';
 import { ChatMusicPanel } from './ChatMusicPanel';
 import { ChatSublineItem } from './ChatSublineItem';
+import { DataProvider } from '../../../Core/Data/DataProvider';
+import { DebugLog } from '../../../Core/Util/DebugLog';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChatPanel')
@@ -96,6 +98,8 @@ export class ChatPanel extends BasePanel {
     private _sublineBtnTurnOnStr: string = "开启字幕";
     private _sublineBtnTurnOffStr: string = "关闭字幕";
     private _sublineShowState: boolean = false;
+    private _subtitleIconSPMap: Map<string, DataProvider<SpriteFrame>> = null;
+
     private _microOpenStr: string = "正在听";
     private _microCloseStr: string = "您已静音";
 
@@ -170,6 +174,11 @@ export class ChatPanel extends BasePanel {
         this._frameComponentQueue = [];
         this._isLoadingFrameComponent = false;
 
+        this._subtitleIconSPMap.forEach(spDataProvider => {
+            spDataProvider.removeAllListeners();
+        });
+        this._subtitleIconSPMap.clear();
+
         // 停止测试
         this.stopTestSubtitleGeneration();
     }
@@ -220,7 +229,7 @@ export class ChatPanel extends BasePanel {
             const frameComponent = instantiate(prefab);
             this.frameComponentNode.addChild(frameComponent);
             const aispeakingState = this._chatModel.aiSpeakingStateProvider.data;
-            frameComponent.getComponent(FrameComponent).playAnimation(this.getCurrentFrameAnimationName(), 22, true, true);
+            this.playFrameAnimation();
             this.hideLoadingAnimation();
 
             // 标记加载完成，处理队列中的下一个任务
@@ -233,6 +242,11 @@ export class ChatPanel extends BasePanel {
         const aispeakingState = this._chatModel.aiSpeakingStateProvider.data;
         const isPlayingSong = this._chatModel.currentPlayingSongState.data == "playing";
         return aispeakingState == AISpeakingState.SPEAKING || isPlayingSong ? "talking" : "idle";
+    }
+
+    private getCurrentFramePerSecond(): number {
+        const isPlayingSong = this._chatModel.currentPlayingSongState.data == "playing";
+        return isPlayingSong ? 14 : 22;
     }
 
     /**
@@ -263,6 +277,37 @@ export class ChatPanel extends BasePanel {
         this.loadingNode.active = false;
     }
 
+    private getSubtitleIconUrl(speaker: string): string {
+        let iconUrl = '';
+        if (speaker == "assistant" && this._chatModel.charactorChoosenSkin.data != null) {
+            iconUrl = 'texture/chatpanel/icon/icon_' + this._chatModel.charactorChoosenSkin.data + '/spriteFrame';
+        } else {
+            let userData = PersonalCenterManager.getInstance().userInfoData;
+            iconUrl = userData.gender == 1 ? 'textureV2/indexPage/male/spriteFrame' : 'textureV2/indexPage/female/spriteFrame';
+        }
+        return iconUrl;
+    }
+
+    private getSubtitleIconSPDataProvider(iconUrl: string): DataProvider<SpriteFrame> {
+        if(this._subtitleIconSPMap == null){
+            this._subtitleIconSPMap = new Map<string, DataProvider<SpriteFrame>>();
+        }
+        if(this._subtitleIconSPMap.has(iconUrl)){
+            return this._subtitleIconSPMap.get(iconUrl);
+        } else {
+            let spDataProvider = new DataProvider<SpriteFrame>();
+            this._subtitleIconSPMap.set(iconUrl, spDataProvider);
+            resources.load(iconUrl, SpriteFrame, (err, spriteFrame) => {
+                if(err){
+                    DebugLog.instance.log("加载字幕图标失败：" + err);
+                    return;
+                }
+                spDataProvider.data = spriteFrame;
+            });
+            return spDataProvider;
+        }
+    }
+
     onSubtitleListChanged(subtitleList: SubtitleItem[]) {
         console.log("刷新测试界面：字幕列表： " + subtitleList);
 
@@ -289,7 +334,8 @@ export class ChatPanel extends BasePanel {
                 text: lastSubtitle.text,
                 speaker: lastSubtitle.speaker,
                 aiColor: this.aiSublineColor,
-                userColor: this.userSublineColor
+                userColor: this.userSublineColor,
+                spDataProvider: this.getSubtitleIconSPDataProvider(this.getSubtitleIconUrl(lastSubtitle.speaker)),
             });
 
             if (lastSubtitle.speaker == "assistant") {
@@ -311,6 +357,7 @@ export class ChatPanel extends BasePanel {
         // 检查子节点数量，如果超过20个，移除头部的节点
         while (this.sublineContainer.children.length > 20) {
             const firstChild = this.sublineContainer.children[0];
+            firstChild.getComponent(ChatSublineItem).removeAllListeners();
             this.sublineContainer.removeChild(firstChild);
         }
 
@@ -389,9 +436,7 @@ export class ChatPanel extends BasePanel {
         this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
         this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
 
-        if(this.frameComponentNode.children.length > 0) {
-            this.frameComponentNode.children[0].getComponent(FrameComponent).playAnimation(this.getCurrentFrameAnimationName(), 22, true, true);
-        }
+        this.playFrameAnimation();
     }
 
     onPremissionChanged(bool: Boolean) {
@@ -411,6 +456,12 @@ export class ChatPanel extends BasePanel {
         console.log("刷新测试界面：已选择角色皮肤： " + skin);
         this._framePath = 'texture/chatpanel/v2/charactor/' + skin;
         this.loadFrameComponent(this._framePath);
+
+        this.sublineContainer.children.forEach(child => {
+            if(child.getComponent(ChatSublineItem).speaker == "assistant"){
+                child.getComponent(ChatSublineItem).changeSpProvider(this.getSubtitleIconSPDataProvider(this.getSubtitleIconUrl(child.getComponent(ChatSublineItem).speaker)));
+            }
+        });
     }
 
     onClickCloseBtn() {
@@ -525,6 +576,7 @@ export class ChatPanel extends BasePanel {
     showSubline() {
         this.sublineBtnLabel.string = this._sublineBtnTurnOffStr;
         this.sublineScrollView.node.active = true;
+
         this.scheduleOnce(() => {
             this.scrollToBottomIfNeeded();
         }, 0);
@@ -854,8 +906,12 @@ export class ChatPanel extends BasePanel {
             this.musicBtn.node.angle = 0;
         }
         
+        this.playFrameAnimation();
+    }
+
+    private playFrameAnimation():void {
         if(this.frameComponentNode.children.length > 0){
-            this.frameComponentNode.children[0].getComponent(FrameComponent).playAnimation(this.getCurrentFrameAnimationName(), 22, true, true);
+            this.frameComponentNode.children[0].getComponent(FrameComponent).playAnimation(this.getCurrentFrameAnimationName(), this.getCurrentFramePerSecond(), true, true);
         }
     }
 
