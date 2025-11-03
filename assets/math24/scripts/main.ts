@@ -166,8 +166,35 @@ export class Main extends BaseScene<IBaseGameChild> {
         DebugLog.instance.log(`点击卡片，索引: ${index}, 已选中状态: ${isCardSelected}`);
         
         if (isCardSelected) {
-            // 如果卡片已被选中，取消选中
-            this.removeCardFromExpression(index);
+            // 检查是否是第一张数字卡牌
+            const isFirstCard = this.selectedCards.length > 0 && this.selectedCards[0] === index;
+            
+            if (isFirstCard) {
+                // 第一张数字卡牌选中后，如果没有选择运算符号，再次点击则提示
+                if (this.operators.length === 0) {
+                    const alertData = new AlertData();
+                    alertData.title = "提示";
+                    alertData.message = "请点击运算符号";
+                    alertData.cancelButtonVisible = false;
+                    alertData.confirmButtonText = "知道了";
+                    AlertManager.getInstance().showAlert(alertData);
+                    
+                    return;
+                } else {
+                    // 如果已经选择了运算符号，再次点击第一张数字卡牌，则提示不能重复点击
+                    const alertData = new AlertData();
+                    alertData.title = "提示";
+                    alertData.message = "不能重复点击同一张数字";
+                    alertData.cancelButtonVisible = false;
+                    alertData.confirmButtonText = "知道了";
+                    AlertManager.getInstance().showAlert(alertData);
+                    
+                    return;
+                }
+            } else {
+                // 如果不是第一张卡牌，允许取消选中
+                this.removeCardFromExpression(index);
+            }
         } else {
             // 如果卡片尚未被选中，且卡片数量未达上限，则选中它
             if (this.selectedCards.length >= 4) {
@@ -175,18 +202,13 @@ export class Main extends BaseScene<IBaseGameChild> {
                 return;
             }
             
-            // 检查是否已经选择了一个卡牌但没有运算符，此时不能选择第二张卡牌
+            // 检查是否已经选择了一个卡牌但没有运算符，此时直接替换上一张卡牌
             if (this.selectedCards.length > 0 && this.operators.length === 0) {
-                DebugLog.instance.log('请先选择运算符，不能直接选择第二张卡牌');
+                DebugLog.instance.log('已选择一张卡牌但没有运算符，替换上一张卡牌');
                 
-                const alertData = new AlertData();
-                alertData.title = "提示";
-                alertData.message = "请先选择运算符号";
-                alertData.cancelButtonVisible = false;
-                alertData.confirmButtonText = "知道了";
-                AlertManager.getInstance().showAlert(alertData);
-                
-                return;
+                // 移除上一张选中的卡牌
+                const previousCardIndex = this.selectedCards[0];
+                this.removeCardFromExpression(previousCardIndex);
             }
             
             // 获取卡牌的值（直接使用cardValues数组中的值，因为计算结果已经更新到该数组）
