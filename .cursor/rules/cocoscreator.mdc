@@ -8,18 +8,18 @@ alwaysApply: true
 ## 项目结构
 
 ### assets 目录结构
-项目采用模块化的目录结构，每个训练模块都有其独立的目录。主要目录结构如下：
+项目采用模块化的目录结构，每个游戏模块都有其独立的目录。主要目录结构如下：
 
 - `app/`: 应用程序主目录，包含核心功能和共享资源
 - `resources/`: 全局资源目录，存放共享的图片、音频等资源
-- `finding/`: 找一找训练模块
-- `guessingGame/`: 猜一猜训练模块
-- `math24/`: 24点训练模块
-- `fanpai/`: 翻牌训练模块
-- `catchFish/`: 捕鱼训练模块
-- `smalltheater/`: 小剧场训练模块
-- `sentenceMaking/`: 造句训练模块
-- `puzzle/`: 拼图训练模块
+- `finding/`: 找一找游戏模块
+- `guessingGame/`: 猜一猜游戏模块
+- `math24/`: 24点游戏模块
+- `fanpai/`: 翻牌游戏模块
+- `catchFish/`: 捕鱼游戏模块
+- `smalltheater/`: 小剧场游戏模块
+- `sentenceMaking/`: 造句游戏模块
+- `puzzle/`: 拼图游戏模块
 
 ## 命名规范
 
@@ -37,7 +37,7 @@ alwaysApply: true
 ## 代码组织
 
 ### 脚本组织
-- 每个训练模块的脚本应该放在对应模块目录下的 `scripts` 文件夹中
+- 每个游戏模块的脚本应该放在对应模块目录下的 `scripts` 文件夹中
 - 共享的工具类和通用组件放在 `app/scripts` 目录下
 - 每个脚本文件应该只负责一个主要功能
 

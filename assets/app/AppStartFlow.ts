@@ -239,7 +239,7 @@ export class AppStartFlow extends Component {
             .then(() => {
                 this.retryCount = 0; // 重置重试计数
                 this.onNextStep(StartStatus.DOWNLOADING_RESOURCES);
-                this.createDebugButton(); // 创建调试按钮
+                //this.createDebugButton(); // 创建调试按钮
             })
             .catch(error => {
                 console.error('版本配置加载失败:', error);
