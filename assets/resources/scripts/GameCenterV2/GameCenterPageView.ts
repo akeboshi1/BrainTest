@@ -148,7 +148,6 @@ export class GameCenterPageView extends Component {
 
             // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
             GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
-
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
             GameCenterManager.getInstance().perload(url, BundleName.FINGERGAME);
             return;
@@ -157,6 +156,8 @@ export class GameCenterPageView extends Component {
             let url = Global.RES_Root + BundleName.BALANCE;
             DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            // 临时处理上一个训练界面，后续对接服务端，走游戏统一流程
+            GameCenterManager.getInstance().clearGuidePanelData();
             GameCenterManager.getInstance().perload(url, BundleName.BALANCE);
             return;
         }
@@ -164,6 +165,8 @@ export class GameCenterPageView extends Component {
             let url = Global.RES_Root + BundleName.MATH24;
             DebugLog.instance.log(`${BundleName.MATH24} click perload`);
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            // 临时处理上一个训练界面，后续对接服务端，走游戏统一流程
+            GameCenterManager.getInstance().clearGuidePanelData();
             GameCenterManager.getInstance().perload(url, BundleName.MATH24);
             return;
         }
