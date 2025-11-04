@@ -160,7 +160,7 @@ export class FingerGameScene extends Component {
     }
 
     private get currentSectionIndex(): number {
-        return this._model.activity.id - 1;
+        return this._model.activity.seq - 1;
     }
 
     onSelectExperienceSection(sectionConfig: SectionConfig) {
