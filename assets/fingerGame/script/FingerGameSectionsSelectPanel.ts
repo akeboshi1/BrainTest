@@ -119,7 +119,7 @@ export class FingerGameSectionsSelectPanel extends BasePanel {
             _data = { index: setIndex, config: setData };
             sets.activities.forEach(section => {
                 // 依据 activity id 映射到配置中的对应 SectionConfig
-                const secIdxById = Math.max(0, (section.id || 1) - 1);
+                const secIdxById = Math.max(0, (section.seq || 1) - 1);
                 const sectionData = setData.sections[secIdxById];
                 if (sectionData) {
                     // 将 is_evaluable 写回到配置对象，便于后续使用

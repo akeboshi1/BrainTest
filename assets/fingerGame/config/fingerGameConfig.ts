@@ -46,7 +46,7 @@ export const fingerGameConfig: FingerGameConfig = {
             sections: [
                 {
                     name: "热身运动",
-                    icon: "image/setsImage/section_1/spriteFrame",
+                    icon: "image/setsImage/set_1/section_1/spriteFrame",
                     previewVideo: {
                         path: "video/set1/1_preview",
                         duration: 46.5
@@ -58,7 +58,7 @@ export const fingerGameConfig: FingerGameConfig = {
                 },
                 {
                     name: "伸屈运动",
-                    icon: "image/setsImage/section_2/spriteFrame",
+                    icon: "image/setsImage/set_1/section_2/spriteFrame",
                     previewVideo: {
                         path: "video/set1/2_preview",
                         duration: 58.1
@@ -70,7 +70,7 @@ export const fingerGameConfig: FingerGameConfig = {
                 },
                 {
                     name: "敲五指",
-                    icon: "image/setsImage/section_3/spriteFrame",
+                    icon: "image/setsImage/set_1/section_3/spriteFrame",
                     previewVideo: {
                         path: "video/set1/3_preview",
                         duration: 55.6
@@ -82,7 +82,7 @@ export const fingerGameConfig: FingerGameConfig = {
                 },  
                 {
                     name: "协调性训练",
-                    icon: "image/setsImage/section_4/spriteFrame",
+                    icon: "image/setsImage/set_1/section_4/spriteFrame",
                     previewVideo: {
                         path: "video/set1/4_preview",
                         duration: 56
@@ -94,7 +94,7 @@ export const fingerGameConfig: FingerGameConfig = {
                 },
                 {
                     name: "反应力训练",
-                    icon: "image/setsImage/section_5/spriteFrame",
+                    icon: "image/setsImage/set_1/section_5/spriteFrame",
                     previewVideo: {
                         path: "video/set1/5_preview",
                         duration: 54.1
@@ -106,7 +106,7 @@ export const fingerGameConfig: FingerGameConfig = {
                 },  
                 {
                     name: "十指对敲",
-                    icon: "image/setsImage/section_6/spriteFrame",
+                    icon: "image/setsImage/set_1/section_6/spriteFrame",
                     previewVideo: {
                         path: "video/set1/6_preview",
                         duration: 48.9
@@ -121,78 +121,78 @@ export const fingerGameConfig: FingerGameConfig = {
         {
             name: "第二套手指操",
             description: "进阶手指操",
-            icon: "image/setsImage/set_1/spriteFrame",
+            icon: "image/setsImage/set_2/spriteFrame",
             sections: [
                 {
-                    name: "热身运动",
-                    icon: "image/setsImage/section_1/spriteFrame",
+                    name: "指跟对拍",
+                    icon: "image/setsImage/set_2/section_1/spriteFrame",
                     previewVideo: {
-                        path: "video/set1/1_preview",
-                        duration: 46.5
+                        path: "video/set2/1_preview",
+                        duration: 50.41
                     },
                     demoVideo: {
-                        path: "video/set1/1_demo",
-                        duration: 12.9
+                        path: "video/set2/1_demo",
+                        duration: 24.2
                     }
                 },
                 {
-                    name: "伸屈运动",
-                    icon: "image/setsImage/section_2/spriteFrame",
+                    name: "满手抓",
+                    icon: "image/setsImage/set_2/section_2/spriteFrame",
                     previewVideo: {
-                        path: "video/set1/2_preview",
-                        duration: 58.1
+                        path: "video/set2/2_preview",
+                        duration: 50.41
                     },
                     demoVideo: {
-                        path: "video/set1/2_demo",
-                        duration: 22.2
+                        path: "video/set2/2_demo",
+                        duration: 24.2
                     }
                 },
                 {
-                    name: "敲五指",
-                    icon: "image/setsImage/section_3/spriteFrame",
+                    name: "左右剪刀手",
+                    icon: "image/setsImage/set_2/section_3/spriteFrame",
                     previewVideo: {
-                        path: "video/set1/3_preview",
-                        duration: 55.6
+                        path: "video/set2/3_preview",
+                        duration: 53.89
                     },
                     demoVideo: {
-                        path: "video/set1/3_demo",
-                        duration: 22.3
+                        path: "video/set2/3_demo",
+                        duration: 24.2
                     }
                 },  
                 {
                     name: "协调性训练",
-                    icon: "image/setsImage/section_4/spriteFrame",
+                    icon: "image/setsImage/set_2/section_4/spriteFrame",
                     previewVideo: {
-                        path: "video/set1/4_preview",
+                        path: "video/set2/4_preview",
                         duration: 56
                     },
                     demoVideo: {
-                        path: "video/set1/4_demo",
-                        duration: 29.0
+                        path: "video/set2/4_demo",
+                        duration: 22
                     }
                 },
                 {
-                    name: "反应力训练",
-                    icon: "image/setsImage/section_5/spriteFrame",
+                    name: "灵活性训练",
+                    icon: "image/setsImage/set_2/section_5/spriteFrame",
                     previewVideo: {
-                        path: "video/set1/5_preview",
-                        duration: 54.1
+                        path: "video/set2/5_preview",
+                        duration: 48.135
                     },
                     demoVideo: {
-                        path: "video/set1/5_demo",
-                        duration: 29.2
+                        path: "video/set2/5_demo",
+                        duration: 22.1
                     }
                 },  
                 {
-                    name: "十指对敲",
-                    icon: "image/setsImage/section_6/spriteFrame",
+                    name: "掌根对拍",
+                    icon: "image/setsImage/set_2/section_6/spriteFrame",
                     previewVideo: {
-                        path: "video/set1/6_preview",
-                        duration: 48.9
+                        path: "video/set2/6_preview",
+                        duration: 49.087
                     },
                     demoVideo: {
-                        path: "video/set1/6_demo",
-                        duration: 22
+                        path: "video/set2/6_demo",
+                        duration: 25.6
                     }
                 }
             ]
