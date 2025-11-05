@@ -17,11 +17,7 @@ import { DataProvider } from '../../resources/scripts/Core/Data/DataProvider';
 import { GameType } from '../../resources/scripts/Core/Scene/SceneModel/BaseGameModel';
 import { FingerGameSectionsSelectPanel } from './FingerGameSectionsSelectPanel';
 import { FingerGameAnimationPanel } from './FingerGameAnimationPanel';
-import { PersonalCenterManager } from '../../resources/scripts/Game/PersonalCenterManager/PersonalCenterManager';
-import { IndexPageConfig } from '../../resources/scripts/indexPageV2/IndexPageConfig';
-import { ThemeConfig } from '../../resources/scripts/Config/ThemeConfig';
 import { GlobalConfigManager } from '../../resources/scripts/Config/GlobalConfigManager';
-import { ImageLoaderUtil } from '../../resources/scripts/Core/Util/ImageLoaderUtil';
 import { Environment, PublishSettingConfig } from '../../app/PublishSettingConfig';
 import { FingerGameSetsSelectPanel } from './FingerGameSetsSelectPanel';
 const { ccclass, property } = _decorator;
@@ -426,8 +422,11 @@ export class FingerGameScene extends Component {
 
                 UIManager.getInstance().showPanel(FingerGameCompletePanel.NAME, this._completePanelData);
             } else {
-                let nextSectionName = fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].name;
-                let nextSectionIconUrl = fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().id - 1].icon;
+                DebugLog.instance.log('nextActivity seq =============' + this._model.getNextActivity().seq);
+                DebugLog.instance.log('currentSectionIndex =============' + this._currentSectionIndex);
+                DebugLog.instance.log('fingerGameConfig.fingerSets.sections length =============' + fingerGameConfig.fingerSets[this._currentSetIndex].sections.length);
+                let nextSectionName = fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().seq - 1].name;
+                let nextSectionIconUrl = fingerGameConfig.fingerSets[this._currentSetIndex].sections[this._model.getNextActivity().seq - 1].icon;
 
                 let panelData: IFingerGameSetFinishPanelData = {
                     showResult: false,
