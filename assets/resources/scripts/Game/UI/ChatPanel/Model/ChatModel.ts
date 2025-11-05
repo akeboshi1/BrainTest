@@ -5,7 +5,7 @@ import { DebugLog } from "../../../../Core/Util/DebugLog";
 import { NativeEventManager } from "../../../../Core/Manager/Event/NativeEventManager";
 import { NativeEvent } from "../../../../Core/Manager/Event/NativeEvent";
 import { DataProvider } from "../../../../Core/Data/DataProvider";
-import { ChatCharacter, ChatProtocol, ChatSkin, ChatSong } from "./ChatProtocol";
+import { AnimationTimelineNode, ChatCharacter, ChatProtocol, ChatSkin, ChatSong } from "./ChatProtocol";
 import { SocketManager } from "../../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
 
@@ -106,6 +106,8 @@ export class ChatModel {
     public readonly currentPlayingSong: DataProvider<ChatSong>;
     public readonly currentPlayingSongState: DataProvider<"playing" | "paused" | "ended">;
 
+    public readonly currentPlayingSongTimeline: DataProvider<AnimationTimelineNode[]>;
+
     // 用户消息暂存
     private _pendingUserMessage: string | null = null;
 
@@ -113,6 +115,8 @@ export class ChatModel {
     private _defaultCharactorSkin: number = 1;
     private _selectedCharactorId: number = 0;
     private _selectedCharactorSkin: number = 0;
+
+    private _pendingSong:ChatSong = null;
 
     public get selectedCharactorId(): number {
         return this._selectedCharactorId;
@@ -147,7 +151,8 @@ export class ChatModel {
 
         this.currentPlayingSong = new DataProvider<ChatSong>();
         this.currentPlayingSongState = new DataProvider<"playing" | "paused" | "ended">();
-        this.currentPlayingSongState.data = "ended";
+
+        this.currentPlayingSongTimeline = new DataProvider<AnimationTimelineNode[]>();
     }
     
     /**
@@ -164,9 +169,11 @@ export class ChatModel {
         this.characterSongsProvider.reset();
         this.currentPlayingSong.reset();
         this.currentPlayingSongState.reset();
+        this.currentPlayingSongTimeline.reset();
         this.clearSubtitles();
         this.subtitleListProvider.reset();
         this._pendingUserMessage = null;
+        this._pendingSong = null;
     }
 
     private initFlag = false;
@@ -204,6 +211,7 @@ export class ChatModel {
         EventManager.getInstance().on(ChatProtocol.GET_CHOOSEN_CHARACTER, this.onGetChoosenCharactor, this);
         EventManager.getInstance().on(ChatProtocol.CHOOSEN_CHARACTER, this.onChooseCharactor, this);
         EventManager.getInstance().on(ChatProtocol.GET_CHARACTER_SONGS, this.onGetCharacterSongs, this);
+        EventManager.getInstance().on(ChatProtocol.GET_SONG_TIMELINES, this.onGetSongTimelines, this);
     }
 
     public removeWebSocketListeners() {
@@ -211,6 +219,7 @@ export class ChatModel {
         EventManager.getInstance().off(ChatProtocol.GET_CHOOSEN_CHARACTER, this.onGetChoosenCharactor);
         EventManager.getInstance().off(ChatProtocol.CHOOSEN_CHARACTER, this.onChooseCharactor);
         EventManager.getInstance().off(ChatProtocol.GET_CHARACTER_SONGS, this.onGetCharacterSongs);
+        EventManager.getInstance().off(ChatProtocol.GET_SONG_TIMELINES, this.onGetSongTimelines);
     }
 
     /**
@@ -282,14 +291,8 @@ export class ChatModel {
     }
 
     public playMusic(song: ChatSong): void {
-        if (sys.platform === 'ANDROID') {
-            DebugLog.instance.log('ChatModel: 播放歌曲', song);
-            native.bridge.sendToNative(NativeEvent.CHAT_MODE_SWITCH, JSON.stringify({
-                "mode": "song",
-                "songName": song.name,
-                "songId": song.id
-            }));
-        }
+        this._pendingSong = song;
+        this.getSongTimelines(song.id);
     }
 
     public backToChat(): void {
@@ -542,6 +545,31 @@ export class ChatModel {
             song.isPlaying = false;
         });
         this.characterSongsProvider.data = songs;
+    }
+
+    public getSongTimelines(songId: number): void {
+        SocketManager.getInstance().send(new SocketData({
+            action: ChatProtocol.GET_SONG_TIMELINES,
+            data: {
+                song_id: songId
+            }
+        }));
+    }
+
+    private onGetSongTimelines(data: any): void {
+        let result = data.data.result;
+        let timelines: AnimationTimelineNode[] = result;
+        this.currentPlayingSongTimeline.data = timelines;
+        if (sys.platform === 'ANDROID') {
+            const song = this._pendingSong;
+            this._pendingSong = null;
+            DebugLog.instance.log('ChatModel: 播放歌曲', song);
+            native.bridge.sendToNative(NativeEvent.CHAT_MODE_SWITCH, JSON.stringify({
+                "mode": "song",
+                "songName": song.name,
+                "songId": song.id
+            }));
+        }
     }
 }
 

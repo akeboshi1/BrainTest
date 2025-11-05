@@ -51,6 +51,31 @@ export interface ChatSong {
 }
 
 /**
+ * 动画类型
+ */
+export type AnimationType = "idle" | "talking";
+
+/**
+ * 动画时间线节点
+ */
+export interface AnimationTimelineNode {
+    /** 时间点（秒） */
+    time: number;
+    /** 动画名称 */
+    animation: AnimationType;
+}
+
+/**
+ * 歌曲动画时间线配置
+ */
+export interface ChatSongAnimationTimeline {
+    /** 歌曲ID */
+    songId: number;
+    /** 时间线节点列表，按时间顺序排列 */
+    timeline: AnimationTimelineNode[];
+}
+
+/**
  * 聊天角色相关协议
  */
 export namespace ChatProtocol {
@@ -65,4 +90,7 @@ export namespace ChatProtocol {
 
     /** 获取歌单 */
     export const GET_CHARACTER_SONGS = 'chat.get_character_songs';
+
+    /** 获取歌曲时间线 */
+    export const GET_SONG_TIMELINES = 'chat.get_song_timelines';
 }
