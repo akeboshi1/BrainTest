@@ -371,7 +371,7 @@ export class VipPanel extends BasePanel {
         let _vipData = this._vipModel.vipDatas[0];
         this._select = _vipData.id;
         this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${_vipData.name}</size></b></color>模式`;
-        this.chatLabel.string = `(${_vipData.chatHours}h)`;
+        this.chatLabel.string = `(${_vipData.chatHours*60}分钟)`;
         this.setBtnFrame(_vipData.periodUnit);
     }
     setBtnFrame(name: string) {
@@ -619,7 +619,7 @@ export class VipPanel extends BasePanel {
 
         this.setBtnFrame(vipData.periodUnit);
 
-        this.chatLabel.string = `(${vipData.chatHours}h)`;
+        this.chatLabel.string = `(${vipData.chatHours*60}分钟)`;
 
 
 
