@@ -24,6 +24,8 @@ import { SkewersManager } from '../Game/Task/Skewers/SkewersManager';
 import { GlobalConfigManager } from '../Config/GlobalConfigManager';
 import { ImageLoaderUtil } from '../Core/Util/ImageLoaderUtil';
 import {ChatPanel} from "db://assets/resources/scripts/Game/UI/ChatPanel/ChatPanel";
+import { ChatModel } from '../Game/UI/ChatPanel/Model/ChatModel';
+import { ChatMonthUsage } from '../Game/UI/ChatPanel/Model/ChatProtocol';
 
 
 const { ccclass, property } = _decorator;
@@ -106,6 +108,8 @@ export class IndexPageView extends AdaptComponent {
         }).catch((error) => {
             DebugLog.instance.error("加载用户信息失败:", error);
         });
+
+        ChatModel.getInstance().getMonthUsage();
     }
 
     onEnable() {
@@ -361,18 +365,29 @@ export class IndexPageView extends AdaptComponent {
 
     showAIChatPanel(){
         let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
-        if (is_member) {
-            UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
-            UIManager.getInstance().showPanel(ChatPanel.NAME);
+        if (!is_member) {
+            const alertData: AlertData = new AlertData();
+            alertData.title = "去解锁会员,畅玩更多功能";
+            alertData.cancelButtonVisible = true;
+            alertData.confirmCb = function () {
+                this.cofirmGoToVip();
+            }.bind(this);
+            AlertManager.getInstance().showAlert(alertData);
             return;
         }
-        const alertData: AlertData = new AlertData();
-        alertData.title = "去解锁会员,畅玩更多功能";
-        alertData.cancelButtonVisible = true;
-        alertData.confirmCb = function () {
-            this.cofirmGoToVip();
-        }.bind(this);
-        AlertManager.getInstance().showAlert(alertData);
+
+        let monthUsage:ChatMonthUsage = ChatModel.getInstance().monthUsageProvider.data;
+        if(monthUsage.remaining_seconds <= 0){
+            const alertData: AlertData = new AlertData();
+            alertData.title = "温馨提示";
+            alertData.message = "您本次的暖心聊天时长已经用完啦~";
+            alertData.confirmButtonText = "我知道了";
+            AlertManager.getInstance().showAlert(alertData);
+            return;
+        }
+
+        UIManager.getInstance().registerPanel(ChatPanel.NAME,BundleName.RESOURCES,"prefab/ChatPanel/ChatPanel2",ChatPanel);
+        UIManager.getInstance().showPanel(ChatPanel.NAME);
     }
 
     private _clickBoo = false;

@@ -13,6 +13,8 @@ import { ChatMusicPanel } from './ChatMusicPanel';
 import { ChatSublineItem } from './ChatSublineItem';
 import { DataProvider } from '../../../Core/Data/DataProvider';
 import { DebugLog } from '../../../Core/Util/DebugLog';
+import { AlertData, AlertManager } from '../../../Core/Manager/Alert/AlertManager';
+import { EventManager } from '../../../Core/Manager/Event/EventManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChatPanel')
@@ -158,6 +160,7 @@ export class ChatPanel extends BasePanel {
         this._chatModel.currentPlayingSongState.addListener(this.onCurrentPlayingSongStateChanged.bind(this));
         this._chatModel.currentPlayingSong.addListener(this.onCurrentPlayingSongChanged.bind(this));
         this._chatModel.getRecordingPermission();
+        EventManager.getInstance().on(ChatModel.MONTH_USAGE_LIMIT_EXCEEDED_EVENT, this.onMonthUsageLimitExceeded, this);
 
         this.sublineScrollView.node.active = this._sublineShowState;
 
@@ -187,6 +190,8 @@ export class ChatPanel extends BasePanel {
         // 清理加载队列
         this._frameComponentQueue = [];
         this._isLoadingFrameComponent = false;
+
+        EventManager.getInstance().off(ChatModel.MONTH_USAGE_LIMIT_EXCEEDED_EVENT, this);
 
         this._subtitleIconSPMap.forEach(spDataProvider => {
             spDataProvider.removeAllListeners();
@@ -485,6 +490,18 @@ export class ChatPanel extends BasePanel {
                 child.getComponent(ChatSublineItem).changeSpProvider(this.getSubtitleIconSPDataProvider(this.getSubtitleIconUrl(child.getComponent(ChatSublineItem).speaker)));
             }
         });
+    }
+
+    onMonthUsageLimitExceeded() {
+        DebugLog.instance.log('ChatPanel: 使用限制超出');
+        let alertData: AlertData = new AlertData();
+        alertData.title = "温馨提示";
+        alertData.message = "您本次的暖心聊天时长已经用完啦~";
+        alertData.confirmButtonText = "我知道了";
+        alertData.confirmCb = () => {
+            this.onClickCloseBtn();
+        };
+        AlertManager.getInstance().showAlert(alertData);
     }
 
     onClickCloseBtn() {
