@@ -548,7 +548,9 @@ export class ChatPanel extends BasePanel {
         console.log("chatPanel：连接状态： " + state);
         if (state == ChatConnectionState.CONNECTED) {
             this.loadingNode.active = false;
-        } else {
+        } else if(state == ChatConnectionState.DISCONNECTED){
+            this.loadingNode.active = false;
+        } else if(state == ChatConnectionState.CONNECTING){
             this.loadingNode.active = true;
         }
     }
