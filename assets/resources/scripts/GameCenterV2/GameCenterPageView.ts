@@ -37,7 +37,7 @@ export class GameCenterPageView extends Component {
     @property(Node)
     private titleText: Node = null;
 
-    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句', "手指操", "天平", "24点"];
+    private tmpGameNames: string[] = ["找茬", '翻牌', '拼图', '捕鱼', '猜谜', '麻将组句', "手指操", "找一找", "24点"];
 
 
     // 数据加载完成通知相关属性

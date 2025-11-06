@@ -10737,7 +10737,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "计算力",
+    "_string": "执行力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -11168,7 +11168,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "天平",
+    "_string": "找一找",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 54,
