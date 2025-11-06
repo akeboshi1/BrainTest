@@ -335,11 +335,11 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 将指定类型对应的所有显示的questionNode替换成yes资源
      * @param type 类型名称
      */
-    private replaceQuestionNodesToYes(type: string): void {
+    private replaceQuestionNodesToYes(): void {
         // 遍历所有显示的questionNode，替换资源
         // 当remainingCount == 0时，说明这个类型的任务已完成，将所有显示的节点替换成yes
         // 但是跳过已经设置了item图片的节点
-        for (let i = 0; i < this.currentQuestionNodeCount && i < this.questionNodes.length; i++) {
+        for (let i = 0; i < this.questionNodes.length; i++) {
             // 如果这个节点已经设置了item图片，跳过
             if (this.questionNodesWithItemImage.has(i)) {
                 continue;
@@ -350,7 +350,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 const sprite = questionNode.getComponent(Sprite);
                 if (sprite) {
                     const bundle = assetManager.getBundle(this.bundleName);
-                    const imagePath = "texture/common/yes/spriteFrame";
+                    const imagePath = "texture/common/roundframe/spriteFrame";
                     bundle.load(imagePath, SpriteFrame, (err, sp) => {
                         if (err) {
                             DebugLog.instance.error(err);
@@ -472,8 +472,6 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 如果剩余数量为0，将当前类型对应的所有显示的questionNode替换成yes
         if (remainingCount == 0) {
-            //表示当前组找东西完成，开启下一组
-            // this.replaceQuestionNodesToYes(imageData.type);
 
             // 检查是否还有下一组
             const nextType = this.getFirstQuestionType();
@@ -492,6 +490,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                             if (this.goodNode && this.goodNode.isValid) {
                                 this.goodNode.active = false;
                             }
+                             //清理questionNode
+                            this.replaceQuestionNodesToYes();
                         })
                         .start();
                 }
@@ -507,11 +507,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 获取被点击的item节点位置作为起始位置
         const clickedItemNode = this.itemNodes[index];
         if (clickedItemNode) {
-            this.moveItemNodeToQuestionNode(clickedItemNode, this._totalQuestionCount - remainingCount);
+            // 等待动画完成
+            this.moveItemNodeToQuestionNode(clickedItemNode, this._totalQuestionCount - remainingCount).then(() => {
+                // 动画完成后更新问题显示
+                this.updateQuestionLabel(true);
+            });
+        } else {
+            // 如果没有itemNode，直接更新问题显示
+            this.updateQuestionLabel(true);
         }
-
-        // 更新问题显示（不再重新生成imageData）
-        this.updateQuestionLabel(true);
 
         // 检查是否所有需求都完成了
         if (this.checkWin()) {
@@ -600,7 +604,7 @@ export class Main extends BaseScene<IBaseGameChild> {
      * @param itemNode 被点击的item节点
      * @param remainingCount 剩余数量（用于确定目标节点索引）
      */
-    private moveItemNodeToQuestionNode(itemNode: Node, remainingCount: number): void {
+    private async moveItemNodeToQuestionNode(itemNode: Node, remainingCount: number): Promise<void> {
         // 找到目标questionNode（应该是当前剩余数量对应的节点）
         // 剩余数量就是需要显示的节点数量，目标节点应该是最后一个显示的节点（索引为 remainingCount - 1）
 
@@ -608,34 +612,34 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         if (targetNodeIndex >= this.questionNodes.length || targetNodeIndex < 0) {
             DebugLog.instance.warn(`目标节点索引 ${targetNodeIndex} 超出范围`);
-            return;
+            return Promise.resolve();
         }
 
         const targetQuestionNode = this.questionNodes[targetNodeIndex];
         if (!targetQuestionNode || !targetQuestionNode.active) {
             DebugLog.instance.warn(`目标节点不存在或未激活`);
-            return;
+            return Promise.resolve();
         }
 
         // 获取itemNode的Sprite组件
         const itemSprite = itemNode.getComponent(Sprite);
         if (!itemSprite || !itemSprite.spriteFrame) {
             DebugLog.instance.warn(`itemNode没有Sprite组件或spriteFrame为空`);
-            return;
+            return Promise.resolve();
         }
 
         // 获取目标节点的Sprite组件
         const targetSprite = targetQuestionNode.getComponent(Sprite);
         if (!targetSprite) {
             DebugLog.instance.warn(`目标节点没有Sprite组件`);
-            return;
+            return Promise.resolve();
         }
 
         // 获取目标节点的世界坐标
         const targetUITransform = targetQuestionNode.getComponent(UITransform);
         if (!targetUITransform) {
             DebugLog.instance.warn(`目标节点没有UITransform组件`);
-            return;
+            return Promise.resolve();
         }
 
         // 获取主视图节点用于坐标转换
@@ -647,7 +651,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         const viewUITransform = viewNode.getComponent(UITransform);
         if (!viewUITransform) {
             DebugLog.instance.warn(`视图节点没有UITransform组件`);
-            return;
+            return Promise.resolve();
         }
 
         // 转换目标节点位置到视图节点坐标系
@@ -682,35 +686,41 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 将itemNode临时添加到视图节点，以便进行动画
         const originalParent = itemNode.parent;
         const originalPos = itemNode.getPosition();
-        const originalScale = itemNode.getScale();
+        // const originalScale = itemNode.getScale();
 
         // 转换到视图节点坐标系
         itemNode.setParent(viewNode);
         itemNode.setPosition(itemNodePos);
-        itemNode.setScale(originalScale);
+        // itemNode.setScale(originalScale);
 
-        // 使用tween动画让itemNode飞到目标位置
-        tween(itemNode)
-            .to(0.3, {
-                position: new Vec3(targetNodePos.x, targetNodePos.y, 0),
-                scale: new Vec3(0.5, 0.5, 1) // 飞行过程中稍微缩小
-            })
-            .call(() => {
-                // 动画完成后，将spriteFrame设置到questionNode
-                targetSprite.spriteFrame = spriteFrame;
+        // 使用Promise等待tween动画完成
+        return new Promise<void>((resolve) => {
+            // 使用tween动画让itemNode飞到目标位置
+            tween(itemNode)
+                .to(0.3, {
+                    position: new Vec3(targetNodePos.x, targetNodePos.y, 0),
+                    // scale: new Vec3(0.5, 0.5, 1) // 飞行过程中稍微缩小
+                })
+                .call(() => {
+                    // 动画完成后，将spriteFrame设置到questionNode
+                    targetSprite.spriteFrame = spriteFrame;
 
-                // 记录这个questionNode已经设置了item图片，不应该被替换为yes
-                this.questionNodesWithItemImage.add(targetNodeIndex);
+                    // 记录这个questionNode已经设置了item图片，不应该被替换为yes
+                    this.questionNodesWithItemImage.add(targetNodeIndex);
 
-                // 将itemNode的spriteFrame设置为null
-                itemSprite.spriteFrame = null;
+                    // 将itemNode的spriteFrame设置为null
+                    itemSprite.spriteFrame = null;
 
-                // 恢复itemNode的原始状态
-                itemNode.setParent(originalParent);
-                itemNode.setPosition(originalPos);
-                itemNode.setScale(originalScale);
-            })
-            .start();
+                    // 恢复itemNode的原始状态
+                    itemNode.setParent(originalParent);
+                    itemNode.setPosition(originalPos);
+                    // itemNode.setScale(originalScale);
+
+                    // 动画完成，resolve Promise
+                    resolve();
+                })
+                .start();
+        });
     }
 
     /**
