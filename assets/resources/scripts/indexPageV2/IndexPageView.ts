@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Label, resources, SpriteFrame, Sprite, UITransform, Texture2D, assetManager, ImageAsset, Rect, view } from 'cc';
+import { _decorator, Node, Prefab, instantiate, Label, resources, SpriteFrame, Sprite, UITransform, Texture2D, assetManager, ImageAsset, Rect, view, sys } from 'cc';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
 import { DebugLog } from '../Core/Util/DebugLog';
@@ -26,6 +26,7 @@ import { ImageLoaderUtil } from '../Core/Util/ImageLoaderUtil';
 import {ChatPanel} from "db://assets/resources/scripts/Game/UI/ChatPanel/ChatPanel";
 import { ChatModel } from '../Game/UI/ChatPanel/Model/ChatModel';
 import { ChatMonthUsage } from '../Game/UI/ChatPanel/Model/ChatProtocol';
+import { NativeEventManager } from '../Core/Manager/Event/NativeEventManager';
 
 
 const { ccclass, property } = _decorator;
@@ -364,6 +365,18 @@ export class IndexPageView extends AdaptComponent {
     }
 
     showAIChatPanel(){
+        if(sys.platform === 'ANDROID'){
+            let versionCode = NativeEventManager.getInstance().versionCode;
+            if(versionCode < 2025110614){
+                const alertData: AlertData = new AlertData();
+                alertData.title = "温馨提示";
+                alertData.message = "您好~当前APP版本较低，为了更好地体验暖心聊天功能，请先更新至最新版本哦~";
+                alertData.confirmButtonText = "我知道了";
+                AlertManager.getInstance().showAlert(alertData);
+                return;
+            }
+        }
+
         let is_member = PersonalCenterManager.getInstance().userInfoData.is_member;
         if (!is_member) {
             const alertData: AlertData = new AlertData();

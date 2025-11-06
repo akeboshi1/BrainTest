@@ -24,6 +24,16 @@ export class NativeEventManager extends BaseManager {
         return this._deviceID;
     }
 
+    private _versionName:string = "";
+    get versionName():string{
+        return this._versionName;
+    }
+
+    private _versionCode:number = 0;
+    get versionCode():number{
+        return this._versionCode;
+    }
+
     constructor() {
         super();
     }
@@ -39,6 +49,14 @@ export class NativeEventManager extends BaseManager {
                 this._deviceID = data.deviceId;
                 console.log(`获取设备信息: ${this._deviceID}`);
             },this);
+
+            this.on(NativeEvent.VERSIONInfo, (data:any) => {
+                this._versionName = data.versionName;
+                this._versionCode = data.versionCode;
+                console.log(`获取版本信息: ${this._versionName} ${this._versionCode}`);
+            },this);
+
+            native.bridge.sendToNative(NativeEvent.VERSION, 'info');
         }
     }
 
