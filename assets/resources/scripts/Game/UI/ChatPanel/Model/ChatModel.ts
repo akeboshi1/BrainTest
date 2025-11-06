@@ -160,8 +160,6 @@ export class ChatModel {
         this.currentPlayingSongTimeline = new DataProvider<AnimationTimelineNode[]>();
 
         this.monthUsageProvider = new DataProvider<ChatMonthUsage>();
-
-        EventManager.getInstance().on(ChatProtocol.GET_MONTH_USAGE, this.onGetMonthUsage, this);
     }
     
     /**
@@ -588,6 +586,7 @@ export class ChatModel {
     }
 
     public getMonthUsage(): void {
+        EventManager.getInstance().on(ChatProtocol.GET_MONTH_USAGE, this.onGetMonthUsage, this, true);
         SocketManager.getInstance().send(new SocketData({
             action: ChatProtocol.GET_MONTH_USAGE,
             data: {}
