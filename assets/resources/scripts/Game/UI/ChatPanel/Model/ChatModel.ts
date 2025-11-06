@@ -597,6 +597,7 @@ export class ChatModel {
     private onGetMonthUsage(data: any): void {
         let result = data.data.result;
         let monthUsage: ChatMonthUsage = result;
+        DebugLog.instance.log('ChatModel: 获取本月剩余使用时长: ' + monthUsage.remaining_seconds);
         this.monthUsageProvider.data = monthUsage;
     }
 }

@@ -193,11 +193,14 @@ export class ChatPanel extends BasePanel {
 
         EventManager.getInstance().off(ChatModel.MONTH_USAGE_LIMIT_EXCEEDED_EVENT, this);
 
-        this._subtitleIconSPMap.forEach(spDataProvider => {
-            spDataProvider.removeAllListeners();
-        });
-        this._subtitleIconSPMap.clear();
+        if(this._subtitleIconSPMap != null){
+            this._subtitleIconSPMap.forEach(spDataProvider => {
+                spDataProvider.removeAllListeners();
+            });
+            this._subtitleIconSPMap.clear();
+        }
 
+        this._chatModel.getMonthUsage();
         // 停止测试
         this.stopTestSubtitleGeneration();
 
@@ -472,7 +475,7 @@ export class ChatPanel extends BasePanel {
         if (bool) {
             this.startChat();
         } else {
-            UIManager.getInstance().hidePanel(ChatPanel.NAME);
+            this.onClickCloseBtn();
         }
     }
 
