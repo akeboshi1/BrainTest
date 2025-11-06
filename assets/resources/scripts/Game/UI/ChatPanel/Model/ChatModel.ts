@@ -5,9 +5,10 @@ import { DebugLog } from "../../../../Core/Util/DebugLog";
 import { NativeEventManager } from "../../../../Core/Manager/Event/NativeEventManager";
 import { NativeEvent } from "../../../../Core/Manager/Event/NativeEvent";
 import { DataProvider } from "../../../../Core/Data/DataProvider";
-import { AnimationTimelineNode, ChatCharacter, ChatProtocol, ChatSkin, ChatSong } from "./ChatProtocol";
+import { AnimationTimelineNode, ChatCharacter, ChatMonthUsage, ChatProtocol, ChatSkin, ChatSong } from "./ChatProtocol";
 import { SocketManager } from "../../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
+import { Environment, PublishSettingConfig } from "db://assets/app/PublishSettingConfig";
 
 // 字幕列表DataProvider（需要特殊方法，保留子类）
 export class SubtitleListDataProvider extends DataProvider<SubtitleItem[]> {
@@ -108,6 +109,10 @@ export class ChatModel {
 
     public readonly currentPlayingSongTimeline: DataProvider<AnimationTimelineNode[]>;
 
+    public readonly monthUsageProvider: DataProvider<ChatMonthUsage>;
+
+    public static readonly MONTH_USAGE_LIMIT_EXCEEDED_EVENT: string = "MONTH_USAGE_LIMIT_EXCEEDED_EVENT";
+
     // 用户消息暂存
     private _pendingUserMessage: string | null = null;
 
@@ -153,6 +158,10 @@ export class ChatModel {
         this.currentPlayingSongState = new DataProvider<"playing" | "paused" | "ended">();
 
         this.currentPlayingSongTimeline = new DataProvider<AnimationTimelineNode[]>();
+
+        this.monthUsageProvider = new DataProvider<ChatMonthUsage>();
+
+        EventManager.getInstance().on(ChatProtocol.GET_MONTH_USAGE, this.onGetMonthUsage, this);
     }
     
     /**
@@ -203,6 +212,7 @@ export class ChatModel {
             NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_RESUMED, this.onChatSongResumed, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_END, this.onChatSongEnd, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_MODE_SWITCHED, this.onChatModeSwitched, this);
+            NativeEventManager.getInstance().on(NativeEvent.CHAT_USAGE_LIMIT_EXCEEDED, this.onChatUsageLimitExceeded, this);
         }
     }
 
@@ -250,7 +260,8 @@ export class ChatModel {
             native.bridge.sendToNative(NativeEvent.CHAT_START, JSON.stringify({
                 "token": params.token,
                 "userNickName": params.userNickName,
-                "roleId": params.roleId
+                "roleId": params.roleId,
+                "isProduction": PublishSettingConfig.getInstance().getEnvironment() === Environment.PRODUCTION
             }));
         }
     }
@@ -460,6 +471,10 @@ export class ChatModel {
         }
     }
 
+    private onChatUsageLimitExceeded(data: any): void {
+        EventManager.getInstance().emit(ChatModel.MONTH_USAGE_LIMIT_EXCEEDED_EVENT);
+    }
+
     //------------websocket request----------//
     public getCharactorList(): void {
         SocketManager.getInstance().send(new SocketData({
@@ -570,6 +585,20 @@ export class ChatModel {
                 "songId": song.id
             }));
         }
+    }
+
+    public getMonthUsage(): void {
+        SocketManager.getInstance().send(new SocketData({
+            action: ChatProtocol.GET_MONTH_USAGE,
+            data: {}
+        }));
+    }
+
+    private onGetMonthUsage(data: any): void {
+        let result = data.data.result;
+        let monthUsage: ChatMonthUsage = result;
+        DebugLog.instance.log('ChatModel: 获取本月剩余使用时长: ' + monthUsage.remaining_seconds);
+        this.monthUsageProvider.data = monthUsage;
     }
 }
 
