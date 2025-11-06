@@ -119,6 +119,9 @@ export class VipPanel extends BasePanel {
     @property(Node)
     toggleTips:Node;
 
+    @property(Label)
+    chatLabel:Label = null;
+
     // ===== buy
     @property(Node)
     buyNode: Node;
@@ -368,6 +371,7 @@ export class VipPanel extends BasePanel {
         let _vipData = this._vipModel.vipDatas[0];
         this._select = _vipData.id;
         this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${_vipData.name}</size></b></color>模式`;
+        this.chatLabel.string = `(${_vipData.chatHours*60}分钟)`;
         this.setBtnFrame(_vipData.periodUnit);
     }
     setBtnFrame(name: string) {
@@ -393,7 +397,7 @@ export class VipPanel extends BasePanel {
 
     /**
      * 支付返回
-     * @param orderId 
+     * @param orderId
      */
     private onVipPayResult(orderId) {
         // 支付完成后，查询订单
@@ -614,6 +618,10 @@ export class VipPanel extends BasePanel {
         this.selectLabel.string = `*您已选择<color=#000000><b><size=40>${vipData.name}</size></b></color>模式`;
 
         this.setBtnFrame(vipData.periodUnit);
+
+        this.chatLabel.string = `(${vipData.chatHours*60}分钟)`;
+
+
 
         // let mouthBtnSprite = this.mouthBtn.getComponent(Sprite);
         // let yearBtnSprite = this.yearBtn.getComponent(Sprite);
