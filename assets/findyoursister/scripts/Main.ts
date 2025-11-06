@@ -37,6 +37,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     /** 当前显示的questionNode数量 */
     private currentQuestionNodeCount: number = 0;
 
+    /** 记录已经设置了item图片的questionNode索引（这些节点不应该被替换为yes） */
+    private questionNodesWithItemImage: Set<number> = new Set();
+
     private model: FindYourSisterModel = null;
 
     /** 存储每个item对应的ImageData数据 */
@@ -126,6 +129,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.questionDatas = this.model.getQuestionDatas(imageTypes);
         // 清空已点击的item
         this.clickedItems.clear();
+        // 清空已设置item图片的questionNode记录
+        this.questionNodesWithItemImage.clear();
 
         // 更新问题显示
         this.updateQuestionLabel();
@@ -250,23 +255,29 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
 
             // 从第count个节点开始替换，替换replaceCount个节点
-            for (let i = 0; i < replaceCount && i < this.questionNodes.length; i++) {
-                const questionNode = this.questionNodes[i];
-                if (questionNode) {
-                    const sprite = questionNode.getComponent(Sprite);
-                    if (sprite) {
-                        const bundle = assetManager.getBundle(this.bundleName);
-                        const imagePath = "texture/common/yes/spriteFrame";
-                        bundle.load(imagePath, SpriteFrame, (err, sp) => {
-                            if (err) {
-                                DebugLog.instance.error(err);
-                                return;
-                            }
-                            sprite.spriteFrame = sp;
-                        });
-                    }
-                }
-            }
+            // 但是跳过已经设置了item图片的节点
+            // for (let i = 0; i < replaceCount && i < this.questionNodes.length; i++) {
+            //     // 如果这个节点已经设置了item图片，跳过
+            //     if (this.questionNodesWithItemImage.has(i)) {
+            //         continue;
+            //     }
+
+            //     const questionNode = this.questionNodes[i];
+            //     if (questionNode) {
+            //         const sprite = questionNode.getComponent(Sprite);
+            //         if (sprite) {
+            //             const bundle = assetManager.getBundle(this.bundleName);
+            //             const imagePath = "texture/common/yes/spriteFrame";
+            //             bundle.load(imagePath, SpriteFrame, (err, sp) => {
+            //                 if (err) {
+            //                     DebugLog.instance.error(err);
+            //                     return;
+            //                 }
+            //                 sprite.spriteFrame = sp;
+            //             });
+            //         }
+            //     }
+            // }
         } else {
             // 处理显示隐藏逻辑
             // count表示需要显示的节点数量
@@ -327,7 +338,13 @@ export class Main extends BaseScene<IBaseGameChild> {
     private replaceQuestionNodesToYes(type: string): void {
         // 遍历所有显示的questionNode，替换资源
         // 当remainingCount == 0时，说明这个类型的任务已完成，将所有显示的节点替换成yes
+        // 但是跳过已经设置了item图片的节点
         for (let i = 0; i < this.currentQuestionNodeCount && i < this.questionNodes.length; i++) {
+            // 如果这个节点已经设置了item图片，跳过
+            if (this.questionNodesWithItemImage.has(i)) {
+                continue;
+            }
+
             const questionNode = this.questionNodes[i];
             if (questionNode && questionNode.active) {
                 const sprite = questionNode.getComponent(Sprite);
@@ -456,7 +473,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 如果剩余数量为0，将当前类型对应的所有显示的questionNode替换成yes
         if (remainingCount == 0) {
             //表示当前组找东西完成，开启下一组
-            this.replaceQuestionNodesToYes(imageData.type);
+            // this.replaceQuestionNodesToYes(imageData.type);
 
             // 检查是否还有下一组
             const nextType = this.getFirstQuestionType();
@@ -486,33 +503,19 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
         }
 
-        // 创建点击特效，从点击位置飞到对应的questionNode
+        // 让itemNode飞到对应的questionNode
         // 获取被点击的item节点位置作为起始位置
         const clickedItemNode = this.itemNodes[index];
         if (clickedItemNode) {
-            this.createParticleToQuestionNode(clickedItemNode, this._totalQuestionCount - remainingCount);
+            this.moveItemNodeToQuestionNode(clickedItemNode, this._totalQuestionCount - remainingCount);
         }
 
-        // 更新被点击的item的图片和问题显示
-        this.updateView(index);
+        // 更新问题显示（不再重新生成imageData）
+        this.updateQuestionLabel(true);
 
         // 检查是否所有需求都完成了
         if (this.checkWin()) {
             this.onGameWin();
-        }
-    }
-
-    /**
-     * 更新视图
-     * @param clickedIndex 被点击的item索引（如果提供了，则更新该item的图片）
-     */
-    private updateView(clickedIndex?: number) {
-        // 更新问题标签显示
-        this.updateQuestionLabel(true);
-
-        // 如果提供了点击的索引，更新该item的图片
-        if (clickedIndex !== undefined && clickedIndex !== null) {
-            this.updateItemImage(clickedIndex);
         }
     }
 
@@ -593,11 +596,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     /**
-     * 创建粒子特效，从点击位置飞到对应的questionNode
-     * @param clickNode 被点击的item节点
+     * 让itemNode飞到对应的questionNode，并将spriteFrame设置到questionNode
+     * @param itemNode 被点击的item节点
      * @param remainingCount 剩余数量（用于确定目标节点索引）
      */
-    private createParticleToQuestionNode(clickNode: Node, remainingCount: number): void {
+    private moveItemNodeToQuestionNode(itemNode: Node, remainingCount: number): void {
         // 找到目标questionNode（应该是当前剩余数量对应的节点）
         // 剩余数量就是需要显示的节点数量，目标节点应该是最后一个显示的节点（索引为 remainingCount - 1）
 
@@ -611,6 +614,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         const targetQuestionNode = this.questionNodes[targetNodeIndex];
         if (!targetQuestionNode || !targetQuestionNode.active) {
             DebugLog.instance.warn(`目标节点不存在或未激活`);
+            return;
+        }
+
+        // 获取itemNode的Sprite组件
+        const itemSprite = itemNode.getComponent(Sprite);
+        if (!itemSprite || !itemSprite.spriteFrame) {
+            DebugLog.instance.warn(`itemNode没有Sprite组件或spriteFrame为空`);
+            return;
+        }
+
+        // 获取目标节点的Sprite组件
+        const targetSprite = targetQuestionNode.getComponent(Sprite);
+        if (!targetSprite) {
+            DebugLog.instance.warn(`目标节点没有Sprite组件`);
             return;
         }
 
@@ -646,53 +663,54 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         const targetNodePos = viewUITransform.convertToNodeSpaceAR(targetWorldPos);
 
-        // 转换点击节点位置到视图节点坐标系
-        const clickPos = clickNode.getPosition();
-        const clickParentUITransform = clickNode.parent?.getComponent(UITransform);
-        let clickWorldPos: Vec3;
+        // 转换itemNode位置到视图节点坐标系
+        const itemPos = itemNode.getPosition();
+        const itemParentUITransform = itemNode.parent?.getComponent(UITransform);
+        let itemWorldPos: Vec3;
 
-        if (clickParentUITransform) {
-            clickWorldPos = clickParentUITransform.convertToWorldSpaceAR(clickPos);
+        if (itemParentUITransform) {
+            itemWorldPos = itemParentUITransform.convertToWorldSpaceAR(itemPos);
         } else {
-            clickWorldPos = new Vec3(clickPos.x, clickPos.y, 0);
+            itemWorldPos = new Vec3(itemPos.x, itemPos.y, 0);
         }
 
-        const clickNodePos = viewUITransform.convertToNodeSpaceAR(clickWorldPos);
+        const itemNodePos = viewUITransform.convertToNodeSpaceAR(itemWorldPos);
 
-        // 创建粒子节点
-        const particleNode = new Node();
-        particleNode.name = "particle";
-        particleNode.setPosition(clickNodePos);
+        // 保存itemNode的spriteFrame
+        const spriteFrame = itemSprite.spriteFrame;
 
-        const particleComp = particleNode.addComponent(ParticleSystem2D);
-        const particleUrl = "texture/common/particle/win"; // 可以根据实际情况调整路径
+        // 将itemNode临时添加到视图节点，以便进行动画
+        const originalParent = itemNode.parent;
+        const originalPos = itemNode.getPosition();
+        const originalScale = itemNode.getScale();
 
-        const bundle = assetManager.getBundle(this.bundleName);
-        bundle.load(particleUrl, ParticleAsset, (err: Error, particle: ParticleAsset) => {
-            if (err) {
-                DebugLog.instance.error(`加载粒子资源失败: ${err.message}`);
-                // 如果粒子资源加载失败，使用简单的Sprite作为替代
-                this.createSimpleParticleEffect(particleNode, clickNodePos, targetNodePos, viewNode);
-                return;
-            }
-            particleComp.file = particle;
+        // 转换到视图节点坐标系
+        itemNode.setParent(viewNode);
+        itemNode.setPosition(itemNodePos);
+        itemNode.setScale(originalScale);
 
-            // 添加粒子到视图节点
-            viewNode.addChild(particleNode);
+        // 使用tween动画让itemNode飞到目标位置
+        tween(itemNode)
+            .to(0.3, {
+                position: new Vec3(targetNodePos.x, targetNodePos.y, 0),
+                scale: new Vec3(0.5, 0.5, 1) // 飞行过程中稍微缩小
+            })
+            .call(() => {
+                // 动画完成后，将spriteFrame设置到questionNode
+                targetSprite.spriteFrame = spriteFrame;
 
-            // 使用tween动画让粒子飞到目标位置
-            tween(particleNode)
-                .to(0.3, { position: new Vec3(targetNodePos.x, targetNodePos.y, 0) })
-                .call(() => {
-                    // 动画完成后销毁节点
-                    setTimeout(() => {
-                        if (particleNode && particleNode.isValid) {
-                            particleNode.destroy();
-                        }
-                    }, 120);
-                })
-                .start();
-        });
+                // 记录这个questionNode已经设置了item图片，不应该被替换为yes
+                this.questionNodesWithItemImage.add(targetNodeIndex);
+
+                // 将itemNode的spriteFrame设置为null
+                itemSprite.spriteFrame = null;
+
+                // 恢复itemNode的原始状态
+                itemNode.setParent(originalParent);
+                itemNode.setPosition(originalPos);
+                itemNode.setScale(originalScale);
+            })
+            .start();
     }
 
     /**
@@ -735,30 +753,30 @@ export class Main extends BaseScene<IBaseGameChild> {
         const sprite = particleNode.addComponent(Sprite);
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
-        const bundle = assetManager.getBundle(this.bundleName);
-        bundle.load("texture/common/yes/spriteFrame", SpriteFrame, (err: Error, spriteFrame: SpriteFrame) => {
-            if (err) {
-                DebugLog.instance.error(`加载替代资源失败: ${err.message}`);
-                particleNode.destroy();
-                return;
-            }
-            sprite.spriteFrame = spriteFrame;
-            particleNode.setScale(0.5, 0.5);
+        // const bundle = assetManager.getBundle(this.bundleName);
+        // bundle.load("texture/common/yes/spriteFrame", SpriteFrame, (err: Error, spriteFrame: SpriteFrame) => {
+        //     if (err) {
+        //         DebugLog.instance.error(`加载替代资源失败: ${err.message}`);
+        //         particleNode.destroy();
+        //         return;
+        //     }
+        // sprite.spriteFrame = spriteFrame;
+        particleNode.setScale(0.5, 0.5);
 
-            parentNode.addChild(particleNode);
+        parentNode.addChild(particleNode);
 
-            // 使用tween动画
-            tween(particleNode)
-                .to(0.3, { position: new Vec3(targetPos.x, targetPos.y, 0) })
-                .call(() => {
-                    setTimeout(() => {
-                        if (particleNode && particleNode.isValid) {
-                            particleNode.destroy();
-                        }
-                    }, 200);
-                })
-                .start();
-        });
+        // 使用tween动画
+        tween(particleNode)
+            .to(0.3, { position: new Vec3(targetPos.x, targetPos.y, 0) })
+            .call(() => {
+                setTimeout(() => {
+                    if (particleNode && particleNode.isValid) {
+                        particleNode.destroy();
+                    }
+                }, 200);
+            })
+            .start();
+        // });
     }
 
     /**
@@ -867,6 +885,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._preType = null;
         this._totalQuestionCount = 0;
         this.currentQuestionNodeCount = 0;
+        this.questionNodesWithItemImage.clear();
 
         // 隐藏所有item节点
         if (this.itemNodes.length > 0) {

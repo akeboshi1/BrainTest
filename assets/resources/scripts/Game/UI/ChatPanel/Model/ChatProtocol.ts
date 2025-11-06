@@ -75,6 +75,12 @@ export interface ChatSongAnimationTimeline {
     timeline: AnimationTimelineNode[];
 }
 
+export interface ChatMonthUsage {
+    used_seconds: number;
+    limit_seconds: number;
+    remaining_seconds: number;
+}
+
 /**
  * 聊天角色相关协议
  */
@@ -93,4 +99,7 @@ export namespace ChatProtocol {
 
     /** 获取歌曲时间线 */
     export const GET_SONG_TIMELINES = 'chat.get_song_timelines';
+
+    /** 获取本月使用时长 */
+    export const GET_MONTH_USAGE = "chat.get_month_usage";
 }

@@ -112,6 +112,7 @@ export class FindYourSisterModel {
         
         const imageDatas: ImageData[] = [];
         const totalCount = this.DIFFICULTY_COUNTS[hardIndex];
+        const totalNeedCount = this.DIFICULTY_NEEDS[hardIndex];
         const folderCount = folderArray.length; // 文件夹类型数量
         let imageCount = instance.imageCount;
         
@@ -121,9 +122,57 @@ export class FindYourSisterModel {
             console.warn(`imageCount(${instance.imageCount}) 大于等于 totalCount(${totalCount})，已调整为 ${imageCount}`);
         }
         
-        // 为每个文件夹类型平均分配数量
+        // 计算每种类型的最小需求数量（从question需求中获取）
+        // 这个计算方式与getQuestionDatas保持一致
+        const baseNeedCount = Math.floor(totalNeedCount / folderCount);
+        const needRemainder = totalNeedCount % folderCount;
+        
+        // 为每个文件夹类型分配数量，确保至少满足question需求
         const baseCountPerFolder = Math.floor(totalCount / folderCount); // 每个文件夹类型的基础数量
         const remainder = totalCount % folderCount; // 余数，需要额外分配的数量
+        
+        // 先计算每种类型的最小需求数量
+        const minNeedCounts: number[] = [];
+        for (let i = 0; i < folderCount; i++) {
+            minNeedCounts.push(baseNeedCount + (i < needRemainder ? 1 : 0));
+        }
+        
+        // 计算每种类型的基础分配数量
+        const baseAllocatedCounts: number[] = [];
+        for (let i = 0; i < folderCount; i++) {
+            baseAllocatedCounts.push(baseCountPerFolder + (i < remainder ? 1 : 0));
+        }
+        
+        // 确保每种类型的数量至少等于需求数量
+        const folderImageCounts: number[] = [];
+        let totalAllocated = 0;
+        for (let i = 0; i < folderCount; i++) {
+            const minNeed = minNeedCounts[i];
+            const baseAllocated = baseAllocatedCounts[i];
+            const count = Math.max(baseAllocated, minNeed);
+            folderImageCounts.push(count);
+            totalAllocated += count;
+        }
+        
+        // 如果总分配数量超过totalCount，需要调整
+        if (totalAllocated > totalCount) {
+            // 按比例缩减，但确保每种类型至少满足需求数量
+            const scale = (totalCount - minNeedCounts.reduce((sum, count) => sum + count, 0)) / 
+                          (totalAllocated - minNeedCounts.reduce((sum, count) => sum + count, 0));
+            
+            let remaining = totalCount;
+            for (let i = 0; i < folderCount; i++) {
+                const minNeed = minNeedCounts[i];
+                const extra = Math.floor((folderImageCounts[i] - minNeed) * scale);
+                folderImageCounts[i] = minNeed + extra;
+                remaining -= folderImageCounts[i];
+            }
+            
+            // 将剩余数量分配给前几个类型
+            for (let i = 0; i < remaining && i < folderCount; i++) {
+                folderImageCounts[i]++;
+            }
+        }
         
         let currentIndex = 1; // 全局索引
         
@@ -132,8 +181,8 @@ export class FindYourSisterModel {
             const folderName = String(folderArray[folderIdx]);
             const imagePath = `texture/${folderName}/`;
             
-            // 当前文件夹类型应该生成的数量（前remainder个多分配一个）
-            const folderImageCount = baseCountPerFolder + (folderIdx < remainder ? 1 : 0);
+            // 使用计算好的数量
+            const folderImageCount = folderImageCounts[folderIdx];
             
             // 计算当前文件夹类型中每个图片编号应该出现的次数
             const baseCountPerImage = Math.floor(folderImageCount / imageCount);
