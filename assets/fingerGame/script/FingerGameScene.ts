@@ -164,6 +164,7 @@ export class FingerGameScene extends Component {
         this._sectionConfig = sectionConfig;
         this.btnExit.active = true;
         this.noticeNode.active = true;
+        this.titleLabel.string = "";
     }
 
     private onSkewersGameNext(setIndex: number){
@@ -171,6 +172,7 @@ export class FingerGameScene extends Component {
         this.btnExit.active = true;
         this._currentSetIndex = setIndex;
         this._currentSectionIndex = 0;
+        this.titleLabel.string = "";
     }
 
     onGetAllTaskActivitiesResult(data: IFingerActivityResult) {

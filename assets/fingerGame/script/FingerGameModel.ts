@@ -222,7 +222,7 @@ export class FingerGameModel {
         if (rdata && typeof rdata.task_id === 'number' && Array.isArray(rdata.activities)) {
             this._currentTaskId = rdata.task_id;
             this._activities = rdata.activities;
-
+            this._currentSectionIndex = 0;
             //获取到了手指操节信息
             this.emit(FingerGameModelEvent.START_TASK_FINISHED, this._activities);
         } else {
