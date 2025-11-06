@@ -153,12 +153,12 @@ export class GameCenterPageView extends Component {
             return;
         }
         if (index == 7) {
-            let url = Global.RES_Root + BundleName.BALANCE;
-            DebugLog.instance.log(`${BundleName.BALANCE} click perload`);
+            let url = Global.RES_Root + BundleName.FINDYOURSISTER;
+            DebugLog.instance.log(`${BundleName.FINDYOURSISTER} click perload`);
             EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
             // 临时处理上一个训练界面，后续对接服务端，走游戏统一流程
             GameCenterManager.getInstance().clearGuidePanelData();
-            GameCenterManager.getInstance().perload(url, BundleName.BALANCE);
+            GameCenterManager.getInstance().perload(url, BundleName.FINDYOURSISTER);
             return;
         }
         if (index == 8) {

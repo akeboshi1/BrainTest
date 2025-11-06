@@ -101,6 +101,11 @@ export class VipData {
      */
     public periodCount: number = 0;
 
+    /**
+     * 数字人聊天
+     */
+    public chatHours: number = 0;
+
 
     constructor() {
     }
@@ -121,6 +126,7 @@ export class VipData {
         this.periodUnit = data['period_unit'] || "";
         this.periodCount = data['period_count'] || 0;
         this.bonusDay = data['bonus_days'] || 0;
+        this.chatHours = data['chat_hours'] || 0;
         // 根据周期单位设置会员类型
     }
 
