@@ -26,23 +26,12 @@ export class MySetView extends BasePanel {
 
     onEnable(): void {
         if(sys.platform === 'ANDROID'){
-            NativeEventManager.getInstance().on(NativeEvent.VERSIONInfo, this.onVersionInfo, this);
-            native.bridge.sendToNative(NativeEvent.VERSION, 'info');
+            this.versionLabel.string = NativeEventManager.getInstance().versionName;
         }
     }
 
     onDisable(): void {
-        if(sys.platform === 'ANDROID'){
-            NativeEventManager.getInstance().off(NativeEvent.VERSIONInfo, this);
-        }
-    }
-    
-    private onVersionInfo(data:any){
-        if(data.error){
-            DebugLog.instance.log('onVersionInfo error', data.error);
-        }else{
-            this.versionLabel.string = data.versionName;
-        }
+        
     }
 
     handleTreatClick(){
