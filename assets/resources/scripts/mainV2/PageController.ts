@@ -4,6 +4,8 @@ import { DebugLog } from '../Core/Util/DebugLog';
 import { ReportManager } from '../ManagerV2/ReportManager';
 import {AdaptComponent} from "db://assets/resources/scripts/mainV2/AdaptComponent";
 import {ScreenAdapter} from "db://assets/resources/scripts/Adapter/ScreenAdapter";
+import { UIManager } from '../Core/Manager/UI/UIManager';
+import { VipAlert } from '../Game/UI/Vip/VipAlert';
 
 const { ccclass, property } = _decorator;
 
@@ -70,6 +72,9 @@ export class PageController extends AdaptComponent {
             DebugLog.instance.error('Page node not initialized!');
             return;
         }
+
+        // 切换页签时，如果VipAlert显示了，则关闭
+        this.closeVipAlertIfShown();
 
         // Clear current page
         if (this._pageNode.children.length > 0) {
@@ -260,5 +265,14 @@ export class PageController extends AdaptComponent {
      */
     async loadGameCenterPageWithData(dataLoadCallback?: () => Promise<void>){
         await this.loadPageWithData('gameCenter', null, dataLoadCallback, "1");
+    }
+
+    /**
+     * 如果VipAlert显示了，则关闭它
+     */
+    private closeVipAlertIfShown() {
+        if (UIManager.getInstance().isPanelActive(VipAlert.NAME)) {
+            UIManager.getInstance().hidePanel(VipAlert.NAME);
+        }
     }
 } 

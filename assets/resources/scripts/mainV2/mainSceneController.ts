@@ -43,7 +43,6 @@ export class MainSceneController extends AdaptComponent {
      */
     loadIndexPage(){
         DebugLog.instance.log("收到加载首页事件");
-        this.closeVipAlertIfShown();
         this.pageController.loadIndexPage();
     }
 
@@ -70,17 +69,14 @@ export class MainSceneController extends AdaptComponent {
     }
 
     showGameCenter(){
-        this.closeVipAlertIfShown();
         this.pageController.loadGameCenterPage();
     }
 
      showReport(){
-        this.closeVipAlertIfShown();
-        this.pageController.loadReporterPage();
+         this.pageController.loadReporterPage();
     }
 
     showPersonalCenter(){
-        this.closeVipAlertIfShown();
         this.pageController.loadPersonalCenterPage();
     }
 
@@ -88,7 +84,6 @@ export class MainSceneController extends AdaptComponent {
      * 加载首页并等待数据加载完成
      */
     async loadIndexPageWithData(){
-        this.closeVipAlertIfShown();
         await this.pageController.loadIndexPageWithData(async () => {
             // 等待用户信息数据加载完成
             await PersonalCenterManager.getInstance().requestUserInfo();
@@ -102,7 +97,6 @@ export class MainSceneController extends AdaptComponent {
      */
     async loadIndexPageFromGame(){
         DebugLog.instance.log("从游戏返回，开始加载首页");
-        this.closeVipAlertIfShown();
         await this.pageController.loadIndexPageWithData(async () => {
             // 等待用户信息数据加载完成
             await PersonalCenterManager.getInstance().requestUserInfo();
@@ -114,7 +108,6 @@ export class MainSceneController extends AdaptComponent {
      * 加载游戏中心页面并等待数据加载完成
      */
     async showGameCenterWithData(){
-        this.closeVipAlertIfShown();
         await this.pageController.loadGameCenterPageWithData(async () => {
             // 这里可以添加游戏中心页面特定的数据加载逻辑
             DebugLog.instance.log("游戏中心数据加载完成");
@@ -125,7 +118,6 @@ export class MainSceneController extends AdaptComponent {
      * 加载报告页面并等待数据加载完成
      */
     async showReportWithData(data?: any){
-        this.closeVipAlertIfShown();
         await this.pageController.loadReporterPageWithData(null, data, async () => {
             // 等待用户信息数据加载完成
             await PersonalCenterManager.getInstance().requestUserInfo();
@@ -137,7 +129,6 @@ export class MainSceneController extends AdaptComponent {
      * 加载个人中心页面并等待数据加载完成
      */
     async showPersonalCenterWithData(){
-        this.closeVipAlertIfShown();
         await this.pageController.loadPersonalCenterPageWithData(async () => {
             // 等待用户信息数据加载完成
             await PersonalCenterManager.getInstance().requestUserInfo();
@@ -167,15 +158,6 @@ export class MainSceneController extends AdaptComponent {
     async loadDefaultIndexPage(){
         DebugLog.instance.log("加载默认首页");
         await this.loadIndexPageWithData();
-    }
-
-    /**
-     * 如果VipAlert显示了，则关闭它
-     */
-    private closeVipAlertIfShown() {
-        if (UIManager.getInstance().isPanelActive(VipAlert.NAME)) {
-            UIManager.getInstance().hidePanel(VipAlert.NAME);
-        }
     }
 
 }
