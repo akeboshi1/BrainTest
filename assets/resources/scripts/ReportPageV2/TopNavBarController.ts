@@ -3,6 +3,8 @@ import { DebugLog } from '../Core/Util/DebugLog';
 import { AbilityType, ReportManager } from '../ManagerV2/ReportManager';
 import { PersonalCenterManager } from '../Game/PersonalCenterManager/PersonalCenterManager';
 import { EventManager } from '../Core/Manager/Event/EventManager';
+import { UIManager } from '../Core/Manager/UI/UIManager';
+import { VipAlert } from '../Game/UI/Vip/VipAlert';
 const { ccclass, property } = _decorator;
 
 export const TopNavBarConfig = {
@@ -81,6 +83,9 @@ export class TopNavBarController extends Component {
     }
 
     async loadSumReport() {
+        // 切换页签时，如果VipAlert显示了，则关闭
+        this.closeVipAlertIfShown();
+        
         this.selectedColor(0);
         // Clear current page
         if (this.parentNode_top.children.length > 0 && this.parentNode_bottom.children.length > 0) {
@@ -110,6 +115,9 @@ export class TopNavBarController extends Component {
             return;
         }
         this._pageLoadFlag = true;
+
+        // 切换页签时，如果VipAlert显示了，则关闭
+        this.closeVipAlertIfShown();
 
         const { data, index } = JSON.parse(customData);
         if (data) {
@@ -159,6 +167,15 @@ export class TopNavBarController extends Component {
         }
         
         this._pageLoadFlag = false;
+    }
+
+    /**
+     * 如果VipAlert显示了，则关闭它
+     */
+    private closeVipAlertIfShown() {
+        if (UIManager.getInstance().isPanelActive(VipAlert.NAME)) {
+            UIManager.getInstance().hidePanel(VipAlert.NAME);
+        }
     }
 }
 
