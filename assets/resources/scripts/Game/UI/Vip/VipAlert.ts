@@ -8,6 +8,14 @@ const { ccclass, property } = _decorator;
 export class VipAlert extends BasePanel {
     public static NAME = "VipAlert";
 
+    /**
+     * 重写showPanel方法，直接显示，不做缓动特效
+     */
+    async showPanel(skipTween: boolean = true) {
+        // 始终跳过缓动动画，直接显示
+        await super.showPanel(true);
+    }
+
     onBuyHandler(){
         // 打开vipPanel
         UIManager.getInstance().showPanel(VipPanel.NAME);
