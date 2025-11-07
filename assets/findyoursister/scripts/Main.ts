@@ -218,6 +218,23 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     /**
+     * 获取questionNode的icon子节点的Sprite组件
+     * @param questionNode questionNode节点
+     * @returns icon子节点的Sprite组件，如果不存在则返回null
+     */
+    private getQuestionNodeIconSprite(questionNode: Node): Sprite | null {
+        if (!questionNode) {
+            return null;
+        }
+        const iconNode = questionNode.getChildByName("icon");
+        if (!iconNode) {
+            DebugLog.instance.warn(`questionNode ${questionNode.name} 没有找到icon子节点`);
+            return null;
+        }
+        return iconNode.getComponent(Sprite);
+    }
+
+    /**
      * 更新questionNode的显示隐藏或资源替换
      * @param count 如果updateRes为false，表示需要显示的节点数量；如果updateRes为true，表示不替换资源的数量
      * @param updateRes 如果为true则替换spriteFrame资源，如果为false则处理显示隐藏
@@ -236,17 +253,9 @@ export class Main extends BaseScene<IBaseGameChild> {
 
                         // 如果节点是显示的，将其spriteFrame重置为roundframe
                         if (i < count) {
-                            const sprite = questionNode.getComponent(Sprite);
+                            const sprite = this.getQuestionNodeIconSprite(questionNode);
                             if (sprite) {
-                                const bundle = assetManager.getBundle(this.bundleName);
-                                const imagePath = "texture/common/roundframe/spriteFrame";
-                                bundle.load(imagePath, SpriteFrame, (err, sp) => {
-                                    if (err) {
-                                        DebugLog.instance.error(err);
-                                        return;
-                                    }
-                                    sprite.spriteFrame = sp;
-                                });
+                                sprite.spriteFrame = null;
                             }
                         }
                     }
@@ -290,17 +299,9 @@ export class Main extends BaseScene<IBaseGameChild> {
 
                     // 如果节点是显示的，将其spriteFrame重置为roundframe
                     if (i < count) {
-                        const sprite = questionNode.getComponent(Sprite);
+                        const sprite = this.getQuestionNodeIconSprite(questionNode);
                         if (sprite) {
-                            const bundle = assetManager.getBundle(this.bundleName);
-                            const imagePath = "texture/common/roundframe/spriteFrame";
-                            bundle.load(imagePath, SpriteFrame, (err, sp) => {
-                                if (err) {
-                                    DebugLog.instance.error(err);
-                                    return;
-                                }
-                                sprite.spriteFrame = sp;
-                            });
+                            sprite.spriteFrame = null;
                         }
                     }
                 }
@@ -315,17 +316,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         for (let i = 0; i < this.questionNodes.length; i++) {
             const questionNode = this.questionNodes[i];
             if (questionNode) {
-                const sprite = questionNode.getComponent(Sprite);
+                const sprite = this.getQuestionNodeIconSprite(questionNode);
                 if (sprite) {
-                    const bundle = assetManager.getBundle(this.bundleName);
-                    const imagePath = "texture/common/roundframe/spriteFrame";
-                    bundle.load(imagePath, SpriteFrame, (err, sp) => {
-                        if (err) {
-                            DebugLog.instance.error(err);
-                            return;
-                        }
-                        sprite.spriteFrame = sp;
-                    });
+                    sprite.spriteFrame = null;
                 }
             }
         }
@@ -347,17 +340,9 @@ export class Main extends BaseScene<IBaseGameChild> {
 
             const questionNode = this.questionNodes[i];
             if (questionNode && questionNode.active) {
-                const sprite = questionNode.getComponent(Sprite);
+                const sprite = this.getQuestionNodeIconSprite(questionNode);
                 if (sprite) {
-                    const bundle = assetManager.getBundle(this.bundleName);
-                    const imagePath = "texture/common/roundframe/spriteFrame";
-                    bundle.load(imagePath, SpriteFrame, (err, sp) => {
-                        if (err) {
-                            DebugLog.instance.error(err);
-                            return;
-                        }
-                        sprite.spriteFrame = sp;
-                    });
+                    sprite.spriteFrame = null;
                 }
             }
         }
@@ -628,10 +613,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             return Promise.resolve();
         }
 
-        // 获取目标节点的Sprite组件
-        const targetSprite = targetQuestionNode.getComponent(Sprite);
+        // 获取目标节点的icon子节点的Sprite组件
+        const targetSprite = this.getQuestionNodeIconSprite(targetQuestionNode);
         if (!targetSprite) {
-            DebugLog.instance.warn(`目标节点没有Sprite组件`);
+            DebugLog.instance.warn(`目标节点没有icon子节点或Sprite组件`);
             return Promise.resolve();
         }
 
