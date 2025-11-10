@@ -503,14 +503,8 @@ export class ChatModel {
         let chat_character_skin_id = result? result.chat_character_skin_id : this._defaultCharactorSkin;
 
         if(this.charactorListProvider.data.has(chat_character_id)){
-            let skinlist:ChatSkin[] = this.charactorListProvider.data.get(chat_character_id).skins;
-            skinlist.forEach(chatskin =>{
-                if(chatskin.id == chat_character_skin_id){
-                    this.charactorChoosenSkin.data = chatskin.code;
-                    this._selectedCharactorId = chat_character_id;
-                    this._selectedCharactorSkin = chat_character_skin_id;
-                }
-            });
+            let chatactor = this.charactorListProvider.data.get(chat_character_id);
+            this.updateCharactorChoosenSkinData(chatactor,chat_character_skin_id);
         }
     }
 
@@ -530,12 +524,22 @@ export class ChatModel {
         let chat_character_skin_id = result.chat_character_skin_id;
 
         if(this.charactorListProvider.data.has(chat_character_id)){
-            let skinlist:ChatSkin[] = this.charactorListProvider.data.get(chat_character_id).skins;
+            let chatactor = this.charactorListProvider.data.get(chat_character_id);
+            this.updateCharactorChoosenSkinData(chatactor,chat_character_skin_id);
+        }
+    }
+
+    public updateCharactorChoosenSkinData(chatactor:ChatCharacter,defaultSkinid:number=-1){
+        let skinlist:ChatSkin[] = chatactor?.skins;
+        if(skinlist){
+            if(defaultSkinid == -1){
+                defaultSkinid = skinlist[0].id;
+            }
             skinlist.forEach(chatskin =>{
-                if(chatskin.id == chat_character_skin_id){
+                if(chatskin.id == defaultSkinid){
                     this.charactorChoosenSkin.data = chatskin.code;
-                    this._selectedCharactorId = chat_character_id;
-                    this._selectedCharactorSkin = chat_character_skin_id;
+                    this._selectedCharactorId = chatactor.id;
+                    this._selectedCharactorSkin = defaultSkinid;
                 }
             });
         }
