@@ -91,6 +91,10 @@ export class ChatCharactorChoosePanel extends BasePanel {
 
     public onCharactorChooseItemClick(character_id: number):void {
         this._selectedCharactorId = character_id;
+        let skins = this._chatModel.charactorListProvider.data.get(character_id).skins;
+        if(skins){
+            this._selectedCharactorSkin = skins[0].id;
+        }
         this.onClickBtnChoose(character_id, this._selectedCharactorSkin);
         let charactorChooseItems = this.charactorChooseContent.getComponentsInChildren(ChatChooseItem);
         charactorChooseItems.forEach((charactorChooseItem: ChatChooseItem) => {
@@ -99,6 +103,7 @@ export class ChatCharactorChoosePanel extends BasePanel {
 
         this.skinChooseContent.removeAllChildren();
         let charactor = this._chatModel.charactorListProvider.data.get(character_id);
+        this._chatModel.updateCharactorChoosenSkinData(charactor);
         let self = this;
         charactor.skins.forEach((skin: ChatSkin) => {
             let skinChooseItem = instantiate(self.chooseItemPrefab);
