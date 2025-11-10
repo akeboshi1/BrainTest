@@ -312,9 +312,9 @@
       "__uuid__": "f7a9e206-8071-40fb-9e0a-600cb1866f49@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 0,
+    "_type": 1,
     "_fillType": 0,
-    "_sizeMode": 1,
+    "_sizeMode": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",
       "x": 0,
@@ -552,6 +552,9 @@
     "bg_unchoosen": {
       "__id__": 8
     },
+    "itemIcon": null,
+    "selectedColor": null,
+    "unselectedColor": null,
     "_id": ""
   },
   {
