@@ -122,7 +122,6 @@ export class ChatModel {
     private _defaultCharactorSkin: number = 1;
     private _selectedCharactorId: number = 0;
     private _selectedCharactorSkin: number = 0;
-    private _lastSelectedCharactorId: number = -1;
 
     private _pendingSong: ChatSong = null;
 
@@ -184,7 +183,7 @@ export class ChatModel {
         this.subtitleListProvider.reset();
         this._pendingUserMessage = null;
         this._pendingSong = null;
-        this._lastSelectedCharactorId = -1;
+        this._selectedCharactorId = 0;
     }
 
     private initFlag = false;
@@ -214,6 +213,7 @@ export class ChatModel {
             NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_RESUMED, this.onChatSongResumed, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_SONG_END, this.onChatSongEnd, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_MODE_SWITCHED, this.onChatModeSwitched, this);
+            NativeEventManager.getInstance().on(NativeEvent.CHAT_CHARACTER_SWITCHED,this.onChatCharacterSwitched,this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_USAGE_LIMIT_EXCEEDED, this.onChatUsageLimitExceeded, this);
         }
     }
@@ -252,17 +252,7 @@ export class ChatModel {
      * @param params.userNickName 用户昵称
      * @param params.roleId 角色id（当前数字人的id）
      */
-    public startChat(params: { token: string; userNickName: string; roleId: string }, checkRoleId: boolean = false): void {
-        if (checkRoleId) {
-            // 判断当前roleId和上一次是否相同，如果一致则不做处理，防止频繁开关语音
-            let selectedCharactorId = Number(params.roleId);
-            if (selectedCharactorId === this._lastSelectedCharactorId) {
-                DebugLog.instance.log('ChatModel: 角色ID未变化，跳过启动聊天', params.roleId);
-                return;
-            }
-            this._lastSelectedCharactorId = selectedCharactorId;
-        }
-
+    public startChat(params: { token: string; userNickName: string; roleId: string }): void {
         DebugLog.instance.log('ChatModel: 启动聊天', params);
 
         this.connectionStateProvider.data = ChatConnectionState.CONNECTING;
@@ -488,6 +478,10 @@ export class ChatModel {
         EventManager.getInstance().emit(ChatModel.MONTH_USAGE_LIMIT_EXCEEDED_EVENT);
     }
 
+    private onChatCharacterSwitched(data: any): void {
+        DebugLog.instance.log('ChatModel: 数字人角色切换完成');
+    }
+
     //------------websocket request----------//
     public getCharactorList(): void {
         SocketManager.getInstance().send(new SocketData({
@@ -516,15 +510,28 @@ export class ChatModel {
         let result = data.data.result;
         let chat_character_id = result ? result.chat_character_id : this._defaultCharactorId;
         let chat_character_skin_id = result ? result.chat_character_skin_id : this._defaultCharactorSkin;
-        const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        const roleId = chat_character_id + "";
-        this.startChat({ token: token, userNickName: userData.nickname, roleId },true);
-        
-
+        this._selectedCharactorId = chat_character_id;
+        this.switchCharactor();
         if (this.charactorListProvider.data.has(chat_character_id)) {
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
+        }
+    }
+
+    /**
+     * 切换数字人角色
+     */
+    switchCharactor(){
+        if (sys.platform === 'ANDROID') {
+            const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+            const userData = PersonalCenterManager.getInstance().userInfoData;
+            const roleId = this._selectedCharactorId + "";
+            native.bridge.sendToNative(NativeEvent.CHAT_CHARACTER_SWITCH, JSON.stringify({
+                "token": token,  // 当前用户token
+                "userNickName": userData.nickname,  // 用户昵称
+                "characterId": roleId,  // 角色id（当前数字人的id，通过websocket接口获取）,
+                "isProduction":  PublishSettingConfig.getInstance().getEnvironment() === Environment.PRODUCTION // 是否生成环境
+            }));
         }
     }
 
@@ -563,21 +570,6 @@ export class ChatModel {
                 }
             });
         }
-    }
-
-    refreshChat() {
-        // 判断当前角色ID是否和上一次相同，如果相同则不做处理，防止频繁开关语音
-        if (this._selectedCharactorId === this._lastSelectedCharactorId) {
-            DebugLog.instance.log('ChatModel: 角色ID未变化，跳过刷新聊天');
-            return;
-        }
-
-        this._lastSelectedCharactorId = this._selectedCharactorId;
-        this.endChat();
-        const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        const roleId = this.selectedCharactorId + "";
-        this.startChat({ token: token, userNickName: userData.nickname, roleId });
     }
 
     public getMusicList(): void {
