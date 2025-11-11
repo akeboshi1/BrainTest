@@ -517,7 +517,7 @@ export class ChatPanel extends BasePanel {
 
     startChat() {
         // 没有获取数字人数据时，不做开启聊天操作
-        if(this._chatModel.selectedCharactorId<0)return;
+        if(this._chatModel.selectedCharactorId<=0)return;
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
         const userData = PersonalCenterManager.getInstance().userInfoData;
         const roleId = this._chatModel.selectedCharactorId+"";

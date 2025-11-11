@@ -227,11 +227,11 @@ export class ChatModel {
     }
 
     public removeWebSocketListeners() {
-        EventManager.getInstance().off(ChatProtocol.GET_CHARACTERS, this.onGetCharactorList);
-        EventManager.getInstance().off(ChatProtocol.GET_CHOOSEN_CHARACTER, this.onGetChoosenCharactor);
-        EventManager.getInstance().off(ChatProtocol.CHOOSEN_CHARACTER, this.onChooseCharactor);
-        EventManager.getInstance().off(ChatProtocol.GET_CHARACTER_SONGS, this.onGetCharacterSongs);
-        EventManager.getInstance().off(ChatProtocol.GET_SONG_TIMELINES, this.onGetSongTimelines);
+        EventManager.getInstance().off(ChatProtocol.GET_CHARACTERS, this);
+        EventManager.getInstance().off(ChatProtocol.GET_CHOOSEN_CHARACTER, this);
+        EventManager.getInstance().off(ChatProtocol.CHOOSEN_CHARACTER, this);
+        EventManager.getInstance().off(ChatProtocol.GET_CHARACTER_SONGS, this);
+        EventManager.getInstance().off(ChatProtocol.GET_SONG_TIMELINES, this);
     }
 
     /**
@@ -511,10 +511,13 @@ export class ChatModel {
         let chat_character_id = result ? result.chat_character_id : this._defaultCharactorId;
         let chat_character_skin_id = result ? result.chat_character_skin_id : this._defaultCharactorSkin;
         this._selectedCharactorId = chat_character_id;
-        this.switchCharactor();
         if (this.charactorListProvider.data.has(chat_character_id)) {
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
+            const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+            const userData = PersonalCenterManager.getInstance().userInfoData;
+            const roleId = this.selectedCharactorId+"";
+            this.startChat({ token: token, userNickName: userData.nickname, roleId });
         }
     }
 
@@ -549,10 +552,10 @@ export class ChatModel {
         let result = data.data;
         let chat_character_id = result.chat_character_id;
         let chat_character_skin_id = result.chat_character_skin_id;
-
         if (this.charactorListProvider.data.has(chat_character_id)) {
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
+            this.switchCharactor();
         }
     }
 
