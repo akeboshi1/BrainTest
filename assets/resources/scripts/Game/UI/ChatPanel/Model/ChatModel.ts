@@ -9,8 +9,8 @@ import { AnimationTimelineNode, ChatCharacter, ChatMonthUsage, ChatProtocol, Cha
 import { SocketManager } from "../../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
 import { Environment, PublishSettingConfig } from "db://assets/app/PublishSettingConfig";
-import {LocalStorageKeyEnum, LocalStorageUtil} from "db://assets/resources/scripts/Core/Util/LocalStorageUtil";
-import {PersonalCenterManager} from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
+import { LocalStorageKeyEnum, LocalStorageUtil } from "db://assets/resources/scripts/Core/Util/LocalStorageUtil";
+import { PersonalCenterManager } from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 
 // 字幕列表DataProvider（需要特殊方法，保留子类）
 export class SubtitleListDataProvider extends DataProvider<SubtitleItem[]> {
@@ -122,8 +122,9 @@ export class ChatModel {
     private _defaultCharactorSkin: number = 1;
     private _selectedCharactorId: number = 0;
     private _selectedCharactorSkin: number = 0;
+    private _lastSelectedCharactorId: number = -1;
 
-    private _pendingSong:ChatSong = null;
+    private _pendingSong: ChatSong = null;
 
     public get selectedCharactorId(): number {
         return this._selectedCharactorId;
@@ -153,7 +154,7 @@ export class ChatModel {
 
         this.charactorListProvider = new DataProvider<Map<number, ChatCharacter>>();
         this.charactorChoosenSkin = new DataProvider<string>();
-        
+
         this.characterSongsProvider = new DataProvider<ChatSong[]>();
 
         this.currentPlayingSong = new DataProvider<ChatSong>();
@@ -163,7 +164,7 @@ export class ChatModel {
 
         this.monthUsageProvider = new DataProvider<ChatMonthUsage>();
     }
-    
+
     /**
      * 重置所有状态
      */
@@ -183,6 +184,7 @@ export class ChatModel {
         this.subtitleListProvider.reset();
         this._pendingUserMessage = null;
         this._pendingSong = null;
+        this._lastSelectedCharactorId = -1;
     }
 
     private initFlag = false;
@@ -250,8 +252,19 @@ export class ChatModel {
      * @param params.userNickName 用户昵称
      * @param params.roleId 角色id（当前数字人的id）
      */
-    public startChat(params: { token: string; userNickName: string;roleId: string }): void {
+    public startChat(params: { token: string; userNickName: string; roleId: string }, checkRoleId: boolean = false): void {
+        if (checkRoleId) {
+            // 判断当前roleId和上一次是否相同，如果一致则不做处理，防止频繁开关语音
+            let selectedCharactorId = Number(params.roleId);
+            if (selectedCharactorId === this._lastSelectedCharactorId) {
+                DebugLog.instance.log('ChatModel: 角色ID未变化，跳过启动聊天', params.roleId);
+                return;
+            }
+            this._lastSelectedCharactorId = selectedCharactorId;
+        }
+
         DebugLog.instance.log('ChatModel: 启动聊天', params);
+
         this.connectionStateProvider.data = ChatConnectionState.CONNECTING;
 
         if (sys.platform === 'ANDROID') {
@@ -446,24 +459,24 @@ export class ChatModel {
     private onChatModeSwitched(data: any): void {
         let mode = data.mode;
         DebugLog.instance.log('ChatModel: 模式切换 mode: ' + mode);
-        if(mode == "song"){
+        if (mode == "song") {
             this.onChatAssistantFinal(null);
             this.currentPlayingSongState.data = "playing";
             let song: ChatSong = null;
             DebugLog.instance.log('ChatModel: 歌曲id: ' + data.songId);
             DebugLog.instance.log('ChatModel: 歌曲名称: ' + data.songName);
-            this.characterSongsProvider.data.forEach((csong: ChatSong,index:number) => {
-                if(csong.id.toString() == data.songId.toString()){
+            this.characterSongsProvider.data.forEach((csong: ChatSong, index: number) => {
+                if (csong.id.toString() == data.songId.toString()) {
                     csong.isPlaying = true;
-                    song = { ...csong};
-                }else{
+                    song = { ...csong };
+                } else {
                     csong.isPlaying = false;
                 }
             });
             this.characterSongsProvider.triggerCallback();
             this.currentPlayingSong.data = song;
             this.microphoneStateProvider.triggerCallback();
-        }else if(mode == "chat"){
+        } else if (mode == "chat") {
             this.currentPlayingSongState.data = null;
             this.currentPlayingSong.data = null;
             this.microphoneStateProvider.triggerCallback();
@@ -501,16 +514,21 @@ export class ChatModel {
 
     private onGetChoosenCharactor(data: any): void {
         let result = data.data.result;
-        let chat_character_id = result? result.chat_character_id : this._defaultCharactorId;
-        let chat_character_skin_id = result? result.chat_character_skin_id : this._defaultCharactorSkin;
+        let chat_character_id = result ? result.chat_character_id : this._defaultCharactorId;
+        let chat_character_skin_id = result ? result.chat_character_skin_id : this._defaultCharactorSkin;
+        const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        const roleId = chat_character_id + "";
+        this.startChat({ token: token, userNickName: userData.nickname, roleId },true);
+        
 
-        if(this.charactorListProvider.data.has(chat_character_id)){
+        if (this.charactorListProvider.data.has(chat_character_id)) {
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
-            this.updateCharactorChoosenSkinData(chatactor,chat_character_skin_id);
+            this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
         }
     }
 
-    public chooseCharactor(character_id:number,skin_id:number){
+    public chooseCharactor(character_id: number, skin_id: number) {
         SocketManager.getInstance().send(new SocketData({
             action: ChatProtocol.CHOOSEN_CHARACTER,
             data: {
@@ -525,24 +543,21 @@ export class ChatModel {
         let chat_character_id = result.chat_character_id;
         let chat_character_skin_id = result.chat_character_skin_id;
 
-        if(this.charactorListProvider.data.has(chat_character_id)){
+        if (this.charactorListProvider.data.has(chat_character_id)) {
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
-            this.updateCharactorChoosenSkinData(chatactor,chat_character_skin_id);
+            this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
         }
     }
 
-    public updateCharactorChoosenSkinData(chatactor:ChatCharacter,defaultSkinid:number=-1){
-        let skinlist:ChatSkin[] = chatactor?.skins;
-        if(skinlist){
-            if(defaultSkinid == -1){
+    public updateCharactorChoosenSkinData(chatactor: ChatCharacter, defaultSkinid: number = -1) {
+        let skinlist: ChatSkin[] = chatactor?.skins;
+        if (skinlist) {
+            if (defaultSkinid == -1) {
                 defaultSkinid = skinlist[0].id;
             }
-            skinlist.forEach(chatskin =>{
-                if(chatskin.id == defaultSkinid){
+            skinlist.forEach(chatskin => {
+                if (chatskin.id == defaultSkinid) {
                     this.charactorChoosenSkin.data = chatskin.code;
-                    if(this._selectedCharactorId != chatactor.id){
-                        this.refeshChat();
-                    }
                     this._selectedCharactorId = chatactor.id;
                     this._selectedCharactorSkin = defaultSkinid;
                 }
@@ -550,11 +565,18 @@ export class ChatModel {
         }
     }
 
-    refeshChat() {
+    refreshChat() {
+        // 判断当前角色ID是否和上一次相同，如果相同则不做处理，防止频繁开关语音
+        if (this._selectedCharactorId === this._lastSelectedCharactorId) {
+            DebugLog.instance.log('ChatModel: 角色ID未变化，跳过刷新聊天');
+            return;
+        }
+
+        this._lastSelectedCharactorId = this._selectedCharactorId;
         this.endChat();
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
         const userData = PersonalCenterManager.getInstance().userInfoData;
-        const roleId = this.selectedCharactorId+"";
+        const roleId = this.selectedCharactorId + "";
         this.startChat({ token: token, userNickName: userData.nickname, roleId });
     }
 
