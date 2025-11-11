@@ -518,7 +518,8 @@ export class ChatPanel extends BasePanel {
     startChat() {
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
         const userData = PersonalCenterManager.getInstance().userInfoData;
-        this._chatModel.startChat({ token: token, userNickName: userData.nickname, roleId: "1234567890" });
+        const roleId = this._chatModel.selectedCharactorId+"";
+        this._chatModel.startChat({ token: token, userNickName: userData.nickname, roleId });
     }
 
     onClickMicroCtrlBtn() {

@@ -248,7 +248,7 @@ export class ChatModel {
      * @param params.userNickName 用户昵称
      * @param params.roleId 角色id（当前数字人的id）
      */
-    public startChat(params: { token: string; userNickName: string; roleId: string }): void {
+    public startChat(params: { token: string; userNickName: string;roleId: string }): void {
         DebugLog.instance.log('ChatModel: 启动聊天', params);
         this.connectionStateProvider.data = ChatConnectionState.CONNECTING;
 
@@ -258,7 +258,7 @@ export class ChatModel {
             native.bridge.sendToNative(NativeEvent.CHAT_START, JSON.stringify({
                 "token": params.token,
                 "userNickName": params.userNickName,
-                "roleId": params.roleId,
+                "characterId": params.roleId,
                 "isProduction": PublishSettingConfig.getInstance().getEnvironment() === Environment.PRODUCTION
             }));
         }
@@ -315,14 +315,14 @@ export class ChatModel {
 
     public pauseMusic(): void {
         if (sys.platform === 'ANDROID') {
-            DebugLog.instance.log('ChatModel: 暂停歌曲');
+            DebugLog.instance.warn('ChatModel: 暂停歌曲');
             native.bridge.sendToNative(NativeEvent.CHAT_SONG_PAUSE, JSON.stringify({}));
         }
     }
 
     public resumeMusic(): void {
         if (sys.platform === 'ANDROID') {
-            DebugLog.instance.log('ChatModel: 恢复歌曲');
+            DebugLog.instance.warn('ChatModel: 恢复歌曲');
             native.bridge.sendToNative(NativeEvent.CHAT_SONG_RESUME, JSON.stringify({}));
         }
     }
@@ -580,7 +580,7 @@ export class ChatModel {
         if (sys.platform === 'ANDROID') {
             const song = this._pendingSong;
             this._pendingSong = null;
-            DebugLog.instance.log('ChatModel: 播放歌曲', song);
+            DebugLog.instance.warn('ChatModel: 播放歌曲', song);
             native.bridge.sendToNative(NativeEvent.CHAT_MODE_SWITCH, JSON.stringify({
                 "mode": "song",
                 "songName": song.name,

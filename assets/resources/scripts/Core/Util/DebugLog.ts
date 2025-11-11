@@ -35,7 +35,7 @@ export class DebugLog {
     }
 
     public warn(...data: any[]){
-        if(this.debugBoo)console.warn(...data);
+        console.warn(...data);
     }
     public error(...data: any[]){
         console.error(...data);
