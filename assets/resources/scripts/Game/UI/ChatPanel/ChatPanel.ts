@@ -516,10 +516,12 @@ export class ChatPanel extends BasePanel {
     }
 
     startChat() {
+        // 没有获取数字人数据时，不做开启聊天操作
+        if(this._chatModel.selectedCharactorId<0)return;
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
         const userData = PersonalCenterManager.getInstance().userInfoData;
         const roleId = this._chatModel.selectedCharactorId+"";
-        this._chatModel.startChat({ token: token, userNickName: userData.nickname, roleId },true);
+        this._chatModel.startChat({ token: token, userNickName: userData.nickname, roleId });
     }
 
     onClickMicroCtrlBtn() {
@@ -879,7 +881,6 @@ export class ChatPanel extends BasePanel {
         this.charactorBtnBg.color = isShow ? this.charactorBtnColor : Color.WHITE;
         this.charactorBtnIcon.color = isShow ? Color.WHITE : this.charactorBtnColor;
         this.charactorBtnLabel.color = isShow ? Color.WHITE : this.charactorBtnColor;
-        this._chatModel.refreshChat();
     }
 
     public showMusicPanel():void {
