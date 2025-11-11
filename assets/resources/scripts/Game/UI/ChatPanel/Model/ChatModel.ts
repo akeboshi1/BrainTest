@@ -9,6 +9,8 @@ import { AnimationTimelineNode, ChatCharacter, ChatMonthUsage, ChatProtocol, Cha
 import { SocketManager } from "../../../../Core/Manager/Net/SocketManager";
 import { SocketData } from "../../../../Core/Manager/Net/SocketData";
 import { Environment, PublishSettingConfig } from "db://assets/app/PublishSettingConfig";
+import {LocalStorageKeyEnum, LocalStorageUtil} from "db://assets/resources/scripts/Core/Util/LocalStorageUtil";
+import {PersonalCenterManager} from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 
 // 字幕列表DataProvider（需要特殊方法，保留子类）
 export class SubtitleListDataProvider extends DataProvider<SubtitleItem[]> {
@@ -538,11 +540,22 @@ export class ChatModel {
             skinlist.forEach(chatskin =>{
                 if(chatskin.id == defaultSkinid){
                     this.charactorChoosenSkin.data = chatskin.code;
+                    if(this._selectedCharactorId != chatactor.id){
+                        this.refeshChat();
+                    }
                     this._selectedCharactorId = chatactor.id;
                     this._selectedCharactorSkin = defaultSkinid;
                 }
             });
         }
+    }
+
+    refeshChat() {
+        this.endChat();
+        const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+        const userData = PersonalCenterManager.getInstance().userInfoData;
+        const roleId = this.selectedCharactorId+"";
+        this.startChat({ token: token, userNickName: userData.nickname, roleId });
     }
 
     public getMusicList(): void {
