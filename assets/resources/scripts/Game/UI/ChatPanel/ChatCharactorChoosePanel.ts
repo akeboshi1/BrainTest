@@ -4,8 +4,6 @@ import { UIManager } from '../../../Core/Manager/UI/UIManager';
 import { ChatModel } from './Model/ChatModel';
 import { ChatCharacter, ChatSkin } from './Model/ChatProtocol';
 import { ChatChooseItem } from './ChatChooseItem';
-import {LocalStorageKeyEnum, LocalStorageUtil} from "db://assets/resources/scripts/Core/Util/LocalStorageUtil";
-import {PersonalCenterManager} from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('ChatCharactorChoosePanel')
@@ -113,16 +111,10 @@ export class ChatCharactorChoosePanel extends BasePanel {
             skinChooseItem.setPosition(0, 0, 0);
             skinChooseItem.getComponent(ChatChooseItem).setData(skin.id, skin.name, skin.id === self._selectedCharactorSkin, "", self.onSkinChooseItemClick.bind(self));
         });
-        this._chatModel.endChat();
-        this.startChat();
+
     }
 
-    startChat() {
-        const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
-        const userData = PersonalCenterManager.getInstance().userInfoData;
-        const roleId = this._chatModel.selectedCharactorId+"";
-        this._chatModel.startChat({ token: token, userNickName: userData.nickname, roleId });
-    }
+
 
     public onSkinChooseItemClick(skin_id: number):void {
         this._selectedCharactorSkin = skin_id;

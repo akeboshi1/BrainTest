@@ -519,7 +519,7 @@ export class ChatPanel extends BasePanel {
         const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
         const userData = PersonalCenterManager.getInstance().userInfoData;
         const roleId = this._chatModel.selectedCharactorId+"";
-        this._chatModel.startChat({ token: token, userNickName: userData.nickname, roleId });
+        this._chatModel.startChat({ token: token, userNickName: userData.nickname, roleId },true);
     }
 
     onClickMicroCtrlBtn() {
@@ -879,6 +879,7 @@ export class ChatPanel extends BasePanel {
         this.charactorBtnBg.color = isShow ? this.charactorBtnColor : Color.WHITE;
         this.charactorBtnIcon.color = isShow ? Color.WHITE : this.charactorBtnColor;
         this.charactorBtnLabel.color = isShow ? Color.WHITE : this.charactorBtnColor;
+        this._chatModel.refreshChat();
     }
 
     public showMusicPanel():void {
