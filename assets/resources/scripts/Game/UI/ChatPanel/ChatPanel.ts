@@ -470,10 +470,10 @@ export class ChatPanel extends BasePanel {
         }
         
         // 只有连接成功后才更新显示
-        if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
-            this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-            this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
-        }
+        // if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
+        //     this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
+        //     this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+        // }
 
         this.playFrameAnimation();
     }
@@ -588,8 +588,8 @@ export class ChatPanel extends BasePanel {
         }
         console.log("chatPanel：显示文本:" + microphoneState);
         // 更新talkingLabel和talkingAnimNode的显示状态
-        this.talkingLabel.node.active = aiSpeakingState == AISpeakingState.FINISHED;
-        this.talkingAnimNode.active = aiSpeakingState == AISpeakingState.FINISHED && microphoneState == MicrophoneState.OPEN;
+        this.talkingLabel.node.active = microphoneState != MicrophoneState.PENDING;
+        this.talkingAnimNode.active = microphoneState == MicrophoneState.OPEN;
     }
 
     onMicrophoneStateChanged(state: MicrophoneState) {
