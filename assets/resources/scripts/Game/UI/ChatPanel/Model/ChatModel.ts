@@ -474,8 +474,7 @@ export class ChatModel {
             this.currentPlayingSongState.data = null;
             this.currentPlayingSong.data = null;
             this.microphoneStateProvider.triggerCallback();
-            // 设置为FINISHED状态，以触发onAiSpeakerStatueChanged回调，显示talkingLabel和talkingAnimNode
-            this.aiSpeakingStateProvider.data = AISpeakingState.FINISHED;
+            this.aiSpeakingStateProvider.data = AISpeakingState.IDLE;
         }
     }
 
