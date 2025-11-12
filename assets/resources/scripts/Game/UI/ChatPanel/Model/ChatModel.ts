@@ -545,6 +545,8 @@ export class ChatModel {
         }
         
         if (sys.platform === 'ANDROID') {
+            // 设置标志位为false，禁止再次切换直到收到切换完成事件
+            this._canSwitchCharactor = false;
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
             const userData = PersonalCenterManager.getInstance().userInfoData;
             const roleId = this._selectedCharactorId + "";
@@ -554,9 +556,6 @@ export class ChatModel {
                 "characterId": roleId,  // 角色id（当前数字人的id，通过websocket接口获取）,
                 "isProduction":  PublishSettingConfig.getInstance().getEnvironment() === Environment.PRODUCTION // 是否生成环境
             }));
-           
-            // 设置标志位为false，禁止再次切换直到收到切换完成事件
-            this._canSwitchCharactor = false;
         }
          // 更新上次切换的数字人id
          this._lastSwitchedCharactorId = this._selectedCharactorId;
