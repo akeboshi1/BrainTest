@@ -547,7 +547,7 @@ export class ChatModel {
         
         
         if (sys.platform === 'ANDROID') {
-            console.log("请求切换数字人"+this._selectedCharactorId);
+            console.log("ChatModel: 请求切换数字人"+this._selectedCharactorId);
             // 设置标志位为false，禁止再次切换直到收到切换完成事件
             this._canSwitchCharactor = false;
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
