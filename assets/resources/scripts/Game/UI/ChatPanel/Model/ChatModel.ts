@@ -483,7 +483,7 @@ export class ChatModel {
     }
 
     private onChatCharacterSwitched(data: any): void {
-        DebugLog.instance.log('ChatModel: 数字人角色切换完成');
+        console.log('ChatModel: 数字人角色切换完成');
         // 收到切换完成事件后，允许继续切换数字人
         this._canSwitchCharactor = true;
     }
@@ -535,12 +535,13 @@ export class ChatModel {
     switchCharactor(){
         // 如果这次切换的数字人id和上一次切换的数字人id一样，则直接返回
         if (this._selectedCharactorId === this._lastSwitchedCharactorId) {
+            console.log('ChatModel: 上次切换相同数字人');
             return;
         }
         
         // 如果没有收到上次切换完成的事件，则不能再次切换
         if (!this._canSwitchCharactor) {
-            DebugLog.instance.log('ChatModel: 上次切换未完成，无法再次切换数字人');
+            console.log('ChatModel: 上次切换未完成，无法再次切换数字人');
             return;
         }
         
@@ -550,6 +551,8 @@ export class ChatModel {
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
             const userData = PersonalCenterManager.getInstance().userInfoData;
             const roleId = this._selectedCharactorId + "";
+            // 更新上次切换的数字人id
+            this._lastSwitchedCharactorId = this._selectedCharactorId;
             native.bridge.sendToNative(NativeEvent.CHAT_CHARACTER_SWITCH, JSON.stringify({
                 "token": token,  // 当前用户token
                 "userNickName": userData.nickname,  // 用户昵称
@@ -557,8 +560,6 @@ export class ChatModel {
                 "isProduction":  PublishSettingConfig.getInstance().getEnvironment() === Environment.PRODUCTION // 是否生成环境
             }));
         }
-         // 更新上次切换的数字人id
-         this._lastSwitchedCharactorId = this._selectedCharactorId;
     }
 
     public chooseCharactor(character_id: number, skin_id: number) {
