@@ -535,7 +535,7 @@ export class ChatModel {
     switchCharactor(){
         // 如果这次切换的数字人id和上一次切换的数字人id一样，则直接返回
         if (this._selectedCharactorId === this._lastSwitchedCharactorId) {
-            console.log('ChatModel: 上次切换相同数字人');
+            console.log('ChatModel: 上次切换相同数字人'+this._selectedCharactorId);
             return;
         }
         
@@ -546,6 +546,7 @@ export class ChatModel {
         }
         
         if (sys.platform === 'ANDROID') {
+            console.log("请求切换数字人"+this._selectedCharactorId);
             // 设置标志位为false，禁止再次切换直到收到切换完成事件
             this._canSwitchCharactor = false;
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
