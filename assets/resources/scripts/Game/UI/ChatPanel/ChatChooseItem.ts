@@ -24,11 +24,16 @@ export class ChatChooseItem extends Component {
     }
 
     private _isSelected: boolean = false;
+
+
+    public set isSelected(boo:boolean) {
+        this._isSelected = boo;
+    }
+
     private _selectionId:number = 0;
 
     private _clickCallback: (id: number) => void = null;
-    private _debounceCallback: (() => void) | null = null; // 防抖回调函数
-    public setData(id: number, label: string, isSelected: boolean, iconUrl: string, clickCallback: (id: number) => void):void {
+    public setData(id: number, label: string, isSelected: boolean, iconUrl: string, clickCallback: (id: number) => void, protectionDebounceCheck?: () => boolean):void {
         this._selectionId = id;
         if(label !== ""){
             this.label.string = label;
@@ -65,54 +70,44 @@ export class ChatChooseItem extends Component {
     }
 
     /**
-     * 设置防抖期间的灰色状态
+     * 设置防抖期间的等待状态
      */
-    private setDebouncingState(isDebouncing: boolean): void {
+    public setDebouncingState(isDebouncing: boolean): void {
         if(isDebouncing) {
-            // 防抖期间：设置为灰色状态
+            // 防抖期间：显示等待背景
+            if(this.bg_wait) {
+                this.bg_wait.active = true;
+            }
             this.bg_choosen.active = false;
             this.bg_unchoosen.active = false;
-            if(this.bg_wait)this.bg_wait.active = true;
-            
         } else {
-            // 防抖结束：恢复正常的选中状态
+            // 防抖结束：隐藏等待背景
+            if(this.bg_wait) {
+                this.bg_wait.active = false;
+            }
             this.setSelected(this._isSelected);
         }
+    }
+
+    /**
+     * 检查是否在防抖状态
+     */
+    public isDebouncing(): boolean {
+        return this.bg_wait && this.bg_wait.active;
     }
 
     public onClick():void {
         if(this._isSelected) {
             return;
         }
-        // 清除之前的防抖定时器
-        if (this._debounceCallback) {
-            this.unschedule(this._debounceCallback);
-            this._debounceCallback = null;
-        }
 
-        // 防抖期间：设置为灰色状态
-        this.setDebouncingState(true);
-
-        // 创建防抖回调函数
-        const callback = () => {
-            // 防抖结束：恢复正常的选中状态
-            this.setSelected(true);
-            if(this._clickCallback) {
-                this._clickCallback(this._selectionId);
-            }
-            this._debounceCallback = null;
-        };
-
-        // 设置防抖定时器，500毫秒后执行
-        this._debounceCallback = callback;
-        this.scheduleOnce(callback, 0.5);
-    }
-
-    protected onDestroy(): void {
-        // 清理防抖定时器
-        if (this._debounceCallback) {
-            this.unschedule(this._debounceCallback);
-            this._debounceCallback = null;
+        // 选中item：立即触发选中效果，不做防抖
+        this.setSelected(true);
+        
+        // 立即执行回调
+        if(this._clickCallback) {
+            this._clickCallback(this._selectionId);
         }
     }
+
 }
