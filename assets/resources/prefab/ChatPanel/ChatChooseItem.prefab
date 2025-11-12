@@ -552,6 +552,7 @@
     "bg_unchoosen": {
       "__id__": 8
     },
+    "bg_wait": null,
     "itemIcon": null,
     "selectedColor": null,
     "unselectedColor": null,
