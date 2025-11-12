@@ -586,7 +586,7 @@ export class ChatPanel extends BasePanel {
         } else if (microphoneState == MicrophoneState.PENDING) {
             this.talkingLabel.string = "";
         }
-        
+        console.log("chatPanel：显示文本:" + microphoneState);
         // 更新talkingLabel和talkingAnimNode的显示状态
         this.talkingLabel.node.active = aiSpeakingState == AISpeakingState.FINISHED;
         this.talkingAnimNode.active = aiSpeakingState == AISpeakingState.FINISHED && microphoneState == MicrophoneState.OPEN;
