@@ -299,6 +299,9 @@ export class ChatPanel extends BasePanel {
     showLoadingAnimation() {
         this.loadingLabel.string = "形象加载中";
         this.loadingNode.active = true;
+        // 隐藏聊天状态ui
+        this.talkingLabel.string = "";
+        this.talkingAnimNode.active = false;
         this.startLoadingDotAnimation();
     }
 
@@ -306,6 +309,7 @@ export class ChatPanel extends BasePanel {
         this.stopLoadingDotAnimation();
         this.loadingLabel.string = "";
         this.loadingNode.active = false;
+        this.updateTalkingLabelDisplay();
     }
 
     private getSubtitleIconUrl(speaker: string): string {
