@@ -564,10 +564,10 @@ export class ChatPanel extends BasePanel {
         } else if(state == ChatConnectionState.DISCONNECTED){
             this.loadingNode.active = false;
         } else if(state == ChatConnectionState.CONNECTING){
-            this.loadingNode.active = true;
             // 连接中时，隐藏talkingLabel，优先显示loadingNode
-            this.talkingLabel.node.active = false;
+            this.talkingLabel.string = "";
             this.talkingAnimNode.active = false;
+            this.loadingNode.active = true;
         }
     }
 
@@ -576,26 +576,26 @@ export class ChatPanel extends BasePanel {
      */
     private updateTalkingLabelDisplay(): void {
         const microphoneState = this._chatModel.microphoneStateProvider.data;
-        const aiSpeakingState = this._chatModel.aiSpeakingStateProvider.data;
+        this.onMicrophoneStateChanged(microphoneState);
         
-        // 更新talkingLabel的文本
-        if (microphoneState == MicrophoneState.OPEN) {
-            this.talkingLabel.string = this._microOpenStr;
-        } else if (microphoneState == MicrophoneState.CLOSED) {
-            this.talkingLabel.string = this._microCloseStr;
-        } else if (microphoneState == MicrophoneState.PENDING) {
-            this.talkingLabel.string = "";
-        }
-        console.log("chatPanel：显示文本:" + microphoneState);
-        // 更新talkingLabel和talkingAnimNode的显示状态
-        this.talkingLabel.node.active = microphoneState != MicrophoneState.PENDING;
-        this.talkingAnimNode.active = microphoneState == MicrophoneState.OPEN;
+        // // 更新talkingLabel的文本
+        // if (microphoneState == MicrophoneState.OPEN) {
+        //     this.talkingLabel.string = this._microOpenStr;
+        // } else if (microphoneState == MicrophoneState.CLOSED) {
+        //     this.talkingLabel.string = this._microCloseStr;
+        // } else if (microphoneState == MicrophoneState.PENDING) {
+        //     this.talkingLabel.string = "";
+        // }
+        // console.log("chatPanel：显示文本:" + microphoneState);
+        // // 更新talkingAnimNode的显示状态
+        // this.talkingAnimNode.active = microphoneState == MicrophoneState.OPEN;
     }
 
     onMicrophoneStateChanged(state: MicrophoneState) {
         console.log("chatPanel：麦克风状态:" + state);
         // 如果正在连接中，优先显示loadingNode，不更新talkingLabel
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTING) {
+            console.log("chatPanel：连接中，不更新麦克风状态");
             return;
         }
         
@@ -608,10 +608,8 @@ export class ChatPanel extends BasePanel {
         }
         this.microIcon.spriteFrame = this.getMicroIconSpriteFrame();
         this.microBtnMask.active = !this.getMicroAvailable();
-        // 只有连接成功后才更新talkingAnimNode
-        if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
-            this.talkingAnimNode.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.FINISHED && state == MicrophoneState.OPEN;
-        }
+
+        this.talkingAnimNode.active = state == MicrophoneState.OPEN;
     }
 
     private getMicroIconSpriteFrame(): SpriteFrame {
