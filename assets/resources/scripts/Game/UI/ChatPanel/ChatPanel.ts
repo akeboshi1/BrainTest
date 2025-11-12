@@ -602,6 +602,9 @@ export class ChatPanel extends BasePanel {
             console.log("chatPanel：连接中，不更新麦克风状态");
             return;
         }
+        if(this.loadingNode.active){
+            return;
+        }
         
         if (state == MicrophoneState.OPEN) {
             this.talkingLabel.string = this._microOpenStr;
