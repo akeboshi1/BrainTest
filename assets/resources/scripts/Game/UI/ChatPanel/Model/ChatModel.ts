@@ -533,17 +533,18 @@ export class ChatModel {
      * 切换数字人角色
      */
     switchCharactor(){
+         // 如果没有收到上次切换完成的事件，则不能再次切换
+         if (!this._canSwitchCharactor) {
+            console.log('ChatModel: 上次切换未完成，无法再次切换数字人');
+            return;
+        }
+
         // 如果这次切换的数字人id和上一次切换的数字人id一样，则直接返回
         if (this._selectedCharactorId === this._lastSwitchedCharactorId) {
             console.log('ChatModel: 上次切换相同数字人'+this._selectedCharactorId);
             return;
         }
         
-        // 如果没有收到上次切换完成的事件，则不能再次切换
-        if (!this._canSwitchCharactor) {
-            console.log('ChatModel: 上次切换未完成，无法再次切换数字人');
-            return;
-        }
         
         if (sys.platform === 'ANDROID') {
             console.log("请求切换数字人"+this._selectedCharactorId);
