@@ -122,6 +122,8 @@ export class ChatModel {
     private _defaultCharactorSkin: number = 1;
     private _selectedCharactorId: number = 0;
     private _selectedCharactorSkin: number = 0;
+    private _lastSwitchedCharactorId: number = 0;
+    private _canSwitchCharactor: boolean = true; // 是否允许切换数字人，只有收到切换完成事件后才能继续切换
 
     private _pendingSong: ChatSong = null;
 
@@ -184,6 +186,8 @@ export class ChatModel {
         this._pendingUserMessage = null;
         this._pendingSong = null;
         this._selectedCharactorId = 0;
+        this._lastSwitchedCharactorId = 0;
+        this._canSwitchCharactor = true;
     }
 
     private initFlag = false;
@@ -480,6 +484,8 @@ export class ChatModel {
 
     private onChatCharacterSwitched(data: any): void {
         DebugLog.instance.log('ChatModel: 数字人角色切换完成');
+        // 收到切换完成事件后，允许继续切换数字人
+        this._canSwitchCharactor = true;
     }
 
     //------------websocket request----------//
@@ -518,6 +524,8 @@ export class ChatModel {
             const userData = PersonalCenterManager.getInstance().userInfoData;
             const roleId = this.selectedCharactorId+"";
             this.startChat({ token: token, userNickName: userData.nickname, roleId });
+             // 更新初始化获得的数字人id
+            this._lastSwitchedCharactorId = this._selectedCharactorId;
         }
     }
 
@@ -525,6 +533,17 @@ export class ChatModel {
      * 切换数字人角色
      */
     switchCharactor(){
+        // 如果这次切换的数字人id和上一次切换的数字人id一样，则直接返回
+        if (this._selectedCharactorId === this._lastSwitchedCharactorId) {
+            return;
+        }
+        
+        // 如果没有收到上次切换完成的事件，则不能再次切换
+        if (!this._canSwitchCharactor) {
+            DebugLog.instance.log('ChatModel: 上次切换未完成，无法再次切换数字人');
+            return;
+        }
+        
         if (sys.platform === 'ANDROID') {
             const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
             const userData = PersonalCenterManager.getInstance().userInfoData;
@@ -535,7 +554,12 @@ export class ChatModel {
                 "characterId": roleId,  // 角色id（当前数字人的id，通过websocket接口获取）,
                 "isProduction":  PublishSettingConfig.getInstance().getEnvironment() === Environment.PRODUCTION // 是否生成环境
             }));
+           
+            // 设置标志位为false，禁止再次切换直到收到切换完成事件
+            this._canSwitchCharactor = false;
         }
+         // 更新上次切换的数字人id
+         this._lastSwitchedCharactorId = this._selectedCharactorId;
     }
 
     public chooseCharactor(character_id: number, skin_id: number) {
