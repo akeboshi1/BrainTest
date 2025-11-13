@@ -9631,7 +9631,7 @@
     "__prefab": null,
     "_lineHeight": 80,
     "_string": "",
-    "_horizontalAlign": 0,
+    "_horizontalAlign": 1,
     "_verticalAlign": 0,
     "_fontSize": 80,
     "_fontColor": {
