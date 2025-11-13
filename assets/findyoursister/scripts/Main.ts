@@ -56,7 +56,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     /** 不同难度对应的倒计时时间（秒） */
 
-    private readonly TIME_LIMITS: number[] = [40, 50, 60]; // 难度1: 40s, 难度2: 50s, 难度3: 60s
+    private readonly TIME_LIMITS: number[] = [60, 50, 40]; // 难度1: 60s, 难度2: 50s, 难度3: 40s
+
+    /** 物品缩小的比例 */
+    private readonly ITEM_SCALE_SMALL: number = 0.7; // 缩小后的比例
 
     protected bundleName: string = BundleName.FINDYOURSISTER;
 
@@ -68,7 +71,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         });
 
         this.model = FindYourSisterModel.getInstance();
-        this.model.setHardIndex(2);
+        // 初始难度0
+        this.model.setHardIndex(0);
 
         // 注册结算面板
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
@@ -79,7 +83,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
 
-        let itemLen = this.model.DIFFICULTY_COUNTS[this.model.hardIndex];
+        let itemLen = this.model.DIFFICULTY_COUNTS[2];
         for (let i = 0; i <= itemLen; i++) {
             const itemName = `item${i}`;
             const itemNode = this.cardPool.getChildByName(itemName);
@@ -382,6 +386,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 存储item对应的ImageData
             this.itemDataMap.set(i, imageData);
 
+            // 根据难度设置物品缩放
+            this.setItemScale(itemNode, i, len);
+
             // 随机设置旋转角度（0-360度）
             // const randomRotation = Math.random() * 360;
             // itemNode.angle = randomRotation;
@@ -396,6 +403,37 @@ export class Main extends BaseScene<IBaseGameChild> {
                 }
                 itemSprite.spriteFrame = sp;
             })
+        }
+    }
+
+    /**
+     * 根据难度设置物品缩放
+     * @param itemNode 物品节点
+     * @param index 物品索引
+     * @param totalCount 总物品数量
+     */
+    private setItemScale(itemNode: Node, index: number, totalCount: number): void {
+        const hardIndex = this.model.hardIndex;
+        
+        if (hardIndex === 0) {
+            // 难度一：所有物品缩放1（正常大小）
+            itemNode.setScale(1, 1, 1);
+        } else if (hardIndex === 1) {
+            // 难度二：部分物品缩放缩小（随机选择约50%的物品缩小）
+            // 使用随机数决定是否缩小
+            if (Math.random() < 0.5) {
+                // 约50%的物品缩小
+                itemNode.setScale(this.ITEM_SCALE_SMALL, this.ITEM_SCALE_SMALL, 1);
+            } else {
+                // 其余保持正常大小
+                itemNode.setScale(1, 1, 1);
+            }
+        } else if (hardIndex === 2) {
+            // 难度三：所有物品尺寸缩小
+            itemNode.setScale(this.ITEM_SCALE_SMALL, this.ITEM_SCALE_SMALL, 1);
+        } else {
+            // 默认正常大小
+            itemNode.setScale(1, 1, 1);
         }
     }
 

@@ -75,9 +75,12 @@ export class FindYourSisterModel {
     public readonly DIFFICULTY_COUNTS: number[] = [9, 16, 24];
 
     /**
-     * 不同难度需求的总数量
+     * 不同难度每个类型需求的数量（不是总数量）
+     * 难度0: 每个类型3个
+     * 难度1: 每个类型4个
+     * 难度2: 每个类型5个
      */
-    public readonly DIFICULTY_NEEDS:number[]=[5,10,15];
+    public readonly DIFICULTY_NEEDS:number[]=[3,4,5];
 
     /**
      * 根据名称拼接图片路径
@@ -112,7 +115,7 @@ export class FindYourSisterModel {
         
         const imageDatas: ImageData[] = [];
         const totalCount = this.DIFFICULTY_COUNTS[hardIndex];
-        const totalNeedCount = this.DIFICULTY_NEEDS[hardIndex];
+        const countPerType = this.DIFICULTY_NEEDS[hardIndex]; // 每个类型需求的数量（固定数量）
         const folderCount = folderArray.length; // 文件夹类型数量
         let imageCount = instance.imageCount;
         
@@ -122,19 +125,15 @@ export class FindYourSisterModel {
             console.warn(`imageCount(${instance.imageCount}) 大于等于 totalCount(${totalCount})，已调整为 ${imageCount}`);
         }
         
-        // 计算每种类型的最小需求数量（从question需求中获取）
-        // 这个计算方式与getQuestionDatas保持一致
-        const baseNeedCount = Math.floor(totalNeedCount / folderCount);
-        const needRemainder = totalNeedCount % folderCount;
-        
+        // 每个类型的最小需求数量都是固定的（与getQuestionDatas保持一致）
         // 为每个文件夹类型分配数量，确保至少满足question需求
         const baseCountPerFolder = Math.floor(totalCount / folderCount); // 每个文件夹类型的基础数量
         const remainder = totalCount % folderCount; // 余数，需要额外分配的数量
         
-        // 先计算每种类型的最小需求数量
+        // 先计算每种类型的最小需求数量（每个类型都是固定数量）
         const minNeedCounts: number[] = [];
         for (let i = 0; i < folderCount; i++) {
-            minNeedCounts.push(baseNeedCount + (i < needRemainder ? 1 : 0));
+            minNeedCounts.push(countPerType); // 每个类型都是固定数量
         }
         
         // 计算每种类型的基础分配数量
@@ -257,26 +256,20 @@ export class FindYourSisterModel {
             return [];
         }
 
-        // 获取该难度的总需求数量
-        const totalNeedCount = this.DIFICULTY_NEEDS[hardIndex];
+        // 获取该难度每个类型需求的数量（每个类型固定数量，不是总数）
+        const countPerType = this.DIFICULTY_NEEDS[hardIndex];
         
-        // 使用所有有效类型，平均分配数量
+        // 使用所有有效类型，每个类型都使用固定数量
         const selectedTypes = [...validTypes];
-        
-        // 平均分配数量到各个类型
-        const baseCount = Math.floor(totalNeedCount / selectedTypes.length);
-        const remainder = totalNeedCount % selectedTypes.length;
 
         // 生成二维数组：把同一个类型的所有question分到一个数组里面
         const questionDatas: string[][] = [];
         for (let i = 0; i < selectedTypes.length; i++) {
-            // 前 remainder 个类型多分配一个
-            const count = baseCount + (i < remainder ? 1 : 0);
             const type = selectedTypes[i];
             
-            // 创建包含该类型所有数量的数组
+            // 创建包含该类型所有数量的数组（每个类型都是固定数量）
             const typeArray: string[] = [];
-            for (let j = 0; j < count; j++) {
+            for (let j = 0; j < countPerType; j++) {
                 typeArray.push(type);
             }
             questionDatas.push(typeArray);
