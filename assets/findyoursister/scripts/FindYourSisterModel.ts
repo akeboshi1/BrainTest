@@ -203,7 +203,7 @@ export class FindYourSisterModel {
             // 生成当前文件夹类型的图片数据
             for (let i = 0; i < folderImageCount; i++) {
                 const imageNumber = imageNumbers[i];
-                const imageName = `${imagePath}${folderName}${imageNumber}`;
+                const imageName = `${imagePath}emoji${imageNumber}`;
                 const imageData: ImageData = {
                     path: imageName,
                     folderName: folderName,
@@ -325,7 +325,7 @@ export class FindYourSisterModel {
 
         // 随机生成1到imageCount之间的数字
         const randomImageNumber = Math.floor(Math.random() * imageCount) + 1;
-        const imageName = `${imagePath}${selectedType}${randomImageNumber}`;
+        const imageName = `${imagePath}emoji${randomImageNumber}`;
         
         const imageData: ImageData = {
             path: imageName,
