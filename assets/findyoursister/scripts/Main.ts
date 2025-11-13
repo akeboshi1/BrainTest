@@ -54,6 +54,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     /** 当前所有图片数据（用于随机获取） */
     private allImageDatas: ImageData[] = [];
 
+    /** 存储每个itemNode的抖动动画tween和原始位置 */
+    private shakeTweenMap: Map<Node, { tween: any, originalPos: Vec3 }> = new Map();
+
     /** 不同难度对应的倒计时时间（秒） */
 
     private readonly TIME_LIMITS: number[] = [60, 50, 40]; // 难度1: 60s, 难度2: 50s, 难度3: 40s
@@ -852,8 +855,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
+        // 如果已经有抖动动画，先停止它
+        const existingShake = this.shakeTweenMap.get(itemNode);
+        if (existingShake) {
+            existingShake.tween.stop();
+            // 恢复原始位置
+            itemNode.setPosition(existingShake.originalPos);
+        }
+
         // 保存原始位置
-        const originalPos = itemNode.getPosition();
+        const originalPos = itemNode.getPosition().clone();
         const shakeDistance = 10; // 抖动距离
         const shakeDuration = 0.05; // 每次抖动持续时间
         const shakeCount = 6; // 抖动次数
@@ -873,6 +884,25 @@ export class Main extends BaseScene<IBaseGameChild> {
         shakeTween.to(shakeDuration, {
             position: originalPos
         }).start();
+
+        // 保存tween引用和原始位置
+        this.shakeTweenMap.set(itemNode, { tween: shakeTween, originalPos: originalPos });
+    }
+
+    /**
+     * 停止所有抖动动画并恢复itemNode到初始位置
+     */
+    private stopAllShakeAnimations(): void {
+        this.shakeTweenMap.forEach((shakeData, itemNode) => {
+            if (itemNode && itemNode.isValid) {
+                // 停止tween动画
+                shakeData.tween.stop();
+                // 恢复原始位置
+                itemNode.setPosition(shakeData.originalPos);
+            }
+        });
+        // 清空Map
+        this.shakeTweenMap.clear();
     }
 
     /**
@@ -943,6 +973,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private onGameFail() {
         this.pauseTime();
+        // 停止所有抖动动画并恢复itemNode到初始位置
+        this.stopAllShakeAnimations();
         this.playAudio("music/fail", true);
         // 使用游戏大厅的结算界面显示失败
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
@@ -962,7 +994,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     private onGameWin(): void {
         DebugLog.instance.log("游戏胜利！");
         this.pauseTime();
-
+        // 停止所有抖动动画并恢复itemNode到初始位置
+        this.stopAllShakeAnimations();
         this.playAudio("music/win", true);
         // 使用游戏大厅的结算界面
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
