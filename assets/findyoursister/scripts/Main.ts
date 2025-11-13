@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, RichText, Sprite, SpriteFrame, assetManager, Vec3, tween, ParticleSystem2D, ParticleAsset, UITransform } from 'cc';
+import { _decorator, Node, Label, RichText, Sprite, SpriteFrame, assetManager, Vec3, tween, ParticleSystem2D, ParticleAsset, UITransform, Color } from 'cc';
 import { TimerCommonComponent } from "db://assets/resources/scripts/Game/UI/Common/TimerCommonComponent";
 import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
 import { SettlementPanel } from "db://assets/resources/scripts/Core/UI/SettlementPanel";
@@ -56,7 +56,12 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     /** 不同难度对应的倒计时时间（秒） */
 
-    private readonly TIME_LIMITS: number[] = [40, 50, 60]; // 难度1: 40s, 难度2: 50s, 难度3: 60s
+    private readonly TIME_LIMITS: number[] = [60, 50, 40]; // 难度1: 60s, 难度2: 50s, 难度3: 40s
+
+    /** 物品缩小的比例 */
+    private readonly ITEM_SCALE_SMALL: number = 1; // 缩小后的比例
+
+    private readonly ITEM_BG_COLOR: string[] = ["#CDD7FB", "#2F39EF", "#6585F5","#C7C7C7","#666666","#202020"];
 
     protected bundleName: string = BundleName.FINDYOURSISTER;
 
@@ -68,7 +73,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         });
 
         this.model = FindYourSisterModel.getInstance();
-        this.model.setHardIndex(2);
+        // 初始难度0
+        this.model.setHardIndex(0);
 
         // 注册结算面板
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
@@ -79,8 +85,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
 
-        let itemLen = this.model.DIFFICULTY_COUNTS[this.model.hardIndex];
-        for (let i = 0; i <= itemLen; i++) {
+        // 获取所有 itemNodes（使用最大难度对应的数量，确保获取所有节点）
+        const maxItemCount = Math.max(...this.model.DIFFICULTY_COUNTS);
+        for (let i = 0; i <= maxItemCount; i++) {
             const itemName = `item${i}`;
             const itemNode = this.cardPool.getChildByName(itemName);
             if (itemNode) {
@@ -166,6 +173,16 @@ export class Main extends BaseScene<IBaseGameChild> {
         switch (type) {
             case FindYourSisterModel.TYPE_FRUIT:
                 return "水果";
+            case FindYourSisterModel.TYPE_PLANT:
+                return "植物";
+            case FindYourSisterModel.TYPE_ANIMAL:
+                return "动物";
+            case FindYourSisterModel.TYPE_FOOD:
+                return "食物";
+            case FindYourSisterModel.TYPE_BALL:
+                return "球类";
+            case FindYourSisterModel.TYPE_CAR:
+                return "汽车";
             case FindYourSisterModel.TYPE_THING:
                 return "日用品";
             case FindYourSisterModel.TYPE_VEGETABLE:
@@ -209,8 +226,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.questionLabel.string = `找出<color=#00ff00>${name}</color>x<color=#00ff00>${remainingCount}</color>个`;
             } else {
                 // 所有需求已完成
-                // 隐藏所有questionNode
-                this.updateQuestionNodes(0);
+                // 不隐藏questionNode，保持显示状态
+                // this.updateQuestionNodes(0);
                 this.questionLabel.string = "";
             }
             this._preType = nextType;
@@ -373,29 +390,145 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 清空之前的数据映射
         this.itemDataMap.clear();
 
-        for (let i = 0; i < len; i++) {
+        // 显示所有 itemNodes
+        for (let i = 0; i < this.itemNodes.length; i++) {
             const itemNode = this.itemNodes[i];
+            if (!itemNode) {
+                continue;
+            }
+            
             itemNode.active = true;
-            const itemSprite = itemNode.getComponent(Sprite);
-            const imageData = imageDatas[i];
+            const itembg = itemNode.getComponent(Sprite);
+            const iconNode = itemNode.getChildByName("icon");
+            const itemSprite = iconNode ? iconNode.getComponent(Sprite) : null;
+            
+            // 随机设置背景颜色
+            if (itembg) {
+                const randomColorIndex = Math.floor(Math.random() * this.ITEM_BG_COLOR.length);
+                const colorHex = this.ITEM_BG_COLOR[randomColorIndex];
+                const color = Color.fromHEX(new Color(), colorHex);
+                itembg.color = color;
+            }
 
-            // 存储item对应的ImageData
-            this.itemDataMap.set(i, imageData);
+            // 如果有对应的 imageData，则设置图片
+            if (i < len) {
+                const imageData = imageDatas[i];
+                
+                // 存储item对应的ImageData
+                this.itemDataMap.set(i, imageData);
 
-            // 随机设置旋转角度（0-360度）
-            // const randomRotation = Math.random() * 360;
-            // itemNode.angle = randomRotation;
+                // 根据难度设置物品缩放
+                this.setItemScale(itemNode, i, len);
 
-            let imagePath = imageData.path;
-            // 这里加载图片
-            const bundle = assetManager.getBundle(this.bundleName);
-            bundle.load(imagePath + "/spriteFrame", SpriteFrame, (err, sp) => {
-                if (err) {
-                    DebugLog.instance.error(err);
-                    return;
+                // 随机设置旋转角度（0-360度）
+                // const randomRotation = Math.random() * 360;
+                // itemNode.angle = randomRotation;
+
+                if (itemSprite) {
+                    let imagePath = imageData.path;
+                    // 这里加载图片，如果失败则随机获取文件夹中存在的资源
+                    this.loadItemSpriteWithFallback(itemSprite, imageData, 0);
                 }
+            } else {
+                // 对于没有对应 imageData 的 itemNode，也设置缩放但不清空图片
+                this.setItemScale(itemNode, i, len);
+            }
+        }
+    }
+
+    /**
+     * 加载物品图片，如果失败则随机获取文件夹中存在的资源
+     * 注意：随机资源可以重复多次被使用，不限制重复次数
+     * 如果重复超过次数还是没有加载成功，则使用emoji1作为默认图片
+     * @param itemSprite Sprite组件
+     * @param imageData 图片数据
+     * @param retryCount 重试次数（防止无限循环）
+     */
+    private loadItemSpriteWithFallback(itemSprite: Sprite, imageData: ImageData, retryCount: number = 0): void {
+        const maxRetries = 5; // 最大重试次数
+        if (retryCount >= maxRetries) {
+            // 如果重复超过次数还是没有加载成功，则使用emoji1作为默认图片
+            DebugLog.instance.warn(`加载图片失败，已重试${maxRetries}次: ${imageData.path}，使用默认图片emoji1`);
+            
+            const folderName = imageData.folderName;
+            const folderPath = `texture/${folderName}/`;
+            const defaultImagePath = `${folderPath}emoji1/spriteFrame`;
+            
+            const bundle = assetManager.getBundle(this.bundleName);
+            bundle.load(defaultImagePath, SpriteFrame, (err, sp) => {
+                if (err) {
+                    DebugLog.instance.error(`加载默认图片失败: ${defaultImagePath}`, err);
+                } else {
+                    // 使用emoji1作为默认图片
+                    itemSprite.spriteFrame = sp;
+                }
+            });
+            return;
+        }
+
+        const bundle = assetManager.getBundle(this.bundleName);
+        const imagePath = imageData.path + "/spriteFrame";
+        
+        bundle.load(imagePath, SpriteFrame, (err, sp) => {
+            if (err) {
+                // 如果资源不存在，随机获取文件夹中存在的资源
+                // 注意：随机资源可以重复多次被使用，不限制重复次数
+                DebugLog.instance.warn(`图片资源不存在: ${imagePath}，尝试随机获取文件夹中的其他资源`);
+                
+                // 从路径中提取文件夹名
+                const folderName = imageData.folderName;
+                const folderPath = `texture/${folderName}/`;
+                
+                // 随机选择一个图片编号（1 到 imageCount）
+                // 允许重复使用同一个资源，每次都是完全随机选择
+                const imageCount = this.model.getImageCount();
+                const randomImageNumber = Math.floor(Math.random() * imageCount) + 1;
+                
+                // 创建新的ImageData用于重试
+                const fallbackImageData: ImageData = {
+                    path: `${folderPath}emoji${randomImageNumber}`,
+                    folderName: folderName,
+                    index: imageData.index,
+                    type: imageData.type
+                };
+                
+                // 递归重试（允许重复使用同一个资源）
+                this.loadItemSpriteWithFallback(itemSprite, fallbackImageData, retryCount + 1);
+            } else {
+                // 加载成功，设置spriteFrame
                 itemSprite.spriteFrame = sp;
-            })
+            }
+        });
+    }
+
+    /**
+     * 根据难度设置物品缩放
+     * @param itemNode 物品节点
+     * @param index 物品索引
+     * @param totalCount 总物品数量
+     */
+    private setItemScale(itemNode: Node, index: number, totalCount: number): void {
+        const hardIndex = this.model.hardIndex;
+        
+        if (hardIndex === 0) {
+            // 难度一：所有物品缩放1（正常大小）
+            itemNode.setScale(1, 1, 1);
+        } else if (hardIndex === 1) {
+            // 难度二：部分物品缩放缩小（随机选择约50%的物品缩小）
+            // 使用随机数决定是否缩小
+            if (Math.random() < 0.5) {
+                // 约50%的物品缩小
+                itemNode.setScale(this.ITEM_SCALE_SMALL, this.ITEM_SCALE_SMALL, 1);
+            } else {
+                // 其余保持正常大小
+                itemNode.setScale(1, 1, 1);
+            }
+        } else if (hardIndex === 2) {
+            // 难度三：所有物品尺寸缩小
+            itemNode.setScale(this.ITEM_SCALE_SMALL, this.ITEM_SCALE_SMALL, 1);
+        } else {
+            // 默认正常大小
+            itemNode.setScale(1, 1, 1);
         }
     }
 
@@ -607,7 +740,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
 
         // 获取itemNode的Sprite组件
-        const itemSprite = itemNode.getComponent(Sprite);
+        const itemSprite = itemNode.getChildByName("icon").getComponent(Sprite);
         if (!itemSprite || !itemSprite.spriteFrame) {
             DebugLog.instance.warn(`itemNode没有Sprite组件或spriteFrame为空`);
             return Promise.resolve();
@@ -653,8 +786,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         const targetNodePos = viewUITransform.convertToNodeSpaceAR(targetWorldPos);
 
         // 转换itemNode位置到视图节点坐标系
-        const itemPos = itemNode.getPosition();
-        const itemParentUITransform = itemNode.parent?.getComponent(UITransform);
+        let iconNode = itemSprite.node;
+        const itemPos = iconNode?.getPosition();
+        const itemParentUITransform = iconNode.parent?.getComponent(UITransform);
         let itemWorldPos: Vec3;
 
         if (itemParentUITransform) {
@@ -669,19 +803,19 @@ export class Main extends BaseScene<IBaseGameChild> {
         const spriteFrame = itemSprite.spriteFrame;
 
         // 将itemNode临时添加到视图节点，以便进行动画
-        const originalParent = itemNode.parent;
-        const originalPos = itemNode.getPosition();
+        const originalParent = iconNode.parent;
+        const originalPos = iconNode.getPosition();
         // const originalScale = itemNode.getScale();
 
         // 转换到视图节点坐标系
-        itemNode.setParent(viewNode);
-        itemNode.setPosition(itemNodePos);
+        iconNode.setParent(viewNode);
+        iconNode.setPosition(itemNodePos);
         // itemNode.setScale(originalScale);
 
         // 使用Promise等待tween动画完成
         return new Promise<void>((resolve) => {
             // 使用tween动画让itemNode飞到目标位置
-            tween(itemNode)
+            tween(iconNode)
                 .to(0.3, {
                     position: new Vec3(targetNodePos.x, targetNodePos.y, 0),
                     // scale: new Vec3(0.5, 0.5, 1) // 飞行过程中稍微缩小
@@ -697,8 +831,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                     itemSprite.spriteFrame = null;
 
                     // 恢复itemNode的原始状态
-                    itemNode.setParent(originalParent);
-                    itemNode.setPosition(originalPos);
+                    iconNode.setParent(originalParent);
+                    iconNode.setPosition(originalPos);
                     // itemNode.setScale(originalScale);
 
                     // 动画完成，resolve Promise
