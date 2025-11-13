@@ -9570,7 +9570,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -455,
+      "x": 0,
       "y": 490,
       "z": 0
     },
@@ -9614,7 +9614,7 @@
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
+      "x": 0.5,
       "y": 0.5
     },
     "_id": "18rTRLYflFf4bVMCdy6Yix"
@@ -9631,7 +9631,7 @@
     "__prefab": null,
     "_lineHeight": 80,
     "_string": "",
-    "_horizontalAlign": 0,
+    "_horizontalAlign": 1,
     "_verticalAlign": 0,
     "_fontSize": 80,
     "_fontColor": {
