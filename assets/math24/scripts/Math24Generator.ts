@@ -15,7 +15,7 @@ export class Math24Generator {
     private static readonly MAX_NUMBER = 10;  // 牌面最大数字
     private static readonly MIN_NUMBER = 1;   // 牌面最小数字
     private static readonly TARGET = 24;      // 目标数字
-    private static readonly PRECISION = 0.000001;  // 浮点数比较精度
+    private static readonly PRECISION = 0;  // 浮点数比较精度
 
     // 所有可能的运算符
     private static readonly OPERATORS = ['+', '-', '*', '/'];
@@ -179,7 +179,7 @@ export class Math24Generator {
                 
                 for (const op3 of this.OPERATORS) {
                     const result3 = this.calculate(result2, d, op3);
-                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
+                    if (result3 - this.TARGET == this.PRECISION && Number.isInteger(result3)) {
                         return true;
                     }
                 }
@@ -234,7 +234,7 @@ export class Math24Generator {
                 
                 for (const op3 of this.OPERATORS) {
                     const result3 = this.calculate(result2, d, op3);
-                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
+                    if (result3 - this.TARGET == this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`((${a}${op1}${b})${op2}${c})${op3}${d}`);
                     }
                 }
@@ -257,7 +257,7 @@ export class Math24Generator {
                 
                 for (const op2 of this.OPERATORS) {
                     const result3 = this.calculate(result1, result2, op2);
-                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
+                    if (result3 - this.TARGET == this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`(${a}${op1}${b})${op2}(${c}${op3}${d})`);
                     }
                 }
@@ -275,7 +275,7 @@ export class Math24Generator {
                 
                 for (const op3 of this.OPERATORS) {
                     const result3 = this.calculate(result2, d, op3);
-                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
+                    if (result3 - this.TARGET == this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`(${a}${op1}(${b}${op2}${c}))${op3}${d}`);
                     }
                 }
@@ -293,7 +293,7 @@ export class Math24Generator {
                 
                 for (const op1 of this.OPERATORS) {
                     const result3 = this.calculate(a, result2, op1);
-                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
+                    if (result3 - this.TARGET == this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`${a}${op1}((${b}${op2}${c})${op3}${d})`);
                     }
                 }
@@ -311,7 +311,7 @@ export class Math24Generator {
                 
                 for (const op1 of this.OPERATORS) {
                     const result3 = this.calculate(a, result2, op1);
-                    if (Math.abs(result3 - this.TARGET) < this.PRECISION && Number.isInteger(result3)) {
+                    if (result3 - this.TARGET == this.PRECISION && Number.isInteger(result3)) {
                         solutions.add(`${a}${op1}(${b}${op2}(${c}${op3}${d}))`);
                     }
                 }

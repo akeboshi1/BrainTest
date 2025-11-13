@@ -57,6 +57,12 @@ export class Main extends BaseScene<IBaseGameChild> {
     /** 存储每个itemNode的抖动动画tween和原始位置 */
     private shakeTweenMap: Map<Node, { tween: any, originalPos: Vec3 }> = new Map();
 
+    /** 存储正在执行tween动画的itemNode索引（防止重复点击） */
+    private itemNodesInTween: Set<number> = new Set();
+
+    /** 存储每个itemNode的初始位置（在start时记录） */
+    private itemNodeInitialPositions: Map<Node, Vec3> = new Map();
+
     /** 不同难度对应的倒计时时间（秒） */
 
     private readonly TIME_LIMITS: number[] = [60, 50, 40]; // 难度1: 60s, 难度2: 50s, 难度3: 40s
@@ -95,6 +101,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             const itemNode = this.cardPool.getChildByName(itemName);
             if (itemNode) {
                 itemNode.active = false;
+                // 记录itemNode的初始位置
+                const initialPos = itemNode.getPosition().clone();
+                this.itemNodeInitialPositions.set(itemNode, initialPos);
                 this.itemNodes.push(itemNode);
             }
         }
@@ -400,10 +409,20 @@ export class Main extends BaseScene<IBaseGameChild> {
                 continue;
             }
             
+            // 重置itemNode到初始位置
+            const initialPos = this.itemNodeInitialPositions.get(itemNode);
+            if (initialPos) {
+                itemNode.setPosition(initialPos);
+            }
+            
             itemNode.active = true;
             const itembg = itemNode.getComponent(Sprite);
             const iconNode = itemNode.getChildByName("icon");
-            iconNode.setScale(1.5, 1.5, 1);
+            if (iconNode) {
+                // 重置icon节点的位置和缩放
+                iconNode.setPosition(0, 0, 0);
+                iconNode.setScale(1.5, 1.5, 1);
+            }
             const itemSprite = iconNode ? iconNode.getComponent(Sprite) : null;
             
             // 随机设置背景颜色
@@ -540,6 +559,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         const index = Number(data);
         DebugLog.instance.log("itemClick", index);
 
+        // 检查该itemNode是否正在执行tween动画
+        if (this.itemNodesInTween.has(index)) {
+            DebugLog.instance.error("该item正在执行动画，忽略点击");
+            return;
+        }
+
         // 检查是否已经点击过
         if (this.clickedItems.has(index)) {
             DebugLog.instance.log("该item已点击过，忽略");
@@ -563,11 +588,17 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 检查点击的类型是否是当前要点击的类型
         if (imageData.type !== currentTargetType) {
+            // 如果该itemNode正在执行抖动动画，不允许再次点击
+            if (this.itemNodesInTween.has(index)) {
+                DebugLog.instance.log("该item正在执行抖动动画，忽略点击");
+                return;
+            }
+            
             this.playAudio("music/click", true);
 
             DebugLog.instance.log(`点击错误！当前需要点击 ${currentTargetType}，但点击的是 ${imageData.type}`);
-            // 添加错误抖动动画
-            this.shakeItemNode(this.itemNodes[index]);
+            // 添加错误抖动动画（传入index以便跟踪）
+            this.shakeItemNode(this.itemNodes[index], index);
             return;
         }
         this.playAudio("music/correct", true);
@@ -629,8 +660,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 获取被点击的item节点位置作为起始位置
         const clickedItemNode = this.itemNodes[index];
         if (clickedItemNode) {
+            // 标记该itemNode正在执行tween动画
+            this.itemNodesInTween.add(index);
             // 等待动画完成
             this.moveItemNodeToQuestionNode(clickedItemNode, this._totalQuestionCount - remainingCount).then(() => {
+                // 动画完成后，从tween集合中移除
+                this.itemNodesInTween.delete(index);
                 // 动画完成后更新问题显示
                 this.updateQuestionLabel(true);
             });
@@ -849,8 +884,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     /**
      * 让itemNode抖动（点击错误时使用）
      * @param itemNode 要抖动的节点
+     * @param index itemNode的索引（用于跟踪tween状态）
      */
-    private shakeItemNode(itemNode: Node): void {
+    private shakeItemNode(itemNode: Node, index: number): void {
+        console.log("shakeItemNode", itemNode, index);
         if (!itemNode || !itemNode.isValid) {
             return;
         }
@@ -861,7 +898,12 @@ export class Main extends BaseScene<IBaseGameChild> {
             existingShake.tween.stop();
             // 恢复原始位置
             itemNode.setPosition(existingShake.originalPos);
+            // 从tween集合中移除（如果存在）
+            this.itemNodesInTween.delete(index);
         }
+
+        // 标记该itemNode正在执行抖动动画
+        this.itemNodesInTween.add(index);
 
         // 保存原始位置
         const originalPos = itemNode.getPosition().clone();
@@ -880,9 +922,13 @@ export class Main extends BaseScene<IBaseGameChild> {
             });
         }
 
-        // 最后回到原始位置
+        // 最后回到原始位置，并在动画完成时从tween集合中移除
         shakeTween.to(shakeDuration, {
             position: originalPos
+        }).call(() => {
+            // 抖动动画完成，从tween集合中移除
+            this.itemNodesInTween.delete(index);
+            console.log("shakeItemNode end", itemNode, index);
         }).start();
 
         // 保存tween引用和原始位置
@@ -897,8 +943,14 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (itemNode && itemNode.isValid) {
                 // 停止tween动画
                 shakeData.tween.stop();
-                // 恢复原始位置
-                itemNode.setPosition(shakeData.originalPos);
+                // 恢复到初始位置（使用记录的初始位置）
+                const initialPos = this.itemNodeInitialPositions.get(itemNode);
+                if (initialPos) {
+                    itemNode.setPosition(initialPos);
+                } else {
+                    // 如果没有初始位置记录，使用抖动时的原始位置
+                    itemNode.setPosition(shakeData.originalPos);
+                }
             }
         });
         // 清空Map
@@ -975,6 +1027,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.pauseTime();
         // 停止所有抖动动画并恢复itemNode到初始位置
         this.stopAllShakeAnimations();
+        // 清空正在执行tween的itemNode集合
+        this.itemNodesInTween.clear();
         this.playAudio("music/fail", true);
         // 使用游戏大厅的结算界面显示失败
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
@@ -996,6 +1050,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.pauseTime();
         // 停止所有抖动动画并恢复itemNode到初始位置
         this.stopAllShakeAnimations();
+        // 清空正在执行tween的itemNode集合
+        this.itemNodesInTween.clear();
         this.playAudio("music/win", true);
         // 使用游戏大厅的结算界面
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
@@ -1049,12 +1105,27 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._totalQuestionCount = 0;
         this.currentQuestionNodeCount = 0;
         this.questionNodesWithItemImage.clear();
+        // 清空正在执行tween的itemNode集合
+        this.itemNodesInTween.clear();
 
-        // 隐藏所有item节点
+        // 重置所有item节点位置并隐藏
         if (this.itemNodes.length > 0) {
             for (let i = 0; i < this.itemNodes.length; i++) {
                 const itemNode = this.itemNodes[i];
                 if (itemNode) {
+                    // 重置itemNode到初始位置
+                    const initialPos = this.itemNodeInitialPositions.get(itemNode);
+                    if (initialPos) {
+                        itemNode.setPosition(initialPos);
+                    }
+                    // 重置icon节点的位置和缩放
+                    const iconNode = itemNode.getChildByName("icon");
+                    if (iconNode) {
+                        iconNode.setPosition(0, 0, 0);
+                        iconNode.setScale(1.5, 1.5, 1);
+                    }
+                    // 重置itemNode的缩放
+                    itemNode.setScale(1, 1, 1);
                     itemNode.active = false;
                 }
             }

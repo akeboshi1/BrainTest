@@ -61,7 +61,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private flipDuration = 0.25;
     private isFront = false;
-    private time: number = 60;
+    private time: number = 120;
 
     private cardValues: number[] = [1, 1, 3, 8];
     private _curCardData: Math24CardData;
