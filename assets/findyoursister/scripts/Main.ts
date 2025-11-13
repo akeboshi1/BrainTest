@@ -383,8 +383,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.itemDataMap.set(i, imageData);
 
             // 随机设置旋转角度（0-360度）
-            const randomRotation = Math.random() * 360;
-            itemNode.angle = randomRotation;
+            // const randomRotation = Math.random() * 360;
+            // itemNode.angle = randomRotation;
 
             let imagePath = imageData.path;
             // 这里加载图片
