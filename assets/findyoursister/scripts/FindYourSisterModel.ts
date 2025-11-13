@@ -41,6 +41,11 @@ export class FindYourSisterModel {
     public static TYPE_FRUIT: string = "fruit";
     public static TYPE_VEGETABLE: string = "vegetable";
     public static TYPE_THING: string = "thing";
+    public static TYPE_PLANT: string = "plant";
+    public static TYPE_BALL: string = "ball";
+    public static TYPE_CAR: string = "car";
+    public static TYPE_ANIMAL: string = "animal";
+    public static TYPE_FOOD: string = "food";
 
     public static getInstance(): FindYourSisterModel {
         if (!this._model) {
@@ -57,6 +62,10 @@ export class FindYourSisterModel {
         this.hardIndex = hardIndex;
     }
 
+    public getImageCount(): number {
+        return this.imageCount;
+    }
+
     /**
      * 不同难度对应的数据数组
      * 难度0: 简单难度对应的数据数组
@@ -65,14 +74,14 @@ export class FindYourSisterModel {
      */
     private readonly DIFFICULTY_DATA_ARRAYS: { [key: number]: any[] } = {
         0: ["fruit", "vegetable"], // 简单难度数据数组，需要根据实际数据填充
-        1: ["fruit", "vegetable", "thing"], // 中等难度数据数组，需要根据实际数据填充
-        2: ["fruit", "vegetable", "thing"]  // 困难难度数据数组，需要根据实际数据填充
+        1: ["plant", "ball", "car"], // 中等难度数据数组，需要根据实际数据填充
+        2: ["animal", "food", "thing"]  // 困难难度数据数组，需要根据实际数据填充
     };
 
     /**
-     * 不同难度对应的数量
+     * 不同难度对应的数量（所有难度都是24个）
      */
-    public readonly DIFFICULTY_COUNTS: number[] = [9, 16, 24];
+    public readonly DIFFICULTY_COUNTS: number[] = [24, 24, 24];
 
     /**
      * 不同难度每个类型需求的数量（不是总数量）
@@ -115,62 +124,18 @@ export class FindYourSisterModel {
         
         const imageDatas: ImageData[] = [];
         const totalCount = this.DIFFICULTY_COUNTS[hardIndex];
-        const countPerType = this.DIFICULTY_NEEDS[hardIndex]; // 每个类型需求的数量（固定数量）
         const folderCount = folderArray.length; // 文件夹类型数量
         let imageCount = instance.imageCount;
         
-        // 确保 imageCount 小于 totalCount
-        if (imageCount >= totalCount) {
-            imageCount = totalCount - 1;
-            console.warn(`imageCount(${instance.imageCount}) 大于等于 totalCount(${totalCount})，已调整为 ${imageCount}`);
-        }
-        
-        // 每个类型的最小需求数量都是固定的（与getQuestionDatas保持一致）
-        // 为每个文件夹类型分配数量，确保至少满足question需求
+        // 平均分配每个文件夹需要提取的图片数量
         const baseCountPerFolder = Math.floor(totalCount / folderCount); // 每个文件夹类型的基础数量
         const remainder = totalCount % folderCount; // 余数，需要额外分配的数量
         
-        // 先计算每种类型的最小需求数量（每个类型都是固定数量）
-        const minNeedCounts: number[] = [];
-        for (let i = 0; i < folderCount; i++) {
-            minNeedCounts.push(countPerType); // 每个类型都是固定数量
-        }
-        
-        // 计算每种类型的基础分配数量
-        const baseAllocatedCounts: number[] = [];
-        for (let i = 0; i < folderCount; i++) {
-            baseAllocatedCounts.push(baseCountPerFolder + (i < remainder ? 1 : 0));
-        }
-        
-        // 确保每种类型的数量至少等于需求数量
+        // 计算每个文件夹的图片数量
         const folderImageCounts: number[] = [];
-        let totalAllocated = 0;
         for (let i = 0; i < folderCount; i++) {
-            const minNeed = minNeedCounts[i];
-            const baseAllocated = baseAllocatedCounts[i];
-            const count = Math.max(baseAllocated, minNeed);
-            folderImageCounts.push(count);
-            totalAllocated += count;
-        }
-        
-        // 如果总分配数量超过totalCount，需要调整
-        if (totalAllocated > totalCount) {
-            // 按比例缩减，但确保每种类型至少满足需求数量
-            const scale = (totalCount - minNeedCounts.reduce((sum, count) => sum + count, 0)) / 
-                          (totalAllocated - minNeedCounts.reduce((sum, count) => sum + count, 0));
-            
-            let remaining = totalCount;
-            for (let i = 0; i < folderCount; i++) {
-                const minNeed = minNeedCounts[i];
-                const extra = Math.floor((folderImageCounts[i] - minNeed) * scale);
-                folderImageCounts[i] = minNeed + extra;
-                remaining -= folderImageCounts[i];
-            }
-            
-            // 将剩余数量分配给前几个类型
-            for (let i = 0; i < remaining && i < folderCount; i++) {
-                folderImageCounts[i]++;
-            }
+            // 前 remainder 个文件夹多分配一个
+            folderImageCounts.push(baseCountPerFolder + (i < remainder ? 1 : 0));
         }
         
         let currentIndex = 1; // 全局索引
@@ -183,21 +148,26 @@ export class FindYourSisterModel {
             // 使用计算好的数量
             const folderImageCount = folderImageCounts[folderIdx];
             
-            // 计算当前文件夹类型中每个图片编号应该出现的次数
-            const baseCountPerImage = Math.floor(folderImageCount / imageCount);
-            const imageRemainder = folderImageCount % imageCount;
-            
-            // 创建当前文件夹类型的图片编号数组
+            // 创建当前文件夹类型的图片编号数组（随机从文件夹中获取）
+            // 如果资源长度不够，重新随机获取重复资源，可以多次重复
             const imageNumbers: number[] = [];
-            for (let i = 1; i <= imageCount; i++) {
-                const count = baseCountPerImage + (i <= imageRemainder ? 1 : 0);
-                for (let j = 0; j < count; j++) {
-                    imageNumbers.push(i);
+            
+            if (imageCount > 0) {
+                // 随机从文件夹中获取图片编号
+                // 如果资源数量少于需求数量，通过重复使用来满足需求
+                for (let i = 0; i < folderImageCount; i++) {
+                    // 随机选择一个图片编号（1 到 imageCount）
+                    // 允许重复使用同一个资源，可以多次重复
+                    const randomImageNumber = Math.floor(Math.random() * imageCount) + 1;
+                    imageNumbers.push(randomImageNumber);
+                }
+            } else {
+                // 如果 imageCount 为 0 或无效，使用默认图片编号 1
+                console.warn(`类型 ${folderName} 的图片数量为 0，使用默认图片编号`);
+                for (let i = 0; i < folderImageCount; i++) {
+                    imageNumbers.push(1);
                 }
             }
-            
-            // 打乱当前文件夹类型的图片编号顺序
-            this.shuffleArray(imageNumbers);
             
             // 生成当前文件夹类型的图片数据
             for (let i = 0; i < folderImageCount; i++) {
