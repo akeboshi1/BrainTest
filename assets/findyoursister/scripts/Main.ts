@@ -182,9 +182,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             case FindYourSisterModel.TYPE_BALL:
                 return "球类";
             case FindYourSisterModel.TYPE_CAR:
-                return "汽车";
+                return "交通工具";
             case FindYourSisterModel.TYPE_THING:
-                return "日用品";
+                return "杂物";
             case FindYourSisterModel.TYPE_VEGETABLE:
                 return "蔬菜";
         }
@@ -400,6 +400,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             itemNode.active = true;
             const itembg = itemNode.getComponent(Sprite);
             const iconNode = itemNode.getChildByName("icon");
+            iconNode.setScale(1.5, 1.5, 1);
             const itemSprite = iconNode ? iconNode.getComponent(Sprite) : null;
             
             // 随机设置背景颜色
