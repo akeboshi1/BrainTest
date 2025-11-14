@@ -57,6 +57,7 @@ export class ChatMusicPanel extends BasePanel {
         this._chatModel.characterSongsProvider.removeListenerById(this._characterSongsProviderChangeID);
         this._chatModel.currentPlayingSongState.removeListenerById(this._currentPlayingSongStateChangeID);
         this._chatModel.currentPlayingSong.removeListenerById(this._currentPlayingSongChangeID);
+        this._lastMusicSwitchTime = 0; // 清理防抖时间戳
     }
 
     private switchPanelState(state: "list" | "play" | "empty"): void {
