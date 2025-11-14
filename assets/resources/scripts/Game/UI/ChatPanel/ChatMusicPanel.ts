@@ -42,6 +42,8 @@ export class ChatMusicPanel extends BasePanel {
     private _currentPlayingSongStateChangeID: string = "";
     private _currentPlayingSongChangeID: string = "";
     private _closeCallback: () => void = null;
+    private _lastMusicSwitchTime: number = 0; // 上次切换音乐的时间戳
+    private readonly MUSIC_SWITCH_DEBOUNCE_TIME: number = 500; // 防抖时间（毫秒）
     public restore(data: { chatModel: ChatModel , closeCallback: () => void }) {
         this.switchPanelState("list");
         this._chatModel = data.chatModel;
@@ -117,14 +119,27 @@ export class ChatMusicPanel extends BasePanel {
     }
 
     public onClickPlayNext(): void {
+        const currentTime = Date.now();
+        if (currentTime - this._lastMusicSwitchTime < this.MUSIC_SWITCH_DEBOUNCE_TIME) {
+            console.log('music：下一首防抖处理，500毫秒内不允许再次点击');
+            return; // 防抖处理，500毫秒内不允许再次点击
+        }
+        this._lastMusicSwitchTime = currentTime;
         this.playNextMusic();
     }
 
     public onClickPlayPrev(): void {
+        const currentTime = Date.now();
+        if (currentTime - this._lastMusicSwitchTime < this.MUSIC_SWITCH_DEBOUNCE_TIME) {
+            console.log('music：上一首防抖处理，500毫秒内不允许再次点击');
+            return; // 防抖处理，500毫秒内不允许再次点击
+        }
+        this._lastMusicSwitchTime = currentTime;
         this.playPrevMusic();
     }
 
     private playNextMusic(): void {
+       
         const currentSong = this._chatModel.currentPlayingSong.data;
         let nextSong: ChatSong = null;
         let nextSongIndex = 0;
@@ -134,6 +149,7 @@ export class ChatMusicPanel extends BasePanel {
                 return;
             }
         });
+        console.log('music：点击播放下一首 当前歌曲:', currentSong.name);
         if(nextSongIndex >= this._chatModel.characterSongsProvider.data.length){
             nextSongIndex = 0;
         }
@@ -152,6 +168,7 @@ export class ChatMusicPanel extends BasePanel {
                 return;
             }
         });
+        console.log('music：点击播放上一首 当前歌曲:', currentSong.name);
         if(prevSongIndex < 0){
             prevSongIndex = this._chatModel.characterSongsProvider.data.length - 1;
         }
