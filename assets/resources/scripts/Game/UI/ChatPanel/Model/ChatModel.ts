@@ -409,10 +409,11 @@ export class ChatModel {
             // AI正在说话，暂存用户消息
             this._pendingUserMessage = text;
             DebugLog.instance.log('ChatModel: AI正在说话，暂存用户消息:', text);
+            console.log('刷新测试界面：AI正在说话，暂存用户消息:', text);
         } else {
             // AI没有在说话，直接添加字幕
             this.addSubtitle(text, "user");
-            DebugLog.instance.log('ChatModel: 直接添加用户消息:', text);
+            console.log('刷新测试界面：AI没有说话直接添加字幕 直接添加用户消息:', text);
         }
     }
 
