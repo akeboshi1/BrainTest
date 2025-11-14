@@ -72,6 +72,7 @@ export class ChatMusicPanel extends BasePanel {
             const musicItem = instantiate(this.musicItemPrefab);
             musicItem.getComponent(ChatMusicItem).setData(song, this.onClickMusicItem.bind(this));
             this.musicListContainer.addChild(musicItem);
+            console.log(`music：设置歌曲${song.name}`);
         });
     }
 
