@@ -244,7 +244,7 @@ export class ChatPanel extends BasePanel {
                 this.hideLoadingAnimation();
                 this.reloadCharactorBtn.active = true;
                 this._reloadPath = path;
-                
+
                 // 标记加载完成，处理队列中的下一个任务
                 this._isLoadingFrameComponent = false;
                 this._processNextInQueue();
@@ -472,13 +472,13 @@ export class ChatPanel extends BasePanel {
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTING) {
             return;
         }
-        
+
         // 只有连接成功后才更新显示
         // if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
         //     this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
         //     this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
         // }
-
+        console.log("刷新测试界面：AI说话状态： " + this.getCurrentFrameAnimationName());
         this.playFrameAnimation();
     }
 
@@ -581,7 +581,7 @@ export class ChatPanel extends BasePanel {
     private updateTalkingLabelDisplay(): void {
         const microphoneState = this._chatModel.microphoneStateProvider.data;
         this.onMicrophoneStateChanged(microphoneState);
-        
+
         // // 更新talkingLabel的文本
         // if (microphoneState == MicrophoneState.OPEN) {
         //     this.talkingLabel.string = this._microOpenStr;
@@ -605,7 +605,7 @@ export class ChatPanel extends BasePanel {
         if(this.loadingNode.active){
             return;
         }
-        
+
         if (state == MicrophoneState.OPEN) {
             this.talkingLabel.string = this._microOpenStr;
         } else if (state == MicrophoneState.CLOSED) {
@@ -715,12 +715,12 @@ export class ChatPanel extends BasePanel {
             console.log(`字幕容器高度(${containerHeight}) <= 滚动视图高度(${scrollViewHeight})，无需滚动`);
         }
     }
-     /**
+    /**
      * 角色节点动画：从状态1移动到状态2
      * 状态1: x=0, y=200, scale=1
      * 状态2: x=-330, y=(屏幕高度/2-100), scale=0.4
      */
-     public animateCharactorToState3(): void {
+    public animateCharactorToState3(): void {
         if (!this.charactorNode) {
             return;
         }
@@ -972,7 +972,7 @@ export class ChatPanel extends BasePanel {
                 break;
             default:
                 break;
-        }   
+        }
         this._lastCharactorState = 0;
         if(this._sublineShowState){
             this.showSubline();
@@ -1062,7 +1062,7 @@ export class ChatPanel extends BasePanel {
             this._songTimelineCurrentAnimation = "idle";
             this.stopSongTimeline();
         }
-        
+
         this.playFrameAnimation();
     }
 
@@ -1169,7 +1169,7 @@ export class ChatPanel extends BasePanel {
             this._songTimelineCurrentIndex = 0;
             this._songTimelinePausedOffset = 0;
             this._songTimelineIsPaused = false;
-            
+
             // 设置初始动画
             if (this._songTimeline.length > 0) {
                 this._songTimelineCurrentAnimation = this._songTimeline[0].animation;
@@ -1211,10 +1211,10 @@ export class ChatPanel extends BasePanel {
             const elapsedTime = (Date.now() - this._songStartTime) / 1000;
             this._songTimelinePausedOffset = elapsedTime;
             this._songTimelineIsPaused = true;
-            
+
             // 更新调试标签显示（暂停时的当前时间）
             this.updateDebugTimeLineLabel(this._songTimelinePausedOffset);
-            
+
             DebugLog.instance.log(`时间线已暂停，已播放时间: ${this._songTimelinePausedOffset.toFixed(2)}秒`);
         }
     }
@@ -1250,12 +1250,12 @@ export class ChatPanel extends BasePanel {
         this._songTimelinePausedOffset = 0;
         this._songTimelineIsPaused = false;
         this._songTimelineCurrentIndex = 0;
-        
+
         // 清空调试标签
         if (this.debugMusicTimeLineLabel) {
             this.debugMusicTimeLineLabel.string = "";
         }
-        
+
         DebugLog.instance.log("时间线已停止并重置");
     }
 
@@ -1298,7 +1298,7 @@ export class ChatPanel extends BasePanel {
         if (targetIndex !== this._songTimelineCurrentIndex) {
             this._songTimelineCurrentIndex = targetIndex;
             const newAnimation = this._songTimeline[targetIndex].animation;
-            
+
             if (newAnimation !== this._songTimelineCurrentAnimation) {
                 this._songTimelineCurrentAnimation = newAnimation;
                 this.playFrameAnimation();
