@@ -1368,9 +1368,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             const firstValue = this.selectedValues[0];
             const secondValue = this.selectedValues[1];
             const operator = this.operatorTypes[0];
+            const operatorSymbol = this.operators[0]; // 保存运算符符号，用于记录
 
             const result = this.calculateResult(firstValue, secondValue, operator);
-            DebugLog.instance.log(`计算结果: ${firstValue} ${this.operators[0]} ${secondValue} = ${result}`);
+            DebugLog.instance.log(`计算结果: ${firstValue} ${operatorSymbol} ${secondValue} = ${result}`);
 
             // 保存要隐藏的第一张卡牌索引
             const firstCardIndex = this.selectedCards[0];
@@ -1411,7 +1412,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 secondCardIndex: currentCardIndex,
                 firstValue: firstValue,
                 secondValue: secondValue,
-                operator: this.operators[0],
+                operator: operatorSymbol,
                 result: result,
                 selectedCards: [currentCardIndex],
                 selectedValues: [result],
@@ -1446,9 +1447,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             const resultValue = this.selectedValues[0]; // 结果卡牌的值
             const newValue = this.selectedValues[1];   // 新卡牌的值
             const operator = this.operatorTypes[0];
+            const operatorSymbol = this.operators[0]; // 保存运算符符号，用于记录
 
             const newResult = this.calculateResult(resultValue, newValue, operator);
-            DebugLog.instance.log(`连续计算结果: ${resultValue} ${this.operators[0]} ${newValue} = ${newResult}`);
+            DebugLog.instance.log(`连续计算结果: ${resultValue} ${operatorSymbol} ${newValue} = ${newResult}`);
 
             // 保存要隐藏的结果卡牌索引
             const resultCardIndex = this.selectedCards[0];
@@ -1489,7 +1491,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 newCardIndex: currentCardIndex,
                 resultValue: resultValue,
                 newValue: newValue,
-                operator: this.operators[0],
+                operator: operatorSymbol,
                 newResult: newResult,
                 selectedCards: [currentCardIndex],
                 selectedValues: [newResult],
@@ -1826,6 +1828,29 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     /**
+     * 取消所有卡牌的选中状态
+     */
+    clearAllCardSelection() {
+        // 恢复所有选中卡牌的显示
+        for (const cardIndex of this.selectedCards) {
+            if (cardIndex >= 0 && cardIndex < this.cards.length) {
+                this.restoreCard(cardIndex);
+            }
+        }
+        
+        // 清空选中状态
+        this.selectedCards = [];
+        this.selectedValues = [];
+        this.operators = [];
+        this.operatorTypes = [];
+        
+        // 清空已使用集合
+        this.usedCardIndices.clear();
+        
+        DebugLog.instance.log('已取消所有卡牌的选中状态');
+    }
+
+    /**
      * 检查并隐藏所有null值的卡牌
      */
     hideNullValueCards() {
@@ -1855,6 +1880,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         stepData.operatType = "pre";
         // 恢复状态
         this.restoreStepState(stepData);
+        
+        // 取消所有卡牌的选中状态
+        this.clearAllCardSelection();
     }
 
     /**
@@ -1916,6 +1944,9 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 恢复下一步骤的状态
         this.restoreStepState(stepData);
+        
+        // 取消所有卡牌的选中状态
+        this.clearAllCardSelection();
     }
 
     protected onDestroy(): void {
