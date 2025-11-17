@@ -19,7 +19,8 @@ enum OptionButtonColor {
 // 将枚举转换为Color类型
 const OptionButtonColorMap = {//rgb(209, 95, 128)
     [OptionButtonColor.SELECT]: new Color(55, 194, 109, 255), //rgb(55, 194, 96)
-    [OptionButtonColor.NORMAL]: new Color(61, 21, 127, 255)   //rgb(61, 21, 127)
+    [OptionButtonColor.NORMAL]: new Color(0, 9, 129, 255)   //#000981
+    
 }
 
 /**
