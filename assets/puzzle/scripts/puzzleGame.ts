@@ -825,7 +825,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         // 如果位置正确，设置sprite的alpha为0.5，并隐藏描边
         if (isInCorrectPosition) {
             const color = sprite.color;
-            sprite.color = new Color(color.r, color.g, color.b, 89.25); // 128 = 255 * 0.5
+            sprite.color = new Color(color.r, color.g, color.b, 153); // 128 = 255 * 0.5
             border.active = false; // 位置正确时，去除描边
         } else {
             // 如果位置不正确，恢复alpha为1.0，并显示描边
