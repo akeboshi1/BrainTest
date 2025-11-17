@@ -114,8 +114,8 @@ export class catchfish extends BaseScene<IBaseGameChild> {
     fishes3: Node = null;
 
     private selectColor = ColorUtil.hexToColor("#3AEB0E");
-    private unSelectColor = ColorUtil.hexToColor("#FFFFFF");
-    private ErrorColor = ColorUtil.hexToColor("#FC0505");
+    private unSelectColor = ColorUtil.hexToColor("#000981");
+    private ErrorColor = ColorUtil.hexToColor("#FA657A");
 
     // 存储答错的题目
     private wrongQuestions: FishQuestion[] = [];
