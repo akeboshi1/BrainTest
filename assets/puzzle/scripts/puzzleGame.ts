@@ -248,7 +248,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             // 非串烧训练时，显示开始提示
             // this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
             let textureID = this.randomPlayIndex[this.textureIndex];
-            this.loadPuzzleTexture(41).then((texture) => {
+            this.loadPuzzleTexture(textureID).then((texture) => {
                 this.currentTexture2d = texture;
                 this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
                 this.updatePreviewSprite(this.currentTexture2d);
