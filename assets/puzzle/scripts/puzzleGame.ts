@@ -19,7 +19,8 @@ import {
     Label,
     Button,
     game,
-    Game
+    Game,
+    Color
 } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "db://assets/resources/scripts/Core/Util/TimeUtil";
@@ -247,7 +248,7 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             // 非串烧训练时，显示开始提示
             // this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
             let textureID = this.randomPlayIndex[this.textureIndex];
-            this.loadPuzzleTexture(textureID).then((texture) => {
+            this.loadPuzzleTexture(41).then((texture) => {
                 this.currentTexture2d = texture;
                 this.cropTextureToSprites(this.levelList[this.selectedLevelIndex], this.currentTexture2d);
                 this.updatePreviewSprite(this.currentTexture2d);
@@ -316,12 +317,12 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.chipsInstances.push(instantiatedPrefab);
 
             const spriteComponent = instantiatedPrefab.getChildByName("Sprite").getComponent(Sprite);
-
+            const border = instantiatedPrefab.getChildByName("border");
             const spriteFrame = new SpriteFrame();
             spriteFrame.texture = texture;
             spriteFrame.rect = rectList[i];
             spriteComponent.spriteFrame = spriteFrame;
-
+            border.active = true;
             instantiatedPrefab.setParent(this.chipParentNode);
 
             const rect = new Rect(
@@ -791,10 +792,23 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             DebugLog.instance.warn(`[puzzleGame] chipNode[${chipIndex}] 无效`);
             return;
         }
-        // 获取border子节点
-        const borderNode = chipNode.getChildByName("border");
-        if (!borderNode) {
-            DebugLog.instance.warn(`[puzzleGame] chipNode[${chipIndex}] 没有找到border子节点`);
+        
+        // 获取Sprite子节点
+        const spriteNode = chipNode.getChildByName("Sprite");
+        if (!spriteNode) {
+            DebugLog.instance.warn(`[puzzleGame] chipNode[${chipIndex}] 没有找到Sprite子节点`);
+            return;
+        }
+        
+        const sprite = spriteNode.getComponent(Sprite);
+        if (!sprite) {
+            DebugLog.instance.warn(`[puzzleGame] chipNode[${chipIndex}] Sprite节点没有Sprite组件`);
+            return;
+        }
+
+        const border = chipNode.getChildByName("border");
+        if (!border) {
+            DebugLog.instance.warn(`[puzzleGame] chipNode[${chipIndex}] Sprite节点没有border组件`);
             return;
         }
         
@@ -807,9 +821,18 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
                 break;
             }
         }
-        
-        // 更新border节点的active状态
-        borderNode.active = isInCorrectPosition;
+
+        // 如果位置正确，设置sprite的alpha为0.5，并隐藏描边
+        if (isInCorrectPosition) {
+            const color = sprite.color;
+            sprite.color = new Color(color.r, color.g, color.b, 89.25); // 128 = 255 * 0.5
+            border.active = false; // 位置正确时，去除描边
+        } else {
+            // 如果位置不正确，恢复alpha为1.0，并显示描边
+            const color = sprite.color;
+            sprite.color = new Color(color.r, color.g, color.b, 255);
+            border.active = true; // 位置不正确时，显示描边
+        }
     }
 
     private getCorrentCounts() {
