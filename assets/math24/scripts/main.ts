@@ -1404,10 +1404,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 从已使用集合中移除第一张卡牌
             this.usedCardIndices.delete(firstCardIndex);
 
-            // 第二张卡牌保持选中状态
-            this.disableCard(currentCardIndex);
-
-            // 记录计算步骤（记录计算后的状态）
+            // 记录计算步骤（记录计算后的状态，在清空选中状态之前）
             this.recordCalculationStep({
                 type: 'first_calculation',
                 firstCardIndex: firstCardIndex,
@@ -1416,12 +1413,22 @@ export class Main extends BaseScene<IBaseGameChild> {
                 secondValue: secondValue,
                 operator: this.operators[0],
                 result: result,
-                selectedCards: [...this.selectedCards],
-                selectedValues: [...this.selectedValues],
+                selectedCards: [currentCardIndex],
+                selectedValues: [result],
                 cardValues: [...this.cardValues],
                 usedCardIndices: new Set(this.usedCardIndices),
                 beforeCardValues: [...preCardValues] // 计算前的状态
             });
+
+            // 取消第二张卡牌的选中状态
+            this.restoreCard(currentCardIndex);
+            
+            // 清空选中状态
+            this.selectedCards = [];
+            this.selectedValues = [];
+            
+            // 从已使用集合中移除第二张卡牌
+            this.usedCardIndices.delete(currentCardIndex);
 
             // 检查计算结果是否等于24
             this.checkResultEquals24(result);
@@ -1475,10 +1482,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 从已使用集合中移除结果卡牌
             this.usedCardIndices.delete(resultCardIndex);
 
-            // 新卡牌保持选中状态
-            this.disableCard(currentCardIndex);
-
-            // 记录计算步骤（记录计算后的状态）
+            // 记录计算步骤（记录计算后的状态，在清空选中状态之前）
             this.recordCalculationStep({
                 type: 'continuous_calculation',
                 resultCardIndex: resultCardIndex,
@@ -1487,12 +1491,22 @@ export class Main extends BaseScene<IBaseGameChild> {
                 newValue: newValue,
                 operator: this.operators[0],
                 newResult: newResult,
-                selectedCards: [...this.selectedCards],
-                selectedValues: [...this.selectedValues],
+                selectedCards: [currentCardIndex],
+                selectedValues: [newResult],
                 cardValues: [...this.cardValues],
                 usedCardIndices: new Set(this.usedCardIndices),
                 beforeCardValues: [...preCardValues] // 计算前的状态
             });
+
+            // 取消新卡牌的选中状态
+            this.restoreCard(currentCardIndex);
+            
+            // 清空选中状态
+            this.selectedCards = [];
+            this.selectedValues = [];
+            
+            // 从已使用集合中移除新卡牌
+            this.usedCardIndices.delete(currentCardIndex);
 
             // 检查计算结果是否等于24
             this.checkResultEquals24(newResult);
