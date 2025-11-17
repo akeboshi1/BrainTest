@@ -26,7 +26,7 @@ enum OptionButtonColor {
 const OptionButtonColorMap = {
     [OptionButtonColor.WRONG]: new Color(209, 95, 128, 255),    //rgb(209, 95, 128)
     [OptionButtonColor.CORRECT]: new Color(55, 194, 109, 255), //rgb(55, 194, 96)
-    [OptionButtonColor.NORMAL]: new Color(61, 21, 127, 255)   //rgb(61, 21, 127)
+    [OptionButtonColor.NORMAL]:  new Color(0, 9, 129, 255)   //rgb(61, 21, 127)
 }
 
 @ccclass('GuessingGameScene')
