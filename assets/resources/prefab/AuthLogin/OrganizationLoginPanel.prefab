@@ -1057,6 +1057,8 @@
       "__id__": 0
     },
     "fileId": "bbvOVNfAtHRZjJFMbOQN7M",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1933,7 +1935,7 @@
     "_string": "",
     "_tabIndex": 0,
     "_backgroundImage": null,
-    "_inputFlag": 5,
+    "_inputFlag": 0,
     "_inputMode": 0,
     "_maxLength": 10,
     "_id": ""
@@ -1961,6 +1963,8 @@
       "__id__": 0
     },
     "fileId": "2eLcEq1AhELrGPiPtJOAVK",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
