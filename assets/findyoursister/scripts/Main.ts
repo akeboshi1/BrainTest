@@ -54,6 +54,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     /** 当前所有图片数据（用于随机获取） */
     private allImageDatas: ImageData[] = [];
 
+    /** 记录已使用的图片路径，确保不重复 */
+    private usedImagePaths: Set<string> = new Set();
+
     /** 存储每个itemNode的抖动动画tween和原始位置 */
     private shakeTweenMap: Map<Node, { tween: any, originalPos: Vec3 }> = new Map();
 
@@ -63,6 +66,12 @@ export class Main extends BaseScene<IBaseGameChild> {
     /** 存储每个itemNode的初始位置（在start时记录） */
     private itemNodeInitialPositions: Map<Node, Vec3> = new Map();
 
+    /** 当前难度完成的组数（每个难度需要完成3组） */
+    private currentDifficultyGroupCount: number = 0;
+
+    /** 每个难度需要完成的组数 */
+    private readonly GROUPS_PER_DIFFICULTY: number = 3;
+
     /** 不同难度对应的倒计时时间（秒） */
 
     private readonly TIME_LIMITS: number[] = [60, 50, 40]; // 难度1: 60s, 难度2: 50s, 难度3: 40s
@@ -70,7 +79,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     /** 物品缩小的比例 */
     private readonly ITEM_SCALE_SMALL: number = 1; // 缩小后的比例
 
-    private readonly ITEM_BG_COLOR: string[] = ["#CDD7FB", "#2F39EF", "#6585F5","#C7C7C7","#666666","#202020"];
+    private readonly ITEM_BG_COLOR: string[] = ["#CDD7FB"];//, "#2F39EF", "#6585F5","#C7C7C7","#666666","#202020"];
 
     protected bundleName: string = BundleName.FINDYOURSISTER;
 
@@ -133,6 +142,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.goodNode) {
             this.goodNode.active = false;
         }
+
+        // 重置当前难度的完成组数
+        this.currentDifficultyGroupCount = 0;
 
         this.refreshView();
 
@@ -389,12 +401,17 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 保存所有图片数据，用于后续随机获取
         this.allImageDatas = imageDatas;
 
-        // 统计图片数据中的所有类型
-        const typeSet = new Set<string>();
+        // 初始化已使用的图片路径集合，记录所有已使用的图片路径
+        this.usedImagePaths.clear();
         for (const imageData of imageDatas) {
-            typeSet.add(imageData.type);
+            this.usedImagePaths.add(imageData.path);
         }
-        const imageTypes = Array.from(typeSet);
+
+        // 获取所有图片数据的类型数组（包含重复的类型，用于统计数量）
+        const imageTypes: string[] = [];
+        for (const imageData of imageDatas) {
+            imageTypes.push(imageData.type);
+        }
 
         // 初始化游戏需求（根据实际图片类型）
         this.initQuestion(imageTypes);
@@ -461,64 +478,85 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     /**
      * 加载物品图片，如果失败则随机获取文件夹中存在的资源
-     * 注意：随机资源可以重复多次被使用，不限制重复次数
-     * 如果重复超过次数还是没有加载成功，则使用emoji1作为默认图片
+     * 持续随机查找，直到找到未使用的图片为止，保证队列里面图片的唯一性
      * @param itemSprite Sprite组件
      * @param imageData 图片数据
      * @param retryCount 重试次数（防止无限循环）
      */
     private loadItemSpriteWithFallback(itemSprite: Sprite, imageData: ImageData, retryCount: number = 0): void {
-        const maxRetries = 5; // 最大重试次数
-        if (retryCount >= maxRetries) {
-            // 如果重复超过次数还是没有加载成功，则使用emoji1作为默认图片
-            DebugLog.instance.warn(`加载图片失败，已重试${maxRetries}次: ${imageData.path}，使用默认图片emoji1`);
-            
-            const folderName = imageData.folderName;
-            const folderPath = `texture/${folderName}/`;
-            const defaultImagePath = `${folderPath}emoji1/spriteFrame`;
-            
-            const bundle = assetManager.getBundle(this.bundleName);
-            bundle.load(defaultImagePath, SpriteFrame, (err, sp) => {
-                if (err) {
-                    DebugLog.instance.error(`加载默认图片失败: ${defaultImagePath}`, err);
-                } else {
-                    // 使用emoji1作为默认图片
-                    itemSprite.spriteFrame = sp;
-                }
-            });
-            return;
-        }
-
+        const maxRetries = 10000; // 最大重试次数，防止无限循环
+        
         const bundle = assetManager.getBundle(this.bundleName);
         const imagePath = imageData.path + "/spriteFrame";
         
         bundle.load(imagePath, SpriteFrame, (err, sp) => {
             if (err) {
                 // 如果资源不存在，随机获取文件夹中存在的资源
-                // 注意：随机资源可以重复多次被使用，不限制重复次数
-                DebugLog.instance.warn(`图片资源不存在: ${imagePath}，尝试随机获取文件夹中的其他资源`);
+                // 持续随机查找，直到找到未使用的图片为止
+                if (retryCount >= maxRetries) {
+                    DebugLog.instance.error(`加载图片失败，已重试${maxRetries}次: ${imageData.path}，无法找到可用的图片`);
+                    return;
+                }
+                
+                DebugLog.instance.warn(`图片资源不存在: ${imagePath}，尝试随机获取文件夹中的其他资源（重试 ${retryCount + 1}/${maxRetries}）`);
                 
                 // 从路径中提取文件夹名
                 const folderName = imageData.folderName;
                 const folderPath = `texture/${folderName}/`;
-                
-                // 随机选择一个图片编号（1 到 imageCount）
-                // 允许重复使用同一个资源，每次都是完全随机选择
                 const imageCount = this.model.getImageCount();
-                const randomImageNumber = Math.floor(Math.random() * imageCount) + 1;
                 
-                // 创建新的ImageData用于重试
-                const fallbackImageData: ImageData = {
-                    path: `${folderPath}emoji${randomImageNumber}`,
-                    folderName: folderName,
-                    index: imageData.index,
-                    type: imageData.type
-                };
+                // 持续随机查找，直到找到未使用的图片
+                let found = false;
+                let attempts = 0;
+                const maxAttempts = 1000; // 每次重试最多尝试1000次
                 
-                // 递归重试（允许重复使用同一个资源）
-                this.loadItemSpriteWithFallback(itemSprite, fallbackImageData, retryCount + 1);
+                while (!found && attempts < maxAttempts) {
+                    attempts++;
+                    
+                    // 随机选择一个图片编号（1 到 imageCount）
+                    const randomImageNumber = Math.floor(Math.random() * imageCount) + 1;
+                    const candidatePath = `${folderPath}emoji${randomImageNumber}`;
+                    
+                    // 检查该图片路径是否已被使用
+                    if (!this.usedImagePaths.has(candidatePath)) {
+                        // 找到未使用的图片，标记为已使用
+                        this.usedImagePaths.add(candidatePath);
+                        
+                        // 创建新的ImageData用于重试
+                        const fallbackImageData: ImageData = {
+                            path: candidatePath,
+                            folderName: folderName,
+                            index: imageData.index,
+                            type: imageData.type
+                        };
+                        
+                        // 递归重试
+                        this.loadItemSpriteWithFallback(itemSprite, fallbackImageData, retryCount + 1);
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // 如果尝试了maxAttempts次还是找不到未使用的图片，继续递归重试
+                if (!found) {
+                    // 随机选择一个图片编号（即使可能已使用，继续尝试）
+                    const randomImageNumber = Math.floor(Math.random() * imageCount) + 1;
+                    const fallbackImageData: ImageData = {
+                        path: `${folderPath}emoji${randomImageNumber}`,
+                        folderName: folderName,
+                        index: imageData.index,
+                        type: imageData.type
+                    };
+                    
+                    // 递归重试
+                    this.loadItemSpriteWithFallback(itemSprite, fallbackImageData, retryCount + 1);
+                }
             } else {
-                // 加载成功，设置spriteFrame
+                // 加载成功，检查并标记为已使用（如果还未使用）
+                if (!this.usedImagePaths.has(imageData.path)) {
+                    this.usedImagePaths.add(imageData.path);
+                }
+                // 设置spriteFrame
                 itemSprite.spriteFrame = sp;
             }
         });
@@ -1043,26 +1081,123 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     /**
-     * 游戏胜利处理
+     * 游戏胜利处理（完成一组）
      */
     private onGameWin(): void {
-        DebugLog.instance.log("游戏胜利！");
-        this.pauseTime();
+        DebugLog.instance.log("完成一组！");
         // 停止所有抖动动画并恢复itemNode到初始位置
         this.stopAllShakeAnimations();
         // 清空正在执行tween的itemNode集合
         this.itemNodesInTween.clear();
         this.playAudio("music/win", true);
-        // 使用游戏大厅的结算界面
-        UIManager.getInstance().showPanel(SettlementPanel.NAME, {
-            result: true,
-            nextHandler: () => {
-                this.onNextLevel();
-            },
-            againHandler: () => {
-                this.onAgain();
+        
+        // 增加当前难度的完成组数
+        this.currentDifficultyGroupCount++;
+        DebugLog.instance.log(`当前难度完成组数: ${this.currentDifficultyGroupCount}/${this.GROUPS_PER_DIFFICULTY}`);
+        
+        // 检查是否完成了3组
+        if (this.currentDifficultyGroupCount >= this.GROUPS_PER_DIFFICULTY) {
+            // 完成了3组，通关当前难度
+            this.pauseTime();
+            DebugLog.instance.log("完成当前难度的3组，通关！");
+            this.playAudio("music/win", true);
+            // 使用游戏大厅的结算界面
+            UIManager.getInstance().showPanel(SettlementPanel.NAME, {
+                result: true,
+                nextHandler: () => {
+                    this.onNextLevel();
+                },
+                againHandler: () => {
+                    this.onAgain();
+                }
+            });
+        } else {
+            // 还没完成3组，继续下一组（不暂停时间，继续倒计时）
+            DebugLog.instance.log(`继续下一组，剩余组数: ${this.GROUPS_PER_DIFFICULTY - this.currentDifficultyGroupCount}`);
+            // 显示完成一组的提示
+            if (this.goodNode) {
+                this.goodNode.active = true;
+                this.goodNode.setScale(0, 0, 1);
+                tween(this.goodNode)
+                    .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+                    .delay(0.5) // 缩短显示时间，快速进入下一组
+                    .to(0.3, { scale: new Vec3(0, 0, 1) }, { easing: 'backIn' })
+                    .call(() => {
+                        if (this.goodNode && this.goodNode.isValid) {
+                            this.goodNode.active = false;
+                        }
+                        // 清理questionNode并开始新的一组
+                        this.replaceQuestionNodesToYes();
+                        // 开始新的一组（不重置倒计时）
+                        this.startNewGroup();
+                    })
+                    .start();
+            } else {
+                // 如果没有goodNode，直接开始新的一组
+                this.replaceQuestionNodesToYes();
+                this.startNewGroup();
             }
-        });
+        }
+    }
+
+    /**
+     * 开始新的一组（重新获取数据，不重置倒计时）
+     */
+    private startNewGroup(): void {
+        DebugLog.instance.log("开始新的一组游戏");
+        // 重置游戏状态（但保持当前难度和完成组数，不重置倒计时）
+        this.clickedItems.clear();
+        this.itemDataMap.clear();
+        this.questionDatas = [];
+        this._preType = null;
+        this._totalQuestionCount = 0;
+        this.currentQuestionNodeCount = 0;
+        this.questionNodesWithItemImage.clear();
+        // 清空正在执行tween的itemNode集合
+        this.itemNodesInTween.clear();
+
+        // 重置所有item节点位置并隐藏
+        if (this.itemNodes.length > 0) {
+            for (let i = 0; i < this.itemNodes.length; i++) {
+                const itemNode = this.itemNodes[i];
+                if (itemNode) {
+                    // 重置itemNode到初始位置
+                    const initialPos = this.itemNodeInitialPositions.get(itemNode);
+                    if (initialPos) {
+                        itemNode.setPosition(initialPos);
+                    }
+                    // 重置icon节点的位置和缩放
+                    const iconNode = itemNode.getChildByName("icon");
+                    if (iconNode) {
+                        iconNode.setPosition(0, 0, 0);
+                        iconNode.setScale(1.5, 1.5, 1);
+                    }
+                    // 重置itemNode的缩放
+                    itemNode.setScale(1, 1, 1);
+                    itemNode.active = false;
+                }
+            }
+        }
+
+        // 隐藏所有questionNode
+        this.updateQuestionNodes(0);
+
+        // 重置问题标签
+        if (this.questionLabel) {
+            this.questionLabel.string = "";
+        }
+
+        // 重置goodNode为隐藏状态
+        if (this.goodNode) {
+            this.goodNode.active = false;
+        }
+
+        // 注意：不重置倒计时，继续使用剩余时间
+
+        // 重新刷新视图和初始化游戏（会从model中获取新的数据）
+        this.refreshView();
+
+        // 倒计时继续运行，不需要重新启动
     }
 
     /**
@@ -1081,6 +1216,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.model.setHardIndex(0);
         }
 
+        // 重置当前难度的完成组数
+        this.currentDifficultyGroupCount = 0;
+
         // 重新开始游戏
         this.restartGame();
     }
@@ -1089,7 +1227,8 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 重玩逻辑（当前关卡重新开始）
      */
     public onAgain(): void {
-        // 保持当前难度，重新开始游戏
+        // 保持当前难度，重置完成组数，重新开始游戏
+        this.currentDifficultyGroupCount = 0;
         this.restartGame();
     }
 
