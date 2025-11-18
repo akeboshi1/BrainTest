@@ -106,6 +106,12 @@ export class GuidePanel extends BasePanel {
                 case BundleName.SMALLTHEATER:
                     descStr = "小剧场"
                     break;
+                case BundleName.FINDYOURSISTER:
+                    descStr = "找一找"
+                    break;
+                case BundleName.MATH24:
+                    descStr = "24点"
+                    break;
 
             }
             this.descLabel.string = descStr;
@@ -250,9 +256,11 @@ export class GuidePanel extends BasePanel {
             case BundleName.SENTENCEMAKING:
                 videoPath = "video/majiangguide"; // 造句训练教程视频
                 break;
+            default:
+                break;
         }
 
-        if (videoPath) {
+        if (videoPath&&videoPath.length>0) {
             // 从resources目录加载视频文件
             resources.load(videoPath, VideoClip, (err, videoClip) => {
                 if (err) {

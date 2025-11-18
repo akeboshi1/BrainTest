@@ -59,7 +59,7 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
     }
 
     get difficulty(): number {
-        return GameCenterManager.getInstance().currentGame.difficulty;
+        return GameCenterManager.getInstance().difficulty;
     }
 
     get sessionid(): string {
