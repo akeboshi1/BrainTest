@@ -58,6 +58,9 @@ export class FindYourSisterModel {
 
     private imageCount: number = 20;
 
+    /** 当前游戏的优先类型（随机选中的类型） */
+    private currentPriorityType: string | null = null;
+
     public setHardIndex(hardIndex: number): void {
         this.hardIndex = hardIndex;
     }
@@ -69,18 +72,6 @@ export class FindYourSisterModel {
     private readonly TOTAL_LIST: string[] = ["fruit", "vegetable", "plant", "ball", "car", "animal", "food", "thing"];
 
     private readonly DEFAULT_LIST: string[] = ["default"];
-
-    // /**
-    //  * 不同难度对应的数据数组
-    //  * 难度0: 简单难度对应的数据数组
-    //  * 难度1: 中等难度对应的数据数组
-    //  * 难度2: 困难难度对应的数据数组
-    //  */
-    // private readonly DIFFICULTY_DATA_ARRAYS: { [key: number]: any[] } = {
-    //     0: ["fruit", "vegetable"], // 简单难度数据数组，需要根据实际数据填充
-    //     1: ["plant", "ball", "car"], // 中等难度数据数组，需要根据实际数据填充
-    //     2: ["animal", "food", "thing"]  // 困难难度数据数组，需要根据实际数据填充
-    // };
 
     /**
      * 不同难度对应的数量（所有难度都是24个）
@@ -147,6 +138,15 @@ export class FindYourSisterModel {
     }
 
     private _preList :number[]=[];
+    
+    /**
+     * 清空 _preList（结算时调用）
+     */
+    public clearPreList(): void {
+        this._preList = [];
+        this.currentPriorityType = null;
+    }
+    
     public getImageDatas(): ImageData[] {
         const instance = FindYourSisterModel.getInstance();
         const hardIndex = instance.hardIndex;
@@ -187,10 +187,24 @@ export class FindYourSisterModel {
         this._preList.push(randomIndex);
         const priorityType = this.TOTAL_LIST[randomIndex];
         
+        // 保存当前游戏的优先类型，用于题目关联
+        this.currentPriorityType = priorityType;
+        
         // 获取其余类型列表（排除优先类型）
-        const otherTypes = this.TOTAL_LIST.filter(type => type !== priorityType);
+        // 当 priorityType 是索引 6 时，则 TOTAL_LIST 第 0 位、1 位也不能被选中
+        let otherTypes: string[];
+        if (randomIndex === 6) {
+            // 排除优先类型（索引6）以及索引0和索引1对应的类型
+            otherTypes = this.TOTAL_LIST.filter((type, index) => {
+                return index !== randomIndex && index !== 0 && index !== 1;
+            });
+        } else {
+            // 只排除优先类型
+            otherTypes = this.TOTAL_LIST.filter(type => type !== priorityType);
+        }
         
         // 只生成 needCount 数量的优先类型图片（每个图片路径不能重复）
+        // 必须严格生成 priorityCount 个，不能大于也不能小于
         // 如果找不到，继续随机找，直到找到为止
         for (let i = 0; i < priorityCount; i++) {
             let imageName: string | null = null;
@@ -204,8 +218,7 @@ export class FindYourSisterModel {
                 
                 // 如果当前类型找不到，继续尝试（可能会因为图片数量不足而需要多次尝试）
                 if (!imageName) {
-                    // 如果该类型的所有图片都已使用，尝试从所有类型中找（包括优先类型和其他类型）
-                    // 但优先类型应该优先使用自己的图片，所以这里继续尝试
+                    // 如果该类型的所有图片都已使用，继续尝试直到找到
                     continue;
                 }
             }
@@ -220,8 +233,17 @@ export class FindYourSisterModel {
                 };
                 imageDatas.push(imageData);
             } else {
-                console.error(`尝试了 ${maxAttempts} 次仍无法找到优先类型 ${priorityType} 的可用图片`);
+                // 如果无法生成足够的优先类型图片，报错并返回空数组
+                console.error(`尝试了 ${maxAttempts} 次仍无法找到优先类型 ${priorityType} 的可用图片，无法生成 ${priorityCount} 个优先类型图片`);
+                return [];
             }
+        }
+        
+        // 验证优先类型数量是否严格等于 priorityCount
+        const actualPriorityCount = imageDatas.filter(data => data.type === priorityType).length;
+        if (actualPriorityCount !== priorityCount) {
+            console.error(`优先类型数量不正确：期望 ${priorityCount} 个，实际 ${actualPriorityCount} 个`);
+            return [];
         }
         
         // 剩余位置用其他类型填充，优先每个类型只出现一次，如果不够则允许重复使用，但图片路径不能重复
@@ -297,42 +319,31 @@ export class FindYourSisterModel {
             imageDatas[i].index = i + 1;
         }
         
+        // 最终验证：确保优先类型数量严格等于 priorityCount
+        const finalPriorityCount = imageDatas.filter(data => data.type === priorityType).length;
+        if (finalPriorityCount !== priorityCount) {
+            console.error(`优先类型数量验证失败：期望 ${priorityCount} 个，实际 ${finalPriorityCount} 个`);
+            return [];
+        }
+        
         return imageDatas;
     }
 
     /**
      * 根据难度和实际图片类型获取游戏需求数据
-     * @param imageTypes 实际生成的图片类型数组（从getImageDatas中统计）
+     * 题目与随机选中的优先类型关联
+     * @param imageTypes 实际生成的图片类型数组（从getImageDatas中统计，此参数保留用于兼容性，但不再使用）
      * @returns 二维数组，每个子数组是一个组（每组1-5个元素）
      */
     public getQuestionDatas(imageTypes: string[]): string[][] {
         const instance = FindYourSisterModel.getInstance();
         const hardIndex = instance.hardIndex;
         
-        if (!imageTypes || imageTypes.length === 0) {
-            console.warn("图片类型数组为空");
-            return [];
-        }
-
-        // 统计每个类型的数量
-        const typeCountMap: Map<string, number> = new Map();
-        for (const type of imageTypes) {
-            const count = typeCountMap.get(type) || 0;
-            typeCountMap.set(type, count + 1);
-        }
-
-        // 找出数量最多的类型（即优先类型）
-        let maxCount = 0;
-        let priorityType: string | null = null;
-        for (const [type, count] of typeCountMap.entries()) {
-            if (count > maxCount) {
-                maxCount = count;
-                priorityType = type;
-            }
-        }
-
+        // 直接使用保存的优先类型，与随机选中的类型关联
+        const priorityType = this.currentPriorityType;
+        
         if (!priorityType) {
-            console.warn("无法找到优先类型");
+            console.warn("无法找到优先类型，可能还未调用 getImageDatas");
             return [];
         }
 

@@ -155,10 +155,18 @@ export class GameCenterPageView extends Component {
         if (index == 7) {
             let url = Global.RES_Root + BundleName.FINDYOURSISTER;
             DebugLog.instance.log(`${BundleName.FINDYOURSISTER} click perload`);
-            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-            // 临时处理上一个训练界面，后续对接服务端，走游戏统一流程
-            GameCenterManager.getInstance().clearGuidePanelData();
-            GameCenterManager.getInstance().perload(url, BundleName.FINDYOURSISTER);
+            let guidePanelData = {
+                name: BundleName.FINDYOURSISTER, callback: () => {
+                    DebugLog.instance.log(`${BundleName.FINDYOURSISTER} click perload`);
+                    EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(self), self, true);
+                    GameCenterManager.getInstance().perload(url, BundleName.FINDYOURSISTER);
+                }, exitCallback: () => {
+                    this._clickBoo = false;
+                }
+            }
+            // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
+            GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
+            UIManager.getInstance().showPanel(GuidePanel.NAME, guidePanelData);
             return;
         }
         if (index == 8) {
@@ -200,7 +208,7 @@ export class GameCenterPageView extends Component {
                     sceneName = BundleName.SENTENCEMAKING;
                     break;
                 case 7:
-                    sceneName = BundleName.SMALLTHEATER;
+                    sceneName = BundleName.FINDYOURSISTER;
                     break;
                 case 8:
                     sceneName = BundleName.MATH24;
@@ -216,7 +224,7 @@ export class GameCenterPageView extends Component {
                 }, exitCallback: () => {
                     self._clickBoo = false;
                 }
-            };
+            }
 
             // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
             GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);

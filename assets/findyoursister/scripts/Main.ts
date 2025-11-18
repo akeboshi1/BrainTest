@@ -91,9 +91,6 @@ export class Main extends BaseScene<IBaseGameChild> {
         });
 
         this.model = FindYourSisterModel.getInstance();
-        // 初始难度0
-        this.model.setHardIndex(0);
-
         // 注册结算面板
         UIManager.getInstance().registerPanel(SettlementPanel.NAME, BundleName.RESOURCES, "prefab/settlementPanel/settlementPanel", SettlementPanel);
 
@@ -103,6 +100,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     start() {
         super.start();
 
+        this.model.setHardIndex((this.sceneModel as any).difficulty-1);
         // 获取所有 itemNodes（使用最大难度对应的数量，确保获取所有节点）
         const maxItemCount = Math.max(...this.model.DIFFICULTY_COUNTS);
         for (let i = 0; i <= maxItemCount; i++) {
@@ -208,7 +206,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             case FindYourSisterModel.TYPE_CAR:
                 return "交通工具";
             case FindYourSisterModel.TYPE_THING:
-                return "杂物";
+                return "生活用品";
             case FindYourSisterModel.TYPE_VEGETABLE:
                 return "蔬菜";
         }
@@ -1068,6 +1066,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 清空正在执行tween的itemNode集合
         this.itemNodesInTween.clear();
         this.playAudio("music/fail", true);
+        // 清空 _preList（结算时清空）
+        this.model.clearPreList();
         // 使用游戏大厅的结算界面显示失败
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: false,
@@ -1101,6 +1101,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.pauseTime();
             DebugLog.instance.log("完成当前难度的3组，通关！");
             this.playAudio("music/win", true);
+            // 清空 _preList（结算时清空）
+            this.model.clearPreList();
             // 使用游戏大厅的结算界面
             UIManager.getInstance().showPanel(SettlementPanel.NAME, {
                 result: true,
@@ -1205,16 +1207,15 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
     private onNextLevel(): void {
         // 增加难度索引（如果还有更高难度）
-        const currentHardIndex = this.model.hardIndex;
-        const maxHardIndex = this.model.DIFFICULTY_COUNTS.length - 1;
-
-        if (currentHardIndex < maxHardIndex) {
-            // 如果还有更高难度，切换到下一难度
-            this.model.setHardIndex(currentHardIndex + 1);
-        } else {
-            // 如果已经是最高难度，重新从第一难度开始
-            this.model.setHardIndex(0);
-        }
+        // const currentHardIndex = this.model.hardIndex;
+        // const maxHardIndex = this.model.DIFFICULTY_COUNTS.length - 1;
+        // if (currentHardIndex < maxHardIndex) {
+        //     // 如果还有更高难度，切换到下一难度
+        //     this.model.setHardIndex(currentHardIndex + 1);
+        // } else {
+        //     // 如果已经是最高难度，重新从第一难度开始
+        //     this.model.setHardIndex(0);
+        // }
 
         // 重置当前难度的完成组数
         this.currentDifficultyGroupCount = 0;

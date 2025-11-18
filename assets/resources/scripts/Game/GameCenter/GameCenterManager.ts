@@ -334,14 +334,17 @@ export class GameCenterManager {
             DebugLog.instance.warn("Invalid difficulty level. Must be between 1 and 3.");
             return;
         }
-
+        this._selectDifficulty = difficulty;
         if (this._curGame) {
-            this._selectDifficulty = difficulty;
             this._curGame.difficulty = difficulty;
             DebugLog.instance.log(`Game difficulty set to: ${difficulty}`);
         } else {
             DebugLog.instance.warn("Cannot set difficulty: no current game");
         }
+    }
+
+    public get difficulty(): number {
+        return this._selectDifficulty;
     }
 
     public settleMentPanelShow: boolean = false;
