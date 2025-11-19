@@ -610,7 +610,7 @@ export class ChatPanel extends BasePanel {
             console.log("chatPanel：连接中，不更新麦克风状态");
             return;
         }
-        if(this.loadingNode.active){
+        if(this.loadingNode.active || this.interruptButton.active){
             return;
         }
         this.talkingLabel.node.active = true;
