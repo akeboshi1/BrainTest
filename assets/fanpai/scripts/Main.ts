@@ -141,7 +141,14 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.level = (this.sceneModel as any).level;
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.progressBar.progress = 1;
-            this.guankaLabel.string = "第" + this.level + "关";
+
+            this.level = (this.sceneModel as any).levelIndex;
+            let levelLen = (this.sceneModel as any).levelLen;
+            let curProgress = -1;
+            if (this.level < levelLen) curProgress = this.level;
+            else curProgress = Math.abs(this.level - levelLen);
+            // 更新关卡标签显示
+            this.guankaLabel.string = "第" + curProgress + "关";
         }
     }
 
@@ -475,10 +482,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     private async _gamecenterNextGame() {
         Global.isAgain = false;
-        this.level = (this.sceneModel as any).game.level;
+        this.level = (this.sceneModel as any).levelIndex;
 
+        let levelLen = (this.sceneModel as any).levelLen;
+        let curProgress = -1;
+        if (this.level < levelLen) curProgress = this.level;
+        else curProgress = Math.abs(this.level - levelLen);
         // 更新关卡标签显示
-        this.guankaLabel.string = "第" + this.level + "关";
+        this.guankaLabel.string = "第" + curProgress + "关";
 
         this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
@@ -705,7 +716,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     protected onDestroy(): void {
         // 设置游戏退出状态
         this.isGameExited = true;
-        
+
         clearTimeout(this._setTimeOutId);
         clearInterval(this.timerId);
         clearInterval(this.intervalId);
@@ -738,7 +749,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         let self = this;
         // 先清理之前的定时器，防止重复启动
         this.stopPreviewCountdown();
-        
+
         // 先检查并修复可能存在的问题
         this.checkAndFixCardScales();
 
@@ -929,7 +940,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-    dzgoonHandler(context,resuleBoo: boolean = true) {
+    dzgoonHandler(context, resuleBoo: boolean = true) {
         context.clearGameView();
         if (context.sceneModel) {
             if (context.sceneModel.gameType == GameType.SKEWERS) {
@@ -990,7 +1001,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     exitCallBack(context) {
         // 设置游戏退出状态
         context.isGameExited = true;
-        
+
         // 重置退出对话框状态
         context.isQuitDialogOpen = false;
         DebugLog.instance.log("用户确认退出，设置退出状态");
@@ -1067,13 +1078,13 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.isInPreviewMode) {
             DebugLog.instance.log("预览阶段进入后台，记录中断状态");
             this.wasInPreviewMode = true;
-            
+
             // 停止所有卡牌翻转动画
             this.stopAllCardAnimations();
-            
+
             // 停止预览倒计时
             this.stopPreviewCountdown();
-            
+
             // 重置预览状态
             this.isInPreviewMode = false;
             this.isCountdownPaused = false;
@@ -1099,11 +1110,11 @@ export class Main extends BaseScene<IBaseGameChild> {
         super.resumeCallBack(context);
         // 重置退出对话框状态（用户可能取消了退出）
         context.isQuitDialogOpen = false;
-        
+
         // 先停止所有可能正在运行的定时器和动画
         context.stopPreviewCountdown();
         context.stopAllCardAnimations();
-        
+
         // 检查是否是从预览阶段中断的
         if (context.wasInPreviewMode) {
             DebugLog.instance.log("从预览阶段中断恢复，重新开始预览过程");
@@ -1334,7 +1345,7 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
     private waitForAllCardsFlipped(callback: () => void) {
         let callbackExecuted = false; // 防止重复执行回调
-        
+
         const checkInterval = setInterval(() => {
             // 检查游戏是否已退出
             if (this.isGameExited) {
@@ -1342,7 +1353,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 DebugLog.instance.log("游戏已退出，取消等待卡片翻转完成");
                 return;
             }
-            
+
             // 检查是否还有卡片在翻转
             if (this.flippingCardCount === 0 && !this.isGlobalFlipping) {
                 clearInterval(checkInterval);
@@ -1375,18 +1386,18 @@ export class Main extends BaseScene<IBaseGameChild> {
                 if (cards[i] && cards[i].isValid) {
                     // 停止当前卡片的动画
                     tween(cards[i]).stop();
-                    
+
                     // 确保卡片处于正确的状态
                     cards[i].setScale(1, 1, 1);
                 }
             }
         }
-        
+
         // 重置翻转状态
         this.isGlobalFlipping = false;
         this.flippingCardCount = 0;
         this.isCardFlipping = false;
-        
+
         DebugLog.instance.log("已停止所有卡牌翻转动画");
     }
 
@@ -1399,17 +1410,17 @@ export class Main extends BaseScene<IBaseGameChild> {
             clearTimeout(this._setTimeOutId);
             this._setTimeOutId = null;
         }
-        
+
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
-        
+
         // 隐藏倒计时标签
         if (this.countDownLabel) {
             this.countDownLabel.node.active = false;
         }
-        
+
         DebugLog.instance.log("已停止预览倒计时");
     }
 
@@ -1429,7 +1440,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 收集所有需要加载的资源URL
         const resourceUrls = this.cardList.map(cardItem => cardItem.imgUrl + "/spriteFrame");
-        
+
         // 去重
         const uniqueUrls = [...new Set(resourceUrls)];
 
@@ -1478,7 +1489,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
 
         const backResourceUrl = "texture/card/Card_back_d/spriteFrame";
-        
+
         // 检查资源是否已经加载
         const existingResource = bundle.get(backResourceUrl, SpriteFrame);
         if (existingResource) {

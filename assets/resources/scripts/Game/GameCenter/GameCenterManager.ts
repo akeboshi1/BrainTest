@@ -84,7 +84,7 @@ export class GameCenterData {
     }
 
     public get levelIndex(): number {
-        return this._levelIndex;
+        return this._levelIndex + 1;
     }
 
     /**
@@ -345,6 +345,10 @@ export class GameCenterManager {
 
     public get difficulty(): number {
         return this._selectDifficulty;
+    }
+
+    public get levelIndex(): number {
+        return this._curGame.levelIndex;
     }
 
     public settleMentPanelShow: boolean = false;

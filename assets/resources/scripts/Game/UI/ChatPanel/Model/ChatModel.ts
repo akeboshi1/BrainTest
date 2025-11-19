@@ -521,10 +521,10 @@ export class ChatModel {
         if (this.charactorListProvider.data.has(chat_character_id)) {
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
-            const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
-            const userData = PersonalCenterManager.getInstance().userInfoData;
-            const roleId = this.selectedCharactorId+"";
-            this.startChat({ token: token, userNickName: userData.nickname, roleId });
+            // const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+            // const userData = PersonalCenterManager.getInstance().userInfoData;
+            // const roleId = this.selectedCharactorId+"";
+            // this.startChat({ token: token, userNickName: userData.nickname, roleId });
              // 更新初始化获得的数字人id
             this._lastSwitchedCharactorId = this._selectedCharactorId;
         }

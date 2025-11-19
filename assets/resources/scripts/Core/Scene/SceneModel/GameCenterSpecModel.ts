@@ -58,6 +58,10 @@ export class GameCenterSpecModel extends BaseGameModel<IGameCenterSpecific> {
         return GameCenterManager.getInstance().currentGame.levels.length;
     }
 
+    get levelIndex(): number {
+        return GameCenterManager.getInstance().currentGame.levelIndex;
+    }
+
     get difficulty(): number {
         return GameCenterManager.getInstance().difficulty;
     }
