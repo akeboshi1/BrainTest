@@ -271,7 +271,9 @@ export class Game extends BaseScene<IBaseGameChild> {
                 } else {
                     customCount = loopLevel;
                 }
-                this.guankaLabel.getComponent(Label).string = "第" + loopLevel + "/" + (this.sceneModel as any).levelLen + "关";
+                let levelLen = (this.sceneModel as any).levelLen;
+                let curProgress = Math.abs(loopLevel - levelLen);
+                this.guankaLabel.getComponent(Label).string = "第" + curProgress + "/" + (this.sceneModel as any).levelLen + "关";
             }
             this._curCount = 0;
             this._maxCount = this._counts[this._curHard - 1];

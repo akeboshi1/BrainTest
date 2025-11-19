@@ -531,19 +531,21 @@ export class Main extends BaseScene<IBaseGameChild> {
 
             const spriteNode = this.cards[i].getChildByName("sprite");
             const labelNode = this.cards[i].getChildByName("label");
-            const icon0Node = this.cards[i].getChildByName("icon0");
-            const icon1Node = this.cards[i].getChildByName("icon1");
+            const icon0Node = this.cards[i].getChildByName("iconGoup0");
+            const icon1Node = this.cards[i].getChildByName("iconGoup1");
+            const icon2Node = this.cards[i].getChildByName("iconGoup2");
+            const icon3Node = this.cards[i].getChildByName("iconGoup3");
             if (icon0Node) {
-                const icon0 = icon0Node.getComponent(Sprite);
-                if (icon0) {
-                    icon0.spriteFrame = null;
-                }
+                icon0Node.active = false;
             }
             if (icon1Node) {
-                const icon1 = icon1Node.getComponent(Sprite);
-                if (icon1) {
-                    icon1.spriteFrame = null;
-                }
+                icon1Node.active = false;
+            }
+            if (icon2Node) {
+                icon2Node.active = false;
+            }
+            if (icon3Node) {
+                icon3Node.active = false;
             }
             if (spriteNode) {
                 const sprite = spriteNode.getComponent(Sprite);
@@ -617,12 +619,64 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 确保卡片值已更新
         DebugLog.instance.log('翻转卡牌，当前卡牌值:', this.cardValues);
 
+        // 先收集所有卡片的iconGroup节点，确保它们都存在
+        interface CardIconGroups {
+            card: Node;
+            sprite: Sprite;
+            iconNode0: Node | null;
+            iconNode1: Node | null;
+            iconNode2: Node | null;
+            iconNode3: Node | null;
+            labelNode: Node;
+            label: Label;
+            index: number;
+        }
+
+        const cardDataList: CardIconGroups[] = [];
+        let allIconGroupsReady = true;
+
         this.cards.forEach((card: Node, index: number) => {
-            let sprite = card.getChildByName("sprite").getComponent(Sprite);
-            let icon0 = card.getChildByName("icon0").getComponent(Sprite);
-            let icon1 = card.getChildByName("icon1").getComponent(Sprite);
+            let sprite = card.getChildByName("sprite")?.getComponent(Sprite);
+            let iconNode0 = card.getChildByName("iconGoup0");
+            let iconNode1 = card.getChildByName("iconGoup1");
+            let iconNode2 = card.getChildByName("iconGoup2");
+            let iconNode3 = card.getChildByName("iconGoup3");
             const labelNode = card.getChildByName("label");
-            const label = labelNode.getComponent(Label);
+            const label = labelNode?.getComponent(Label);
+
+            // 检查必要的节点是否存在
+            if (!sprite || !labelNode || !label) {
+                allIconGroupsReady = false;
+                DebugLog.instance.warn(`卡片${index}的sprite或label节点未找到`);
+                return;
+            }
+
+            cardDataList.push({
+                card,
+                sprite,
+                iconNode0,
+                iconNode1,
+                iconNode2,
+                iconNode3,
+                labelNode,
+                label,
+                index
+            });
+        });
+
+        // 如果还有iconGroup未准备好，延迟重试
+        if (!allIconGroupsReady || cardDataList.length !== this.cards.length) {
+            DebugLog.instance.warn('部分iconGroup未准备好，延迟重试');
+            this.scheduleOnce(() => {
+                this.flipCard();
+            }, 0.1);
+            return;
+        }
+
+        // 所有iconGroup都已准备好，开始执行tween动画
+        cardDataList.forEach((cardData) => {
+            const { card, sprite, iconNode0, iconNode1, iconNode2, iconNode3, labelNode, label, index } = cardData;
+            
             label.string = "";
             labelNode.active = true;
             // 动画半程时长
@@ -639,14 +693,19 @@ export class Main extends BaseScene<IBaseGameChild> {
                         sprite.spriteFrame = self.backFrame!;
                     } else {
                         // 随机选择一个花色
-                        const flowerTypes = [
-                            self._blackCardRes,  // 黑桃
-                            self._clubCardRes,   // 梅花
-                            self._diamondCardRes, // 方块
-                            self._heartCardRes   // 红心
-                        ];
-                        const flowerIndex = Math.floor(Math.random() * flowerTypes.length);
-                        const randomFlower = flowerTypes[flowerIndex];
+                        // const flowerTypes = [
+                        //     self._blackCardRes,  // 黑桃
+                        //     self._clubCardRes,   // 梅花
+                        //     self._diamondCardRes, // 方块
+                        //     self._heartCardRes   // 红心
+                        // ];
+                        const flowerIndex = Math.floor(Math.random() * 4);
+                        // 根据flowerIndex显示对应的iconNode，隐藏其余的
+                        if(iconNode0)iconNode0.active = flowerIndex === 0;
+                        if(iconNode1)iconNode1.active = flowerIndex === 1;
+                        if(iconNode2)iconNode2.active = flowerIndex === 2;
+                        if(iconNode3)iconNode3.active = flowerIndex === 3;
+                        // const randomFlower = flowerTypes[flowerIndex];
 
                         // 获取当前卡片的数字值，确保在有效范围内
                         if (index < self.cardValues.length) {
@@ -657,8 +716,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
                             // 清除可能的缓存
                             sprite.spriteFrame = null;
-                            icon0.spriteFrame = null;
-                            icon1.spriteFrame = null;
+                            // icon0.spriteFrame = null;
+                            // icon1.spriteFrame = null;
 
                             sprite.spriteFrame = self.frontFrame!;
 
@@ -673,26 +732,26 @@ export class Main extends BaseScene<IBaseGameChild> {
                                 // 方块或红心，设置为粉红色 #FA657A (RGB: 250, 101, 122)
                                 label.color = new Color(250, 101, 122, 255);
                             }
-
-                            // 构建完整的图片路径
-                            const imagePath = randomFlower;// + cardDisplayValue;
-
-                            const bundle = assetManager.getBundle(self.bundleName);
-                            // if (sprite.spriteFrame && sprite.spriteFrame.texture) {
-                            //     sprite.spriteFrame.texture.destroy();
-                            // }
-
-                            bundle.load(imagePath + "/spriteFrame", SpriteFrame, (err, sp) => {
-                                if (err) {
-                                    DebugLog.instance.error('加载卡片图片失败:', imagePath, err);
-                                    return;
-                                }
-                                icon0.spriteFrame = sp;
-                                icon1.spriteFrame = sp;
-                            });
-                        } else {
-                            DebugLog.instance.error('卡片索引超出范围:', index, '当前卡片值数组:', self.cardValues);
                         }
+                        //     // 构建完整的图片路径
+                        //     const imagePath = randomFlower;// + cardDisplayValue;
+                        //
+                        //     const bundle = assetManager.getBundle(self.bundleName);
+                        //     // if (sprite.spriteFrame && sprite.spriteFrame.texture) {
+                        //     //     sprite.spriteFrame.texture.destroy();
+                        //     // }
+                        //
+                        //     bundle.load(imagePath + "/spriteFrame", SpriteFrame, (err, sp) => {
+                        //         if (err) {
+                        //             DebugLog.instance.error('加载卡片图片失败:', imagePath, err);
+                        //             return;
+                        //         }
+                        //         icon0.spriteFrame = sp;
+                        //         icon1.spriteFrame = sp;
+                        //     });
+                        // } else {
+                        //     DebugLog.instance.error('卡片索引超出范围:', index, '当前卡片值数组:', self.cardValues);
+                        // }
                     }
                 })
                 // 第二阶段：X轴从 0 缩放回 1
@@ -718,7 +777,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     }
                 })
                 .start();
-        })
+        });
     }
 
     startGameByAlert() {
