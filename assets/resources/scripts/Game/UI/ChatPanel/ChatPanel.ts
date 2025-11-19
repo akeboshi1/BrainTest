@@ -56,6 +56,9 @@ export class ChatPanel extends BasePanel {
     private sublineScrollView: ScrollView = null;
 
     @property(Node)
+    interruptButton:Node = null;
+
+    @property(Node)
     private loadingNode: Node = null;
 
     @property(Node)
@@ -302,6 +305,7 @@ export class ChatPanel extends BasePanel {
         // 隐藏聊天状态ui
         this.talkingLabel.string = "";
         this.talkingAnimNode.active = false;
+        this.interruptButton.active = false;
         this.startLoadingDotAnimation();
     }
 
@@ -474,10 +478,14 @@ export class ChatPanel extends BasePanel {
         }
 
         // 只有连接成功后才更新显示
-        // if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
-        //     this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-        //     this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
-        // }
+        if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
+            this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
+            if(this.interruptButton.active) {
+                this.talkingAnimNode.active = false;
+            }
+            // this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
+            // this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+        }
         console.log("刷新测试界面：AI说话状态： " + this.getCurrentFrameAnimationName());
         this.playFrameAnimation();
     }
@@ -571,6 +579,7 @@ export class ChatPanel extends BasePanel {
             // 连接中时，隐藏talkingLabel，优先显示loadingNode
             this.talkingLabel.string = "";
             this.talkingAnimNode.active = false;
+            this.interruptButton.active = false
             this.loadingNode.active = true;
         }
     }
@@ -617,6 +626,7 @@ export class ChatPanel extends BasePanel {
         this.microBtnMask.active = !this.getMicroAvailable();
 
         this.talkingAnimNode.active = state == MicrophoneState.OPEN;
+        this.interruptButton.active = false;
     }
 
     private getMicroIconSpriteFrame(): SpriteFrame {
