@@ -481,6 +481,7 @@ export class ChatPanel extends BasePanel {
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
             this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
             this.talkingAnimNode.active = !this.interruptButton.active;
+            this.talkingLabel.node.active = !this.interruptButton.active;
             // this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
             // this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
         }
@@ -612,7 +613,7 @@ export class ChatPanel extends BasePanel {
         if(this.loadingNode.active){
             return;
         }
-
+        this.talkingLabel.node.active = true;
         if (state == MicrophoneState.OPEN) {
             this.talkingLabel.string = this._microOpenStr;
         } else if (state == MicrophoneState.CLOSED) {
