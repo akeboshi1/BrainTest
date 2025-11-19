@@ -480,9 +480,7 @@ export class ChatPanel extends BasePanel {
         // 只有连接成功后才更新显示
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
             this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-            if(this.interruptButton.active) {
-                this.talkingAnimNode.active = false;
-            }
+            this.talkingAnimNode.active = !this.interruptButton.active;
             // this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
             // this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
         }
