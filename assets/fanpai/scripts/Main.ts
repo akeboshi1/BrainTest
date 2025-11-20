@@ -138,7 +138,6 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         } else {
 
-            this.level = (this.sceneModel as any).level;
             this.hardIndex = (this.sceneModel as any).difficulty - 1;
             this.progressBar.progress = 1;
 
@@ -896,10 +895,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
     _requestGameCenterComplete(complete, duration) {
         const curGame = (this.sceneModel as any).game;
+        let _level = curGame.levels[this.level-1];
         let config = {
             sessionId: curGame.sessionid,
             count: complete * this.cardTotalCount / 2,
-            level: this.level,
+            level: _level,
             complete: complete,
             duration: duration,
             timelimit: this.INIT_TIME,
