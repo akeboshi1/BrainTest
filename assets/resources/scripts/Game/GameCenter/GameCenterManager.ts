@@ -505,6 +505,16 @@ export class GameCenterManager {
         if (Global.isAgain) {
             return;
         }
+        // 对level进行边界检查
+        if (this._curGame && this._curGame.levels && this._curGame.levels.length > 0) {
+            let minLevel = Math.min(...this._curGame.levels);
+            let maxLevel = Math.max(...this._curGame.levels);
+            if (level > maxLevel) {
+                level = minLevel;
+            } else if (level < minLevel) {
+                level = minLevel;
+            }
+        }
         let socketData = new SocketData({
             "action": GameCenterManager.GAMEPASSLEVEL,
             "data": {
