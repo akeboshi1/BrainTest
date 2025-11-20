@@ -483,6 +483,7 @@ export class ChatPanel extends BasePanel {
                 this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
                 this.talkingAnimNode.active = !this.interruptButton.active && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
                 this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+                this.talkingLabel.string = this._microOpenStr;
             }else{
                 this.talkingLabel.string = "";
                 this.talkingAnimNode.active = false;
