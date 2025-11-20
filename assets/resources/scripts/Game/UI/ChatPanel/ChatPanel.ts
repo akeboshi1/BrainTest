@@ -479,9 +479,16 @@ export class ChatPanel extends BasePanel {
 
         // 只有连接成功后才更新显示
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
-            this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-            this.talkingAnimNode.active = !this.interruptButton.active;
-            this.talkingLabel.node.active = !this.interruptButton.active;
+            if(!this.loadingNode.active){
+                this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
+                this.talkingAnimNode.active = !this.interruptButton.active;
+                this.talkingLabel.node.active = !this.interruptButton.active;
+            }else{
+                this.talkingLabel.string = "";
+                this.talkingAnimNode.active = false;
+                this.interruptButton.active = false;
+            }
+           
             // this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
             // this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
         }
@@ -577,6 +584,9 @@ export class ChatPanel extends BasePanel {
             this.updateTalkingLabelDisplay();
         } else if(state == ChatConnectionState.DISCONNECTED){
             this.loadingNode.active = false;
+            this.talkingLabel.string = "";
+            this.talkingAnimNode.active = false;
+            this.interruptButton.active = false;
         } else if(state == ChatConnectionState.CONNECTING){
             // 连接中时，隐藏talkingLabel，优先显示loadingNode
             this.talkingLabel.string = "";
@@ -627,8 +637,8 @@ export class ChatPanel extends BasePanel {
         this.microIcon.spriteFrame = this.getMicroIconSpriteFrame();
         this.microBtnMask.active = !this.getMicroAvailable();
 
-        this.talkingAnimNode.active = state == MicrophoneState.OPEN;
-        this.interruptButton.active = false;
+        this.talkingAnimNode.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.IDLE;
+        this.interruptButton.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.SPEAKING;
     }
 
     private getMicroIconSpriteFrame(): SpriteFrame {
