@@ -546,6 +546,7 @@ export class ChatPanel extends BasePanel {
     }
 
     onClickMicroCtrlBtn() {
+        console.log('mkf: click麦克风');
         switch (this._chatModel.microphoneStateProvider.data) {
             case MicrophoneState.CLOSED:
                 this.openMicro();
@@ -606,12 +607,12 @@ export class ChatPanel extends BasePanel {
     }
 
     onMicrophoneStateChanged(state: MicrophoneState) {
-        console.log("chatPanel：麦克风状态:" + state);
+        console.log("mkf:" + state);
         // 如果正在连接中，优先显示loadingNode，不更新talkingLabel
-        if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTING) {
-            console.log("chatPanel：连接中，不更新麦克风状态");
-            return;
-        }
+        // if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTING) {
+        //     console.log("chatPanel：连接中，不更新麦克风状态");
+        //     return;
+        // }
         if(this.loadingNode.active || this.interruptButton.active){
             return;
         }
@@ -636,6 +637,7 @@ export class ChatPanel extends BasePanel {
         if(curmusic != null){
             return this.microTurnUnavailableSP;
         } else {
+
             if(microphoneState == MicrophoneState.PENDING){
                 return this.microTurnUnavailableSP;
             } else if(microphoneState == MicrophoneState.CLOSED){
