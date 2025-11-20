@@ -245,12 +245,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             let level = (this.sceneModel as any).levelIndex;
             this.progressBar.progress = 1;
 
-            let levelLen = (this.sceneModel as any).levelLen;
-            let curProgress = -1;
-            if (level < levelLen) curProgress = level;
-            else curProgress = Math.abs(level - levelLen);
             // 更新关卡标签显示
-            this.guankaLabel.string = "第" + curProgress + "关";
+            this.guankaLabel.string = "第" + level + "关";
             // 非串烧训练时，显示开始提示
             // this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
             let textureID = this.randomPlayIndex[this.textureIndex];
@@ -590,12 +586,8 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             let level = (this.sceneModel as any).levelIndex;
             this.progressBar.progress = 1;
 
-            let levelLen = (this.sceneModel as any).levelLen;
-            let curProgress = -1;
-            if (level < levelLen) curProgress = level;
-            else curProgress = Math.abs(level - levelLen);
             // 更新关卡标签显示
-            this.guankaLabel.string = "第" + curProgress + "关";
+            this.guankaLabel.string = "第" + level + "关";
         }
         this.onClickDisturbPuzzleButton();
         
