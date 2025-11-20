@@ -555,7 +555,7 @@ export class catchfish extends BaseScene<IBaseGameChild> {
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
 
         } else {
-            let level = (this.sceneModel as any).level;
+            let level = (this.sceneModel as any).levelIndex;
             this.curHard = (this.sceneModel as any).difficulty;
             this.hardIndex = this.hards.indexOf(this.curHard);
             this.progressBar.progress = 1;
