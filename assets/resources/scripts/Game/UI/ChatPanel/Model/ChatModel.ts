@@ -289,9 +289,8 @@ export class ChatModel {
      * 关闭麦克风
      */
     public stopRecording(): void {
-        DebugLog.instance.log('ChatModel: 关闭麦克风');
-
         if (sys.platform === 'ANDROID') {
+            console.log('mkf: 关闭麦克风');
             this.microphoneStateProvider.data = MicrophoneState.PENDING;
             native.bridge.sendToNative(NativeEvent.CHAT_RECORDING_STOP);
         }
@@ -301,9 +300,8 @@ export class ChatModel {
      * 恢复麦克风
      */
     public startRecording(): void {
-        DebugLog.instance.log('ChatModel: 恢复麦克风');
-
         if (sys.platform === 'ANDROID') {
+            console.log('mkf: 恢复麦克风');
             this.microphoneStateProvider.data = MicrophoneState.PENDING;
             native.bridge.sendToNative(NativeEvent.CHAT_RECORDING_START);
         }
@@ -316,7 +314,7 @@ export class ChatModel {
 
     public backToChat(): void {
         if (sys.platform === 'ANDROID') {
-            DebugLog.instance.log('ChatModel: 返回聊天');
+            console.log('ChatModel: 返回聊天');
             native.bridge.sendToNative(NativeEvent.CHAT_MODE_SWITCH, JSON.stringify({
                 "mode": "chat"
             }));
@@ -519,9 +517,7 @@ export class ChatModel {
         let chat_character_id = result ? result.chat_character_id : this._defaultCharactorId;
         let chat_character_skin_id = result ? result.chat_character_skin_id : this._defaultCharactorSkin;
         this._selectedCharactorId = chat_character_id;
-        console.log("chat:","startChat 2")
         if (this.charactorListProvider.data.has(chat_character_id)) {
-            console.log("chat:","startChat 3")
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
             // 没有开启startChat时，可以发送startChat的消息
