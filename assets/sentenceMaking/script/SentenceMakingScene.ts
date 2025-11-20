@@ -492,7 +492,7 @@ export class SentenceMakingScene extends BaseScene<IBaseGameChild> {
             this.progressBar.progress = skewersGameData.progress;
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
         } else {
-            let level = (this.sceneModel as any).level;
+            let level = (this.sceneModel as any).levelIndex;
             if (!Global.isAgain) {
                 let maxNum = (this.sceneModel as any).levelLen;
                 this.progressBar.progress = level / maxNum;
