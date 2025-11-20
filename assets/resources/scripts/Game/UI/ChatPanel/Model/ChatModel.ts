@@ -525,7 +525,7 @@ export class ChatModel {
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
             // 没有开启startChat时，可以发送startChat的消息
-            if(this.connectionStateProvider.data != ChatConnectionState.DISCONNECTED){
+            if(this.connectionStateProvider.data == ChatConnectionState.DISCONNECTED){
                 const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
                 const userData = PersonalCenterManager.getInstance().userInfoData;
                 const roleId = this.selectedCharactorId+"";
