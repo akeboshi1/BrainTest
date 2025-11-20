@@ -481,8 +481,8 @@ export class ChatPanel extends BasePanel {
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
             if(!this.loadingNode.active){
                 this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-                this.talkingAnimNode.active = !this.interruptButton.active;
-                this.talkingLabel.node.active = !this.interruptButton.active;
+                this.talkingAnimNode.active = !this.interruptButton.active && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
+                this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
             }else{
                 this.talkingLabel.string = "";
                 this.talkingAnimNode.active = false;
@@ -628,9 +628,14 @@ export class ChatPanel extends BasePanel {
         // }
         this.talkingLabel.node.active = true;
         if (state == MicrophoneState.OPEN) {
-            this.talkingLabel.string = this._microOpenStr;
             this.interruptButton.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.SPEAKING;
-            this.talkingAnimNode.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.IDLE;
+            if(!this.interruptButton.active){
+                this.talkingAnimNode.active = true;
+                this.talkingLabel.string = this._microOpenStr;
+            }else{
+                this.talkingAnimNode.active = false
+                this.talkingLabel.string = ""
+            }
         } else if (state == MicrophoneState.CLOSED) {
             this.talkingLabel.string = this._microCloseStr;
             this.interruptButton.active = false;
