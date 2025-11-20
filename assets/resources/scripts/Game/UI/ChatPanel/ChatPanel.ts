@@ -629,16 +629,20 @@ export class ChatPanel extends BasePanel {
         this.talkingLabel.node.active = true;
         if (state == MicrophoneState.OPEN) {
             this.talkingLabel.string = this._microOpenStr;
+            this.interruptButton.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.SPEAKING;
+            this.talkingAnimNode.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.IDLE;
         } else if (state == MicrophoneState.CLOSED) {
             this.talkingLabel.string = this._microCloseStr;
+            this.interruptButton.active = false;
+            this.talkingAnimNode.active = false;
         } else if (state == MicrophoneState.PENDING) {
             this.talkingLabel.string = "";
+            this.interruptButton.active = false;
+            this.talkingAnimNode.active = false;
         }
         this.microIcon.spriteFrame = this.getMicroIconSpriteFrame();
         this.microBtnMask.active = !this.getMicroAvailable();
 
-        this.talkingAnimNode.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.IDLE;
-        this.interruptButton.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.SPEAKING;
     }
 
     private getMicroIconSpriteFrame(): SpriteFrame {
