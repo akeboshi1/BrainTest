@@ -57,6 +57,9 @@ export class GuidePanel extends BasePanel {
     videoPlayerNode: Node = null;
 
     @property(Node)
+    bgNode:Node = null;
+
+    @property(Node)
    private titleBg: Node = null;
 
    @property(Node)
@@ -79,6 +82,7 @@ export class GuidePanel extends BasePanel {
     private _configApplied: boolean = false; // 防止重复应用配置
 
     restore(data){
+        this.bgNode.active = false;
         if(data !=null){
             this.gameName = data.name
             this.callback = data.callback;
@@ -107,7 +111,7 @@ export class GuidePanel extends BasePanel {
                     descStr = "小剧场"
                     break;
                 case BundleName.FINDYOURSISTER:
-                    descStr = "找一找"
+                    descStr = "找一找训练：玩家在限时场景中快速识别指定类型的物品，完成目标数量的查找任务，锻炼执行力与视觉筛选能力"
                     break;
                 case BundleName.MATH24:
                     descStr = "24点"
@@ -235,7 +239,6 @@ export class GuidePanel extends BasePanel {
      */
     private loadLocalVideo() {
         let videoPath = "";
-
         // 根据训练类型设置对应的视频路径
         switch(this.gameName) {
             case BundleName.FINGING:
@@ -256,6 +259,9 @@ export class GuidePanel extends BasePanel {
             case BundleName.SENTENCEMAKING:
                 videoPath = "video/majiangguide"; // 造句训练教程视频
                 break;
+            case BundleName.FINDYOURSISTER:
+                this.bgNode.active = true;
+                return;
             default:
                 break;
         }

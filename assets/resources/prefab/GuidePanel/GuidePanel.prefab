@@ -1940,7 +1940,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "591e40ad-aba4-4ac8-9fc5-cdf9dfa9472f@f9941",
+      "__uuid__": "239d9bda-a811-4719-8b83-6129d6b1bafd@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -4113,6 +4113,9 @@
     },
     "videoPlayerNode": {
       "__id__": 74
+    },
+    "bgNode": {
+      "__id__": 75
     },
     "titleBg": {
       "__id__": 26

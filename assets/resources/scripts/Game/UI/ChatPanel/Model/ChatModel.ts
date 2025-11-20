@@ -524,10 +524,13 @@ export class ChatModel {
             console.log("chat:","startChat 3")
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
-            // const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
-            // const userData = PersonalCenterManager.getInstance().userInfoData;
-            // const roleId = this.selectedCharactorId+"";
-            // this.startChat({ token: token, userNickName: userData.nickname, roleId });
+            // 没有开启startChat时，可以发送startChat的消息
+            if(this.connectionStateProvider.data != ChatConnectionState.DISCONNECTED){
+                const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
+                const userData = PersonalCenterManager.getInstance().userInfoData;
+                const roleId = this.selectedCharactorId+"";
+                this.startChat({ token: token, userNickName: userData.nickname, roleId });
+            }
              // 更新初始化获得的数字人id
             this._lastSwitchedCharactorId = this._selectedCharactorId;
         }
