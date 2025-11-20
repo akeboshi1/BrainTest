@@ -242,9 +242,15 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
         } else {
             this.selectedLevelIndex = (this.sceneModel as any).difficulty - 1;
             this.textureIndex = ((this.sceneModel as any).level - 1) % this.randomPlayIndex.length;
-            let level = (this.sceneModel as any).level;
+            let level = (this.sceneModel as any).levelIndex;
             this.progressBar.progress = 1;
-            this.guankaLabel.string = "第" + level + "关";
+
+            let levelLen = (this.sceneModel as any).levelLen;
+            let curProgress = -1;
+            if (level < levelLen) curProgress = level;
+            else curProgress = Math.abs(level - levelLen);
+            // 更新关卡标签显示
+            this.guankaLabel.string = "第" + curProgress + "关";
             // 非串烧训练时，显示开始提示
             // this.showStartAlert({ parentNode: this.viewNode, start: this.onClickStartGame, context: this });
             let textureID = this.randomPlayIndex[this.textureIndex];
@@ -581,9 +587,15 @@ export class puzzleGame extends BaseScene<IBaseGameChild> {
             this.guankaLabel.string = "第" + skewersGameData.progressStr + "关";
         } else {
             this.timerComponent.startTimer(this.gameLength.valueOf());
-            let level = (this.sceneModel as any).level;
+            let level = (this.sceneModel as any).levelIndex;
             this.progressBar.progress = 1;
-            this.guankaLabel.string = "第" + level + "关";
+
+            let levelLen = (this.sceneModel as any).levelLen;
+            let curProgress = -1;
+            if (level < levelLen) curProgress = level;
+            else curProgress = Math.abs(level - levelLen);
+            // 更新关卡标签显示
+            this.guankaLabel.string = "第" + curProgress + "关";
         }
         this.onClickDisturbPuzzleButton();
         
