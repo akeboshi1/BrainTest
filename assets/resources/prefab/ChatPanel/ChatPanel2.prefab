@@ -4878,7 +4878,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -88,
+      "y": -77.5,
       "z": 0
     },
     "_lrot": {
@@ -5244,7 +5244,7 @@
     },
     "component": "",
     "_componentId": "04402sfH01NeLdrJWO0CgMC",
-    "handler": "clickInterruptButton",
+    "handler": "onClickMicroCtrlBtn",
     "customEventData": ""
   },
   {

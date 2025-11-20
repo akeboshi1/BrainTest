@@ -143,12 +143,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.progressBar.progress = 1;
 
             this.level = (this.sceneModel as any).levelIndex;
-            let levelLen = (this.sceneModel as any).levelLen;
-            let curProgress = -1;
-            if (this.level < levelLen) curProgress = this.level;
-            else curProgress = Math.abs(this.level - levelLen);
             // 更新关卡标签显示
-            this.guankaLabel.string = "第" + curProgress + "关";
+            this.guankaLabel.string = "第" + this.level + "关";
         }
     }
 
@@ -483,13 +479,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     private async _gamecenterNextGame() {
         Global.isAgain = false;
         this.level = (this.sceneModel as any).levelIndex;
-
-        let levelLen = (this.sceneModel as any).levelLen;
-        let curProgress = -1;
-        if (this.level < levelLen) curProgress = this.level;
-        else curProgress = Math.abs(this.level - levelLen);
         // 更新关卡标签显示
-        this.guankaLabel.string = "第" + curProgress + "关";
+        this.guankaLabel.string = "第" + this.level + "关";
 
         this.closeAllCard();
         this.curHard = this.hards[this.hardIndex];
