@@ -257,13 +257,14 @@ export class ChatModel {
      * @param params.roleId 角色id（当前数字人的id）
      */
     public startChat(params: { token: string; userNickName: string; roleId: string }): void {
-        DebugLog.instance.log('ChatModel: 启动聊天', params);
+        console.log('ChatModel: 启动聊天', params);
 
         this.connectionStateProvider.data = ChatConnectionState.CONNECTING;
 
         if (sys.platform === 'ANDROID') {
             this.connectionStateProvider.data = ChatConnectionState.CONNECTING;
             this.microphoneStateProvider.data = MicrophoneState.PENDING;
+            console.log('ChatModel: 启动聊天1');
             native.bridge.sendToNative(NativeEvent.CHAT_START, JSON.stringify({
                 "token": params.token,
                 "userNickName": params.userNickName,
@@ -518,7 +519,9 @@ export class ChatModel {
         let chat_character_id = result ? result.chat_character_id : this._defaultCharactorId;
         let chat_character_skin_id = result ? result.chat_character_skin_id : this._defaultCharactorSkin;
         this._selectedCharactorId = chat_character_id;
+        console.log("chat:","startChat 2")
         if (this.charactorListProvider.data.has(chat_character_id)) {
+            console.log("chat:","startChat 3")
             let chatactor = this.charactorListProvider.data.get(chat_character_id);
             this.updateCharactorChoosenSkinData(chatactor, chat_character_skin_id);
             // const token = LocalStorageUtil.get(LocalStorageKeyEnum.USER_TOKEN);
