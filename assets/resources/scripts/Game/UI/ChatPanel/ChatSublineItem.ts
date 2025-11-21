@@ -30,11 +30,11 @@ export class ChatSublineItem extends Component {
 
     private bgHeightPadding: number = 20;
 
-    private bgWidthPadding: number = 40;
+    private bgWidthPadding: number = 50;
 
     private byteWidth: number = 42;
 
-    private maxTextWidth: number = 620;
+    private maxTextWidth: number = 590;
 
     private minBgHeight: number = 180;
 
@@ -270,13 +270,13 @@ export class ChatSublineItem extends Component {
             // 按优先级判断字符类型并计算宽度
             if (charCode >= 48 && charCode <= 57) {
                 // 数字：0-9
-                totalWidth += 26;
+                totalWidth += 24;
             } else if ((charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
                 // 字母：A-Z, a-z
                 totalWidth += 40;
             } else if (this._isChineseChar(charCode)) {
                 // 中文字符（包括中文标点符号）
-                totalWidth += 52;
+                totalWidth += 56;
             } else {
                 // 其他字符（英文标点、空格、特殊符号等）
                 // 对于英文标点符号，通常宽度较小，这里使用字母宽度
