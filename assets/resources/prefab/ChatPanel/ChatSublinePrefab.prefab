@@ -329,7 +329,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 620,
+      "width": 590,
       "height": 88.2
     },
     "_anchorPoint": {
@@ -749,7 +749,6 @@
     "__type__": "13bacq16ZFANqhFGdjf4HmW",
     "_name": "",
     "_objFlags": 0,
-    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
@@ -772,7 +771,7 @@
     "labelWidget": {
       "__id__": 14
     },
-    "_id": ""
+    "_id": "fbYiB/ccxCUJ6PihPQsz6m"
   },
   {
     "__type__": "cc.CompPrefabInfo",
