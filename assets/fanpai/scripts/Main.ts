@@ -226,9 +226,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.flipCardAnimation(card, () => {
             // 翻转到中间点时加载卡片图片
             const bundle = assetManager.getBundle(self.bundleName);
-            bundle.load(this.cardList[index].imgUrl + "/spriteFrame", SpriteFrame, (err, sp) => {
+            const cardItem = this.cardList[index];
+            if (!cardItem || !cardItem.imgUrl || typeof cardItem.imgUrl !== 'string') {
+                DebugLog.instance.error(`卡片数据无效: index=${index}, cardItem=${cardItem}`);
+                return;
+            }
+            const imgUrl = cardItem.imgUrl + "/spriteFrame";
+            bundle.load(imgUrl, SpriteFrame, (err, sp) => {
                 if (err) {
-                    DebugLog.instance.error(err);
+                    DebugLog.instance.error(`加载卡片资源失败: ${imgUrl}`, err);
                     return;
                 }
                 sprite.spriteFrame = sp;
@@ -650,12 +656,17 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 使用全局翻转标志
                 this.flipCardAnimation(cardNode, () => {
                     // 资源已经预加载，直接设置
+                    if (!cardItem || !cardItem.imgUrl || typeof cardItem.imgUrl !== 'string') {
+                        DebugLog.instance.error(`卡片数据无效: index=${index}, cardItem=${cardItem}`);
+                        return;
+                    }
                     const bundle = assetManager.getBundle(self.bundleName);
-                    const spriteFrame = bundle.get(cardItem.imgUrl + "/spriteFrame", SpriteFrame);
+                    const imgUrl = cardItem.imgUrl + "/spriteFrame";
+                    const spriteFrame = bundle.get(imgUrl, SpriteFrame);
                     if (spriteFrame) {
                         sprite.spriteFrame = spriteFrame;
                     } else {
-                        DebugLog.instance.error(`卡牌资源未找到: ${cardItem.imgUrl}`);
+                        DebugLog.instance.error(`卡牌资源未找到: ${imgUrl}`);
                     }
                 }, true); // 标记为全局翻转
             }
@@ -1429,17 +1440,43 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
-        // 收集所有需要加载的资源URL
-        const resourceUrls = this.cardList.map(cardItem => cardItem.imgUrl + "/spriteFrame");
+        // 收集所有需要加载的资源URL，过滤掉无效的卡片项
+        const resourceUrls: string[] = [];
+        for (const cardItem of this.cardList) {
+            if (cardItem && cardItem.imgUrl && typeof cardItem.imgUrl === 'string') {
+                const url = cardItem.imgUrl + "/spriteFrame";
+                if (url && typeof url === 'string' && url !== "undefined/spriteFrame" && url !== "null/spriteFrame") {
+                    resourceUrls.push(url);
+                }
+            }
+        }
 
-        // 去重
-        const uniqueUrls = [...new Set(resourceUrls)];
+        // 去重并确保所有元素都是字符串
+        const uniqueUrlsSet = new Set<string>();
+        for (const url of resourceUrls) {
+            if (typeof url === 'string' && url.length > 0) {
+                uniqueUrlsSet.add(url);
+            }
+        }
+        const uniqueUrls: string[] = Array.from(uniqueUrlsSet);
 
-        DebugLog.instance.log(`开始预加载 ${uniqueUrls.length} 个卡牌资源`);
+        if (uniqueUrls.length === 0) {
+            DebugLog.instance.error("没有有效的卡牌资源URL");
+            return;
+        }
+
+        DebugLog.instance.log(`开始预加载 ${uniqueUrls.length} 个卡牌资源`, uniqueUrls);
 
         // 使用Promise.all确保所有资源都加载完成
-        const loadPromises = uniqueUrls.map(url => {
+        const loadPromises = uniqueUrls.map((url: string) => {
             return new Promise<void>((resolve, reject) => {
+                // 再次验证URL是有效的字符串
+                if (!url || typeof url !== 'string') {
+                    DebugLog.instance.error(`无效的资源URL: ${url}`, typeof url);
+                    reject(new Error(`无效的资源URL: ${url}`));
+                    return;
+                }
+
                 // 检查资源是否已经加载
                 const existingResource = bundle.get(url, SpriteFrame);
                 if (existingResource) {
