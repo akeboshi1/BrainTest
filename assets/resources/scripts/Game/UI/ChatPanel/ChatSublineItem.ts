@@ -28,16 +28,22 @@ export class ChatSublineItem extends Component {
     @property(Node)
     private cornorNode:Node = null;
 
-    @property({ tooltip: "背景节点高度相对于文本高度的额外边距（上下各加多少）" })
     private bgHeightPadding: number = 20;
 
-    @property({ tooltip: "背景节点的最小高度" })
+    private bgWidthPadding: number = 40;
+
+    private byteWidth: number = 42;
+
+    private maxTextWidth: number = 620;
+
     private minBgHeight: number = 180;
 
-    @property({ tooltip: "item节点的最小高度" })
+    private minBgWidght:number = 180;
+
+    private maxBgWidth:number = 712;
+
     private minItemHeight: number = 210;
 
-    @property({ tooltip: "item节点高度相对于背景节点高度的额外高度" })
     private itemHeightExtra: number = 30;
 
     @property(Widget)
@@ -65,8 +71,9 @@ export class ChatSublineItem extends Component {
 
     public addSubtitleText(text:string){
         this.itemLabel.string += text;
-        // 文本更新后，延迟一帧更新背景高度，确保文本已渲染完成
+        // 文本更新后，延迟一帧更新背景高度和宽度，确保文本已渲染完成
         this.scheduleOnce(() => {
+            this._updateBgWidth();
             this._updateBgHeight();
         }, 0);
     }
@@ -98,8 +105,9 @@ export class ChatSublineItem extends Component {
             this._spListenerID = this._subtitleItem.spDataProvider.addListener(this.onIconLoaded.bind(this));
         }
 
-        // 文本更新后，延迟一帧更新背景高度，确保文本已渲染完成
+        // 文本更新后，延迟一帧更新背景高度和宽度，确保文本已渲染完成
         this.scheduleOnce(() => {
+            this._updateBgWidth();
             this._updateBgHeight();
         }, 0);
     }
@@ -168,8 +176,15 @@ export class ChatSublineItem extends Component {
         // 强制更新 Label 的渲染数据
         this.itemLabel.updateRenderData(true);
         
+
+         // 同时更新宽度
+         this._updateBgWidth();
+
+
         // 使用递归方式，多次尝试获取正确的高度
         this._tryUpdateBgHeight(0);
+        
+       
     }
 
     /**
@@ -210,7 +225,7 @@ export class ChatSublineItem extends Component {
         const oldHeight = bgTransform.height;
         const newHeight = Math.max(calculatedHeight, this.minBgHeight);
         bgTransform.height = newHeight;
-        
+
         // 同步更新item节点本身的contentSize，以便父节点的Layout正确计算布局
         this._updateItemContentSize(newHeight);
         
@@ -221,6 +236,99 @@ export class ChatSublineItem extends Component {
         
         // 如果高度发生变化，通知父容器更新所有节点位置
         if (Math.abs(oldHeight - newHeight) > 1) {
+            this._notifyParentUpdatePositions();
+        }
+    }
+
+    /**
+     * 判断是否为中文字符
+     * @param charCode 字符编码
+     * @returns 是否为中文字符
+     */
+    private _isChineseChar(charCode: number): boolean {
+        // 中文字符的Unicode范围：
+        // \u4e00-\u9fff: 基本中文字符
+        // \u3400-\u4dbf: 扩展A区
+        // \u3000-\u303f: 中文标点符号
+        // \uff00-\uffef: 全角字符
+        return (charCode >= 0x4e00 && charCode <= 0x9fff) ||
+               (charCode >= 0x3400 && charCode <= 0x4dbf) ||
+               (charCode >= 0x3000 && charCode <= 0x303f) ||
+               (charCode >= 0xff00 && charCode <= 0xffef);
+    }
+
+    /**
+     * 计算文本的总宽度（根据字符类型）
+     * @param str 字符串
+     * @returns 文本总宽度（像素）
+     */
+    private _getTextLength(str: string): number {
+        let totalWidth = 0;
+        for (let i = 0; i < str.length; i++) {
+            const charCode = str.charCodeAt(i);
+            
+            // 按优先级判断字符类型并计算宽度
+            if (charCode >= 48 && charCode <= 57) {
+                // 数字：0-9
+                totalWidth += 26;
+            } else if ((charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
+                // 字母：A-Z, a-z
+                totalWidth += 40;
+            } else if (this._isChineseChar(charCode)) {
+                // 中文字符（包括中文标点符号）
+                totalWidth += 52;
+            } else {
+                // 其他字符（英文标点、空格、特殊符号等）
+                // 对于英文标点符号，通常宽度较小，这里使用字母宽度
+                // 对于其他特殊字符，使用较小的宽度
+                if ((charCode >= 32 && charCode <= 47) || 
+                    (charCode >= 58 && charCode <= 64) || 
+                    (charCode >= 91 && charCode <= 96) || 
+                    (charCode >= 123 && charCode <= 126)) {
+                    // 英文标点符号和特殊字符
+                    totalWidth += 40;
+                } else {
+                    // 其他未知字符，使用中文字符宽度
+                    totalWidth += 40;
+                }
+            }
+        }
+        return totalWidth;
+    }
+
+    /**
+     * 根据文本宽度更新背景节点的宽度
+     */
+    private _updateBgWidth(): void {
+        if (!this.bgNode || !this.itemLabel) {
+            return;
+        }
+
+        const bgTransform = this.bgNode.getComponent(UITransform);
+        if (!bgTransform) {
+            return;
+        }
+
+        // 获取文本内容
+        const text = this.itemLabel.string || '';
+        
+        // 计算文本的总宽度（根据字符类型：文字30、字母20、数字15）
+        const calculatedTextWidth = this._getTextLength(text);
+        
+        // 如果计算出的宽度小于maxTextWidth，使用计算宽度；否则使用maxTextWidth（因为会换行）
+        const textWidth = Math.min(calculatedTextWidth, this.maxTextWidth);
+
+        // 计算背景宽度：文本宽度加上左右边距，但限制在最小和最大宽度之间
+        const calculatedWidth = textWidth + this.bgWidthPadding * 2;
+        const oldWidth = bgTransform.width;
+        const newWidth = Math.max(this.minBgWidght, Math.min(calculatedWidth, this.maxBgWidth));
+
+        bgTransform.width = newWidth;
+        
+        DebugLog.instance.log(`更新背景宽度成功: 文本=${text.substring(0, 20)}..., 计算文本宽度=${calculatedTextWidth}, 使用文本宽度=${textWidth}, 背景宽度=${newWidth}`);
+        
+        // 如果宽度发生变化，通知父容器更新所有节点位置
+        if (Math.abs(oldWidth - newWidth) > 1) {
             this._notifyParentUpdatePositions();
         }
     }
@@ -251,13 +359,13 @@ export class ChatSublineItem extends Component {
         const charsPerLine = Math.floor(maxWidth / charWidth) || 1;
         const estimatedLines = Math.ceil(text.length / charsPerLine) || 1;
         const labelHeight = estimatedLines * lineHeight;
-        
+
         // 计算背景高度：文本高度加上上下边距，但不能小于最小高度
         const calculatedHeight = labelHeight + this.bgHeightPadding * 2;
         const oldHeight = bgTransform.height;
         const newHeight = Math.max(calculatedHeight, this.minBgHeight);
         bgTransform.height = newHeight;
-        
+
         // 同步更新item节点本身的contentSize，以便父节点的Layout正确计算布局
         this._updateItemContentSize(newHeight);
         
@@ -270,6 +378,9 @@ export class ChatSublineItem extends Component {
         if (Math.abs(oldHeight - newHeight) > 1) {
             this._notifyParentUpdatePositions();
         }
+        
+        // 同时更新宽度
+        this._updateBgWidth();
     }
 
     /**
