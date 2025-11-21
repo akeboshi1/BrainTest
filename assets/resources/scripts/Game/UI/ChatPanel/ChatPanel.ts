@@ -45,6 +45,8 @@ export class ChatPanel extends BasePanel {
 
     @property(Prefab)
     private sublinePrefab: Prefab = null;
+    @property(Prefab)
+    private sublinePrefab0: Prefab = null;
 
     @property(Node)
     private sublineContainer: Node = null;
@@ -173,7 +175,7 @@ export class ChatPanel extends BasePanel {
         UIManager.getInstance().registerPanel(ChatMusicPanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatMusicPanel", ChatMusicPanel);
 
         // 测试字幕代码，每秒生成一段字幕，模拟用户和AI交替对话
-        //this.startTestSubtitleGeneration();
+        // this.startTestSubtitleGeneration();
     }
 
     onDisable(): void {
@@ -363,11 +365,27 @@ export class ChatPanel extends BasePanel {
         const isNewParagraph = !beforeSubtitle || lastSubtitle.speaker !== beforeSubtitle.speaker;
 
         if (isNewParagraph) {
-            // 新段落：创建新的字幕节点
-            const newNode = instantiate(this.sublinePrefab);
+            // 新段落：根据说话者类型选择不同的预制体
+            // assistant（数字人）用 sublinePrefab，user（角色）用 sublinePrefab0
+            const prefab = lastSubtitle.speaker == "assistant" ? this.sublinePrefab : this.sublinePrefab0;
+            if (!prefab) {
+                console.error(`预制体未设置: speaker=${lastSubtitle.speaker}`);
+                return;
+            }
+
+            const newNode = instantiate(prefab);
             newNode.active = true;
             this.sublineContainer.addChild(newNode);
-            newNode.setPosition(0, 0);
+
+            // 计算x位置：如果是角色（user），x位置要增加父节点的宽度
+            let xPosition = 0;
+            if (lastSubtitle.speaker == "user") {
+                const containerTransform = this.sublineContainer.getComponent(UITransform);
+                if (containerTransform) {
+                    xPosition = containerTransform.width;
+                }
+            }
+            newNode.setPosition(xPosition, 0);
 
             newNode.getComponent(ChatSublineItem).setData({
                 text: lastSubtitle.text,
