@@ -289,7 +289,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -254,
-      "y": -45.9,
+      "y": -55,
       "z": 0
     },
     "_lrot": {
@@ -330,7 +330,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 508,
-      "height": 88.2
+      "height": 70
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -381,7 +381,7 @@
     "_isBold": false,
     "_isUnderline": false,
     "_underlineHeight": 2,
-    "_cacheMode": 0,
+    "_cacheMode": 2,
     "_enableOutline": false,
     "_outlineColor": {
       "__type__": "cc.Color",
