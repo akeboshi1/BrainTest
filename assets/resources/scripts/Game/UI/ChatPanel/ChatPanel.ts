@@ -126,6 +126,11 @@ export class ChatPanel extends BasePanel {
     private _loadingDotCount: number = 0;
     private _loadingAnimationRunning: boolean = false;
 
+    // 待处理的麦克风状态（当loading时记录，loading结束后处理）
+    private _pendingMicrophoneState: MicrophoneState = null;
+    // 待处理的AI说话状态（当loading时记录，loading结束后处理）
+    private _pendingAiSpeakingState: AISpeakingState = null;
+
     private _framePath: string = 'texture/chatpanel/v2/charactor/denglijun_changfa';
     private _reloadPath: string = '';
 
@@ -315,6 +320,23 @@ export class ChatPanel extends BasePanel {
         this.stopLoadingDotAnimation();
         this.loadingLabel.string = "";
         this.loadingNode.active = false;
+        
+        // 如果有待处理的麦克风状态，现在处理它
+        if (this._pendingMicrophoneState !== null) {
+            const pendingState = this._pendingMicrophoneState;
+            this._pendingMicrophoneState = null;
+            // 执行麦克风状态变化需要调整的逻辑
+            this._processMicrophoneStateChange(pendingState);
+        }
+        
+        // 如果有待处理的AI说话状态，现在处理它
+        if (this._pendingAiSpeakingState !== null) {
+            const pendingState = this._pendingAiSpeakingState;
+            this._pendingAiSpeakingState = null;
+            // 执行AI说话状态变化需要调整的逻辑
+            this._processAiSpeakingStateChange(pendingState);
+        }
+        
         this.updateTalkingLabelDisplay();
     }
 
@@ -349,6 +371,79 @@ export class ChatPanel extends BasePanel {
         }
     }
 
+    /**
+     * 将文本拆分成多个部分，每部分不超过指定长度
+     * @param text 要拆分的文本
+     * @param maxLength 每部分的最大长度
+     * @returns 拆分后的文本数组
+     */
+    private _splitText(text: string, maxLength: number = 100): string[] {
+        if (!text || text.length <= maxLength) {
+            return [text];
+        }
+
+        const parts: string[] = [];
+        let currentIndex = 0;
+
+        while (currentIndex < text.length) {
+            // 如果剩余文本长度小于等于最大长度，直接添加剩余部分
+            if (text.length - currentIndex <= maxLength) {
+                parts.push(text.substring(currentIndex));
+                break;
+            }
+
+            // 尝试在最大长度处找到合适的断点（优先在标点符号或空格处断开）
+            let splitIndex = currentIndex + maxLength;
+            
+            // 向前查找，寻找合适的断点（标点符号、空格等）
+            for (let i = splitIndex; i > currentIndex + maxLength * 0.7; i--) {
+                const char = text[i];
+                // 如果是标点符号、空格或换行符，在这里断开
+                if (/[，。！？；：\s\n]/.test(char)) {
+                    splitIndex = i + 1; // 包含标点符号
+                    break;
+                }
+            }
+
+            // 如果没找到合适的断点，就在最大长度处强制断开
+            if (splitIndex === currentIndex + maxLength) {
+                splitIndex = currentIndex + maxLength;
+            }
+
+            parts.push(text.substring(currentIndex, splitIndex));
+            currentIndex = splitIndex;
+        }
+
+        return parts;
+    }
+
+    /**
+     * 创建单个气泡
+     * @param text 文本内容
+     * @param speaker 说话者
+     * @param xPosition X位置
+     */
+    private _createSublineItem(text: string, speaker: string, xPosition: number): void {
+        const prefab = speaker == "assistant" ? this.sublinePrefab : this.sublinePrefab0;
+        if (!prefab) {
+            console.error(`预制体未设置: speaker=${speaker}`);
+            return;
+        }
+
+        const newNode = instantiate(prefab);
+        newNode.active = true;
+        this.sublineContainer.addChild(newNode);
+        newNode.setPosition(xPosition, 0);
+
+        newNode.getComponent(ChatSublineItem).setData({
+            text: text,
+            speaker: speaker,
+            aiColor: this.aiSublineColor,
+            userColor: this.userSublineColor,
+            spDataProvider: this.getSubtitleIconSPDataProvider(this.getSubtitleIconUrl(speaker)),
+        });
+    }
+
     onSubtitleListChanged(subtitleList: SubtitleItem[]) {
         console.log("刷新测试界面：字幕列表： " + subtitleList);
 
@@ -365,18 +460,9 @@ export class ChatPanel extends BasePanel {
         const isNewParagraph = !beforeSubtitle || lastSubtitle.speaker !== beforeSubtitle.speaker;
 
         if (isNewParagraph) {
-            // 新段落：根据说话者类型选择不同的预制体
-            // assistant（数字人）用 sublinePrefab，user（角色）用 sublinePrefab0
-            const prefab = lastSubtitle.speaker == "assistant" ? this.sublinePrefab : this.sublinePrefab0;
-            if (!prefab) {
-                console.error(`预制体未设置: speaker=${lastSubtitle.speaker}`);
-                return;
-            }
-
-            const newNode = instantiate(prefab);
-            newNode.active = true;
-            this.sublineContainer.addChild(newNode);
-
+            // 新段落：检查文本长度，如果超过100个字符，拆分成多个气泡
+            const textParts = this._splitText(lastSubtitle.text, 100);
+            
             // 计算x位置：如果是角色（user），x位置要增加父节点的宽度
             let xPosition = 0;
             if (lastSubtitle.speaker == "user") {
@@ -385,15 +471,11 @@ export class ChatPanel extends BasePanel {
                     xPosition = containerTransform.width;
                 }
             }
-            newNode.setPosition(xPosition, 0);
 
-            newNode.getComponent(ChatSublineItem).setData({
-                text: lastSubtitle.text,
-                speaker: lastSubtitle.speaker,
-                aiColor: this.aiSublineColor,
-                userColor: this.userSublineColor,
-                spDataProvider: this.getSubtitleIconSPDataProvider(this.getSubtitleIconUrl(lastSubtitle.speaker)),
-            });
+            // 创建多个气泡（如果需要拆分）
+            for (let i = 0; i < textParts.length; i++) {
+                this._createSublineItem(textParts[i], lastSubtitle.speaker, xPosition);
+            }
 
             if (lastSubtitle.speaker == "assistant") {
                 if (this._thinkingBubbleState) {
@@ -407,7 +489,38 @@ export class ChatPanel extends BasePanel {
             // 同一段落：在最后一个字幕节点中追加文本
             const lastChild = this.sublineContainer.children[this.sublineContainer.children.length - 1];
             if (lastChild) {
-                lastChild.getComponent(ChatSublineItem).addSubtitleText(lastSubtitle.text);
+                const lastItem = lastChild.getComponent(ChatSublineItem);
+                const currentText = lastItem.getCurrentText();
+                const newText = lastSubtitle.text;
+                const totalText = currentText + newText;
+
+                // 如果追加后的文本超过100个字符，需要拆分
+                if (totalText.length > 100) {
+                    // 先更新最后一个气泡的文本为前100个字符
+                    const remainingLength = 100 - currentText.length;
+                    if (remainingLength > 0) {
+                        lastItem.addSubtitleText(newText.substring(0, remainingLength));
+                    }
+
+                    // 剩余的文本创建新气泡
+                    const remainingText = newText.substring(remainingLength);
+                    if (remainingText.length > 0) {
+                        const textParts = this._splitText(remainingText, 100);
+                        let xPosition = 0;
+                        if (lastSubtitle.speaker == "user") {
+                            const containerTransform = this.sublineContainer.getComponent(UITransform);
+                            if (containerTransform) {
+                                xPosition = containerTransform.width;
+                            }
+                        }
+                        for (let i = 0; i < textParts.length; i++) {
+                            this._createSublineItem(textParts[i], lastSubtitle.speaker, xPosition);
+                        }
+                    }
+                } else {
+                    // 文本长度不超过100，直接追加
+                    lastItem.addSubtitleText(newText);
+                }
             }
         }
 
@@ -488,31 +601,40 @@ export class ChatPanel extends BasePanel {
             .start();
     }
 
-    onAiSpeakerStatueChanged(state: AISpeakingState) {
-        console.log("刷新测试界面：AI说话状态： " + state);
-        // 如果正在连接中，优先显示loadingNode，不更新talkingLabel和talkingAnimNode
+    /**
+     * 处理AI说话状态变化的逻辑
+     * @param state AI说话状态
+     */
+    private _processAiSpeakingStateChange(state: AISpeakingState): void {
+        // 如果正在连接中，不更新talkingLabel和talkingAnimNode
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTING) {
             return;
         }
 
         // 只有连接成功后才更新显示
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
-            if(!this.loadingNode.active){
-                this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-                this.talkingAnimNode.active = !this.interruptButton.active && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-                this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
-                this.talkingLabel.string = this._microOpenStr;
-            }else{
-                this.talkingLabel.string = "";
-                this.talkingAnimNode.active = false;
-                this.interruptButton.active = false;
-            }
-           
-            // this.talkingAnimNode.active = state == AISpeakingState.FINISHED && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-            // this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+            this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
+            this.talkingAnimNode.active = !this.interruptButton.active && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
+            this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+            this.talkingLabel.string = this.talkingAnimNode.active ? this._microOpenStr : "";
         }
+        
         console.log("刷新测试界面：AI说话状态： " + this.getCurrentFrameAnimationName());
         this.playFrameAnimation();
+    }
+
+    onAiSpeakerStatueChanged(state: AISpeakingState) {
+        console.log("刷新测试界面：AI说话状态： " + state);
+        
+        // 如果 loadingNode 处于激活状态，记录状态并延迟处理
+        if (this.loadingNode.active) {
+            this._pendingAiSpeakingState = state;
+            console.log("chatPanel：loading中，已记录AI说话状态，等待loading结束后处理: " + state);
+            return;
+        }
+        
+        // 执行AI说话状态变化需要调整的逻辑
+        this._processAiSpeakingStateChange(state);
     }
 
     onPremissionChanged(bool: Boolean) {
@@ -635,22 +757,18 @@ export class ChatPanel extends BasePanel {
         // this.talkingAnimNode.active = microphoneState == MicrophoneState.OPEN;
     }
 
-    onMicrophoneStateChanged(state: MicrophoneState) {
-        console.log("mkf:" + state);
-        // 如果正在连接中，优先显示loadingNode，不更新talkingLabel
-        // if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTING) {
-        //     console.log("chatPanel：连接中，不更新麦克风状态");
-        //     return;
-        // }
-        // if(this.loadingNode.active || this.interruptButton.active){
-        //     return;
-        // }
+    /**
+     * 处理麦克风状态变化的逻辑
+     * @param state 麦克风状态
+     */
+    private _processMicrophoneStateChange(state: MicrophoneState): void {
+
         this.talkingLabel.node.active = true;
         if (state == MicrophoneState.OPEN) {
             this.interruptButton.active = this._chatModel.aiSpeakingStateProvider.data == AISpeakingState.SPEAKING;
             if(!this.interruptButton.active){
                 this.talkingAnimNode.active = true;
-                this.talkingLabel.string = this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN ? this._microOpenStr: this._microCloseStr;
+                this.talkingLabel.string = this._microOpenStr;
             }else{
                 this.talkingAnimNode.active = false
                 this.talkingLabel.string = ""
@@ -666,7 +784,20 @@ export class ChatPanel extends BasePanel {
         }
         this.microIcon.spriteFrame = this.getMicroIconSpriteFrame();
         this.microBtnMask.active = !this.getMicroAvailable();
+    }
 
+    onMicrophoneStateChanged(state: MicrophoneState) {
+        console.log("mkf:" + state);
+        
+        // 如果 loadingNode 处于激活状态，记录状态并延迟处理
+        if (this.loadingNode.active) {
+            this._pendingMicrophoneState = state;
+            console.log("chatPanel：loading中，已记录麦克风状态，等待loading结束后处理: " + state);
+            return;
+        }
+        
+        // 执行麦克风状态变化需要调整的逻辑
+        this._processMicrophoneStateChange(state);
     }
 
     private getMicroIconSpriteFrame(): SpriteFrame {
@@ -1174,21 +1305,21 @@ export class ChatPanel extends BasePanel {
 
         // 模拟不同的字幕文本
         const testTexts = [
-            "12312412341241241234123417951279051295719857179BA713745N7AF7179579157915970198571957915970197580ASHA",
-            "1234123412341234123414134",
-            "123",
-            '这是一段',
-            "测试文字测试文字",
-            '好好好',
-            '好好',
-            "你",
-            "好",
-            "12312412341241241234123417951279051295719857179BA713745N7AF7179579157915970198571957915970197580ASHA",
-            '这是第' + this._testCounter + '条测试字幕',
-            '你好，这是' + speakerName + '在说话',
-            '测试字幕内容：' + this._testCounter,
-            '这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。',
-            '测试中：' + Date.now(),
+            //"12312412341241241234123417951279051295719857179BA713745N7AF7179579157915970198571957915970197580ASHA",
+            // "1234123412341234123414134",
+            // "123",
+            // '这是一段',
+            // "测试文字测试文字",
+            // '好好好',
+            // '好好',
+            // "你",
+            // "好",
+            // "12312412341241241234123417951279051295719857179BA713745N7AF7179579157915970198571957915970197580ASHA",
+            // '这是第' + this._testCounter + '条测试字幕',
+            // '你好，这是' + speakerName + '在说话',
+            // '测试字幕内容：' + this._testCounter,
+            '这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。这是一段较长的测试字幕，用来测试字幕显示效果和换行功能。',
+            // '测试中：' + Date.now(),
         ];
 
         const text = testTexts[this._testCounter % testTexts.length];

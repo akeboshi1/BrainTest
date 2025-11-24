@@ -88,6 +88,14 @@ export class ChatSublineItem extends Component {
         return this._subtitleItem.speaker;
     }
 
+    /**
+     * 获取当前显示的文本
+     * @returns 当前文本内容
+     */
+    public getCurrentText(): string {
+        return this.itemLabel ? (this.itemLabel.string || '') : '';
+    }
+
     private _refresh() {
         let subtitleItem = this._subtitleItem;
         this.itemLabel.string = subtitleItem.text;
