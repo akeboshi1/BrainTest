@@ -180,7 +180,7 @@ export class ChatPanel extends BasePanel {
         UIManager.getInstance().registerPanel(ChatMusicPanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatMusicPanel", ChatMusicPanel);
 
         // 测试字幕代码，每秒生成一段字幕，模拟用户和AI交替对话
-        // this.startTestSubtitleGeneration();
+        this.startTestSubtitleGeneration();
     }
 
     onDisable(): void {
@@ -377,7 +377,7 @@ export class ChatPanel extends BasePanel {
      * @param maxLength 每部分的最大长度
      * @returns 拆分后的文本数组
      */
-    private _splitText(text: string, maxLength: number = 100): string[] {
+    private _splitText(text: string, maxLength: number = 200): string[] {
         if (!text || text.length <= maxLength) {
             return [text];
         }
@@ -611,6 +611,8 @@ export class ChatPanel extends BasePanel {
             return;
         }
 
+        console.log("刷新测试界面：AI说话状态： " + this.getCurrentFrameAnimationName());
+        this.playFrameAnimation();
         // 如果麦克风关闭，直接返回
         if (this._chatModel.microphoneStateProvider.data == MicrophoneState.CLOSED) {
             return;
@@ -620,12 +622,9 @@ export class ChatPanel extends BasePanel {
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
             this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
             this.talkingAnimNode.active = !this.interruptButton.active && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-            this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+            this.talkingLabel.node.active = this.talkingAnimNode.active;
             this.talkingLabel.string = this.talkingAnimNode.active ? this._microOpenStr : "";
         }
-        
-        console.log("刷新测试界面：AI说话状态： " + this.getCurrentFrameAnimationName());
-        this.playFrameAnimation();
     }
 
     onAiSpeakerStatueChanged(state: AISpeakingState) {
