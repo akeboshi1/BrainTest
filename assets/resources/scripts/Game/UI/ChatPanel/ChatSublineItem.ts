@@ -30,9 +30,7 @@ export class ChatSublineItem extends Component {
 
     private bgHeightPadding: number = 20;
 
-    private bgWidthPadding: number = 50;
-
-    private byteWidth: number = 42;
+    private bgWidthPadding: number = 52;
 
     private maxTextWidth: number = 590;
 
@@ -263,37 +261,81 @@ export class ChatSublineItem extends Component {
      * @returns 文本总宽度（像素）
      */
     private _getTextLength(str: string): number {
+        if (!str || str.length === 0) {
+            return 0;
+        }
+
+        // 先统计数字的数量
+        let digitCount = 0;
+        for (let i = 0; i < str.length; i++) {
+            const charCode = str.charCodeAt(i);
+            if (charCode >= 48 && charCode <= 57) {
+                digitCount++;
+            }
+        }
+
+        // 先按默认宽度计算（数字使用28.43）
         let totalWidth = 0;
         for (let i = 0; i < str.length; i++) {
             const charCode = str.charCodeAt(i);
             
             // 按优先级判断字符类型并计算宽度
             if (charCode >= 48 && charCode <= 57) {
-                // 数字：0-9
-                totalWidth += 24;
+                // 数字：0-9，默认宽度为28.43
+                totalWidth += 28.43;
             } else if ((charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
                 // 字母：A-Z, a-z
-                totalWidth += 40;
+                totalWidth += 22.52;
             } else if (this._isChineseChar(charCode)) {
                 // 中文字符（包括中文标点符号）
-                totalWidth += 56;
+                totalWidth += 50.14;
             } else {
                 // 其他字符（英文标点、空格、特殊符号等）
-                // 对于英文标点符号，通常宽度较小，这里使用字母宽度
-                // 对于其他特殊字符，使用较小的宽度
-                if ((charCode >= 32 && charCode <= 47) || 
-                    (charCode >= 58 && charCode <= 64) || 
-                    (charCode >= 91 && charCode <= 96) || 
-                    (charCode >= 123 && charCode <= 126)) {
-                    // 英文标点符号和特殊字符
-                    totalWidth += 40;
+                totalWidth += 50.14;
+            }
+        }
+
+        // 如果计算出的宽度小于最大宽度，需要根据数字数量动态调整数字宽度
+        if (totalWidth < this.maxTextWidth && digitCount > 0) {
+            // 确定每个数字的宽度：小于7个为28.43，大于等于7个为26.43
+            const digitWidth = digitCount < 7 ? 32.43 : 26;
+            const digitWordWidth = digitCount < 7 ? 49.8 : 50;
+            // 重新计算总宽度，使用调整后的数字宽度
+            totalWidth = 0;
+            for (let i = 0; i < str.length; i++) {
+                const charCode = str.charCodeAt(i);
+                
+                if (charCode >= 48 && charCode <= 57) {
+                    // 数字：使用动态宽度
+                    totalWidth += digitWidth;
+                } else if ((charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
+                    // 字母：A-Z, a-z
+                    totalWidth += 22.52;
+                } else if (this._isChineseChar(charCode)) {
+                    // 中文字符（包括中文标点符号）
+                    totalWidth += digitWordWidth;
                 } else {
-                    // 其他未知字符，使用中文字符宽度
-                    totalWidth += 40;
+                    // 其他字符
+                    totalWidth += 50.14;
                 }
             }
         }
+
         return totalWidth;
+    }
+
+    /**
+     * 检查文本是否只包含数字
+     * @param text 要检查的文本
+     * @returns 如果文本只包含数字（包括空格），返回true；否则返回false
+     */
+    private _isOnlyNumbers(text: string): boolean {
+        if (!text || text.trim().length === 0) {
+            return false;
+        }
+        // 移除空格后检查是否只包含数字
+        const trimmedText = text.replace(/\s/g, '');
+        return /^\d+$/.test(trimmedText);
     }
 
     /**
@@ -311,21 +353,51 @@ export class ChatSublineItem extends Component {
 
         // 获取文本内容
         const text = this.itemLabel.string || '';
+        const trimmedText = text.trim();
         
-        // 计算文本的总宽度（根据字符类型：文字30、字母20、数字15）
-        const calculatedTextWidth = this._getTextLength(text);
+        let newWidth = 0;
         
-        // 如果计算出的宽度小于maxTextWidth，使用计算宽度；否则使用maxTextWidth（因为会换行）
-        const textWidth = Math.min(calculatedTextWidth, this.maxTextWidth);
+        // 特殊处理：单个字符的情况
+        if (trimmedText.length === 1) {
+            const charCode = trimmedText.charCodeAt(0);
+            
+            // 如果是单个数字，背景宽度为150
+            if (charCode >= 48 && charCode <= 57) {
+                newWidth = 150;
+            } 
+            // 如果是单个中文字符，背景宽度为180
+            else if (this._isChineseChar(charCode)) {
+                newWidth = 180;
+            }
+            // 其他单个字符，使用原来的逻辑
+            else {
+                const calculatedTextWidth = this._getTextLength(text);
+                const textWidth = Math.min(calculatedTextWidth, this.maxTextWidth);
+                const calculatedWidth = textWidth + this.bgWidthPadding * 2;
+                const minWidth = this._isOnlyNumbers(text) ? 150 : 180;
+                newWidth = Math.max(minWidth, Math.min(calculatedWidth, this.maxBgWidth));
+            }
+        } 
+        // 多个字符的情况，使用原来的逻辑
+        else {
+            // 根据文本内容确定最小宽度：如果只有数字则为150，否则为180
+            const minWidth = this._isOnlyNumbers(text) ? 150 : 180;
+            
+            // 计算文本的总宽度（根据字符类型：文字30、字母20、数字15）
+            const calculatedTextWidth = this._getTextLength(text);
+            
+            // 如果计算出的宽度小于maxTextWidth，使用计算宽度；否则使用maxTextWidth（因为会换行）
+            const textWidth = Math.min(calculatedTextWidth, this.maxTextWidth);
 
-        // 计算背景宽度：文本宽度加上左右边距，但限制在最小和最大宽度之间
-        const calculatedWidth = textWidth + this.bgWidthPadding * 2;
+            // 计算背景宽度：文本宽度加上左右边距，但限制在最小和最大宽度之间
+            const calculatedWidth = textWidth + this.bgWidthPadding * 2;
+            newWidth = Math.max(minWidth, Math.min(calculatedWidth, this.maxBgWidth));
+        }
+
         const oldWidth = bgTransform.width;
-        const newWidth = Math.max(this.minBgWidght, Math.min(calculatedWidth, this.maxBgWidth));
-
         bgTransform.width = newWidth;
         
-        DebugLog.instance.log(`更新背景宽度成功: 文本=${text.substring(0, 20)}..., 计算文本宽度=${calculatedTextWidth}, 使用文本宽度=${textWidth}, 背景宽度=${newWidth}`);
+        DebugLog.instance.log(`更新背景宽度成功: 文本=${text.substring(0, 20)}..., 背景宽度=${newWidth}`);
         
         // 如果宽度发生变化，通知父容器更新所有节点位置
         if (Math.abs(oldWidth - newWidth) > 1) {
