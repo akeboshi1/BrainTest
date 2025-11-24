@@ -611,6 +611,8 @@ export class ChatPanel extends BasePanel {
             return;
         }
 
+        console.log("刷新测试界面：AI说话状态： " + this.getCurrentFrameAnimationName());
+        this.playFrameAnimation();
         // 如果麦克风关闭，直接返回
         if (this._chatModel.microphoneStateProvider.data == MicrophoneState.CLOSED) {
             return;
@@ -620,12 +622,9 @@ export class ChatPanel extends BasePanel {
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
             this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
             this.talkingAnimNode.active = !this.interruptButton.active && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
-            this.talkingLabel.node.active = state == AISpeakingState.FINISHED;
+            this.talkingLabel.node.active = this.talkingAnimNode.active;
             this.talkingLabel.string = this.talkingAnimNode.active ? this._microOpenStr : "";
         }
-        
-        console.log("刷新测试界面：AI说话状态： " + this.getCurrentFrameAnimationName());
-        this.playFrameAnimation();
     }
 
     onAiSpeakerStatueChanged(state: AISpeakingState) {
