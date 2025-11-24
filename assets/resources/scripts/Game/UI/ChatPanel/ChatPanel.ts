@@ -180,7 +180,7 @@ export class ChatPanel extends BasePanel {
         UIManager.getInstance().registerPanel(ChatMusicPanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatMusicPanel", ChatMusicPanel);
 
         // 测试字幕代码，每秒生成一段字幕，模拟用户和AI交替对话
-        this.startTestSubtitleGeneration();
+        // this.startTestSubtitleGeneration();
     }
 
     onDisable(): void {
