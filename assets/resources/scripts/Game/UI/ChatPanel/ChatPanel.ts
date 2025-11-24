@@ -113,6 +113,9 @@ export class ChatPanel extends BasePanel {
     private _microOpenStr: string = "正在听";
     private _microCloseStr: string = "您已静音";
 
+    // 气泡文本最大长度（字符数）
+    private _maxSublineTextLength: number = 200;
+
     private _chatModel: ChatModel = null;
 
     // 角色节点动画状态
@@ -180,7 +183,7 @@ export class ChatPanel extends BasePanel {
         UIManager.getInstance().registerPanel(ChatMusicPanel.NAME, BundleName.RESOURCES, "/prefab/ChatPanel/ChatMusicPanel", ChatMusicPanel);
 
         // 测试字幕代码，每秒生成一段字幕，模拟用户和AI交替对话
-        // this.startTestSubtitleGeneration();
+        //this.startTestSubtitleGeneration();
     }
 
     onDisable(): void {
@@ -377,7 +380,7 @@ export class ChatPanel extends BasePanel {
      * @param maxLength 每部分的最大长度
      * @returns 拆分后的文本数组
      */
-    private _splitText(text: string, maxLength: number = 200): string[] {
+    private _splitText(text: string, maxLength: number = this._maxSublineTextLength): string[] {
         if (!text || text.length <= maxLength) {
             return [text];
         }
@@ -460,8 +463,8 @@ export class ChatPanel extends BasePanel {
         const isNewParagraph = !beforeSubtitle || lastSubtitle.speaker !== beforeSubtitle.speaker;
 
         if (isNewParagraph) {
-            // 新段落：检查文本长度，如果超过100个字符，拆分成多个气泡
-            const textParts = this._splitText(lastSubtitle.text, 100);
+            // 新段落：检查文本长度，如果超过最大长度，拆分成多个气泡
+            const textParts = this._splitText(lastSubtitle.text, this._maxSublineTextLength);
             
             // 计算x位置：如果是角色（user），x位置要增加父节点的宽度
             let xPosition = 0;
@@ -494,10 +497,10 @@ export class ChatPanel extends BasePanel {
                 const newText = lastSubtitle.text;
                 const totalText = currentText + newText;
 
-                // 如果追加后的文本超过100个字符，需要拆分
-                if (totalText.length > 100) {
-                    // 先更新最后一个气泡的文本为前100个字符
-                    const remainingLength = 100 - currentText.length;
+                // 如果追加后的文本超过最大长度，需要拆分
+                if (totalText.length > this._maxSublineTextLength) {
+                    // 先更新最后一个气泡的文本为前最大长度个字符
+                    const remainingLength = this._maxSublineTextLength - currentText.length;
                     if (remainingLength > 0) {
                         lastItem.addSubtitleText(newText.substring(0, remainingLength));
                     }
@@ -505,7 +508,7 @@ export class ChatPanel extends BasePanel {
                     // 剩余的文本创建新气泡
                     const remainingText = newText.substring(remainingLength);
                     if (remainingText.length > 0) {
-                        const textParts = this._splitText(remainingText, 100);
+                        const textParts = this._splitText(remainingText, this._maxSublineTextLength);
                         let xPosition = 0;
                         if (lastSubtitle.speaker == "user") {
                             const containerTransform = this.sublineContainer.getComponent(UITransform);
@@ -518,7 +521,7 @@ export class ChatPanel extends BasePanel {
                         }
                     }
                 } else {
-                    // 文本长度不超过100，直接追加
+                    // 文本长度不超过最大长度，直接追加
                     lastItem.addSubtitleText(newText);
                 }
             }
