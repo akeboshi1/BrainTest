@@ -611,6 +611,11 @@ export class ChatPanel extends BasePanel {
             return;
         }
 
+        // 如果麦克风关闭，直接返回
+        if (this._chatModel.microphoneStateProvider.data == MicrophoneState.CLOSED) {
+            return;
+        }
+
         // 只有连接成功后才更新显示
         if (this._chatModel.connectionStateProvider.data == ChatConnectionState.CONNECTED) {
             this.interruptButton.active = state == AISpeakingState.SPEAKING && this._chatModel.microphoneStateProvider.data == MicrophoneState.OPEN;
@@ -1163,6 +1168,17 @@ export class ChatPanel extends BasePanel {
         }
         this.sublineBtnNode.active = true;
         this.changeCharactorBtnNode.active = true;
+
+        // 从音乐界面返回后，重新处理麦克风状态和AI说话状态
+        const microphoneState = this._chatModel.microphoneStateProvider.data;
+        if (microphoneState == MicrophoneState.CLOSED) {
+            // 如果麦克风关闭，显示"已经静音"
+            this._processMicrophoneStateChange(microphoneState);
+        } else if (microphoneState == MicrophoneState.OPEN) {
+            // 如果麦克风开启，过一遍AI说话状态的逻辑
+            const aiSpeakingState = this._chatModel.aiSpeakingStateProvider.data;
+            this._processAiSpeakingStateChange(aiSpeakingState);
+        }
     }
 
     private onCurrentPlayingSongChanged(song: ChatSong) {
