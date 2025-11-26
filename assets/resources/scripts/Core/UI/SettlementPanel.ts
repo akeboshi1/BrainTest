@@ -247,7 +247,7 @@ export class SettlementPanel extends BasePanel{
                 }
             }
 
-            AudioManager.getInstance().playRest();
+            // AudioManager.getInstance().playRest();
         }
     }
 

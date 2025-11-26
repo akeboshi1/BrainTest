@@ -178,6 +178,23 @@ export class GameCenterPageView extends Component {
             GameCenterManager.getInstance().perload(url, BundleName.MATH24);
             return;
         }
+        if (index == 10) {
+            let url = Global.RES_Root + BundleName.LISTENINGMASTER;
+            DebugLog.instance.log(`${BundleName.LISTENINGMASTER} click perload`);
+            let guidePanelData = {
+                name: BundleName.LISTENINGMASTER, callback: () => {
+                    DebugLog.instance.log(`${BundleName.LISTENINGMASTER} click perload`);
+                    EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+                    GameCenterManager.getInstance().perload(url, BundleName.LISTENINGMASTER);
+                }, exitCallback: () => {
+                    this._clickBoo = false;
+                }
+            }
+            // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
+            GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
+            UIManager.getInstance().showPanel(GuidePanel.NAME, guidePanelData);
+            return;
+        }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {
             if (data.status == 0) {
                 this._clickBoo = false;
