@@ -364,7 +364,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private showSelectOptionAlert() {
         const alertData = new AlertData();
         alertData.title = "提示";
-        alertData.message = "请选择选项";
+        alertData.message = "请选择足够数量的选项";
         alertData.x = 0;
         alertData.y = 0;
         alertData.confirmButtonText = "确定";

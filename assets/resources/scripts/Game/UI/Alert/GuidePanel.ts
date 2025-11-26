@@ -116,6 +116,9 @@ export class GuidePanel extends BasePanel {
                 case BundleName.MATH24:
                     descStr = "24点"
                     break;
+                case BundleName.LISTENINGMASTER:
+                    descStr = "听力大师"
+                    break;
 
             }
             this.descLabel.string = descStr;
@@ -262,6 +265,9 @@ export class GuidePanel extends BasePanel {
             case BundleName.FINDYOURSISTER:
                 this.bgNode.active = true;
                 return;
+            case BundleName.LISTENINGMASTER:
+                this.bgNode.active = true; // 听力大师训练教程视频
+                break;
             default:
                 break;
         }
