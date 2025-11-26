@@ -43,6 +43,26 @@
         "name":"猴子",
         "duration":"2",
         "path":"music/question/monkey"
+    },
+    "frog":{
+        "name":"青蛙",
+        "duration":"1",
+        "path":"music/question/frog"
+    },
+    "horse":{
+        "name":"马",
+        "duration":"1",
+        "path":"music/question/horse"
+    },
+    "tiger":{
+        "name":"老虎",
+        "duration":"2",
+        "path":"music/question/tiger"
+    },
+    "cat":{
+        "name":"猫",
+        "duration":"1",
+        "path":"music/question/cat"
     }
 
 }

@@ -117,7 +117,7 @@ export class GuidePanel extends BasePanel {
                     descStr = "24点"
                     break;
                 case BundleName.LISTENINGMASTER:
-                    descStr = "听力大师"
+                    descStr = "听觉记忆大师:玩家一边观看背景视频，一边记忆播放过程中听到的音频，随后从答题页选项里选出听到的音频，考验听觉敏感度与短期记忆能力"
                     break;
 
             }
