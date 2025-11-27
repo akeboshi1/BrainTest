@@ -14074,7 +14074,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "计算力",
+    "_string": "记忆力",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 60,
@@ -14370,7 +14370,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "2c1494cb-aed3-49f1-abad-b9b39f15d6f9@f9941",
+      "__uuid__": "17fead01-0968-493f-b5b1-eb140827914f@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,

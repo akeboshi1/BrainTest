@@ -29,6 +29,8 @@ export class AlertManager extends BaseManager {
     private countdownTimer: any = null; // 倒计时定时器
     private currentCountdown: number = 0; // 当前倒计时剩余时间
     private _countdownButtonRef: Button = null; // 当前倒计时关联的按钮
+    private _currentToast: Node = null; // 当前正在显示的Toast节点
+    private _isShowingToast: boolean = false; // 是否正在显示Toast
 
     public async init() {
         SceneManager.getInstance().eventTarget.on(SceneManager.SCENE_CHANGED, this.onSceneChanged, this);
@@ -374,7 +376,13 @@ export class AlertManager extends BaseManager {
 
     public onSceneChanged(sceneName: string, lastSceneName: string) {
         this.alertQueue = [];
+        this._isShowingToast = false;
         this.closeCurrentAlert();
+        // 销毁当前Toast（如果存在）
+        if (this._currentToast) {
+            this._currentToast.destroy();
+            this._currentToast = null;
+        }
     }
 
     public showToastAlert(message: string) {
@@ -383,6 +391,28 @@ export class AlertManager extends BaseManager {
             return;
         }
 
+        // 如果当前正在显示Toast，直接返回
+        if (this._isShowingToast) {
+            return;
+        }
+
+        // 显示Toast
+        this._displayToast(message);
+    }
+
+    /**
+     * 内部方法：显示Toast
+     * @param message 要显示的消息
+     */
+    private _displayToast(message: string) {
+        if (!this._socketAlertPrefab) {
+            DebugLog.instance.error("Socket Alert prefab not loaded!");
+            return;
+        }
+
+        // 标记正在显示Toast
+        this._isShowingToast = true;
+
         // 实例化预制体
         let alertNode = instantiate(this._socketAlertPrefab);
 
@@ -390,11 +420,12 @@ export class AlertManager extends BaseManager {
         let rootNode: Node = LayerUtil.createTopLayer('AlertLayer');
         if (!rootNode) {
             DebugLog.instance.error("Can not create top layer for alert!");
+            this._isShowingToast = false;
             return;
         }
 
         rootNode.addChild(alertNode);
-        this.currentAlert = alertNode;
+        this._currentToast = alertNode;
 
         // 设置提示内容
         const messageLabel = alertNode.getComponentInChildren(Label);
@@ -404,15 +435,18 @@ export class AlertManager extends BaseManager {
 
         // 创建渐隐动画
         tween(alertNode)
-            .delay(3) // 延迟2秒
+            .delay(3) // 延迟3秒
             .to(0.3, { scale: new Vec3(0.8, 0.8, 0.8) }) // 先缩小
             .to(0.1, { scale: new Vec3(0, 0, 0) }) // 再完全消失
             .call(() => {
                 // 动画结束后销毁节点
-                if (this.currentAlert === alertNode) {
-                    this.currentAlert = null;
+                if (this._currentToast === alertNode) {
+                    this._currentToast = null;
                 }
                 alertNode.destroy();
+
+                // 标记Toast显示结束
+                this._isShowingToast = false;
             })
             .start();
     }

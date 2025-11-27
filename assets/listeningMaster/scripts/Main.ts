@@ -15,7 +15,7 @@ import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
 import { IListeningConfig, ListeningModel } from './ListeningModel';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
-import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import { AlertManager } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -32,6 +32,10 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     @property(ProgressBar)
     private progress: ProgressBar = null;
+
+
+    @property(Label)
+    private loadLabel: Label = null;
 
     @property(RichText)
     private answerCountLabel: RichText = null;
@@ -96,13 +100,25 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     onLoad(): void {
         this.loadAudio().then(() => {
-            this.playBgmAudio("music/bgm", true);
+            this.playBgmAudio('music/bgm', true);
         });
     }
 
+    // /**
+    //  * 随机选择并播放背景音乐
+    //  */
+    // private randomPlayBgm() {
+    //     const bgmOptions = ['music/bgm', 'music/bgm1', 'music/bgm2'];
+    //     const randomBgm = bgmOptions[Math.floor(Math.random() * bgmOptions.length)];
+    //     this.playBgmAudio(randomBgm, true,0.8);
+    //     DebugLog.instance.log(`随机播放背景音乐: ${randomBgm}`);
+    // }
+
     async start(): Promise<void> {
         super.start();
-        this.initVideo();
+        
+        // 等待视频加载完成
+        await this.initVideo();
 
         this.model = ListeningModel.getInstance();
         await this.model.initModel();
@@ -124,7 +140,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 初始化startBtn颜色为不可点击状态
         this.changeStartBtnColor(false);
         
-        // 这里要把_questions中的题目设置给chooseNodes，
+        // 视频加载完成后，开始播放视频和音效
         this.startVideoWithAudio();
     }
 
@@ -362,32 +378,15 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 显示请选择选项的弹窗
      */
     private showSelectOptionAlert() {
-        const alertData = new AlertData();
-        alertData.title = "提示";
-        alertData.message = "请选择足够数量的选项";
-        alertData.x = 0;
-        alertData.y = 0;
-        alertData.confirmButtonText = "确定";
-        alertData.cancelButtonVisible = false;
-        alertData.closeBtnVisible = false;
-        
-        AlertManager.getInstance().showAlert(alertData);
+        AlertManager.getInstance().showToastAlert("请选择足够数量的选项");
+       
     }
 
     /**
      * 显示已达到最大选择数量的弹窗
      */
     private showMaxSelectionAlert() {
-        const alertData = new AlertData();
-        alertData.title = "提示";
-        alertData.message = `已经选了${this._requiredAnswerCount}个选项了`;
-        alertData.x = 0;
-        alertData.y = 0;
-        alertData.confirmButtonText = "确定";
-        alertData.cancelButtonVisible = false;
-        alertData.closeBtnVisible = false;
-        
-        AlertManager.getInstance().showAlert(alertData);
+        AlertManager.getInstance().showToastAlert(`当前只能选${this._requiredAnswerCount}个选项哦~\n可点击取消选中，重新选择`);
     }
 
     /**
@@ -458,17 +457,17 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.log(`重玩当前关卡，重新获取题目（无保存的题目）`);
         }
         
-        // 使用上一次的视频路径重新加载视频（不重新随机）
+        // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
         if (savedVideoPath) {
-            this.loadLocalVideo(savedVideoPath);
+            await this.loadLocalVideo(savedVideoPath, true);
             DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
         } else {
             // 如果没有保存的视频路径，则重新随机（容错处理）
-            this.initVideo();
+            await this.initVideo();
             DebugLog.instance.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
         }
         
-        // 重新开始视频和音频播放
+        // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
         
         DebugLog.instance.log(`重玩当前关卡，难度: ${this._currentDifficulty}`);
@@ -499,10 +498,13 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 重新获取新难度的题目
         this._questions = this.model.getQuestion(this._currentDifficulty);
         
-        // 重新初始化视频
-        this.initVideo();
+        // 重新随机选择背景音乐
+        // this.randomPlayBgm();
         
-        // 重新开始视频和音频播放
+        // 重新初始化视频（会随机选择新的视频）
+        await this.initVideo();
+        
+        // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
         
         DebugLog.instance.log(`进入下一关，新难度: ${this._currentDifficulty}`);
@@ -590,54 +592,74 @@ export class Main extends BaseScene<IBaseGameChild> {
      /**
      * 初始化视频
      */
-     private initVideo() {
+     private async initVideo(): Promise<void> {
         // 确保VideoPlayer不会自动播放
-        // if (this.videoPlayer) {
-        //     this.videoPlayer.playOnAwake = false;
-        // }
+        if (this.videoPlayer) {
+            this.videoPlayer.playOnAwake = true;
+        }
 
-        this.loadLocalVideo();
+        await this.loadLocalVideo();
     }
 
+
+    private videoLen:number = 10;
 
     /**
      * 加载本地视频文件
      * @param videoPath 视频路径，如果不传则随机选择
+     * @param autoPlay 是否自动播放，默认false
+     * @returns Promise，视频加载完成后resolve
      */
-    private loadLocalVideo(videoPath?: string) {
-        // 如果没有传入视频路径，随机选择 0-2 的视频
-        if (!videoPath) {
-            const randomIndex = Math.floor(Math.random() * 3);
-            videoPath = `video/bgm${randomIndex}`;
-        }
-        
-        // 保存当前视频路径
-        this._currentVideoPath = videoPath;
-
-        if (videoPath&&videoPath.length>0) {
-            const bundle = assetManager.getBundle(BundleName.LISTENINGMASTER);
-            if (!bundle) {
-                DebugLog.instance.error(`Bundle ${BundleName.LISTENINGMASTER} 未加载`);
-                return;
+    private loadLocalVideo(videoPath?: string, autoPlay: boolean = false): Promise<void> {
+        return new Promise((resolve, reject) => {
+            // 如果没有传入视频路径，随机选择 0-2 的视频
+            if (!videoPath) {
+                const randomIndex = Math.floor(Math.random() * this.videoLen);
+                videoPath = `video/bgm${randomIndex}`;
             }
+            
+            // 保存当前视频路径
+            this._currentVideoPath = videoPath;
 
-            bundle.load(videoPath, VideoClip, (err, videoClip) => {
-                if (err) {
-                    DebugLog.instance.error(`加载视频失败: ${videoPath}`, err);
+            if (videoPath&&videoPath.length>0) {
+                const bundle = assetManager.getBundle(BundleName.LISTENINGMASTER);
+                if (!bundle) {
+                    DebugLog.instance.error(`Bundle ${BundleName.LISTENINGMASTER} 未加载`);
+                    reject(new Error(`Bundle ${BundleName.LISTENINGMASTER} 未加载`));
                     return;
                 }
 
-                DebugLog.instance.log(`视频加载成功: ${videoPath}`);
+                bundle.load(videoPath, VideoClip, (err, videoClip) => {
+                    if (err) {
+                        DebugLog.instance.error(`加载视频失败: ${videoPath}`, err);
+                        reject(err);
+                        return;
+                    }
 
-                // 设置视频到播放器，但不自动播放
-                this.videoPlayer.clip = videoClip;
-                this.videoNode.active = true;
-                this.videoPlayer.node.active = true;
-                this.adaptVideoPlayer();
+                    DebugLog.instance.log(`视频加载成功: ${videoPath}`);
 
+                    // 设置视频到播放器
+                    this.videoPlayer.clip = videoClip;
+                    // 设置视频循环播放
+                    this.videoPlayer.loop = true;
+                    this.videoNode.active = true;
+                    this.videoPlayer.node.active = true;
+                    this.adaptVideoPlayer();
 
-            });
-        }
+                    // 如果设置了自动播放，立即播放视频
+                    if (autoPlay && this.videoPlayer) {
+                        this.videoPlayer.play();
+                        DebugLog.instance.log(`视频自动播放: ${videoPath}`);
+                    }
+
+                    // 视频加载完成，resolve Promise
+                    resolve();
+                });
+            } else {
+                // 没有视频路径，直接resolve
+                resolve();
+            }
+        });
     }
 
     adaptVideoPlayer() {
@@ -771,7 +793,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 
                 // 计算左边框线的偏移量（向左移动半个边框线宽度，考虑缩放）
                 const leftLineWidth = leftLineTransform.contentSize.width * leftLineScale.x;
-                const leftOffset = -1;
+                const leftOffset = -0.1;
                 
                 // 计算左边框线的实际高度（考虑videoPlayer的缩放和lineNode的缩放）
                 const leftLineHeight = (playerHeight + lineHeiOffset)/ leftLineScale.y;
@@ -800,7 +822,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 
                 // 计算右边框线的偏移量（向右移动半个边框线宽度，考虑缩放）
                 const rightLineWidth = rightLineTransform.contentSize.width * rightLineScale.x;
-                const rightOffset = -1;
+                const rightOffset = -0.1;
                 
                 // 计算右边框线的实际高度（考虑videoPlayer的缩放和lineNode的缩放）
                 const rightLineHeight =  (playerHeight + lineHeiOffset) / rightLineScale.y;
@@ -869,7 +891,12 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         DebugLog.instance.log(`开始播放，总时长: ${this._totalDuration} 秒（音效时长: ${totalAudioDuration} 秒，间隔时长: ${totalIntervalDuration} 秒，初始延迟: ${this._firstAudioDelay} 秒）`);
 
-        // 播放视频
+        // 确保视频循环播放
+        if (this.videoPlayer) {
+            this.videoPlayer.loop = true;
+        }
+
+        // 播放视频（会一直循环直到停止）
         this.playVideo();
 
         // 第一个音效延迟3秒播放（保存定时器以便暂停时清除）
@@ -1247,10 +1274,19 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
             DebugLog.instance.log(`继续游戏，显示视频播放器`);
             
-            // 恢复视频播放
-            if (context && context.videoPlayer && context.videoPlayer.isPlaying === false) {
-                context.playVideo();
-                DebugLog.instance.log(`继续游戏，恢复视频播放`);
+            // 恢复视频播放（移动端需要强制恢复，延迟一小段时间确保节点已激活）
+            if (context && context.videoPlayer) {
+                // 延迟一小段时间再播放，确保节点已经完全激活（移动端需要）
+                context.scheduleOnce(() => {
+                    if (context && context.videoPlayer) {
+                        // 强制恢复视频播放，无论当前状态如何
+                        // 移动端从后台恢复时，视频可能被系统暂停，即使isPlaying为true也可能实际未播放
+                        // 因此无论状态如何，都先停止再播放，确保视频重新开始（移动端兼容性更好）
+                        context.videoPlayer.stop();
+                        context.videoPlayer.play();
+                        DebugLog.instance.log(`继续游戏，强制恢复视频播放（移动端兼容）`);
+                    }
+                }, 0.1); // 延迟100ms，确保节点已激活
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
