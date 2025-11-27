@@ -33,6 +33,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(ProgressBar)
     private progress: ProgressBar = null;
 
+
+    @property(Label)
+    private loadLabel: Label = null;
+
     @property(RichText)
     private answerCountLabel: RichText = null;
 
@@ -112,7 +116,9 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     async start(): Promise<void> {
         super.start();
-        this.initVideo();
+        
+        // 等待视频加载完成
+        await this.initVideo();
 
         this.model = ListeningModel.getInstance();
         await this.model.initModel();
@@ -134,7 +140,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 初始化startBtn颜色为不可点击状态
         this.changeStartBtnColor(false);
         
-        // 这里要把_questions中的题目设置给chooseNodes，
+        // 视频加载完成后，开始播放视频和音效
         this.startVideoWithAudio();
     }
 
@@ -453,15 +459,15 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
         if (savedVideoPath) {
-            this.loadLocalVideo(savedVideoPath, true);
+            await this.loadLocalVideo(savedVideoPath, true);
             DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
         } else {
             // 如果没有保存的视频路径，则重新随机（容错处理）
-            this.initVideo();
+            await this.initVideo();
             DebugLog.instance.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
         }
         
-        // 重新开始视频和音频播放
+        // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
         
         DebugLog.instance.log(`重玩当前关卡，难度: ${this._currentDifficulty}`);
@@ -496,9 +502,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         // this.randomPlayBgm();
         
         // 重新初始化视频（会随机选择新的视频）
-        this.initVideo();
+        await this.initVideo();
         
-        // 重新开始视频和音频播放
+        // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
         
         DebugLog.instance.log(`进入下一关，新难度: ${this._currentDifficulty}`);
@@ -586,13 +592,13 @@ export class Main extends BaseScene<IBaseGameChild> {
      /**
      * 初始化视频
      */
-     private initVideo() {
+     private async initVideo(): Promise<void> {
         // 确保VideoPlayer不会自动播放
         if (this.videoPlayer) {
             this.videoPlayer.playOnAwake = true;
         }
 
-        this.loadLocalVideo();
+        await this.loadLocalVideo();
     }
 
 
@@ -602,47 +608,58 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 加载本地视频文件
      * @param videoPath 视频路径，如果不传则随机选择
      * @param autoPlay 是否自动播放，默认false
+     * @returns Promise，视频加载完成后resolve
      */
-    private loadLocalVideo(videoPath?: string, autoPlay: boolean = false) {
-        // 如果没有传入视频路径，随机选择 0-2 的视频
-        if (!videoPath) {
-            const randomIndex = Math.floor(Math.random() * this.videoLen);
-            videoPath = `video/bgm${randomIndex}`;
-        }
-        
-        // 保存当前视频路径
-        this._currentVideoPath = videoPath;
-
-        if (videoPath&&videoPath.length>0) {
-            const bundle = assetManager.getBundle(BundleName.LISTENINGMASTER);
-            if (!bundle) {
-                DebugLog.instance.error(`Bundle ${BundleName.LISTENINGMASTER} 未加载`);
-                return;
+    private loadLocalVideo(videoPath?: string, autoPlay: boolean = false): Promise<void> {
+        return new Promise((resolve, reject) => {
+            // 如果没有传入视频路径，随机选择 0-2 的视频
+            if (!videoPath) {
+                const randomIndex = Math.floor(Math.random() * this.videoLen);
+                videoPath = `video/bgm${randomIndex}`;
             }
+            
+            // 保存当前视频路径
+            this._currentVideoPath = videoPath;
 
-            bundle.load(videoPath, VideoClip, (err, videoClip) => {
-                if (err) {
-                    DebugLog.instance.error(`加载视频失败: ${videoPath}`, err);
+            if (videoPath&&videoPath.length>0) {
+                const bundle = assetManager.getBundle(BundleName.LISTENINGMASTER);
+                if (!bundle) {
+                    DebugLog.instance.error(`Bundle ${BundleName.LISTENINGMASTER} 未加载`);
+                    reject(new Error(`Bundle ${BundleName.LISTENINGMASTER} 未加载`));
                     return;
                 }
 
-                DebugLog.instance.log(`视频加载成功: ${videoPath}`);
+                bundle.load(videoPath, VideoClip, (err, videoClip) => {
+                    if (err) {
+                        DebugLog.instance.error(`加载视频失败: ${videoPath}`, err);
+                        reject(err);
+                        return;
+                    }
 
-                // 设置视频到播放器
-                this.videoPlayer.clip = videoClip;
-                // 设置视频循环播放
-                this.videoPlayer.loop = true;
-                this.videoNode.active = true;
-                this.videoPlayer.node.active = true;
-                this.adaptVideoPlayer();
+                    DebugLog.instance.log(`视频加载成功: ${videoPath}`);
 
-                // 如果设置了自动播放，立即播放视频
-                if (autoPlay && this.videoPlayer) {
-                    this.videoPlayer.play();
-                    DebugLog.instance.log(`视频自动播放: ${videoPath}`);
-                }
-            });
-        }
+                    // 设置视频到播放器
+                    this.videoPlayer.clip = videoClip;
+                    // 设置视频循环播放
+                    this.videoPlayer.loop = true;
+                    this.videoNode.active = true;
+                    this.videoPlayer.node.active = true;
+                    this.adaptVideoPlayer();
+
+                    // 如果设置了自动播放，立即播放视频
+                    if (autoPlay && this.videoPlayer) {
+                        this.videoPlayer.play();
+                        DebugLog.instance.log(`视频自动播放: ${videoPath}`);
+                    }
+
+                    // 视频加载完成，resolve Promise
+                    resolve();
+                });
+            } else {
+                // 没有视频路径，直接resolve
+                resolve();
+            }
+        });
     }
 
     adaptVideoPlayer() {
