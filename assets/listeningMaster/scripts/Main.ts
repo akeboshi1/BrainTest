@@ -372,14 +372,15 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 显示请选择选项的弹窗
      */
     private showSelectOptionAlert() {
-        AlertManager.getInstance().showToastAlert(`当前最多只能选${this._requiredAnswerCount}个选项哦`);
+        AlertManager.getInstance().showToastAlert("请选择足够数量的选项");
+       
     }
 
     /**
      * 显示已达到最大选择数量的弹窗
      */
     private showMaxSelectionAlert() {
-        AlertManager.getInstance().showToastAlert(`可点击取消选中，重新选择`);
+        AlertManager.getInstance().showToastAlert(`当前只能选${this._requiredAnswerCount}个选项哦~\n可点击取消选中，重新选择`);
     }
 
     /**
