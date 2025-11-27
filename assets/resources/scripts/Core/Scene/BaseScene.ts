@@ -354,10 +354,10 @@ export class BaseScene<T extends IBaseGameChild> extends AdaptComponent {
     }
 
     // ========== 播放音频 ==========
-    public playBgmAudio(url: string, isLoop: boolean = false):AudioClip {
+    public playBgmAudio(url: string, isLoop: boolean = false,volume: number = 1.0):AudioClip {
         let audioRes = this.audioMap.get(url);
         if (audioRes != null) {
-            AudioManager.getInstance().playBgm(audioRes, isLoop);
+            AudioManager.getInstance().playBgm(audioRes, isLoop,volume);
             return audioRes;
         }else{
             return null;
