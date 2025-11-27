@@ -68,7 +68,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     protected bundleName: string = BundleName.LISTENINGMASTER;
 
-    protected audioUrls = ['music/bgm','music/bgm1',"music/bgm2","music/win","music/fail","music/click"];
+    protected audioUrls = ['music/bgm',"music/win","music/fail","music/click"];
 
     private model: ListeningModel = null;
 
@@ -96,20 +96,19 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     onLoad(): void {
         this.loadAudio().then(() => {
-            // 随机music/bgm  music/bgm1随机一个音效然后播放
-            this.randomPlayBgm();
+            this.playBgmAudio('music/bgm', true);
         });
     }
 
-    /**
-     * 随机选择并播放背景音乐
-     */
-    private randomPlayBgm() {
-        const bgmOptions = ['music/bgm', 'music/bgm1', 'music/bgm2'];
-        const randomBgm = bgmOptions[Math.floor(Math.random() * bgmOptions.length)];
-        this.playBgmAudio(randomBgm, true,0.8);
-        DebugLog.instance.log(`随机播放背景音乐: ${randomBgm}`);
-    }
+    // /**
+    //  * 随机选择并播放背景音乐
+    //  */
+    // private randomPlayBgm() {
+    //     const bgmOptions = ['music/bgm', 'music/bgm1', 'music/bgm2'];
+    //     const randomBgm = bgmOptions[Math.floor(Math.random() * bgmOptions.length)];
+    //     this.playBgmAudio(randomBgm, true,0.8);
+    //     DebugLog.instance.log(`随机播放背景音乐: ${randomBgm}`);
+    // }
 
     async start(): Promise<void> {
         super.start();
@@ -373,14 +372,14 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 显示请选择选项的弹窗
      */
     private showSelectOptionAlert() {
-        AlertManager.getInstance().showToastAlert("请选择足够数量的选项");
+        AlertManager.getInstance().showToastAlert(`当前最多只能选${this._requiredAnswerCount}个选项哦`);
     }
 
     /**
      * 显示已达到最大选择数量的弹窗
      */
     private showMaxSelectionAlert() {
-        AlertManager.getInstance().showToastAlert(`已经选了${this._requiredAnswerCount}个选项了`);
+        AlertManager.getInstance().showToastAlert(`可点击取消选中，重新选择`);
     }
 
     /**
@@ -596,7 +595,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
-    private videoLen:number = 5;
+    private videoLen:number = 10;
 
     /**
      * 加载本地视频文件
@@ -769,7 +768,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 
                 // 计算左边框线的偏移量（向左移动半个边框线宽度，考虑缩放）
                 const leftLineWidth = leftLineTransform.contentSize.width * leftLineScale.x;
-                const leftOffset = -1;
+                const leftOffset = -0.1;
                 
                 // 计算左边框线的实际高度（考虑videoPlayer的缩放和lineNode的缩放）
                 const leftLineHeight = (playerHeight + lineHeiOffset)/ leftLineScale.y;
@@ -798,7 +797,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 
                 // 计算右边框线的偏移量（向右移动半个边框线宽度，考虑缩放）
                 const rightLineWidth = rightLineTransform.contentSize.width * rightLineScale.x;
-                const rightOffset = -1;
+                const rightOffset = -0.1;
                 
                 // 计算右边框线的实际高度（考虑videoPlayer的缩放和lineNode的缩放）
                 const rightLineHeight =  (playerHeight + lineHeiOffset) / rightLineScale.y;
