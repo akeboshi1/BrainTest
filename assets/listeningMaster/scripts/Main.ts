@@ -458,14 +458,14 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
         
         // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
-        if (savedVideoPath) {
-            await this.loadLocalVideo(savedVideoPath, true);
-            DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
-        } else {
+        // if (savedVideoPath) {
+        //     await this.loadLocalVideo(savedVideoPath, true);
+        //     DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
+        // } else {
             // 如果没有保存的视频路径，则重新随机（容错处理）
             await this.initVideo();
-            DebugLog.instance.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
-        }
+            console.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
+        //}
         
         // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
@@ -1277,16 +1277,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 恢复视频播放（移动端需要强制恢复，延迟一小段时间确保节点已激活）
             if (context && context.videoPlayer) {
                 // 延迟一小段时间再播放，确保节点已经完全激活（移动端需要）
-                context.scheduleOnce(() => {
+                // context.scheduleOnce(() => {
                     if (context && context.videoPlayer) {
                         // 强制恢复视频播放，无论当前状态如何
                         // 移动端从后台恢复时，视频可能被系统暂停，即使isPlaying为true也可能实际未播放
                         // 因此无论状态如何，都先停止再播放，确保视频重新开始（移动端兼容性更好）
                         context.videoPlayer.stop();
                         context.videoPlayer.play();
-                        DebugLog.instance.log(`继续游戏，强制恢复视频播放（移动端兼容）`);
+                       console.log(`重玩当前关卡 继续游戏，强制恢复视频播放（移动端兼容）`);
                     }
-                }, 0.1); // 延迟100ms，确保节点已激活
+                // }, 0.1); // 延迟100ms，确保节点已激活
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
