@@ -588,9 +588,9 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
      private initVideo() {
         // 确保VideoPlayer不会自动播放
-        // if (this.videoPlayer) {
-        //     this.videoPlayer.playOnAwake = false;
-        // }
+        if (this.videoPlayer) {
+            this.videoPlayer.playOnAwake = true;
+        }
 
         this.loadLocalVideo();
     }
