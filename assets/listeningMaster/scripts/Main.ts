@@ -854,8 +854,14 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 暂停视频（外部调用接口）
      */
     pauseVideo() {
-        if (this.videoPlayer && this.videoPlayer.isPlaying) {
-            this.videoPlayer.pause();
+        if (this.videoPlayer) {
+            // 如果视频正在播放，则暂停
+            if (this.videoPlayer.isPlaying) {
+                this.videoPlayer.pause();
+                console.log(`视频已暂停`);
+            } else {
+                console.log(`视频未在播放，无需暂停`);
+            }
         }
     }
 
@@ -1274,19 +1280,17 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
             DebugLog.instance.log(`继续游戏，显示视频播放器`);
             
-            // 恢复视频播放（移动端需要强制恢复，延迟一小段时间确保节点已激活）
+            // 恢复视频播放（从暂停位置继续播放）
             if (context && context.videoPlayer) {
-                // 延迟一小段时间再播放，确保节点已经完全激活（移动端需要）
-                // context.scheduleOnce(() => {
-                    if (context && context.videoPlayer) {
-                        // 强制恢复视频播放，无论当前状态如何
-                        // 移动端从后台恢复时，视频可能被系统暂停，即使isPlaying为true也可能实际未播放
-                        // 因此无论状态如何，都先停止再播放，确保视频重新开始（移动端兼容性更好）
-                        context.videoPlayer.stop();
-                        context.videoPlayer.play();
-                       console.log(`重玩当前关卡 继续游戏，强制恢复视频播放（移动端兼容）`);
-                    }
-                // }, 0.1); // 延迟100ms，确保节点已激活
+                // 如果视频被暂停了，直接调用play()会从暂停位置继续播放
+                if (context.videoPlayer.isPlaying === false) {
+                    context.videoPlayer.play();
+                    DebugLog.instance.log(`继续游戏，从暂停位置恢复视频播放`);
+                } else {
+                    // 如果视频正在播放，确保继续播放
+                    context.videoPlayer.play();
+                    DebugLog.instance.log(`继续游戏，确保视频继续播放`);
+                }
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
