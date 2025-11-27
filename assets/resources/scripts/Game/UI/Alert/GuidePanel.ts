@@ -1,8 +1,8 @@
-import {  _decorator,Button,Node,Color,Label,Sprite,VideoPlayer,resources,VideoClip,UITransform,Texture2D,assetManager,ImageAsset,SpriteFrame } from "cc";
-import {BasePanel} from "db://assets/resources/scripts/Core/UI/BasePanel";
-import {UIManager} from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
-import {GameCenterManager} from "db://assets/resources/scripts/Game/GameCenter/GameCenterManager";
-import {BundleName} from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
+import { _decorator, Button, Node, Color, Label, Sprite, VideoPlayer, resources, VideoClip, UITransform, Texture2D, assetManager, ImageAsset, SpriteFrame } from "cc";
+import { BasePanel } from "db://assets/resources/scripts/Core/UI/BasePanel";
+import { UIManager } from "db://assets/resources/scripts/Core/Manager/UI/UIManager";
+import { GameCenterManager } from "db://assets/resources/scripts/Game/GameCenter/GameCenterManager";
+import { BundleName } from "db://assets/resources/scripts/Core/Manager/Load/BundleName";
 import { ScreenSizeUtil } from "../../../Adapter/ScreenSizeUtil";
 import { ScreenAdapter } from "../../../Adapter/ScreenAdapter";
 import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
@@ -20,7 +20,7 @@ enum OptionButtonColor {
 const OptionButtonColorMap = {//rgb(209, 95, 128)
     [OptionButtonColor.SELECT]: new Color(55, 194, 109, 255), //rgb(55, 194, 96)
     [OptionButtonColor.NORMAL]: new Color(0, 9, 129, 255)   //#000981
-    
+
 }
 
 /**
@@ -31,22 +31,22 @@ export class GuidePanel extends BasePanel {
 
 
     @property(Button)
-    btn:Button = null;
+    btn: Button = null;
 
     @property(Node)
-    btnNode:Node = null;
+    btnNode: Node = null;
 
     @property(Node)
-    btnNode2:Node = null;
+    btnNode2: Node = null;
 
     @property(Node)
-    btnNode3:Node = null;
+    btnNode3: Node = null;
 
     @property(Node)
-    btnStart:Node = null;
+    btnStart: Node = null;
 
     @property(Label)
-    descLabel:Label = null;
+    descLabel: Label = null;
 
     // 可选：直接使用VideoPlayer（如果不需要完整的控制面板）
     @property(VideoPlayer)
@@ -57,38 +57,38 @@ export class GuidePanel extends BasePanel {
     videoPlayerNode: Node = null;
 
     @property(Node)
-    bgNode:Node = null;
+    bgNode: Node = null;
 
     @property(Node)
-   private titleBg: Node = null;
+    private titleBg: Node = null;
 
-   @property(Node)
-   private titleIcon: Node = null;
+    @property(Node)
+    private titleIcon: Node = null;
 
-   @property(Node)
-   private titleText: Node = null;
+    @property(Node)
+    private titleText: Node = null;
 
 
     public static NAME: string = 'GuidePanel';
 
-    private gameName:BundleName= undefined;
+    private gameName: BundleName = undefined;
 
-    private callback:Function = undefined;
+    private callback: Function = undefined;
 
-    private exitcallback:Function = undefined;
+    private exitcallback: Function = undefined;
 
     // 首页配置相关属性
     private indexPageConfig: IndexPageConfig = new IndexPageConfig();
     private _configApplied: boolean = false; // 防止重复应用配置
 
-    restore(data){
+    restore(data) {
         this.bgNode.active = false;
-        if(data !=null){
+        if (data != null) {
             this.gameName = data.name
             this.callback = data.callback;
             this.exitcallback = data.exitCallback;
             let descStr = "";
-            switch(this.gameName){
+            switch (this.gameName) {
                 case BundleName.FINGING:
                     descStr = "找茬训练:对比两幅高度相似的图片，找出细微差异（如颜色、形状、数量），锻炼细节判断力与专注度"
                     break;
@@ -122,13 +122,13 @@ export class GuidePanel extends BasePanel {
 
             }
             this.descLabel.string = descStr;
-            this.btnNode.active = this.btnNode2.active= this.btnNode3.active = this.gameName != BundleName.GUESSINGGAME;
+            this.btnNode.active = this.btnNode2.active = this.btnNode3.active = this.gameName != BundleName.GUESSINGGAME;
             this.btnStart.active = this.gameName == BundleName.GUESSINGGAME;
 
 
-            let btnSprite1:Sprite = this.btnNode.getComponent(Sprite);
-            let btnSprite2:Sprite = this.btnNode2.getComponent(Sprite);
-            let btnSprite3:Sprite = this.btnNode3.getComponent(Sprite);
+            let btnSprite1: Sprite = this.btnNode.getComponent(Sprite);
+            let btnSprite2: Sprite = this.btnNode2.getComponent(Sprite);
+            let btnSprite3: Sprite = this.btnNode3.getComponent(Sprite);
             btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
             btnSprite2.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
             btnSprite3.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
@@ -196,13 +196,13 @@ export class GuidePanel extends BasePanel {
     /**
      * 视频点击事件处理
      */
-    public onVideoClick(data,event) {
+    public onVideoClick(data, event) {
         if (!this.videoPlayer || !this.videoPlayer.clip) {
             console.warn("视频未加载完成");
             return;
         }
-        if(event === VideoPlayer.EventType.COMPLETED){
-        }else if(event === VideoPlayer.EventType.CLICKED){
+        if (event === VideoPlayer.EventType.COMPLETED) {
+        } else if (event === VideoPlayer.EventType.CLICKED) {
             if (this.videoPlayer.isPlaying) {
                 // 如果正在播放，则暂停并设置为灰色
                 this.pauseVideo();
@@ -210,7 +210,7 @@ export class GuidePanel extends BasePanel {
                 // 如果没有播放，则开始播放并设置为正常颜色
                 this.playVideo();
             }
-        }else if(event === VideoPlayer.EventType.PAUSED){
+        } else if (event === VideoPlayer.EventType.PAUSED) {
         }
     }
 
@@ -243,7 +243,7 @@ export class GuidePanel extends BasePanel {
     private loadLocalVideo() {
         let videoPath = "";
         // 根据训练类型设置对应的视频路径
-        switch(this.gameName) {
+        switch (this.gameName) {
             case BundleName.FINGING:
                 videoPath = "video/findguide"; // 找茬训练教程视频
                 break;
@@ -263,32 +263,50 @@ export class GuidePanel extends BasePanel {
                 videoPath = "video/majiangguide"; // 造句训练教程视频
                 break;
             case BundleName.FINDYOURSISTER:
-                this.bgNode.active = true;
-                return;
+                videoPath = "video/findyoursisterguide/spriteFrame";
+                break;
             case BundleName.LISTENINGMASTER:
-                this.bgNode.active = true; // 听力大师训练教程视频
+                videoPath = "video/listeningguide/spriteFrame";
+                // 听力大师训练教程视频
                 break;
             default:
                 break;
         }
 
-        if (videoPath&&videoPath.length>0) {
-            // 从resources目录加载视频文件
-            resources.load(videoPath, VideoClip, (err, videoClip) => {
-                if (err) {
-                    console.warn(`加载视频失败: ${videoPath}`, err);
-                    return;
-                }
+        if (videoPath && videoPath.length > 0) {
+            if (this.gameName == BundleName.FINDYOURSISTER || this.gameName == BundleName.LISTENINGMASTER) {
+                this.bgNode.active = true;
+                // 加载videoPath对应的图片并设置给bgNode中的sprite
+                resources.load(videoPath, SpriteFrame, (err, spriteFrame) => {
+                    if (err) {
+                        console.warn(`加载图片失败: ${videoPath}`, err);
+                        return;
+                    }
+                    const sprite = this.bgNode.getComponent(Sprite);
+                    if (sprite && spriteFrame) {
+                        sprite.spriteFrame = spriteFrame;
+                        console.log(`图片加载成功并设置到bgNode: ${videoPath}`);
+                    }
+                });
+            } else {
+                // 从resources目录加载视频文件
+                resources.load(videoPath, VideoClip, (err, videoClip) => {
+                    if (err) {
+                        console.warn(`加载视频失败: ${videoPath}`, err);
+                        return;
+                    }
 
-                console.log(`视频加载成功: ${videoPath}`);
+                    console.log(`视频加载成功: ${videoPath}`);
 
-                // 设置视频到播放器，但不自动播放
-                this.videoPlayer.clip = videoClip;
-                this.videoPlayer.playOnAwake = false; // 确保不会自动播放
+                    // 设置视频到播放器，但不自动播放
+                    this.videoPlayer.clip = videoClip;
+                    this.videoPlayer.playOnAwake = false; // 确保不会自动播放
 
-                this.adaptVideoPlayer();
+                    this.adaptVideoPlayer();
 
-            });
+                });
+            }
+
         }
     }
 
@@ -297,14 +315,14 @@ export class GuidePanel extends BasePanel {
             return;
         }
 
-        let scaleFactor = ScreenSizeUtil.getDevicePixelRatio()+0.2;
+        let scaleFactor = ScreenSizeUtil.getDevicePixelRatio() + 0.2;
 
 
         // 适配宽度
         this.videoPlayer.node.setScale(scaleFactor, scaleFactor);
     }
 
-    
+
 
     /**
      * 播放视频（外部调用接口）
@@ -340,7 +358,7 @@ export class GuidePanel extends BasePanel {
         }
     }
 
-    selectHard(event,data){
+    selectHard(event, data) {
         // let btnSprite1:Sprite = this.btnNode.getComponent(Sprite);
         // let btnSprite2:Sprite = this.btnNode2.getComponent(Sprite);
         // let btnSprite3:Sprite = this.btnNode3.getComponent(Sprite);
@@ -361,19 +379,19 @@ export class GuidePanel extends BasePanel {
         //         btnSprite1.color = OptionButtonColorMap[OptionButtonColor.NORMAL];
         //         break;
         // }
-        GameCenterManager.getInstance().setDifficulty(Number(data)+1);
+        GameCenterManager.getInstance().setDifficulty(Number(data) + 1);
         this.startGame();
     }
 
-    startGame(){
-        if(this.callback != undefined){
+    startGame() {
+        if (this.callback != undefined) {
             this.callback();
         }
         this._closePanel();
     }
 
-    closePanel(){
-        if(this.exitcallback != undefined){
+    closePanel() {
+        if (this.exitcallback != undefined) {
             this.exitcallback();
         }
         this._closePanel();
@@ -385,7 +403,7 @@ export class GuidePanel extends BasePanel {
      */
     getCurrentConfigType(): string {
         let currentFestival = ThemeConfig.getInstance().getThemeTitle();
-        if(currentFestival == "" || currentFestival == null){
+        if (currentFestival == "" || currentFestival == null) {
             currentFestival = "normal";
         }
         return currentFestival;
@@ -398,7 +416,7 @@ export class GuidePanel extends BasePanel {
      */
     async loadRemoteSprite(url: string): Promise<SpriteFrame> {
         return new Promise((resolve, reject) => {
-            this.wwwLoadSpriteFrame(url,(spriteFrame: SpriteFrame) => {
+            this.wwwLoadSpriteFrame(url, (spriteFrame: SpriteFrame) => {
                 if (spriteFrame) {
                     resolve(spriteFrame);
                 } else {
@@ -413,7 +431,7 @@ export class GuidePanel extends BasePanel {
      * @param path 远程图片路径
      * @param completeHD 完成回调函数
      */
-    public wwwLoadSpriteFrame(path: string,completeHD?: Function) {
+    public wwwLoadSpriteFrame(path: string, completeHD?: Function) {
         assetManager.loadRemote<ImageAsset>(path,
             {
                 xhrResponseType: "blob",
@@ -430,7 +448,7 @@ export class GuidePanel extends BasePanel {
                 const texture = new Texture2D();
                 texture.image = imageAsset;
                 spriteFrame.texture = texture;
-                
+
                 completeHD(spriteFrame);
             }
         );
@@ -445,11 +463,11 @@ export class GuidePanel extends BasePanel {
             DebugLog.instance.log("GuidePanel配置已经应用过，跳过重复调用");
             return;
         }
-        
+
         DebugLog.instance.log("GuidePanel开始应用首页配置");
         const userData = PersonalCenterManager.getInstance().userInfoData;
         let config = null;
-        
+
         // 优先从用户信息缓存中获取配置
         if (userData) {
             DebugLog.instance.log("GuidePanel用户数据存在，检查缓存");
@@ -463,26 +481,26 @@ export class GuidePanel extends BasePanel {
         } else {
             DebugLog.instance.log("GuidePanel用户数据不存在");
         }
-        
+
         // 如果缓存中没有配置，则重新加载
         if (!config) {
             DebugLog.instance.log("GuidePanel缓存中没有配置，重新加载首页配置");
             await this.indexPageConfig.loadConfig();
             let type = this.getCurrentConfigType(); // 动态获取配置类型
-            
+
             // if (type === "normal") {
             //     config = this.indexPageConfig.normalConfig;
             // } else {
             config = ThemeConfig.getInstance().getConfig();
             // }
-            
+
             // 将配置存储到用户信息缓存中
             if (userData && config) {
                 userData.setIndexPageConfigCache(config);
                 DebugLog.instance.log("GuidePanel首页配置已缓存到用户信息中");
             }
         }
-        
+
         if (config && config.ui) {
             DebugLog.instance.log("GuidePanel配置存在，开始应用UI配置");
             // 应用UI配置
@@ -490,7 +508,7 @@ export class GuidePanel extends BasePanel {
                 DebugLog.instance.log("GuidePanel开始加载背景图片:", config.ui.bg);
                 // 设置标题背景 - 统一使用远程加载
                 const titleSprite = await this.loadRemoteSprite(config.ui.bg);
-                
+
                 if (this.titleBg && titleSprite) {
                     this.titleBg.getComponent(Sprite).spriteFrame = titleSprite;
                     DebugLog.instance.log("GuidePanel成功应用标题背景配置");
@@ -513,7 +531,7 @@ export class GuidePanel extends BasePanel {
                     // 调整位置 - 保持图片中心位置不变
                     const currentPos = this.titleIcon.position;
                     this.titleIcon.setPosition(
-                        currentPos.x + 40 ,
+                        currentPos.x + 40,
                         currentPos.y + 260,
                         currentPos.z
                     );
@@ -523,14 +541,14 @@ export class GuidePanel extends BasePanel {
             if (config.ui.title) {
                 // 设置图标1 - 统一使用远程加载
                 const icon1Sprite = await this.loadRemoteSprite(config.ui.title);
-                
+
                 if (this.titleText && icon1Sprite) {
                     this.titleText.getComponent(Sprite).spriteFrame = icon1Sprite;
                 }
                 DebugLog.instance.log("GuidePanel应用图标1配置:", config.ui.title);
             }
         }
-        
+
         // 标记配置已应用
         this._configApplied = true;
         DebugLog.instance.log("GuidePanel配置应用完成");
@@ -546,18 +564,18 @@ export class GuidePanel extends BasePanel {
             userData.clearIndexPageConfigCache();
             DebugLog.instance.log("GuidePanel已清除首页配置缓存，将重新加载");
         }
-        
+
         // 重置配置应用标志
         this._configApplied = false;
-        
+
         // 重新应用配置
         await this.applyIndexPageConfig();
     }
 
-    _closePanel(){
+    _closePanel() {
         // 停止视频播放
         this.stopVideo();
-        
+
         // 重置视频颜色为正常
         this.setVideoNormal();
 
