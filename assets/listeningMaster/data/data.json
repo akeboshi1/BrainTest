@@ -66,7 +66,7 @@
     },
     "thunder":{
         "name":"雷声",
-        "duration":"5",
+        "duration":"4",
         "path":"music/question/thunder"
     },
     "rain":{
@@ -76,12 +76,12 @@
     },
     "river":{
         "name":"河水声",
-        "duration":"6",
+        "duration":"5",
         "path":"music/question/river"
     },
     "wind":{
         "name":"风声",
-        "duration":"6",
+        "duration":"5",
         "path":"music/question/wind"
     },
     "plane":{
@@ -91,7 +91,7 @@
     },
     "policecar":{
         "name":"警车",
-        "duration":"3",
+        "duration":"2",
         "path":"music/question/policecar"
     },
     "carhorn":{
@@ -108,11 +108,6 @@
         "name":"火车",
         "duration":"7",
         "path":"music/question/train"
-    },
-    "piano":{
-        "name":"钢琴",
-        "duration":"4",
-        "path":"music/question/piano"
     },
     "urheen":{
         "name":"二胡",
