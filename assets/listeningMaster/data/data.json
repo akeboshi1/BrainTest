@@ -63,6 +63,26 @@
         "name":"猫",
         "duration":"1",
         "path":"music/question/cat"
+    },
+    "thunder":{
+        "name":"雷声",
+        "duration":"5",
+        "path":"music/question/thunder"
+    },
+    "rain":{
+        "name":"雨声",
+        "duration":"6",
+        "path":"music/question/rain"
+    },
+    "river":{
+        "name":"河水声",
+        "duration":"6",
+        "path":"music/question/river"
+    },
+    "wind":{
+        "name":"风声",
+        "duration":"6",
+        "path":"music/question/wind"
     }
 
 }

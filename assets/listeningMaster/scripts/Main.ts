@@ -600,6 +600,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
+    private videoLen:number = 4
+
     /**
      * 加载本地视频文件
      * @param videoPath 视频路径，如果不传则随机选择
@@ -607,7 +609,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private loadLocalVideo(videoPath?: string) {
         // 如果没有传入视频路径，随机选择 0-2 的视频
         if (!videoPath) {
-            const randomIndex = Math.floor(Math.random() * 3);
+            const randomIndex = Math.floor(Math.random() * this.videoLen);
             videoPath = `video/bgm${randomIndex}`;
         }
         
