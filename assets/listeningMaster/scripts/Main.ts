@@ -451,9 +451,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.log(`重玩当前关卡，重新获取题目（无保存的题目）`);
         }
         
-        // 使用上一次的视频路径重新加载视频（不重新随机）
+        // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
         if (savedVideoPath) {
-            this.loadLocalVideo(savedVideoPath);
+            this.loadLocalVideo(savedVideoPath, true);
             DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
         } else {
             // 如果没有保存的视频路径，则重新随机（容错处理）
@@ -601,8 +601,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     /**
      * 加载本地视频文件
      * @param videoPath 视频路径，如果不传则随机选择
+     * @param autoPlay 是否自动播放，默认false
      */
-    private loadLocalVideo(videoPath?: string) {
+    private loadLocalVideo(videoPath?: string, autoPlay: boolean = false) {
         // 如果没有传入视频路径，随机选择 0-2 的视频
         if (!videoPath) {
             const randomIndex = Math.floor(Math.random() * this.videoLen);
@@ -627,13 +628,19 @@ export class Main extends BaseScene<IBaseGameChild> {
 
                 DebugLog.instance.log(`视频加载成功: ${videoPath}`);
 
-                // 设置视频到播放器，但不自动播放
+                // 设置视频到播放器
                 this.videoPlayer.clip = videoClip;
+                // 设置视频循环播放
+                this.videoPlayer.loop = true;
                 this.videoNode.active = true;
                 this.videoPlayer.node.active = true;
                 this.adaptVideoPlayer();
 
-
+                // 如果设置了自动播放，立即播放视频
+                if (autoPlay && this.videoPlayer) {
+                    this.videoPlayer.play();
+                    DebugLog.instance.log(`视频自动播放: ${videoPath}`);
+                }
             });
         }
     }
@@ -867,7 +874,12 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         DebugLog.instance.log(`开始播放，总时长: ${this._totalDuration} 秒（音效时长: ${totalAudioDuration} 秒，间隔时长: ${totalIntervalDuration} 秒，初始延迟: ${this._firstAudioDelay} 秒）`);
 
-        // 播放视频
+        // 确保视频循环播放
+        if (this.videoPlayer) {
+            this.videoPlayer.loop = true;
+        }
+
+        // 播放视频（会一直循环直到停止）
         this.playVideo();
 
         // 第一个音效延迟3秒播放（保存定时器以便暂停时清除）

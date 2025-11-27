@@ -66,7 +66,7 @@
     },
     "thunder":{
         "name":"雷声",
-        "duration":"4",
+        "duration":"6",
         "path":"music/question/thunder"
     },
     "rain":{
@@ -111,7 +111,7 @@
     },
     "urheen":{
         "name":"二胡",
-        "duration":"1",
+        "duration":"2",
         "path":"music/question/urheen"
     },
     "guitar":{
@@ -121,8 +121,53 @@
     },
     "flute":{
         "name":"长笛",
-        "duration":"2",
+        "duration":"3",
         "path":"music/question/flute"
+    },
+    "phonecall":{
+        "name":"拨电话",
+        "duration":"2",
+        "path":"music/question/phonecall"
+    },
+    "ringtone":{
+        "name":"手机铃声",
+        "duration":"2",
+        "path":"music/question/ringtone"
+    },
+    "doorbell":{
+        "name":"门铃",
+        "duration":"2",
+        "path":"music/question/doorbell"
+    },
+    "cry":{
+        "name":"婴儿哭",
+        "duration":"3",
+        "path":"music/question/cry"
+    },
+    "cough":{
+        "name":"咳嗽声",
+        "duration":"2",
+        "path":"music/question/cough"
+    },
+    "whistle":{
+        "name":"口哨声",
+        "duration":"2",
+        "path":"music/question/whistle"
+    },
+    "knockdoor":{
+        "name":"敲门声",
+        "duration":"6",
+        "path":"music/question/knockdoor"
+    },
+    "cheer":{
+        "name":"欢呼声",
+        "duration":"3",
+        "path":"music/question/cheer"
+    },
+    "wallclock":{
+        "name":"挂钟声",
+        "duration":"8",
+        "path":"music/question/wallclock"
     }
 
 }
