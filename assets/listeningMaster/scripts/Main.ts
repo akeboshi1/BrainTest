@@ -1,4 +1,4 @@
-import { _decorator, resources, Label, Node, Sprite, SpriteFrame, ProgressBar, VideoPlayer, VideoClip, assetManager, game, Game, ParticleAsset, AudioClip, Color, UITransform, Vec3, RichText } from 'cc';
+import { _decorator, resources, Label, Node, Sprite, SpriteFrame, ProgressBar, VideoPlayer, VideoClip, assetManager, game, Game, ParticleAsset, AudioClip, AudioSource, Color, UITransform, Vec3, RichText } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
@@ -97,8 +97,14 @@ export class Main extends BaseScene<IBaseGameChild> {
     private _optionBank: IListeningConfig[] = null; // 选项题库
     private _selectedOptions: IListeningConfig[] = []; // 缓存选中的选项数据
     private _hasSubmittedAnswer: boolean = false; // 是否已经提交答案
+    private _audioSource: AudioSource = null; // 用于播放音效的AudioSource
+    private _finishedAudioCount: number = 0; // 已播放完成的音效数量
+    private _allAudioFinished: boolean = false; // 所有音效是否已播放完成
 
     onLoad(): void {
+        // 初始化AudioSource用于播放音效
+        this._audioSource = this.node.addComponent(AudioSource);
+        
         this.loadAudio().then(() => {
             this.playBgmAudio('music/bgm', true);
         });
@@ -525,17 +531,24 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._playedQuestions = [];
         this._isFirstAudio = true;
         this._isPlaying = false;
-        this._elapsedTime = 0;
-        this._totalDuration = 0;
+        this._allAudioFinished = false;
+        this._finishedAudioCount = 0;
         
         // 清除定时器
         if (this._audioTimer) {
             clearTimeout(this._audioTimer);
             this._audioTimer = null;
         }
-        if (this._durationTimer) {
-            clearInterval(this._durationTimer);
-            this._durationTimer = null;
+        if (this._firstAudioTimer) {
+            clearTimeout(this._firstAudioTimer);
+            this._firstAudioTimer = null;
+        }
+
+        // 停止并清理AudioSource
+        if (this._audioSource) {
+            this._audioSource.node.off(AudioSource.EventType.ENDED, this.onAudioFinished, this);
+            this._audioSource.stop();
+            this._audioSource.clip = null;
         }
         
         // 停止并重置倒计时
@@ -858,9 +871,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 如果视频正在播放，则暂停
             if (this.videoPlayer.isPlaying) {
                 this.videoPlayer.pause();
-                console.log(`视频已暂停`);
+                console.log(`listen 视频已暂停`);
             } else {
-                console.log(`视频未在播放，无需暂停`);
+                console.log(`listen 视频未在播放，无需暂停`);
             }
         }
     }
@@ -871,6 +884,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     stopVideo() {
         if (this.videoPlayer) {
             this.videoPlayer.stop();
+            // 清空视频内容
+            this.videoPlayer.clip = null;
+            console.log(`listen 视频已停止并清空内容`);
         }
     }
 
@@ -883,21 +899,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
-        // 重置已播放列表
+        // 重置状态
         this._playedQuestions = [];
         this._isFirstAudio = true;
-
-        // 计算总时长：所有音效时长 + 间隔时间（n个音效有n-1个间隔）+ 第一个音效延迟时间 + 音效播放完成后的延迟时间（2秒）
-        const totalAudioDuration = this._questions.reduce((sum, question) => sum + question.duration, 0);
-        const totalIntervalDuration = (this._questions.length - 1) * this._audioInterval;
-        const finalDelay = 2; // 所有音效播放完成后的延迟时间（秒）
-        this._totalDuration = totalAudioDuration + totalIntervalDuration + this._firstAudioDelay + finalDelay;
-        this._elapsedTime = 0;
         this._isPlaying = true;
+        this._allAudioFinished = false;
+        this._finishedAudioCount = 0;
 
-        DebugLog.instance.log(`开始播放，总时长: ${this._totalDuration} 秒（音效时长: ${totalAudioDuration} 秒，间隔时长: ${totalIntervalDuration} 秒，初始延迟: ${this._firstAudioDelay} 秒）`);
+        DebugLog.instance.log(`开始播放，共 ${this._questions.length} 个音效`);
 
-        // 确保视频循环播放
+        // 确保视频循环播放（视频会一直循环直到所有音效播放完成）
         if (this.videoPlayer) {
             this.videoPlayer.loop = true;
         }
@@ -912,16 +923,6 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
             this._firstAudioTimer = null;
         }, this._firstAudioDelay * 1000);
-
-        // 启动总时长定时器
-        this._durationTimer = setInterval(() => {
-            this._elapsedTime += 0.1; // 每100ms更新一次
-            
-            if (this._elapsedTime >= this._totalDuration) {
-                this.stopVideoWithAudio();
-                this.startAnswerTimer();
-            }
-        }, 100);
     }
 
     /**
@@ -937,16 +938,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             !this._playedQuestions.some(played => played.name === q.name)
         );
 
-        // 如果所有音效都已播放，延迟2秒后停止播放
+        // 如果所有音效都已开始播放，检查是否全部播放完成
         if (unplayedQuestions.length === 0) {
-            DebugLog.instance.log(`所有音效已播放完成，延迟2秒后停止视频并显示选项`);
-            // 延迟2秒后停止视频、关闭视频，显示选项节点
-            setTimeout(() => {
-                if (this._isPlaying) {
-                    this.stopVideoWithAudio();
-                    this.startAnswerTimer();
-                }
-            }, 2000);
+            // 检查是否所有音效都已播放完成
+            this.checkAllAudioFinished();
             return;
         }
 
@@ -967,27 +962,82 @@ export class Main extends BaseScene<IBaseGameChild> {
         bundle.load(question.path, AudioClip, (err, audioClip) => {
             if (err) {
                 DebugLog.instance.error(`加载音效失败: ${question.path}`, err);
-                // 即使加载失败，也继续播放下一个音效
-                this.scheduleNextAudio(question.duration);
+                // 即使加载失败，也继续播放下一个音效（间隔时间后）
+                this.scheduleNextAudio();
                 return;
             }
 
-            if (audioClip) {
-                // 播放短音效
-                AudioManager.getInstance().playShortSound(audioClip, 1.0);
-                DebugLog.instance.log(`播放音效: ${question.name}, 时长: ${question.duration} 秒，已播放: ${this._playedQuestions.length}/${this._questions.length}`);
-            }
+            if (audioClip && this._audioSource) {
+                // 先移除之前的事件监听器（避免重复绑定）
+                this._audioSource.node.off(AudioSource.EventType.ENDED, this.onAudioFinished, this);
+                
+                // 使用AudioSource播放音效，可以监听播放完成事件
+                this._audioSource.clip = audioClip;
+                this._audioSource.play();
+                
+                DebugLog.instance.log(`播放音效: ${question.name}, 已开始播放: ${this._playedQuestions.length}/${this._questions.length}`);
 
-            // 根据当前音效的时长和间隔，安排下一个音效的播放
-            this.scheduleNextAudio(question.duration);
+                // 监听播放完成事件
+                this._audioSource.node.on(AudioSource.EventType.ENDED, this.onAudioFinished, this);
+            } else if (!audioClip) {
+                // 如果音效加载失败，也继续播放下一个音效（间隔时间后）
+                this.scheduleNextAudio();
+            }
         });
     }
 
     /**
-     * 安排下一个音效的播放
+     * 音效播放完成回调
      */
-    private scheduleNextAudio(duration: number) {
+    private onAudioFinished() {
         if (!this._isPlaying) {
+            return;
+        }
+
+        this._finishedAudioCount++;
+        DebugLog.instance.log(`音效播放完成，已完成: ${this._finishedAudioCount}/${this._questions.length}`);
+
+        // 检查是否所有音效都已播放完成
+        this.checkAllAudioFinished();
+
+        // 如果还有未播放的音效，继续播放下一个
+        if (this._playedQuestions.length < this._questions.length) {
+            // 间隔时间后播放下一个音效
+            this.scheduleNextAudio();
+        }
+    }
+
+    /**
+     * 检查所有音效是否已播放完成
+     */
+    private checkAllAudioFinished() {
+        // 如果所有音效都已开始播放，且所有音效都已播放完成
+        if (this._playedQuestions.length >= this._questions.length && 
+            this._finishedAudioCount >= this._questions.length) {
+            if (!this._allAudioFinished) {
+                this._allAudioFinished = true;
+                DebugLog.instance.log(`所有音效已播放完成，延迟2秒后停止视频并显示选项`);
+                // 延迟2秒后停止视频、关闭视频，显示选项节点
+                setTimeout(() => {
+                    if (this._isPlaying) {
+                        this.stopVideoWithAudio();
+                        this.startAnswerTimer();
+                    }
+                }, 2000);
+            }
+        }
+    }
+
+    /**
+     * 安排下一个音效的播放（基于间隔时间）
+     */
+    private scheduleNextAudio() {
+        if (!this._isPlaying) {
+            return;
+        }
+
+        // 如果所有音效都已开始播放，不再安排下一个
+        if (this._playedQuestions.length >= this._questions.length) {
             return;
         }
 
@@ -996,11 +1046,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             clearTimeout(this._audioTimer);
         }
 
-        // 计算下一个音效的播放时间：当前音效时长 + 间隔时间（3秒）
-        const nextDelay = (duration + this._audioInterval) * 1000; // 转换为毫秒
+        // 间隔时间后播放下一个音效
+        const nextDelay = this._audioInterval * 1000; // 转换为毫秒
 
         this._audioTimer = setTimeout(() => {
-            if (this._isPlaying && this._elapsedTime < this._totalDuration) {
+            if (this._isPlaying) {
                 this._isFirstAudio = false; // 第一个音效已播放，后续不再是第一个
                 this.playRandomAudio();
             }
@@ -1019,9 +1069,16 @@ export class Main extends BaseScene<IBaseGameChild> {
             this._audioTimer = null;
         }
 
-        if (this._durationTimer) {
-            clearInterval(this._durationTimer);
-            this._durationTimer = null;
+        if (this._firstAudioTimer) {
+            clearTimeout(this._firstAudioTimer);
+            this._firstAudioTimer = null;
+        }
+
+        // 停止并清理AudioSource
+        if (this._audioSource) {
+            this._audioSource.node.off(AudioSource.EventType.ENDED, this.onAudioFinished, this);
+            this._audioSource.stop();
+            this._audioSource.clip = null;
         }
 
         // 停止视频
@@ -1046,7 +1103,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             
         }
 
-        DebugLog.instance.log(`播放完成，总时长: ${this._totalDuration} 秒`);
+        DebugLog.instance.log(`所有音效播放完成，停止视频并显示选项`);
     }
 
     /**
@@ -1216,9 +1273,9 @@ export class Main extends BaseScene<IBaseGameChild> {
                 clearTimeout(this._audioTimer);
                 this._audioTimer = null;
             }
-            if (this._durationTimer) {
-                clearInterval(this._durationTimer);
-                this._durationTimer = null;
+            // 暂停音效播放
+            if (this._audioSource && this._audioSource.playing) {
+                this._audioSource.pause();
             }
             
             // 暂停音效播放（通过设置_isPlaying标志）
@@ -1282,86 +1339,56 @@ export class Main extends BaseScene<IBaseGameChild> {
             
             // 恢复视频播放（从暂停位置继续播放）
             if (context && context.videoPlayer) {
-                // 如果视频被暂停了，直接调用play()会从暂停位置继续播放
+                // 如果视频被暂停了，使用resume()从暂停位置继续播放
                 if (context.videoPlayer.isPlaying === false) {
                     context.videoPlayer.play();
-                    DebugLog.instance.log(`继续游戏，从暂停位置恢复视频播放`);
+                    console.log(`listen 继续游戏，从暂停位置恢复视频播放`);
                 } else {
                     // 如果视频正在播放，确保继续播放
                     context.videoPlayer.play();
-                    DebugLog.instance.log(`继续游戏，确保视频继续播放`);
+                    console.log(`listen 继续游戏，确保视频继续播放`);
                 }
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
-            if (context && !context._isPlaying && context._elapsedTime < context._totalDuration) {
+            if (context && !context._isPlaying && !context._allAudioFinished) {
                 context._isPlaying = true;
                 
-                // 计算暂停时长（毫秒）
-                const pauseDuration = context._pauseStartTime > 0 ? (Date.now() - context._pauseStartTime) / 1000 : 0;
-                context._pauseStartTime = 0;
+                // 恢复AudioSource播放（如果被暂停了）
+                if (context._audioSource && !context._audioSource.playing && context._audioSource.clip) {
+                    context._audioSource.play();
+                }
                 
-                // 重新启动总时长定时器
-                if (!context._durationTimer) {
-                    context._durationTimer = setInterval(() => {
-                        context._elapsedTime += 0.1; // 每100ms更新一次
-                        
-                        if (context._elapsedTime >= context._totalDuration) {
-                            context.stopVideoWithAudio();
-                            context.startAnswerTimer();
-                        }
-                    }, 100);
-                    DebugLog.instance.log(`继续游戏，重新启动总时长定时器，已播放时间: ${context._elapsedTime.toFixed(1)}秒`);
+                // 重新绑定AudioSource事件监听（如果AudioSource存在）
+                if (context._audioSource) {
+                    context._audioSource.node.off(AudioSource.EventType.ENDED, context.onAudioFinished, context);
+                    context._audioSource.node.on(AudioSource.EventType.ENDED, context.onAudioFinished, context);
                 }
                 
                 // 判断是否需要重新启动音效播放定时器
                 // 如果第一个音效还没播放，重新启动第一个音效延迟定时器
                 if (context._isFirstAudio && !context._firstAudioTimer) {
-                    // 计算剩余延迟时间（考虑已播放时间和暂停时间）
-                    const remainingDelay = Math.max(0, (context._firstAudioDelay * 1000) - (context._elapsedTime * 1000));
-                    if (remainingDelay > 0) {
-                        context._firstAudioTimer = setTimeout(() => {
+                    context._firstAudioTimer = setTimeout(() => {
+                        if (context._isPlaying) {
+                            context.playRandomAudio();
+                        }
+                        context._firstAudioTimer = null;
+                    }, context._firstAudioDelay * 1000);
+                    DebugLog.instance.log(`继续游戏，重新启动第一个音效延迟定时器`);
+                } else if (!context._isFirstAudio && !context._audioTimer) {
+                    // 第一个音效已播放，需要继续播放下一个音效
+                    // 如果还有未播放的音效，继续播放
+                    if (context._playedQuestions.length < context._questions.length) {
+                        context._audioTimer = setTimeout(() => {
                             if (context._isPlaying) {
                                 context.playRandomAudio();
                             }
-                            context._firstAudioTimer = null;
-                        }, remainingDelay);
-                        DebugLog.instance.log(`继续游戏，重新启动第一个音效延迟定时器，剩余延迟: ${(remainingDelay / 1000).toFixed(1)}秒`);
-                    } else {
-                        // 延迟时间已过，直接播放第一个音效
-                        context.playRandomAudio();
-                        DebugLog.instance.log(`继续游戏，延迟时间已过，直接播放第一个音效`);
-                    }
-                } else if (!context._isFirstAudio && !context._audioTimer) {
-                    // 第一个音效已播放，需要继续播放下一个音效
-                    // 计算下一个音效的延迟时间（基于已播放时间和间隔时间）
-                    const lastPlayedQuestion = context._playedQuestions[context._playedQuestions.length - 1];
-                    if (lastPlayedQuestion) {
-                        // 计算从上次音效播放后经过的时间
-                        const timeSinceLastAudio = context._elapsedTime - (context._firstAudioDelay + 
-                            context._playedQuestions.slice(0, -1).reduce((sum, q) => sum + q.duration + context._audioInterval, 0));
-                        const remainingDelay = Math.max(0, (lastPlayedQuestion.duration + context._audioInterval) * 1000 - timeSinceLastAudio * 1000);
-                        
-                        if (remainingDelay > 0) {
-                            context._audioTimer = setTimeout(() => {
-                                if (context._isPlaying && context._elapsedTime < context._totalDuration) {
-                                    context.playRandomAudio();
-                                }
-                            }, remainingDelay);
-                            DebugLog.instance.log(`继续游戏，重新启动下一个音效定时器，剩余延迟: ${(remainingDelay / 1000).toFixed(1)}秒`);
-                        } else {
-                            // 延迟时间已过，直接播放下一个音效
-                            context.playRandomAudio();
-                            DebugLog.instance.log(`继续游戏，延迟时间已过，直接播放下一个音效`);
-                        }
-                    } else {
-                        // 没有已播放的音效，直接播放
-                        context.playRandomAudio();
-                        DebugLog.instance.log(`继续游戏，没有已播放的音效，直接播放`);
+                        }, context._audioInterval * 1000);
+                        DebugLog.instance.log(`继续游戏，重新启动下一个音效定时器`);
                     }
                 }
                 
-                DebugLog.instance.log(`继续游戏，恢复音效播放，已播放时间: ${context._elapsedTime.toFixed(1)}秒，暂停时长: ${pauseDuration.toFixed(1)}秒`);
+                DebugLog.instance.log(`继续游戏，恢复音效播放，已播放: ${context._playedQuestions.length}/${context._questions.length}, 已完成: ${context._finishedAudioCount}/${context._questions.length}`);
             }
         }
         
