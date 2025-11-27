@@ -15,7 +15,7 @@ import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
 import { IListeningConfig, ListeningModel } from './ListeningModel';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
-import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import { AlertManager } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -68,7 +68,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     protected bundleName: string = BundleName.LISTENINGMASTER;
 
-    protected audioUrls = ['music/bgm',"music/win","music/fail","music/click"];
+    protected audioUrls = ['music/bgm','music/bgm1',"music/bgm2","music/win","music/fail","music/click"];
 
     private model: ListeningModel = null;
 
@@ -96,8 +96,19 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     onLoad(): void {
         this.loadAudio().then(() => {
-            this.playBgmAudio("music/bgm", true);
+            // 随机music/bgm  music/bgm1随机一个音效然后播放
+            this.randomPlayBgm();
         });
+    }
+
+    /**
+     * 随机选择并播放背景音乐
+     */
+    private randomPlayBgm() {
+        const bgmOptions = ['music/bgm', 'music/bgm1', 'music/bgm2'];
+        const randomBgm = bgmOptions[Math.floor(Math.random() * bgmOptions.length)];
+        this.playBgmAudio(randomBgm, true,0.8);
+        DebugLog.instance.log(`随机播放背景音乐: ${randomBgm}`);
     }
 
     async start(): Promise<void> {
@@ -362,32 +373,14 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 显示请选择选项的弹窗
      */
     private showSelectOptionAlert() {
-        const alertData = new AlertData();
-        alertData.title = "提示";
-        alertData.message = "请选择足够数量的选项";
-        alertData.x = 0;
-        alertData.y = 0;
-        alertData.confirmButtonText = "确定";
-        alertData.cancelButtonVisible = false;
-        alertData.closeBtnVisible = false;
-        
-        AlertManager.getInstance().showAlert(alertData);
+        AlertManager.getInstance().showToastAlert("请选择足够数量的选项");
     }
 
     /**
      * 显示已达到最大选择数量的弹窗
      */
     private showMaxSelectionAlert() {
-        const alertData = new AlertData();
-        alertData.title = "提示";
-        alertData.message = `已经选了${this._requiredAnswerCount}个选项了`;
-        alertData.x = 0;
-        alertData.y = 0;
-        alertData.confirmButtonText = "确定";
-        alertData.cancelButtonVisible = false;
-        alertData.closeBtnVisible = false;
-        
-        AlertManager.getInstance().showAlert(alertData);
+        AlertManager.getInstance().showToastAlert(`已经选了${this._requiredAnswerCount}个选项了`);
     }
 
     /**
@@ -499,7 +492,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 重新获取新难度的题目
         this._questions = this.model.getQuestion(this._currentDifficulty);
         
-        // 重新初始化视频
+        // 重新随机选择背景音乐
+        // this.randomPlayBgm();
+        
+        // 重新初始化视频（会随机选择新的视频）
         this.initVideo();
         
         // 重新开始视频和音频播放
@@ -600,7 +596,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
-    private videoLen:number = 4
+    private videoLen:number = 5;
 
     /**
      * 加载本地视频文件
