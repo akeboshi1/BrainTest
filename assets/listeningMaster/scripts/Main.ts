@@ -858,9 +858,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 如果视频正在播放，则暂停
             if (this.videoPlayer.isPlaying) {
                 this.videoPlayer.pause();
-                DebugLog.instance.log(`视频已暂停`);
+                console.log(`视频已暂停`);
             } else {
-                DebugLog.instance.log(`视频未在播放，无需暂停`);
+                console.log(`视频未在播放，无需暂停`);
             }
         }
     }
