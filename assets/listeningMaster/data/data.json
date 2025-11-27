@@ -83,6 +83,51 @@
         "name":"风声",
         "duration":"6",
         "path":"music/question/wind"
+    },
+    "plane":{
+        "name":"飞机",
+        "duration":"5",
+        "path":"music/question/plane"
+    },
+    "policecar":{
+        "name":"警车",
+        "duration":"3",
+        "path":"music/question/policecar"
+    },
+    "carhorn":{
+        "name":"汽车喇叭",
+        "duration":"1",
+        "path":"music/question/carhorn"
+    },
+    "ambulance":{
+        "name":"救护车",
+        "duration":"4",
+        "path":"music/question/ambulance"
+    },
+    "train":{
+        "name":"火车",
+        "duration":"7",
+        "path":"music/question/train"
+    },
+    "piano":{
+        "name":"钢琴",
+        "duration":"4",
+        "path":"music/question/piano"
+    },
+    "urheen":{
+        "name":"二胡",
+        "duration":"1",
+        "path":"music/question/urheen"
+    },
+    "guitar":{
+        "name":"吉他",
+        "duration":"2",
+        "path":"music/question/guitar"
+    },
+    "flute":{
+        "name":"长笛",
+        "duration":"2",
+        "path":"music/question/flute"
     }
 
 }
