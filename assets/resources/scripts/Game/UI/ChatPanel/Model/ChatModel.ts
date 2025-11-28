@@ -219,7 +219,6 @@ export class ChatModel {
             NativeEventManager.getInstance().on(NativeEvent.CHAT_MODE_SWITCHED, this.onChatModeSwitched, this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_CHARACTER_SWITCHED,this.onChatCharacterSwitched,this);
             NativeEventManager.getInstance().on(NativeEvent.CHAT_USAGE_LIMIT_EXCEEDED, this.onChatUsageLimitExceeded, this);
-            NativeEventManager.getInstance().on(NativeEvent.CHAT_END_RESPONSE,this.onChatEndResponse,this);
         }
     }
 
@@ -483,8 +482,10 @@ export class ChatModel {
         EventManager.getInstance().emit(ChatModel.MONTH_USAGE_LIMIT_EXCEEDED_EVENT);
     }
 
-    private onChatEndResponse(data:any){
-
+    public requestChatEndResponse(){
+        if (sys.platform === 'ANDROID') {
+            native.bridge.sendToNative(NativeEvent.CHAT_END_RESPONSE);
+        }
     }
 
     private onChatCharacterSwitched(data: any): void {
