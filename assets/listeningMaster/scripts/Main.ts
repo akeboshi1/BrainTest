@@ -624,6 +624,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private videoLen:number = 10;
 
+    private playvideoDelay:number = 500;
+
     /**
      * 加载本地视频文件
      * @param videoPath 视频路径，如果不传则随机选择
@@ -669,7 +671,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
                     // 如果设置了自动播放，立即播放视频
                     if (autoPlay) {
-                        self.playVideo(1000,self);
+                        self.playVideo(self.playvideoDelay,self);
                         DebugLog.instance.log(`视频自动播放: ${videoPath}`);
                     }
 
@@ -868,7 +870,6 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
     playVideo(delay: number = 0, context?: any) {
         const targetContext = context || this;
-        
         const playAction = () => {
             if (targetContext.videoPlayer) {
                 // 如果视频未播放，则播放
@@ -949,7 +950,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
 
         // 播放视频（会一直循环直到停止）
-        this.playVideo(1000,this);
+        this.playVideo(this.playvideoDelay,this);
 
         // 第一个音效延迟3秒播放
         this._firstAudioTimer = setTimeout(() => {
@@ -978,7 +979,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
 
         // 判断当前视频是否在播放，如果没有则让它播放
-        this.playVideo(1000, this);
+        this.playVideo(this.playvideoDelay, this);
 
         // 标记为已播放
         this._playedQuestions.push(question);
@@ -1372,7 +1373,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             
             // 恢复视频播放（延迟1秒后从暂停位置继续播放）
             if (context) {
-                context.playVideo(1000, context);
+                context.playVideo(context.playvideoDelay, context);
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）

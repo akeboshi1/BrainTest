@@ -125,12 +125,12 @@
         "path":"music/question/flute"
     },
     "phonecall":{
-        "name":"拨电话",
+        "name":"拨号音",
         "duration":"2",
         "path":"music/question/phonecall"
     },
     "ringtone":{
-        "name":"手机铃声",
+        "name":"电话铃声",
         "duration":"2",
         "path":"music/question/ringtone"
     },
@@ -168,6 +168,31 @@
         "name":"挂钟声",
         "duration":"8",
         "path":"music/question/wallclock"
+    },
+    "wolf":{
+        "name":"狼嚎",
+        "duration":"7",
+        "path":"music/question/wolf"
+    },
+    "sneeze":{
+        "name":"打喷嚏",
+        "duration":"3",
+        "path":"music/question/sneeze"
+    },
+    "opendoor":{
+        "name":"开门声",
+        "duration":"3",
+        "path":"music/question/opendoor"
+    },
+    "bugu":{
+        "name":"布谷鸟",
+        "duration":"5",
+        "path":"music/question/bugu"
+    },
+    "carstart":{
+        "name":"汽车启动",
+        "duration":"3",
+        "path":"music/question/carstart"
     }
 
 }
