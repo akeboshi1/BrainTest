@@ -15,6 +15,8 @@ import { DataProvider } from '../../../Core/Data/DataProvider';
 import { DebugLog } from '../../../Core/Util/DebugLog';
 import { AlertData, AlertManager } from '../../../Core/Manager/Alert/AlertManager';
 import { EventManager } from '../../../Core/Manager/Event/EventManager';
+import {NativeEvent} from "db://assets/resources/scripts/Core/Manager/Event/NativeEvent";
+import {Environment, PublishSettingConfig} from "db://assets/app/PublishSettingConfig";
 const { ccclass, property } = _decorator;
 
 @ccclass('ChatPanel')
@@ -722,6 +724,12 @@ export class ChatPanel extends BasePanel {
 
     closeMicro() {
         this._chatModel.stopRecording();
+    }
+
+    onClickinterrup(){
+        if (sys.platform === 'ANDROID') {
+            native.bridge.sendToNative(NativeEvent.CHAT_END_RESPONSE);
+        }
     }
 
     onConnectionStateChanged(state: ChatConnectionState) {
