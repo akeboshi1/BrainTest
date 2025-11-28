@@ -727,9 +727,7 @@ export class ChatPanel extends BasePanel {
     }
 
     onClickinterrup(){
-        if (sys.platform === 'ANDROID') {
-            native.bridge.sendToNative(NativeEvent.CHAT_END_RESPONSE);
-        }
+       this._chatModel.requestChatEndResponse();
     }
 
     onConnectionStateChanged(state: ChatConnectionState) {
