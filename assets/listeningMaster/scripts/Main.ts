@@ -997,8 +997,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._finishedAudioCount++;
         DebugLog.instance.log(`音效播放完成，已完成: ${this._finishedAudioCount}/${this._questions.length}`);
 
-        // 检查是否所有音效都已播放完成
-        this.checkAllAudioFinished();
+        // // 检查是否所有音效都已播放完成
+        // this.checkAllAudioFinished();
 
         // 如果还有未播放的音效，继续播放下一个
         if (this._playedQuestions.length < this._questions.length) {
@@ -1337,17 +1337,21 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
             DebugLog.instance.log(`继续游戏，显示视频播放器`);
             
-            // 恢复视频播放（从暂停位置继续播放）
+            // 恢复视频播放（延迟1秒后从暂停位置继续播放）
             if (context && context.videoPlayer) {
-                // 如果视频被暂停了，使用resume()从暂停位置继续播放
-                if (context.videoPlayer.isPlaying === false) {
-                    context.videoPlayer.play();
-                    console.log(`listen 继续游戏，从暂停位置恢复视频播放`);
-                } else {
-                    // 如果视频正在播放，确保继续播放
-                    context.videoPlayer.play();
-                    console.log(`listen 继续游戏，确保视频继续播放`);
-                }
+                setTimeout(() => {
+                    if (context && context.videoPlayer) {
+                        // 如果视频被暂停了，使用resume()从暂停位置继续播放
+                        if (context.videoPlayer.isPlaying === false) {
+                            context.videoPlayer.play();
+                            console.log(`listen 继续游戏，延迟1秒后从暂停位置恢复视频播放`);
+                        } else {
+                            // 如果视频正在播放，确保继续播放
+                            context.videoPlayer.play();
+                            console.log(`listen 继续游戏，延迟1秒后确保视频继续播放`);
+                        }
+                    }
+                }, 1000);
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
