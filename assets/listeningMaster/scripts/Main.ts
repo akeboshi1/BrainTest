@@ -649,6 +649,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     return;
                 }
 
+                let self = this;
                 bundle.load(videoPath, VideoClip, (err, videoClip) => {
                     if (err) {
                         DebugLog.instance.error(`加载视频失败: ${videoPath}`, err);
@@ -659,16 +660,16 @@ export class Main extends BaseScene<IBaseGameChild> {
                     DebugLog.instance.log(`视频加载成功: ${videoPath}`);
 
                     // 设置视频到播放器
-                    this.videoPlayer.clip = videoClip;
+                    self.videoPlayer.clip = videoClip;
                     // 设置视频循环播放
-                    this.videoPlayer.loop = true;
-                    this.videoNode.active = true;
-                    this.videoPlayer.node.active = true;
-                    this.adaptVideoPlayer();
+                    self.videoPlayer.loop = true;
+                    self.videoNode.active = true;
+                    self.videoPlayer.node.active = true;
+                    self.adaptVideoPlayer();
 
                     // 如果设置了自动播放，立即播放视频
-                    if (autoPlay && this.videoPlayer) {
-                        this.videoPlayer.play();
+                    if (autoPlay) {
+                        self.playVideo(1000,self);
                         DebugLog.instance.log(`视频自动播放: ${videoPath}`);
                     }
 
@@ -861,12 +862,35 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     /**
-     * 播放视频（外部调用接口）
+     * 播放视频（统一调用接口）
+     * @param delay 延迟播放时间（毫秒），默认0立即播放
+     * @param context 上下文对象（用于延迟回调时使用）
      */
-    playVideo() {
-        if (this.videoPlayer) {
-            // 直接使用VideoPlayer播放
-            this.videoPlayer.play();
+    playVideo(delay: number = 0, context?: any) {
+        const targetContext = context || this;
+        
+        const playAction = () => {
+            if (targetContext.videoPlayer) {
+                // 如果视频未播放，则播放
+                if (!targetContext.videoPlayer.isPlaying) {
+                    targetContext.videoPlayer.play();
+                    console.log(`视频未播放，开始播放视频`);
+                } else {
+                    // 如果视频正在播放，确保继续播放
+                    // targetContext.videoPlayer.play();
+                    console.log(`视频正在播放，确保继续播放`);
+                }
+            }
+        };
+
+        if (delay > 0) {
+            setTimeout(() => {
+                if (targetContext && targetContext.videoPlayer) {
+                    playAction();
+                }
+            }, delay);
+        } else {
+            playAction();
         }
     }
 
@@ -925,7 +949,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
 
         // 播放视频（会一直循环直到停止）
-        this.playVideo();
+        this.playVideo(1000,this);
 
         // 第一个音效延迟3秒播放
         this._firstAudioTimer = setTimeout(() => {
@@ -952,6 +976,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.onAllAudioFinished();
             return;
         }
+
+        // 判断当前视频是否在播放，如果没有则让它播放
+        this.playVideo(1000, this);
 
         // 标记为已播放
         this._playedQuestions.push(question);
@@ -1344,20 +1371,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.log(`继续游戏，显示视频播放器`);
             
             // 恢复视频播放（延迟1秒后从暂停位置继续播放）
-            if (context && context.videoPlayer) {
-                setTimeout(() => {
-                    if (context && context.videoPlayer) {
-                        // 如果视频被暂停了，使用resume()从暂停位置继续播放
-                        if (context.videoPlayer.isPlaying === false) {
-                            context.videoPlayer.play();
-                            console.log(`listen 继续游戏，延迟1秒后从暂停位置恢复视频播放`);
-                        } else {
-                            // 如果视频正在播放，确保继续播放
-                            context.videoPlayer.play();
-                            console.log(`listen 继续游戏，延迟1秒后确保视频继续播放`);
-                        }
-                    }
-                }, 1000);
+            if (context) {
+                context.playVideo(1000, context);
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
