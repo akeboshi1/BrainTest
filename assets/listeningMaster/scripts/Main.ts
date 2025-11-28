@@ -997,8 +997,17 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._finishedAudioCount++;
         DebugLog.instance.log(`音效播放完成，已完成: ${this._finishedAudioCount}/${this._questions.length}`);
 
-        // // 检查是否所有音效都已播放完成
-        // this.checkAllAudioFinished();
+         // 获取未播放的音效列表
+         const unplayedQuestions = this._questions.filter(q => 
+            !this._playedQuestions.some(played => played.name === q.name)
+        );
+
+        // 如果所有音效都已开始播放，检查是否全部播放完成
+        if (unplayedQuestions.length === 0) {
+            // 检查是否所有音效都已播放完成
+            this.checkAllAudioFinished();
+            return;
+        }
 
         // 如果还有未播放的音效，继续播放下一个
         if (this._playedQuestions.length < this._questions.length) {
