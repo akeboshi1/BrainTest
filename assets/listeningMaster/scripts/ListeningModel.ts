@@ -26,6 +26,11 @@ export class ListeningModel {
      */
     private _hardData:number[]=[3,4,5];
 
+    /**
+     * 上一局使用的音效（按难度存储，key为难度，value为音效name的Set）
+     */
+    private _lastRoundQuestions: Map<number, Set<string>> = new Map();
+
     
     constructor() {
         
@@ -88,22 +93,76 @@ export class ListeningModel {
         const hardIndex = Math.max(0, Math.min(hard - 1, this._hardData.length - 1));
         const count = this._hardData[hardIndex];
         
-        // 如果请求的数量大于可用配置数量，返回所有配置
-        if (count >= this._configs.length) {
-            return [...this._configs];
+        // 获取上一局使用过的音效name集合（排除上一局的音效）
+        const lastRoundNames = this._lastRoundQuestions.get(hard) || new Set<string>();
+        
+        // 从所有配置中排除上一局使用过的音效
+        const availableConfigs = this._configs.filter(config => !lastRoundNames.has(config.name));
+        
+        // 如果可用配置数量不足，清空上一局记录，使用所有配置（避免无法获取题目）
+        if (availableConfigs.length < count) {
+            DebugLog.instance.warn(`可用配置数量不足（${availableConfigs.length} < ${count}），清空上一局记录，使用所有配置`);
+            this._lastRoundQuestions.delete(hard);
+            // 重新获取可用配置（使用所有配置）
+            const allAvailableConfigs = [...this._configs];
+            
+            // 如果请求的数量大于可用配置数量，返回所有配置
+            if (count >= allAvailableConfigs.length) {
+                const result = [...allAvailableConfigs];
+                // 更新上一局记录
+                this.updateLastRoundQuestions(hard, result);
+                return result;
+            }
+            
+            // 随机选择指定数量的配置
+            const result: IListeningConfig[] = [];
+            const availableIndices = Array.from({ length: allAvailableConfigs.length }, (_, i) => i);
+            
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * availableIndices.length);
+                const selectedIndex = availableIndices.splice(randomIndex, 1)[0];
+                result.push(allAvailableConfigs[selectedIndex]);
+            }
+            
+            // 更新上一局记录
+            this.updateLastRoundQuestions(hard, result);
+            return result;
+        }
+        
+        // 如果请求的数量大于可用配置数量，返回所有可用配置
+        if (count >= availableConfigs.length) {
+            const result = [...availableConfigs];
+            // 更新上一局记录
+            this.updateLastRoundQuestions(hard, result);
+            return result;
         }
 
-        // 随机选择指定数量的配置
+        // 从可用配置中随机选择指定数量的配置
         const result: IListeningConfig[] = [];
-        const availableIndices = Array.from({ length: this._configs.length }, (_, i) => i);
+        const availableIndices = Array.from({ length: availableConfigs.length }, (_, i) => i);
         
         for (let i = 0; i < count; i++) {
             const randomIndex = Math.floor(Math.random() * availableIndices.length);
             const selectedIndex = availableIndices.splice(randomIndex, 1)[0];
-            result.push(this._configs[selectedIndex]);
+            result.push(availableConfigs[selectedIndex]);
         }
 
+        // 更新上一局记录
+        this.updateLastRoundQuestions(hard, result);
+        
+        DebugLog.instance.log(`获取题目: 难度=${hard}, 数量=${count}, 排除上一局音效=${lastRoundNames.size}个, 可用配置=${availableConfigs.length}个`);
         return result;
+    }
+
+    /**
+     * 更新上一局使用的音效记录
+     * @param hard 难度等级
+     * @param questions 本局使用的音效列表
+     */
+    private updateLastRoundQuestions(hard: number, questions: IListeningConfig[]): void {
+        const questionNames = new Set(questions.map(q => q.name));
+        this._lastRoundQuestions.set(hard, questionNames);
+        DebugLog.instance.log(`更新上一局记录: 难度=${hard}, 音效数量=${questionNames.size}, 音效名称=[${Array.from(questionNames).join(', ')}]`);
     }
 
     /**
