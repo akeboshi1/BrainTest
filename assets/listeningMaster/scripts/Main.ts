@@ -938,9 +938,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             !this._playedQuestions.some(played => played.name === q.name)
         );
 
-        // 如果所有音效都已开始播放，不再播放新的音效，等待所有音效播放完成
+        // 如果所有音效都已开始播放，检查是否全部播放完成
         if (unplayedQuestions.length === 0) {
-            DebugLog.instance.log(`所有音效都已开始播放，等待所有音效播放完成`);
+            // 检查是否所有音效都已播放完成
+            this.checkAllAudioFinished();
             return;
         }
 
@@ -948,34 +949,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         const randomIndex = Math.floor(Math.random() * unplayedQuestions.length);
         const question = unplayedQuestions[randomIndex];
 
-        // 标记为已开始播放
+        // 标记为已播放
         this._playedQuestions.push(question);
 
         // 从 bundle 加载并播放音效
         const bundle = assetManager.getBundle(BundleName.LISTENINGMASTER);
         if (!bundle) {
             DebugLog.instance.error(`Bundle ${BundleName.LISTENINGMASTER} 未加载`);
-            // 加载失败时，记录次数（模拟END事件完成）
-            this._finishedAudioCount++;
-            DebugLog.instance.log(`音效加载失败（Bundle未加载），记录完成次数: ${this._finishedAudioCount}/${this._questions.length}`);
-            // 当次数达到音效个数时，才执行停止视频的逻辑
-            if (this._finishedAudioCount >= this._questions.length) {
-                this.checkAllAudioFinished();
-            }
             return;
         }
 
         bundle.load(question.path, AudioClip, (err, audioClip) => {
             if (err) {
                 DebugLog.instance.error(`加载音效失败: ${question.path}`, err);
-                // 加载失败时，记录次数（模拟END事件完成）
-                this._finishedAudioCount++;
-                DebugLog.instance.log(`音效加载失败，记录完成次数: ${this._finishedAudioCount}/${this._questions.length}`);
-                // 当次数达到音效个数时，才执行停止视频的逻辑
-                if (this._finishedAudioCount >= this._questions.length) {
-                    this.checkAllAudioFinished();
-                }
-                // 继续播放下一个音效（间隔时间后）
+                // 即使加载失败，也继续播放下一个音效（间隔时间后）
                 this.scheduleNextAudio();
                 return;
             }
@@ -990,41 +977,30 @@ export class Main extends BaseScene<IBaseGameChild> {
                 
                 DebugLog.instance.log(`播放音效: ${question.name}, 已开始播放: ${this._playedQuestions.length}/${this._questions.length}`);
 
-                // 监听播放完成事件（这是唯一判断音效是否播放完成的依据）
+                // 监听播放完成事件
                 this._audioSource.node.on(AudioSource.EventType.ENDED, this.onAudioFinished, this);
             } else if (!audioClip) {
-                // 如果音效加载失败，记录次数（模拟END事件完成）
-                this._finishedAudioCount++;
-                DebugLog.instance.log(`音效加载失败（audioClip为空），记录完成次数: ${this._finishedAudioCount}/${this._questions.length}`);
-                // 当次数达到音效个数时，才执行停止视频的逻辑
-                if (this._finishedAudioCount >= this._questions.length) {
-                    this.checkAllAudioFinished();
-                }
+                // 如果音效加载失败，也继续播放下一个音效（间隔时间后）
                 this.scheduleNextAudio();
             }
         });
     }
 
     /**
-     * 音效播放完成回调（通过AudioSource的ENDED事件触发）
-     * 每次END事件完成后，只记录次数，当次数达到音效个数时，才执行停止视频的逻辑
+     * 音效播放完成回调
      */
     private onAudioFinished() {
         if (!this._isPlaying) {
             return;
         }
 
-        // 增加已完成音效计数（这是通过监听播放完成事件得到的）
         this._finishedAudioCount++;
-        DebugLog.instance.log(`音效播放完成（通过事件监听），已完成: ${this._finishedAudioCount}/${this._questions.length}`);
+        DebugLog.instance.log(`音效播放完成，已完成: ${this._finishedAudioCount}/${this._questions.length}`);
 
-        // 当次数达到音效个数时，才执行停止视频的逻辑
-        if (this._finishedAudioCount >= this._questions.length) {
-            // 所有音效都已播放完成，执行停止视频的逻辑
-            this.checkAllAudioFinished();
-        }
+        // // 检查是否所有音效都已播放完成
+        // this.checkAllAudioFinished();
 
-        // 如果还有未开始播放的音效，继续播放下一个
+        // 如果还有未播放的音效，继续播放下一个
         if (this._playedQuestions.length < this._questions.length) {
             // 间隔时间后播放下一个音效
             this.scheduleNextAudio();
@@ -1032,21 +1008,23 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     /**
-     * 所有音效播放完成后的处理（当次数达到音效个数时调用）
-     * 停止视频并显示选项
+     * 检查所有音效是否已播放完成
      */
     private checkAllAudioFinished() {
-        // 此时已经确定所有音效都已通过ENDED事件确认播放完成
-        if (!this._allAudioFinished) {
-            this._allAudioFinished = true;
-            DebugLog.instance.log(`所有音效已通过事件监听确认播放完成（${this._finishedAudioCount}/${this._questions.length}），延迟2秒后停止视频并显示选项`);
-            // 延迟2秒后停止视频、关闭视频，显示选项节点
-            setTimeout(() => {
-                if (this._isPlaying) {
-                    this.stopVideoWithAudio();
-                    this.startAnswerTimer();
-                }
-            }, 2000);
+        // 如果所有音效都已开始播放，且所有音效都已播放完成
+        if (this._playedQuestions.length >= this._questions.length && 
+            this._finishedAudioCount >= this._questions.length) {
+            if (!this._allAudioFinished) {
+                this._allAudioFinished = true;
+                DebugLog.instance.log(`所有音效已播放完成，延迟2秒后停止视频并显示选项`);
+                // 延迟2秒后停止视频、关闭视频，显示选项节点
+                setTimeout(() => {
+                    if (this._isPlaying) {
+                        this.stopVideoWithAudio();
+                        this.startAnswerTimer();
+                    }
+                }, 2000);
+            }
         }
     }
 
@@ -1359,17 +1337,21 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
             DebugLog.instance.log(`继续游戏，显示视频播放器`);
             
-            // 恢复视频播放（从暂停位置继续播放）
+            // 恢复视频播放（延迟1秒后从暂停位置继续播放）
             if (context && context.videoPlayer) {
-                // 如果视频被暂停了，使用resume()从暂停位置继续播放
-                if (context.videoPlayer.isPlaying === false) {
-                    context.videoPlayer.play();
-                    console.log(`listen 继续游戏，从暂停位置恢复视频播放`);
-                } else {
-                    // 如果视频正在播放，确保继续播放
-                    context.videoPlayer.play();
-                    console.log(`listen 继续游戏，确保视频继续播放`);
-                }
+                setTimeout(() => {
+                    if (context && context.videoPlayer) {
+                        // 如果视频被暂停了，使用resume()从暂停位置继续播放
+                        if (context.videoPlayer.isPlaying === false) {
+                            context.videoPlayer.play();
+                            console.log(`listen 继续游戏，延迟1秒后从暂停位置恢复视频播放`);
+                        } else {
+                            // 如果视频正在播放，确保继续播放
+                            context.videoPlayer.play();
+                            console.log(`listen 继续游戏，延迟1秒后确保视频继续播放`);
+                        }
+                    }
+                }, 1000);
             }
             
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
