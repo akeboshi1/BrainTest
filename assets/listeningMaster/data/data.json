@@ -168,6 +168,61 @@
         "name":"挂钟声",
         "duration":"8",
         "path":"music/question/wallclock"
+    },
+    "bicycleRingtone":{
+        "name":"自行车铃声",
+        "duration":"1",
+        "path":"music/question/bicycleRingtone"
+    },
+    "breath":{
+        "name":"呼吸声",
+        "duration":"7",
+        "path":"music/question/breath"
+    },
+    "alarmTone":{
+        "name":"闹钟声",
+        "duration":"11",
+        "path":"music/question/alarmTone"
+    },
+    "hand":{
+        "name":"拍手声",
+        "duration":"1",
+        "path":"music/question/hand"
+    },
+    "mosquito":{
+        "name":"蚊子声",
+        "duration":"5",
+        "path":"music/question/mosquito"
+    },
+    "electricDrill":{
+        "name":"电钻声",
+        "duration":"9",
+        "path":"music/question/electricDrill"
+    },
+    "footSteps":{
+        "name":"脚步声",
+        "duration":"8",
+        "path":"music/question/footSteps"
+    },
+    "pourWater":{
+        "name":"倒水声",
+        "duration":"9",
+        "path":"music/question/pourWater"
+    },
+    "laughter":{
+        "name":"笑声",
+        "duration":"3",
+        "path":"music/question/laughter"
+    },
+    "firecrackers":{
+        "name":"鞭炮声",
+        "duration":"5",
+        "path":"music/question/firecrackers"
+    },
+    "saw":{
+        "name":"锯子声",
+        "duration":"5",
+        "path":"music/question/saw"
     }
 
 }
