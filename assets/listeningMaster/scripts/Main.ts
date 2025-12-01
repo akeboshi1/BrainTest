@@ -1,17 +1,12 @@
 import { _decorator, resources, Label, Node, Sprite, SpriteFrame, ProgressBar, VideoPlayer, VideoClip, assetManager, game, Game, ParticleAsset, AudioClip, Color, UITransform, Vec3, RichText } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
-import { TimeUtil } from "../../resources/scripts/Core/Util/TimeUtil";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
 import { BaseScene } from "db://assets/resources/scripts/Core/Scene/BaseScene";
 import { GameType, IBaseGameChild } from "db://assets/resources/scripts/Core/Scene/SceneModel/BaseGameModel";
-import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersManager } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
-import { SkewersGameType } from "db://assets/resources/scripts/Game/Task/Skewers/SkewersGameData";
-import { EventManager } from "db://assets/resources/scripts/Core/Manager/Event/EventManager";
-import { FrameComponent } from '../../resources/scripts/Core/Component/FrameComponent';
-import { ScreenSizeUtil } from '../../resources/scripts/Adapter/ScreenSizeUtil';
+import { SkewersGameStatus } from "db://assets/resources/scripts/Core/Data/GameState";
 import { IListeningConfig, ListeningModel } from './ListeningModel';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
@@ -97,6 +92,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private _optionBank: IListeningConfig[] = null; // 选项题库
     private _selectedOptions: IListeningConfig[] = []; // 缓存选中的选项数据
     private _hasSubmittedAnswer: boolean = false; // 是否已经提交答案
+    private _shouldDeferResult: boolean = false; // 是否延迟显示答题界面（deferResult == 1）
 
     onLoad(): void {
         this.loadAudio().then(() => {
@@ -139,6 +135,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         // 初始化startBtn颜色为不可点击状态
         this.changeStartBtnColor(false);
+        
+        // 检查当前游戏的 trainData.deferResult 是否为 1
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            const curGameData = SkewersManager.getInstance().getUnCompleteGameData();
+            if (curGameData) {
+                const curTrainData = curGameData.getCurTrainData();
+                if (curTrainData && curTrainData.deferResult == 1) {
+                    this._shouldDeferResult = true;
+                    DebugLog.instance.log(`当前游戏 deferResult=1，将延迟显示答题界面`);
+                } else {
+                    this._shouldDeferResult = false;
+                }
+            }
+        }
         
         // 视频加载完成后，开始播放视频和音效
         this.startVideoWithAudio();
@@ -1025,6 +1035,41 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (this.videoPlayer && this.videoPlayer.node) {
             this.videoNode.active = false;
             this.videoPlayer.node.active = false;
+        }
+
+        // 如果 deferResult == 1，检查是否有下一个游戏，如果有则直接跳转
+        if (this._shouldDeferResult && this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            const curGameData = SkewersManager.getInstance().curGame;
+            if (curGameData) {
+                // 检查是否有下一个游戏类型
+                // 先获取当前游戏在列表中的索引
+                const manager = SkewersManager.getInstance();
+                const allGameDatas = (manager as any)._gameDatas;
+                const curIndex = (manager as any)._curIndex;
+                
+                // 检查是否有下一个游戏类型（在游戏列表中）
+                let hasNextGame = false;
+                if (allGameDatas && curIndex !== undefined && curIndex >= 0) {
+                    // 检查当前游戏之后是否还有未完成的游戏
+                    for (let i = curIndex + 1; i < allGameDatas.length; i++) {
+                        const gameData = allGameDatas[i];
+                        if (gameData && gameData.status === SkewersGameStatus.unCompleted) {
+                            hasNextGame = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (hasNextGame) {
+                    // 有下一个游戏类型，直接跳转
+                    DebugLog.instance.log(`deferResult=1，有下一个游戏类型，直接跳转`);
+                    manager.runNextGame(true);
+                    return;
+                } else {
+                    // 没有下一个游戏类型，正常显示选项
+                    DebugLog.instance.log(`deferResult=1，但没有下一个游戏类型，正常显示选项`);
+                }
+            }
         }
 
         // 显示选项节点

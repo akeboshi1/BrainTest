@@ -1,6 +1,7 @@
 import { SkewersGameStatus } from "../../../Core/Data/GameState";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
+import { DebugLog } from "../../../Core/Util/DebugLog";
 
 export enum SkewersGameType {
     // 理解力
@@ -66,7 +67,7 @@ export class SkewersGameData {
             case SkewersGameType.Judgment:
                 return "判断力";
             case SkewersGameType.Memory:
-                return "记忆力"
+                return "记忆力";
         }
     }
 
@@ -95,7 +96,7 @@ export class SkewersGameData {
                 this.gameName = "组词造句";
                 break;
             case SkewersGameType.Comprehension:
-                this.gameName = "猜谜";
+                this.gameName = "听音辨物";
                 break;
             case SkewersGameType.Calculator:
                 this.gameName = "数字捕鱼"
@@ -271,6 +272,84 @@ export class SkewersGameData {
         }
     }
 
+    /**
+     * 缓存当前训练的答题数据（用于延迟显示答题界面）
+     * @param complete 完成度
+     * @param duration 用时
+     * @param result 结果（成功或失败）
+     * @param score 得分（可选）
+     */
+    public cacheResultData(complete: number, duration: number, result: boolean, score?: number) {
+        let curTrainData = this.getCurTrainData();
+        if (curTrainData && curTrainData.deferResult == 1) {
+            curTrainData.cachedResultData = {
+                complete,
+                duration,
+                result,
+                score
+            };
+            DebugLog.instance.log(`缓存答题数据: 游戏=${this.gameName}, 完成度=${complete}, 用时=${duration}, 结果=${result}`);
+        } else if (curTrainData && curTrainData.deferResult != 1) {
+            DebugLog.instance.log(`跳过缓存答题数据: 游戏=${this.gameName}, deferResult=${curTrainData.deferResult}（不为1）`);
+        }
+    }
+
+    /**
+     * 获取所有缓存的答题数据
+     * @returns 缓存的答题数据数组
+     */
+    public getCachedResultData(): Array<{
+        gameName: string;
+        gameType: SkewersGameType;
+        complete: number;
+        duration: number;
+        result: boolean;
+        score?: number;
+    }> {
+        const cachedData: Array<{
+            gameName: string;
+            gameType: SkewersGameType;
+            complete: number;
+            duration: number;
+            result: boolean;
+            score?: number;
+        }> = [];
+
+        if (this.trains) {
+            for (let i = 0; i < this.trains.length; i++) {
+                const trainData = this.trains[i];
+                if (trainData.cachedResultData && trainData.deferResult == 1) {
+                    cachedData.push({
+
+                        gameName: this.gameName,
+                        gameType: this.type,
+                        complete: trainData.cachedResultData.complete,
+                        duration: trainData.cachedResultData.duration,
+                        result: trainData.cachedResultData.result,
+                        score: trainData.cachedResultData.score
+                    });
+                }
+            }
+        }
+
+        return cachedData;
+    }
+
+    /**
+     * 清除所有缓存的答题数据
+     */
+    public clearCachedResultData() {
+        if (this.trains) {
+            for (let i = 0; i < this.trains.length; i++) {
+                const trainData = this.trains[i];
+                if (trainData.cachedResultData && trainData.deferResult == 1) {
+                    trainData.cachedResultData = null;
+                }
+            }
+        }
+        DebugLog.instance.log(`清除缓存的答题数据: 游戏=${this.gameName}`);
+    }
+
 }
 
 export class SkewersGameTrainData {
@@ -314,6 +393,17 @@ export class SkewersGameTrainData {
     // 当前类型训练内容的长度
     public length: number = 0;
 
+    // 是否延迟显示答题界面（1：答题结束后直接跳转下一个游戏，数据缓存，等所有游戏完成后统一显示）
+    private _deferResult: number = 0;
+
+    // 缓存的答题数据（用于延迟显示答题界面）
+    public cachedResultData: {
+        complete: number;
+        duration: number;
+        result: boolean; // 成功或失败
+        score?: number; // 得分（如果有）
+    } = null;
+
     public get parentSkewersGameData() {
         return this._parentSkewersGameData;
     }
@@ -343,10 +433,15 @@ export class SkewersGameTrainData {
         this.complete = data['completion'] || 0;
         this.score = data['score'] || 0;
         this.completedAt = data['completed_at'] || null;
+        this._deferResult = data["deferResult"] || 0;
         if (data['level'] == "") {
             data['level'] = 1;
         }
         this.level = Number(data['level']);
+    }
+
+    public get deferResult(){
+        return this._deferResult;
     }
 
     public get level() {
