@@ -11,7 +11,7 @@
     },
     "cock":{
         "name":"公鸡叫",
-        "duration":"2",
+        "duration":"5",
         "path":"music/question/cock"
     },
     "cow":{
