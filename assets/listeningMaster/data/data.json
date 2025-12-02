@@ -1,6 +1,6 @@
 {
     "bird":{
-        "name":"鸟叫",
+        "name":"麻雀叫",
         "duration":"2",
         "path":"music/question/bird"
     },
@@ -101,7 +101,7 @@
     },
     "ambulance":{
         "name":"救护车声",
-        "duration":"4",
+        "duration":"3",
         "path":"music/question/ambulance"
     },
     "train":{
@@ -176,7 +176,7 @@
     },
     "breath":{
         "name":"喘气声",
-        "duration":"7",
+        "duration":"4",
         "path":"music/question/breath"
     },
     "alarmTone":{
