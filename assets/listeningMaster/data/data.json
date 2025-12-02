@@ -1,6 +1,6 @@
 {
     "bird":{
-        "name":"鸟叫",
+        "name":"麻雀叫",
         "duration":"2",
         "path":"music/question/bird"
     },
