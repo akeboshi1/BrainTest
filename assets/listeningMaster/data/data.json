@@ -1,66 +1,66 @@
 {
     "bird":{
-        "name":"鸟",
+        "name":"鸟叫",
         "duration":"2",
         "path":"music/question/bird"
     },
     "dog":{
-        "name":"狗",
+        "name":"狗叫",
         "duration":"5",
         "path":"music/question/dog"
     },
     "cock":{
-        "name":"公鸡",
+        "name":"公鸡叫",
         "duration":"2",
         "path":"music/question/cock"
     },
     "cow":{
-        "name":"奶牛",
+        "name":"奶牛叫",
         "duration":"2",
         "path":"music/question/cow"
     },
     "elephant":{
-        "name":"大象",
+        "name":"大象叫",
         "duration":"2",
         "path":"music/question/elephant"
     },
     "sheep":{
-        "name":"羊",
+        "name":"羊叫",
         "duration":"1",
         "path":"music/question/sheep"
     },
     "duck":{
-        "name":"鸭子",
+        "name":"鸭子叫",
         "duration":"1",
         "path":"music/question/duck"
     },
     "pig":{
-        "name":"猪",
+        "name":"猪叫",
         "duration":"1",
         "path":"music/question/pig"
     },
     "monkey":{
-        "name":"猴子",
+        "name":"猴子叫",
         "duration":"2",
         "path":"music/question/monkey"
     },
     "frog":{
-        "name":"青蛙",
+        "name":"青蛙叫",
         "duration":"1",
         "path":"music/question/frog"
     },
     "horse":{
-        "name":"马",
+        "name":"马叫",
         "duration":"1",
         "path":"music/question/horse"
     },
     "tiger":{
-        "name":"老虎",
+        "name":"老虎叫",
         "duration":"2",
         "path":"music/question/tiger"
     },
     "cat":{
-        "name":"猫",
+        "name":"猫叫",
         "duration":"1",
         "path":"music/question/cat"
     },
@@ -85,27 +85,27 @@
         "path":"music/question/wind"
     },
     "plane":{
-        "name":"飞机",
+        "name":"飞机声",
         "duration":"5",
         "path":"music/question/plane"
     },
     "policecar":{
-        "name":"警车",
+        "name":"警车声",
         "duration":"2",
         "path":"music/question/policecar"
     },
     "carhorn":{
-        "name":"汽车喇叭",
+        "name":"汽车喇叭声",
         "duration":"1",
         "path":"music/question/carhorn"
     },
     "ambulance":{
-        "name":"救护车",
+        "name":"救护车声",
         "duration":"4",
         "path":"music/question/ambulance"
     },
     "train":{
-        "name":"火车",
+        "name":"火车声",
         "duration":"7",
         "path":"music/question/train"
     },
@@ -125,22 +125,22 @@
         "path":"music/question/flute"
     },
     "phonecall":{
-        "name":"拨电话",
+        "name":"拨号声",
         "duration":"2",
         "path":"music/question/phonecall"
     },
     "ringtone":{
-        "name":"手机铃声",
+        "name":"电话铃声",
         "duration":"2",
         "path":"music/question/ringtone"
     },
     "doorbell":{
-        "name":"门铃",
+        "name":"门铃声",
         "duration":"2",
         "path":"music/question/doorbell"
     },
     "cry":{
-        "name":"婴儿哭",
+        "name":"婴儿哭声",
         "duration":"3",
         "path":"music/question/cry"
     },
@@ -175,7 +175,7 @@
         "path":"music/question/bicycleRingtone"
     },
     "breath":{
-        "name":"呼吸声",
+        "name":"喘气声",
         "duration":"7",
         "path":"music/question/breath"
     },
