@@ -724,6 +724,10 @@ export class ChatPanel extends BasePanel {
         this._chatModel.stopRecording();
     }
 
+    onClickinterrup(){
+       this._chatModel.requestChatEndResponse();
+    }
+
     onConnectionStateChanged(state: ChatConnectionState) {
         console.log("chatPanel：连接状态： " + state);
         if (state == ChatConnectionState.CONNECTED) {

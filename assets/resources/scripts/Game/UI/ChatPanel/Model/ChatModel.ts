@@ -482,6 +482,12 @@ export class ChatModel {
         EventManager.getInstance().emit(ChatModel.MONTH_USAGE_LIMIT_EXCEEDED_EVENT);
     }
 
+    public requestChatEndResponse(){
+        if (sys.platform === 'ANDROID') {
+            native.bridge.sendToNative(NativeEvent.CHAT_END_RESPONSE);
+        }
+    }
+
     private onChatCharacterSwitched(data: any): void {
         console.log('ChatModel: 数字人角色切换完成');
         // 收到切换完成事件后，允许继续切换数字人
