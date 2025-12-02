@@ -125,12 +125,12 @@
         "path":"music/question/flute"
     },
     "phonecall":{
-        "name":"拨号音",
+        "name":"拨电话",
         "duration":"2",
         "path":"music/question/phonecall"
     },
     "ringtone":{
-        "name":"电话铃声",
+        "name":"手机铃声",
         "duration":"2",
         "path":"music/question/ringtone"
     },
@@ -169,30 +169,60 @@
         "duration":"8",
         "path":"music/question/wallclock"
     },
-    "wolf":{
-        "name":"狼嚎",
+    "bicycleRingtone":{
+        "name":"自行车铃声",
+        "duration":"1",
+        "path":"music/question/bicycleRingtone"
+    },
+    "breath":{
+        "name":"呼吸声",
         "duration":"7",
-        "path":"music/question/wolf"
+        "path":"music/question/breath"
     },
-    "sneeze":{
-        "name":"打喷嚏",
-        "duration":"3",
-        "path":"music/question/sneeze"
+    "alarmTone":{
+        "name":"闹钟声",
+        "duration":"11",
+        "path":"music/question/alarmTone"
     },
-    "opendoor":{
-        "name":"开门声",
-        "duration":"3",
-        "path":"music/question/opendoor"
+    "hand":{
+        "name":"拍手声",
+        "duration":"1",
+        "path":"music/question/hand"
     },
-    "bugu":{
-        "name":"布谷鸟",
+    "mosquito":{
+        "name":"蚊子声",
         "duration":"5",
-        "path":"music/question/bugu"
+        "path":"music/question/mosquito"
     },
-    "carstart":{
-        "name":"汽车启动",
+    "electricDrill":{
+        "name":"电钻声",
+        "duration":"9",
+        "path":"music/question/electricDrill"
+    },
+    "footSteps":{
+        "name":"脚步声",
+        "duration":"8",
+        "path":"music/question/footSteps"
+    },
+    "pourWater":{
+        "name":"倒水声",
+        "duration":"9",
+        "path":"music/question/pourWater"
+    },
+    "laughter":{
+        "name":"笑声",
         "duration":"3",
-        "path":"music/question/carstart"
+        "path":"music/question/laughter"
+    },
+    "firecrackers":{
+        "name":"鞭炮声",
+        "duration":"5",
+        "path":"music/question/firecrackers"
+    },
+    "saw":{
+        "name":"锯子声",
+        "duration":"5",
+        "path":"music/question/saw"
     }
 
 }
