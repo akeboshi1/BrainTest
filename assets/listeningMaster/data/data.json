@@ -293,6 +293,21 @@
         "name":"冲水声",
         "duration":"7",
         "path":"music/question/toiletflush"
+    },
+    "opendoor":{
+        "name":"开门声",
+        "duration":"2",
+        "path":"music/question/opendoor"
+    },
+    "sneeze":{
+        "name":"打喷嚏声",
+        "duration":"1",
+        "path":"music/question/sneeze"
+    },
+    "wolf":{
+        "name":"狼叫",
+        "duration":"10",
+        "path":"music/question/wolf"
     }
 
 }
