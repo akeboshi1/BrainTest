@@ -12,6 +12,7 @@ import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
 import { AlertManager } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
+import { AlertType } from '../../resources/scripts/Game/UI/Alert/GameAlert';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -1605,8 +1606,23 @@ export class Main extends BaseScene<IBaseGameChild> {
                             requiredAnswerCount: this._requiredAnswerCount
                         });
                         
-                        DebugLog.instance.log(`deferResult=1，且不是最后一个游戏类型，缓存游戏状态后跳转到下一个类型，不显示听音选项`);
-                        manager.runNextGame(true);
+                        // 定义继续回调：跳转到下一个游戏
+                        const goonCallBack = () => {
+                            DebugLog.instance.log(`用户选择继续，跳转到下一个游戏`);
+                            manager.runNextGame(true);
+                        };
+                        
+                        // 定义退出回调：退出串烧任务
+                        const exitCallBack = () => {
+                            DebugLog.instance.log(`用户选择退出，退出串烧任务`);
+                            if (this.sceneModel) {
+                                this.sceneModel.remoteExitCallBack();
+                            }
+                        };
+                        
+                        // 显示缓存游戏提示弹窗
+                        DebugLog.instance.log(`deferResult=1，且不是最后一个游戏类型，显示缓存游戏提示弹窗`);
+                        manager.showGameAlert(this.mainView, AlertType.Cache, "请注意", "请记住刚才听到的音效", true, 0, 0, goonCallBack, exitCallBack, this);
                         return false; // 不显示本局选项
                     } else {
                         // 没有下一个游戏类型，说明这是最后一个，正常显示选项并等待最终提交

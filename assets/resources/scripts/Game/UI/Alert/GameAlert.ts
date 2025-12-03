@@ -27,7 +27,8 @@ export enum AlertType {
     Revise_Success, // 串烧订正成功结算弹窗
     Revise_Fail, // 串烧订正失败结算弹窗
     Revise_Complete, // 串烧订正全部完成弹窗
-    Answer // 订正显示答案弹窗
+    Answer, // 订正显示答案弹窗
+    Cache // 串烧缓存游戏
 
 
 }
@@ -159,6 +160,17 @@ export class GameAlert extends AdaptComponent {
         // 调整alert位置
         this.adjustAlertPosition();
         switch (type) {
+            case AlertType.Cache:
+                this.exitBtn.node.active = true;
+                this.startBtn.node.active = true;
+                this.guideBtn.node.active = false;
+                this.progressBar.node.active = false;
+                this.titleLabel.node.active = true;
+                this.iconConNode.active = false;
+                this.decLabel.node.active = true;
+                startBtnUITransform.width = 300;
+                AudioManager.getInstance().playNote();
+                break;
             case AlertType.Normal1:
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
