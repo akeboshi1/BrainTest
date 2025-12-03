@@ -316,7 +316,20 @@ export class MainScene extends Component {
 
     private onPreloadFinish(url: string, sceneName: string, data: any) {
         let self = this;
-        SceneManager.getInstance().changeScene(sceneName, "", {gametype: GameType.GAME_CENTER}).then((scene) => {
+        // 判断是否是串烧训练模式
+        let restoreData: any = {gametype: GameType.GAME_CENTER};
+        
+        // 如果是串烧训练模式，添加难度和关卡参数
+        if (SkewersManager.getInstance().curGame) {
+            const curGame = SkewersManager.getInstance().curGame;
+            restoreData = {
+                gametype: GameType.SKEWERS,
+                difficulty: curGame.difficulty,
+                level: curGame.level
+            };
+        }
+        
+        SceneManager.getInstance().changeScene(sceneName, "", restoreData).then((scene) => {
             self._clickBoo = false;
             DebugLog.instance.log(`${sceneName} 场景切换成功`);
         });

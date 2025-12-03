@@ -11,6 +11,7 @@ import { IListeningConfig, ListeningModel } from './ListeningModel';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
 import { AlertManager } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Main')
@@ -98,6 +99,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     private _allAudioFinished: boolean = false; // 所有音效是否已播放完成
     private _audioQueue: IListeningConfig[] = []; // 音效播放队列
     private _audioCountdownTimer: any = null; // 音效间隔倒计时定时器（2秒）
+    private _skewersSavedQuestions: IListeningConfig[] = null; // 串烧模式下保存的题目（用于保证多次游戏一致）
+    private _skewersSavedVideoPath: string = null; // 串烧模式下保存的视频路径（用于保证多次游戏一致）
+    private _wrongAnswerCount: number = 0; // 本次游戏答错的数量
+    private _correctAnswerCount: number = 0; // 本次游戏答对的数量
+    private _currentRequiredAnswerCount: number = 0; // 本次游戏对应难度需要答题的数量
 
     onLoad(): void {
         // 初始化AudioSource用于播放音效
@@ -127,37 +133,221 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.model = ListeningModel.getInstance();
         await this.model.initModel();
         
-        // 获取难度，如果没有则使用默认值3
-        this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
-        this._questions = this.model.getQuestion(this._currentDifficulty);
+        // 根据游戏类型获取难度和关卡
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            // 串烧训练模式：从 sceneModel 获取难度和关卡
+            this._currentDifficulty = (this.sceneModel as any).difficulty || 1;
+            // const level = (this.sceneModel as any).level || 1;
+            
+            // 获取串烧游戏数据，设置进度条和关卡标签
+            const skewersGameData = (this.sceneModel as any).game;
+            if (skewersGameData && this.progress) {
+                this.progress.progress = skewersGameData.progress || 0;
+            }
+            if (skewersGameData && this.progresslabel) {
+                this.progresslabel.string = "第" + (skewersGameData.progressStr) + "关";
+            }
+            
+            // 检查是否有缓存的游戏状态（所有游戏完成后回到延迟显示的游戏）
+            const manager = SkewersManager.getInstance();
+            const cachedState = manager.getCachedDeferredGameState();
+            // 如果有缓存的游戏状态，且缓存的 gameData 的 gameCode 是 listeningMaster，则恢复缓存状态
+            if (cachedState && cachedState.gameData.gameCode === BundleName.LISTENINGMASTER) {
+                // 恢复缓存的游戏状态
+                this._questions = cachedState.questions;
+                this._optionBank = cachedState.optionBank;
+                this._currentVideoPath = cachedState.videoPath;
+                this._currentDifficulty = cachedState.difficulty;
+                this._requiredAnswerCount = cachedState.requiredAnswerCount;
+                this._shouldDeferResult = true;
+                
+                DebugLog.instance.log(`恢复缓存的游戏状态: 题目数量=${this._questions.length}, 选项数量=${this._optionBank.length}, 视频路径=${this._currentVideoPath}`);
+                
+                // // 如果视频路径存在，加载视频（但不自动播放）
+                // if (this._currentVideoPath) {
+                //     await this.loadLocalVideo(this._currentVideoPath, false);
+                // }
+            } else {
+                // 没有缓存状态，正常初始化
+                // 检查当前游戏的 trainData.deferResult 是否为 1
+                const curGameData = manager.getUnCompleteGameData();
+                if (curGameData) {
+                    const curTrainData = curGameData.getCurTrainData();
+                    if (curTrainData && curTrainData.deferResult == 1) {
+                        this._shouldDeferResult = true;
+                        // 检查是否已经播放过音效和视频
+                        if (curTrainData.hasPlayedAudioVideo) {
+                            // 已经播放过，直接跳转到下一个游戏
+                            DebugLog.instance.log(`当前游戏 deferResult=1，且已播放过音效和视频，直接跳转到下一个游戏`);
+                            // 初始化选项题库（用于缓存）
+                            if (!this._optionBank || this._optionBank.length === 0) {
+                                // 先获取题目
+                                this._questions = this.model.getQuestion(this._currentDifficulty);
+                                // 初始化选项题库
+                                this.setupOptionLabels();
+                            }
+                            // 缓存当前游戏状态
+                            manager.cacheDeferredGameState(curGameData, {
+                                questions: this._questions ? [...this._questions] : [],
+                                optionBank: this._optionBank ? [...this._optionBank] : [],
+                                videoPath: this._currentVideoPath || "",
+                                difficulty: this._currentDifficulty,
+                                requiredAnswerCount: this._requiredAnswerCount
+                            });
+                            // 跳转到下一个游戏
+                            manager.runNextGame(true);
+                            return; // 直接返回，不播放音效和视频
+                        } else {
+                            // 没有播放过，正常播放音效和视频
+                            DebugLog.instance.log(`当前游戏 deferResult=1，将先播放音效和视频，然后标记为已播放`);
+                        }
+                    } else {
+                        this._shouldDeferResult = false;
+                    }
+                }
+                
+                // 获取题目（串烧模式下，如果已有保存的题目，则使用保存的题目，否则获取新题目并保存）
+                if (this._skewersSavedQuestions && this._skewersSavedQuestions.length > 0) {
+                    // 使用保存的题目，保证多次游戏一致
+                    this._questions = [...this._skewersSavedQuestions];
+                    DebugLog.instance.log(`串烧训练模式 - 使用保存的题目: ${this._questions.map(q => q.name).join(', ')}`);
+                } else {
+                    // 第一次游戏，获取新题目并保存
+                    this._questions = this.model.getQuestion(this._currentDifficulty);
+                    this._skewersSavedQuestions = this._questions ? [...this._questions] : null;
+                    DebugLog.instance.log(`串烧训练模式 - 获取新题目并保存: ${this._questions.map(q => q.name).join(', ')}`);
+                }
+            }
+            
+        } else {
+            // 非串烧模式：使用默认逻辑
+            this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
+            const level = (this.sceneModel as any)?.levelIndex || (this.sceneModel as any)?.level || 1;
+            
+            // 设置进度条和关卡标签
+            if (this.progress) {
+                this.progress.progress = 1;
+            }
+            if (this.progresslabel) {
+                this.progresslabel.string = "第" + level + "关";
+            }
+            
+            DebugLog.instance.log(`普通模式 - 难度: ${this._currentDifficulty}, 关卡: ${level}`);
+            
+            // 获取题目
+            this._questions = this.model.getQuestion(this._currentDifficulty);
+        }
         
-        // 根据难度获取需要的回答数量
-        const hardData = [3, 4, 5];
-        const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
-        this._requiredAnswerCount = hardData[hardIndex];
+        // 检查 restoreData 中是否有缓存的游戏状态数据
+        const restoreData = SceneManager.getInstance().getRestoreData();
+        const cachedGameState = restoreData && restoreData.cachedGameState;
+        
+        // 检查是否有缓存的游戏状态（所有游戏完成后回到延迟显示的游戏）
+        const manager = SkewersManager.getInstance();
+        const cachedState = manager.getCachedDeferredGameState();
+        // 如果有 restoreData 中的缓存的游戏状态，或者有 manager 中的缓存的游戏状态，则认为是需要恢复缓存的游戏状态
+        const isRestoredFromCache = (cachedGameState && 
+                                    this.sceneModel && 
+                                    this.sceneModel.gameType === GameType.SKEWERS) ||
+                                    (cachedState && 
+                                    this.sceneModel && 
+                                    this.sceneModel.gameType === GameType.SKEWERS &&
+                                    cachedState.gameData.gameCode === BundleName.LISTENINGMASTER);
+        
+        if (!isRestoredFromCache) {
+            // 没有缓存状态，正常初始化
+            // 根据难度获取需要的回答数量
+            const hardData = [3, 4, 5];
+            const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
+            this._requiredAnswerCount = hardData[hardIndex];
+            this._currentRequiredAnswerCount = this._requiredAnswerCount; // 记录本次游戏需要答题的数量
+        } else {
+            // 恢复缓存状态时，也记录需要答题的数量
+            this._currentRequiredAnswerCount = this._requiredAnswerCount;
+        }
         
         // 重置点击缓存
         this._clickedIndices.clear();
         this._wrongAnswerIndex = -1;
         this._selectedOptions = [];
+        this._wrongAnswerCount = 0; // 重置答错数量
+        this._correctAnswerCount = 0; // 重置答对数量
+        this._currentRequiredAnswerCount = 0; // 重置需要答题数量
         
         // 初始化startBtn颜色为不可点击状态
         this.changeStartBtnColor(false);
-        
-        // 检查当前游戏的 trainData.deferResult 是否为 1
-        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
-            const curGameData = SkewersManager.getInstance().getUnCompleteGameData();
-            if (curGameData) {
-                const curTrainData = curGameData.getCurTrainData();
-                if (curTrainData && curTrainData.deferResult == 1) {
-                    this._shouldDeferResult = true;
-                    DebugLog.instance.log(`当前游戏 deferResult=1，将延迟显示答题界面`);
-                } else {
-                    this._shouldDeferResult = false;
+
+        if (isRestoredFromCache) {
+            // 优先使用 restoreData 中的缓存的游戏状态数据
+            const stateToRestore = cachedGameState || (cachedState ? {
+                questions: cachedState.questions,
+                optionBank: cachedState.optionBank,
+                videoPath: cachedState.videoPath,
+                difficulty: cachedState.difficulty,
+                requiredAnswerCount: cachedState.requiredAnswerCount
+            } : null);
+            
+            if (stateToRestore) {
+                // 恢复缓存的游戏状态，直接显示选项界面，不重新播放视频和音效
+                DebugLog.instance.log(`从 restoreData 恢复缓存的游戏状态，直接显示选项界面`);
+                
+                // 恢复缓存的游戏状态数据
+                this._questions = stateToRestore.questions || [];
+                this._optionBank = stateToRestore.optionBank || [];
+                this._currentVideoPath = stateToRestore.videoPath || null;
+                this._currentDifficulty = stateToRestore.difficulty || this._currentDifficulty;
+                this._requiredAnswerCount = stateToRestore.requiredAnswerCount || this._requiredAnswerCount;
+                this._shouldDeferResult = true;
+                
+                // 隐藏视频节点（因为已经播放完音效了）
+                if (this.videoNode) {
+                    this.videoNode.active = false;
                 }
+                if (this.videoPlayer && this.videoPlayer.node) {
+                    this.videoPlayer.node.active = false;
+                }
+                
+                // 设置选项标签（使用缓存的选项题库）
+                if (this._optionBank && this._optionBank.length > 0) {
+                    // 将缓存的选项题库打乱顺序（可选）
+                    this.shuffleArray(this._optionBank);
+                    
+                    // 将选项队列中每个data的name展示到对应的label上
+                    if (this.chooseNodes) {
+                        for (let i = 0; i < this.chooseNodes.children.length; i++) {
+                            const childNode = this.chooseNodes.children[i];
+                            if (!childNode) continue;
+                            
+                            if (i < this._optionBank.length) {
+                                const option = this._optionBank[i];
+                                const label = this.findLabelInNode(childNode);
+                                if (label) {
+                                    label.string = option.name;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // 显示选项节点
+                if (this.optionsNode) {
+                    this.optionsNode.active = true;
+                    this._hasSubmittedAnswer = false;
+                    this.answerCountLabel.string = `请选出<color=#B3F12E>${this._requiredAnswerCount}</color>种刚才听到的声音`;
+                }
+                
+                // 启动答题倒计时
+                this.startAnswerTimer();
+                
+                // // 清除缓存状态（如果使用的是 manager 中的缓存）
+                // if (cachedState) {
+                //     manager.clearCachedDeferredGameState();
+                // }
+                return; // 直接返回，不执行后续的 startVideoWithAudio
             }
         }
-
+        
+        // 如果没有缓存的游戏状态，正常流程：播放视频和音效，播放完成后显示选项节点
         // 视频加载完成后，开始播放视频和音效
         this.startVideoWithAudio();
     }
@@ -375,6 +565,22 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 标记已提交答案
         this._hasSubmittedAnswer = true;
 
+        // 计算答错数量和答对数量
+        this._wrongAnswerCount = 0;
+        this._correctAnswerCount = 0;
+        // 统计选中的选项中错误答案和正确答案的数量
+        if (this._selectedOptions && this._selectedOptions.length > 0) {
+            this._wrongAnswerCount = this._selectedOptions.filter(opt => opt.isCorrect === false).length;
+            this._correctAnswerCount = this._selectedOptions.filter(opt => opt.isCorrect === true).length;
+        }
+        
+        // 记录本次游戏对应难度需要答题的数量（如果还没有记录）
+        if (this._currentRequiredAnswerCount === 0) {
+            this._currentRequiredAnswerCount = this._requiredAnswerCount;
+        }
+        
+        DebugLog.instance.log(`本次游戏答错数量: ${this._wrongAnswerCount}, 答对数量: ${this._correctAnswerCount}, 需要答题数量: ${this._currentRequiredAnswerCount}`);
+
         // 判断缓存的数据是否有错误
         // 方式1：检查是否有错误答案索引
         // 方式2：检查选中的选项中是否有 isCorrect === false 的项
@@ -408,10 +614,76 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
     /**
-     * 展示成功Panel
+     * 展示成功结算
+     * 串烧类型使用 GameAlert（通过 Skewers 流程），普通类型使用 SettlementPanel
      */
     private showSuccessPanel() {
-        this.playAudio("music/win",true);
+        this.playAudio("music/win", true);
+
+        // 计算本局耗时（如果有倒计时组件）
+        let duration = 0;
+        if (this.timerComponent && this.timerComponent.hasStarted) {
+            try {
+                duration = this.timerComponent.getElapsedTime
+                    ? this.timerComponent.getElapsedTime()
+                    : 0;
+            } catch (e) {
+                duration = 0;
+            }
+        }
+
+        // 串烧模式：走 GameAlert / Skewers 统一结算流程
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            DebugLog.instance.log(`串烧模式结算（成功），通过 GameAlert 流程上报结果`);
+            
+            // 检查是否是缓存数据
+            const manager = SkewersManager.getInstance();
+            const cachedState = manager.getCachedDeferredGameState();
+            const isCachedData = this._shouldDeferResult && cachedState && cachedState.gameData;
+            
+            if (isCachedData) {
+                // 是缓存数据，找到对应的 trainData
+                const cachedGameData = cachedState.gameData;
+                // 从缓存的 gameData 中找到对应的 trainData（deferResult == 1 的那个）
+                let cachedTrainData = null;
+                if (cachedGameData && cachedGameData.trains) {
+                    for (let i = 0; i < cachedGameData.trains.length; i++) {
+                        const trainData = cachedGameData.trains[i];
+                        if (trainData && trainData.deferResult == 1) {
+                            cachedTrainData = trainData;
+                            break;
+                        }
+                    }
+                }
+                
+                if (cachedTrainData) {
+                    // 使用缓存数据上报
+                    DebugLog.instance.log(`使用缓存数据上报（成功）`);
+                    manager.requestGameComplete(1, duration, true, cachedGameData, cachedTrainData);
+                    manager.clearCachedDeferredGameState();
+                } else {
+                    // 找不到缓存的 trainData，走正常流程
+                    DebugLog.instance.warn(`找不到缓存的 trainData，走正常流程上报`);
+                    this.requestGameComplete({
+                        context: this,
+                        parentNode: this.mainView,
+                        complete: 1,   // 成功
+                        duration: duration,
+                    });
+                }
+            } else {
+                // 不是缓存数据，走正常流程
+                this.requestGameComplete({
+                    context: this,
+                    parentNode: this.mainView,
+                    complete: 1,   // 成功
+                    duration: duration,
+                });
+            }
+            return;
+        }
+
+        // 普通模式：使用通用结算面板
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: true,
             nextHandler: () => {
@@ -423,15 +695,81 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 重新开始当前关卡
                 DebugLog.instance.log(`成功Panel - 重玩当前关卡`);
                 this.restartCurrentLevel();
-            }
+            },
         });
     }
 
     /**
-     * 展示失败Panel
+     * 展示失败结算
+     * 串烧类型使用 GameAlert（通过 Skewers 流程），普通类型使用 SettlementPanel
      */
     private showFailPanel() {
-        this.playAudio("music/fail",true);
+        this.playAudio("music/fail", true);
+
+        // 计算本局耗时（如果有倒计时组件）
+        let duration = 0;
+        if (this.timerComponent && this.timerComponent.hasStarted) {
+            try {
+                duration = this.timerComponent.getElapsedTime
+                    ? this.timerComponent.getElapsedTime()
+                    : 0;
+            } catch (e) {
+                duration = 0;
+            }
+        }
+
+        // 串烧模式：走 GameAlert / Skewers 统一结算流程
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            DebugLog.instance.log(`串烧模式结算（失败），通过 GameAlert 流程上报结果`);
+            
+            // 检查是否是缓存数据
+            const manager = SkewersManager.getInstance();
+            const cachedState = manager.getCachedDeferredGameState();
+            const isCachedData = this._shouldDeferResult && cachedState && cachedState.gameData;
+            
+            if (isCachedData) {
+                // 是缓存数据，找到对应的 trainData
+                const cachedGameData = cachedState.gameData;
+                // 从缓存的 gameData 中找到对应的 trainData（deferResult == 1 的那个）
+                let cachedTrainData = null;
+                if (cachedGameData && cachedGameData.trains) {
+                    for (let i = 0; i < cachedGameData.trains.length; i++) {
+                        const trainData = cachedGameData.trains[i];
+                        if (trainData && trainData.deferResult == 1) {
+                            cachedTrainData = trainData;
+                            break;
+                        }
+                    }
+                }
+                
+                if (cachedTrainData) {
+                    // 使用缓存数据上报
+                    DebugLog.instance.log(`使用缓存数据上报（失败）`);
+                    manager.requestGameComplete(this._correctAnswerCount/this._currentRequiredAnswerCount, duration, true, cachedGameData, cachedTrainData);
+                    manager.clearCachedDeferredGameState();
+                } else {
+                    // 找不到缓存的 trainData，走正常流程
+                    DebugLog.instance.warn(`找不到缓存的 trainData，走正常流程上报`);
+                    this.requestGameComplete({
+                        context: this,
+                        parentNode: this.mainView,
+                        complete: this._correctAnswerCount/this._currentRequiredAnswerCount,   // 失败
+                        duration: duration,
+                    });
+                }
+            } else {
+                // 不是缓存数据，走正常流程
+                this.requestGameComplete({
+                    context: this,
+                    parentNode: this.mainView,
+                    complete: this._correctAnswerCount/this._currentRequiredAnswerCount,   // 失败
+                    duration: duration,
+                });
+            }
+            return;
+        }
+
+        // 普通模式：使用通用结算面板
         UIManager.getInstance().showPanel(SettlementPanel.NAME, {
             result: false,
             nextHandler: () => {
@@ -443,7 +781,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 重新开始当前关卡
                 DebugLog.instance.log(`失败Panel - 重玩当前关卡`);
                 this.restartCurrentLevel();
-            }
+            },
         });
     }
 
@@ -452,38 +790,62 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 使用上一次的音效和视频，不重新随机
      */
     private async restartCurrentLevel() {
-        // 停止当前播放的视频和音频
+        // 停止当前播放的视频和音频（无需进入答题阶段，这里忽略返回值）
         this.stopVideoWithAudio();
         
         // 先重置选项节点状态（在隐藏之前重置，确保颜色被重置）
         this.resetOptionNodes();
         
-        // 保存当前的题目和视频路径（重玩时使用相同的）
-        const savedQuestions = this._questions ? [...this._questions] : null;
-        const savedVideoPath = this._currentVideoPath;
-        
         // 重置所有状态
         this.resetGameState();
         
-        // 恢复上一次的题目（不重新随机获取）
-        if (savedQuestions) {
-            this._questions = savedQuestions;
-            DebugLog.instance.log(`重玩当前关卡，使用上一次的题目: ${savedQuestions.map(q => q.name).join(', ')}`);
+        // 串烧模式下，使用保存的题目和视频路径
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            // 使用保存的题目
+            if (this._skewersSavedQuestions && this._skewersSavedQuestions.length > 0) {
+                this._questions = [...this._skewersSavedQuestions];
+                DebugLog.instance.log(`串烧模式重玩 - 使用保存的题目: ${this._questions.map(q => q.name).join(', ')}`);
+            } else {
+                // 如果没有保存的题目，则重新获取（容错处理）
+                this._questions = this.model.getQuestion(this._currentDifficulty);
+                this._skewersSavedQuestions = this._questions ? [...this._questions] : null;
+                DebugLog.instance.log(`串烧模式重玩 - 重新获取题目并保存（无保存的题目）`);
+            }
+            
+            // 使用保存的视频路径
+            if (this._skewersSavedVideoPath) {
+                await this.loadLocalVideo(this._skewersSavedVideoPath, true);
+                DebugLog.instance.log(`串烧模式重玩 - 使用保存的视频: ${this._skewersSavedVideoPath}`);
+            } else {
+                // 如果没有保存的视频路径，则重新随机并保存（容错处理）
+                await this.initVideo();
+                DebugLog.instance.log(`串烧模式重玩 - 重新随机视频并保存（无保存的视频路径）`);
+            }
         } else {
-            // 如果没有保存的题目，则重新获取（容错处理）
-            this._questions = this.model.getQuestion(this._currentDifficulty);
-            DebugLog.instance.log(`重玩当前关卡，重新获取题目（无保存的题目）`);
+            // 非串烧模式：使用上一次的题目和视频路径
+            const savedQuestions = this._questions ? [...this._questions] : null;
+            const savedVideoPath = this._currentVideoPath;
+            
+            // 恢复上一次的题目（不重新随机获取）
+            if (savedQuestions) {
+                this._questions = savedQuestions;
+                DebugLog.instance.log(`重玩当前关卡，使用上一次的题目: ${savedQuestions.map(q => q.name).join(', ')}`);
+            } else {
+                // 如果没有保存的题目，则重新获取（容错处理）
+                this._questions = this.model.getQuestion(this._currentDifficulty);
+                DebugLog.instance.log(`重玩当前关卡，重新获取题目（无保存的题目）`);
+            }
+            
+            // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
+            if (savedVideoPath) {
+                await this.loadLocalVideo(savedVideoPath, true);
+                DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
+            } else {
+                // 如果没有保存的视频路径，则重新随机（容错处理）
+                await this.initVideo();
+                DebugLog.instance.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
+            }
         }
-        
-        // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
-        // if (savedVideoPath) {
-        //     await this.loadLocalVideo(savedVideoPath, true);
-        //     DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
-        // } else {
-            // 如果没有保存的视频路径，则重新随机（容错处理）
-            await this.initVideo();
-            console.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
-        //}
         
         // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
@@ -501,9 +863,37 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 先重置选项节点状态（在隐藏之前重置，确保颜色被重置）
         this.resetOptionNodes();
         
-        // 增加难度（1->2->3，然后循环回到1）
-        const maxDifficulty = 3;
-        // this._currentDifficulty = (this._currentDifficulty % maxDifficulty) + 1;
+        // 根据游戏类型处理难度和关卡
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            // 串烧训练模式：从 sceneModel 获取最新的难度和关卡（不自动增加难度）
+            this._currentDifficulty = (this.sceneModel as any).difficulty || 1;
+            const level = (this.sceneModel as any).level || 1;
+            
+            // 更新进度条和关卡标签
+            const skewersGameData = (this.sceneModel as any).game;
+            if (skewersGameData && this.progress) {
+                this.progress.progress = skewersGameData.progress || 0;
+            }
+            if (skewersGameData && this.progresslabel) {
+                this.progresslabel.string = "第" + (skewersGameData.progressStr || level) + "关";
+            }
+            
+            DebugLog.instance.log(`串烧训练模式 - 进入下一关，难度: ${this._currentDifficulty}, 关卡: ${level}`);
+        } else {
+            // 非串烧模式：可以自动增加难度（如果需要）
+            const maxDifficulty = 3;
+            // this._currentDifficulty = (this._currentDifficulty % maxDifficulty) + 1;
+            
+            const level = (this.sceneModel as any)?.levelIndex || (this.sceneModel as any)?.level || 1;
+            if (this.progress) {
+                this.progress.progress = 1;
+            }
+            if (this.progresslabel) {
+                this.progresslabel.string = "第" + level + "关";
+            }
+            
+            DebugLog.instance.log(`普通模式 - 进入下一关，难度: ${this._currentDifficulty}, 关卡: ${level}`);
+        }
         
         // 重置所有状态
         this.resetGameState();
@@ -512,20 +902,43 @@ export class Main extends BaseScene<IBaseGameChild> {
         const hardData = [3, 4, 5];
         const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
         this._requiredAnswerCount = hardData[hardIndex];
+        this._currentRequiredAnswerCount = this._requiredAnswerCount; // 记录本次游戏需要答题的数量
         
-        // 重新获取新难度的题目
-        this._questions = this.model.getQuestion(this._currentDifficulty);
-        
-        // 重新随机选择背景音乐
-        // this.randomPlayBgm();
-        
-        // 重新初始化视频（会随机选择新的视频）
-        await this.initVideo();
+        // 串烧模式下，使用保存的题目和视频路径，保证多次游戏一致
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            // 使用保存的题目
+            if (this._skewersSavedQuestions && this._skewersSavedQuestions.length > 0) {
+                this._questions = [...this._skewersSavedQuestions];
+                DebugLog.instance.log(`串烧模式进入下一关 - 使用保存的题目: ${this._questions.map(q => q.name).join(', ')}`);
+            } else {
+                // 如果没有保存的题目，则重新获取并保存（容错处理）
+                this._questions = this.model.getQuestion(this._currentDifficulty);
+                this._skewersSavedQuestions = this._questions ? [...this._questions] : null;
+                DebugLog.instance.log(`串烧模式进入下一关 - 重新获取题目并保存（无保存的题目）`);
+            }
+            
+            // 使用保存的视频路径
+            if (this._skewersSavedVideoPath) {
+                await this.loadLocalVideo(this._skewersSavedVideoPath, false);
+                DebugLog.instance.log(`串烧模式进入下一关 - 使用保存的视频: ${this._skewersSavedVideoPath}`);
+            } else {
+                // 如果没有保存的视频路径，则重新随机并保存（容错处理）
+                await this.initVideo();
+                DebugLog.instance.log(`串烧模式进入下一关 - 重新随机视频并保存（无保存的视频路径）`);
+            }
+        } else {
+            // 非串烧模式：重新获取新难度的题目和视频
+            this._questions = this.model.getQuestion(this._currentDifficulty);
+            
+            // 重新随机选择背景音乐
+            // this.randomPlayBgm();
+            
+            // 重新初始化视频（会随机选择新的视频）
+            await this.initVideo();
+        }
         
         // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
-        
-        DebugLog.instance.log(`进入下一关，新难度: ${this._currentDifficulty}`);
     }
 
     /**
@@ -538,6 +951,9 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._selectedOptions = [];
         this._optionBank = null;
         this._hasSubmittedAnswer = false;
+        this._wrongAnswerCount = 0; // 重置答错数量
+        this._correctAnswerCount = 0; // 重置答对数量
+        this._currentRequiredAnswerCount = 0; // 重置需要答题数量
         
         // 重置播放状态
         this._playedQuestions = [];
@@ -628,7 +1044,23 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.videoPlayer.playOnAwake = true;
         }
 
-        await this.loadLocalVideo();
+        // 串烧模式下，如果已有保存的视频路径，则使用保存的视频路径，否则随机选择并保存
+        let videoPath: string = null;
+        if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
+            if (this._skewersSavedVideoPath) {
+                // 使用保存的视频路径，保证多次游戏一致
+                videoPath = this._skewersSavedVideoPath;
+                DebugLog.instance.log(`串烧训练模式 - 使用保存的视频路径: ${videoPath}`);
+            } else {
+                // 第一次游戏，随机选择视频并保存
+                const randomIndex = Math.floor(Math.random() * this.videoLen);
+                videoPath = `video/bgm${randomIndex}`;
+                this._skewersSavedVideoPath = videoPath;
+                DebugLog.instance.log(`串烧训练模式 - 随机选择视频并保存: ${videoPath}`);
+            }
+        }
+        
+        await this.loadLocalVideo(videoPath);
     }
 
 
@@ -652,6 +1084,12 @@ export class Main extends BaseScene<IBaseGameChild> {
             
             // 保存当前视频路径
             this._currentVideoPath = videoPath;
+            
+            // 串烧模式下，如果还没有保存的视频路径，则保存当前视频路径
+            if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS && !this._skewersSavedVideoPath) {
+                this._skewersSavedVideoPath = videoPath;
+                DebugLog.instance.log(`串烧训练模式 - 保存视频路径: ${videoPath}`);
+            }
 
             if (videoPath&&videoPath.length>0) {
                 const bundle = assetManager.getBundle(BundleName.LISTENINGMASTER);
@@ -1084,8 +1522,13 @@ export class Main extends BaseScene<IBaseGameChild> {
 
             this._audioCountdownTimer = setTimeout(() => {
                 if (this._isPlaying) {
-                    this.stopVideoWithAudio();
-                    this.startAnswerTimer();
+                    // 根据返回值决定是否进入答题阶段
+                    const shouldShowOptions = this.stopVideoWithAudio();
+                    if (shouldShowOptions) {
+                        this.startAnswerTimer();
+                    } else {
+                        DebugLog.instance.log(`所有音效播放完成，但当前为串烧 deferResult 中间关卡，不进入答题阶段`);
+                    }
                 }
                 this._audioCountdownTimer = null;
             }, 2000);
@@ -1095,7 +1538,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     /**
      * 停止视频和音效播放
      */
-    private stopVideoWithAudio() {
+    private stopVideoWithAudio(): boolean {
         this._isPlaying = false;
 
         // 清除定时器
@@ -1130,42 +1573,50 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.videoPlayer.node.active = false;
         }
 
-        // 如果 deferResult == 1，检查是否有下一个游戏，如果有则直接跳转
+        // 如果 deferResult == 1，播放完成后标记为已播放，然后检查是否有下一个游戏
         if (this._shouldDeferResult && this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
-            const curGameData = SkewersManager.getInstance().curGame;
+            const manager = SkewersManager.getInstance();
+            const curGameData = manager.curGame;
             if (curGameData) {
-                // 检查是否有下一个游戏类型
-                // 先获取当前游戏在列表中的索引
-                const manager = SkewersManager.getInstance();
-                const allGameDatas = (manager as any)._gameDatas;
-                const curIndex = (manager as any)._curIndex;
-
-                // 检查是否有下一个游戏类型（在游戏列表中）
-                let hasNextGame = false;
-                if (allGameDatas && curIndex !== undefined && curIndex >= 0) {
-                    // 检查当前游戏之后是否还有未完成的游戏
-                    for (let i = curIndex + 1; i < allGameDatas.length; i++) {
-                        const gameData = allGameDatas[i];
-                        if (gameData && gameData.status === SkewersGameStatus.unCompleted) {
-                            hasNextGame = true;
-                            break;
+                const curTrainData = curGameData.getCurTrainData();
+                if (curTrainData && curTrainData.deferResult == 1) {
+                    // 标记当前 trainData 已经播放过音效和视频
+                    curTrainData.hasPlayedAudioVideo = true;
+                    DebugLog.instance.log(`deferResult=1，音效和视频播放完成，标记 trainData 为已播放`);
+                    
+                    // 检查是否有下一个未完成的游戏（不包括当前游戏）
+                    const hasNextGame = manager.hasNextUnCompleteGame(curGameData);
+                    
+                    if (hasNextGame) {
+                        // 有下一个游戏类型，缓存当前游戏状态（题目、选项题库、视频路径等），然后跳转
+                        // 注意：此时选项题库可能还没有初始化，需要在 setupOptionLabels 之前缓存
+                        // 但 setupOptionLabels 是在显示选项时调用的，所以这里需要先初始化选项题库
+                        if (!this._optionBank || this._optionBank.length === 0) {
+                            // 如果选项题库未初始化，先初始化它
+                            this.setupOptionLabels();
                         }
+                        
+                        // 缓存当前游戏状态
+                        manager.cacheDeferredGameState(curGameData, {
+                            questions: this._questions ? [...this._questions] : [],
+                            optionBank: this._optionBank ? [...this._optionBank] : [],
+                            videoPath: this._currentVideoPath || "",
+                            difficulty: this._currentDifficulty,
+                            requiredAnswerCount: this._requiredAnswerCount
+                        });
+                        
+                        DebugLog.instance.log(`deferResult=1，且不是最后一个游戏类型，缓存游戏状态后跳转到下一个类型，不显示听音选项`);
+                        manager.runNextGame(true);
+                        return false; // 不显示本局选项
+                    } else {
+                        // 没有下一个游戏类型，说明这是最后一个，正常显示选项并等待最终提交
+                        DebugLog.instance.log(`deferResult=1，且当前为最后一个游戏类型，正常显示听音选项等待最终提交`);
                     }
-                }
-
-                if (hasNextGame) {
-                    // 有下一个游戏类型，直接跳转
-                    DebugLog.instance.log(`deferResult=1，有下一个游戏类型，直接跳转`);
-                    manager.runNextGame(true);
-                    return;
-                } else {
-                    // 没有下一个游戏类型，正常显示选项
-                    DebugLog.instance.log(`deferResult=1，但没有下一个游戏类型，正常显示选项`);
                 }
             }
         }
 
-        // 显示选项节点
+        // 显示选项节点（仅在需要进入答题阶段时调用）
         if (this.optionsNode) {
              // 获取选项队列并设置到label上
              this.setupOptionLabels();
@@ -1175,10 +1626,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             this._hasSubmittedAnswer = false;
 
             this.answerCountLabel.string = `请选出<color=#B3F12E>${this._requiredAnswerCount}</color>种刚才听到的声音`;
-            
         }
 
         DebugLog.instance.log(`所有音效播放完成，停止视频并显示选项`);
+        return true;
     }
 
     /**
@@ -1364,7 +1815,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 在答题阶段：已经停止播放
             DebugLog.instance.log(`退出界面，答题阶段`);
         } else {
-            // 其他情况：完全停止
+            // 其他情况：完全停止（无需进入答题阶段，这里忽略返回值）
             this.stopVideoWithAudio();
         }
         

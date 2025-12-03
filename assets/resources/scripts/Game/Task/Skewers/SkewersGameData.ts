@@ -2,6 +2,7 @@ import { SkewersGameStatus } from "../../../Core/Data/GameState";
 import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global";
 import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { DebugLog } from "../../../Core/Util/DebugLog";
+import { SkewersManager } from "./SkewersManager";
 
 export enum SkewersGameType {
     // 理解力
@@ -21,7 +22,7 @@ export enum SkewersGameType {
 
 
 /**
- * 训练串烧数据
+ * 训练串烧游戏一级数据
  */
 export class SkewersGameData {
     // ============== game
@@ -87,7 +88,7 @@ export class SkewersGameData {
         this.is_correction = data["is_corretion"];
         switch (this.type) {
             case SkewersGameType.Memory:
-                this.gameName = "翻牌";
+                this.gameName = "听音辨物";
                 break;
             case SkewersGameType.Executionability:
                 this.gameName = "拼图";
@@ -130,13 +131,62 @@ export class SkewersGameData {
      */
     getCurTrainData(): SkewersGameTrainData {
         let len = this.trains.length;
+        
+        // // 优先查找 deferResult = 1 的 trainData
+        // for (let i: number = 0; i < len; ++i) {
+        //     let tmpData: SkewersGameTrainData = this.trains[i];
+        //     if (tmpData.status == SkewersGameStatus.unCompleted && tmpData.deferResult == 1) {
+        //         return tmpData;
+        //     }
+        // }
+        
+        // // 如果没有找到 deferResult = 1 的 trainData，使用原有逻辑查找其他未完成的 trainData
         for (let i: number = 0; i < len; ++i) {
             let tmpData: SkewersGameTrainData = this.trains[i];
             if (tmpData.status == SkewersGameStatus.unCompleted) {
                 return tmpData;
             }
         }
+        
         return null;
+    }
+
+    /**
+     * 获取下一个未完成的训练数据（跳过当前trainData）
+     * @param skipTrainData 要跳过的trainData（通常是当前trainData）
+     * @returns 下一个未完成的trainData，如果没有则返回null
+     */
+    getNextTrainData(skipTrainData: SkewersGameTrainData): SkewersGameTrainData {
+        if (!skipTrainData || !this.trains) return null;
+        
+        let len = this.trains.length;
+        let foundSkip = false;
+        
+        for (let i: number = 0; i < len; ++i) {
+            let tmpData: SkewersGameTrainData = this.trains[i];
+            
+            // 找到要跳过的trainData
+            if (tmpData === skipTrainData) {
+                foundSkip = true;
+                continue;
+            }
+            
+            // 如果已经找到要跳过的trainData，查找下一个未完成的
+            if (foundSkip && tmpData.status == SkewersGameStatus.unCompleted) {
+                return tmpData;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * 检查当前游戏是否还有其他未完成的trainData（不包括指定的trainData）
+     * @param excludeTrainData 要排除的trainData
+     * @returns 如果有其他未完成的trainData返回true，否则返回false
+     */
+    hasNextTrainData(excludeTrainData: SkewersGameTrainData): boolean {
+        return this.getNextTrainData(excludeTrainData) != null;
     }
 
 
@@ -272,86 +322,11 @@ export class SkewersGameData {
         }
     }
 
-    /**
-     * 缓存当前训练的答题数据（用于延迟显示答题界面）
-     * @param complete 完成度
-     * @param duration 用时
-     * @param result 结果（成功或失败）
-     * @param score 得分（可选）
-     */
-    public cacheResultData(complete: number, duration: number, result: boolean, score?: number) {
-        let curTrainData = this.getCurTrainData();
-        if (curTrainData && curTrainData.deferResult == 1) {
-            curTrainData.cachedResultData = {
-                complete,
-                duration,
-                result,
-                score
-            };
-            DebugLog.instance.log(`缓存答题数据: 游戏=${this.gameName}, 完成度=${complete}, 用时=${duration}, 结果=${result}`);
-        } else if (curTrainData && curTrainData.deferResult != 1) {
-            DebugLog.instance.log(`跳过缓存答题数据: 游戏=${this.gameName}, deferResult=${curTrainData.deferResult}（不为1）`);
-        }
-    }
-
-    /**
-     * 获取所有缓存的答题数据
-     * @returns 缓存的答题数据数组
-     */
-    public getCachedResultData(): Array<{
-        gameName: string;
-        gameType: SkewersGameType;
-        complete: number;
-        duration: number;
-        result: boolean;
-        score?: number;
-    }> {
-        const cachedData: Array<{
-            gameName: string;
-            gameType: SkewersGameType;
-            complete: number;
-            duration: number;
-            result: boolean;
-            score?: number;
-        }> = [];
-
-        if (this.trains) {
-            for (let i = 0; i < this.trains.length; i++) {
-                const trainData = this.trains[i];
-                if (trainData.cachedResultData && trainData.deferResult == 1) {
-                    cachedData.push({
-
-                        gameName: this.gameName,
-                        gameType: this.type,
-                        complete: trainData.cachedResultData.complete,
-                        duration: trainData.cachedResultData.duration,
-                        result: trainData.cachedResultData.result,
-                        score: trainData.cachedResultData.score
-                    });
-                }
-            }
-        }
-
-        return cachedData;
-    }
-
-    /**
-     * 清除所有缓存的答题数据
-     */
-    public clearCachedResultData() {
-        if (this.trains) {
-            for (let i = 0; i < this.trains.length; i++) {
-                const trainData = this.trains[i];
-                if (trainData.cachedResultData && trainData.deferResult == 1) {
-                    trainData.cachedResultData = null;
-                }
-            }
-        }
-        DebugLog.instance.log(`清除缓存的答题数据: 游戏=${this.gameName}`);
-    }
-
 }
 
+/**
+ * 串烧游戏二级数据
+ */
 export class SkewersGameTrainData {
     // ============== trains
 
@@ -396,13 +371,8 @@ export class SkewersGameTrainData {
     // 是否延迟显示答题界面（1：答题结束后直接跳转下一个游戏，数据缓存，等所有游戏完成后统一显示）
     private _deferResult: number = 0;
 
-    // 缓存的答题数据（用于延迟显示答题界面）
-    public cachedResultData: {
-        complete: number;
-        duration: number;
-        result: boolean; // 成功或失败
-        score?: number; // 得分（如果有）
-    } = null;
+    // 是否已经播放过音效和视频（用于 deferResult == 1 时的流程控制）
+    private _hasPlayedAudioVideo: boolean = false;
 
     public get parentSkewersGameData() {
         return this._parentSkewersGameData;
@@ -433,7 +403,7 @@ export class SkewersGameTrainData {
         this.complete = data['completion'] || 0;
         this.score = data['score'] || 0;
         this.completedAt = data['completed_at'] || null;
-        this._deferResult = data["deferResult"] || 0;
+        this._deferResult = data["defer_result"] || 0;
         if (data['level'] == "") {
             data['level'] = 1;
         }
@@ -442,6 +412,14 @@ export class SkewersGameTrainData {
 
     public get deferResult(){
         return this._deferResult;
+    }
+
+    public get hasPlayedAudioVideo(): boolean {
+        return this._hasPlayedAudioVideo;
+    }
+
+    public set hasPlayedAudioVideo(value: boolean) {
+        this._hasPlayedAudioVideo = value;
     }
 
     public get level() {

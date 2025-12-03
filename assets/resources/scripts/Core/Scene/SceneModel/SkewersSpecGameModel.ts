@@ -7,6 +7,7 @@ import {EventManager} from "../../Manager/Event/EventManager";
 import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
 import {SceneManager} from "../../Manager/Scene/SceneManager";
 import {TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
+import {DebugLog} from "../../Util/DebugLog";
 
 // 添加类型定义确保desc存在
 interface AlertConfig {
@@ -506,6 +507,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
     totalCompleteHandler(context) {
         let alertType = AlertType.Sucess_Big;
         let manager = SkewersManager.getInstance();
+        // 检查是否真的所有游戏都完成了（不考虑缓存的游戏状态）
+        let isAllGameCompleted = manager.getUnCompleteGameData() == null;
         let isRunOver = manager.isRunOver();
         if (isRunOver && TaskManager.getInstance().isRevise(TaskManager.getInstance().curTask.id)) {
             alertType = AlertType.Revise;
@@ -513,12 +516,49 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         if (isRunOver && TaskManager.getInstance().curTask.type == TaskType.Revise) {
             alertType = AlertType.Revise_Complete;
         }
-        let exitFunc = alertType == AlertType.Revise ? context.reviseHandler:context.exitCallBack;
+        
+        // 包装退出回调，在所有串烧任务完成并结算后，检查是否有缓存的游戏数据
+        const originalExitFunc = alertType == AlertType.Revise ? context.reviseHandler : context.exitCallBack;
+        const wrappedExitFunc = () => {
+            // 所有串烧任务完成并结算后，检查是否有缓存的游戏数据
+            const cachedState = manager.getCachedDeferredGameState();
+            if (cachedState && isAllGameCompleted) {
+                // 有缓存的游戏状态，直接进入 listeningMaster 游戏并显示选项界面
+                const sceneName = cachedState.gameData.gameCode; // listeningMaster
+                const restoreData = {
+                    gametype: GameType.SKEWERS,
+                    difficulty: cachedState.difficulty,
+                    level: cachedState.gameData.level,
+                    // 将缓存的游戏状态数据放入 restoreData 中
+                    cachedGameState: {
+                        questions: cachedState.questions,
+                        optionBank: cachedState.optionBank,
+                        videoPath: cachedState.videoPath,
+                        difficulty: cachedState.difficulty,
+                        requiredAnswerCount: cachedState.requiredAnswerCount
+                    }
+                };
+                
+                // 切换到 对应cathedStategameData的 场景
+                SceneManager.getInstance().changeScene(sceneName, "", restoreData).then((scene) => {
+                    // 场景切换成功后，Main.ts 的 start 方法会检查 restoreData 中的缓存的游戏状态并恢复
+                    // 缓存的游戏状态会在 Main.ts 中自动恢复并显示选项界面
+                }).catch((error) => {
+                    DebugLog.instance.error(`切换到 listeningMaster 场景失败: ${sceneName}`, error);
+                });
+            } else {
+                // 没有缓存的游戏状态，正常退出
+                if (originalExitFunc) {
+                    originalExitFunc();
+                }
+            }
+        };
+        
         let compStr = alertType == AlertType.Revise ? SkewersManager.getInstance().reviseCompleteStr: alertType == AlertType.Revise_Complete ? SkewersManager.getInstance().reviseDZCompleteStr:SkewersManager.getInstance().totalCompleteStr;
         let remoteHandler = (SkewersManager.getInstance().curGame&&!SkewersManager.getInstance().curGame.is_correction && TaskManager.getInstance().curTask.type != TaskType.Review) ? context.quitGame :
             (alertType == AlertType.Revise_Complete ? context.quitGame : context.remoteHandler);
         SkewersManager.getInstance().showGameAlert(context.viewNode, alertType, compStr, SkewersManager.getInstance().totalBrainScore, true,0, 0,
-            exitFunc, remoteHandler, context);
+            wrappedExitFunc, remoteHandler, context);
     }
 
     // ========= 订正任务 =========
