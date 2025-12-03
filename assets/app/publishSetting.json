@@ -2,10 +2,11 @@
   "app_version": "1.0",
   "dev_remote_url": "https://kele.paipai.xinjiaxianglao.com/develop/",
   "pro_remote_url": "https://colapai.xinjiaxianglao.com/app/production/",
-  "dev_api_url": "wss://test.paipai2.xinjiaxianglao.com/api/home",
-  "pro_api_url": "wss://colapai.xinjiaxianglao.com/api/home",
+  "dev_api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
+  "pro_api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
+  "mci_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
   "environment": "DEVELOP",
-  "isMCI": false,
+  "isMCI": true,
   "isRemoteBundle": true,
   "isFullUpload": false
 }
