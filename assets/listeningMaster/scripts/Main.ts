@@ -1065,7 +1065,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
-    private videoLen:number = 20;
+    private videoLen:number = 14;
 
     private playvideoDelay:number = 500;
 

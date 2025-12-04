@@ -2,7 +2,7 @@
   "ver": "1.0.27",
   "importer": "image",
   "imported": true,
-  "uuid": "4a25535a-f0dc-4e47-b804-06b5b36df7ca",
+  "uuid": "75c111fd-951e-42f7-b3a0-0d1c46f27c5c",
   "files": [
     ".json",
     ".png"
@@ -10,14 +10,14 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "4a25535a-f0dc-4e47-b804-06b5b36df7ca@6c48a",
+      "uuid": "75c111fd-951e-42f7-b3a0-0d1c46f27c5c@6c48a",
       "displayName": "icon_feixiang_jingdian",
       "id": "6c48a",
       "name": "texture",
       "userData": {
         "wrapModeS": "clamp-to-edge",
         "wrapModeT": "clamp-to-edge",
-        "imageUuidOrDatabaseUri": "4a25535a-f0dc-4e47-b804-06b5b36df7ca",
+        "imageUuidOrDatabaseUri": "75c111fd-951e-42f7-b3a0-0d1c46f27c5c",
         "isUuid": true,
         "visible": false,
         "minfilter": "linear",
@@ -34,7 +34,7 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "4a25535a-f0dc-4e47-b804-06b5b36df7ca@f9941",
+      "uuid": "75c111fd-951e-42f7-b3a0-0d1c46f27c5c@f9941",
       "displayName": "icon_feixiang_jingdian",
       "id": "f9941",
       "name": "spriteFrame",
@@ -114,7 +114,7 @@
           ]
         },
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "4a25535a-f0dc-4e47-b804-06b5b36df7ca@6c48a",
+        "imageUuidOrDatabaseUri": "75c111fd-951e-42f7-b3a0-0d1c46f27c5c@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.12",
@@ -129,6 +129,6 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "fixAlphaTransparencyArtifacts": false,
-    "redirect": "4a25535a-f0dc-4e47-b804-06b5b36df7ca@6c48a"
+    "redirect": "75c111fd-951e-42f7-b3a0-0d1c46f27c5c@6c48a"
   }
 }
