@@ -360,9 +360,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_string": "",
@@ -456,6 +456,8 @@
       "__id__": 0
     },
     "fileId": "05zmtr94VO6L7lMXg2xy/w",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -540,6 +542,8 @@
       "__id__": 0
     },
     "fileId": "b6GchVs/tFRaMFGsxWn3qO",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
