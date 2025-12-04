@@ -361,7 +361,7 @@
     },
     "lion":{
         "name":"狮子叫声",
-        "duration":"3",
+        "duration":"7",
         "path":"music/question/lion"
     },
     "waterfall":{
