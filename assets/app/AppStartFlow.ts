@@ -1,5 +1,6 @@
-import { _decorator, assetManager, Component, JsonAsset, Label, director, sys, Node, UITransform, UIOpacity, tween, EventTouch, profiler, native } from 'cc';
-import { BundleManager, BundleVersionsConfig } from './BundleManager';
+import { _decorator, assetManager, Component, JsonAsset, Label, director, sys, Node, UIOpacity, tween, EventTouch, profiler, native } from 'cc';
+// 全量包模式：不再需要远程包管理相关导入
+// import { BundleManager, BundleVersionsConfig } from './BundleManager';
 import { PublishSettingConfig } from './PublishSettingConfig';
 
 const { ccclass, property } = _decorator;
@@ -14,15 +15,15 @@ enum StartStatus {
 
 @ccclass('AppStartFlow')
 export class AppStartFlow extends Component {
-    // 核心状态管理
-    private state: StartStatus = StartStatus.CONNECTING_SOCKET;
-    private socket: WebSocket | null = null;     // 服务器连接实例
-    private bundleVersions!: BundleVersionsConfig; // 版本配置缓存
+    // 核心状态管理（全量包模式：不再需要状态机和远程连接）
+    // private state: StartStatus = StartStatus.CONNECTING_SOCKET;
+    // private socket: WebSocket | null = null;     // 服务器连接实例（已废弃）
+    // private bundleVersions!: BundleVersionsConfig; // 版本配置缓存（已废弃）
     
-    // 重试机制配置
-    private readonly MAX_RETRY_COUNT = 3;
-    private readonly RETRY_INTERVAL = 4000; // 4秒
-    private retryCount: number = 0;
+    // 重试机制配置（全量包模式：不再需要）
+    // private readonly MAX_RETRY_COUNT = 3;
+    // private readonly RETRY_INTERVAL = 4000; // 4秒
+    // private retryCount: number = 0;
 
     @property(UIOpacity)
     iconOpacity: UIOpacity = null;
@@ -74,10 +75,11 @@ export class AppStartFlow extends Component {
             tween(this.iconOpacity).stop();
         }
 
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            console.log('关闭WebSocket连接');
-            this.socket.close();
-        }
+        // 全量包模式：不再需要关闭WebSocket连接
+        // if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        //     console.log('关闭WebSocket连接');
+        //     this.socket.close();
+        // }
     }
 
     private onTouchStart(event: EventTouch) {
@@ -117,7 +119,7 @@ export class AppStartFlow extends Component {
         this.startTime = Date.now();
         await PublishSettingConfig.getInstance().init(this.publishSettingConfig);
 
-        this.updateVersionLabel();
+        // this.updateVersionLabel();
         
         // 全量包模式：直接加载本地资源包，不连接服务器和下载远程包
         this.loadLocalBundle();
@@ -132,20 +134,8 @@ export class AppStartFlow extends Component {
     private updateVersionLabel() {
         if (!this.versionLabel) return;
 
-        // 基础应用版本
+        // 全量包模式：只显示应用版本
         let versionInfo = `应用版本: ${PublishSettingConfig.getInstance().getAppVersion()}`;
-
-        // 添加配置版本（如果已加载）
-        if (this.bundleVersions) {
-            versionInfo += `\n配置版本: ${this.bundleVersions.version}`;
-
-            // 添加resources包版本
-            const resourcesBundle = this.bundleVersions.bundles['resources'];
-            if (resourcesBundle) {
-                versionInfo += `\n资源版本: ${resourcesBundle.version}`;
-            }
-        }
-
         this.versionLabel.string = versionInfo;
     }
 
@@ -219,20 +209,20 @@ export class AppStartFlow extends Component {
     //     };
     // }
 
-    // 通用重试处理机制
-    private handleRetry(errorMessage: string, retryFunction: () => void) {
-        this.retryCount++;
-        
-        if (this.retryCount <= this.MAX_RETRY_COUNT) {
-            this.updateProgressText(`${errorMessage}\n第${this.retryCount}次重试，${this.RETRY_INTERVAL / 1000}秒后重试...`);
-            setTimeout(() => {
-                retryFunction();
-            }, this.RETRY_INTERVAL);
-        } else {
-            this.updateProgressText(`${errorMessage}\n重试${this.MAX_RETRY_COUNT}次后仍然失败`);
-            this.showNetErrorAlert();
-        }
-    }
+    // 通用重试处理机制（全量包模式：已废弃）
+    // private handleRetry(errorMessage: string, retryFunction: () => void) {
+    //     this.retryCount++;
+    //     
+    //     if (this.retryCount <= this.MAX_RETRY_COUNT) {
+    //         this.updateProgressText(`${errorMessage}\n第${this.retryCount}次重试，${this.RETRY_INTERVAL / 1000}秒后重试...`);
+    //         setTimeout(() => {
+    //             retryFunction();
+    //         }, this.RETRY_INTERVAL);
+    //     } else {
+    //         this.updateProgressText(`${errorMessage}\n重试${this.MAX_RETRY_COUNT}次后仍然失败`);
+    //         this.showNetErrorAlert();
+    //     }
+    // }
 
     // 状态机推进器 -------------------------------------------------
     // 全量包模式：已屏蔽，不再使用状态机
@@ -297,60 +287,60 @@ export class AppStartFlow extends Component {
     //         });
     // }
 
-    // 在loadRemoteConfig调用处添加异常上报
-    public async loadBundleVersionsConfig(remoteUrl: string) {
-        try {
-            this.updateProgressText(`正在下载版本配置...${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
-            try {
-                if (sys.isNative) {
-                    // 清除旧缓存保证获取最新配置
-                    assetManager.cacheManager.removeCache(remoteUrl);
-                }
-
-                // 异步加载远程配置
-                const response = await this.loadRemoteConfig(remoteUrl);
-                this.bundleVersions = response;
-
-                // 新增缓存逻辑
-                let remoteBaseUrl = PublishSettingConfig.getInstance().getRemoteUrl();
-                BundleManager.getInstance().cacheBundleConfig(response, remoteBaseUrl);
-                this.updateVersionLabel();
-
-            } catch (error) {
-                this.reportBundleLoad({
-                    bundle: 'config',
-                    result: 0,
-                    error: 1,
-                    message: `版本配置加载失败: ${error}`
-                });
-                throw error; // 重新抛出错误以便重试机制处理
-            }
-        } catch (error) {
-            throw error; // 重新抛出错误以便重试机制处理
-        }
-    }
-    // 远程配置加载核心逻辑
-    private async loadRemoteConfig(url: string): Promise<BundleVersionsConfig> {
-        return new Promise((resolve, reject) => {
-            assetManager.loadRemote(url, (err, data: JsonAsset) => {
-                // 错误处理
-                if (err || !data?.json) return reject(err || '无效JSON数据');
-
-                // 结构校验与转换
-                const raw = data.json as BundleVersionsConfig;
-                if (!raw.version || !raw.bundles) {
-                    return reject('配置文件格式错误');
-                }
-
-                // 返回强类型配置
-                resolve({
-                    version: raw.version,
-                    bundles: raw.bundles,
-                    timestamp: raw.timestamp
-                });
-            });
-        });
-    }
+    // 版本配置加载器（全量包模式：已废弃，不再下载远程配置）
+    // public async loadBundleVersionsConfig(remoteUrl: string) {
+    //     try {
+    //         this.updateProgressText(`正在下载版本配置...${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
+    //         try {
+    //             if (sys.isNative) {
+    //                 // 清除旧缓存保证获取最新配置
+    //                 assetManager.cacheManager.removeCache(remoteUrl);
+    //             }
+    //
+    //             // 异步加载远程配置
+    //             const response = await this.loadRemoteConfig(remoteUrl);
+    //             this.bundleVersions = response;
+    //
+    //             // 新增缓存逻辑
+    //             let remoteBaseUrl = PublishSettingConfig.getInstance().getRemoteUrl();
+    //             BundleManager.getInstance().cacheBundleConfig(response, remoteBaseUrl);
+    //             this.updateVersionLabel();
+    //
+    //         } catch (error) {
+    //             this.reportBundleLoad({
+    //                 bundle: 'config',
+    //                 result: 0,
+    //                 error: 1,
+    //                 message: `版本配置加载失败: ${error}`
+    //             });
+    //             throw error; // 重新抛出错误以便重试机制处理
+    //         }
+    //     } catch (error) {
+    //         throw error; // 重新抛出错误以便重试机制处理
+    //     }
+    // }
+    // 远程配置加载核心逻辑（全量包模式：已废弃）
+    // private async loadRemoteConfig(url: string): Promise<BundleVersionsConfig> {
+    //     return new Promise((resolve, reject) => {
+    //         assetManager.loadRemote(url, (err, data: JsonAsset) => {
+    //             // 错误处理
+    //             if (err || !data?.json) return reject(err || '无效JSON数据');
+    //
+    //             // 结构校验与转换
+    //             const raw = data.json as BundleVersionsConfig;
+    //             if (!raw.version || !raw.bundles) {
+    //                 return reject('配置文件格式错误');
+    //             }
+    //
+    //             // 返回强类型配置
+    //             resolve({
+    //                 version: raw.version,
+    //                 bundles: raw.bundles,
+    //                 timestamp: raw.timestamp
+    //             });
+    //         });
+    //     });
+    // }
     // 全量包模式：已屏蔽，不再下载远程资源包
     /*
     private downloadResourcesWithRetry() {
@@ -380,113 +370,116 @@ export class AppStartFlow extends Component {
     }
     */
 
-    private async downloadBundle(bundleName: string, info: {
-        md5: string,
-        md5backup: string,
-        version: string,
-        versionbackup: string
-    }) {
-        return new Promise<void>((resolve, reject) => {
-            let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
-            // 修改路径格式为：远程URL/资源包_版本/资源包
-            const primaryBundleUrl = BundleManager.getInstance().getBundleRemoteUrl(bundleName);
-            const fallbackBundleUrl = BundleManager.getInstance().getBundleRemoteUrl(bundleName, true);
-            const needRetry = info.md5backup != null && info.md5backup != '';
+    // 远程资源包下载方法（全量包模式：已废弃，不再下载远程包）
+    // private async downloadBundle(bundleName: string, info: {
+    //     md5: string,
+    //     md5backup: string,
+    //     version: string,
+    //     versionbackup: string
+    // }) {
+    //     return new Promise<void>((resolve, reject) => {
+    //         let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
+    //         // 修改路径格式为：远程URL/资源包_版本/资源包
+    //         const primaryBundleUrl = BundleManager.getInstance().getBundleRemoteUrl(bundleName);
+    //         const fallbackBundleUrl = BundleManager.getInstance().getBundleRemoteUrl(bundleName, true);
+    //         const needRetry = info.md5backup != null && info.md5backup != '';
+    //
+    //         const progressHandler = (loaded: number, total: number) => {
+    //             const percent = Math.round(loaded / total * 100);
+    //             this.updateProgressText(`正在下载资源包... ${percent}%\n${loaded.toLocaleString()}/${total.toLocaleString()}字节${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
+    //         };
+    //
+    //         const loadWithRetry = (url: string, md5: string, isRetry = false) => {
+    //             console.log(`下载资源包: ${url}, MD5: ${md5}`);
+    //             assetManager.loadBundle(url, {
+    //                 version: md5,
+    //                 onFileProgress: progressHandler
+    //             }, (err, bundle) => {
+    //                 if (!err && bundle) {
+    //                     console.log('资源包下载成功:', bundleName);
+    //                     this.updateProgressText('资源包验证通过');
+    //                     resolve();
+    //                 } else if (!isRetry && needRetry) {
+    //                     this.updateProgressText('主资源下载失败\n尝试备用资源...');
+    //                     console.error('资源包下载失败:', err);
+    //                     loadWithRetry(fallbackBundleUrl, info.md5backup, true);
+    //                 } else {
+    //                     this.updateProgressText('资源下载失败，请检查网络');
+    //                     console.error('资源包下载失败:', err);
+    //                     reject(err || '资源加载失败');
+    //                 }
+    //             });
+    //         };
+    //
+    //         loadWithRetry(primaryBundleUrl, info.md5);
+    //     }).then(() => {
+    //         this.updateProgressText('资源包加载完成');
+    //         this.updateVersionLabel(); // 资源加载完成后再次更新
+    //     });
+    // }
 
-            const progressHandler = (loaded: number, total: number) => {
-                const percent = Math.round(loaded / total * 100);
-                this.updateProgressText(`正在下载资源包... ${percent}%\n${loaded.toLocaleString()}/${total.toLocaleString()}字节${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
-            };
+    // 资源包加载上报（全量包模式：已废弃，不再连接服务器上报）
+    // private reportBundleLoad(params: {
+    //     bundle: string;
+    //     result: number;
+    //     error?: number;
+    //     message?: string;
+    // }) {
+    //     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
+    //
+    //     const reportData = {
+    //         action: 'bundle.report_bundle_load',
+    //         data: {
+    //             device_id: "EMPTY",//this.getDeviceId(), // 需要实现设备ID获取
+    //             app_version: PublishSettingConfig.getInstance().getAppVersion(),
+    //             bundle: params.bundle,
+    //             old_ver: '',    // 需要从本地存储获取旧版本
+    //             new_ver: this.bundleVersions?.bundles[params.bundle]?.version || '',
+    //             start_times: new Date().toISOString().replace('T', ' ').slice(0, 19),
+    //             duration: 0,    // 需要实际计算持续时间
+    //             result: params.result,
+    //             error: params.error,
+    //             message: params.message
+    //         }
+    //     };
+    //
+    //     this.socket.send(JSON.stringify(reportData));
+    // }
 
-            const loadWithRetry = (url: string, md5: string, isRetry = false) => {
-                console.log(`下载资源包: ${url}, MD5: ${md5}`);
-                assetManager.loadBundle(url, {
-                    version: md5,
-                    onFileProgress: progressHandler
-                }, (err, bundle) => {
-                    if (!err && bundle) {
-                        console.log('资源包下载成功:', bundleName);
-                        this.updateProgressText('资源包验证通过');
-                        resolve();
-                    } else if (!isRetry && needRetry) {
-                        this.updateProgressText('主资源下载失败\n尝试备用资源...');
-                        console.error('资源包下载失败:', err);
-                        loadWithRetry(fallbackBundleUrl, info.md5backup, true);
-                    } else {
-                        this.updateProgressText('资源下载失败，请检查网络');
-                        console.error('资源包下载失败:', err);
-                        reject(err || '资源加载失败');
-                    }
-                });
-            };
-
-            loadWithRetry(primaryBundleUrl, info.md5);
-        }).then(() => {
-            this.updateProgressText('资源包加载完成');
-            this.updateVersionLabel(); // 资源加载完成后再次更新
-        });
-    }
-
-    private reportBundleLoad(params: {
-        bundle: string;
-        result: number;
-        error?: number;
-        message?: string;
-    }) {
-        if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
-
-        const reportData = {
-            action: 'bundle.report_bundle_load',
-            data: {
-                device_id: "EMPTY",//this.getDeviceId(), // 需要实现设备ID获取
-                app_version: PublishSettingConfig.getInstance().getAppVersion(),
-                bundle: params.bundle,
-                old_ver: '',    // 需要从本地存储获取旧版本
-                new_ver: this.bundleVersions?.bundles[params.bundle]?.version || '',
-                start_times: new Date().toISOString().replace('T', ' ').slice(0, 19),
-                duration: 0,    // 需要实际计算持续时间
-                result: params.result,
-                error: params.error,
-                message: params.message
-            }
-        };
-
-        this.socket.send(JSON.stringify(reportData));
-    }
-
-    private createDebugButton() {
-        if (!this.buttonListContainer || !this.bundleVersions?.bundles) return;
-        // 清空现有按钮
-        this.buttonListContainer.removeAllChildren();
-        // 为每个bundle创建按钮
-        Object.keys(this.bundleVersions.bundles).forEach(bundleName => {
-            const buttonNode = new Node();
-            // 设置节点尺寸
-            buttonNode.addComponent(UITransform);
-            buttonNode.getComponent(UITransform).setContentSize(150, 75);
-
-            const label = buttonNode.addComponent(Label);
-            label.string = bundleName;
-            label.fontSize = 24;
-            // 设置文本居中
-            label.horizontalAlign = Label.HorizontalAlign.CENTER;
-            label.verticalAlign = Label.VerticalAlign.CENTER;
-
-            // 添加按钮点击事件
-            buttonNode.on(Node.EventType.TOUCH_END, async () => {
-                try {
-                    this.updateProgressText(`开始下载 ${bundleName}...`);
-                    await this.downloadBundle(bundleName, this.bundleVersions.bundles[bundleName]);
-                    this.updateProgressText(`${bundleName} 下载成功`);
-                } catch (error) {
-                    console.error(`${bundleName} 下载失败:`, error);
-                    this.updateProgressText(`${bundleName} 下载失败: ${error.message}`);
-                }
-            });
-            // 添加到容器
-            this.buttonListContainer.addChild(buttonNode);
-        });
-    }
+    // 调试按钮创建（全量包模式：已废弃，不再需要）
+    // private createDebugButton() {
+    //     if (!this.buttonListContainer || !this.bundleVersions?.bundles) return;
+    //     // 清空现有按钮
+    //     this.buttonListContainer.removeAllChildren();
+    //     // 为每个bundle创建按钮
+    //     Object.keys(this.bundleVersions.bundles).forEach(bundleName => {
+    //         const buttonNode = new Node();
+    //         // 设置节点尺寸
+    //         buttonNode.addComponent(UITransform);
+    //         buttonNode.getComponent(UITransform).setContentSize(150, 75);
+    //
+    //         const label = buttonNode.addComponent(Label);
+    //         label.string = bundleName;
+    //         label.fontSize = 24;
+    //         // 设置文本居中
+    //         label.horizontalAlign = Label.HorizontalAlign.CENTER;
+    //         label.verticalAlign = Label.VerticalAlign.CENTER;
+    //
+    //         // 添加按钮点击事件
+    //         buttonNode.on(Node.EventType.TOUCH_END, async () => {
+    //             try {
+    //                 this.updateProgressText(`开始下载 ${bundleName}...`);
+    //                 await this.downloadBundle(bundleName, this.bundleVersions.bundles[bundleName]);
+    //                 this.updateProgressText(`${bundleName} 下载成功`);
+    //             } catch (error) {
+    //                 console.error(`${bundleName} 下载失败:`, error);
+    //                 this.updateProgressText(`${bundleName} 下载失败: ${error.message}`);
+    //             }
+    //         });
+    //         // 添加到容器
+    //         this.buttonListContainer.addChild(buttonNode);
+    //     });
+    // }
 
     // 添加呼吸动画方法
     private startBreathingAnimation() {
