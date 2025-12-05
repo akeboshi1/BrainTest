@@ -5,8 +5,8 @@
   "dev_api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
   "pro_api_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
   "mci_url": "wss://kele.paipai.xinjiaxianglao.com/api/home",
-  "environment": "DEVELOP",
+  "environment": "MCI",
   "isMCI": true,
-  "isRemoteBundle": true,
+  "isRemoteBundle": false,
   "isFullUpload": false
 }
