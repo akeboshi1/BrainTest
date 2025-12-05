@@ -489,7 +489,8 @@ export class SkewersManager {
             }
 
             if (this._skewersGames_complete && TaskManager.getInstance().curTask && TaskManager.getInstance().curTask.type != TaskType.Review) {
-                UIManager.getInstance().showPanel(GameScoreAlert.NAME, this._skewersGames_scores);
+                // 直接退到 indexPageView
+                SceneManager.getInstance().backToHall();
             } else {
                 EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
             }
@@ -780,20 +781,20 @@ export class SkewersManager {
         }
 
         // 如果所有游戏都完成了，检查是否有缓存的延迟显示游戏状态
-        if (!this._game && this._cachedDeferredGameState) {
-            // 回到缓存的游戏，恢复游戏状态并显示选项界面
-            this._game = this._cachedDeferredGameState.gameData;
-            // 找到缓存的游戏在列表中的索引
-            if (this._gameDatas && this._gameDatas.length > 0) {
-                for (let i = 0; i < this._gameDatas.length; i++) {
-                    if (this._gameDatas[i] === this._game) {
-                        this._curIndex = i;
-                        break;
-                    }
-                }
-            }
-            DebugLog.instance.log(`所有游戏完成，回到缓存的延迟显示游戏: ${this._game.gameName}, 将显示选项界面`);
-        }
+        // if (!this._game && this._cachedDeferredGameState) {
+        //     // 回到缓存的游戏，恢复游戏状态并显示选项界面
+        //     this._game = this._cachedDeferredGameState.gameData;
+        //     // 找到缓存的游戏在列表中的索引
+        //     if (this._gameDatas && this._gameDatas.length > 0) {
+        //         for (let i = 0; i < this._gameDatas.length; i++) {
+        //             if (this._gameDatas[i] === this._game) {
+        //                 this._curIndex = i;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        //     DebugLog.instance.log(`所有游戏完成，回到缓存的延迟显示游戏: ${this._game.gameName}, 将显示选项界面`);
+        // }
 
         Global.userData.curSkewerGameData = this._game;
 
@@ -886,10 +887,6 @@ export class SkewersManager {
      * 注意：如果有缓存的延迟显示游戏状态，则返回 false（因为还有缓存的游戏需要处理）
      */
     public isRunOver(): boolean {
-        // 如果有缓存的延迟显示游戏状态，说明还有游戏需要处理，返回 false
-        if (this._cachedDeferredGameState) {
-            return false;
-        }
         return this.getUnCompleteGameData() == null;
     }
 

@@ -67,6 +67,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(Node)
     private rightLine:Node = null;
 
+    @property(Node)
+    private descLabelNode:Node = null;
+
     protected bundleName: string = BundleName.LISTENINGMASTER;
 
     protected audioUrls = ['music/bgm',"music/win","music/fail","music/click"];
@@ -161,7 +164,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this._currentDifficulty = cachedState.difficulty;
                 this._requiredAnswerCount = cachedState.requiredAnswerCount;
                 this._shouldDeferResult = true;
-                
+                this.descLabelNode.getComponent(Label).string = "请回忆刚才听到的音效,并选出正确的选项";
                 DebugLog.instance.log(`恢复缓存的游戏状态: 题目数量=${this._questions.length}, 选项数量=${this._optionBank.length}, 视频路径=${this._currentVideoPath}`);
                 
                 // // 如果视频路径存在，加载视频（但不自动播放）
@@ -176,10 +179,10 @@ export class Main extends BaseScene<IBaseGameChild> {
                     const curTrainData = curGameData.getCurTrainData();
                     if (curTrainData && curTrainData.deferResult == 1) {
                         this._shouldDeferResult = true;
+                        
                         // 检查是否已经播放过音效和视频
                         if (curTrainData.hasPlayedAudioVideo) {
-                            // 已经播放过，直接跳转到下一个游戏
-                            DebugLog.instance.log(`当前游戏 deferResult=1，且已播放过音效和视频，直接跳转到下一个游戏`);
+                            this.descLabelNode.getComponent(Label).string = "听视频音频，记住并选出你听到的声音";
                             // 初始化选项题库（用于缓存）
                             if (!this._optionBank || this._optionBank.length === 0) {
                                 // 先获取题目
@@ -200,6 +203,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                             return; // 直接返回，不播放音效和视频
                         } else {
                             // 没有播放过，正常播放音效和视频
+                            this.descLabelNode.getComponent(Label).string = "听视频音频，记住并选出你听到的声音";
                             DebugLog.instance.log(`当前游戏 deferResult=1，将先播放音效和视频，然后标记为已播放`);
                         }
                     } else {
@@ -222,8 +226,22 @@ export class Main extends BaseScene<IBaseGameChild> {
             
         } else {
             // 非串烧模式：使用默认逻辑
-            this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
-            const level = (this.sceneModel as any)?.levelIndex || (this.sceneModel as any)?.level || 1;
+            let level = 1;
+            this.descLabelNode.getComponent(Label).string = "听视频音频，记住并选出你听到的声音";
+            if (this.sceneModel) {
+                // 如果是 GameCenterSpecModel（从 GameCenterManager 进入），难度从 guidepanel 选择，level 直接等于 1
+                if (this.sceneModel.gameType === GameType.GAME_CENTER) {
+                    // 难度通过 guidepanel 选择的难度（从 sceneModel.difficulty 获取）
+                    this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
+                    level = 1; // level 直接等于 1
+                } else {
+                    // 其他模式：使用默认逻辑
+                    this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
+                    level = (this.sceneModel as any)?.levelIndex || (this.sceneModel as any)?.level || 1;
+                }
+            } else {
+                this._currentDifficulty = 1;
+            }
             
             // 设置进度条和关卡标签
             if (this.progress) {
@@ -633,6 +651,14 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
         }
 
+        // 如果 _currentRequiredAnswerCount = 0，则重新用当前难度获取需要答题的数量
+        if (this._currentRequiredAnswerCount === 0) {
+            const hardData = [3, 4, 5];
+            const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
+            this._currentRequiredAnswerCount = hardData[hardIndex];
+            DebugLog.instance.log(`_currentRequiredAnswerCount 为 0，根据当前难度 ${this._currentDifficulty} 重新计算为: ${this._currentRequiredAnswerCount}`);
+        }
+
         // 串烧模式：走 GameAlert / Skewers 统一结算流程
         if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
             DebugLog.instance.log(`串烧模式结算（成功），通过 GameAlert 流程上报结果`);
@@ -660,7 +686,15 @@ export class Main extends BaseScene<IBaseGameChild> {
                 if (cachedTrainData) {
                     // 使用缓存数据上报
                     DebugLog.instance.log(`使用缓存数据上报（成功）`);
-                    manager.requestGameComplete(1, duration, true, cachedGameData, cachedTrainData);
+                    this.requestGameComplete({
+                        context: this,
+                        parentNode: this.mainView,
+                        complete: 1,   // 成功
+                        duration: duration,
+                        isCachedData: true,
+                        cachedGameData: cachedGameData,
+                        cachedTrainData: cachedTrainData
+                    });
                     manager.clearCachedDeferredGameState();
                 } else {
                     // 找不到缓存的 trainData，走正常流程
@@ -719,6 +753,14 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
         }
 
+        // 如果 _currentRequiredAnswerCount = 0，则重新用当前难度获取需要答题的数量
+        if (this._currentRequiredAnswerCount === 0) {
+            const hardData = [3, 4, 5];
+            const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
+            this._currentRequiredAnswerCount = hardData[hardIndex];
+            DebugLog.instance.log(`_currentRequiredAnswerCount 为 0，根据当前难度 ${this._currentDifficulty} 重新计算为: ${this._currentRequiredAnswerCount}`);
+        }
+
         // 串烧模式：走 GameAlert / Skewers 统一结算流程
         if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
             DebugLog.instance.log(`串烧模式结算（失败），通过 GameAlert 流程上报结果`);
@@ -746,7 +788,15 @@ export class Main extends BaseScene<IBaseGameChild> {
                 if (cachedTrainData) {
                     // 使用缓存数据上报
                     DebugLog.instance.log(`使用缓存数据上报（失败）`);
-                    manager.requestGameComplete(this._correctAnswerCount/this._currentRequiredAnswerCount, duration, true, cachedGameData, cachedTrainData);
+                    this.requestGameComplete({
+                        context: this,
+                        parentNode: this.mainView,
+                        complete: this._correctAnswerCount/this._currentRequiredAnswerCount,
+                        duration: duration,
+                        isCachedData: true,
+                        cachedGameData: cachedGameData,
+                        cachedTrainData: cachedTrainData
+                    });
                     manager.clearCachedDeferredGameState();
                 } else {
                     // 找不到缓存的 trainData，走正常流程
@@ -885,7 +935,18 @@ export class Main extends BaseScene<IBaseGameChild> {
             const maxDifficulty = 3;
             // this._currentDifficulty = (this._currentDifficulty % maxDifficulty) + 1;
             
-            const level = (this.sceneModel as any)?.levelIndex || (this.sceneModel as any)?.level || 1;
+            let level = 1;
+            if (this.sceneModel) {
+                // 如果是 GameCenterSpecModel（从 GameCenterManager 进入），难度从 guidepanel 选择，level 直接等于 1
+                if (this.sceneModel.gameType === GameType.GAME_CENTER) {
+                    // 难度通过 guidepanel 选择的难度（从 sceneModel.difficulty 获取）
+                    this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
+                    level = 1; // level 直接等于 1
+                } else {
+                    // 其他模式：使用默认逻辑
+                    level = (this.sceneModel as any)?.levelIndex || (this.sceneModel as any)?.level || 1;
+                }
+            }
             if (this.progress) {
                 this.progress.progress = 1;
             }
@@ -1065,7 +1126,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
-    private videoLen:number = 14;
+    private videoLen:number = 11;
 
     private playvideoDelay:number = 500;
 
@@ -1673,8 +1734,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
-        // 倒计时结束且未提交答案，自动提交当前选中选项
-        DebugLog.instance.log(`倒计时结束，自动提交当前选中选项`);
+        // 倒计时结束且未提交答案，完成度填入 0
+        DebugLog.instance.log(`倒计时结束，完成度填入 0`);
+        
+        // 倒计时结束时，将答对数量设置为 0，确保完成度为 0
+        this._correctAnswerCount = 0;
         
         // 检查是否有选中的选项
         if (!this._selectedOptions || this._selectedOptions.length === 0) {
@@ -1694,8 +1758,10 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
-        // 选项数量足够，自动提交并判断结果
-        this.submitAnswer();
+        // 选项数量足够，但倒计时结束，完成度仍为 0，直接判断失败
+        DebugLog.instance.log(`倒计时结束，选项数量足够但超时，完成度为 0，直接判断失败`);
+        this._hasSubmittedAnswer = true;
+        this.showFailPanel();
     }
 
     /**

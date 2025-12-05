@@ -14,6 +14,8 @@ import { BundlePreloadEvent, BundlePreloadManager } from '../Load/BundlePreloadM
 import { AlertData, AlertManager } from '../Alert/AlertManager';
 import { LoginManager } from '../LoginManager/LoginManager';
 import { SocketManager } from '../Net/SocketManager';
+import { GameType } from '../../Scene/SceneModel/BaseGameModel';
+import { SkewersManager } from '../../../Game/Task/Skewers/SkewersManager';
 
 export class SceneManager extends BaseManager {
 
@@ -86,6 +88,18 @@ export class SceneManager extends BaseManager {
                                 reject(err);
                                 return;
                             }
+                            // 在场景加载完成后，立即设置 sceneModel（在 BaseScene.start() 之前）
+                            // 这样可以确保 BaseScene.start() 能够正确获取到 sceneModel
+                            if (restoreData && restoreData.gametype === GameType.SKEWERS) {
+                                // 延迟导入避免循环依赖，但使用同步方式设置
+                                // 注意：这里需要在 director.loadScene 回调中同步设置，确保在 BaseScene.start() 之前完成
+                                try {
+                                    (scene as any).sceneModel = SkewersManager.getInstance().skewersSpecData;
+                                    DebugLog.instance.log(`在 director.loadScene 回调中设置 sceneModel: ${sceneName}`);
+                                } catch (err) {
+                                    DebugLog.instance.error(`设置 sceneModel 失败: ${sceneName}`, err);
+                                }
+                            }
                             const lastSceneName = this._curSceneName;
                             this._curSceneName = sceneName;
                             DebugLog.instance.debug(`${sceneName} 场景切换成功`);
@@ -104,6 +118,18 @@ export class SceneManager extends BaseManager {
                         DebugLog.instance.debug(`${sceneName} 场景切换失败`);
                         DebugLog.instance.error(err);
                         return;
+                    }
+                    // 在场景加载完成后，立即设置 sceneModel（在 BaseScene.start() 之前）
+                    // 这样可以确保 BaseScene.start() 能够正确获取到 sceneModel
+                    if (restoreData && restoreData.gametype === GameType.SKEWERS) {
+                        // 延迟导入避免循环依赖，但使用同步方式设置
+                        // 注意：这里需要在 director.loadScene 回调中同步设置，确保在 BaseScene.start() 之前完成
+                        try {
+                            (scene as any).sceneModel = SkewersManager.getInstance().skewersSpecData;
+                            DebugLog.instance.log(`在 director.loadScene 回调中设置 sceneModel: ${sceneName}`);
+                        } catch (err) {
+                            DebugLog.instance.error(`设置 sceneModel 失败: ${sceneName}`, err);
+                        }
                     }
                     const lastSceneName = this._curSceneName;
                     this._curSceneName = sceneName;

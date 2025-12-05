@@ -88,7 +88,7 @@ export class SkewersGameData {
         this.is_correction = data["is_corretion"];
         switch (this.type) {
             case SkewersGameType.Memory:
-                this.gameName = "听音辨物";
+                this.gameName = "翻牌";
                 break;
             case SkewersGameType.Executionability:
                 this.gameName = "拼图";
@@ -100,7 +100,7 @@ export class SkewersGameData {
                 this.gameName = "听音辨物";
                 break;
             case SkewersGameType.Calculator:
-                this.gameName = "数字捕鱼"
+                this.gameName = "数字捕鱼";
                 break;
             case SkewersGameType.Judgment:
                 this.gameName = "找茬";
@@ -371,6 +371,9 @@ export class SkewersGameTrainData {
     // 是否延迟显示答题界面（1：答题结束后直接跳转下一个游戏，数据缓存，等所有游戏完成后统一显示）
     private _deferResult: number = 0;
 
+    // 0/1,0代表完成后走正常流程，1：代表完成后显示延时完成的任务
+    private _showDelay:number = 0;
+
     // 是否已经播放过音效和视频（用于 deferResult == 1 时的流程控制）
     private _hasPlayedAudioVideo: boolean = false;
 
@@ -404,6 +407,7 @@ export class SkewersGameTrainData {
         this.score = data['score'] || 0;
         this.completedAt = data['completed_at'] || null;
         this._deferResult = data["defer_result"] || 0;
+        this._showDelay = data["show_delay"] || 0;
         if (data['level'] == "") {
             data['level'] = 1;
         }
@@ -412,6 +416,10 @@ export class SkewersGameTrainData {
 
     public get deferResult(){
         return this._deferResult;
+    }
+
+    public get showDelay(){
+        return this._showDelay;
     }
 
     public get hasPlayedAudioVideo(): boolean {

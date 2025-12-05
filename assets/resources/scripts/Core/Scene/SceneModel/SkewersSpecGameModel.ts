@@ -41,10 +41,17 @@ interface ISkewersGameEndConfig {
     duration: number;
     parentNode: Node;
     context: any;
+    // 缓存数据相关字段（可选）
+    isCachedData?: boolean;
+    cachedGameData?: any;
+    cachedTrainData?: any;
 }
 
 
 export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
+    // 保存刚完成的 trainData，用于在 goonHandler 中检查 showDelay
+    private _lastCompletedTrainData: SkewersGameTrainData | null = null;
+    
     constructor() {
         super();
         this.gameType = GameType.SKEWERS;
@@ -205,7 +212,12 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         };
         // 完成当前训练请求...
         EventManager.getInstance().on(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, callbackWrapper, this, true);
-        SkewersManager.getInstance().requestGameComplete(config.complete, config.duration);
+        // 如果 config 中有缓存数据，则传递缓存数据参数
+        if (config.isCachedData && config.cachedGameData && config.cachedTrainData) {
+            SkewersManager.getInstance().requestGameComplete(config.complete, config.duration, true, config.cachedGameData, config.cachedTrainData);
+        } else {
+            SkewersManager.getInstance().requestGameComplete(config.complete, config.duration);
+        }
     }
 
     requestGameCompleteCallBack(config: ISkewersGameEndConfig): void {
@@ -214,6 +226,20 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         const trainData = manager.getTrainData(trainID);
         manager.curGame.is_correction = config.isCorrection;
         const [maxCount, curCount] = [trainData.length, Math.max(trainData.seq, 0)];
+        
+        // 保存刚完成的 trainData，用于在 goonHandler 中检查 showDelay
+        this._lastCompletedTrainData = trainData;
+        
+        // 先走完弹窗逻辑，showDelay 检查在点击下一关后执行
+        // 继续正常流程（显示弹窗）
+        this.continueNormalFlow(config, parentNode, trainData, maxCount, curCount, context);
+    }
+    
+    /**
+     * 继续正常流程（显示弹窗等）
+     */
+    private continueNormalFlow(config: ISkewersGameEndConfig, parentNode: Node, trainData: any, maxCount: number, curCount: number, context: any): void {
+        const manager = SkewersManager.getInstance();
         const alertStrategies = {
             success: {
                 [AlertType.Normal]: {
@@ -517,48 +543,14 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             alertType = AlertType.Revise_Complete;
         }
         
-        // 包装退出回调，在所有串烧任务完成并结算后，检查是否有缓存的游戏数据
+        // 退出回调（不再检查缓存游戏，因为已经在每个游戏完成时检查了）
         const originalExitFunc = alertType == AlertType.Revise ? context.reviseHandler : context.exitCallBack;
-        const wrappedExitFunc = () => {
-            // 所有串烧任务完成并结算后，检查是否有缓存的游戏数据
-            const cachedState = manager.getCachedDeferredGameState();
-            if (cachedState && isAllGameCompleted) {
-                // 有缓存的游戏状态，直接进入 listeningMaster 游戏并显示选项界面
-                const sceneName = cachedState.gameData.gameCode; // listeningMaster
-                const restoreData = {
-                    gametype: GameType.SKEWERS,
-                    difficulty: cachedState.difficulty,
-                    level: cachedState.gameData.level,
-                    // 将缓存的游戏状态数据放入 restoreData 中
-                    cachedGameState: {
-                        questions: cachedState.questions,
-                        optionBank: cachedState.optionBank,
-                        videoPath: cachedState.videoPath,
-                        difficulty: cachedState.difficulty,
-                        requiredAnswerCount: cachedState.requiredAnswerCount
-                    }
-                };
-                
-                // 切换到 对应cathedStategameData的 场景
-                SceneManager.getInstance().changeScene(sceneName, "", restoreData).then((scene) => {
-                    // 场景切换成功后，Main.ts 的 start 方法会检查 restoreData 中的缓存的游戏状态并恢复
-                    // 缓存的游戏状态会在 Main.ts 中自动恢复并显示选项界面
-                }).catch((error) => {
-                    DebugLog.instance.error(`切换到 listeningMaster 场景失败: ${sceneName}`, error);
-                });
-            } else {
-                // 没有缓存的游戏状态，正常退出
-                if (originalExitFunc) {
-                    originalExitFunc();
-                }
-            }
-        };
         
         let compStr = alertType == AlertType.Revise ? SkewersManager.getInstance().reviseCompleteStr: alertType == AlertType.Revise_Complete ? SkewersManager.getInstance().reviseDZCompleteStr:SkewersManager.getInstance().totalCompleteStr;
         let remoteHandler = (SkewersManager.getInstance().curGame&&!SkewersManager.getInstance().curGame.is_correction && TaskManager.getInstance().curTask.type != TaskType.Review) ? context.quitGame :
             (alertType == AlertType.Revise_Complete ? context.quitGame : context.remoteHandler);
         SkewersManager.getInstance().showGameAlert(context.viewNode, alertType, compStr, SkewersManager.getInstance().totalBrainScore, true,0, 0,
-            wrappedExitFunc, remoteHandler, context);
+            originalExitFunc, remoteHandler, context);
     }
 
     // ========= 订正任务 =========
@@ -595,10 +587,63 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
 
     // ========= 继续下一局训练 =========
     goonHandler(context?: any, changeScene: boolean = true): void {
-        if (!SkewersManager.getInstance().isRunOver()) {
-            SkewersManager.getInstance().runNextGame(changeScene);
+        const manager = SkewersManager.getInstance();
+        
+        // 点击下一关后，检查刚完成的 trainData 的 showDelay 是否为 1
+        if (!manager.isRunOver()) {
+            // 检查刚完成的 trainData 的 showDelay 是否为 1
+            if (this._lastCompletedTrainData && this._lastCompletedTrainData.showDelay == 1) {
+                // showDelay == 1，检查是否有缓存的延迟显示游戏状态
+                const cachedState = manager.getCachedDeferredGameState();
+                if (cachedState) {
+                    // 有缓存的游戏状态，切换到缓存游戏场景
+                    DebugLog.instance.log(`点击下一关后，刚完成的 trainData.showDelay=1，检测到缓存的延迟显示游戏，切换到缓存游戏场景`);
+                    const sceneName = cachedState.gameData.gameCode; // listeningMaster
+                    const restoreData = {
+                        gametype: GameType.SKEWERS,
+                        difficulty: cachedState.difficulty,
+                        // 将缓存的游戏状态数据放入 restoreData 中
+                        cachedGameState: {
+                            questions: cachedState.questions,
+                            optionBank: cachedState.optionBank,
+                            videoPath: cachedState.videoPath,
+                            difficulty: cachedState.difficulty,
+                            requiredAnswerCount: cachedState.requiredAnswerCount
+                        }
+                    };
+                    
+                    // 切换到对应缓存的 gameData 的场景
+                    // 注意：sceneModel 会在 SceneManager.changeScene 的 director.loadScene 回调中设置
+                    // 这样可以确保在 BaseScene.start() 之前完成，避免 sceneModel 为 null 的问题
+                    SceneManager.getInstance().changeScene(sceneName, "", restoreData).then((scene) => {
+                        // 场景切换成功后，Main.ts 的 start 方法会检查 restoreData 中的缓存的游戏状态并恢复
+                        // 缓存的游戏状态会在 Main.ts 中自动恢复并显示选项界面
+                        DebugLog.instance.log(`切换到缓存游戏场景成功: ${sceneName}`);
+                        // 清除保存的 trainData
+                        this._lastCompletedTrainData = null;
+                        this.destory();
+                    }).catch((error) => {
+                        DebugLog.instance.error(`切换到缓存游戏场景失败: ${sceneName}`, error);
+                        // 如果切换失败，继续正常流程
+                        this._lastCompletedTrainData = null;
+                        manager.runNextGame(changeScene);
+                        this.destory();
+                    });
+                    return; // 直接返回，不继续执行后续逻辑
+                } else {
+                    DebugLog.instance.warn(`刚完成的 trainData.showDelay=1，但没有检测到缓存的延迟显示游戏状态`);
+                }
+            }
+            
+            // 清除保存的 trainData
+            this._lastCompletedTrainData = null;
+            
+            // 没有 showDelay = 1 的 trainData，正常流程
+            manager.runNextGame(changeScene);
         } else {
-            SkewersManager.getInstance().exitCallBack();
+            // 清除保存的 trainData
+            this._lastCompletedTrainData = null;
+            manager.exitCallBack();
         }
         this.destory();
     }
