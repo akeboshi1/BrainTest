@@ -78,6 +78,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private _questions: IListeningConfig[] = null;
     private _currentVideoPath: string = null; // 当前使用的视频路径
+    private _currentVideoName: string = null; // 当前使用的视频名称（如 "bgm0"）
+    private _currentVideoTypes: number[] = null; // 当前视频支持的type数组
 
     private _totalDuration: number = 0; // 总时长（秒）
     private _elapsedTime: number = 0; // 已播放时间（秒）
@@ -131,11 +133,11 @@ export class Main extends BaseScene<IBaseGameChild> {
     async start(): Promise<void> {
         super.start();
         
-        // 等待视频加载完成
-        await this.initVideo();
-
         this.model = ListeningModel.getInstance();
         await this.model.initModel();
+        
+        // 等待视频加载完成（优先随机选择视频）
+        await this.initVideo();
         
         // 根据游戏类型获取难度和关卡
         if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
@@ -164,7 +166,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this._currentDifficulty = cachedState.difficulty;
                 this._requiredAnswerCount = cachedState.requiredAnswerCount;
                 this._shouldDeferResult = true;
-                this.descLabelNode.getComponent(Label).string = "请回忆刚才听到的音效,并选出正确的选项";
+                this.descLabelNode.getComponent(Label).string = "请回忆并选出让您记住的5种声音";
                 DebugLog.instance.log(`恢复缓存的游戏状态: 题目数量=${this._questions.length}, 选项数量=${this._optionBank.length}, 视频路径=${this._currentVideoPath}`);
                 
                 // // 如果视频路径存在，加载视频（但不自动播放）
@@ -217,10 +219,19 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this._questions = [...this._skewersSavedQuestions];
                     DebugLog.instance.log(`串烧训练模式 - 使用保存的题目: ${this._questions.map(q => q.name).join(', ')}`);
                 } else {
-                    // 第一次游戏，获取新题目并保存
-                    this._questions = this.model.getQuestion(this._currentDifficulty);
+                    // 第一次游戏，根据视频的type数组获取新题目并保存
+                    if (this._currentVideoTypes && this._currentVideoTypes.length > 0) {
+                        this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+                    } else {
+                        // 如果没有视频type信息，使用旧方法（容错处理）
+                        this._questions = this.model.getQuestion(this._currentDifficulty);
+                    }
+                    // 根据实际获取的题目数量设置需要的回答数量
+                    if (this._questions && this._questions.length > 0) {
+                        this._requiredAnswerCount = this._questions.length;
+                    }
                     this._skewersSavedQuestions = this._questions ? [...this._questions] : null;
-                    DebugLog.instance.log(`串烧训练模式 - 获取新题目并保存: ${this._questions.map(q => q.name).join(', ')}`);
+                    DebugLog.instance.log(`串烧训练模式 - 根据视频type获取新题目并保存: ${this._questions.map(q => q.name).join(', ')}, 需要答题数量: ${this._requiredAnswerCount}`);
                 }
             }
             
@@ -253,8 +264,17 @@ export class Main extends BaseScene<IBaseGameChild> {
             
             DebugLog.instance.log(`普通模式 - 难度: ${this._currentDifficulty}, 关卡: ${level}`);
             
-            // 获取题目
-            this._questions = this.model.getQuestion(this._currentDifficulty);
+            // 根据视频的type数组获取题目
+            if (this._currentVideoTypes && this._currentVideoTypes.length > 0) {
+                this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+            } else {
+                // 如果没有视频type信息，使用旧方法（容错处理）
+                this._questions = this.model.getQuestion(this._currentDifficulty);
+            }
+            // 根据实际获取的题目数量设置需要的回答数量
+            if (this._questions && this._questions.length > 0) {
+                this._requiredAnswerCount = this._questions.length;
+            }
         }
         
         // 检查 restoreData 中是否有缓存的游戏状态数据
@@ -275,13 +295,24 @@ export class Main extends BaseScene<IBaseGameChild> {
         
         if (!isRestoredFromCache) {
             // 没有缓存状态，正常初始化
-            // 根据难度获取需要的回答数量
+            // 根据难度获取需要的回答数量（根据新的音频选择规则）
+            // 难度1：3个（hard1-2个，hard2-1个）
+            // 难度2：4个（hard1-2个，hard2-1个，hard3-1个）
+            // 难度3：5个（hard1-2个，hard2-2个，hard3-1个）
             const hardData = [3, 4, 5];
             const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
             this._requiredAnswerCount = hardData[hardIndex];
+            // 如果已经获取了题目，使用实际题目数量
+            if (this._questions && this._questions.length > 0) {
+                this._requiredAnswerCount = this._questions.length;
+            }
             this._currentRequiredAnswerCount = this._requiredAnswerCount; // 记录本次游戏需要答题的数量
         } else {
             // 恢复缓存状态时，也记录需要答题的数量
+            // 如果已经获取了题目，使用实际题目数量
+            if (this._questions && this._questions.length > 0) {
+                this._requiredAnswerCount = this._questions.length;
+            }
             this._currentRequiredAnswerCount = this._requiredAnswerCount;
         }
         
@@ -857,10 +888,14 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this._questions = [...this._skewersSavedQuestions];
                 DebugLog.instance.log(`串烧模式重玩 - 使用保存的题目: ${this._questions.map(q => q.name).join(', ')}`);
             } else {
-                // 如果没有保存的题目，则重新获取（容错处理）
-                this._questions = this.model.getQuestion(this._currentDifficulty);
+                // 如果没有保存的题目，则根据视频type重新获取（容错处理）
+                if (this._currentVideoTypes && this._currentVideoTypes.length > 0) {
+                    this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+                } else {
+                    this._questions = this.model.getQuestion(this._currentDifficulty);
+                }
                 this._skewersSavedQuestions = this._questions ? [...this._questions] : null;
-                DebugLog.instance.log(`串烧模式重玩 - 重新获取题目并保存（无保存的题目）`);
+                DebugLog.instance.log(`串烧模式重玩 - 根据视频type重新获取题目并保存（无保存的题目）`);
             }
             
             // 使用保存的视频路径
@@ -882,9 +917,13 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this._questions = savedQuestions;
                 DebugLog.instance.log(`重玩当前关卡，使用上一次的题目: ${savedQuestions.map(q => q.name).join(', ')}`);
             } else {
-                // 如果没有保存的题目，则重新获取（容错处理）
-                this._questions = this.model.getQuestion(this._currentDifficulty);
-                DebugLog.instance.log(`重玩当前关卡，重新获取题目（无保存的题目）`);
+                // 如果没有保存的题目，则根据视频type重新获取（容错处理）
+                if (this._currentVideoTypes && this._currentVideoTypes.length > 0) {
+                    this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+                } else {
+                    this._questions = this.model.getQuestion(this._currentDifficulty);
+                }
+                DebugLog.instance.log(`重玩当前关卡，根据视频type重新获取题目（无保存的题目）`);
             }
             
             // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
@@ -960,11 +999,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 重置所有状态
         this.resetGameState();
         
-        // 根据新难度获取需要的回答数量
+        // 根据新难度获取需要的回答数量（会在获取题目后根据实际数量更新）
         const hardData = [3, 4, 5];
         const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
         this._requiredAnswerCount = hardData[hardIndex];
-        this._currentRequiredAnswerCount = this._requiredAnswerCount; // 记录本次游戏需要答题的数量
         
         // 串烧模式下，使用保存的题目和视频路径，保证多次游戏一致
         if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
@@ -973,10 +1011,18 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this._questions = [...this._skewersSavedQuestions];
                 DebugLog.instance.log(`串烧模式进入下一关 - 使用保存的题目: ${this._questions.map(q => q.name).join(', ')}`);
             } else {
-                // 如果没有保存的题目，则重新获取并保存（容错处理）
-                this._questions = this.model.getQuestion(this._currentDifficulty);
+                // 如果没有保存的题目，则根据视频type重新获取并保存（容错处理）
+                if (this._currentVideoTypes && this._currentVideoTypes.length > 0) {
+                    this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+                } else {
+                    this._questions = this.model.getQuestion(this._currentDifficulty);
+                }
+                // 根据实际获取的题目数量设置需要的回答数量
+                if (this._questions && this._questions.length > 0) {
+                    this._requiredAnswerCount = this._questions.length;
+                }
                 this._skewersSavedQuestions = this._questions ? [...this._questions] : null;
-                DebugLog.instance.log(`串烧模式进入下一关 - 重新获取题目并保存（无保存的题目）`);
+                DebugLog.instance.log(`串烧模式进入下一关 - 根据视频type重新获取题目并保存（无保存的题目），需要答题数量: ${this._requiredAnswerCount}`);
             }
             
             // 使用保存的视频路径
@@ -989,14 +1035,24 @@ export class Main extends BaseScene<IBaseGameChild> {
                 DebugLog.instance.log(`串烧模式进入下一关 - 重新随机视频并保存（无保存的视频路径）`);
             }
         } else {
-            // 非串烧模式：重新获取新难度的题目和视频
-            this._questions = this.model.getQuestion(this._currentDifficulty);
+            // 非串烧模式：重新初始化视频（会随机选择新的视频），然后根据视频type获取题目
+            await this.initVideo();
+            
+            // 根据视频的type数组获取题目
+            if (this._currentVideoTypes && this._currentVideoTypes.length > 0) {
+                this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+            } else {
+                // 如果没有视频type信息，使用旧方法（容错处理）
+                this._questions = this.model.getQuestion(this._currentDifficulty);
+            }
+            // 根据实际获取的题目数量设置需要的回答数量
+            if (this._questions && this._questions.length > 0) {
+                this._requiredAnswerCount = this._questions.length;
+            }
+            this._currentRequiredAnswerCount = this._requiredAnswerCount; // 记录本次游戏需要答题的数量
             
             // 重新随机选择背景音乐
             // this.randomPlayBgm();
-            
-            // 重新初始化视频（会随机选择新的视频）
-            await this.initVideo();
         }
         
         // 视频加载完成后，重新开始视频和音频播放
@@ -1098,7 +1154,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
      /**
-     * 初始化视频
+     * 初始化视频（优先随机选择视频，然后根据视频的type数组获取音频）
      */
      private async initVideo(): Promise<void> {
         // 确保VideoPlayer不会自动播放
@@ -1108,17 +1164,71 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 串烧模式下，如果已有保存的视频路径，则使用保存的视频路径，否则随机选择并保存
         let videoPath: string = null;
+        let videoName: string = null;
+        let videoTypes: number[] = null;
+        
         if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
             if (this._skewersSavedVideoPath) {
                 // 使用保存的视频路径，保证多次游戏一致
                 videoPath = this._skewersSavedVideoPath;
-                DebugLog.instance.log(`串烧训练模式 - 使用保存的视频路径: ${videoPath}`);
+                // 从保存的视频路径中提取视频名称（如 "video/bgm0" -> "bgm0"）
+                const pathParts = videoPath.split('/');
+                videoName = pathParts[pathParts.length - 1];
+                DebugLog.instance.log(`串烧训练模式 - 使用保存的视频路径: ${videoPath}, 视频名称: ${videoName}`);
             } else {
-                // 第一次游戏，随机选择视频并保存
+                // 第一次游戏，优先随机选择视频并保存
+                const videoConfig = this.model.getRandomVideoConfig();
+                if (videoConfig) {
+                    videoName = videoConfig.name;
+                    videoPath = videoConfig.config.path;
+                    // 去掉文件扩展名（如 "video/bgm0.mp4" -> "video/bgm0"）
+                    if (videoPath.endsWith('.mp4')) {
+                        videoPath = videoPath.substring(0, videoPath.length - 4);
+                    }
+                    videoTypes = videoConfig.config.type || [];
+                    this._skewersSavedVideoPath = videoPath;
+                    this._currentVideoName = videoName;
+                    this._currentVideoTypes = videoTypes;
+                    DebugLog.instance.log(`串烧训练模式 - 随机选择视频并保存: ${videoPath}, 视频名称: ${videoName}, 支持的types: [${videoTypes.join(', ')}]`);
+                } else {
+                    // 容错处理：如果无法获取视频配置，使用旧方法
+                    const randomIndex = Math.floor(Math.random() * this.videoLen);
+                    videoPath = `video/bgm${randomIndex}`;
+                    videoName = `bgm${randomIndex}`;
+                    this._skewersSavedVideoPath = videoPath;
+                    DebugLog.instance.warn(`无法获取视频配置，使用旧方法随机选择: ${videoPath}`);
+                }
+            }
+        } else {
+            // 非串烧模式：优先随机选择视频
+            const videoConfig = this.model.getRandomVideoConfig();
+            if (videoConfig) {
+                videoName = videoConfig.name;
+                videoPath = videoConfig.config.path;
+                // 去掉文件扩展名
+                if (videoPath.endsWith('.mp4')) {
+                    videoPath = videoPath.substring(0, videoPath.length - 4);
+                }
+                videoTypes = videoConfig.config.type || [];
+                this._currentVideoName = videoName;
+                this._currentVideoTypes = videoTypes;
+                DebugLog.instance.log(`普通模式 - 随机选择视频: ${videoPath}, 视频名称: ${videoName}, 支持的types: [${videoTypes.join(', ')}]`);
+            } else {
+                // 容错处理：如果无法获取视频配置，使用旧方法
                 const randomIndex = Math.floor(Math.random() * this.videoLen);
                 videoPath = `video/bgm${randomIndex}`;
-                this._skewersSavedVideoPath = videoPath;
-                DebugLog.instance.log(`串烧训练模式 - 随机选择视频并保存: ${videoPath}`);
+                videoName = `bgm${randomIndex}`;
+                DebugLog.instance.warn(`无法获取视频配置，使用旧方法随机选择: ${videoPath}`);
+            }
+        }
+        
+        // 如果还没有设置视频类型，尝试从保存的视频名称中获取
+        if (!videoTypes && videoName) {
+            const videoConfig = this.model.getVideoConfig(videoName);
+            if (videoConfig) {
+                videoTypes = videoConfig.type || [];
+                this._currentVideoTypes = videoTypes;
+                DebugLog.instance.log(`从保存的视频名称获取type: ${videoName}, types: [${videoTypes.join(', ')}]`);
             }
         }
         
@@ -1126,7 +1236,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     }
 
 
-    private videoLen:number = 11;
+    private videoLen:number = 13;
 
     private playvideoDelay:number = 500;
 

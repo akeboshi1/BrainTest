@@ -6,7 +6,14 @@ export interface IListeningConfig {
     path: string;
     duration: number;
     name:string;
+    type?: number; // 资源类型：1=环境，2=居家，3=自然，4=宠物，5=动物
+    hard?: number; // 难度：1=容易，2=中等，3=难
     isCorrect?: boolean; // 是否为正确答案（用于选项题库中标记）
+}
+
+export interface IVideoConfig {
+    path: string;
+    type: number[]; // 该视频适用的资源类型数组
 }
 
 export class ListeningModel {
@@ -22,6 +29,14 @@ export class ListeningModel {
     private _configs: IListeningConfig[] = null;
 
     /**
+     * 按type和hard分组的配置数据
+     * Map<type, IListeningConfig[][]>
+     * key: type (1-5)
+     * value: [hard1的配置数组, hard2的配置数组, hard3的配置数组]
+     */
+    private _configsByTypeAndHard: Map<number, IListeningConfig[][]> = new Map();
+
+    /**
      * 不同难度对应的关卡最大数量
      */
     private _hardData:number[]=[3,4,5];
@@ -30,6 +45,12 @@ export class ListeningModel {
      * 上一局使用的音效（按难度存储，key为难度，value为音效name的Set）
      */
     private _lastRoundQuestions: Map<number, Set<string>> = new Map();
+
+    /**
+     * 视频配置数据（按名字存储）
+     * Map<视频名字, IVideoConfig>
+     */
+    private _videoConfigs: Map<string, IVideoConfig> = new Map();
 
     
     constructor() {
@@ -61,24 +82,93 @@ export class ListeningModel {
 
                 DebugLog.instance.log(`配置文件加载成功: data/data.json`);
                 
-                // 处理 JSON 数据，存储到 _configs
+                // 处理 JSON 数据，存储到 _configs 并按 type 和 hard 分组
                 const jsonData = jsonAsset.json;
                 this._configs = [];
+                this._configsByTypeAndHard.clear();
+                
+                // 初始化分组结构：为每个 type (1-5) 创建3个难度级别的数组
+                for (let type = 1; type <= 5; type++) {
+                    this._configsByTypeAndHard.set(type, [[], [], []]); // [hard1, hard2, hard3]
+                }
                 
                 for (const key in jsonData) {
                     if (jsonData.hasOwnProperty(key)) {
                         const item = jsonData[key];
+                        const type = parseInt(item.type) || 1;
+                        const hard = parseInt(item.hard) || 1;
+                        
                         const config: IListeningConfig = {
                             name: item.name || key,
                             duration: parseInt(item.duration) || 0,
-                            path: item.path || ""
+                            path: item.path || "",
+                            type: type,
+                            hard: hard
                         };
+                        
                         this._configs.push(config);
+                        
+                        // 按 type 和 hard 分组
+                        if (type >= 1 && type <= 5 && hard >= 1 && hard <= 3) {
+                            const typeConfigs = this._configsByTypeAndHard.get(type);
+                            if (typeConfigs) {
+                                const hardIndex = hard - 1; // hard 1->0, 2->1, 3->2
+                                typeConfigs[hardIndex].push(config);
+                            }
+                        }
                     }
                 }
                 
-                DebugLog.instance.log(`配置文件解析完成，共加载 ${this._configs.length} 个配置项`);
-                resolve();
+                // 输出分组统计信息
+                let totalGrouped = 0;
+                for (let type = 1; type <= 5; type++) {
+                    const typeConfigs = this._configsByTypeAndHard.get(type);
+                    if (typeConfigs) {
+                        const hard1Count = typeConfigs[0].length;
+                        const hard2Count = typeConfigs[1].length;
+                        const hard3Count = typeConfigs[2].length;
+                        totalGrouped += hard1Count + hard2Count + hard3Count;
+                        DebugLog.instance.log(`Type ${type}: hard1=${hard1Count}, hard2=${hard2Count}, hard3=${hard3Count}`);
+                    }
+                }
+                
+                DebugLog.instance.log(`配置文件解析完成，共加载 ${this._configs.length} 个配置项，分组统计：${totalGrouped} 个`);
+                
+                // 加载 video.json
+                bundle.load("data/video", JsonAsset, (err, videoJsonAsset) => {
+                    if (err) {
+                        DebugLog.instance.error(`加载视频配置文件失败: data/video.json`, err);
+                        reject(err);
+                        return;
+                    }
+
+                    if (!videoJsonAsset || !videoJsonAsset.json) {
+                        const error = new Error(`视频配置文件数据无效: data/video.json`);
+                        DebugLog.instance.error(error.message);
+                        reject(error);
+                        return;
+                    }
+
+                    DebugLog.instance.log(`视频配置文件加载成功: data/video.json`);
+                    
+                    // 处理视频 JSON 数据，按名字存储
+                    const videoJsonData = videoJsonAsset.json;
+                    this._videoConfigs.clear();
+                    
+                    for (const key in videoJsonData) {
+                        if (videoJsonData.hasOwnProperty(key)) {
+                            const item = videoJsonData[key];
+                            const videoConfig: IVideoConfig = {
+                                path: item.path || "",
+                                type: Array.isArray(item.type) ? item.type : []
+                            };
+                            this._videoConfigs.set(key, videoConfig);
+                        }
+                    }
+                    
+                    DebugLog.instance.log(`视频配置文件解析完成，共加载 ${this._videoConfigs.size} 个视频配置`);
+                    resolve();
+                });
             });
         });
     }
@@ -231,5 +321,194 @@ export class ListeningModel {
         return optionBank;
     }
 
+    /**
+     * 获取按type和hard分组的配置数据
+     * @returns Map<type, IListeningConfig[][]>，其中 value 是 [hard1的配置数组, hard2的配置数组, hard3的配置数组]
+     */
+    public getConfigsByTypeAndHard(): Map<number, IListeningConfig[][]>;
+    
+    /**
+     * 根据type和hard获取配置数组
+     * @param type 资源类型：1=环境，2=居家，3=自然，4=宠物，5=动物
+     * @param hard 难度：1=容易，2=中等，3=难
+     * @returns 对应type和hard的配置数组
+     */
+    public getConfigsByTypeAndHard(type: number, hard: number): IListeningConfig[];
+    
+    public getConfigsByTypeAndHard(type?: number, hard?: number): Map<number, IListeningConfig[][]> | IListeningConfig[] {
+        if (type !== undefined && hard !== undefined) {
+            // 根据type和hard获取配置数组
+            const typeConfigs = this._configsByTypeAndHard.get(type);
+            if (!typeConfigs) {
+                DebugLog.instance.warn(`Type ${type} 不存在`);
+                return [];
+            }
+            
+            const hardIndex = hard - 1; // hard 1->0, 2->1, 3->2
+            if (hardIndex < 0 || hardIndex >= typeConfigs.length) {
+                DebugLog.instance.warn(`Hard ${hard} 不存在`);
+                return [];
+            }
+            
+            return typeConfigs[hardIndex] || [];
+        } else {
+            // 返回整个分组Map
+            return this._configsByTypeAndHard;
+        }
+    }
+
+    /**
+     * 获取所有视频配置
+     * @returns Map<视频名字, IVideoConfig>
+     */
+    public getVideoConfigs(): Map<string, IVideoConfig> {
+        return this._videoConfigs;
+    }
+
+    /**
+     * 根据名字获取视频配置
+     * @param name 视频名字
+     * @returns 视频配置，如果不存在则返回 null
+     */
+    public getVideoConfig(name: string): IVideoConfig | null {
+        return this._videoConfigs.get(name) || null;
+    }
+
+    /**
+     * 随机获取一个视频配置
+     * @returns 视频配置，如果不存在则返回 null
+     */
+    public getRandomVideoConfig(): { name: string; config: IVideoConfig } | null {
+        if (this._videoConfigs.size === 0) {
+            DebugLog.instance.warn(`视频配置数据未加载或为空`);
+            return null;
+        }
+
+        const videoNames = Array.from(this._videoConfigs.keys());
+        const randomIndex = Math.floor(Math.random() * videoNames.length);
+        const randomName = videoNames[randomIndex];
+        const config = this._videoConfigs.get(randomName);
+
+        if (!config) {
+            return null;
+        }
+
+        return { name: randomName, config: config };
+    }
+
+    /**
+     * 根据视频的type数组和难度要求获取音频配置
+     * @param videoTypes 视频支持的type数组
+     * @param hard 难度等级（1-3）
+     * @returns 音频配置数组
+     */
+    public getQuestionByVideoType(videoTypes: number[], hard: number = 1): IListeningConfig[] {
+        if (!this._configsByTypeAndHard || this._configsByTypeAndHard.size === 0) {
+            DebugLog.instance.warn(`配置数据未加载或为空`);
+            return [];
+        }
+
+        if (!videoTypes || videoTypes.length === 0) {
+            DebugLog.instance.warn(`视频type数组为空`);
+            return [];
+        }
+
+        // 根据难度确定需要的音频数量
+        // 难度3：hard1-2个，hard2-2个，hard3-1个（总共5个）
+        // 难度2：hard1-2个，hard2-1个，hard3-1个（总共4个）
+        // 难度1：hard1-2个，hard2-1个（总共3个）
+        const hardRequirements: { [key: number]: { hard1: number; hard2: number; hard3: number } } = {
+            1: { hard1: 2, hard2: 1, hard3: 0 },
+            2: { hard1: 2, hard2: 1, hard3: 1 },
+            3: { hard1: 2, hard2: 2, hard3: 1 }
+        };
+
+        const requirements = hardRequirements[hard] || hardRequirements[1];
+        const result: IListeningConfig[] = [];
+
+        // 获取上一局使用过的音效name集合（排除上一局的音效）
+        const lastRoundNames = this._lastRoundQuestions.get(hard) || new Set<string>();
+
+        // 从所有支持的type中收集可用的音频配置
+        const availableConfigsByHard: { [key: number]: IListeningConfig[] } = {
+            1: [],
+            2: [],
+            3: []
+        };
+
+        for (const type of videoTypes) {
+            const typeConfigs = this._configsByTypeAndHard.get(type);
+            if (typeConfigs) {
+                // typeConfigs 是 [hard1的配置数组, hard2的配置数组, hard3的配置数组]
+                for (let hardLevel = 1; hardLevel <= 3; hardLevel++) {
+                    const hardIndex = hardLevel - 1;
+                    const configs = typeConfigs[hardIndex] || [];
+                    // 排除上一局使用过的音效
+                    const filteredConfigs = configs.filter(config => !lastRoundNames.has(config.name));
+                    availableConfigsByHard[hardLevel].push(...filteredConfigs);
+                }
+            }
+        }
+
+        // 如果可用配置数量不足，清空上一局记录，使用所有配置
+        let needClearLastRound = false;
+        for (let hardLevel = 1; hardLevel <= 3; hardLevel++) {
+            const required = requirements[`hard${hardLevel}` as keyof typeof requirements];
+            if (required > 0 && availableConfigsByHard[hardLevel].length < required) {
+                needClearLastRound = true;
+                break;
+            }
+        }
+
+        if (needClearLastRound) {
+            DebugLog.instance.warn(`可用配置数量不足，清空上一局记录，使用所有配置`);
+            this._lastRoundQuestions.delete(hard);
+            // 重新收集所有配置（不排除上一局）
+            availableConfigsByHard[1] = [];
+            availableConfigsByHard[2] = [];
+            availableConfigsByHard[3] = [];
+            for (const type of videoTypes) {
+                const typeConfigs = this._configsByTypeAndHard.get(type);
+                if (typeConfigs) {
+                    for (let hardLevel = 1; hardLevel <= 3; hardLevel++) {
+                        const hardIndex = hardLevel - 1;
+                        const configs = typeConfigs[hardIndex] || [];
+                        availableConfigsByHard[hardLevel].push(...configs);
+                    }
+                }
+            }
+        }
+
+        // 从每个hard级别中随机选择指定数量的音频
+        for (let hardLevel = 1; hardLevel <= 3; hardLevel++) {
+            const required = requirements[`hard${hardLevel}` as keyof typeof requirements];
+            if (required > 0) {
+                const availableConfigs = availableConfigsByHard[hardLevel];
+                if (availableConfigs.length === 0) {
+                    DebugLog.instance.warn(`hard${hardLevel} 级别没有可用的音频配置`);
+                    continue;
+                }
+
+                // 随机选择指定数量的配置
+                const selectedConfigs: IListeningConfig[] = [];
+                const availableIndices = Array.from({ length: availableConfigs.length }, (_, i) => i);
+                const selectCount = Math.min(required, availableConfigs.length);
+
+                for (let i = 0; i < selectCount; i++) {
+                    const randomIndex = Math.floor(Math.random() * availableIndices.length);
+                    const selectedIndex = availableIndices.splice(randomIndex, 1)[0];
+                    selectedConfigs.push(availableConfigs[selectedIndex]);
+                }
+
+                result.push(...selectedConfigs);
+            }
+        }
+
+        // 更新上一局记录
+        this.updateLastRoundQuestions(hard, result);
+
+        DebugLog.instance.log(`根据视频type获取题目: 难度=${hard}, 视频types=[${videoTypes.join(',')}], 获取数量=${result.length} (hard1=${requirements.hard1}, hard2=${requirements.hard2}, hard3=${requirements.hard3})`);
+        return result;
+    }
 
 }
