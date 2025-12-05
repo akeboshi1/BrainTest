@@ -118,7 +118,9 @@ export class AppStartFlow extends Component {
         await PublishSettingConfig.getInstance().init(this.publishSettingConfig);
 
         this.updateVersionLabel();
-        this.connectToSocket();
+        
+        // 全量包模式：直接加载本地资源包，不连接服务器和下载远程包
+        this.loadLocalBundle();
     }
 
     private updateProgressText(message: string) {
@@ -147,29 +149,75 @@ export class AppStartFlow extends Component {
         this.versionLabel.string = versionInfo;
     }
 
+    // 加载本地资源包（全量包模式）------------------------------------
+    private loadLocalBundle() {
+        this.updateProgressText('正在加载本地资源包...');
+        
+        const bundleName = 'resources';
+        
+        // 检查资源包是否已加载
+        let bundle = assetManager.getBundle(bundleName);
+        if (bundle) {
+            console.log('资源包已加载:', bundleName);
+            this.onLocalBundleLoaded();
+            return;
+        }
+        
+        // 加载本地资源包（不指定远程URL和version，直接使用本地包）
+        assetManager.loadBundle(bundleName, (err, bundle) => {
+            if (err || !bundle) {
+                console.error('本地资源包加载失败:', err);
+                this.updateProgressText('本地资源包加载失败，请检查资源');
+                this.showNetErrorAlert();
+                return;
+            }
+            
+            console.log('本地资源包加载成功:', bundleName);
+            this.onLocalBundleLoaded();
+        });
+    }
+    
+    private onLocalBundleLoaded() {
+        this.updateProgressText('资源加载完成，进入训练...');
+        
+        // 计算已经过去的时间
+        const elapsedTime = (Date.now() - this.startTime) / 1000; // 转换为秒
+        if (elapsedTime < this.interval) {
+            // 如果未到最小启动间隔，则等待剩余时间
+            const remainingTime = (this.interval - elapsedTime) * 1000; // 转换为毫秒
+            setTimeout(() => {
+                this.gotoStartScene();
+            }, remainingTime);
+        } else {
+            // 如果已经超过最小启动间隔，直接进入场景
+            this.gotoStartScene();
+        }
+    }
+
     // 网络连接管理 --------------------------------------------------
-    private connectToSocket() {
-        this.retryCount = 0;
-        this.connectToSocketWithRetry();
-    }
+    // 全量包模式：以下方法已屏蔽，不再使用
+    // private connectToSocket() {
+    //     this.retryCount = 0;
+    //     this.connectToSocketWithRetry();
+    // }
 
-    private connectToSocketWithRetry() {
-        this.updateProgressText(`正在连接服务器...${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
-        this.socket = new WebSocket(PublishSettingConfig.getInstance().getApiUrl());
-
-        // 连接成功回调
-        this.socket.onopen = () => {
-            this.retryCount = 0; // 重置重试计数
-            this.updateProgressText('连接成功\n开始下载版本配置...');
-            this.onNextStep(StartStatus.DOWNLOADING_VERSION); // 进入版本下载阶段
-        };
-
-        // 错误处理
-        this.socket.onerror = (error) => {
-            console.error('网络连接异常:', error);
-            this.handleRetry('连接服务器失败', () => this.connectToSocketWithRetry());
-        };
-    }
+    // private connectToSocketWithRetry() {
+    //     this.updateProgressText(`正在连接服务器...${this.retryCount > 0 ? `\n第${this.retryCount}次重试` : ''}`);
+    //     this.socket = new WebSocket(PublishSettingConfig.getInstance().getApiUrl());
+    //
+    //     // 连接成功回调
+    //     this.socket.onopen = () => {
+    //         this.retryCount = 0; // 重置重试计数
+    //         this.updateProgressText('连接成功\n开始下载版本配置...');
+    //         this.onNextStep(StartStatus.DOWNLOADING_VERSION); // 进入版本下载阶段
+    //     };
+    //
+    //     // 错误处理
+    //     this.socket.onerror = (error) => {
+    //         console.error('网络连接异常:', error);
+    //         this.handleRetry('连接服务器失败', () => this.connectToSocketWithRetry());
+    //     };
+    // }
 
     // 通用重试处理机制
     private handleRetry(errorMessage: string, retryFunction: () => void) {
@@ -187,43 +235,44 @@ export class AppStartFlow extends Component {
     }
 
     // 状态机推进器 -------------------------------------------------
-    private onNextStep(targetState?: StartStatus) {
-        // 如果没有传入目标状态，使用当前状态
-        const currentState = targetState !== undefined ? targetState : this.state;
-        
-        switch (currentState) {
-            case StartStatus.DOWNLOADING_VERSION:
-                this.retryCount = 0;
-                this.loadBundleVersionsConfigWithRetry();
-                break;
-            case StartStatus.DOWNLOADING_RESOURCES:
-                this.retryCount = 0;
-                this.downloadResourcesWithRetry();
-                break;
-            case StartStatus.COMPLETE:
-                console.log('所有资源下载完成');
-                this.updateProgressText('资源加载完成，进入训练...');
-
-                this.reportBundleLoad({
-                    bundle: 'resources',
-                    result: 1
-                });
-
-                // 计算已经过去的时间
-                const elapsedTime = (Date.now() - this.startTime) / 1000; // 转换为秒
-                if (elapsedTime < this.interval) {
-                    // 如果未到1秒，则等待剩余时间
-                    const remainingTime = (this.interval - elapsedTime) * 1000; // 转换为毫秒
-                    setTimeout(() => {
-                        this.gotoStartScene();
-                    }, remainingTime);
-                } else {
-                    // 如果已经超过1秒，直接进入场景
-                    this.gotoStartScene();
-                }
-                break;
-        }
-    }
+    // 全量包模式：已屏蔽，不再使用状态机
+    // private onNextStep(targetState?: StartStatus) {
+    //     // 如果没有传入目标状态，使用当前状态
+    //     const currentState = targetState !== undefined ? targetState : this.state;
+    //     
+    //     switch (currentState) {
+    //         case StartStatus.DOWNLOADING_VERSION:
+    //             this.retryCount = 0;
+    //             this.loadBundleVersionsConfigWithRetry();
+    //             break;
+    //         case StartStatus.DOWNLOADING_RESOURCES:
+    //             this.retryCount = 0;
+    //             this.downloadResourcesWithRetry();
+    //             break;
+    //         case StartStatus.COMPLETE:
+    //             console.log('所有资源下载完成');
+    //             this.updateProgressText('资源加载完成，进入训练...');
+    //
+    //             this.reportBundleLoad({
+    //                 bundle: 'resources',
+    //                 result: 1
+    //             });
+    //
+    //             // 计算已经过去的时间
+    //             const elapsedTime = (Date.now() - this.startTime) / 1000; // 转换为秒
+    //             if (elapsedTime < this.interval) {
+    //                 // 如果未到1秒，则等待剩余时间
+    //                 const remainingTime = (this.interval - elapsedTime) * 1000; // 转换为毫秒
+    //                 setTimeout(() => {
+    //                     this.gotoStartScene();
+    //                 }, remainingTime);
+    //             } else {
+    //                 // 如果已经超过1秒，直接进入场景
+    //                 this.gotoStartScene();
+    //             }
+    //             break;
+    //     }
+    // }
 
     private gotoStartScene() {
         director.loadScene('start', (err) => {
@@ -232,20 +281,21 @@ export class AppStartFlow extends Component {
     }
 
     // 版本配置加载器 ------------------------------------------------
-    private loadBundleVersionsConfigWithRetry() {
-        let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
-        let bundleVersionFileName = BundleManager.getInstance().getBundleVersionFileName();
-        this.loadBundleVersionsConfig(remoteurl + bundleVersionFileName)
-            .then(() => {
-                this.retryCount = 0; // 重置重试计数
-                this.onNextStep(StartStatus.DOWNLOADING_RESOURCES);
-                //this.createDebugButton(); // 创建调试按钮
-            })
-            .catch(error => {
-                console.error('版本配置加载失败:', error);
-                this.handleRetry('版本配置下载失败', () => this.loadBundleVersionsConfigWithRetry());
-            });
-    }
+    // 全量包模式：已屏蔽，不再下载版本配置
+    // private loadBundleVersionsConfigWithRetry() {
+    //     let remoteurl = PublishSettingConfig.getInstance().getRemoteUrl();
+    //     let bundleVersionFileName = BundleManager.getInstance().getBundleVersionFileName();
+    //     this.loadBundleVersionsConfig(remoteurl + bundleVersionFileName)
+    //         .then(() => {
+    //             this.retryCount = 0; // 重置重试计数
+    //             this.onNextStep(StartStatus.DOWNLOADING_RESOURCES);
+    //             //this.createDebugButton(); // 创建调试按钮
+    //         })
+    //         .catch(error => {
+    //             console.error('版本配置加载失败:', error);
+    //             this.handleRetry('版本配置下载失败', () => this.loadBundleVersionsConfigWithRetry());
+    //         });
+    // }
 
     // 在loadRemoteConfig调用处添加异常上报
     public async loadBundleVersionsConfig(remoteUrl: string) {
@@ -301,6 +351,8 @@ export class AppStartFlow extends Component {
             });
         });
     }
+    // 全量包模式：已屏蔽，不再下载远程资源包
+    /*
     private downloadResourcesWithRetry() {
         // 直接下载指定资源包
         const targetBundle = 'resources'; // 固定下载resources包
@@ -326,6 +378,7 @@ export class AppStartFlow extends Component {
                 this.handleRetry('资源包下载失败', () => this.downloadResourcesWithRetry());
             });
     }
+    */
 
     private async downloadBundle(bundleName: string, info: {
         md5: string,
