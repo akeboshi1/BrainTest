@@ -488,12 +488,8 @@ export class SkewersManager {
                 this._skewersGames_tiers = data.data["task_brain_training_tiers"]; //"LANGUAGE":2,"EXECUTION":2,"MEMORY":1,"JUDGMENT":2,"CALCULATION":1."COMPREHENSION":1
             }
 
-            if (this._skewersGames_complete && TaskManager.getInstance().curTask && TaskManager.getInstance().curTask.type != TaskType.Review) {
-                // 直接退到 indexPageView
-                SceneManager.getInstance().backToHall();
-            } else {
-                EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
-            }
+            // 正常弹窗流程
+            EventManager.getInstance().emit(SkewersManager.REQUEST_SKEWERSGAME_COMPLETE, data.data);
         }
     }
 

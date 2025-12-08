@@ -52,9 +52,95 @@ export class ListeningModel {
      */
     private _videoConfigs: Map<string, IVideoConfig> = new Map();
 
+    /**
+     * 缓存上一次游戏的题目（音效），用于重玩
+     */
+    private _lastSavedQuestions: IListeningConfig[] = null;
+
+    /**
+     * 缓存上一次游戏的视频路径，用于重玩
+     */
+    private _lastSavedVideoPath: string = null;
+
+    /**
+     * 缓存上一次游戏的视频名称，用于重玩
+     */
+    private _lastSavedVideoName: string = null;
+
+    /**
+     * 缓存上一次游戏的视频类型，用于重玩
+     */
+    private _lastSavedVideoTypes: number[] = null;
+
     
     constructor() {
         
+    }
+
+    /**
+     * 获取缓存的题目
+     */
+    public get lastSavedQuestions(): IListeningConfig[] {
+        return this._lastSavedQuestions;
+    }
+
+    /**
+     * 获取缓存的视频路径
+     */
+    public get lastSavedVideoPath(): string {
+        return this._lastSavedVideoPath;
+    }
+
+    /**
+     * 获取缓存的视频名称
+     */
+    public get lastSavedVideoName(): string {
+        return this._lastSavedVideoName;
+    }
+
+    /**
+     * 获取缓存的视频类型
+     */
+    public get lastSavedVideoTypes(): number[] {
+        return this._lastSavedVideoTypes;
+    }
+
+    /**
+     * 保存当前游戏的题目和视频信息（用于重玩）
+     * @param questions 题目列表
+     * @param videoPath 视频路径
+     * @param videoName 视频名称
+     * @param videoTypes 视频类型数组
+     */
+    public saveLastGameData(
+        questions: IListeningConfig[],
+        videoPath: string,
+        videoName: string,
+        videoTypes: number[]
+    ): void {
+        this._lastSavedQuestions = questions ? [...questions] : null;
+        this._lastSavedVideoPath = videoPath;
+        this._lastSavedVideoName = videoName;
+        this._lastSavedVideoTypes = videoTypes ? [...videoTypes] : null;
+        DebugLog.instance.log(`ListeningModel 缓存游戏数据: 题目=${this._lastSavedQuestions?.map(q => q.name).join(', ')}, 视频路径=${this._lastSavedVideoPath}`);
+    }
+
+    /**
+     * 检查是否有缓存的游戏数据
+     */
+    public hasLastGameData(): boolean {
+        return this._lastSavedQuestions && this._lastSavedQuestions.length > 0 && !!this._lastSavedVideoPath;
+    }
+
+    /**
+     * 清除缓存的游戏数据
+     */
+    public clearLastGameData(): void {
+        this._lastSavedQuestions = null;
+        this._lastSavedVideoPath = null;
+        this._lastSavedVideoName = null;
+        this._lastSavedVideoTypes = null;
+        DebugLog.instance.log(`ListeningModel 清除缓存的游戏数据`);
     }
 
     public async initModel(): Promise<void> {

@@ -113,10 +113,6 @@ export class Main extends BaseScene<IBaseGameChild> {
     private _wrongAnswerCount: number = 0; // 本次游戏答错的数量
     private _correctAnswerCount: number = 0; // 本次游戏答对的数量
     private _currentRequiredAnswerCount: number = 0; // 本次游戏对应难度需要答题的数量
-    private _lastSavedQuestions: IListeningConfig[] = null; // 缓存上一次游戏的题目（音效），用于重玩
-    private _lastSavedVideoPath: string = null; // 缓存上一次游戏的视频路径，用于重玩
-    private _lastSavedVideoName: string = null; // 缓存上一次游戏的视频名称，用于重玩
-    private _lastSavedVideoTypes: number[] = null; // 缓存上一次游戏的视频类型，用于重玩
     private _pendingFailData: any = null; // 缓存失败结算数据，用于显示答案后再结算
 
     onLoad(): void {
@@ -144,23 +140,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.model = ListeningModel.getInstance();
         await this.model.initModel();
         
-        // 检查 restoreData 是否需要使用上一次的题目和视频
-        const restoreData = SceneManager.getInstance().getRestoreData();
-        const useLastQuestions = restoreData && restoreData.useLastQuestions === true;
-        
-        if (useLastQuestions && this._lastSavedQuestions && this._lastSavedQuestions.length > 0 && this._lastSavedVideoPath) {
+        // 检查是否有上一次的缓存题目，如果有则直接使用（从 ListeningModel 获取）
+        if (this.model.hasLastGameData()) {
             // 使用上一次缓存的题目和视频
-            this._questions = [...this._lastSavedQuestions];
-            this._currentVideoPath = this._lastSavedVideoPath;
-            if (this._lastSavedVideoName) {
-                this._currentVideoName = this._lastSavedVideoName;
+            this._questions = [...this.model.lastSavedQuestions];
+            this._currentVideoPath = this.model.lastSavedVideoPath;
+            if (this.model.lastSavedVideoName) {
+                this._currentVideoName = this.model.lastSavedVideoName;
             }
-            if (this._lastSavedVideoTypes) {
-                this._currentVideoTypes = [...this._lastSavedVideoTypes];
+            if (this.model.lastSavedVideoTypes) {
+                this._currentVideoTypes = [...this.model.lastSavedVideoTypes];
             }
             // 加载缓存的视频（不自动播放）
-            await this.loadLocalVideo(this._lastSavedVideoPath, false);
-            DebugLog.instance.log(`使用上一次缓存的题目和视频: 题目=${this._questions.map(q => q.name).join(', ')}, 视频路径=${this._lastSavedVideoPath}`);
+            await this.loadLocalVideo(this.model.lastSavedVideoPath, false);
+            DebugLog.instance.log(`使用上一次缓存的题目和视频: 题目=${this._questions.map(q => q.name).join(', ')}, 视频路径=${this.model.lastSavedVideoPath}`);
         } else {
             // 正常流程：等待视频加载完成（优先随机选择视频）
             await this.initVideo();
@@ -241,7 +234,25 @@ export class Main extends BaseScene<IBaseGameChild> {
                 }
                 
                 // 获取题目（串烧模式下，如果已有保存的题目，则使用保存的题目，否则获取新题目并保存）
-                if (this._skewersSavedQuestions && this._skewersSavedQuestions.length > 0) {
+                // 如果 deferResult == 1 且有上一次的缓存数据，则使用缓存数据，不重新随机题库
+                if (this._shouldDeferResult && this.model.hasLastGameData()) {
+                    // deferResult == 1 时，使用上一次缓存的题目和视频（从 ListeningModel 获取）
+                    this._questions = [...this.model.lastSavedQuestions];
+                    if (this.model.lastSavedVideoPath) {
+                        this._currentVideoPath = this.model.lastSavedVideoPath;
+                    }
+                    if (this.model.lastSavedVideoName) {
+                        this._currentVideoName = this.model.lastSavedVideoName;
+                    }
+                    if (this.model.lastSavedVideoTypes) {
+                        this._currentVideoTypes = [...this.model.lastSavedVideoTypes];
+                    }
+                    // 根据实际获取的题目数量设置需要的回答数量
+                    if (this._questions && this._questions.length > 0) {
+                        this._requiredAnswerCount = this._questions.length;
+                    }
+                    DebugLog.instance.log(`串烧训练模式 deferResult=1 - 使用上一次缓存的题目: ${this._questions.map(q => q.name).join(', ')}, 视频路径: ${this._currentVideoPath}`);
+                } else if (this._skewersSavedQuestions && this._skewersSavedQuestions.length > 0) {
                     // 使用保存的题目，保证多次游戏一致
                     this._questions = [...this._skewersSavedQuestions];
                     DebugLog.instance.log(`串烧训练模式 - 使用保存的题目: ${this._questions.map(q => q.name).join(', ')}`);
@@ -291,8 +302,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             
             DebugLog.instance.log(`普通模式 - 难度: ${this._currentDifficulty}, 关卡: ${level}`);
             
-            // 如果 useLastQuestions 为 true，则跳过题目获取，使用之前缓存的题目
-            if (!useLastQuestions) {
+            // 如果已经有题目（从缓存恢复），则跳过题目获取
+            if (!this._questions || this._questions.length === 0) {
                 // 根据视频的type数组获取题目
                 if (this._currentVideoTypes && this._currentVideoTypes.length > 0) {
                     this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
@@ -309,7 +320,8 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
         }
         
-        // 检查 restoreData 中是否有缓存的游戏状态数据（restoreData 已在前面获取）
+        // 检查 restoreData 中是否有缓存的游戏状态数据
+        const restoreData = SceneManager.getInstance().getRestoreData();
         const cachedGameState = restoreData && restoreData.cachedGameState;
         
         // 检查是否有缓存的游戏状态（所有游戏完成后回到延迟显示的游戏）
@@ -844,6 +856,19 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
+        // 隐藏选项节点（questionNode）
+        if (this.optionsNode) {
+            this.optionsNode.active = false;
+        }
+
+        // 隐藏视频节点
+        if (this.videoNode) {
+            this.videoNode.active = false;
+        }
+        if (this.videoPlayer && this.videoPlayer.node) {
+            this.videoPlayer.node.active = false;
+        }
+
         // 显示答案节点
         this.answerNode.active = true;
 
@@ -1030,16 +1055,16 @@ export class Main extends BaseScene<IBaseGameChild> {
                 DebugLog.instance.log(`串烧模式重玩 - 重新随机视频并保存（无保存的视频路径）`);
             }
         } else {
-            // 非串烧模式：使用缓存的题目和视频路径
+            // 非串烧模式：使用缓存的题目和视频路径（从 ListeningModel 获取）
             // 恢复缓存的题目（不重新随机获取）
-            if (this._lastSavedQuestions && this._lastSavedQuestions.length > 0) {
-                this._questions = [...this._lastSavedQuestions];
+            if (this.model.hasLastGameData()) {
+                this._questions = [...this.model.lastSavedQuestions];
                 // 同时恢复缓存的视频信息
-                if (this._lastSavedVideoName) {
-                    this._currentVideoName = this._lastSavedVideoName;
+                if (this.model.lastSavedVideoName) {
+                    this._currentVideoName = this.model.lastSavedVideoName;
                 }
-                if (this._lastSavedVideoTypes) {
-                    this._currentVideoTypes = [...this._lastSavedVideoTypes];
+                if (this.model.lastSavedVideoTypes) {
+                    this._currentVideoTypes = [...this.model.lastSavedVideoTypes];
                 }
                 DebugLog.instance.log(`重玩当前关卡，使用缓存的题目: ${this._questions.map(q => q.name).join(', ')}`);
             } else {
@@ -1053,9 +1078,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             }
             
             // 使用缓存的视频路径重新加载视频（不重新随机），并自动播放
-            if (this._lastSavedVideoPath) {
-                await this.loadLocalVideo(this._lastSavedVideoPath, true);
-                DebugLog.instance.log(`重玩当前关卡，使用缓存的视频: ${this._lastSavedVideoPath}`);
+            if (this.model.lastSavedVideoPath) {
+                await this.loadLocalVideo(this.model.lastSavedVideoPath, true);
+                DebugLog.instance.log(`重玩当前关卡，使用缓存的视频: ${this.model.lastSavedVideoPath}`);
             } else {
                 // 如果没有缓存的视频路径，则重新随机（容错处理）
                 await this.initVideo();
@@ -1677,12 +1702,13 @@ export class Main extends BaseScene<IBaseGameChild> {
             return;
         }
 
-        // 缓存当前游戏的音效和视频（用于重玩当前关卡）
-        this._lastSavedQuestions = [...this._questions];
-        this._lastSavedVideoPath = this._currentVideoPath;
-        this._lastSavedVideoName = this._currentVideoName;
-        this._lastSavedVideoTypes = this._currentVideoTypes ? [...this._currentVideoTypes] : null;
-        DebugLog.instance.log(`缓存当前游戏数据: 题目=${this._lastSavedQuestions.map(q => q.name).join(', ')}, 视频路径=${this._lastSavedVideoPath}, 视频名称=${this._lastSavedVideoName}`);
+        // 缓存当前游戏的音效和视频（用于重玩当前关卡，存储到 ListeningModel）
+        this.model.saveLastGameData(
+            this._questions,
+            this._currentVideoPath,
+            this._currentVideoName,
+            this._currentVideoTypes
+        );
 
         // 重置状态
         this._playedQuestions = [];
