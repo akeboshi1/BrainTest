@@ -117,64 +117,44 @@ export class CreateQuestion {
                 }
             }
         } else if (difficulty === 2) {
-            // 难度二：加减法
+            // 难度二：2位数+1位数(进位) 或 2位数-1位数（退位）
             const operation = await getRandomInt(1, 2); // 1: 加法, 2: 减法
 
             if (operation === 1) {
-                // 加法：两位数加两位数（不进位）或两位数加一位数（有进位）
-                const addType = await getRandomInt(1, 2);
-                
-                if (addType === 1) {
-                    // 两位数加两位数（不进位，如33+12）
-                    let a, b;
-                    let retries = 0;
-                    do {
-                        a = await getRandomInt(20, 89);
-                        b = await getRandomInt(10, 89);
-                        retries++;
-                        // 保底措施：如果重试次数过多，强制生成不进位的题目
-                        if (retries >= MAX_RETRIES) {
-                            a = 20;
-                            b = 10;
-                            break;
-                        }
-                    } while ((a % 10) + (b % 10) >= 10 || (Math.floor(a / 10) + Math.floor(b / 10)) >= 9); // 确保不进位
-                    question = `${a} + ${b}`;
-                    correctAnswer = a + b;
-                } else {
-                    // 两位数加一位数（有进位，如25+8）
-                    let a, b;
-                    let retries = 0;
-                    do {
-                        a = await getRandomInt(20, 89);
-                        b = await getRandomInt(1, 9);
-                        retries++;
-                        // 保底措施：如果重试次数过多，强制生成有进位的题目
-                        if (retries >= MAX_RETRIES) {
-                            a = 25;
-                            b = 8;
-                            break;
-                        }
-                    } while ((a % 10) + b < 10); // 确保有进位
-                    question = `${a} + ${b}`;
-                    correctAnswer = a + b;
-                }
+                // 加法：2位数+1位数（有进位，如25+8）
+                let a, b;
+                let retries = 0;
+                do {
+                    a = await getRandomInt(20, 89);
+                    b = await getRandomInt(1, 9);
+                    retries++;
+                    // 保底措施：如果重试次数过多，强制生成有进位的题目
+                    if (retries >= MAX_RETRIES) {
+                        // 确保进位：个位5+8=13>=10
+                        a = 25;
+                        b = 8;
+                        break;
+                    }
+                } while ((a % 10) + b < 10); // 确保有进位
+                question = `${a} + ${b}`;
+                correctAnswer = a + b;
 
             } else if (operation === 2) {
-                // 减法：2位数-1位数（有借位，如23-7）
+                // 减法：2位数-1位数（有退位/借位，如23-7）
                 let a, b;
                 let retries = 0;
                 do {
                     a = await getRandomInt(20, 99);
                     b = await getRandomInt(1, 9);
                     retries++;
-                    // 保底措施：如果重试次数过多，强制生成有借位的题目
+                    // 保底措施：如果重试次数过多，强制生成有退位的题目
                     if (retries >= MAX_RETRIES) {
+                        // 确保退位：个位3<7需要借位
                         a = 23;
                         b = 7;
                         break;
                     }
-                } while ((a % 10) >= b || a - b <= 0); // 确保有借位且结果不为0
+                } while ((a % 10) >= b || a - b <= 0); // 确保有退位且结果不为0
                 question = `${a} - ${b}`;
                 correctAnswer = a - b;
             }
