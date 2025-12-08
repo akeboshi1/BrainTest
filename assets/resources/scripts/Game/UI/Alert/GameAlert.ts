@@ -170,6 +170,8 @@ export class GameAlert extends AdaptComponent {
                 this.decLabel.node.active = true;
                 startBtnUITransform.width = 300;
                 AudioManager.getInstance().playNote();
+                // 启动3秒倒计时
+                this.startCountdown(this._countdownDelay);
                 break;
             case AlertType.Normal1:
                 this.exitBtn.node.active = true;
@@ -579,6 +581,8 @@ export class GameAlert extends AdaptComponent {
             displayText = `进入下一游戏 (${this._countdownTime})`;
         } else if (this._type === AlertType.Normal) {
             displayText = `下一关 (${this._countdownTime})`;
+        } else if (this._type === AlertType.Cache) {
+            displayText = `继续 (${this._countdownTime})`;
         } else {
             displayText = `继续 (${this._countdownTime})`;
         }

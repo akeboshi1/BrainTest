@@ -25,6 +25,10 @@ export class Main extends BaseScene<IBaseGameChild> {
     cardPool: Node;
 
     @property(Node)
+    answerNode:Node;
+
+
+    @property(Node)
     questionNode: Node = null;
 
     @property(Node)
@@ -1300,6 +1304,10 @@ export class Main extends BaseScene<IBaseGameChild> {
         this.pauseTime();
         // SceneManager.getInstance().backToGameCenter();
         super.quitGame({ parentNode: this.mainView, context: this })
+    }
+
+    public backMainView(){
+        this.answerNode.active = false;
     }
 
 }

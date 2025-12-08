@@ -70,6 +70,9 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(Node)
     private descLabelNode:Node = null;
 
+    @property(Node)
+    answerNode:Node;
+
     protected bundleName: string = BundleName.LISTENINGMASTER;
 
     protected audioUrls = ['music/bgm',"music/win","music/fail","music/click"];
@@ -114,6 +117,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private _lastSavedVideoPath: string = null; // 缓存上一次游戏的视频路径，用于重玩
     private _lastSavedVideoName: string = null; // 缓存上一次游戏的视频名称，用于重玩
     private _lastSavedVideoTypes: number[] = null; // 缓存上一次游戏的视频类型，用于重玩
+    private _pendingFailData: any = null; // 缓存失败结算数据，用于显示答案后再结算
 
     onLoad(): void {
         // 初始化AudioSource用于播放音效
@@ -795,6 +799,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     /**
      * 展示失败结算
      * 串烧类型使用 GameAlert（通过 Skewers 流程），普通类型使用 SettlementPanel
+     * 先显示答案界面，再显示结算界面
      */
     private showFailPanel() {
         this.playAudio("music/fail", true);
@@ -818,6 +823,96 @@ export class Main extends BaseScene<IBaseGameChild> {
             this._currentRequiredAnswerCount = hardData[hardIndex];
             DebugLog.instance.log(`_currentRequiredAnswerCount 为 0，根据当前难度 ${this._currentDifficulty} 重新计算为: ${this._currentRequiredAnswerCount}`);
         }
+
+        // 缓存失败结算数据
+        this._pendingFailData = {
+            duration: duration,
+            complete: this._correctAnswerCount / this._currentRequiredAnswerCount
+        };
+
+        // 先显示答案界面
+        this.showAnswerNode();
+    }
+
+    /**
+     * 显示答案界面（显示正确答案）
+     */
+    private showAnswerNode() {
+        if (!this.answerNode) {
+            DebugLog.instance.warn(`answerNode 未设置，直接显示结算界面`);
+            this.doShowFailSettlement();
+            return;
+        }
+
+        // 显示答案节点
+        this.answerNode.active = true;
+
+        // 获取 answerNode 中的选项容器（假设结构与 chooseNodes 类似）
+        // 查找 answerNode 下的选项按钮容器
+        let answerChooseNodes: Node = null;
+        for (let i = 0; i < this.answerNode.children.length; i++) {
+            const child = this.answerNode.children[i];
+            // 查找包含多个子节点的容器（选项按钮容器）
+            if (child.children.length >= this._requiredAnswerCount) {
+                answerChooseNodes = child;
+                break;
+            }
+        }
+
+        if (!answerChooseNodes) {
+            // 如果找不到选项容器，尝试直接使用 answerNode 的子节点
+            answerChooseNodes = this.answerNode;
+        }
+
+        // 设置答案界面的选项显示（与 chooseNodes 一致）
+        if (this._optionBank && this._optionBank.length > 0 && answerChooseNodes) {
+            for (let i = 0; i < answerChooseNodes.children.length; i++) {
+                const childNode = answerChooseNodes.children[i];
+                if (!childNode) continue;
+
+                // 获取按钮的 Sprite 组件
+                const sprite = childNode.getComponent(Sprite);
+                
+                if (i < this._optionBank.length) {
+                    const option = this._optionBank[i];
+                    
+                    // 设置 label 文本
+                    const label = this.findLabelInNode(childNode);
+                    if (label) {
+                        label.string = option.name;
+                    }
+
+                    // 设置按钮颜色
+                    if (sprite) {
+                        if (option.isCorrect === true) {
+                            // 正确答案：设置为选中状态（绿色 #b3f12e）
+                            sprite.color = new Color(179, 241, 46, 255);
+                        } else {
+                            // 错误答案：设置为未选中状态（#151c7f）
+                            sprite.color = new Color(21, 28, 127, 255);
+                        }
+                    }
+                }
+            }
+        }
+
+        DebugLog.instance.log(`显示答案界面，正确答案已高亮显示`);
+    }
+
+    /**
+     * 执行实际的失败结算逻辑
+     */
+    private doShowFailSettlement() {
+        if (!this._pendingFailData) {
+            DebugLog.instance.warn(`没有缓存的失败结算数据`);
+            return;
+        }
+
+        const duration = this._pendingFailData.duration;
+        const complete = this._pendingFailData.complete;
+
+        // 清除缓存的失败数据
+        this._pendingFailData = null;
 
         // 串烧模式：走 GameAlert / Skewers 统一结算流程
         if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
@@ -849,7 +944,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this.requestGameComplete({
                         context: this,
                         parentNode: this.mainView,
-                        complete: this._correctAnswerCount/this._currentRequiredAnswerCount,
+                        complete: complete,
                         duration: duration,
                         isCachedData: true,
                         cachedGameData: cachedGameData,
@@ -862,7 +957,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     this.requestGameComplete({
                         context: this,
                         parentNode: this.mainView,
-                        complete: this._correctAnswerCount/this._currentRequiredAnswerCount,   // 失败
+                        complete: complete,
                         duration: duration,
                     });
                 }
@@ -871,7 +966,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.requestGameComplete({
                     context: this,
                     parentNode: this.mainView,
-                    complete: this._correctAnswerCount/this._currentRequiredAnswerCount,   // 失败
+                    complete: complete,
                     duration: duration,
                 });
             }
@@ -2155,6 +2250,21 @@ export class Main extends BaseScene<IBaseGameChild> {
                 return;
             }
         }
+    }
+
+    /**
+     * 从答案界面返回，显示结算界面
+     */
+    backToMainView(){
+        // 隐藏答案节点
+        if (this.answerNode) {
+            this.answerNode.active = false;
+        }
+        
+        // 显示结算界面
+        this.doShowFailSettlement();
+        
+        DebugLog.instance.log(`从答案界面返回，显示结算界面`);
     }
 
 
