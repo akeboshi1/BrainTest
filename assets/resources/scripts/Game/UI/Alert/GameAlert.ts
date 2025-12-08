@@ -5,7 +5,7 @@ import { Global } from "db://assets/resources/scripts/Core/Manager/Config/Global
 import { TaskType } from "db://assets/resources/scripts/Game/Task/TaskData";
 import { AudioManager } from "db://assets/resources/scripts/Core/Manager/Audio/AudioManager";
 import { SkewersGameType } from "../../Task/Skewers/SkewersGameData";
-import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
+import { TaskManager } from "db://assets/resources/scripts/Game/Task/TaskManager";
 import { AdaptComponent } from "../../../mainV2/AdaptComponent";
 import { PersonalCenterManager } from "../../PersonalCenterManager/PersonalCenterManager";
 const { ccclass, property } = _decorator;
@@ -22,7 +22,7 @@ export enum AlertType {
     Failed,
     Game_Center,
     Init, // 串烧游戏初始弹窗
-    Next, 
+    Next,
     Revise, // 串烧游戏订正弹窗
     Revise_Success, // 串烧订正成功结算弹窗
     Revise_Fail, // 串烧订正失败结算弹窗
@@ -55,7 +55,7 @@ export class GameAlert extends AdaptComponent {
     startBtn: Button = null;
 
     @property(Label)
-    startLabel:Label = null;
+    startLabel: Label = null;
 
     @property(Button)
     guideBtn: Button = null;
@@ -83,7 +83,7 @@ export class GameAlert extends AdaptComponent {
 
     public exitCallBack: Function = null;
 
-    private audioUrls = ["music/cheer","music/rest"];
+    private audioUrls = ["music/cheer", "music/rest"];
     private audioMap: Map<string, AudioClip> = new Map();
 
     /**
@@ -114,12 +114,12 @@ export class GameAlert extends AdaptComponent {
      * @private
      */
     private _countdownTime: number = 0;
-    
+
 
     /**
      * 倒计时默认3秒
      */
-    private _countdownDelay:number = 3;
+    private _countdownDelay: number = 3;
 
     private async loadAudio() {
         // 创建一个数组，存放每个异步加载的 Promise
@@ -132,8 +132,8 @@ export class GameAlert extends AdaptComponent {
                     resolve(self.audioMap.get(audioUrl));
                     return;
                 }
-                resources.load(audioUrl, AudioClip,(err, audioRes) => {
-                    if(err){
+                resources.load(audioUrl, AudioClip, (err, audioRes) => {
+                    if (err) {
                         DebugLog.instance.error(err);
                         reject(err);
                         return;
@@ -161,14 +161,14 @@ export class GameAlert extends AdaptComponent {
         this.adjustAlertPosition();
         switch (type) {
             case AlertType.Cache:
-                this.exitBtn.node.active = true;
+                this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
                 this.guideBtn.node.active = false;
-                this.progressBar.node.active = true;
+                this.progressBar.node.active = false;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = true;
-                startBtnUITransform.width = 300;
+                startBtnUITransform.width = 900;
                 AudioManager.getInstance().playNote();
                 // 启动3秒倒计时
                 this.startCountdown(this._countdownDelay);
@@ -188,13 +188,20 @@ export class GameAlert extends AdaptComponent {
                 this.exitBtn.node.active = false;
                 this.startBtn.node.active = true;
                 this.guideBtn.node.active = false;
-                this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
-                this.decLabel.node.active = false;
                 startBtnUITransform.width = 900;
-                // 启动3秒倒计时
-                this.startCountdown(this._countdownDelay);
+
+                // 听音辨物游戏特殊处理：倒计时10秒，隐藏进度条，显示描述标签
+                if (this.isListeningMasterGame()) {
+                    this.progressBar.node.active = false;
+                    this.decLabel.node.active = true;
+                    this.startCountdown(10);
+                } else {
+                    this.progressBar.node.active = true;
+                    this.decLabel.node.active = false;
+                    this.startCountdown(this._countdownDelay);
+                }
                 // this.exitBtn.node.active = false;
                 // this.startBtn.node.active = true;
                 // this.guideBtn.node.active = false;
@@ -215,6 +222,16 @@ export class GameAlert extends AdaptComponent {
                 this.iconConNode.active = false;
                 this.decLabel.node.active = false;
                 startBtnUITransform.width = 900;
+                // 听音辨物游戏特殊处理：倒计时10秒，隐藏进度条，显示描述标签
+                if (this.isListeningMasterGame()) {
+                    this.progressBar.node.active = false;
+                    this.decLabel.node.active = true;
+                    this.startCountdown(10);
+                } else {
+                    this.progressBar.node.active = true;
+                    this.decLabel.node.active = false;
+                    this.startCountdown(this._countdownDelay);
+                }
                 // 启动3秒倒计时
                 this.startCountdown(this._countdownDelay);
                 break;
@@ -240,7 +257,7 @@ export class GameAlert extends AdaptComponent {
                 this.progressBar.node.active = false;
                 // 确保图标显示正常并有动画效果
                 this.handleSuccessSmallIcon();
-                
+
                 AudioManager.getInstance().playCheer();
                 startBtnUITransform.width = 300;
                 break;
@@ -251,10 +268,10 @@ export class GameAlert extends AdaptComponent {
                 this.progressBar.node.active = false;
                 this.iconConNode.active = false;
                 this.exitBtn.node.active = Global.userData.curTaskData.type == TaskType.Review;
-                if(!PersonalCenterManager.getInstance().userInfoData.has_initial_tier){
+                if (!PersonalCenterManager.getInstance().userInfoData.has_initial_tier) {
                     this.startBtn.node.active = false;
                     this.exitBtn.node.getChildByName("Label").getComponent(Label).string = "查看初测";
-                }else{
+                } else {
                     this.startBtn.node.active = true;
                     this.startBtn.node.getChildByName("Label").getComponent(Label).string = "退出";
                     this.exitBtn.node.getChildByName("Label").getComponent(Label).string = Global.userData.curTaskData.type == TaskType.Review ? "查看评测" : "退出";
@@ -346,6 +363,50 @@ export class GameAlert extends AdaptComponent {
                 startBtnUITransform.width = 900;
                 break;
         }
+
+        // 听音辨物游戏：所有串烧弹窗都只显示 startBtn，隐藏 exitBtn
+        this.handleListeningMasterButtonVisibility(startBtnUITransform);
+    }
+
+    /**
+     * 判断当前游戏是否是听音辨物游戏
+     * @returns boolean 是否是听音辨物游戏或缓存答题状态
+     */
+    private isListeningMasterGame(): boolean {
+        try {
+            // 如果是缓存答题状态，直接返回 true（听音辨物游戏延迟答题）
+            if (Global && Global.isCachedAnswering) {
+                return true;
+            }
+            if (!Global || !Global.userData || !Global.userData.curSkewerGameData) {
+                return false;
+            }
+            return Global.userData.curSkewerGameData['type'] === SkewersGameType.Comprehension;
+        } catch (error) {
+            DebugLog.instance.error('判断是否是听音辨物游戏时出错:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 处理听音辨物游戏的按钮显示
+     * 当游戏类型是听音辨物（Comprehension）时，只显示 startBtn，隐藏 exitBtn
+     */
+    private handleListeningMasterButtonVisibility(startBtnUITransform: UITransform): void {
+        try {
+            // 判断是否是听音辨物游戏
+            if (this.isListeningMasterGame()) {
+                this.startBtn.node.active = true;
+                this.exitBtn.node.active = false;
+                // 调整 startBtn 宽度为全宽
+                if (startBtnUITransform) {
+                    startBtnUITransform.width = 900;
+                }
+                DebugLog.instance.log("听音辨物游戏：隐藏退出按钮，只显示继续按钮");
+            }
+        } catch (error) {
+            DebugLog.instance.error('处理听音辨物按钮显示时出错:', error);
+        }
     }
 
     setProgress(curcount: number, maxcount: number) {
@@ -383,10 +444,10 @@ export class GameAlert extends AdaptComponent {
         // 设置加载状态
         this.iconLoading = true;
         this.iconLoaded = false;
-        
+
         return new Promise<void>((resolve, reject) => {
-            resources.load(iconUrl+"/spriteFrame", SpriteFrame,(err, spriteframe) => {
-                if(err){
+            resources.load(iconUrl + "/spriteFrame", SpriteFrame, (err, spriteframe) => {
+                if (err) {
                     DebugLog.instance.error("Error loading icon:", error);
                     this.iconLoading = false;
                     resolve();
@@ -395,16 +456,16 @@ export class GameAlert extends AdaptComponent {
                 if (this.icon) {
                     let sprite = this.icon.getComponent(Sprite);
                     sprite.spriteFrame = spriteframe;
-                    
+
                     // 更新加载状态
                     this.iconLoading = false;
                     this.iconLoaded = true;
-                    
+
                     // 如果图标节点处于隐藏状态，确保其现在显示
                     if (!this.icon.active) {
                         this.icon.active = true;
                     }
-                    
+
                     // 加载成功，解析Promise
                     resolve();
                 } else {
@@ -443,33 +504,33 @@ export class GameAlert extends AdaptComponent {
         if (this.iconLoaded) {
             return Promise.resolve(true);
         }
-        
+
         // 如果没有在加载中，也立即返回
         if (!this.iconLoading) {
             return Promise.resolve(false);
         }
-        
+
         // 否则等待加载完成或超时
         return new Promise<boolean>((resolve) => {
             // 设置轮询检查
             const checkInterval = 100; // ms
             let elapsed = 0;
-            
+
             const checkLoaded = () => {
                 if (this.iconLoaded) {
                     resolve(true);
                     return;
                 }
-                
+
                 if (!this.iconLoading || elapsed >= timeout) {
                     resolve(false);
                     return;
                 }
-                
+
                 elapsed += checkInterval;
                 setTimeout(checkLoaded, checkInterval);
             };
-            
+
             // 开始检查
             checkLoaded();
         });
@@ -485,7 +546,7 @@ export class GameAlert extends AdaptComponent {
         super.start();
     }
 
-    onEnable(){
+    onEnable() {
         this.loadAudio();
     }
 
@@ -495,10 +556,10 @@ export class GameAlert extends AdaptComponent {
             DebugLog.instance.log("GameAlert: 按钮已被禁用，忽略此次点击");
             return;
         }
-        
+
         // 禁用按钮
         this.disableButtons();
-        
+
         // DebugLog.instance.error("exitCallBack",this.context)
         AudioManager.getInstance().stopLongSound();
         EventManager.getInstance().emit(GameAlert.ALERT_EXIT);
@@ -506,8 +567,8 @@ export class GameAlert extends AdaptComponent {
         if (this.exitCallBack) {
             this.exitCallBack(this.context);
         }
-        else{
-            DebugLog.instance.error("exitCallBack is null",this.context)
+        else {
+            DebugLog.instance.error("exitCallBack is null", this.context)
         }
     }
 
@@ -520,21 +581,21 @@ export class GameAlert extends AdaptComponent {
             DebugLog.instance.log("GameAlert: 按钮已被禁用，忽略此次点击");
             return;
         }
-        
+
         // 禁用按钮
         this.disableButtons();
-        
+
         // 清除倒计时定时器
         this.clearCountdownTimer();
-        
+
         //DebugLog.instance.error("goonCallBack",this.context)
         AudioManager.getInstance().resumeLongSound();
         EventManager.getInstance().emit(GameAlert.ALERT_GOON);
         this.node.removeFromParent();
         if (this.goonCallBack) {
             this.goonCallBack(this.context);
-        }else{
-            DebugLog.instance.error("goonCallBack is null",this.context)
+        } else {
+            DebugLog.instance.error("goonCallBack is null", this.context)
         }
     }
 
@@ -545,14 +606,14 @@ export class GameAlert extends AdaptComponent {
     private startCountdown(duration: number = 3) {
         this.clearCountdownTimer();
         this._countdownTime = duration;
-        
+
         // 更新按钮文本显示倒计时
         this.updateCountdownDisplay();
-        
+
         this._countdownTimer = setInterval(() => {
             this._countdownTime--;
             this.updateCountdownDisplay();
-            
+
             if (this._countdownTime < 0) {
                 this.clearCountdownTimer();
                 // 倒计时结束，自动调用goHandler
@@ -577,7 +638,7 @@ export class GameAlert extends AdaptComponent {
     private updateCountdownDisplay() {
         // 根据AlertType确定显示文本
         let displayText = "";
-        if (this._type === AlertType.Sucess_Normal) {
+        if (this._type === AlertType.Sucess_Normal || this._type == AlertType.Cache) {
             displayText = `进入下一游戏 (${this._countdownTime})`;
         } else if (this._type === AlertType.Normal) {
             displayText = `下一关 (${this._countdownTime})`;
@@ -611,10 +672,10 @@ export class GameAlert extends AdaptComponent {
     bindCallBack(goonCallBack: Function, exitCallBack: Function, context: any) {
         this.reset();
         this.context = context;
-        
+
         // 重置按钮状态
         this.enableButtons();
-        
+
         if (goonCallBack) {
             this.goonCallBack = goonCallBack.bind(context);
         }
@@ -623,11 +684,11 @@ export class GameAlert extends AdaptComponent {
         }
     }
 
-    reset(){
+    reset() {
         this.context = null;
         this.goonCallBack = null;
         this.exitCallBack = null;
-        
+
         // 重置按钮状态
         this.enableButtons();
     }
@@ -641,19 +702,19 @@ export class GameAlert extends AdaptComponent {
 
         // 获取当前位置
         const position = this.alert.position.clone();
-        
+
         // // 判断是否是否需要调整位置
         // const changePos = this.changePos() && this.isInGameScene();
-        
+
         // // 设置Y坐标
         // position.y = changePos ? 350 : 0;
-        
+
         // 应用新位置
         this.alert.setPosition(position);
 
-       // DebugLog.instance.log(`Alert position adjusted: ${position.x}, ${position.y}, ${position.z}, changePos: ${changePos}`);
+        // DebugLog.instance.log(`Alert position adjusted: ${position.x}, ${position.y}, ${position.z}, changePos: ${changePos}`);
     }
-    
+
     /**
      * 判断当前是否在训练场景中
      */
@@ -663,12 +724,12 @@ export class GameAlert extends AdaptComponent {
             if (!Global || !Global.isSkewersGame) {
                 return false;
             }
-            
+
             // 检查是否有当前训练数据
             if (!Global.userData || !Global.userData.curSkewerGameData) {
                 return false;
             }
-            
+
             return true;
         } catch (error) {
             DebugLog.instance.error('判断是否在训练场景时出错:', error);
@@ -681,12 +742,12 @@ export class GameAlert extends AdaptComponent {
      */
     private changePos(): boolean {
         try {
-            
+
             // 安全检查Global对象
-            if (!Global || !Global.userData||!Global.userData.curSkewerGameData) {
+            if (!Global || !Global.userData || !Global.userData.curSkewerGameData) {
                 return false;
             }
-            
+
             // 使用索引访问方式检查属性，避免TypeScript类型错误
             if (Global.userData.curSkewerGameData['type'] === SkewersGameType.Language || this._type == AlertType.Answer) {
                 return true;
@@ -706,7 +767,7 @@ export class GameAlert extends AdaptComponent {
         // 确保图标节点可见
         if (this.completeIcon) {
             this.completeIcon.setScale(new Vec3(3, 3, 3));
-            
+
             // 检查图标是否已加载
             if (this.iconLoaded) {
                 // 如果已加载，立即执行动画
@@ -730,7 +791,7 @@ export class GameAlert extends AdaptComponent {
             this.startBtn.node.active = true;
         }
     }
-    
+
     /**
      * 播放完成图标的动画
      */
@@ -754,22 +815,22 @@ export class GameAlert extends AdaptComponent {
      */
     private disableButtons(): void {
         this._isButtonDisabled = true;
-        
+
         // 禁用退出按钮
         if (this.exitBtn) {
             this.exitBtn.interactable = false;
         }
-        
+
         // 禁用开始按钮
         if (this.startBtn) {
             this.startBtn.interactable = false;
         }
-        
+
         // 禁用引导按钮
         if (this.guideBtn) {
             this.guideBtn.interactable = false;
         }
-        
+
         DebugLog.instance.log("GameAlert: 按钮已禁用");
     }
 
@@ -779,22 +840,22 @@ export class GameAlert extends AdaptComponent {
      */
     private enableButtons(): void {
         this._isButtonDisabled = false;
-        
+
         // 启用退出按钮
         if (this.exitBtn) {
             this.exitBtn.interactable = true;
         }
-        
+
         // 启用开始按钮
         if (this.startBtn) {
             this.startBtn.interactable = true;
         }
-        
+
         // 启用引导按钮
         if (this.guideBtn) {
             this.guideBtn.interactable = true;
         }
-        
+
         DebugLog.instance.log("GameAlert: 按钮已启用");
     }
 

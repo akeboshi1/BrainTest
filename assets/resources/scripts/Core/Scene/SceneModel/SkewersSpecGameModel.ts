@@ -8,6 +8,7 @@ import {TaskManager} from "db://assets/resources/scripts/Game/Task/TaskManager";
 import {SceneManager} from "../../Manager/Scene/SceneManager";
 import {TaskType} from "db://assets/resources/scripts/Game/Task/TaskData";
 import {DebugLog} from "../../Util/DebugLog";
+import {Global} from "../../Manager/Config/Global";
 
 // 添加类型定义确保desc存在
 interface AlertConfig {
@@ -45,6 +46,10 @@ interface ISkewersGameEndConfig {
     isCachedData?: boolean;
     cachedGameData?: any;
     cachedTrainData?: any;
+    // 自定义描述字符串（可选，如听音辨物的正确答案）
+    desc?: string;
+    // 请求完成后的回调（可选）
+    onRequestComplete?: () => void;
 }
 
 
@@ -229,6 +234,11 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
         
         // 保存刚完成的 trainData，用于在 goonHandler 中检查 showDelay
         this._lastCompletedTrainData = trainData;
+        
+        // 调用请求完成回调（如清除缓存状态）
+        if (config.onRequestComplete) {
+            config.onRequestComplete();
+        }
         
         // 先走完弹窗逻辑，showDelay 检查在点击下一关后执行
         // 继续正常流程（显示弹窗）
@@ -436,11 +446,13 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
             // 统一调用（修复参数传递）
             const { type, title, desc, win, handlers } = getAlertConfig();
             const [goonHandler, exitHandler] = handlers;
+            // 如果 config 中传入了自定义描述，则使用自定义描述（如听音辨物的正确答案）
+            const finalDesc = config.desc ? config.desc : desc;
             manager.showGameAlert(
                 parentNode,
                 type,
                 title,
-                desc,
+                finalDesc,
                 win,
                 curCount, maxCount,
                 goonHandler,
@@ -615,6 +627,8 @@ export class SkewersSpecGameModel extends BaseGameModel<ISkewersSpecific> {
                     // 切换到对应缓存的 gameData 的场景
                     // 注意：sceneModel 会在 SceneManager.changeScene 的 director.loadScene 回调中设置
                     // 这样可以确保在 BaseScene.start() 之前完成，避免 sceneModel 为 null 的问题
+                    // 设置缓存答题标记
+                    Global.isCachedAnswering = true;
                     SceneManager.getInstance().changeScene(sceneName, "", restoreData).then((scene) => {
                         // 场景切换成功后，Main.ts 的 start 方法会检查 restoreData 中的缓存的游戏状态并恢复
                         // 缓存的游戏状态会在 Main.ts 中自动恢复并显示选项界面

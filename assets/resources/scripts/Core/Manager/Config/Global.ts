@@ -25,4 +25,11 @@ export class Global {
      * 当前训练是否处于重玩
      */
     static isAgain:boolean = false;
+
+    /**
+     * 是否是缓存答题状态（听音辨物游戏延迟答题）
+     * true  当前处于缓存答题状态
+     * false 正常游戏状态
+     */
+    static isCachedAnswering:boolean = false;
 }

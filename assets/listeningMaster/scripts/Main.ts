@@ -10,7 +10,7 @@ import { SkewersGameStatus } from "db://assets/resources/scripts/Core/Data/GameS
 import { IListeningConfig, ListeningModel } from './ListeningModel';
 import { UIManager } from '../../resources/scripts/Core/Manager/UI/UIManager';
 import { SettlementPanel } from '../../resources/scripts/Core/UI/SettlementPanel';
-import { AlertManager } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
+import { AlertManager, AlertData } from '../../resources/scripts/Core/Manager/Alert/AlertManager';
 import { SceneManager } from '../../resources/scripts/Core/Manager/Scene/SceneManager';
 import { AlertType } from '../../resources/scripts/Game/UI/Alert/GameAlert';
 const { ccclass, property } = _decorator;
@@ -70,8 +70,8 @@ export class Main extends BaseScene<IBaseGameChild> {
     @property(Node)
     private descLabelNode:Node = null;
 
-    @property(Node)
-    answerNode:Node;
+    // @property(Node)
+    // answerNode:Node;
 
     protected bundleName: string = BundleName.LISTENINGMASTER;
 
@@ -767,9 +767,12 @@ export class Main extends BaseScene<IBaseGameChild> {
                         duration: duration,
                         isCachedData: true,
                         cachedGameData: cachedGameData,
-                        cachedTrainData: cachedTrainData
+                        cachedTrainData: cachedTrainData,
+                        onRequestComplete: () => {
+                            // 在请求完成回调中清除缓存状态，确保数据实时性
+                            manager.clearCachedDeferredGameState();
+                        }
                     });
-                    manager.clearCachedDeferredGameState();
                 } else {
                     // 找不到缓存的 trainData，走正常流程
                     DebugLog.instance.warn(`找不到缓存的 trainData，走正常流程上报`);
@@ -848,80 +851,30 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     /**
      * 显示答案界面（显示正确答案）
+     * 使用 GameAlert 显示正确答案弹窗，点击后再进入结算流程
      */
     private showAnswerNode() {
-        if (!this.answerNode) {
-            DebugLog.instance.warn(`answerNode 未设置，直接显示结算界面`);
+        // 从选项题库中筛选出所有正确答案
+        if (!this._optionBank || this._optionBank.length === 0) {
+            DebugLog.instance.warn(`选项题库为空，无法显示正确答案`);
             this.doShowFailSettlement();
             return;
         }
 
-        // 隐藏选项节点（questionNode）
-        if (this.optionsNode) {
-            this.optionsNode.active = false;
+        // 获取所有正确答案的名称
+        const correctAnswers = this._optionBank.filter(option => option.isCorrect === true);
+        if (correctAnswers.length === 0) {
+            DebugLog.instance.warn(`没有找到正确答案`);
+            this.doShowFailSettlement();
+            return;
         }
 
-        // 隐藏视频节点
-        if (this.videoNode) {
-            this.videoNode.active = false;
-        }
-        if (this.videoPlayer && this.videoPlayer.node) {
-            this.videoPlayer.node.active = false;
-        }
+        // 组合正确答案的描述字符串
+        const descString = "正确答案：" + correctAnswers.map(option => option.name).join('、');
+        this._pendingFailData.desc = descString;
+        DebugLog.instance.log(`显示答案界面，正确答案: ${descString}`);
 
-        // 显示答案节点
-        this.answerNode.active = true;
-
-        // 获取 answerNode 中的选项容器（假设结构与 chooseNodes 类似）
-        // 查找 answerNode 下的选项按钮容器
-        let answerChooseNodes: Node = null;
-        for (let i = 0; i < this.answerNode.children.length; i++) {
-            const child = this.answerNode.children[i];
-            // 查找包含多个子节点的容器（选项按钮容器）
-            if (child.children.length >= this._requiredAnswerCount) {
-                answerChooseNodes = child;
-                break;
-            }
-        }
-
-        if (!answerChooseNodes) {
-            // 如果找不到选项容器，尝试直接使用 answerNode 的子节点
-            answerChooseNodes = this.answerNode;
-        }
-
-        // 设置答案界面的选项显示（与 chooseNodes 一致）
-        if (this._optionBank && this._optionBank.length > 0 && answerChooseNodes) {
-            for (let i = 0; i < answerChooseNodes.children.length; i++) {
-                const childNode = answerChooseNodes.children[i];
-                if (!childNode) continue;
-
-                // 获取按钮的 Sprite 组件
-                const sprite = childNode.getComponent(Sprite);
-                
-                if (i < this._optionBank.length) {
-                    const option = this._optionBank[i];
-                    
-                    // 设置 label 文本
-                    const label = this.findLabelInNode(childNode);
-                    if (label) {
-                        label.string = option.name;
-                    }
-
-                    // 设置按钮颜色
-                    if (sprite) {
-                        if (option.isCorrect === true) {
-                            // 正确答案：设置为选中状态（绿色 #b3f12e）
-                            sprite.color = new Color(179, 241, 46, 255);
-                        } else {
-                            // 错误答案：设置为未选中状态（#151c7f）
-                            sprite.color = new Color(21, 28, 127, 255);
-                        }
-                    }
-                }
-            }
-        }
-
-        DebugLog.instance.log(`显示答案界面，正确答案已高亮显示`);
+        this.doShowFailSettlement();
     }
 
     /**
@@ -935,9 +888,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         const duration = this._pendingFailData.duration;
         const complete = this._pendingFailData.complete;
+        const desc = this._pendingFailData.desc || ''; // 获取正确答案的描述字符串
 
-        // 清除缓存的失败数据
-        this._pendingFailData = null;
 
         // 串烧模式：走 GameAlert / Skewers 统一结算流程
         if (this.sceneModel && this.sceneModel.gameType === GameType.SKEWERS) {
@@ -973,7 +925,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                         duration: duration,
                         isCachedData: true,
                         cachedGameData: cachedGameData,
-                        cachedTrainData: cachedTrainData
+                        cachedTrainData: cachedTrainData,
+                        desc: desc,
                     });
                     manager.clearCachedDeferredGameState();
                 } else {
@@ -984,6 +937,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                         parentNode: this.mainView,
                         complete: complete,
                         duration: duration,
+                        desc: desc
                     });
                 }
             } else {
@@ -993,6 +947,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                     parentNode: this.mainView,
                     complete: complete,
                     duration: duration,
+                    desc: desc
                 });
             }
             return;
@@ -1012,6 +967,8 @@ export class Main extends BaseScene<IBaseGameChild> {
                 this.restartCurrentLevel();
             },
         });
+         // 清除缓存的失败数据
+         this._pendingFailData = null;
     }
 
     /**
@@ -1952,7 +1909,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                         
                         // 显示缓存游戏提示弹窗
                         DebugLog.instance.log(`deferResult=1，且不是最后一个游戏类型，显示缓存游戏提示弹窗`);
-                        manager.showGameAlert(this.mainView, AlertType.Cache, "请注意", "请记住刚才听到的音效", true, 0, 0, goonCallBack, exitCallBack, this);
+                        manager.showGameAlert(this.mainView, AlertType.Cache, "请注意", "请记住刚才听到的声音，\n在稍后会有答题环节哦~", true, 0, 0, goonCallBack, exitCallBack, this);
                         return false; // 不显示本局选项
                     } else {
                         // 没有下一个游戏类型，说明这是最后一个，正常显示选项并等待最终提交
@@ -2282,11 +2239,6 @@ export class Main extends BaseScene<IBaseGameChild> {
      * 从答案界面返回，显示结算界面
      */
     backToMainView(){
-        // 隐藏答案节点
-        if (this.answerNode) {
-            this.answerNode.active = false;
-        }
-        
         // 显示结算界面
         this.doShowFailSettlement();
         

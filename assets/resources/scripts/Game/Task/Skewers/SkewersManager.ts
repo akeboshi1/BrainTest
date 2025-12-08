@@ -714,6 +714,8 @@ export class SkewersManager {
      */
     public clearCachedDeferredGameState() {
         this._cachedDeferredGameState = null;
+        // 同时清除缓存答题标记
+        Global.isCachedAnswering = false;
         DebugLog.instance.log(`清除缓存的延迟显示游戏状态`);
     }
 
