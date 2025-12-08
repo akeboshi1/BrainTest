@@ -164,7 +164,7 @@ export class GameAlert extends AdaptComponent {
                 this.exitBtn.node.active = true;
                 this.startBtn.node.active = true;
                 this.guideBtn.node.active = false;
-                this.progressBar.node.active = false;
+                this.progressBar.node.active = true;
                 this.titleLabel.node.active = true;
                 this.iconConNode.active = false;
                 this.decLabel.node.active = true;

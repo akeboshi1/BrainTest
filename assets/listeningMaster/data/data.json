@@ -698,6 +698,13 @@
         "path":"music/question/zipper",
         "hard":"1",
         "type":"1"
+    },
+    "sez":{
+        "name":"海浪声",
+        "duration":"4",
+        "path":"music/question/sea",
+        "hard":"2",
+        "type":"3"
     }
 
 }
