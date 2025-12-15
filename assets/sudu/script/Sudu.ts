@@ -1,4 +1,4 @@
-import { _decorator, resources, Label, Node, Sprite, SpriteFrame, ProgressBar, VideoPlayer, VideoClip, assetManager, game, Game, ParticleAsset, AudioClip, AudioSource, Color, UITransform, Vec3, RichText } from 'cc';
+import { _decorator, resources, Label, Node, Sprite, SpriteFrame, ProgressBar, VideoPlayer, VideoClip, assetManager, game, Game, ParticleAsset, AudioClip, AudioSource, Color, UITransform, Vec3, RichText, tween, screen, Widget } from 'cc';
 import { DebugLog } from "../../resources/scripts/Core/Util/DebugLog";
 import { BundleName } from '../../resources/scripts/Core/Manager/Load/BundleName';
 import { TimerCommonComponent } from '../../resources/scripts/Game/UI/Common/TimerCommonComponent';
@@ -31,7 +31,7 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     private progresslabel: Label = null;
 
     @property(Label)
-    private descLabel:Label = null;
+    private descLabel: Label = null;
 
     @property(ProgressBar)
     private progress: ProgressBar = null;
@@ -46,16 +46,16 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     btnGroup: Node = null;
 
     @property(Node)
-    noticeBtnNode:Node;
+    noticeBtnNode: Node;
 
     @property(Node)
-    restartBtnNode:Node;
+    restartBtnNode: Node;
 
     @property(Node)
-    submitBtnNode:Node;
+    submitBtnNode: Node;
 
     @property(Node)
-    failViewNode:Node;
+    failViewNode: Node;
 
     protected bundleName: string = BundleName.SUDU;
 
@@ -91,6 +91,18 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
         if (this.failViewNode) {
             this.failViewNode.active = false;
+            const baseWidget = this.failViewNode.getComponent(Widget);
+            if (baseWidget) {
+                baseWidget.updateAlignment();
+            }
+            // 更新 bg 的 Widget 适配
+            const bgNode = this.failViewNode.getChildByName('bg');
+            if (bgNode) {
+                const widget = bgNode.getComponent(Widget);
+                if (widget) {
+                    widget.updateAlignment();
+                }
+            }
         }
 
         // 初始化数字按钮
@@ -452,6 +464,13 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         if (this.failViewNode) {
             this.failViewNode.active = true;
             this.showCorrectAnswerInFailView();
+
+            // 从右往左 tween 动画，效果与 UIManager showPanel 一致
+            const screenWidth = screen.windowSize.width;
+            this.failViewNode.setPosition(new Vec3(screenWidth, 0, 0));
+            tween(this.failViewNode)
+                .to(0.3, { position: new Vec3(0, 0, 0) }, { easing: 'quartOut' })
+                .start();
         }
     }
 
@@ -472,10 +491,10 @@ export class Sudu extends BaseScene<IBaseGameChild> {
                 if (item) {
                     const correctValue = solution[row][col];
                     const isFixed = this._model.isFixedCell(row, col);
-                    
+
                     // 设置正确答案
                     item.setData(correctValue.toString(), isFixed);
-                    
+
                     // 清除错误标记（因为现在显示的是正确答案）
                     item.setError(false);
                 }
@@ -750,7 +769,7 @@ export class Sudu extends BaseScene<IBaseGameChild> {
                 }
 
                 const correctValue = solution[row][col];
-                
+
                 // 通过模型填入数字
                 this._model.fillNumber(row, col, correctValue);
             }
@@ -819,25 +838,23 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     public onFailRestartClick(): void {
         DebugLog.instance.log('失败界面 - 点击重玩按钮');
 
-        // 隐藏失败界面
-        if (this.failViewNode) {
-            this.failViewNode.active = false;
-        }
-
         // 清除失败倒计时定时器
         if (this._failCountdownTimer !== null) {
             clearInterval(this._failCountdownTimer);
             this._failCountdownTimer = null;
         }
 
-        // 清空描述标签
-        this.clearDescLabel();
+        // 隐藏失败界面（带 tween 动画）
+        this.hideFailViewWithAnimation(() => {
+            // 清空描述标签
+            this.clearDescLabel();
 
-        // 重新开启背景音乐
-        this.playBgmAudio('music/bgm', true);
+            // 重新开启背景音乐
+            this.playBgmAudio('music/bgm', true);
 
-        // 重玩当前题目
-        this.restartGame();
+            // 重玩当前题目
+            this.restartGame();
+        });
     }
 
     /**
@@ -847,25 +864,46 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     public onFailNextClick(): void {
         DebugLog.instance.log('失败界面 - 点击下一关按钮');
 
-        // 隐藏失败界面
-        if (this.failViewNode) {
-            this.failViewNode.active = false;
-        }
-
         // 清除失败倒计时定时器
         if (this._failCountdownTimer !== null) {
             clearInterval(this._failCountdownTimer);
             this._failCountdownTimer = null;
         }
 
-        // 清空描述标签
-        this.clearDescLabel();
+        // 隐藏失败界面（带 tween 动画）
+        this.hideFailViewWithAnimation(() => {
+            // 清空描述标签
+            this.clearDescLabel();
 
-        // 重新开启背景音乐
-        this.playBgmAudio('music/bgm', true);
+            // 重新开启背景音乐
+            this.playBgmAudio('music/bgm', true);
 
-        // 开始新游戏
-        this.newGame();
+            // 开始新游戏
+            this.newGame();
+        });
+    }
+
+    /**
+     * 隐藏失败界面（带反向 tween 动画）
+     * 效果与 UIManager hidePanel 一致
+     * @param callback 动画完成后的回调
+     */
+    private hideFailViewWithAnimation(callback?: () => void): void {
+        if (!this.failViewNode) {
+            callback?.();
+            return;
+        }
+
+        const screenWidth = screen.windowSize.width;
+        tween(this.failViewNode)
+            .to(0.3, { position: new Vec3(screenWidth, 0, 0) }, { easing: 'quartIn' })
+            .call(() => {
+                this.failViewNode.active = false;
+                // 重置位置以便下次显示
+                this.failViewNode.setPosition(new Vec3(0, 0, 0));
+                callback?.();
+            })
+            .start();
     }
 
     /**
