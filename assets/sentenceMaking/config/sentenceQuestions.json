@@ -609,7 +609,7 @@
       ],
       "punctuationOptions": [
         {
-          "index": -1,
+          "index": 5,
           "text": "。"
         }
       ]
@@ -2881,7 +2881,7 @@
       ],
       "punctuationOptions": [
         {
-          "index": -1,
+          "index": 4,
           "text": "。"
         }
       ]
@@ -7974,32 +7974,6 @@
     },
     {
       "sentence": [
-        "他",
-        "认为",
-        "勇气",
-        "是",
-        "战胜",
-        "一切",
-        "困难的",
-        "法宝"
-      ],
-      "fixed": [
-        1,
-        7
-      ],
-      "punctuationOptions": [
-        {
-          "index": 1,
-          "text": "，"
-        },
-        {
-          "index": 7,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
         "小城的",
         "人民",
         "为了",
@@ -11015,34 +10989,6 @@
     },
     {
       "sentence": [
-        "为了",
-        "避免",
-        "感冒",
-        "应在",
-        "运动前",
-        "先",
-        "做好",
-        "准备",
-        "活动"
-      ],
-      "fixed": [
-        0,
-        2,
-        5
-      ],
-      "punctuationOptions": [
-        {
-          "index": 2,
-          "text": "，"
-        },
-        {
-          "index": 8,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
         "员工们",
         "和谐",
         "相处",
@@ -11110,6 +11056,10 @@
         {
           "index": 0,
           "text": "，"
+        },
+        {
+          "index": 3,
+          "text": "；"
         },
         {
           "index": 4,
@@ -14645,15 +14595,14 @@
         "知识",
         "还可以",
         "从中",
-        "得",
-        "到",
+        "得到",
         "快乐"
       ],
       "fixed": [
         2,
         5,
         7,
-        12
+        11
       ],
       "punctuationOptions": [
         {
@@ -14669,7 +14618,7 @@
           "text": "，"
         },
         {
-          "index": 12,
+          "index": 11,
           "text": "。"
         }
       ]
@@ -14774,42 +14723,6 @@
         },
         {
           "index": 10,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "12"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "13"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
           "text": "。"
         }
       ]
@@ -15547,26 +15460,6 @@
     },
     {
       "sentence": [
-        "11"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
         "在",
         "广袤的",
         "宇宙",
@@ -16255,22 +16148,6 @@
     },
     {
       "sentence": [
-        "12"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
         "他",
         "不但",
         "精通",
@@ -16355,48 +16232,6 @@
         },
         {
           "index": 10,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "带鱼",
-        "体表的",
-        "银白色",
-        "物质",
-        "是",
-        "一种",
-        "脂肪",
-        "本身",
-        "没有",
-        "腥味",
-        "去掉它",
-        "会",
-        "降低",
-        "食用",
-        "价值"
-      ],
-      "fixed": [
-        1,
-        3,
-        4,
-        7,
-        9,
-        10,
-        12
-      ],
-      "punctuationOptions": [
-        {
-          "index": 6,
-          "text": "，"
-        },
-        {
-          "index": 9,
-          "text": "，"
-        },
-        {
-          "index": 14,
           "text": "。"
         }
       ]
@@ -17536,58 +17371,6 @@
     },
     {
       "sentence": [
-        "12"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "14"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "12"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
         "晚上",
         "父亲",
         "要么",
@@ -18562,8 +18345,7 @@
         "但",
         "也有",
         "自己的",
-        "光",
-        "芒",
+        "光芒",
         "和",
         "价值"
       ],
@@ -18572,7 +18354,7 @@
         2,
         4,
         7,
-        13
+        12
       ],
       "punctuationOptions": [
         {
@@ -18584,7 +18366,7 @@
           "text": "，"
         },
         {
-          "index": 13,
+          "index": 12,
           "text": "。"
         }
       ]
@@ -18697,8 +18479,7 @@
         "保持着",
         "对美好",
         "生活的",
-        "向",
-        "往",
+        "向往",
         "和",
         "追求"
       ],
@@ -18707,8 +18488,7 @@
         2,
         6,
         8,
-        10,
-        11
+        10
       ],
       "punctuationOptions": [
         {
@@ -18716,7 +18496,7 @@
           "text": "，"
         },
         {
-          "index": 13,
+          "index": 12,
           "text": "。"
         }
       ]
@@ -19775,8 +19555,7 @@
         "一串",
         "香蕉",
         "然后",
-        "开心",
-        "地",
+        "开心地",
         "吃了",
         "起来"
       ],
@@ -19785,7 +19564,7 @@
         2,
         5,
         9,
-        12
+        11
       ],
       "punctuationOptions": [
         {
@@ -19797,7 +19576,7 @@
           "text": "，"
         },
         {
-          "index": 13,
+          "index": 12,
           "text": "。"
         }
       ]
@@ -19814,8 +19593,7 @@
         "改在",
         "家里",
         "看电影",
-        "度过",
-        "了",
+        "度过了", 
         "一个",
         "安静的",
         "下午"
@@ -19825,8 +19603,8 @@
         1,
         5,
         7,
-        12,
-        14
+        11, 
+        13
       ],
       "punctuationOptions": [
         {
@@ -19838,7 +19616,7 @@
           "text": "，"
         },
         {
-          "index": 14,
+          "index": 13,
           "text": "。"
         }
       ]
@@ -20182,6 +19960,10 @@
         13
       ],
       "punctuationOptions": [
+        {
+          "index": 3,
+          "text": "、"
+        },
         {
           "index": 6,
           "text": "，"
@@ -20726,26 +20508,6 @@
         },
         {
           "index": 9,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "13"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
           "text": "。"
         }
       ]
@@ -21872,38 +21634,6 @@
     },
     {
       "sentence": [
-        "12"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "11"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
         "她",
         "做的",
         "饭菜",
@@ -22042,16 +21772,14 @@
         "给",
         "地面",
         "铺上了",
-        "一",
-        "层",
+        "一层",
         "地毯"
       ],
       "fixed": [
         1,
         6,
         7,
-        10,
-        11
+        10
       ],
       "punctuationOptions": [
         {
@@ -22059,7 +21787,7 @@
           "text": "，"
         },
         {
-          "index": 12,
+          "index": 11,
           "text": "。"
         }
       ]
@@ -22092,26 +21820,6 @@
         },
         {
           "index": 11,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "12"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
           "text": "。"
         }
       ]
@@ -22272,26 +21980,6 @@
         },
         {
           "index": 10,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "12"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
           "text": "。"
         }
       ]
@@ -22468,26 +22156,6 @@
     },
     {
       "sentence": [
-        "13"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
         "定期",
         "体检",
         "可以",
@@ -22540,26 +22208,6 @@
         },
         {
           "index": 10,
-          "text": "。"
-        }
-      ]
-    },
-    {
-      "sentence": [
-        "13"
-      ],
-      "fixed": [],
-      "punctuationOptions": [
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
-          "text": "，"
-        },
-        {
-          "index": -1,
           "text": "。"
         }
       ]
