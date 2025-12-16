@@ -12,5 +12,6 @@ export enum BundleName{
     MATH24 = 'math24',
     FINGERGAME = 'fingerGame',
     FINDYOURSISTER = 'findyoursister',
-    LISTENINGMASTER = 'listeningMaster'
+    LISTENINGMASTER = 'listeningMaster',
+    SUDU = 'sudu'
 }

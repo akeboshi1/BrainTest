@@ -119,6 +119,9 @@ export class GuidePanel extends BasePanel {
                 case BundleName.LISTENINGMASTER:
                     descStr = "听音辨物:玩家一边观看背景视频，一边记忆播放过程中听到的音频，随后从答题页选项里选出听到的音频，考验听觉敏感度与短期记忆能力"
                     break;
+                case BundleName.SUDU:
+                    descStr = "数独游戏：玩家在9×9的方格内，依据已有数字在空格填入1-9，确保每行、每列及每个3×3小宫格内数字不重复，考验逻辑推理能力与数字敏感度"
+                    break;
 
             }
             this.descLabel.string = descStr;
@@ -269,12 +272,15 @@ export class GuidePanel extends BasePanel {
                 videoPath = "video/listeningguide/spriteFrame";
                 // 听力大师训练教程视频
                 break;
+            case BundleName.SUDU:
+                videoPath = "video/suduGuide/spriteFrame"; // 数独训练教程视频
+                break;
             default:
                 break;
         }
 
         if (videoPath && videoPath.length > 0) {
-            if (this.gameName == BundleName.FINDYOURSISTER || this.gameName == BundleName.LISTENINGMASTER) {
+            if (this.gameName == BundleName.FINDYOURSISTER || this.gameName == BundleName.LISTENINGMASTER || this.gameName == BundleName.SUDU) {
                 this.bgNode.active = true;
                 // 加载videoPath对应的图片并设置给bgNode中的sprite
                 resources.load(videoPath, SpriteFrame, (err, spriteFrame) => {

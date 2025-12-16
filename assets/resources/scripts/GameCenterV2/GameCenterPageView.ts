@@ -122,6 +122,64 @@ export class GameCenterPageView extends Component {
         }
     }
     private _clickBoo = false;
+
+    /**
+     * 独立游戏入口配置
+     * key: 游戏索引
+     * value: { bundleName: 包名, showGuide: 是否显示引导面板, directLoad: 是否直接加载(不保存GuidePanel数据) }
+     */
+    private readonly STANDALONE_GAMES: Map<number, { bundleName: string, showGuide: boolean, directLoad?: boolean }> = new Map([
+        [6, { bundleName: BundleName.FINGERGAME, showGuide: false }],
+        [7, { bundleName: BundleName.FINDYOURSISTER, showGuide: true }],
+        [8, { bundleName: BundleName.MATH24, showGuide: false, directLoad: true }],
+        [10, { bundleName: BundleName.LISTENINGMASTER, showGuide: true }],
+        [11, { bundleName: BundleName.SUDU, showGuide: true }],
+    ]);
+
+    /**
+     * 加载独立游戏的通用方法
+     * @param bundleName 游戏包名
+     * @param showGuide 是否显示引导面板
+     * @param directLoad 是否直接加载（不保存GuidePanel数据）
+     */
+    private loadStandaloneGame(bundleName: string, showGuide: boolean, directLoad: boolean = false): void {
+        const url = Global.RES_Root + bundleName;
+        DebugLog.instance.log(`${bundleName} click perload`);
+
+        if (directLoad) {
+            // 直接加载，不保存GuidePanel数据
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().clearGuidePanelData();
+            GameCenterManager.getInstance().perload(url, bundleName);
+            return;
+        }
+
+        // 创建GuidePanel数据
+        const guidePanelData = {
+            name: bundleName,
+            callback: () => {
+                DebugLog.instance.log(`${bundleName} click perload`);
+                EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+                GameCenterManager.getInstance().perload(url, bundleName);
+            },
+            exitCallback: () => {
+                this._clickBoo = false;
+            }
+        };
+
+        // 保存GuidePanel数据
+        GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
+
+        if (showGuide) {
+            // 显示引导面板
+            UIManager.getInstance().showPanel(GuidePanel.NAME, guidePanelData);
+        } else {
+            // 直接加载游戏
+            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
+            GameCenterManager.getInstance().perload(url, bundleName);
+        }
+    }
+
     gameItemClick(event, data) {
         // 防止点击两次
         if (this._clickBoo) {
@@ -129,70 +187,15 @@ export class GameCenterPageView extends Component {
         }
         this._clickBoo = true;
         let index = Number(data);
-        if (index == 6) {
-            let url = Global.RES_Root + BundleName.FINGERGAME;
-            DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
 
-            // 为手指操游戏创建GuidePanel数据
-            let guidePanelData = {
-                name: BundleName.FINGERGAME,
-                callback: () => {
-                    DebugLog.instance.log(`${BundleName.FINGERGAME} click perload`);
-                    EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-                    GameCenterManager.getInstance().perload(url, BundleName.FINGERGAME);
-                },
-                exitCallback: () => {
-                    this._clickBoo = false;
-                }
-            };
-
-            // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
-            GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
-            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-            GameCenterManager.getInstance().perload(url, BundleName.FINGERGAME);
-            return;
-        }
-        if (index == 7) {
-            let url = Global.RES_Root + BundleName.FINDYOURSISTER;
-            DebugLog.instance.log(`${BundleName.FINDYOURSISTER} click perload`);
-            let guidePanelData = {
-                name: BundleName.FINDYOURSISTER, callback: () => {
-                    DebugLog.instance.log(`${BundleName.FINDYOURSISTER} click perload`);
-                    EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(self), self, true);
-                    GameCenterManager.getInstance().perload(url, BundleName.FINDYOURSISTER);
-                }, exitCallback: () => {
-                    this._clickBoo = false;
-                }
-            }
-            // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
-            GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
-            UIManager.getInstance().showPanel(GuidePanel.NAME, guidePanelData);
-            return;
-        }
-        if (index == 8) {
-            let url = Global.RES_Root + BundleName.MATH24;
-            DebugLog.instance.log(`${BundleName.MATH24} click perload`);
-            EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-            // 临时处理上一个训练界面，后续对接服务端，走游戏统一流程
-            GameCenterManager.getInstance().clearGuidePanelData();
-            GameCenterManager.getInstance().perload(url, BundleName.MATH24);
-            return;
-        }
-        if (index == 10) {
-            let url = Global.RES_Root + BundleName.LISTENINGMASTER;
-            DebugLog.instance.log(`${BundleName.LISTENINGMASTER} click perload`);
-            let guidePanelData = {
-                name: BundleName.LISTENINGMASTER, callback: () => {
-                    DebugLog.instance.log(`${BundleName.LISTENINGMASTER} click perload`);
-                    EventManager.getInstance().on(SceneManager.SCENE_ENTER, this.onSceneEnter.bind(this), this, true);
-                    GameCenterManager.getInstance().perload(url, BundleName.LISTENINGMASTER);
-                }, exitCallback: () => {
-                    this._clickBoo = false;
-                }
-            }
-            // 保存GuidePanel数据到GameCenterManager，用于退出时返回到GuidePanel
-            GameCenterManager.getInstance().saveGuidePanelData(guidePanelData);
-            UIManager.getInstance().showPanel(GuidePanel.NAME, guidePanelData);
+        // 检查是否是独立游戏入口
+        const standaloneGame = this.STANDALONE_GAMES.get(index);
+        if (standaloneGame) {
+            this.loadStandaloneGame(
+                standaloneGame.bundleName,
+                standaloneGame.showGuide,
+                standaloneGame.directLoad
+            );
             return;
         }
         GameCenterManager.getInstance().startGame(index + 1, (data) => {

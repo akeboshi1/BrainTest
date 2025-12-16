@@ -18,6 +18,7 @@ import { AlterUserInfoView } from "db://assets/resources/scripts/UserCenterV2/Al
 import { PersonalCenterManager } from "db://assets/resources/scripts/Game/PersonalCenterManager/PersonalCenterManager";
 import { SwitchLoginPanel } from "../../../Game/UI/Login/SwitchLoginPanel";
 import { ReportManager } from "../../../ManagerV2/ReportManager";
+import {SkewersManager} from "db://assets/resources/scripts/Game/Task/Skewers/SkewersManager";
 
 /**
  * 组织用户信息接口
@@ -59,6 +60,7 @@ export class LoginManager {
     public static FirstLoginXieYi:string = "FirstLoginXieYi";
     public static LoginOrganizationResult: string = "LoginOrganizationResult";
     public static GetOrganizationUsersResult: string = "GetOrganizationUsersResult";
+    public static LogoutEvent:string ="LogoutEvent";
 
     private login_login_by_token: string = "login.login_by_token";
     private login_send_mp_code: string = "login.send_mp_code";
@@ -365,11 +367,15 @@ export class LoginManager {
     loginout(finishCb: () => void = null) {
         this._xieyiToggleFlag = true;
         LoginManager.getInstance().cleanUserToken();
+        // 触发退出登录事件（在销毁事件管理器之前）
+        EventManager.getInstance().emit(LoginManager.LogoutEvent);
         EventManager.getInstance().destory();
         AudioManager.getInstance().destory();
         SocketManager.getInstance().cleanSocketDatas();
         PersonalCenterManager.getInstance().clean();
         ReportManager.getInstance().clean();
+        // 清理串烧训练缓存状态
+        SkewersManager.getInstance().clearCachedDeferredGameState();
         SceneManager.getInstance().changeScene("start", BundleName.RESOURCES).then(() => {
             DebugLog.instance.log(`start场景切换成功`);
             if(finishCb){

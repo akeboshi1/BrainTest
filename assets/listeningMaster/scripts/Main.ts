@@ -78,6 +78,8 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private _questions: IListeningConfig[] = null;
     private _currentVideoPath: string = null; // 当前使用的视频路径
+    private _currentVideoName: string = null; // 当前使用的视频名称
+    private _currentVideoTypes: number[] = null; // 当前视频的type数组
 
     private _totalDuration: number = 0; // 总时长（秒）
     private _elapsedTime: number = 0; // 已播放时间（秒）
@@ -124,21 +126,34 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     async start(): Promise<void> {
         super.start();
-        
-        // 等待视频加载完成
-        await this.initVideo();
 
         this.model = ListeningModel.getInstance();
         await this.model.initModel();
         
-        // 获取难度，如果没有则使用默认值3
+        // 获取难度，如果没有则使用默认值1
         this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
-        this._questions = this.model.getQuestion(this._currentDifficulty);
         
         // 根据难度获取需要的回答数量
         const hardData = [3, 4, 5];
         const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
         this._requiredAnswerCount = hardData[hardIndex];
+        
+        // 先随机获取一个视频，然后用视频的type获取对应的题目
+        const videoData = this.model.getRandomVideoConfig();
+        if (videoData) {
+            this._currentVideoName = videoData.name;
+            this._currentVideoPath = videoData.config.path;
+            this._currentVideoTypes = videoData.config.type;
+            
+            // 用视频的type获取对应配置的题目
+            this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+            DebugLog.instance.log(`获取视频: ${this._currentVideoName}, types=[${this._currentVideoTypes.join(',')}], 题目数量: ${this._questions.length}`);
+        } else {
+            DebugLog.instance.warn(`没有视频配置`);
+        }
+        
+        // 等待视频加载完成
+        await this.initVideo();
         
         // 重置点击缓存
         this._clickedIndices.clear();
@@ -439,7 +454,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     /**
      * 重玩当前关卡
-     * 使用上一次的音效和视频，不重新随机
+     * 重新随机获取视频和题目，使用独立配置
      */
     private async restartCurrentLevel() {
         // 停止当前播放的视频和音频
@@ -448,32 +463,25 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 先重置选项节点状态（在隐藏之前重置，确保颜色被重置）
         this.resetOptionNodes();
         
-        // 保存当前的题目和视频路径（重玩时使用相同的）
-        const savedQuestions = this._questions ? [...this._questions] : null;
-        const savedVideoPath = this._currentVideoPath;
-        
         // 重置所有状态
         this.resetGameState();
         
-        // 恢复上一次的题目（不重新随机获取）
-        if (savedQuestions) {
-            this._questions = savedQuestions;
-            DebugLog.instance.log(`重玩当前关卡，使用上一次的题目: ${savedQuestions.map(q => q.name).join(', ')}`);
+        // 重新随机获取视频，用视频的type获取对应的题目
+        const videoData = this.model.getRandomVideoConfig();
+        if (videoData) {
+            this._currentVideoName = videoData.name;
+            this._currentVideoPath = videoData.config.path;
+            this._currentVideoTypes = videoData.config.type;
+            
+            // 用视频的type获取对应配置的题目
+            this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+            DebugLog.instance.log(`重玩当前关卡，获取视频: ${this._currentVideoName}, types=[${this._currentVideoTypes.join(',')}], 题目数量: ${this._questions.length}`);
         } else {
-            // 如果没有保存的题目，则重新获取（容错处理）
-            this._questions = this.model.getQuestion(this._currentDifficulty);
-            DebugLog.instance.log(`重玩当前关卡，重新获取题目（无保存的题目）`);
+            DebugLog.instance.warn(`重玩当前关卡，没有视频配置`);
         }
         
-        // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
-        // if (savedVideoPath) {
-        //     await this.loadLocalVideo(savedVideoPath, true);
-        //     DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
-        // } else {
-            // 如果没有保存的视频路径，则重新随机（容错处理）
-            await this.initVideo();
-            console.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
-        //}
+        // 加载视频
+        await this.initVideo();
         
         // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
@@ -503,13 +511,24 @@ export class Main extends BaseScene<IBaseGameChild> {
         const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
         this._requiredAnswerCount = hardData[hardIndex];
         
-        // 重新获取新难度的题目
-        this._questions = this.model.getQuestion(this._currentDifficulty);
+        // 先随机获取一个新视频，然后用视频的type获取对应的题目
+        const videoData = this.model.getRandomVideoConfig();
+        if (videoData) {
+            this._currentVideoName = videoData.name;
+            this._currentVideoPath = videoData.config.path;
+            this._currentVideoTypes = videoData.config.type;
+            
+            // 用视频的type获取对应配置的题目
+            this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
+            DebugLog.instance.log(`下一关获取视频: ${this._currentVideoName}, types=[${this._currentVideoTypes.join(',')}], 题目数量: ${this._questions.length}`);
+        } else {
+            DebugLog.instance.warn(`下一关没有视频配置`);
+        }
         
         // 重新随机选择背景音乐
         // this.randomPlayBgm();
         
-        // 重新初始化视频（会随机选择新的视频）
+        // 重新初始化视频（使用已选定的视频）
         await this.initVideo();
         
         // 视频加载完成后，重新开始视频和音频播放
@@ -618,7 +637,9 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.videoPlayer.playOnAwake = true;
         }
 
-        await this.loadLocalVideo();
+        // 使用已选定的视频路径加载视频（去掉文件扩展名）
+        const videoPath = this._currentVideoPath ? this._currentVideoPath.replace(/\.[^/.]+$/, '') : null;
+        await this.loadLocalVideo(videoPath);
     }
 
 
