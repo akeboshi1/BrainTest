@@ -2,7 +2,7 @@
   "ver": "1.0.27",
   "importer": "image",
   "imported": true,
-  "uuid": "3821eff9-f656-4452-85a9-6c4bbeacb154",
+  "uuid": "e1432d9c-f500-4f00-a423-8ecd171ae1a2",
   "files": [
     ".json",
     ".png"
@@ -10,14 +10,14 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "3821eff9-f656-4452-85a9-6c4bbeacb154@6c48a",
+      "uuid": "e1432d9c-f500-4f00-a423-8ecd171ae1a2@6c48a",
       "displayName": "icon_feixiang_fugu",
       "id": "6c48a",
       "name": "texture",
       "userData": {
         "wrapModeS": "clamp-to-edge",
         "wrapModeT": "clamp-to-edge",
-        "imageUuidOrDatabaseUri": "3821eff9-f656-4452-85a9-6c4bbeacb154",
+        "imageUuidOrDatabaseUri": "e1432d9c-f500-4f00-a423-8ecd171ae1a2",
         "isUuid": true,
         "visible": false,
         "minfilter": "linear",
@@ -34,7 +34,7 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "3821eff9-f656-4452-85a9-6c4bbeacb154@f9941",
+      "uuid": "e1432d9c-f500-4f00-a423-8ecd171ae1a2@f9941",
       "displayName": "icon_feixiang_fugu",
       "id": "f9941",
       "name": "spriteFrame",
@@ -114,7 +114,7 @@
           ]
         },
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "3821eff9-f656-4452-85a9-6c4bbeacb154@6c48a",
+        "imageUuidOrDatabaseUri": "e1432d9c-f500-4f00-a423-8ecd171ae1a2@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.12",
@@ -129,6 +129,6 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "fixAlphaTransparencyArtifacts": false,
-    "redirect": "3821eff9-f656-4452-85a9-6c4bbeacb154@6c48a"
+    "redirect": "e1432d9c-f500-4f00-a423-8ecd171ae1a2@6c48a"
   }
 }
