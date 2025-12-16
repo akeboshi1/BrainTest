@@ -197,5 +197,85 @@ export const fingerGameConfig: FingerGameConfig = {
                 }
             ]
         }
+        ,
+        {
+            name: "第三套手指操",
+            description: "进阶手指操",
+            icon: "image/setsImage/set_3/spriteFrame",
+            sections: [
+                {
+                    name: "半手抓",
+                    icon: "image/setsImage/set_3/section_1/spriteFrame",
+                    previewVideo: {
+                        path: "video/set3/1_preview",
+                        duration: 52.84
+                    },
+                    demoVideo: {
+                        path: "video/set3/1_demo",
+                        duration: 32.11
+                    }
+                },
+                {
+                    name: "勾拇指",
+                    icon: "image/setsImage/set_3/section_2/spriteFrame",
+                    previewVideo: {
+                        path: "video/set3/2_preview",
+                        duration: 48.50
+                    },
+                    demoVideo: {
+                        path: "video/set3/2_demo",
+                        duration: 32.11
+                    }
+                },
+                {
+                    name: "抓固握",
+                    icon: "image/setsImage/set_3/section_3/spriteFrame",
+                    previewVideo: {
+                        path: "video/set3/3_preview",
+                        duration: 55.10
+                    },
+                    demoVideo: {
+                        path: "video/set3/3_demo",
+                        duration: 32.11
+                    }
+                },
+                {
+                    name: "手指交替翻转",
+                    icon: "image/setsImage/set_3/section_4/spriteFrame",
+                    previewVideo: {
+                        path: "video/set3/4_preview",
+                        duration: 50.71
+                    },
+                    demoVideo: {
+                        path: "video/set3/4_demo",
+                        duration: 32.11
+                    }
+                },
+                {
+                    name: "协调性训练",
+                    icon: "image/setsImage/set_3/section_5/spriteFrame",
+                    previewVideo: {
+                        path: "video/set3/5_preview",
+                        duration: 54.75
+                    },
+                    demoVideo: {
+                        path: "video/set3/5_demo",
+                        duration: 32.11
+                    }
+                },
+                {
+                    name: "对拍后溪",
+                    icon: "image/setsImage/set_3/section_6/spriteFrame",
+                    previewVideo: {
+                        path: "video/set3/6_preview",
+                        duration: 50.24
+                    },
+                    demoVideo: {
+                        path: "video/set3/6_demo",
+                        duration: 32.11
+                    }
+                }
+            ]
+        }
     ]
 }; 
