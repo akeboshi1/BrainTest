@@ -31,6 +31,16 @@ export class SuduModel {
     /** 每个难度的题库缓存大小 */
     private readonly CACHE_SIZE = 5;
 
+    /** 各难度对应的提示次数 */
+    private readonly HINT_COUNTS: Map<SudokuDifficulty, number> = new Map([
+        [SudokuDifficulty.EASY, 5],
+        [SudokuDifficulty.MEDIUM, 4],
+        [SudokuDifficulty.HARD, 3]
+    ]);
+
+    /** 当前剩余提示次数 */
+    private _remainingHints: number = 5;
+
     constructor() {
         this._puzzleCache.set(SudokuDifficulty.EASY, []);
         this._puzzleCache.set(SudokuDifficulty.MEDIUM, []);
@@ -59,6 +69,9 @@ export class SuduModel {
 
         // 初始化玩家网格
         this._playerGrid = this._currentPuzzle.puzzle.map(row => [...row]);
+
+        // 重置提示次数
+        this._remainingHints = this.HINT_COUNTS.get(diff) || 5;
 
         // 异步补充缓存
         this.refillCache(diff);
@@ -159,6 +172,40 @@ export class SuduModel {
     }
 
     /**
+     * 检查是否还有提示次数
+     * @returns 是否还有提示次数
+     */
+    public hasHintRemaining(): boolean {
+        return this._remainingHints > 0;
+    }
+
+    /**
+     * 使用一次提示
+     * @returns 是否使用成功
+     */
+    public useHint(): boolean {
+        if (this._remainingHints > 0) {
+            this._remainingHints--;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 获取剩余提示次数
+     */
+    public get remainingHints(): number {
+        return this._remainingHints;
+    }
+
+    /**
+     * 获取当前难度的最大提示次数
+     */
+    public get maxHints(): number {
+        return this.HINT_COUNTS.get(this._difficulty) || 5;
+    }
+
+    /**
      * 获取某格的候选数字
      * @param row 行索引
      * @param col 列索引
@@ -238,6 +285,8 @@ export class SuduModel {
      */
     public resetCurrentPuzzle(): void {
         this._playerGrid = this._currentPuzzle.puzzle.map(row => [...row]);
+        // 重置提示次数
+        this._remainingHints = this.HINT_COUNTS.get(this._difficulty) || 5;
     }
 
     /**

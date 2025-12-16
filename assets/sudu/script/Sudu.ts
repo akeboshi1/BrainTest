@@ -30,8 +30,6 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     @property(Label)
     private progresslabel: Label = null;
 
-    @property(Label)
-    private descLabel: Label = null;
 
     @property(ProgressBar)
     private progress: ProgressBar = null;
@@ -172,6 +170,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 更新UI显示
         this.updateGridUI();
 
+        // 更新提示按钮文字
+        this.updateHintButtonText();
+
         DebugLog.instance.log(`数独游戏初始化完成，难度: ${difficulty}, 空格数: ${this._model.emptyCount}`);
 
         // 打印题目到控制台（调试用）
@@ -188,29 +189,46 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         return Math.floor(row / 3) * 3 + Math.floor(col / 3);
     }
 
+    /** 预设的九宫格颜色值 */
+    private static readonly BOX_COLOR_HEX: string[] = [
+        'E5DAFF', 'DAEBFF', 'DAFFF9', 'FFEEDA', 'F9FFDA',
+        'FADAFF', 'EEEEEE', 'E0FFDA', 'FFDADB'
+    ];
+
     /**
-     * 生成一个随机的清淡颜色
-     * RGB值在 210-250 之间，确保颜色清淡
-     * @returns 随机清淡颜色
+     * 将十六进制颜色字符串转换为Color对象
+     * @param hex 十六进制颜色字符串（不带#）
+     * @returns Color对象
      */
-    private generateLightColor(): Color {
-        const min = 210;
-        const max = 250;
-        const r = Math.floor(Math.random() * (max - min + 1)) + min;
-        const g = Math.floor(Math.random() * (max - min + 1)) + min;
-        const b = Math.floor(Math.random() * (max - min + 1)) + min;
+    private hexToColor(hex: string): Color {
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
         return new Color(r, g, b, 255);
     }
 
     /**
-     * 生成9种不同的随机清淡颜色用于九宫格
+     * 随机打乱数组顺序（Fisher-Yates洗牌算法）
+     * @param array 要打乱的数组
+     * @returns 打乱后的新数组
+     */
+    private shuffleArray<T>(array: T[]): T[] {
+        const result = [...array];
+        for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+        }
+        return result;
+    }
+
+    /**
+     * 生成9种不同的随机顺序颜色用于九宫格
+     * 从预设的9个颜色中随机排序
      */
     private generateBoxColors(): void {
-        this._boxColors = [];
-        for (let i = 0; i < 9; i++) {
-            this._boxColors.push(this.generateLightColor());
-        }
-        DebugLog.instance.log('生成随机九宫格颜色完成');
+        const shuffledColors = this.shuffleArray(Sudu.BOX_COLOR_HEX);
+        this._boxColors = shuffledColors.map(hex => this.hexToColor(hex));
+        DebugLog.instance.log('生成随机顺序九宫格颜色完成');
     }
 
     /**
@@ -331,6 +349,32 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     }
 
     /**
+     * 更新提示按钮文字和颜色
+     * 显示剩余提示次数，有次数时为绿色，无次数时为灰色
+     */
+    private updateHintButtonText(): void {
+        if (!this.noticeBtnNode) return;
+
+        const remaining = this._model.remainingHints;
+
+        // 获取按钮上的 Label 组件（通常在子节点中）
+        const label = this.noticeBtnNode.getComponentInChildren(Label);
+        if (label) {
+            label.string = `提示:${remaining}次`;
+        }
+
+        // 更新按钮颜色：有次数为绿色(b3f12e)，无次数为灰色(dedede)
+        const sprite = this.noticeBtnNode.getComponent(Sprite);
+        if (sprite) {
+            if (remaining > 0) {
+                sprite.color = new Color(0xb3, 0xf1, 0x2e, 255); // #b3f12e
+            } else {
+                sprite.color = new Color(0xde, 0xde, 0xde, 255); // #dedede
+            }
+        }
+    }
+
+    /**
      * 选中某个格子
      * @param row 行索引
      * @param col 列索引
@@ -431,6 +475,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     private onGameWin(): void {
         DebugLog.instance.log('恭喜！数独完成！');
 
+        // 关闭已打开的弹窗
+        AlertManager.getInstance().closeCurrentAlert();
+
         // 停止背景音乐
         this.pauseBgmAudio();
 
@@ -448,6 +495,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
      */
     private onGameError(): void {
         DebugLog.instance.log('答案有误，请检查！');
+
+        // 关闭已打开的弹窗
+        AlertManager.getInstance().closeCurrentAlert();
 
         // 停止背景音乐
         this.pauseBgmAudio();
@@ -569,17 +619,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
             this._failCountdownTimer = null;
         }
 
-        // 更新进度标签显示倒计时
-        if (this.descLabel) {
-            this.descLabel.string = `展示答案，${countdown}秒后继续...`;
-        }
-
         this._failCountdownTimer = setInterval(() => {
             countdown--;
 
-            if (this.descLabel) {
-                this.descLabel.string = `展示答案，${countdown}秒后继续...`;
-            }
 
             if (countdown <= 0) {
                 // 清除定时器
@@ -603,16 +645,13 @@ export class Sudu extends BaseScene<IBaseGameChild> {
             result: isWin,
             mode: "result",
             againHandler: () => {
-                // 清空描述标签
-                this.clearDescLabel();
                 // 重新开启背景音乐
                 this.playBgmAudio('music/bgm', true);
                 // 重玩当前题目
                 this.restartGame();
             },
             nextHandler: () => {
-                // 清空描述标签
-                this.clearDescLabel();
+
                 // 重新开启背景音乐
                 this.playBgmAudio('music/bgm', true);
                 // 开始新游戏
@@ -622,16 +661,6 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
         UIManager.getInstance().showPanel(SettlementPanel.NAME, panelData);
     }
-
-    /**
-     * 清空描述标签
-     */
-    private clearDescLabel(): void {
-        if (this.descLabel) {
-            this.descLabel.string = "";
-        }
-    }
-
     /**
      * 标记错误的格子
      */
@@ -677,29 +706,87 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
     /**
      * 获取提示
+     * 随机选择一个没有填入数字的空格，显示正确答案，并播放呼吸效果
+     * 难度1：5次，难度2：4次，难度3：3次
      */
     public getHint(): void {
-        if (!this._selectedCell) {
-            DebugLog.instance.log('请先选择一个空格');
+        // 检查提示次数是否已用完
+        if (!this._model.hasHintRemaining()) {
+            DebugLog.instance.log('提示次数已用完');
+            AlertManager.getInstance().showToastAlert("提示次数已经用完");
             return;
         }
 
-        const { row, col } = this._selectedCell;
+        // 获取所有空格子的位置
+        const emptyCells: { row: number, col: number }[] = [];
+        const playerGrid = this._model.playerGrid;
 
-        if (this._model.isFixedCell(row, col)) {
-            DebugLog.instance.log('此格子已有固定数字');
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                // 排除固定格子，只查找玩家可填入且当前为空的格子
+                if (!this._model.isFixedCell(row, col) && playerGrid[row][col] === 0) {
+                    emptyCells.push({ row, col });
+                }
+            }
+        }
+
+        // 如果没有空格子，提示用户
+        if (emptyCells.length === 0) {
+            DebugLog.instance.log('没有空格需要提示');
+            AlertManager.getInstance().showToastAlert("所有格子都已填写");
             return;
         }
 
+        // 使用一次提示
+        this._model.useHint();
+
+        // 更新提示按钮文字
+        this.updateHintButtonText();
+
+        // 随机选择一个空格子
+        const randomIndex = Math.floor(Math.random() * emptyCells.length);
+        const { row, col } = emptyCells[randomIndex];
+
+        DebugLog.instance.log(`提示：随机选择格子 [${row}, ${col}]，剩余提示次数: ${this._model.remainingHints}`);
+
+        // 获取正确答案
         const hint = this._model.getHint(row, col);
-        this.fillNumber(hint);
+
+        // 填入正确答案
+        this._model.fillNumber(row, col, hint);
+
+        // 更新UI
+        this.updateGridUI();
+
+        // 获取对应的格子组件，播放呼吸效果
+        const item = this._cellItems[row]?.[col];
+        if (item) {
+            item.playBreathEffect(3, 0.5);
+        }
+
+        // 播放点击音效
+        this.playAudio('music/click');
     }
 
     /**
      * 重新开始当前题目
+     * 会先弹出确认弹窗
      */
     public restartGame(): void {
-        this.resetGame();
+        const alertData = new AlertData();
+        alertData.title = "提示";
+        alertData.message = "是否放弃当前进度并重新开始？";
+        alertData.cancelButtonVisible = true;
+        alertData.cancelButtonText = "取消";
+        alertData.confirmButtonText = "确定";
+        alertData.confirmCb = () => {
+            this.resetGame();
+        };
+        alertData.cancelCb = () => {
+            // 取消操作，什么都不做
+        };
+
+        AlertManager.getInstance().showAlert(alertData);
     }
 
     /**
@@ -732,6 +819,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 更新UI显示
         this.updateGridUI();
         this.updateSelectionUI();
+
+        // 更新提示按钮文字
+        this.updateHintButtonText();
 
         // 播放点击音效
         this.playAudio('music/click');
@@ -846,14 +936,12 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
         // 隐藏失败界面（带 tween 动画）
         this.hideFailViewWithAnimation(() => {
-            // 清空描述标签
-            this.clearDescLabel();
 
             // 重新开启背景音乐
             this.playBgmAudio('music/bgm', true);
 
             // 重玩当前题目
-            this.restartGame();
+            this.resetGame();
         });
     }
 
@@ -872,8 +960,6 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
         // 隐藏失败界面（带 tween 动画）
         this.hideFailViewWithAnimation(() => {
-            // 清空描述标签
-            this.clearDescLabel();
 
             // 重新开启背景音乐
             this.playBgmAudio('music/bgm', true);

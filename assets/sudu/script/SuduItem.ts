@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, Label, Node, resources, Sprite, SpriteFrame, EventHandler } from 'cc';
+import { _decorator, Color, Component, Label, Node, resources, Sprite, SpriteFrame, EventHandler, tween, Tween, UIOpacity } from 'cc';
 const { ccclass, property } = _decorator;
 
 /** 格子点击回调类型 */
@@ -33,6 +33,12 @@ export class SuduItem extends Component {
 
     /** 点击回调 */
     private _clickCallback: SuduItemClickCallback = null;
+
+    /** 呼吸效果的 tween */
+    private _breathTween: Tween<UIOpacity> = null;
+
+    /** 选中背景的 UIOpacity 组件 */
+    private _selectedOpacity: UIOpacity = null;
 
     /**
      * 初始化格子
@@ -154,5 +160,63 @@ export class SuduItem extends Component {
      */
     public get col(): number {
         return this._col;
+    }
+
+    /**
+     * 播放呼吸效果
+     * @param repeatCount 重复次数，默认3次
+     * @param duration 单次呼吸时长（秒），默认0.5秒
+     */
+    public playBreathEffect(repeatCount: number = 3, duration: number = 0.5): void {
+        // 停止之前的呼吸效果
+        this.stopBreathEffect();
+
+        if (!this.itemBgSelected) return;
+
+        // 确保选中背景显示
+        this.itemBgSelected.active = true;
+
+        // 获取或添加 UIOpacity 组件
+        this._selectedOpacity = this.itemBgSelected.getComponent(UIOpacity);
+        if (!this._selectedOpacity) {
+            this._selectedOpacity = this.itemBgSelected.addComponent(UIOpacity);
+        }
+        this._selectedOpacity.opacity = 255;
+
+        let currentCount = 0;
+
+        // 创建呼吸效果 tween
+        this._breathTween = tween(this._selectedOpacity)
+            .repeatForever(
+                tween(this._selectedOpacity)
+                    .to(duration, { opacity: 80 }, { easing: 'sineInOut' })
+                    .to(duration, { opacity: 255 }, { easing: 'sineInOut' })
+                    .call(() => {
+                        currentCount++;
+                        if (currentCount >= repeatCount) {
+                            this.stopBreathEffect();
+                        }
+                    })
+            )
+            .start();
+    }
+
+    /**
+     * 停止呼吸效果
+     */
+    public stopBreathEffect(): void {
+        if (this._breathTween) {
+            this._breathTween.stop();
+            this._breathTween = null;
+        }
+
+        // 恢复透明度并隐藏选中背景
+        if (this._selectedOpacity) {
+            this._selectedOpacity.opacity = 255;
+        }
+
+        if (this.itemBgSelected) {
+            this.itemBgSelected.active = this._isSelected;
+        }
     }
 }
