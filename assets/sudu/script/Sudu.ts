@@ -773,6 +773,12 @@ export class Sudu extends BaseScene<IBaseGameChild> {
      * 会先弹出确认弹窗
      */
     public restartGame(): void {
+        // 检查玩家是否已经开始答题
+        if (!this.hasPlayerStarted()) {
+            AlertManager.getInstance().showToastAlert("还没有开始答题");
+            return;
+        }
+
         const alertData = new AlertData();
         alertData.title = "提示";
         alertData.message = "是否放弃当前进度并重新开始？";
@@ -787,6 +793,29 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         };
 
         AlertManager.getInstance().showAlert(alertData);
+    }
+
+    /**
+     * 检查玩家是否已经开始答题
+     * 比较玩家网格和原始题目，如果有任何不同则说明已开始答题
+     * @returns 是否已开始答题
+     */
+    private hasPlayerStarted(): boolean {
+        const playerGrid = this._model.playerGrid;
+        const puzzle = this._model.currentPuzzle?.puzzle;
+
+        if (!puzzle) return false;
+
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                // 如果玩家网格和原始题目有任何不同，说明已开始答题
+                if (playerGrid[row][col] !== puzzle[row][col]) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
