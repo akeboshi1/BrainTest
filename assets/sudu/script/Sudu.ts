@@ -811,12 +811,11 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 检查选中的格子是否已经有数字
         if (currentValue !== 0) {
             // 检查填入的数字是否正确
-            // if (currentValue === correctValue) {
-            //     // 数字正确，不消耗提示次数
-            //     DebugLog.instance.log('选中的格子数字正确');
-            //     AlertManager.getInstance().showToastAlert("该格子数字正确");
-            //     return;
-            // } else {
+            if (currentValue === correctValue) {
+                // 数字正确
+                AlertManager.getInstance().showToastAlert("该格子数字正确");
+            } 
+            //else {
             // 数字错误，显示正确答案，消耗提示次数
             DebugLog.instance.log('选中的格子数字错误，显示正确答案');
 
