@@ -486,6 +486,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 更新UI
         this.updateGridUI();
 
+        // 更新高亮显示相同数字的格子
+        this.updateSelectionUI(num);
+
         // // 检查是否完成
         // this.checkCompletion();
     }
@@ -564,6 +567,10 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 显示失败界面，并将正确答案显示到失败界面中
         if (this.failViewNode) {
             this.failViewNode.active = true;
+            
+            // 适配失败界面
+            ScreenAdapter.getInstance().adaptPanelUI(this.failViewNode);
+            
             this.showCorrectAnswerInFailView();
 
             // 从右往左 tween 动画，效果与 UIManager showPanel 一致
@@ -774,6 +781,12 @@ export class Sudu extends BaseScene<IBaseGameChild> {
      * 难度1：5次，难度2：4次，难度3：3次
      */
     public getHint(): void {
+         // 检查提示次数是否已用完
+         if (!this._model.hasHintRemaining()) {
+            DebugLog.instance.log('提示次数已用完');
+            AlertManager.getInstance().showToastAlert("提示次数已经用完");
+            return;
+        }
         // 检查是否有选中的格子
         if (!this._selectedCell) {
             DebugLog.instance.log('请先选中一个空格');
@@ -799,12 +812,6 @@ export class Sudu extends BaseScene<IBaseGameChild> {
                 // 数字错误，显示正确答案，消耗提示次数
                 DebugLog.instance.log('选中的格子数字错误，显示正确答案');
                 
-                // 检查提示次数是否已用完
-                if (!this._model.hasHintRemaining()) {
-                    DebugLog.instance.log('提示次数已用完');
-                    AlertManager.getInstance().showToastAlert("提示次数已经用完");
-                    return;
-                }
 
                 // 使用一次提示
                 this._model.useHint();
