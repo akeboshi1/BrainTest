@@ -440,7 +440,7 @@ export class Sudu extends BaseScene<IBaseGameChild> {
                     const isSelected = this._selectedCell &&
                         this._selectedCell.row === row &&
                         this._selectedCell.col === col;
-                    
+
                     // 设置选中状态
                     item.setSelected(isSelected);
 
@@ -451,7 +451,7 @@ export class Sudu extends BaseScene<IBaseGameChild> {
                     } else {
                         // 停止呼吸效果
                         item.stopBreathEffect();
-                        
+
                         // 检查是否需要高亮（相同数字）
                         const cellValue = playerGrid[row][col];
                         const shouldHighlight = highlightValue !== 0 && cellValue === highlightValue;
@@ -504,6 +504,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 通过模型清除
         this._model.clearCell(row, col);
         this.updateGridUI();
+
+        // 清除后取消相同数字高亮，只保留选中格子的呼吸效果
+        this.updateSelectionUI(0);
     }
 
     /**
@@ -567,10 +570,15 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 显示失败界面，并将正确答案显示到失败界面中
         if (this.failViewNode) {
             this.failViewNode.active = true;
-            
-            // 适配失败界面
-            ScreenAdapter.getInstance().adaptPanelUI(this.failViewNode);
-            
+
+            // ScreenAdapter.getInstance().adaptPanelUI(this.failViewNode);
+            // 获取缩放比例
+            const scaleFactor = ScreenAdapter.getInstance().scaleFactor;
+           
+            const bgNode = this.failViewNode.getChildByName('bg');
+            if (bgNode) {
+                bgNode.setScale(2,2,1);
+            }
             this.showCorrectAnswerInFailView();
 
             // 从右往左 tween 动画，效果与 UIManager showPanel 一致
@@ -781,8 +789,8 @@ export class Sudu extends BaseScene<IBaseGameChild> {
      * 难度1：5次，难度2：4次，难度3：3次
      */
     public getHint(): void {
-         // 检查提示次数是否已用完
-         if (!this._model.hasHintRemaining()) {
+        // 检查提示次数是否已用完
+        if (!this._model.hasHintRemaining()) {
             DebugLog.instance.log('提示次数已用完');
             AlertManager.getInstance().showToastAlert("提示次数已经用完");
             return;
@@ -803,32 +811,32 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 检查选中的格子是否已经有数字
         if (currentValue !== 0) {
             // 检查填入的数字是否正确
-            if (currentValue === correctValue) {
-                // 数字正确，不消耗提示次数
-                DebugLog.instance.log('选中的格子数字正确');
-                AlertManager.getInstance().showToastAlert("该格子数字正确");
-                return;
-            } else {
-                // 数字错误，显示正确答案，消耗提示次数
-                DebugLog.instance.log('选中的格子数字错误，显示正确答案');
-                
+            // if (currentValue === correctValue) {
+            //     // 数字正确，不消耗提示次数
+            //     DebugLog.instance.log('选中的格子数字正确');
+            //     AlertManager.getInstance().showToastAlert("该格子数字正确");
+            //     return;
+            // } else {
+            // 数字错误，显示正确答案，消耗提示次数
+            DebugLog.instance.log('选中的格子数字错误，显示正确答案');
 
-                // 使用一次提示
-                this._model.useHint();
 
-                // 更新提示按钮文字
-                this.updateHintButtonText();
+            // 使用一次提示
+            this._model.useHint();
 
-                // 填入正确答案
-                this._model.fillNumber(row, col, correctValue);
+            // 更新提示按钮文字
+            this.updateHintButtonText();
 
-                // 更新UI
-                this.updateGridUI();
+            // 填入正确答案
+            this._model.fillNumber(row, col, correctValue);
 
-                // 播放点击音效
-                this.playAudio('music/click');
-                return;
-            }
+            // 更新UI
+            this.updateGridUI();
+
+            // 播放点击音效
+            this.playAudio('music/click');
+            return;
+            // }
         }
 
         // 空格子，检查提示次数是否已用完
