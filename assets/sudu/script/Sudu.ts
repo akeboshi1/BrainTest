@@ -17,6 +17,7 @@ import { SudokuDifficulty } from './SudukuGenerator';
 import { SuduModel } from './SuduModel';
 import { SuduItem } from './SuduItem';
 import { SuduBtnItem } from './SuduBtnItem';
+import { ScreenAdapter } from '../../resources/scripts/Adapter/ScreenAdapter';
 const { ccclass, property } = _decorator;
 
 @ccclass('Sudu')
@@ -88,19 +89,20 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         super.start();
 
         if (this.failViewNode) {
+            ScreenAdapter.getInstance().adaptPanelUI(this.failViewNode);
             this.failViewNode.active = false;
-            const baseWidget = this.failViewNode.getComponent(Widget);
-            if (baseWidget) {
-                baseWidget.updateAlignment();
-            }
-            // 更新 bg 的 Widget 适配
-            const bgNode = this.failViewNode.getChildByName('bg');
-            if (bgNode) {
-                const widget = bgNode.getComponent(Widget);
-                if (widget) {
-                    widget.updateAlignment();
-                }
-            }
+            // const baseWidget = this.failViewNode.getComponent(Widget);
+            // if (baseWidget) {
+            //     baseWidget.updateAlignment();
+            // }
+            // // 更新 bg 的 Widget 适配
+            // const bgNode = this.failViewNode.getChildByName('bg');
+            // if (bgNode) {
+            //     const widget = bgNode.getComponent(Widget);
+            //     if (widget) {
+            //         widget.updateAlignment();
+            //     }
+            // }
         }
 
         // 初始化数字按钮
@@ -126,12 +128,15 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         this._btnItems = [];
         const children = this.btnGroup.children;
 
-        for (let i = 0; i < children.length && i < 9; i++) {
+        // 遍历所有子节点，包括数字按钮(1-9)和清除按钮(第10个)
+        for (let i = 0; i < children.length; i++) {
             const btnItem = children[i].getComponent(SuduBtnItem);
             if (btnItem) {
-                // 数字从1开始
+                // 数字从1开始，第10个是清除按钮(num=10)
                 const num = i + 1;
-                btnItem.init(num, this.onBtnClick.bind(this));
+                // 清除按钮(num=10)不设置文字
+                const setLabel = num <= 9;
+                btnItem.init(num, this.onBtnClick.bind(this), setLabel);
                 this._btnItems.push(btnItem);
             }
         }
@@ -140,14 +145,31 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     }
 
     /**
+     * 更新数字按钮组的启用状态
+     * 根据是否有选中的格子来决定按钮是否可用
+     */
+    private updateBtnGroupEnabled(): void {
+        const enabled = this._selectedCell !== null;
+
+        for (const btnItem of this._btnItems) {
+            btnItem.setEnabled(enabled);
+        }
+    }
+
+    /**
      * 数字按钮点击事件处理
-     * @param num 点击的数字
+     * @param num 点击的数字（1-9为数字，10为清除）
      */
     private onBtnClick(num: number): void {
         DebugLog.instance.log(`点击数字按钮: ${num}`);
 
-        // 填入数字到选中的格子
-        this.fillNumber(num);
+        if (num >= 1 && num <= 9) {
+            // 填入数字到选中的格子
+            this.fillNumber(num);
+        } else if (num === 10) {
+            // 清除选中格子的数字
+            this.clearSelectedCell();
+        }
     }
 
     /**
@@ -172,6 +194,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
         // 更新提示按钮文字
         this.updateHintButtonText();
+
+        // 更新数字按钮组状态（初始无选中，按钮灰色）
+        this.updateBtnGroupEnabled();
 
         DebugLog.instance.log(`数独游戏初始化完成，难度: ${difficulty}, 空格数: ${this._model.emptyCount}`);
 
@@ -380,23 +405,33 @@ export class Sudu extends BaseScene<IBaseGameChild> {
      * @param col 列索引
      */
     public selectCell(row: number, col: number): void {
-        // 检查是否是原始题目中的固定数字
-        if (this._model.isFixedCell(row, col)) {
-            DebugLog.instance.log('此格子为固定数字，无法修改');
-            return;
+        const isFixed = this._model.isFixedCell(row, col);
+        const playerGrid = this._model.playerGrid;
+        const cellValue = playerGrid[row][col];
+
+        // 如果是固定数字，只高亮相同数字，不设为选中状态
+        if (isFixed) {
+            DebugLog.instance.log('此格子为固定数字，显示相同数字高亮');
+            this._selectedCell = null;
+        } else {
+            this._selectedCell = { row, col };
         }
 
-        this._selectedCell = { row, col };
+        // 更新选中状态UI和高亮相同数字
+        this.updateSelectionUI(cellValue);
 
-        // 更新选中状态UI
-        this.updateSelectionUI();
+        // 更新数字按钮组状态
+        this.updateBtnGroupEnabled();
     }
 
     /**
      * 更新选中状态UI
+     * @param highlightValue 需要高亮的数字值，0表示不高亮任何数字
      */
-    private updateSelectionUI(): void {
+    private updateSelectionUI(highlightValue: number = 0): void {
         if (!this._cellItems || this._cellItems.length === 0) return;
+
+        const playerGrid = this._model.playerGrid;
 
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
@@ -405,7 +440,23 @@ export class Sudu extends BaseScene<IBaseGameChild> {
                     const isSelected = this._selectedCell &&
                         this._selectedCell.row === row &&
                         this._selectedCell.col === col;
+                    
+                    // 设置选中状态
                     item.setSelected(isSelected);
+
+                    // 选中的格子播放持续呼吸效果，其他格子停止呼吸效果
+                    if (isSelected) {
+                        // 播放持续呼吸效果（传入很大的次数实现持续效果）
+                        item.playBreathEffect(999999, 0.6);
+                    } else {
+                        // 停止呼吸效果
+                        item.stopBreathEffect();
+                        
+                        // 检查是否需要高亮（相同数字）
+                        const cellValue = playerGrid[row][col];
+                        const shouldHighlight = highlightValue !== 0 && cellValue === highlightValue;
+                        item.setHighlight(shouldHighlight);
+                    }
                 }
             }
         }
@@ -554,7 +605,7 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
     /**
      * 将正确答案显示到失败界面的itemGroup中
-     * 固定数字为黑色，玩家填入的数字为蓝色
+     * 固定数字为黑色，玩家正确填入的数字为蓝色，玩家错误填入的数字为红色
      * 九宫格背景使用不同的清淡颜色区分
      */
     private showCorrectAnswerInFailView(): void {
@@ -562,6 +613,8 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
         const solution = this._model.getSolution();
         if (!solution) return;
+
+        const playerGrid = this._model.playerGrid;
 
         // 获取失败界面中的 itemGroup
         const failItemGroup = this.failViewNode.getChildByName("view")?.getChildByName('itemGroup');
@@ -588,16 +641,27 @@ export class Sudu extends BaseScene<IBaseGameChild> {
 
             if (item) {
                 const correctValue = solution[row][col];
+                const playerValue = playerGrid[row][col];
                 const isFixed = this._model.isFixedCell(row, col);
 
                 // 设置九宫格背景颜色
                 const boxIndex = this.getBoxIndex(row, col);
                 item.setBgColor(this._boxColors[boxIndex]);
 
-                // 设置正确答案，颜色会根据 isFixed 自动设置
-                // 固定数字：黑色 (0, 0, 0)
-                // 玩家填入的数字：蓝色 (0, 100, 200)
+                // 设置正确答案
                 item.setData(correctValue.toString(), isFixed);
+
+                // 根据答题情况设置文本颜色
+                if (isFixed) {
+                    // 固定数字：黑色
+                    item.setTextColor(new Color(0, 0, 0, 255));
+                } else if (playerValue !== correctValue) {
+                    // 玩家答错的格子：红色
+                    item.setTextColor(new Color(220, 50, 50, 255));
+                } else {
+                    // 玩家答对的格子：蓝色
+                    item.setTextColor(new Color(0, 100, 200, 255));
+                }
 
                 // 清除选中和错误状态
                 item.setSelected(false);
@@ -710,30 +774,60 @@ export class Sudu extends BaseScene<IBaseGameChild> {
      * 难度1：5次，难度2：4次，难度3：3次
      */
     public getHint(): void {
-        // 检查提示次数是否已用完
-        if (!this._model.hasHintRemaining()) {
-            DebugLog.instance.log('提示次数已用完');
-            AlertManager.getInstance().showToastAlert("提示次数已经用完");
+        // 检查是否有选中的格子
+        if (!this._selectedCell) {
+            DebugLog.instance.log('请先选中一个空格');
+            AlertManager.getInstance().showToastAlert("请先选中一个空格");
             return;
         }
 
-        // 获取所有空格子的位置
-        const emptyCells: { row: number, col: number }[] = [];
-        const playerGrid = this._model.playerGrid;
+        const { row, col } = this._selectedCell;
 
-        for (let row = 0; row < 9; row++) {
-            for (let col = 0; col < 9; col++) {
-                // 排除固定格子，只查找玩家可填入且当前为空的格子
-                if (!this._model.isFixedCell(row, col) && playerGrid[row][col] === 0) {
-                    emptyCells.push({ row, col });
+        const playerGrid = this._model.playerGrid;
+        const currentValue = playerGrid[row][col];
+        const correctValue = this._model.getHint(row, col);
+
+        // 检查选中的格子是否已经有数字
+        if (currentValue !== 0) {
+            // 检查填入的数字是否正确
+            if (currentValue === correctValue) {
+                // 数字正确，不消耗提示次数
+                DebugLog.instance.log('选中的格子数字正确');
+                AlertManager.getInstance().showToastAlert("该格子数字正确");
+                return;
+            } else {
+                // 数字错误，显示正确答案，消耗提示次数
+                DebugLog.instance.log('选中的格子数字错误，显示正确答案');
+                
+                // 检查提示次数是否已用完
+                if (!this._model.hasHintRemaining()) {
+                    DebugLog.instance.log('提示次数已用完');
+                    AlertManager.getInstance().showToastAlert("提示次数已经用完");
+                    return;
                 }
+
+                // 使用一次提示
+                this._model.useHint();
+
+                // 更新提示按钮文字
+                this.updateHintButtonText();
+
+                // 填入正确答案
+                this._model.fillNumber(row, col, correctValue);
+
+                // 更新UI
+                this.updateGridUI();
+
+                // 播放点击音效
+                this.playAudio('music/click');
+                return;
             }
         }
 
-        // 如果没有空格子，提示用户
-        if (emptyCells.length === 0) {
-            DebugLog.instance.log('没有空格需要提示');
-            AlertManager.getInstance().showToastAlert("所有格子都已填写");
+        // 空格子，检查提示次数是否已用完
+        if (!this._model.hasHintRemaining()) {
+            DebugLog.instance.log('提示次数已用完');
+            AlertManager.getInstance().showToastAlert("提示次数已经用完");
             return;
         }
 
@@ -743,26 +837,13 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 更新提示按钮文字
         this.updateHintButtonText();
 
-        // 随机选择一个空格子
-        const randomIndex = Math.floor(Math.random() * emptyCells.length);
-        const { row, col } = emptyCells[randomIndex];
-
-        DebugLog.instance.log(`提示：随机选择格子 [${row}, ${col}]，剩余提示次数: ${this._model.remainingHints}`);
-
-        // 获取正确答案
-        const hint = this._model.getHint(row, col);
+        DebugLog.instance.log(`提示：选中格子 [${row}, ${col}]，剩余提示次数: ${this._model.remainingHints}`);
 
         // 填入正确答案
-        this._model.fillNumber(row, col, hint);
+        this._model.fillNumber(row, col, correctValue);
 
         // 更新UI
         this.updateGridUI();
-
-        // 获取对应的格子组件，播放呼吸效果
-        const item = this._cellItems[row]?.[col];
-        if (item) {
-            item.playBreathEffect(3, 0.5);
-        }
 
         // 播放点击音效
         this.playAudio('music/click');
@@ -852,6 +933,9 @@ export class Sudu extends BaseScene<IBaseGameChild> {
         // 更新提示按钮文字
         this.updateHintButtonText();
 
+        // 更新数字按钮组状态（重置后无选中，按钮灰色）
+        this.updateBtnGroupEnabled();
+
         // 播放点击音效
         this.playAudio('music/click');
 
@@ -909,6 +993,11 @@ export class Sudu extends BaseScene<IBaseGameChild> {
     public clickBtn(event: Event, customEventData: string): void {
         const num = parseInt(customEventData, 10);
         if (num >= 1 && num <= 9) {
+            // 检查是否有选中的空格
+            if (!this._selectedCell) {
+                AlertManager.getInstance().showToastAlert("请选中空格，进行答题");
+                return;
+            }
             this.fillNumber(num);
         } else if (num === 10) {
             this.clearSelectedCell();
