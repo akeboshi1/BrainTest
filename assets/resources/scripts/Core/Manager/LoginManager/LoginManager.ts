@@ -374,8 +374,6 @@ export class LoginManager {
         SocketManager.getInstance().cleanSocketDatas();
         PersonalCenterManager.getInstance().clean();
         ReportManager.getInstance().clean();
-        // 清理串烧训练缓存状态
-        SkewersManager.getInstance().clearCachedDeferredGameState();
         SceneManager.getInstance().changeScene("start", BundleName.RESOURCES).then(() => {
             DebugLog.instance.log(`start场景切换成功`);
             if(finishCb){

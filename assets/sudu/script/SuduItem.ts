@@ -89,12 +89,7 @@ export class SuduItem extends Component {
      * 点击事件处理（绑定到节点的点击事件）
      */
     public onClick(): void {
-        // 如果是固定数字，不处理点击
-        if (this._isFixed) {
-            return;
-        }
-        
-        // 调用回调通知父组件
+        // 调用回调通知父组件（所有格子都可以触发，用于高亮显示相同数字）
         if (this._clickCallback) {
             this._clickCallback(this);
         }
@@ -108,6 +103,18 @@ export class SuduItem extends Component {
         this._isSelected = selected;
         if (this.itemBgSelected) {
             this.itemBgSelected.active = selected;
+        }
+    }
+
+    /**
+     * 设置高亮状态（用于显示相同数字的格子）
+     * @param highlight 是否高亮
+     */
+    public setHighlight(highlight: boolean): void {
+        if (this.itemBgSelected) {
+            // 如果已经是选中状态，保持选中
+            if (this._isSelected) return;
+            this.itemBgSelected.active = highlight;
         }
     }
 
@@ -131,6 +138,16 @@ export class SuduItem extends Component {
             if (sprite) {
                 sprite.color = color;
             }
+        }
+    }
+
+    /**
+     * 设置文本颜色
+     * @param color 颜色值
+     */
+    public setTextColor(color: Color): void {
+        if (this.itemLabel) {
+            this.itemLabel.color = color;
         }
     }
 

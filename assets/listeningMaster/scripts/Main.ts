@@ -65,7 +65,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     private leftLine:Node = null;
 
     @property(Node)
-    private downLine:Node = null;  
+    private downLine:Node = null;
 
     @property(Node)
     private rightLine:Node = null;
@@ -78,8 +78,6 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     private _questions: IListeningConfig[] = null;
     private _currentVideoPath: string = null; // 当前使用的视频路径
-    private _currentVideoName: string = null; // 当前使用的视频名称
-    private _currentVideoTypes: number[] = null; // 当前视频的type数组
 
     private _totalDuration: number = 0; // 总时长（秒）
     private _elapsedTime: number = 0; // 已播放时间（秒）
@@ -108,7 +106,7 @@ export class Main extends BaseScene<IBaseGameChild> {
     onLoad(): void {
         // 初始化AudioSource用于播放音效
         this._audioSource = this.node.addComponent(AudioSource);
-        
+
         this.loadAudio().then(() => {
             this.playBgmAudio('music/bgm', true);
         });
@@ -127,42 +125,29 @@ export class Main extends BaseScene<IBaseGameChild> {
     async start(): Promise<void> {
         super.start();
 
+        // 等待视频加载完成
+        await this.initVideo();
+
         this.model = ListeningModel.getInstance();
         await this.model.initModel();
-        
-        // 获取难度，如果没有则使用默认值1
+
+        // 获取难度，如果没有则使用默认值3
         this._currentDifficulty = (this.sceneModel as any)?.difficulty || 1;
-        
+        this._questions = this.model.getQuestion(this._currentDifficulty);
+
         // 根据难度获取需要的回答数量
         const hardData = [3, 4, 5];
         const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
         this._requiredAnswerCount = hardData[hardIndex];
-        
-        // 先随机获取一个视频，然后用视频的type获取对应的题目
-        const videoData = this.model.getRandomVideoConfig();
-        if (videoData) {
-            this._currentVideoName = videoData.name;
-            this._currentVideoPath = videoData.config.path;
-            this._currentVideoTypes = videoData.config.type;
-            
-            // 用视频的type获取对应配置的题目
-            this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
-            DebugLog.instance.log(`获取视频: ${this._currentVideoName}, types=[${this._currentVideoTypes.join(',')}], 题目数量: ${this._questions.length}`);
-        } else {
-            DebugLog.instance.warn(`没有视频配置`);
-        }
-        
-        // 等待视频加载完成
-        await this.initVideo();
-        
+
         // 重置点击缓存
         this._clickedIndices.clear();
         this._wrongAnswerIndex = -1;
         this._selectedOptions = [];
-        
+
         // 初始化startBtn颜色为不可点击状态
         this.changeStartBtnColor(false);
-        
+
         // 视频加载完成后，开始播放视频和音效
         this.startVideoWithAudio();
     }
@@ -170,45 +155,45 @@ export class Main extends BaseScene<IBaseGameChild> {
     itemClick(event: Event, customEventData: string) {
         this.playAudio("music/click",true);
         let index = Number(customEventData);
-        
+
         // 检查选项题库是否已初始化
         if (!this._optionBank || this._optionBank.length === 0) {
             DebugLog.instance.warn(`选项题库未初始化`);
             return;
         }
-        
+
         // 检查索引是否有效
         if (index < 0 || index >= this._optionBank.length) {
             DebugLog.instance.warn(`索引 ${index} 超出选项题库范围 ${this._optionBank.length}`);
             return;
         }
-        
+
         // 通过index从选项题库中获取选项数据
         const option = this._optionBank[index];
         if (!option) {
             DebugLog.instance.warn(`索引 ${index} 对应的选项不存在`);
             return;
         }
-        
+
         // 如果已经点击过，则取消选中
         if (this._clickedIndices.has(index)) {
             // 取消选中：从缓存中移除
             this._clickedIndices.delete(index);
-            
+
             // 从选中的选项数据中移除对应的选项
             const optionIndex = this._selectedOptions.findIndex(opt => opt === option || opt.name === option.name);
             if (optionIndex !== -1) {
                 this._selectedOptions.splice(optionIndex, 1);
             }
-            
+
             // 如果取消的是错误答案，清除错误答案索引
             if (this._wrongAnswerIndex === index) {
                 this._wrongAnswerIndex = -1;
             }
-            
+
             // 恢复按钮颜色
             this.changeButtonColor(index, false);
-            
+
             // 检查是否还需要更新startBtn状态
             if (this._clickedIndices.size < this._requiredAnswerCount) {
                 // 数量不足，startBtn变为不可点击状态
@@ -216,34 +201,34 @@ export class Main extends BaseScene<IBaseGameChild> {
                 // 恢复所有未选中按钮的正常颜色 #151c7f
                 this.updateUnselectedButtonsColor();
             }
-            
+
             DebugLog.instance.log(`取消选中: ${option.name}, 已选择: ${this._clickedIndices.size}/${this._requiredAnswerCount}`);
             return;
         }
-        
+
         // 未选中状态，检查是否已经达到要求的数量
         if (this._clickedIndices.size >= this._requiredAnswerCount) {
             // 已经达到要求的数量，不能再选择其他按钮
             this.showMaxSelectionAlert();
             return;
         }
-        
+
         // 未选中状态，执行选中逻辑
         // 判断是否为错误答案
         if (option.isCorrect === false) {
             this._wrongAnswerIndex = index;
             DebugLog.instance.log(`错误答案: ${option.name}`);
         }
-        
+
         // 缓存点击的按钮索引
         this._clickedIndices.add(index);
-        
+
         // 缓存选中的选项数据
         this._selectedOptions.push(option);
-        
+
         // 改变按钮颜色
         this.changeButtonColor(index, true);
-        
+
         // 检查是否达到对应难度的回答数量（统计所有点击过的选项按钮）
         if (this._clickedIndices.size >= this._requiredAnswerCount) {
             // 改变startBtn颜色，表示可以被点击
@@ -251,7 +236,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 将其他未选中的按钮颜色变为 #5c5f87
             this.updateUnselectedButtonsColor();
         }
-        
+
         DebugLog.instance.log(`点击了: ${option.name}, 是否正确: ${option.isCorrect}, 已选择: ${this._clickedIndices.size}/${this._requiredAnswerCount}`);
     }
 
@@ -265,14 +250,14 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.warn(`chooseNodes 未设置`);
             return;
         }
-        
+
         // 获取对应索引的按钮节点
         const buttonNode = this.chooseNodes.children[index];
         if (!buttonNode) {
             DebugLog.instance.warn(`按钮节点不存在: index=${index}`);
             return;
         }
-        
+
         // 获取按钮的Sprite组件
         const sprite = buttonNode.getComponent(Sprite);
         if (sprite) {
@@ -300,7 +285,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 判断是否达到要求的数量
         const isReachedRequiredCount = this._clickedIndices.size >= this._requiredAnswerCount;
         // 未选中按钮的颜色：达到要求时为 #5c5f87，否则为正常色 #151c7f
-        const unselectedColor = isReachedRequiredCount 
+        const unselectedColor = isReachedRequiredCount
             ? new Color(92, 95, 135, 255)  // #5c5f87
             : new Color(21, 28, 127, 255); // #151c7f 正常色
 
@@ -325,7 +310,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         DebugLog.instance.log(`更新未选中按钮颜色: ${isReachedRequiredCount ? '#5c5f87' : '#151c7f'}`);
     }
-    
+
     /**
      * 改变startBtn颜色
      * @param isEnabled 是否可点击
@@ -335,7 +320,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.warn(`startBtn 未设置`);
             return;
         }
-        
+
         const sprite = this.startBtn.getComponent(Sprite);
         if (sprite) {
             if (isEnabled) {
@@ -383,8 +368,8 @@ export class Main extends BaseScene<IBaseGameChild> {
         // 判断缓存的数据是否有错误
         // 方式1：检查是否有错误答案索引
         // 方式2：检查选中的选项中是否有 isCorrect === false 的项
-        const hasError = this._wrongAnswerIndex !== -1 || 
-                        this._selectedOptions.some(opt => opt.isCorrect === false);
+        const hasError = this._wrongAnswerIndex !== -1 ||
+            this._selectedOptions.some(opt => opt.isCorrect === false);
 
         if (hasError) {
             // 有错误，展示失败Panel
@@ -402,7 +387,7 @@ export class Main extends BaseScene<IBaseGameChild> {
      */
     private showSelectOptionAlert() {
         AlertManager.getInstance().showToastAlert("请选择足够数量的选项");
-       
+
     }
 
     /**
@@ -454,38 +439,45 @@ export class Main extends BaseScene<IBaseGameChild> {
 
     /**
      * 重玩当前关卡
-     * 重新随机获取视频和题目，使用独立配置
+     * 使用上一次的音效和视频，不重新随机
      */
     private async restartCurrentLevel() {
         // 停止当前播放的视频和音频
         this.stopVideoWithAudio();
-        
+
         // 先重置选项节点状态（在隐藏之前重置，确保颜色被重置）
         this.resetOptionNodes();
-        
+
+        // 保存当前的题目和视频路径（重玩时使用相同的）
+        const savedQuestions = this._questions ? [...this._questions] : null;
+        const savedVideoPath = this._currentVideoPath;
+
         // 重置所有状态
         this.resetGameState();
-        
-        // 重新随机获取视频，用视频的type获取对应的题目
-        const videoData = this.model.getRandomVideoConfig();
-        if (videoData) {
-            this._currentVideoName = videoData.name;
-            this._currentVideoPath = videoData.config.path;
-            this._currentVideoTypes = videoData.config.type;
-            
-            // 用视频的type获取对应配置的题目
-            this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
-            DebugLog.instance.log(`重玩当前关卡，获取视频: ${this._currentVideoName}, types=[${this._currentVideoTypes.join(',')}], 题目数量: ${this._questions.length}`);
+
+        // 恢复上一次的题目（不重新随机获取）
+        if (savedQuestions) {
+            this._questions = savedQuestions;
+            DebugLog.instance.log(`重玩当前关卡，使用上一次的题目: ${savedQuestions.map(q => q.name).join(', ')}`);
         } else {
-            DebugLog.instance.warn(`重玩当前关卡，没有视频配置`);
+            // 如果没有保存的题目，则重新获取（容错处理）
+            this._questions = this.model.getQuestion(this._currentDifficulty);
+            DebugLog.instance.log(`重玩当前关卡，重新获取题目（无保存的题目）`);
         }
-        
-        // 加载视频
+
+        // 使用上一次的视频路径重新加载视频（不重新随机），并自动播放
+        // if (savedVideoPath) {
+        //     await this.loadLocalVideo(savedVideoPath, true);
+        //     DebugLog.instance.log(`重玩当前关卡，使用上一次的视频: ${savedVideoPath}`);
+        // } else {
+        // 如果没有保存的视频路径，则重新随机（容错处理）
         await this.initVideo();
-        
+        console.log(`重玩当前关卡，重新随机视频（无保存的视频路径）`);
+        //}
+
         // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
-        
+
         DebugLog.instance.log(`重玩当前关卡，难度: ${this._currentDifficulty}`);
     }
 
@@ -495,45 +487,34 @@ export class Main extends BaseScene<IBaseGameChild> {
     private async goToNextLevel() {
         // 停止当前播放的视频和音频
         this.stopVideoWithAudio();
-        
+
         // 先重置选项节点状态（在隐藏之前重置，确保颜色被重置）
         this.resetOptionNodes();
-        
+
         // 增加难度（1->2->3，然后循环回到1）
         const maxDifficulty = 3;
         // this._currentDifficulty = (this._currentDifficulty % maxDifficulty) + 1;
-        
+
         // 重置所有状态
         this.resetGameState();
-        
+
         // 根据新难度获取需要的回答数量
         const hardData = [3, 4, 5];
         const hardIndex = Math.max(0, Math.min(this._currentDifficulty - 1, hardData.length - 1));
         this._requiredAnswerCount = hardData[hardIndex];
-        
-        // 先随机获取一个新视频，然后用视频的type获取对应的题目
-        const videoData = this.model.getRandomVideoConfig();
-        if (videoData) {
-            this._currentVideoName = videoData.name;
-            this._currentVideoPath = videoData.config.path;
-            this._currentVideoTypes = videoData.config.type;
-            
-            // 用视频的type获取对应配置的题目
-            this._questions = this.model.getQuestionByVideoType(this._currentVideoTypes, this._currentDifficulty);
-            DebugLog.instance.log(`下一关获取视频: ${this._currentVideoName}, types=[${this._currentVideoTypes.join(',')}], 题目数量: ${this._questions.length}`);
-        } else {
-            DebugLog.instance.warn(`下一关没有视频配置`);
-        }
-        
+
+        // 重新获取新难度的题目
+        this._questions = this.model.getQuestion(this._currentDifficulty);
+
         // 重新随机选择背景音乐
         // this.randomPlayBgm();
-        
-        // 重新初始化视频（使用已选定的视频）
+
+        // 重新初始化视频（会随机选择新的视频）
         await this.initVideo();
-        
+
         // 视频加载完成后，重新开始视频和音频播放
         this.startVideoWithAudio();
-        
+
         DebugLog.instance.log(`进入下一关，新难度: ${this._currentDifficulty}`);
     }
 
@@ -547,7 +528,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._selectedOptions = [];
         this._optionBank = null;
         this._hasSubmittedAnswer = false;
-        
+
         // 重置播放状态
         this._playedQuestions = [];
         this._isFirstAudio = true;
@@ -555,7 +536,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         this._allAudioFinished = false;
         this._finishedAudioCount = 0;
         this._audioQueue = []; // 重置音效队列
-        
+
         // 清除定时器
         if (this._audioTimer) {
             clearTimeout(this._audioTimer);
@@ -576,20 +557,20 @@ export class Main extends BaseScene<IBaseGameChild> {
             this._audioSource.stop();
             this._audioSource.clip = null;
         }
-        
+
         // 停止并重置倒计时
         if (this.timerComponent) {
             this.timerComponent.resetTimer();
         }
-        
+
         // 重置按钮状态
         this.changeStartBtnColor(false);
-        
+
         // 隐藏选项节点
         if (this.optionsNode) {
             this.optionsNode.active = false;
         }
-        
+
         // 显示视频节点
         if (this.videoNode) {
             this.videoNode.active = true;
@@ -607,17 +588,17 @@ export class Main extends BaseScene<IBaseGameChild> {
             DebugLog.instance.warn(`chooseNodes 未设置，无法重置按钮颜色`);
             return;
         }
-        
+
         // 恢复所有按钮的颜色为未选中状态
         const childrenCount = this.chooseNodes.children.length;
         DebugLog.instance.log(`重置选项节点，按钮数量: ${childrenCount}`);
-        
+
         for (let i = 0; i < childrenCount; i++) {
             const buttonNode = this.chooseNodes.children[i];
             if (!buttonNode) {
                 continue;
             }
-            
+
             // 直接获取按钮的Sprite组件并重置颜色
             const sprite = buttonNode.getComponent(Sprite);
             if (sprite) {
@@ -628,22 +609,20 @@ export class Main extends BaseScene<IBaseGameChild> {
         }
     }
 
-     /**
+    /**
      * 初始化视频
      */
-     private async initVideo(): Promise<void> {
+    private async initVideo(): Promise<void> {
         // 确保VideoPlayer不会自动播放
         if (this.videoPlayer) {
             this.videoPlayer.playOnAwake = true;
         }
 
-        // 使用已选定的视频路径加载视频（去掉文件扩展名）
-        const videoPath = this._currentVideoPath ? this._currentVideoPath.replace(/\.[^/.]+$/, '') : null;
-        await this.loadLocalVideo(videoPath);
+        await this.loadLocalVideo();
     }
 
 
-    private videoLen:number = 20;
+    private videoLen:number = 10;
 
     private playvideoDelay:number = 500;
 
@@ -660,7 +639,7 @@ export class Main extends BaseScene<IBaseGameChild> {
                 const randomIndex = Math.floor(Math.random() * this.videoLen);
                 videoPath = `video/bgm${randomIndex}`;
             }
-            
+
             // 保存当前视频路径
             this._currentVideoPath = videoPath;
 
@@ -720,7 +699,7 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (playerTransform) {
             playerTransform.setContentSize(FIXED_VIDEO_WIDTH, FIXED_VIDEO_HEIGHT);
         }
-        
+
         // 更新边框线位置
         this.updateVideoBorderLines(FIXED_VIDEO_WIDTH, FIXED_VIDEO_HEIGHT);
     }
@@ -749,14 +728,14 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 获取videoPlayer节点的锚点
         const playerAnchor = playerTransform.anchorPoint;
-        
+
         // 计算videoPlayer在videoNode坐标系中的边界
         const playerPos = this.videoPlayer.node.position;
         const left = playerPos.x - playerAnchor.x * playerWidth;
         const right = playerPos.x + (1 - playerAnchor.x) * playerWidth;
         const bottom = playerPos.y - playerAnchor.y * playerHeight;
         const top = playerPos.y + (1 - playerAnchor.y) * playerHeight;
-        
+
         // 获取边框线的父节点（假设是videoNode或与videoNode同级的节点）
         const getLineParent = (lineNode: Node): Node => {
             return lineNode.parent || this.videoNode;
@@ -764,24 +743,24 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         const lineWidOffset = 14;
         const lineHeiOffset = -5
-        
+
         // 上边框线：在videoPlayer上边缘，往上偏移
         if (this.upLine) {
             const upLineTransform = this.upLine.getComponent(UITransform);
             if (upLineTransform) {
                 const lineParent = getLineParent(this.upLine);
                 const lineParentTransform = lineParent.getComponent(UITransform);
-                
+
                 // 获取上边框线的缩放
                 const upLineScale = this.upLine.scale;
-                
+
                 // 计算上边框线的偏移量（向上移动半个边框线高度，考虑缩放）
                 const upLineHeight = upLineTransform.contentSize.height * upLineScale.y;
                 const upOffset = upLineHeight / 2;
-                
+
                 // 计算上边框线的实际宽度（考虑videoPlayer的缩放和lineNode的缩放）
                 const upLineWidth = (playerWidth+lineWidOffset) / upLineScale.x;
-                
+
                 if (lineParentTransform) {
                     // 将上边缘位置转换到边框线父节点的坐标系，并向上偏移
                     const topWorldPos = videoTransform.convertToWorldSpaceAR(new Vec3(0, top, 0));
@@ -795,24 +774,24 @@ export class Main extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-        
+
         // 下边框线：在videoPlayer下边缘，往下偏移
         if (this.downLine) {
             const downLineTransform = this.downLine.getComponent(UITransform);
             if (downLineTransform) {
                 const lineParent = getLineParent(this.downLine);
                 const lineParentTransform = lineParent.getComponent(UITransform);
-                
+
                 // 获取下边框线的缩放
                 const downLineScale = this.downLine.scale;
-                
+
                 // 计算下边框线的偏移量（向下移动半个边框线高度，考虑缩放）
                 const downLineHeight = downLineTransform.contentSize.height * Math.abs(downLineScale.y);
                 const downOffset = downLineHeight / 2;
-                
+
                 // 计算下边框线的实际宽度（考虑videoPlayer的缩放和lineNode的缩放）
                 const downLineWidth = (playerWidth+lineWidOffset) / Math.abs(downLineScale.x);
-                
+
                 if (lineParentTransform) {
                     const bottomWorldPos = videoTransform.convertToWorldSpaceAR(new Vec3(0, bottom, 0));
                     const bottomLocalPos = lineParentTransform.convertToNodeSpaceAR(bottomWorldPos);
@@ -824,24 +803,24 @@ export class Main extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-        
+
         // 左边框线：在videoPlayer左边缘，往外扩展
         if (this.leftLine) {
             const leftLineTransform = this.leftLine.getComponent(UITransform);
             if (leftLineTransform) {
                 const lineParent = getLineParent(this.leftLine);
                 const lineParentTransform = lineParent.getComponent(UITransform);
-                
+
                 // 获取左边框线的缩放
                 const leftLineScale = this.leftLine.scale;
-                
+
                 // 计算左边框线的偏移量（向左移动半个边框线宽度，考虑缩放）
                 const leftLineWidth = leftLineTransform.contentSize.width * leftLineScale.x;
                 const leftOffset = -0.1;
-                
+
                 // 计算左边框线的实际高度（考虑videoPlayer的缩放和lineNode的缩放）
                 const leftLineHeight = (playerHeight + lineHeiOffset)/ leftLineScale.y;
-                
+
                 if (lineParentTransform) {
                     const leftWorldPos = videoTransform.convertToWorldSpaceAR(new Vec3(left-leftOffset , (bottom + top) / 2, 0));
                     const leftLocalPos = lineParentTransform.convertToNodeSpaceAR(leftWorldPos);
@@ -853,24 +832,24 @@ export class Main extends BaseScene<IBaseGameChild> {
                 }
             }
         }
-        
+
         // 右边框线：在videoPlayer右边缘，往外扩展
         if (this.rightLine) {
             const rightLineTransform = this.rightLine.getComponent(UITransform);
             if (rightLineTransform) {
                 const lineParent = getLineParent(this.rightLine);
                 const lineParentTransform = lineParent.getComponent(UITransform);
-                
+
                 // 获取右边框线的缩放
                 const rightLineScale = this.rightLine.scale;
-                
+
                 // 计算右边框线的偏移量（向右移动半个边框线宽度，考虑缩放）
                 const rightLineWidth = rightLineTransform.contentSize.width * rightLineScale.x;
                 const rightOffset = -0.1;
-                
+
                 // 计算右边框线的实际高度（考虑videoPlayer的缩放和lineNode的缩放）
                 const rightLineHeight =  (playerHeight + lineHeiOffset) / rightLineScale.y;
-                
+
                 if (lineParentTransform) {
                     const rightWorldPos = videoTransform.convertToWorldSpaceAR(new Vec3(right+rightOffset , (bottom + top) / 2, 0));
                     const rightLocalPos = lineParentTransform.convertToNodeSpaceAR(rightWorldPos);
@@ -1026,11 +1005,11 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (audioClip && this._audioSource) {
                 // 先移除之前的事件监听器（避免重复绑定）
                 this._audioSource.node.off(AudioSource.EventType.ENDED, this.onAudioFinished, this);
-                
+
                 // 使用AudioSource播放音效，可以监听播放完成事件
                 this._audioSource.clip = audioClip;
                 this._audioSource.play();
-                
+
                 DebugLog.instance.log(`播放音效: ${question.name}, 队列剩余: ${this._audioQueue.length}, 已播放: ${this._playedQuestions.length}/${this._questions.length}`);
 
                 // 监听播放完成事件
@@ -1087,12 +1066,12 @@ export class Main extends BaseScene<IBaseGameChild> {
         if (!this._allAudioFinished) {
             this._allAudioFinished = true;
             DebugLog.instance.log(`队列中所有音效已播放完成，开启2秒倒计时后关闭视频并显示选项`);
-            
+
             // 开启2秒倒计时，倒计时完成后关闭视频显示选项
             if (this._audioCountdownTimer) {
                 clearTimeout(this._audioCountdownTimer);
             }
-            
+
             this._audioCountdownTimer = setTimeout(() => {
                 if (this._isPlaying) {
                     this.stopVideoWithAudio();
@@ -1143,15 +1122,15 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 显示选项节点
         if (this.optionsNode) {
-             // 获取选项队列并设置到label上
-             this.setupOptionLabels();
+            // 获取选项队列并设置到label上
+            this.setupOptionLabels();
             this.optionsNode.active = true;
-            
+
             // 重置提交答案标记
             this._hasSubmittedAnswer = false;
 
             this.answerCountLabel.string = `请选出<color=#B3F12E>${this._requiredAnswerCount}</color>种刚才听到的声音`;
-            
+
         }
 
         DebugLog.instance.log(`所有音效播放完成，停止视频并显示选项`);
@@ -1184,7 +1163,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 倒计时结束且未提交答案，自动提交当前选中选项
         DebugLog.instance.log(`倒计时结束，自动提交当前选中选项`);
-        
+
         // 检查是否有选中的选项
         if (!this._selectedOptions || this._selectedOptions.length === 0) {
             // 没有选中的选项，直接判断失败
@@ -1218,7 +1197,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 从ListeningModel中获取选项队列
         this._optionBank = this.model.getOptionBank(this._currentDifficulty, this._questions);
-        
+
         if (!this._optionBank || this._optionBank.length === 0) {
             DebugLog.instance.warn(`选项队列为空`);
             return;
@@ -1299,22 +1278,22 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.timerComponent.pauseTimer();
             DebugLog.instance.log(`退出界面，暂停答题倒计时`);
         }
-        
+
         // 暂停时间（包括其他可能的计时器）
         this.pauseTime();
-        
+
         // 判断当前是在播放阶段还是答题阶段
         const isInPlayingPhase = this._isPlaying; // 正在播放视频和音效
         const isInAnswerPhase = this.optionsNode && this.optionsNode.active; // 选项节点已显示（答题阶段）
-        
+
         if (isInPlayingPhase) {
             // 在播放阶段：只暂停视频和音效，不停止，不显示选项节点
             // 暂停视频播放
             this.pauseVideo();
-            
+
             // 记录暂停开始时间
             this._pauseStartTime = Date.now();
-            
+
             // 清除所有定时器
             if (this._firstAudioTimer) {
                 clearTimeout(this._firstAudioTimer);
@@ -1332,7 +1311,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             if (this._audioSource && this._audioSource.playing) {
                 this._audioSource.pause();
             }
-            
+
             // 暂停音效播放（通过设置_isPlaying标志）
             this._isPlaying = false;
             DebugLog.instance.log(`退出界面，暂停视频和音效播放（播放阶段），已清除所有定时器`);
@@ -1343,7 +1322,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             // 其他情况：完全停止
             this.stopVideoWithAudio();
         }
-        
+
         // 无论什么阶段，弹窗时都隐藏 videoPlayer 和 videoNode
         if (this.videoNode) {
             this.videoNode.active = false;
@@ -1352,7 +1331,7 @@ export class Main extends BaseScene<IBaseGameChild> {
             this.videoPlayer.node.active = false;
         }
         DebugLog.instance.log(`退出界面，隐藏视频播放器`);
-        
+
         // SceneManager.getInstance().backToGameCenter();
         super.quitGame({ parentNode: this.mainView, context: this })
     }
@@ -1373,7 +1352,7 @@ export class Main extends BaseScene<IBaseGameChild> {
 
         // 判断当前是在播放阶段还是答题阶段
         const isInAnswerPhase = context && context.optionsNode && context.optionsNode.active;
-        
+
         if (isInAnswerPhase) {
             // 在答题阶段：恢复倒计时（不重置）
             if (context.timerComponent && context.timerComponent.isRun()) {
@@ -1391,27 +1370,27 @@ export class Main extends BaseScene<IBaseGameChild> {
                 context.videoPlayer.node.active = true;
             }
             DebugLog.instance.log(`继续游戏，显示视频播放器`);
-            
+
             // 恢复视频播放（延迟1秒后从暂停位置继续播放）
             if (context) {
                 context.playVideo(context.playvideoDelay, context);
             }
-            
+
             // 恢复音效播放（重新设置_isPlaying标志，重新启动定时器）
             if (context && !context._isPlaying && !context._allAudioFinished) {
                 context._isPlaying = true;
-                
+
                 // 恢复AudioSource播放（如果被暂停了）
                 if (context._audioSource && !context._audioSource.playing && context._audioSource.clip) {
                     context._audioSource.play();
                 }
-                
+
                 // 重新绑定AudioSource事件监听（如果AudioSource存在）
                 if (context._audioSource) {
                     context._audioSource.node.off(AudioSource.EventType.ENDED, context.onAudioFinished, context);
                     context._audioSource.node.on(AudioSource.EventType.ENDED, context.onAudioFinished, context);
                 }
-                
+
                 // 判断是否需要重新启动音效播放
                 // 如果音效正在播放，恢复播放即可（AudioSource会自动继续）
                 // 如果音效已播放完成但队列还有音效，开启2秒倒计时后播放下一个
@@ -1432,18 +1411,18 @@ export class Main extends BaseScene<IBaseGameChild> {
                     }, context._firstAudioDelay * 1000);
                     DebugLog.instance.log(`继续游戏，重新启动第一个音效延迟定时器`);
                 }
-                
+
                 DebugLog.instance.log(`继续游戏，恢复音效播放，队列剩余: ${context._audioQueue ? context._audioQueue.length : 0}, 已播放: ${context._playedQuestions.length}/${context._questions.length}, 已完成: ${context._finishedAudioCount}/${context._questions.length}`);
             }
         }
-        
+
         // 恢复时间（包括其他可能的计时器）
         if (context) {
             context.resumeTime();
         } else {
             this.resumeTime();
         }
-        
+
         // 调用父类方法
         if (context && context.sceneModel) {
             if (!context.sceneModel.resumeCallBack()) {
